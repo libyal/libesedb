@@ -1,0 +1,232 @@
+/*
+ * Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
+ *
+ * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Hoffmann Investigations. All rights reserved.
+ *
+ * Refer to AUTHORS for acknowledgements.
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#if !defined( _LIBESEDB_H )
+#define _LIBESEDB_H
+
+#include <libesedb/codepage.h>
+#include <libesedb/definitions.h>
+#include <libesedb/error.h>
+#include <libesedb/extern.h>
+#include <libesedb/features.h>
+#include <libesedb/types.h>
+
+#include <stdio.h>
+
+#if defined( LIBESEDB_HAVE_BFIO )
+#include <libbfio.h>
+#endif
+
+#if defined( __cplusplus )
+extern "C" {
+#endif
+
+/* -------------------------------------------------------------------------
+ * Support functions
+ * ------------------------------------------------------------------------- */
+
+/* Returns the library version
+ */
+LIBESEDB_EXTERN const char *libesedb_get_version(
+                             void );
+
+/* Determines if a file is a EDB file (check for the EDB file signature)
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_check_file_signature(
+                     const char *filename,
+                     libesedb_error_t **error );
+
+#if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
+/* Determines if a file is a EDB file (check for the EDB file signature)
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_check_file_signature_wide(
+                     const wchar_t *filename,
+                     libesedb_error_t **error );
+#endif
+
+#if defined( LIBESEDB_HAVE_BFIO )
+/* Determines if a file is a EDB file (check for the EDB file signature) using a Basic File IO (bfio) handle
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_check_file_signature_file_io_handle(
+                     libbfio_handle_t *bfio_handle,
+                     libesedb_error_t **error );
+#endif
+
+/* -------------------------------------------------------------------------
+ * Notify functions
+ * ------------------------------------------------------------------------- */
+
+/* Set the verbose notification
+ */
+LIBESEDB_EXTERN void libesedb_notify_set_verbose(
+                      int verbose );
+
+/* Set the notification stream
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_notify_set_stream(
+                     FILE *stream,
+                     libesedb_error_t **error );
+
+/* Opens the notification stream using a filename
+ * The stream is opened in append mode
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_notify_stream_open(
+                     const char *filename,
+                     libesedb_error_t **error );
+
+/* Closes the notification stream if opened using a filename
+ * Returns 0 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_notify_stream_close(
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Error functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees the error including elements
+ */
+LIBESEDB_EXTERN void libesedb_error_free(
+                      libesedb_error_t **error );
+
+/* Prints a descriptive string of the error to the stream
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_error_fprint(
+                     libesedb_error_t *error,
+                     FILE *stream );
+
+/* Prints a descriptive string of the error to the string
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_error_sprint(
+                     libesedb_error_t *error,
+                     char *string,
+                     size_t size );
+
+/* Prints a backtrace of the error to the stream
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_error_backtrace_fprint(
+                     libesedb_error_t *error,
+                     FILE *stream );
+
+/* Prints a backtrace of the error to the string
+ * Returns the amount of printed characters if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_error_backtrace_sprint(
+                     libesedb_error_t *error,
+                     char *string,
+                     size_t size );
+
+/* -------------------------------------------------------------------------
+ * File functions
+ * ------------------------------------------------------------------------- */
+
+/* Initializes the Extensible Storage Engine Database file
+ * Make sure the value file is pointing to is set to NULL
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_initialize(
+                     libesedb_file_t **file,
+                     libesedb_error_t **error );
+
+/* Frees an exisisting Extensible Storage Engine Database file
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_free(
+                     libesedb_file_t **file,
+                     libesedb_error_t **error );
+
+/* Signals the libesedb file to abort its current activity
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_signal_abort(
+                     libesedb_file_t *file,
+                     libesedb_error_t **error );
+
+/* Opens a Extensible Storage Engine Database file
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_open(
+                     libesedb_file_t *file,
+                     const char *filename,
+                     int flags,
+                     libesedb_error_t **error );
+
+#if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
+/* Opens a Extensible Storage Engine Database file
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_open_wide(
+                     libesedb_file_t *file,
+                     const wchar_t *filename,
+                     int flags,
+                     libesedb_error_t **error );
+#endif
+
+#if defined( LIBESEDB_HAVE_BFIO )
+/* Opens a Extensible Storage Engine Database file using a Basic File IO (bfio) handle
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_open_file_io_handle(
+                     libesedb_file_t *file,
+                     libbfio_handle_t *file_io_handle,
+                     int flags,
+                     libesedb_error_t **error );
+#endif
+
+/* Closes a Extensible Storage Engine Database file
+ * Returns 0 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_close(
+                     libesedb_file_t *file,
+                     libesedb_error_t **error );
+
+/* Retrieves the file ASCII codepage
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_ascii_codepage(
+                     libesedb_file_t *file,
+                     int *ascii_codepage,
+                     libesedb_error_t **error );
+
+/* Sets the file ASCII codepage
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
+                     libesedb_file_t *file,
+                     int ascii_codepage,
+                     libesedb_error_t **error );
+
+
+#if defined( __cplusplus )
+}
+#endif
+
+#endif
+

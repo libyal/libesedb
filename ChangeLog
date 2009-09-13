@@ -1,0 +1,12 @@
+TODO
+
+Deployment:
+* update manuals
+* create debian package files
+* update macosx package files
+* update codegear files
+* check msvcpp files
+
+20090913
+* initial version based on liblnk
+
