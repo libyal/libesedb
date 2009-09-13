@@ -37,6 +37,7 @@
 #include "libesedb_string.h"
 
 #include "esedb_file_header.h"
+#include "esedb_page_block.h"
 
 const uint8_t esedb_file_signature[ 4 ] = { 0xef, 0xcd, 0xab, 0x89 };
 
@@ -263,6 +264,7 @@ int libesedb_io_handle_close(
  */
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
+     size_t *page_block_size,
      liberror_error_t **error )
 {
 	esedb_file_header_t file_header;
@@ -292,6 +294,17 @@ int libesedb_io_handle_read_file_header(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid io handle - missing file io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_block_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page block size.",
 		 function );
 
 		return( -1 );
@@ -360,13 +373,26 @@ int libesedb_io_handle_read_file_header(
 
 		return( -1 );
 	}
+	/* TODO */
+
+	endian_little_convert_32bit(
+	 io_handle->format_version,
+	 file_header.format_version );
+
+	endian_little_convert_32bit(
+	 io_handle->format_revision,
+	 file_header.format_revision );
+
+	endian_little_convert_32bit(
+	 *page_block_size,
+	 file_header.page_size );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 	endian_little_convert_32bit(
 	 test,
 	 file_header.unknown1 );
 	libnotify_verbose_printf(
-	 "%s: unknown1\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 "%s: unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 	 function,
 	 test,
 	 test );
@@ -375,30 +401,29 @@ int libesedb_io_handle_read_file_header(
 	 test,
 	 file_header.signature );
 	libnotify_verbose_printf(
-	 "%s: signature\t\t: 0x%08" PRIx32 "\n",
-	 function,
-	 test );
-
-	endian_little_convert_32bit(
-	 test,
-	 file_header.format_version );
-	libnotify_verbose_printf(
-	 "%s: format version\t: 0x%08" PRIx32 "\n",
-	 function,
-	 test );
-	endian_little_convert_32bit(
-	 test,
-	 file_header.format_revision );
-	libnotify_verbose_printf(
-	 "%s: format revision\t: 0x%08" PRIx32 "\n",
+	 "%s: signature\t\t\t\t: 0x%08" PRIx32 "\n",
 	 function,
 	 test );
 
 	libnotify_verbose_printf(
-	 "%s: unknown2:\n",
+	 "%s: format version\t\t\t: 0x%08" PRIx32 "\n",
+	 function,
+	 io_handle->format_version );
+
+	endian_little_convert_32bit(
+	 test,
+	 file_header.unknown2 );
+	libnotify_verbose_printf(
+	 "%s: unknown2\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
+
+	libnotify_verbose_printf(
+	 "%s: unknown3:\n",
 	 function );
 	libnotify_verbose_print_data(
-	 file_header.unknown2,
+	 file_header.unknown3,
 	 8 );
 
 	libnotify_verbose_printf(
@@ -411,7 +436,7 @@ int libesedb_io_handle_read_file_header(
 	 test,
 	 file_header.database_state );
 	libnotify_verbose_printf(
-	 "%s: database state\t: 0x%08" PRIx32 "\n",
+	 "%s: database state\t\t\t: 0x%08" PRIx32 "\n",
 	 function,
 	 test );
 
@@ -421,19 +446,17 @@ int libesedb_io_handle_read_file_header(
 	libnotify_verbose_print_data(
 	 file_header.consistent_postition,
 	 8 );
-	libnotify_verbose_printf(
-	 "%s: consistent time:\n",
-	 function );
-	libnotify_verbose_print_data(
+	libesedb_debug_print_log_time(
 	 file_header.consistent_time,
-	 8 );
+	 8,
+	 "consistent time\t\t\t\t",
+	 NULL );
 
-	libnotify_verbose_printf(
-	 "%s: attach time:\n",
-	 function );
-	libnotify_verbose_print_data(
+	libesedb_debug_print_log_time(
 	 file_header.attach_time,
-	 8 );
+	 8,
+	 "attach time\t\t\t\t",
+	 NULL );
 	libnotify_verbose_printf(
 	 "%s: attach position:\n",
 	 function );
@@ -441,12 +464,11 @@ int libesedb_io_handle_read_file_header(
 	 file_header.attach_postition,
 	 8 );
 
-	libnotify_verbose_printf(
-	 "%s: detach time:\n",
-	 function );
-	libnotify_verbose_print_data(
+	libesedb_debug_print_log_time(
 	 file_header.detach_time,
-	 8 );
+	 8,
+	 "detach time\t\t\t\t",
+	 NULL );
 	libnotify_verbose_printf(
 	 "%s: detach position:\n",
 	 function );
@@ -455,8 +477,386 @@ int libesedb_io_handle_read_file_header(
 	 8 );
 
 	libnotify_verbose_printf(
+	 "%s: unknown signature:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 file_header.unknown_signature,
+	 28 );
+
+	libnotify_verbose_printf(
+	 "%s: previous full backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 file_header.previous_full_backup,
+	 24 );
+	libnotify_verbose_printf(
+	 "%s: previous incremental backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 file_header.previous_incremental_backup,
+	 24 );
+	libnotify_verbose_printf(
+	 "%s: current full backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 file_header.current_full_backup,
+	 24 );
+
+	endian_little_convert_32bit(
+	 test,
+	 file_header.unknown4 );
+	libnotify_verbose_printf(
+	 "%s: unknown4\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 file_header.unknown5 );
+	libnotify_verbose_printf(
+	 "%s: unknown5\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 file_header.unknown6 );
+	libnotify_verbose_printf(
+	 "%s: unknown6\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
+
+	endian_little_convert_32bit(
+	 test,
+	 file_header.index_update_major_version );
+	libnotify_verbose_printf(
+	 "%s: index update major version\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 file_header.index_update_minor_version );
+	libnotify_verbose_printf(
+	 "%s: index update minor version\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 file_header.index_update_build_number );
+	libnotify_verbose_printf(
+	 "%s: index update build number\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 file_header.index_update_service_pack_number );
+	libnotify_verbose_printf(
+	 "%s: index update service pack number\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	libnotify_verbose_printf(
+	 "%s: format revision\t\t\t: 0x%08" PRIx32 "\n",
+	 function,
+	 io_handle->format_revision );
+	libnotify_verbose_printf(
+	 "%s: page size\t\t\t\t: %" PRIu32 "\n",
+	 function,
+	 *page_block_size );
+
+	libnotify_verbose_printf(
+	 "%s: unknown7:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 file_header.unknown7,
+	 84 );
+
+	libnotify_verbose_printf(
 	 "\n" );
 #endif
+
+	return( 1 );
+}
+
+/* Reads the file header
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_io_handle_read_page_block(
+     libesedb_io_handle_t *io_handle,
+     off64_t page_block_offset,
+     size_t page_block_size,
+     liberror_error_t **error )
+{
+	uint8_t *page_block_data     = NULL;
+	uint8_t *page_tag_data       = NULL;
+	uint8_t *page_value_data     = NULL;
+	static char *function        = "libesedb_io_handle_read_page_block";
+	ssize_t read_count           = 0;
+	uint16_t available_data_size = 0;
+	uint16_t available_page_tag  = 0;
+	uint16_t page_tag_number     = 0;
+	uint16_t page_value_offset   = 0;
+	uint16_t page_value_size     = 0;
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+	uint32_t test                = 0;
+#endif
+
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle->file_io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid io handle - missing file io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_block_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid page block size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "%s: reading file header at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+	 function,
+	 page_block_offset,
+	 page_block_offset );
+#endif
+
+	if( libbfio_handle_seek_offset(
+	     io_handle->file_io_handle,
+	     page_block_offset,
+	     SEEK_SET,
+	     error ) == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek page block offset: %" PRIu64 ".",
+		 function,
+		 page_block_offset );
+
+		return( -1 );
+	}
+	page_block_data = (uint8_t *) memory_allocate(
+	                               page_block_size );
+
+	if( page_block_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create page blocks data.",
+		 function );
+
+		return( -1 );
+	}
+	read_count = libbfio_handle_read(
+	              io_handle->file_io_handle,
+	              page_block_data,
+	              page_block_size,
+	              error );
+
+	if( read_count != (ssize_t) page_block_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page block data.",
+		 function );
+
+		memory_free(
+		 page_block_data );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "%s: page block header:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 page_block_data,
+	 sizeof( esedb_page_block_header_t ) );
+#endif
+
+	endian_little_convert_16bit(
+	 available_data_size,
+	 ( (esedb_page_block_header_t *) page_block_data )->available_data_size );
+
+	endian_little_convert_16bit(
+	 available_page_tag,
+	 ( (esedb_page_block_header_t *) page_block_data )->available_page_tag );
+
+#if defined( HAVE_VERBOSE_OUTPUT )
+
+	/* TODO print calculated page number */
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->xor_checksum );
+	libnotify_verbose_printf(
+	 "%s: xor checksum\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->page_number );
+
+	if( io_handle->format_revision >= 0x0c )
+	{
+		endian_little_convert_32bit(
+		 test,
+		 ( (esedb_page_block_header_t *) page_block_data )->ecc_checksum );
+		libnotify_verbose_printf(
+		 "%s: ecc checksum\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 function,
+		 test,
+		 test );
+		endian_little_convert_32bit(
+		 test,
+		 ( (esedb_page_block_header_t *) page_block_data )->page_number );
+	}
+	else
+	{
+		libnotify_verbose_printf(
+		 "%s: page number\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 test );
+	}
+	libnotify_verbose_printf(
+	 "%s: modification time:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_page_block_header_t *) page_block_data )->modification_time,
+	 8 );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->previous_page );
+	libnotify_verbose_printf(
+	 "%s: previous page\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->next_page );
+	libnotify_verbose_printf(
+	 "%s: next page\t\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->father_object_identifier );
+	libnotify_verbose_printf(
+	 "%s: father object identifier\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	libnotify_verbose_printf(
+	 "%s: available data size\t\t\t: %" PRIu32 "\n",
+	 function,
+	 available_data_size );
+	endian_little_convert_16bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->available_uncommitted_data_size );
+	libnotify_verbose_printf(
+	 "%s: available uncommitted data size\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_16bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->available_data_offset );
+	libnotify_verbose_printf(
+	 "%s: available data offset\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	libnotify_verbose_printf(
+	 "%s: available page tag\t\t\t: %" PRIu32 "\n",
+	 function,
+	 available_page_tag );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_page_block_header_t *) page_block_data )->page_flags );
+	libnotify_verbose_printf(
+	 "%s: page flags\t\t\t\t: 0x%08" PRIx32 "\n",
+	 function,
+	 test );
+
+	libnotify_verbose_printf(
+	 "\n" );
+#endif
+
+	page_value_data = &( page_block_data[ sizeof( esedb_page_block_header_t ) ] );
+	page_tag_data   = &( page_block_data[ page_block_size - 2 ] );
+
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	for( page_tag_number = 0;
+	     page_tag_number < available_page_tag;
+	     page_tag_number++ )
+	{
+		endian_little_convert_16bit(
+		 page_value_offset,
+		 page_tag_data );
+
+		page_tag_data -= 2;
+
+		endian_little_convert_16bit(
+		 page_value_size,
+		 page_tag_data );
+
+		page_tag_data -= 2;
+
+		libnotify_verbose_printf(
+		 "%s: page tag: %03d offset\t\t: %" PRIu16 "\n",
+		 function,
+		 page_tag_number,
+		 page_value_offset );
+
+		libnotify_verbose_printf(
+		 "%s: page tag: %03d size\t\t\t: %" PRIu16 "\n",
+		 function,
+		 page_tag_number,
+		 page_value_size );
+
+		libnotify_verbose_printf(
+		 "%s: page tag: %03d value:\n",
+		 function,
+		 page_tag_number );
+		libnotify_verbose_print_data(
+		 &( page_value_data[ page_value_offset ] ),
+		 page_value_size );
+	}
+#endif
+
+	memory_free(
+	 page_block_data );
 
 	return( 1 );
 }

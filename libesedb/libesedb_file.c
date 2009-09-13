@@ -596,15 +596,12 @@ int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
      liberror_error_t **error )
 {
-	static char *function     = "libesedb_file_open_read";
-	off64_t file_offset       = 0;
-	ssize_t read_count        = 0;
-	uint8_t is_unicode        = 0;
+	static char *function  = "libesedb_file_open_read";
+	off64_t file_offset    = 0;
+	size_t page_block_size = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *trailing_data    = NULL;
-	size64_t file_size        = 0;
-	size_t trailing_data_size = 0;
+	size64_t file_size     = 0;
 #endif
 
 	if( internal_file == NULL )
@@ -636,6 +633,7 @@ int libesedb_file_open_read(
 
 	if( libesedb_io_handle_read_file_header(
 	     internal_file->io_handle,
+	     &page_block_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -649,6 +647,43 @@ int libesedb_file_open_read(
 	}
 	/* TODO */
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libbfio_handle_get_size(
+	     internal_file->io_handle->file_io_handle,
+	     &file_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file size.",
+		 function );
+
+		return( -1 );
+	}
+	file_offset = 2 * page_block_size;
+
+	while( file_offset < (off64_t) file_size )
+	{
+		if( libesedb_io_handle_read_page_block(
+		     internal_file->io_handle,
+		     file_offset,
+		     page_block_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read page block.",
+			 function );
+
+			return( -1 );
+		}
+		file_offset += page_block_size;
+	}
+#endif
 	return( 1 );
 }
 

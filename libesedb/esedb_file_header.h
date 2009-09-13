@@ -50,15 +50,15 @@ struct esedb_file_header
 	 */
 	uint8_t format_version[ 4 ];
 
-	/* The file format revision
+	/* Unknown
 	 * Consists of 4 bytes
 	 */
-	uint8_t format_revision[ 4 ];
+	uint8_t unknown2[ 4 ];
 
 	/* Unknown
 	 * Consists of 8 bytes
 	 */
-	uint8_t unknown2[ 8 ];
+	uint8_t unknown3[ 8 ];
 
 	/* The database signature
 	 * Consists of 28 bytes
@@ -107,6 +107,79 @@ struct esedb_file_header
 	 */
 	uint8_t detach_postition[ 8 ];
 
+	/* Unknown signature
+	 * Consists of 28 bytes
+	 * Contains a log signature structure
+	 */
+	uint8_t unknown_signature[ 28 ];
+
+	/* Previous full backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t previous_full_backup[ 24 ];
+
+	/* Previous incremental backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t previous_incremental_backup[ 24 ];
+
+	/* Current full backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t current_full_backup[ 24 ];
+
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown4[ 4 ];
+
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown5[ 4 ];
+
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown6[ 4 ];
+
+	/* Index update major version
+	 * Consists of 4 bytes
+	 */
+	uint8_t index_update_major_version[ 4 ];
+
+	/* Index update minor version
+	 * Consists of 4 bytes
+	 */
+	uint8_t index_update_minor_version[ 4 ];
+
+	/* Index update build number
+	 * Consists of 4 bytes
+	 */
+	uint8_t index_update_build_number[ 4 ];
+
+	/* Index update service pack number
+	 * Consists of 4 bytes
+	 */
+	uint8_t index_update_service_pack_number[ 4 ];
+
+	/* The file format revision
+	 * Consists of 4 bytes
+	 */
+	uint8_t format_revision[ 4 ];
+
+	/* Page size
+	 * Consists of 4 bytes
+	 */
+	uint8_t page_size[ 4 ];
+
+	/* Unknown
+	 * Consists of 84 bytes
+	 */
+	uint8_t unknown7[ 84 ];
 };
 
 #if defined( __cplusplus )

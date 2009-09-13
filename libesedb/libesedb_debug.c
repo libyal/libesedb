@@ -40,6 +40,7 @@
 int libesedb_debug_print_log_time(
      uint8_t *log_time,
      size_t log_time_size,
+     const char *description,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_debug_print_log_time";
@@ -55,6 +56,53 @@ int libesedb_debug_print_log_time(
 
 		return( -1 );
 	}
+	if( log_time_size < 8 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: log time too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( log_time_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid log time size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( description == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid description.",
+		 function );
+
+		return( -1 );
+	}
+	libnotify_verbose_printf(
+	 "%s: %s: %04d-%02d-%02d %02d:%02d:%02d (0x%02x 0x%02x)\n",
+	 function,
+	 description,
+	 1900 + log_time[ 5 ],
+	 log_time[ 4 ],
+	 log_time[ 3 ],
+	 log_time[ 2 ],
+	 log_time[ 1 ],
+	 log_time[ 0 ],
+	 log_time[ 6 ],
+	 log_time[ 7 ] );
+
+	return( 1 );
 }
 
 /* Prints the read offsets

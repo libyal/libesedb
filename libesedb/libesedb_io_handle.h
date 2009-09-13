@@ -40,6 +40,14 @@ typedef struct libesedb_io_handle libesedb_io_handle_t;
 
 struct libesedb_io_handle
 {
+	/* The format version
+	 */
+	uint32_t format_version;
+
+	/* The format revision number
+	 */
+	uint32_t format_revision;
+
 	/* The file io handle
 	 */
 	libbfio_handle_t *file_io_handle;
@@ -69,6 +77,13 @@ int libesedb_io_handle_close(
 
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
+     size_t *page_block_size,
+     liberror_error_t **error );
+
+int libesedb_io_handle_read_page_block(
+     libesedb_io_handle_t *io_handle,
+     off64_t page_block_offset,
+     size_t page_block_size,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

@@ -39,6 +39,7 @@ extern "C" {
 int libesedb_debug_print_log_time(
      uint8_t *log_time,
      size_t log_time_size,
+     const char *description,
      liberror_error_t **error );
 
 int libesedb_debug_print_read_offsets(

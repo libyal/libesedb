@@ -1,5 +1,12 @@
 TODO
 
+Library
+* compare primary and secondary file header
+  - report any differences
+
+File format
+* where is the root page?
+
 Deployment:
 * update manuals
 * create debian package files
