@@ -45,6 +45,10 @@ struct libesedb_page_tags_value
 	/* The size of the value
 	 */
 	uint16_t size;
+
+	/* The flags of the value
+	 */
+	uint8_t flags;
 };
 
 typedef struct libesedb_page libesedb_page_t;
