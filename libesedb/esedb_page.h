@@ -1,5 +1,5 @@
 /*
- * The page block definition of an Extensible Storage Engine (ESE) Database File (EDB)
+ * The page definition of an Extensible Storage Engine (ESE) Database File (EDB)
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDB_PAGE_BLOCK_H )
-#define _ESEDB_PAGE_BLOCK_H
+#if !defined( _ESEDB_PAGE_H )
+#define _ESEDB_PAGE_H
 
 #include <common.h>
 #include <types.h>
@@ -30,16 +30,16 @@
 extern "C" {
 #endif
 
-typedef struct esedb_page_block_header esedb_page_block_header_t;
+typedef struct esedb_page_header esedb_page_header_t;
 
-struct esedb_page_block_header
+struct esedb_page_header
 {
 	/* XOR checksum
 	 * Consists of 4 bytes
 	 */
 	uint8_t xor_checksum[ 4 ];
 
-	/* The page block number or the ECC checksum
+	/* The page number or the ECC checksum
 	 * This values was changed in Exchange 2003 SP1
 	 * Consists of 4 bytes
 	 */
@@ -55,12 +55,12 @@ struct esedb_page_block_header
 	 */
 	uint8_t modification_time[ 8 ];
 
-	/* The previous page block number
+	/* The previous page number
 	 * Consists of 4 bytes
 	 */
 	uint8_t previous_page[ 4 ];
 
-	/* The next page block number
+	/* The next page number
 	 * Consists of 4 bytes
 	 */
 	uint8_t next_page[ 4 ];

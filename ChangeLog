@@ -14,6 +14,10 @@ Deployment:
 * update codegear files
 * check msvcpp files
 
+Notes
+* a full page table will take up too much memory for large databases
+* create a root page table instead?
+
 20090914
 * worked on table support
 

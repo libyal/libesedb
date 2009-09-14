@@ -12,7 +12,7 @@ lib_LTLIBRARIES = libesedb.la
 
 libesedb_la_SOURCES = \
 	esedb_file_header.h \
-	esedb_page_block.h \
+	esedb_page.h \
 	libesedb.c \
 	libesedb_array_type.c libesedb_array_type.h \
 	libesedb_debug.c libesedb_debug.h \
@@ -27,6 +27,7 @@ libesedb_la_SOURCES = \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \
 	libesedb_notify.c libesedb_notify.h \
+	libesedb_page.c libesedb_page.h \
 	libesedb_string.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_tree_type.c libesedb_tree_type.h

@@ -37,7 +37,7 @@
 #include "libesedb_string.h"
 
 #include "esedb_file_header.h"
-#include "esedb_page_block.h"
+#include "esedb_page.h"
 
 const uint8_t esedb_file_signature[ 4 ] = { 0xef, 0xcd, 0xab, 0x89 };
 
@@ -703,20 +703,20 @@ int libesedb_io_handle_read_page_block(
 	 function );
 	libnotify_verbose_print_data(
 	 page_block_data,
-	 sizeof( esedb_page_block_header_t ) );
+	 sizeof( esedb_page_header_t ) );
 #endif
 
 	endian_little_convert_16bit(
 	 available_data_size,
-	 ( (esedb_page_block_header_t *) page_block_data )->available_data_size );
+	 ( (esedb_page_header_t *) page_block_data )->available_data_size );
 
 	endian_little_convert_16bit(
 	 available_page_tag,
-	 ( (esedb_page_block_header_t *) page_block_data )->available_page_tag );
+	 ( (esedb_page_header_t *) page_block_data )->available_page_tag );
 
 	endian_little_convert_32bit(
 	 page_flags,
-	 ( (esedb_page_block_header_t *) page_block_data )->page_flags );
+	 ( (esedb_page_header_t *) page_block_data )->page_flags );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 
@@ -727,7 +727,7 @@ int libesedb_io_handle_read_page_block(
 
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->xor_checksum );
+	 ( (esedb_page_header_t *) page_block_data )->xor_checksum );
 	libnotify_verbose_printf(
 	 "%s: xor checksum\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 	 function,
@@ -735,13 +735,13 @@ int libesedb_io_handle_read_page_block(
 	 test );
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->page_number );
+	 ( (esedb_page_header_t *) page_block_data )->page_number );
 
 	if( io_handle->format_revision >= 0x0c )
 	{
 		endian_little_convert_32bit(
 		 test,
-		 ( (esedb_page_block_header_t *) page_block_data )->ecc_checksum );
+		 ( (esedb_page_header_t *) page_block_data )->ecc_checksum );
 		libnotify_verbose_printf(
 		 "%s: ecc checksum\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
@@ -749,7 +749,7 @@ int libesedb_io_handle_read_page_block(
 		 test );
 		endian_little_convert_32bit(
 		 test,
-		 ( (esedb_page_block_header_t *) page_block_data )->page_number );
+		 ( (esedb_page_header_t *) page_block_data )->page_number );
 	}
 	else
 	{
@@ -762,26 +762,26 @@ int libesedb_io_handle_read_page_block(
 	 "%s: modification time:\n",
 	 function );
 	libnotify_verbose_print_data(
-	 ( (esedb_page_block_header_t *) page_block_data )->modification_time,
+	 ( (esedb_page_header_t *) page_block_data )->modification_time,
 	 8 );
 
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->previous_page );
+	 ( (esedb_page_header_t *) page_block_data )->previous_page );
 	libnotify_verbose_printf(
 	 "%s: previous page number\t\t\t: %" PRIu32 "\n",
 	 function,
 	 test );
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->next_page );
+	 ( (esedb_page_header_t *) page_block_data )->next_page );
 	libnotify_verbose_printf(
 	 "%s: next page number\t\t\t\t: %" PRIu32 "\n",
 	 function,
 	 test );
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->father_object_identifier );
+	 ( (esedb_page_header_t *) page_block_data )->father_object_identifier );
 	libnotify_verbose_printf(
 	 "%s: father object identifier\t\t\t: %" PRIu32 "\n",
 	 function,
@@ -793,14 +793,14 @@ int libesedb_io_handle_read_page_block(
 	 available_data_size );
 	endian_little_convert_16bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->available_uncommitted_data_size );
+	 ( (esedb_page_header_t *) page_block_data )->available_uncommitted_data_size );
 	libnotify_verbose_printf(
 	 "%s: available uncommitted data size\t\t: %" PRIu32 "\n",
 	 function,
 	 test );
 	endian_little_convert_16bit(
 	 test,
-	 ( (esedb_page_block_header_t *) page_block_data )->available_data_offset );
+	 ( (esedb_page_header_t *) page_block_data )->available_data_offset );
 	libnotify_verbose_printf(
 	 "%s: available data offset\t\t\t: %" PRIu32 "\n",
 	 function,
@@ -810,12 +810,12 @@ int libesedb_io_handle_read_page_block(
 	 function,
 	 available_page_tag );
 
-	liblnk_debug_print_page_flags(
+	libesedb_debug_print_page_flags(
 	 page_flags,
 	 NULL );
 #endif
 
-	page_values_data = &( page_block_data[ sizeof( esedb_page_block_header_t ) ] );
+	page_values_data = &( page_block_data[ sizeof( esedb_page_header_t ) ] );
 	page_tag_data    = &( page_block_data[ page_block_size - 2 ] );
 
 	for( page_tag_number = 0;

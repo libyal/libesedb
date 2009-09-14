@@ -37,11 +37,11 @@
 /* Prints the page flags
  * Returns 1 if successful or -1 on error
  */
-int liblnk_debug_print_page_flags(
+int libesedb_debug_print_page_flags(
      uint32_t page_flags,
      liberror_error_t **error )
 {
-	static char *function = "liblnk_debug_print_page_flags";
+	static char *function = "libesedb_debug_print_page_flags";
 
 	libnotify_verbose_printf(
 	 "%s: page flags: 0x%08" PRIx32 "\n",
