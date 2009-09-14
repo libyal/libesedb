@@ -31,6 +31,7 @@
 
 #include <libesedb/codepage.h>
 
+#include "libesedb_array_type.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
@@ -91,6 +92,23 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_array_initialize(
+		     &( internal_file->page_table ),
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to initialize page table.",
+			 function );
+
+			memory_free(
+			 internal_file );
+
+			return( -1 );
+		}
 		if( libesedb_io_handle_initialize(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
@@ -102,6 +120,10 @@ int libesedb_file_initialize(
 			 "%s: unable to initialize io handle.",
 			 function );
 
+			libesedb_array_free(
+			 &( internal_file->page_table ),
+			 NULL,
+			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -140,6 +162,21 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
+		/* TODO add page table entry free functions */
+		if( libesedb_array_free(
+		     &( internal_file->page_table ),
+		     NULL,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page table.",
+			 function );
+
+			result = -1;
+		}
 		if( ( internal_file->io_handle != NULL )
 		 && ( libesedb_io_handle_free(
 		       &( internal_file->io_handle ),

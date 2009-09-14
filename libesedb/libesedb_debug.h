@@ -36,6 +36,10 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
+int liblnk_debug_print_page_flags(
+     uint32_t page_flags,
+     liberror_error_t **error );
+
 int libesedb_debug_print_log_time(
      uint8_t *log_time,
      size_t log_time_size,

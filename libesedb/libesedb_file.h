@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_array_type.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 
@@ -39,6 +40,10 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
+	/* The page table
+	 */
+	libesedb_array_t *page_table;
+
 	/* The io handle
 	 */
 	libesedb_io_handle_t *io_handle;

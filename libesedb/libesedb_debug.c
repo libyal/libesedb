@@ -34,6 +34,64 @@
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
+/* Prints the page flags
+ * Returns 1 if successful or -1 on error
+ */
+int liblnk_debug_print_page_flags(
+     uint32_t page_flags,
+     liberror_error_t **error )
+{
+	static char *function = "liblnk_debug_print_page_flags";
+
+	libnotify_verbose_printf(
+	 "%s: page flags: 0x%08" PRIx32 "\n",
+	 function,
+	 page_flags );
+
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
+	{
+		libnotify_verbose_printf(
+		 "\tIs parent\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
+	{
+		libnotify_verbose_printf(
+		 "\tIs leaf\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
+	{
+		libnotify_verbose_printf(
+		 "\tIs root\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) == LIBESEDB_PAGE_FLAG_IS_EMPTY )
+	{
+		libnotify_verbose_printf(
+		 "\tIs empty\n" );
+	}
+
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
+	{
+		libnotify_verbose_printf(
+		 "\tIs index\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_HAS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_HAS_LONG_VALUE )
+	{
+		libnotify_verbose_printf(
+		 "\tHas long value\n" );
+	}
+
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PRIMARY ) == LIBESEDB_PAGE_FLAG_IS_PRIMARY )
+	{
+		libnotify_verbose_printf(
+		 "\tIs primary\n" );
+	}
+
+	libnotify_verbose_printf(
+	 "\n" );
+
+	return( 1 );
+}
+
 /* Prints a log structure 
  * Returns 1 if successful or -1 on error
  */
