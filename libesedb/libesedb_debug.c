@@ -74,10 +74,10 @@ int libesedb_debug_print_page_flags(
 		libnotify_verbose_printf(
 		 "\tIs index\n" );
 	}
-	if( ( page_flags & LIBESEDB_PAGE_FLAG_HAS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_HAS_LONG_VALUE )
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_IS_LONG_VALUE )
 	{
 		libnotify_verbose_printf(
-		 "\tHas long value\n" );
+		 "\tIs long value\n" );
 	}
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PRIMARY ) == LIBESEDB_PAGE_FLAG_IS_PRIMARY )

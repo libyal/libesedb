@@ -48,5 +48,13 @@
 /* Reserved: not supported yet */
 #define LIBESEDB_OPEN_READ_WRITE					( LIBESEDB_FLAG_READ | LIBESEDB_FLAG_WRITE )
 
+/* The file types
+ */
+enum LIBESEDB_FILE_TYPES
+{
+	LIBESEDB_FILE_TYPE_DATABASE					= 0,
+	LIBESEDB_FILE_TYPE_STREAMING_FILE				= 1
+};
+
 #endif
 

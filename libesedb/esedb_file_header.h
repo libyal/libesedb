@@ -34,12 +34,15 @@ typedef struct esedb_file_header esedb_file_header_t;
 
 struct esedb_file_header
 {
-	/* Unknown
+	/* The checksum
+	 * A XOR-32 checksum calcalted over the bytes
+	 * from offset 8 to 4096
+	 * with an initial value of 0x89abcdef
 	 * Consists of 4 bytes
 	 */
-	uint8_t unknown1[ 4 ];
+	uint8_t checksum[ 4 ];
 
-	/* The signature
+	/* The file signature
 	 * Consists of 4 bytes
 	 * Consists of: 0xef 0xcd 0xab 0x89
 	 */
@@ -50,15 +53,16 @@ struct esedb_file_header
 	 */
 	uint8_t format_version[ 4 ];
 
-	/* Unknown
+	/* The file type
 	 * Consists of 4 bytes
 	 */
-	uint8_t unknown2[ 4 ];
+	uint8_t file_type[ 4 ];
 
-	/* Unknown
+	/* The database time
 	 * Consists of 8 bytes
+	 * Contains a database time structure
 	 */
-	uint8_t unknown3[ 8 ];
+	uint8_t database_time[ 8 ];
 
 	/* The database signature
 	 * Consists of 28 bytes
@@ -107,11 +111,21 @@ struct esedb_file_header
 	 */
 	uint8_t detach_postition[ 8 ];
 
-	/* Unknown signature
+	/* The log signature
 	 * Consists of 28 bytes
 	 * Contains a log signature structure
 	 */
-	uint8_t unknown_signature[ 28 ];
+	uint8_t log_signature[ 28 ];
+
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown4[ 4 ];
+
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown5[ 4 ];
 
 	/* Previous full backup
 	 * Consists of 24 bytes
@@ -131,20 +145,10 @@ struct esedb_file_header
 	 */
 	uint8_t current_full_backup[ 24 ];
 
-	/* Unknown
+	/* Last object identifier
 	 * Consists of 4 bytes
 	 */
-	uint8_t unknown4[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown5[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown6[ 4 ];
+	uint8_t last_object_identifier[ 4 ];
 
 	/* Index update major version
 	 * Consists of 4 bytes
@@ -177,9 +181,24 @@ struct esedb_file_header
 	uint8_t page_size[ 4 ];
 
 	/* Unknown
-	 * Consists of 84 bytes
+	 * Consists of 100 bytes
 	 */
-	uint8_t unknown7[ 84 ];
+	uint8_t unknown7[ 100 ];
+
+	/* The file format version on creation
+	 * Consists of 4 bytes
+	 */
+	uint8_t creation_format_version[ 4 ];
+
+	/* The file format revision on creation
+	 * Consists of 4 bytes
+	 */
+	uint8_t creation_format_revision[ 4 ];
+
+	/* Unknown
+	 * Consists of 320 bytes
+	 */
+	uint8_t unknown8[ 320 ];
 };
 
 #if defined( __cplusplus )

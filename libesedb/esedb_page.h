@@ -34,13 +34,25 @@ typedef struct esedb_page_header esedb_page_header_t;
 
 struct esedb_page_header
 {
-	/* XOR checksum
+	/* The XOR checksum
+	 * A XOR-32 checksum calcalted over the bytes
+	 * from offset 4 to end of the page
+	 * with an initial value of 0x89abcdef
+	 *
+	 * This values was changed in Exchange 2003 SP1
+	 * A XOR-32 checksum calcalted over the bytes
+	 * from offset 8 to end of the page
+	 * with an initial value of the page number
+	 *
 	 * Consists of 4 bytes
 	 */
 	uint8_t xor_checksum[ 4 ];
 
-	/* The page number or the ECC checksum
+	/* The page number
+	 *
 	 * This values was changed in Exchange 2003 SP1
+	 * to the ECC checksum
+	 *
 	 * Consists of 4 bytes
 	 */
 	union
