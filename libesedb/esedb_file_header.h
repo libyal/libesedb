@@ -120,12 +120,7 @@ struct esedb_file_header
 	/* Unknown
 	 * Consists of 4 bytes
 	 */
-	uint8_t unknown4[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown5[ 4 ];
+	uint8_t unknown1[ 4 ];
 
 	/* Previous full backup
 	 * Consists of 24 bytes
@@ -144,6 +139,11 @@ struct esedb_file_header
 	 * Contains a backup information structure
 	 */
 	uint8_t current_full_backup[ 24 ];
+
+	/* Shadowing disabled
+	 * Consists of 4 bytes
+	 */
+	uint8_t shadowing_disabled[ 4 ];
 
 	/* Last object identifier
 	 * Consists of 4 bytes
@@ -175,15 +175,64 @@ struct esedb_file_header
 	 */
 	uint8_t format_revision[ 4 ];
 
-	/* Page size
+	/* The page size
 	 * Consists of 4 bytes
 	 */
 	uint8_t page_size[ 4 ];
 
-	/* Unknown
-	 * Consists of 100 bytes
+	/* The repair count
+	 * Consists of 4 bytes
 	 */
-	uint8_t unknown7[ 100 ];
+	uint8_t repair_count[ 4 ];
+
+	/* The repair date and time
+	 * Consists of 8 bytes
+	 * Contains a log time structure
+	 */
+	uint8_t repair_time[ 8 ];
+
+	/* Unknown
+	 * Consists of 28 bytes
+	 */
+	uint8_t unknown2[ 28 ];
+
+	/* The scrub database time
+	 * Consists of 8 bytes
+	 * Contains a database time structure
+	 */
+	uint8_t scrub_database_time[ 8 ];
+
+	/* The scrub date and time
+	 * Consists of 8 bytes
+	 * Contains a log time structure
+	 */
+	uint8_t scrub_time[ 8 ];
+
+	/* The required log
+	 * Consists of 8 bytes
+	 */
+	uint8_t required_log[ 8 ];
+
+	/* Upgrade Exchange 5.5 format
+	 * Consists of 4 bytes
+	 */
+	uint8_t upgrade_exchange5_format[ 4 ];
+
+	/* Upgrade free pages
+	 * Consists of 4 bytes
+	 */
+	uint8_t upgrade_free_pages[ 4 ];
+
+	/* Upgrade space map pages
+	 * Consists of 4 bytes
+	 */
+	uint8_t upgrade_space_map_pages[ 4 ];
+
+	/* Current shadow volume backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t current_shadow_volume_backup[ 24 ];
 
 	/* The file format version on creation
 	 * Consists of 4 bytes
@@ -196,9 +245,89 @@ struct esedb_file_header
 	uint8_t creation_format_revision[ 4 ];
 
 	/* Unknown
-	 * Consists of 320 bytes
+	 * Consists of 16 bytes
 	 */
-	uint8_t unknown8[ 320 ];
+	uint8_t unknown3[ 16 ];
+
+	/* The old repair count
+	 * Consists of 4 bytes
+	 */
+	uint8_t old_repair_count[ 4 ];
+
+	/* The ECC fix success count
+	 * Consists of 4 bytes
+	 */
+	uint8_t ecc_fix_success_count[ 4 ];
+
+	/* The last ECC fix success rate and time
+	 * Consists of 8 bytes
+	 * Contains a log time structure
+	 */
+	uint8_t ecc_fix_success_time[ 8 ];
+
+	/* The old ECC fix success count
+	 * Consists of 4 bytes
+	 */
+	uint8_t old_ecc_fix_success_count[ 4 ];
+
+	/* The ECC fix error count
+	 * Consists of 4 bytes
+	 */
+	uint8_t ecc_fix_error_count[ 4 ];
+
+	/* The last ECC fix error rate and time
+	 * Consists of 8 bytes
+	 * Contains a log time structure
+	 */
+	uint8_t ecc_fix_error_time[ 8 ];
+
+	/* The old ECC fix error count
+	 * Consists of 4 bytes
+	 */
+	uint8_t old_ecc_fix_error_count[ 4 ];
+
+	/* The bad checksum error count
+	 * Consists of 4 bytes
+	 */
+	uint8_t bad_checksum_error_count[ 4 ];
+
+	/* The last bad checksum error rate and time
+	 * Consists of 8 bytes
+	 * Contains a log time structure
+	 */
+	uint8_t bad_checksum_error_time[ 8 ];
+
+	/* The old bad checksum error count
+	 * Consists of 4 bytes
+	 */
+	uint8_t old_bad_checksum_error_count[ 4 ];
+
+	/* The committed log
+	 * Consists of 4 bytes
+	 */
+	uint8_t committed_log[ 4 ];
+
+	/* Previous shadow volume backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t previous_shadow_volume_backup[ 24 ];
+
+	/* Previous differential backup
+	 * Consists of 24 bytes
+	 * Contains a backup information structure
+	 */
+	uint8_t previous_differential_backup[ 24 ];
+
+	/* Unknown
+	 * Consists of 196 bytes
+	 */
+	uint8_t unknown4[ 196 ];
+
+	/* Unknown flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown_flags[ 4 ];
 };
 
 #if defined( __cplusplus )

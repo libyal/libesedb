@@ -48,6 +48,10 @@ struct libesedb_io_handle
 	 */
 	uint32_t format_revision;
 
+	/* The page size
+	 */
+	size_t page_size;
+
 	/* The file io handle
 	 */
 	libbfio_handle_t *file_io_handle;

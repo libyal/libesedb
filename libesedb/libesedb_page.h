@@ -1,5 +1,5 @@
 /*
- * Page block functions
+ * Page functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 
 #if defined( __cplusplus )

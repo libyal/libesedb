@@ -18,6 +18,14 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20090916
+* worked on unknown values in file header
+
+20090915
+* worked on table support
+* implement XOR-32 checksum supportA
+* worked on unknown values in file header
+
 20090914
 * worked on table support
 

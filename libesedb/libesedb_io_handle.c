@@ -491,10 +491,10 @@ int libesedb_io_handle_read_file_header(
 	endian_little_convert_32bit(
 	 test,
 	 ( (esedb_file_header_t *) file_header_data )->database_state );
-	libnotify_verbose_printf(
-	 "%s: database state\t\t\t: 0x%08" PRIx32 "\n",
-	 function,
-	 test );
+	libesedb_debug_print_database_state(
+	 test,
+	 "\t\t\t",
+	 NULL );
 
 	libnotify_verbose_printf(
 	 "%s: consistent position:\n",
@@ -505,13 +505,15 @@ int libesedb_io_handle_read_file_header(
 	libesedb_debug_print_log_time(
 	 ( (esedb_file_header_t *) file_header_data )->consistent_time,
 	 8,
-	 "consistent time\t\t\t\t",
+	 "consistent time",
+	 "\t\t\t\t",
 	 NULL );
 
 	libesedb_debug_print_log_time(
 	 ( (esedb_file_header_t *) file_header_data )->attach_time,
 	 8,
-	 "attach time\t\t\t\t",
+	 "attach time",
+	 "\t\t\t\t",
 	 NULL );
 	libnotify_verbose_printf(
 	 "%s: attach position:\n",
@@ -523,7 +525,8 @@ int libesedb_io_handle_read_file_header(
 	libesedb_debug_print_log_time(
 	 ( (esedb_file_header_t *) file_header_data )->detach_time,
 	 8,
-	 "detach time\t\t\t\t",
+	 "detach time",
+	 "\t\t\t\t",
 	 NULL );
 	libnotify_verbose_printf(
 	 "%s: detach position:\n",
@@ -541,17 +544,9 @@ int libesedb_io_handle_read_file_header(
 
 	endian_little_convert_32bit(
 	 test,
-	 ( (esedb_file_header_t *) file_header_data )->unknown4 );
+	 ( (esedb_file_header_t *) file_header_data )->unknown1 );
 	libnotify_verbose_printf(
-	 "%s: unknown4\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
-	 function,
-	 test,
-	 test );
-	endian_little_convert_32bit(
-	 test,
-	 ( (esedb_file_header_t *) file_header_data )->unknown5 );
-	libnotify_verbose_printf(
-	 "%s: unknown5\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 "%s: unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 	 function,
 	 test,
 	 test );
@@ -574,6 +569,14 @@ int libesedb_io_handle_read_file_header(
 	libnotify_verbose_print_data(
 	 ( (esedb_file_header_t *) file_header_data )->current_full_backup,
 	 24 );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->shadowing_disabled );
+	libnotify_verbose_printf(
+	 "%s: shadowing disabled\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
 
 	endian_little_convert_32bit(
 	 test,
@@ -621,12 +624,75 @@ int libesedb_io_handle_read_file_header(
 	 function,
 	 *page_size );
 
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->repair_count );
 	libnotify_verbose_printf(
-	 "%s: unknown7:\n",
+	 "%s: repair count\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	libesedb_debug_print_log_time(
+	 ( (esedb_file_header_t *) file_header_data )->repair_time,
+	 8,
+	 "repair time",
+	 "\t\t\t\t",
+	 NULL );
+
+	libnotify_verbose_printf(
+	 "%s: unknown2:\n",
 	 function );
 	libnotify_verbose_print_data(
-	 ( (esedb_file_header_t *) file_header_data )->unknown7,
-	 100 );
+	 ( (esedb_file_header_t *) file_header_data )->unknown2,
+	 28 );
+
+	libnotify_verbose_printf(
+	 "%s: scrub database time:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->scrub_database_time,
+	 8 );
+	libesedb_debug_print_log_time(
+	 ( (esedb_file_header_t *) file_header_data )->scrub_time,
+	 8,
+	 "scrub time",
+	 "\t\t\t\t",
+	 NULL );
+
+	libnotify_verbose_printf(
+	 "%s: required log:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->required_log,
+	 8 );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->upgrade_exchange5_format );
+	libnotify_verbose_printf(
+	 "%s: upgrade Exchange 5.5 format\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->upgrade_free_pages );
+	libnotify_verbose_printf(
+	 "%s: upgrade free pages\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->upgrade_space_map_pages );
+	libnotify_verbose_printf(
+	 "%s: upgrade space map pages\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	libnotify_verbose_printf(
+	 "%s: current shadow volume backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->current_shadow_volume_backup,
+	 24 );
 
 	endian_little_convert_32bit(
 	 test,
@@ -644,11 +710,118 @@ int libesedb_io_handle_read_file_header(
 	 test );
 
 	libnotify_verbose_printf(
-	 "%s: unknown8:\n",
+	 "%s: unknown3:\n",
 	 function );
 	libnotify_verbose_print_data(
-	 ( (esedb_file_header_t *) file_header_data )->unknown8,
-	 320 );
+	 ( (esedb_file_header_t *) file_header_data )->unknown3,
+	 16 );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->old_repair_count );
+	libnotify_verbose_printf(
+	 "%s: old repair count\t\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->ecc_fix_success_count );
+	libnotify_verbose_printf(
+	 "%s: ECC fix success count\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	libesedb_debug_print_log_time(
+	 ( (esedb_file_header_t *) file_header_data )->ecc_fix_success_time,
+	 8,
+	 "ECC fix success time",
+	 "\t\t\t",
+	 NULL );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->old_ecc_fix_success_count );
+	libnotify_verbose_printf(
+	 "%s: old ECC fix success count\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->ecc_fix_error_count );
+	libnotify_verbose_printf(
+	 "%s: ECC fix error count\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	libesedb_debug_print_log_time(
+	 ( (esedb_file_header_t *) file_header_data )->ecc_fix_error_time,
+	 8,
+	 "ECC fix error time",
+	 "\t\t\t",
+	 NULL );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->old_ecc_fix_error_count );
+	libnotify_verbose_printf(
+	 "%s: old ECC fix error count\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->bad_checksum_error_count );
+	libnotify_verbose_printf(
+	 "%s: bad checksum error count\t\t: %" PRIu32 "\n",
+	 function,
+	 test );
+	libesedb_debug_print_log_time(
+	 ( (esedb_file_header_t *) file_header_data )->bad_checksum_error_time,
+	 8,
+	 "bad checksum error time",
+	 "\t\t\t",
+	 NULL );
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->old_bad_checksum_error_count );
+	libnotify_verbose_printf(
+	 "%s: old bad checksum error count\t: %" PRIu32 "\n",
+	 function,
+	 test );
+
+	libnotify_verbose_printf(
+	 "%s: committed log:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->committed_log,
+	 4 );
+
+	libnotify_verbose_printf(
+	 "%s: previous shadow volume backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->previous_shadow_volume_backup,
+	 24 );
+	libnotify_verbose_printf(
+	 "%s: previous differential backup:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->previous_differential_backup,
+	 24 );
+
+	libnotify_verbose_printf(
+	 "%s: unknown4:\n",
+	 function );
+	libnotify_verbose_print_data(
+	 ( (esedb_file_header_t *) file_header_data )->unknown4,
+	 196 );
+
+	endian_little_convert_32bit(
+	 test,
+	 ( (esedb_file_header_t *) file_header_data )->unknown_flags );
+	libnotify_verbose_printf(
+	 "%s: unknown flags\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 test,
+	 test );
 
 	libnotify_verbose_printf(
 	 "\n" );

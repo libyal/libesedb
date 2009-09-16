@@ -34,34 +34,111 @@
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
+/* Prints the database stat
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_debug_print_database_state(
+     uint32_t database_state,
+     const char *indentation,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_debug_print_database_state";
+
+	if( indentation == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid indentation.",
+		 function );
+
+		return( -1 );
+	}
+	libnotify_verbose_printf(
+	 "%s: database state%s: ",
+	 function,
+	 indentation );
+
+	switch( database_state )
+	{
+		case 1:
+			libnotify_verbose_printf(
+			 "\tJust created (JET_dbstateJustCreated)" );
+			break;
+
+		case 2:
+			libnotify_verbose_printf(
+			 "Dirty Shutdown (JET_dbstateDirtyShutdown)" );
+			break;
+
+		case 3:
+			libnotify_verbose_printf(
+			 "Clean Shutdown (JET_dbstateCleanShutdown)" );
+			break;
+
+		case 4:
+			libnotify_verbose_printf(
+			 "Being converted (JET_dbstateBeingConverted)" );
+			break;
+
+		case 5:
+			libnotify_verbose_printf(
+			 "Force Detach (JET_dbstateForceDetach)" );
+			break;
+
+		default:
+			libnotify_verbose_printf(
+			 "Unknown (%" PRIu32 ")" );
+			break;
+	}
+	libnotify_verbose_printf(
+	 "\n" );
+
+	return( 1 );
+}
+
 /* Prints the page flags
  * Returns 1 if successful or -1 on error
  */
 int libesedb_debug_print_page_flags(
      uint32_t page_flags,
+     const char *indentation,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_debug_print_page_flags";
 
+	if( indentation == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid indentation.",
+		 function );
+
+		return( -1 );
+	}
 	libnotify_verbose_printf(
-	 "%s: page flags: 0x%08" PRIx32 "\n",
+	 "%s: page flags%s: 0x%08" PRIx32 "\n",
 	 function,
+	 indentation,
 	 page_flags );
 
-	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
 	{
 		libnotify_verbose_printf(
-		 "\tIs parent\n" );
+		 "\tIs root\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 	{
 		libnotify_verbose_printf(
 		 "\tIs leaf\n" );
 	}
-	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
 	{
 		libnotify_verbose_printf(
-		 "\tIs root\n" );
+		 "\tIs parent\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) == LIBESEDB_PAGE_FLAG_IS_EMPTY )
 	{
@@ -69,6 +146,11 @@ int libesedb_debug_print_page_flags(
 		 "\tIs empty\n" );
 	}
 
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_SPACE_TREE ) == LIBESEDB_PAGE_FLAG_IS_SPACE_TREE )
+	{
+		libnotify_verbose_printf(
+		 "\tIs space tree\n" );
+	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
 	{
 		libnotify_verbose_printf(
@@ -99,6 +181,7 @@ int libesedb_debug_print_log_time(
      uint8_t *log_time,
      size_t log_time_size,
      const char *description,
+     const char *indentation,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_debug_print_log_time";
@@ -147,10 +230,22 @@ int libesedb_debug_print_log_time(
 
 		return( -1 );
 	}
+	if( indentation == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid indentation.",
+		 function );
+
+		return( -1 );
+	}
 	libnotify_verbose_printf(
-	 "%s: %s: %04d-%02d-%02d %02d:%02d:%02d (0x%02x 0x%02x)\n",
+	 "%s: %s%s: %04d-%02d-%02d %02d:%02d:%02d (0x%02x 0x%02x)\n",
 	 function,
 	 description,
+	 indentation,
 	 1900 + log_time[ 5 ],
 	 log_time[ 4 ],
 	 log_time[ 3 ],
