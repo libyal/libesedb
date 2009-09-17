@@ -13,6 +13,7 @@ lib_LTLIBRARIES = libesedb.la
 libesedb_la_SOURCES = \
 	esedb_file_header.h \
 	esedb_page.h \
+	esedb_page_values.h \
 	libesedb.c \
 	libesedb_array_type.c libesedb_array_type.h \
 	libesedb_checksum.c libesedb_checksum.h \

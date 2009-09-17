@@ -37,6 +37,7 @@
 #include "libesedb_file.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_page.h"
+#include "libesedb_page_tree.h"
 
 /* Initialize a file
  * Make sure the value file is pointing to is set to NULL
@@ -102,7 +103,7 @@ int libesedb_file_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize page table.",
+			 "%s: unable to create page table.",
 			 function );
 
 			memory_free(
@@ -118,7 +119,7 @@ int libesedb_file_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize io handle.",
+			 "%s: unable to create io handle.",
 			 function );
 
 			libesedb_array_free(
@@ -293,7 +294,7 @@ int libesedb_file_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize file io handle.",
+		 "%s: unable to create file io handle.",
 		 function );
 
 		return( -1 );
@@ -421,7 +422,7 @@ int libesedb_file_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initialize file io handle.",
+		 "%s: unable to create file io handle.",
 		 function );
 
 		return( -1 );
@@ -635,12 +636,6 @@ int libesedb_file_open_read(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_file_open_read";
-	off64_t file_offset   = 0;
-	size_t page_size      = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	size64_t file_size     = 0;
-#endif
 
 	if( internal_file == NULL )
 	{
@@ -671,7 +666,6 @@ int libesedb_file_open_read(
 
 	if( libesedb_io_handle_read_file_header(
 	     internal_file->io_handle,
-	     &page_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -686,6 +680,61 @@ int libesedb_file_open_read(
 	/* TODO */
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	uint32_t page_number = 7;
+
+	libesedb_page_tree_t *page_tree = NULL;
+
+	if( libesedb_page_tree_initialize(
+	     &page_tree,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_tree_read(
+	     page_tree,
+	     internal_file->io_handle,
+	     page_number,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page tree.",
+		 function );
+
+		libesedb_page_tree_free(
+		 &page_tree,
+		 NULL );
+
+		return( -1 );
+	}
+	if( libesedb_page_tree_free(
+	     &page_tree,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free page tree.",
+		 function );
+
+		return( -1 );
+	}
+#ifdef PAGETEST
+	uint32_t page_number  = 0;
+	libesedb_page_t *page = NULL;
+	off64_t file_offset   = 0;
+	size64_t file_size    = 0;
+
 	if( libbfio_handle_get_size(
 	     internal_file->io_handle->file_io_handle,
 	     &file_size,
@@ -700,15 +749,28 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-	file_offset = 2 * page_size;
+	file_offset = 2 * internal_file->io_handle->page_size;
+	page_number = 1;
 
 	while( file_offset < (off64_t) file_size )
 	{
+		if( libesedb_page_initialize(
+		     &page,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create page.",
+			 function );
+
+			return( -1 );
+		}
 		if( libesedb_page_read(
-		     NULL,
+		     page,
 		     internal_file->io_handle,
-		     file_offset,
-		     page_size,
+		     page_number,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -718,10 +780,29 @@ int libesedb_file_open_read(
 			 "%s: unable to read page.",
 			 function );
 
+			libesedb_page_free(
+			 &page,
+			 NULL );
+
 			return( -1 );
 		}
-		file_offset += page_size;
+		file_offset += internal_file->io_handle->page_size;
+
+		if( libesedb_page_free(
+		     &page,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page.",
+			 function );
+
+			return( -1 );
+		}
 	}
+#endif
 #endif
 	return( 1 );
 }

@@ -264,7 +264,6 @@ int libesedb_io_handle_close(
  */
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
-     size_t *page_size,
      liberror_error_t **error )
 {
 	uint8_t *file_header_data          = NULL;
@@ -296,17 +295,6 @@ int libesedb_io_handle_read_file_header(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid io handle - missing file io handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_size == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page size.",
 		 function );
 
 		return( -1 );
@@ -434,7 +422,7 @@ int libesedb_io_handle_read_file_header(
 
 		return( -1 );
 	}
-	/* TODO */
+	/* TODO add more values to internal structures */
 
 	endian_little_convert_32bit(
 	 io_handle->format_version,
@@ -445,7 +433,7 @@ int libesedb_io_handle_read_file_header(
 	 ( (esedb_file_header_t *) file_header_data )->format_revision );
 
 	endian_little_convert_32bit(
-	 *page_size,
+	 io_handle->page_size,
 	 ( (esedb_file_header_t *) file_header_data )->page_size );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
@@ -622,7 +610,7 @@ int libesedb_io_handle_read_file_header(
 	libnotify_verbose_printf(
 	 "%s: page size\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 *page_size );
+	 io_handle->page_size );
 
 	endian_little_convert_32bit(
 	 test,

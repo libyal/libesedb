@@ -18,16 +18,24 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20090917
+* worked on page trees
+* worked on page values
+* refactored creation of array out of libesedb_page_read_tags
+
 20090916
 * worked on unknown values in file header
+* worked on page values
 
 20090915
 * worked on table support
-* implement XOR-32 checksum supportA
+* implement XOR-32 checksum support
 * worked on unknown values in file header
+* worked on page values
 
 20090914
-* worked on table support
+* worked on page trees
+* worked on page values
 
 20090913
 * initial version based on liblnk

@@ -29,8 +29,7 @@
 #include <liberror.h>
 
 #include "libesedb_io_handle.h"
-#include "libesedb_list_type.h"
-#include "libesedb_page.h"
+#include "libesedb_tree_type.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -40,17 +39,9 @@ typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
 {
-	/* The father data page
+	/* The page tree root node
 	 */
-	libesedb_page_t *father_data_page;
-
-	/* The space tree page list
-	 */
-	libesedb_list_t *space_tree_page_list;
-
-	/* The leaf page list
-	 */
-	libesedb_list_t *leaf_page_list;
+	libesedb_tree_node_t *root_node;
 };
 
 int libesedb_page_tree_initialize(
@@ -65,6 +56,30 @@ int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
      libesedb_io_handle_t *io_handle,
      uint32_t father_data_page_number,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_father_data_page(
+     libesedb_page_tree_t *page_tree,
+     libesedb_io_handle_t *io_handle,
+     uint32_t father_data_page_number,
+     uint32_t *father_object_identifier,
+     uint32_t *first_space_tree_page_number,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_space_tree_page(
+     libesedb_page_tree_t *page_tree,
+     libesedb_io_handle_t *io_handle,
+     uint32_t space_tree_page_number,
+     uint32_t *father_object_identifier,
+     uint32_t *next_space_tree_page_number,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_leaf_page(
+     libesedb_page_tree_t *page_tree,
+     libesedb_io_handle_t *io_handle,
+     uint32_t leaf_page_number,
+     uint32_t *father_object_identifier,
+     uint32_t *next_leaf_page_number,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

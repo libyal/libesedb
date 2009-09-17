@@ -52,6 +52,23 @@ struct libesedb_page_tags_value
 	uint8_t flags;
 };
 
+typedef struct libesedb_page_value libesedb_page_value_t;
+
+struct libesedb_page_value
+{
+	/* The reference to the page value data
+	 */
+	uint8_t *data;
+
+	/* The page value size
+	 */
+	size_t size;
+
+	/* The flags of the value
+	 */
+	uint8_t flags;
+};
+
 typedef struct libesedb_page libesedb_page_t;
 
 struct libesedb_page
@@ -59,7 +76,39 @@ struct libesedb_page
 	/* The page number
 	 */
 	uint32_t number;
+
+	/* The previous page number
+	 */
+	uint32_t number_previous;
+
+	/* The next page number
+	 */
+	uint32_t number_next;
+
+	/* The father object identifier
+	 */
+	uint32_t father_object_identifier;
+
+	/* The page flags
+	 */
+	uint32_t flags;
+
+	/* The page data
+	 */
+	uint8_t *data;
+
+	/* The page data size
+	 */
+	size_t data_size;
+
+	/* The page values array
+	 */
+	libesedb_array_t *values_array;
 };
+
+int libesedb_page_value_free(
+     intptr_t *page_value,
+     liberror_error_t **error );
 
 int libesedb_page_tags_value_free(
      intptr_t *page_tags_value,
@@ -76,15 +125,33 @@ int libesedb_page_free(
 int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
-     off64_t page_offset,
-     size_t page_size,
+     uint32_t page_number,
      liberror_error_t **error );
 
 int libesedb_page_read_tags(
-     libesedb_array_t **page_tags_array,
+     libesedb_array_t *page_tags_array,
      uint16_t amount_of_page_entries,
      uint8_t *page_data,
      size_t page_data_size,
+     liberror_error_t **error );
+
+int libesedb_page_read_values(
+     libesedb_array_t *page_values_array,
+     libesedb_array_t *page_tags_array,
+     uint8_t *page_values_data,
+     size_t page_values_data_size,
+     uint32_t page_flags,
+     liberror_error_t **error );
+
+int libesedb_page_get_amount_of_values(
+     libesedb_page_t *page,
+     uint16_t *amount_of_values,
+     liberror_error_t **error );
+
+int libesedb_page_get_value(
+     libesedb_page_t *page,
+     uint16_t value_index,
+     libesedb_page_value_t **page_value,
      liberror_error_t **error );
 
 #if defined( __cplusplus )
