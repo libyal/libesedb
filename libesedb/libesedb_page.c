@@ -399,6 +399,8 @@ int libesedb_page_read(
 			return( -1 );
 		}
 	}
+	page->number = page_number;
+
 	endian_little_convert_16bit(
 	 available_data_size,
 	 ( (esedb_page_header_t *) page->data )->available_data_size );
@@ -495,10 +497,13 @@ int libesedb_page_read(
 	 function,
 	 available_page_tag );
 
+	libnotify_verbose_printf(
+	 "%s: page flags\t\t\t\t\t\t: ",
+	 function );
 	libesedb_debug_print_page_flags(
-	 page->flags,
-	 "\t\t\t\t",
-	 NULL );
+	 page->flags );
+	libnotify_verbose_printf(
+	 "\n" );
 #endif
 
 	/* Create the page tags array

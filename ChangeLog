@@ -1,5 +1,8 @@
 TODO
 
+Debug
+* is function libesedb_debug_print_table_group_of_bits needed?
+
 Library
 * compare primary and secondary file header
   - report any differences
@@ -17,6 +20,9 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20090918
+* worked on page values
 
 20090917
 * worked on page trees

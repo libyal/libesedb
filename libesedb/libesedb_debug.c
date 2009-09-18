@@ -34,37 +34,16 @@
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-/* Prints the database stat
- * Returns 1 if successful or -1 on error
+/* Prints the database state
  */
-int libesedb_debug_print_database_state(
-     uint32_t database_state,
-     const char *indentation,
-     liberror_error_t **error )
+void libesedb_debug_print_database_state(
+      uint32_t database_state )
 {
-	static char *function = "libesedb_debug_print_database_state";
-
-	if( indentation == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid indentation.",
-		 function );
-
-		return( -1 );
-	}
-	libnotify_verbose_printf(
-	 "%s: database state%s: ",
-	 function,
-	 indentation );
-
 	switch( database_state )
 	{
 		case 1:
 			libnotify_verbose_printf(
-			 "\tJust created (JET_dbstateJustCreated)" );
+			 "Just created (JET_dbstateJustCreated)" );
 			break;
 
 		case 2:
@@ -89,40 +68,19 @@ int libesedb_debug_print_database_state(
 
 		default:
 			libnotify_verbose_printf(
-			 "Unknown (%" PRIu32 ")" );
+			 "Unknown (%" PRIu32 ")",
+			 database_state );
 			break;
 	}
-	libnotify_verbose_printf(
-	 "\n" );
-
-	return( 1 );
 }
 
 /* Prints the page flags
- * Returns 1 if successful or -1 on error
  */
-int libesedb_debug_print_page_flags(
-     uint32_t page_flags,
-     const char *indentation,
-     liberror_error_t **error )
+void libesedb_debug_print_page_flags(
+      uint32_t page_flags )
 {
-	static char *function = "libesedb_debug_print_page_flags";
-
-	if( indentation == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid indentation.",
-		 function );
-
-		return( -1 );
-	}
 	libnotify_verbose_printf(
-	 "%s: page flags%s: 0x%08" PRIx32 "\n",
-	 function,
-	 indentation,
+	 "0x%08" PRIx32 "\n",
 	 page_flags );
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
@@ -168,10 +126,257 @@ int libesedb_debug_print_page_flags(
 		 "\tIs primary\n" );
 	}
 
-	libnotify_verbose_printf(
-	 "\n" );
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT )
+	{
+		libnotify_verbose_printf(
+		 "\tIs new record format\n" );
+	}
+}
 
-	return( 1 );
+/* Prints the column type
+ */
+void libesedb_debug_print_column_type(
+      uint32_t column_type )
+{
+	switch( column_type )
+	{
+		case 0:
+			libnotify_verbose_printf(
+			 "(JET_coltypNil)" );
+			break;
+
+		case 1:
+			libnotify_verbose_printf(
+			 "(JET_coltypBit)" );
+			break;
+
+		case 2:
+			libnotify_verbose_printf(
+			 "(JET_coltypUnsignedByte)" );
+			break;
+
+		case 3:
+			libnotify_verbose_printf(
+			 "(JET_coltypShort)" );
+			break;
+
+		case 4:
+			libnotify_verbose_printf(
+			 "(JET_coltypLong)" );
+			break;
+
+		case 5:
+			libnotify_verbose_printf(
+			 "(JET_coltypCurrency)" );
+			break;
+
+		case 6:
+			libnotify_verbose_printf(
+			 "(JET_coltypIEEESingle)" );
+			break;
+
+		case 7:
+			libnotify_verbose_printf(
+			 "(JET_coltypIEEEDouble)" );
+			break;
+
+		case 8:
+			libnotify_verbose_printf(
+			 "(JET_coltypDateTime)" );
+			break;
+
+		case 9:
+			libnotify_verbose_printf(
+			 "(JET_coltypBinary)" );
+			break;
+
+		case 10:
+			libnotify_verbose_printf(
+			 "(JET_coltypText)" );
+			break;
+
+		case 11:
+			libnotify_verbose_printf(
+			 "(JET_coltypLongBinary)" );
+			break;
+
+		case 12:
+			libnotify_verbose_printf(
+			 "(JET_coltypLongText)" );
+			break;
+
+		case 13:
+			libnotify_verbose_printf(
+			 "(JET_coltypSLV)" );
+			break;
+
+		case 14:
+			libnotify_verbose_printf(
+			 "(JET_coltypUnsignedLong)" );
+			break;
+
+		case 15:
+			libnotify_verbose_printf(
+			 "(JET_coltypLongLong)" );
+			break;
+
+		case 16:
+			libnotify_verbose_printf(
+			 "(JET_coltypGUID)" );
+			break;
+
+		case 17:
+			libnotify_verbose_printf(
+			 "(JET_coltypUnsignedShort)" );
+			break;
+
+		default:
+			libnotify_verbose_printf(
+			 "(Unknown)" );
+			break;
+	}
+}
+
+/* Prints the column type
+ */
+void libesedb_debug_print_page_value_definition_type(
+      uint16_t page_value_definition_type )
+{
+	switch( page_value_definition_type )
+	{
+		case 1:
+			libnotify_verbose_printf(
+			 "(Table)" );
+			break;
+
+		case 2:
+			libnotify_verbose_printf(
+			 "(Column)" );
+			break;
+
+		case 3:
+			libnotify_verbose_printf(
+			 "(Index)" );
+			break;
+
+		case 4:
+			libnotify_verbose_printf(
+			 "(Long Value)" );
+			break;
+
+		default:
+			libnotify_verbose_printf(
+			 "(Unknown)" );
+			break;
+	}
+}
+
+/* Prints the table group of bits
+ */
+void libesedb_debug_print_table_group_of_bits(
+      uint32_t table_group_of_bits )
+{
+	libnotify_verbose_printf(
+	 "0x%08" PRIx32 "\n",
+	 table_group_of_bits );
+
+	if( ( table_group_of_bits & 0x00000001 ) == 0x00000001 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitTableCreateFixedDDL)\n" );
+	}
+	if( ( table_group_of_bits & 0x00000002 ) == 0x00000002 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitTableCreateTemplateTable)\n" );
+	}
+	if( ( table_group_of_bits & 0x00000004 ) == 0x00000004 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitTableCreateNoFixedVarColumnsInDerivedTables)\n" );
+	}
+}
+
+/* Prints the column group of bits
+ */
+void libesedb_debug_print_column_group_of_bits(
+      uint32_t column_group_of_bits )
+{
+	libnotify_verbose_printf(
+	 "0x%08" PRIx32 "\n",
+	 column_group_of_bits );
+
+	if( ( column_group_of_bits & 0x00000001 ) == 0x00000001 )
+	{
+		libnotify_verbose_printf(
+		 "\tIs fixed size (JET_bitColumnFixed)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000002 ) == 0x00000002 )
+	{
+		libnotify_verbose_printf(
+		 "\tIs tagged (JET_bitColumnTagged)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000004 ) == 0x00000004 )
+	{
+		libnotify_verbose_printf(
+		 "\tNot empty (JET_bitColumnNotNULL)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000008 ) == 0x00000008 )
+	{
+		libnotify_verbose_printf(
+		 "\tIs version column (JET_bitColumnVersion)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000010 ) == 0x00000010 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnAutoincrement)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000020 ) == 0x00000020 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnUpdatable)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000040 ) == 0x00000040 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnTTKey)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000080 ) == 0x00000080 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnTTDescending)\n" );
+	}
+
+	if( ( column_group_of_bits & 0x00000400 ) == 0x00000400 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnMultiValued)\n" );
+	}
+	if( ( column_group_of_bits & 0x00000800 ) == 0x00000800 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnEscrowUpdate)\n" );
+	}
+	if( ( column_group_of_bits & 0x00001000 ) == 0x00001000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnUnversioned)\n" );
+	}
+	if( ( column_group_of_bits & 0x00002000 ) == 0x00002000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnDeleteOnZero or JET_bitColumnMaybeNull)\n" );
+	}
+	if( ( column_group_of_bits & 0x00004000 ) == 0x00004000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnFinalize)\n" );
+	}
+	if( ( column_group_of_bits & 0x00008000 ) == 0x00008000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitColumnUserDefinedDefault)\n" );
+	}
 }
 
 /* Prints a log structure 

@@ -479,10 +479,15 @@ int libesedb_io_handle_read_file_header(
 	endian_little_convert_32bit(
 	 test,
 	 ( (esedb_file_header_t *) file_header_data )->database_state );
+
+	libnotify_verbose_printf(
+	 "%s: database state\t\t\t: %" PRIu32 " ",
+	 function,
+	 test );
 	libesedb_debug_print_database_state(
-	 test,
-	 "\t\t\t",
-	 NULL );
+	 test );
+	libnotify_verbose_printf(
+	 "\n" );
 
 	libnotify_verbose_printf(
 	 "%s: consistent position:\n",

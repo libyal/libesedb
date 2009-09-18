@@ -680,7 +680,7 @@ int libesedb_file_open_read(
 	/* TODO */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t page_number = 7;
+	uint32_t page_number = 4;
 
 	libesedb_page_tree_t *page_tree = NULL;
 

@@ -30,9 +30,9 @@
 extern "C" {
 #endif
 
-typedef struct esedb_root_page_header esedb_root_page_header_t;
+typedef struct esedb_father_data_page_header esedb_father_data_page_header_t;
 
-struct esedb_root_page_header
+struct esedb_father_data_page_header
 {
 	/* The intial amount of pages
 	 * Consists of 4 bytes

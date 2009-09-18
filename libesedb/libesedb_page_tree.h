@@ -58,28 +58,20 @@ int libesedb_page_tree_read(
      uint32_t father_data_page_number,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_father_data_page(
+int libesedb_page_tree_read_father_data_page_values(
      libesedb_page_tree_t *page_tree,
+     libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
-     uint32_t father_data_page_number,
-     uint32_t *father_object_identifier,
-     uint32_t *first_space_tree_page_number,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_space_tree_page(
+int libesedb_page_tree_read_space_tree_page_values(
      libesedb_page_tree_t *page_tree,
-     libesedb_io_handle_t *io_handle,
-     uint32_t space_tree_page_number,
-     uint32_t *father_object_identifier,
-     uint32_t *next_space_tree_page_number,
+     libesedb_page_t *page,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_leaf_page(
+int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
-     libesedb_io_handle_t *io_handle,
-     uint32_t leaf_page_number,
-     uint32_t *father_object_identifier,
-     uint32_t *next_leaf_page_number,
+     libesedb_page_t *page,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

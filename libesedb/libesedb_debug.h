@@ -36,15 +36,20 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
-int libesedb_debug_print_database_state(
-     uint32_t database_state,
-     const char *indentation,
-     liberror_error_t **error );
+void libesedb_debug_print_database_state(
+      uint32_t database_state );
 
-int libesedb_debug_print_page_flags(
-     uint32_t page_flags,
-     const char *indentation,
-     liberror_error_t **error );
+void libesedb_debug_print_page_flags(
+      uint32_t page_flags );
+
+void libesedb_debug_print_page_value_definition_type(
+      uint16_t page_value_definition_type );
+
+void libesedb_debug_print_column_type(
+      uint32_t column_type );
+
+void libesedb_debug_print_column_group_of_bits(
+      uint32_t column_group_of_bits );
 
 int libesedb_debug_print_log_time(
      uint8_t *log_time,
