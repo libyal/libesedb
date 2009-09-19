@@ -28,9 +28,9 @@
 
 #include <liberror.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_page_tree.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -40,9 +40,9 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
-	/* The page table
+	/* The catalog page tree
 	 */
-	libesedb_array_t *page_table;
+	libesedb_page_tree_t *catalog_page_tree;
 
 	/* The io handle
 	 */

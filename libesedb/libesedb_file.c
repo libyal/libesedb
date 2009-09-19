@@ -94,16 +94,15 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_array_initialize(
-		     &( internal_file->page_table ),
-		     0,
+		if( libesedb_page_tree_initialize(
+		     &( internal_file->catalog_page_tree ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create page table.",
+			 "%s: unable to create catalog page tree.",
 			 function );
 
 			memory_free(
@@ -122,9 +121,8 @@ int libesedb_file_initialize(
 			 "%s: unable to create io handle.",
 			 function );
 
-			libesedb_array_free(
-			 &( internal_file->page_table ),
-			 NULL,
+			libesedb_page_tree_free(
+			 &( internal_file->catalog_page_tree ),
 			 NULL );
 			memory_free(
 			 internal_file );
@@ -164,10 +162,8 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
-		/* TODO add page table entry free functions */
-		if( libesedb_array_free(
-		     &( internal_file->page_table ),
-		     NULL,
+		if( libesedb_page_tree_free(
+		     &( internal_file->catalog_page_tree ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -677,30 +673,15 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-	/* TODO */
+#if defined( HAVE_VERBOSE_OUTPUT )
+	libnotify_verbose_printf(
+	 "Reading the catalog page tree:\n" );
+#endif
 
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t page_number = 4;
-
-	libesedb_page_tree_t *page_tree = NULL;
-
-	if( libesedb_page_tree_initialize(
-	     &page_tree,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create page tree.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_page_tree_read(
-	     page_tree,
+	     internal_file->catalog_page_tree,
 	     internal_file->io_handle,
-	     page_number,
+	     LIBESEDB_PAGE_NUMBER_CATALOG,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -710,25 +691,9 @@ int libesedb_file_open_read(
 		 "%s: unable to read page tree.",
 		 function );
 
-		libesedb_page_tree_free(
-		 &page_tree,
-		 NULL );
-
 		return( -1 );
 	}
-	if( libesedb_page_tree_free(
-	     &page_tree,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free page tree.",
-		 function );
-
-		return( -1 );
-	}
+#if defined( HAVE_DEBUG_OUTPUT )
 #ifdef PAGETEST
 	uint32_t page_number  = 0;
 	libesedb_page_t *page = NULL;

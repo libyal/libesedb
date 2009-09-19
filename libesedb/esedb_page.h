@@ -77,10 +77,10 @@ struct esedb_page_header
 	 */
 	uint8_t next_page[ 4 ];
 
-	/* The father object identifier
+	/* The father data page (FDP) object identifier
 	 * Consists of 4 bytes
 	 */
-	uint8_t father_object_identifier[ 4 ];
+	uint8_t father_data_page_object_identifier[ 4 ];
 
 	/* The available data size
 	 * Consists of 2 bytes

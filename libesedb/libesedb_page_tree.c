@@ -27,15 +27,21 @@
 #include <liberror.h>
 #include <libnotify.h>
 
+#include "libesedb_column_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
+#include "libesedb_index_definition.h"
+#include "libesedb_debug.h"
 #include "libesedb_libuna.h"
+#include "libesedb_list_type.h"
+#include "libesedb_long_value_definition.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_table_definition.h"
 
 #include "esedb_page_values.h"
 
-/* Creates a page_tree
+/* Creates a page tree
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_initialize(
@@ -66,7 +72,7 @@ int libesedb_page_tree_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create page_tree.",
+			 "%s: unable to create page tree.",
 			 function );
 
 			return( -1 );
@@ -80,9 +86,105 @@ int libesedb_page_tree_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear page_tree.",
+			 "%s: unable to clear page tree.",
 			 function );
 
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *page_tree )->table_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create table definition list.",
+			 function );
+
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *page_tree )->column_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create column definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *page_tree )->table_definition_list ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *page_tree )->index_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *page_tree )->column_definition_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( ( *page_tree )->table_definition_list ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *page_tree )->long_value_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create long value definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *page_tree )->index_definition_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( ( *page_tree )->column_definition_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( ( *page_tree )->table_definition_list ),
+			 NULL,
+			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -94,7 +196,7 @@ int libesedb_page_tree_initialize(
 	return( 1 );
 }
 
-/* Frees page_tree
+/* Frees page tree
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_free(
@@ -102,6 +204,7 @@ int libesedb_page_tree_free(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_page_tree_free";
+	int result            = 1;
 
 	if( page_tree == NULL )
 	{
@@ -116,12 +219,68 @@ int libesedb_page_tree_free(
 	}
 	if( *page_tree != NULL )
 	{
+		if( libesedb_list_free(
+		     &( ( *page_tree )->table_definition_list ),
+		     &libesedb_table_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table definition list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( *page_tree )->column_definition_list ),
+		     &libesedb_column_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free column definition list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( *page_tree )->index_definition_list ),
+		     &libesedb_index_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index definition list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( *page_tree )->long_value_definition_list ),
+		     &libesedb_long_value_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free long value definition list.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 *page_tree );
 
 		*page_tree = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Reads a page tree and its values
@@ -242,7 +401,7 @@ int libesedb_page_tree_read(
 	return( 1 );
 }
 
-/* Reads the father data page values
+/* Reads the father data page values from the page
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_father_data_page_values(
@@ -338,7 +497,7 @@ int libesedb_page_tree_read_father_data_page_values(
 
 		return( -1 );
 	}
-	if( page->number_previous != 0 )
+	if( page->previous_page_number != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -346,11 +505,11 @@ int libesedb_page_tree_read_father_data_page_values(
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported previous page number: %" PRIu32 ".",
 		 function,
-		 page->number_previous );
+		 page->previous_page_number );
 
 		return( -1 );
 	}
-	if( page->number_next != 0 )
+	if( page->next_page_number != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -358,7 +517,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported next page number: %" PRIu32 ".",
 		 function,
-		 page->number_next );
+		 page->next_page_number );
 
 		return( -1 );
 	}
@@ -490,16 +649,16 @@ int libesedb_page_tree_read_father_data_page_values(
 
 			return( -1 );
 		}
-		if( page->father_object_identifier != sub_page->father_object_identifier )
+		if( page->father_data_page_object_identifier != sub_page->father_data_page_object_identifier )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: mismatch in father object identifier (%" PRIu32 " != %" PRIu32 ").",
+			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
 			 function,
-			 page->father_object_identifier,
-			 sub_page->father_object_identifier );
+			 page->father_data_page_object_identifier,
+			 sub_page->father_data_page_object_identifier );
 
 			libesedb_page_free(
 			 &sub_page,
@@ -576,16 +735,16 @@ int libesedb_page_tree_read_father_data_page_values(
 
 			return( -1 );
 		}
-		if( page->father_object_identifier != sub_page->father_object_identifier )
+		if( page->father_data_page_object_identifier != sub_page->father_data_page_object_identifier )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: mismatch in father object identifier (%" PRIu32 " != %" PRIu32 ").",
+			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
 			 function,
-			 page->father_object_identifier,
-			 sub_page->father_object_identifier );
+			 page->father_data_page_object_identifier,
+			 sub_page->father_data_page_object_identifier );
 
 			libesedb_page_free(
 			 &sub_page,
@@ -673,11 +832,6 @@ int libesedb_page_tree_read_father_data_page_values(
 		 page_value_iterator,
 		 page_key_size );
 
-		libnotify_verbose_printf(
-		 "%s: value: %03d highest key value\t\t: ",
-		 function,
-		 page_value_iterator );
-
 		if( page_key_size > page_value_size )
 		{
 			liberror_error_set(
@@ -689,6 +843,11 @@ int libesedb_page_tree_read_father_data_page_values(
 
 			return( -1 );
 		}
+		libnotify_verbose_printf(
+		 "%s: value: %03d highest key value\t\t: ",
+		 function,
+		 page_value_iterator );
+
 		while( page_key_size > 0 )
 		{
 			if( ( ( *page_value_data >= 'A' )
@@ -762,16 +921,16 @@ int libesedb_page_tree_read_father_data_page_values(
 
 				return( -1 );
 			}
-			if( page->father_object_identifier != sub_page->father_object_identifier )
+			if( page->father_data_page_object_identifier != sub_page->father_data_page_object_identifier )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: mismatch in father object identifier (%" PRIu32 " != %" PRIu32 ").",
+				 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
 				 function,
-				 page->father_object_identifier,
-				 sub_page->father_object_identifier );
+				 page->father_data_page_object_identifier,
+				 sub_page->father_data_page_object_identifier );
 
 				libesedb_page_free(
 				 &sub_page,
@@ -781,7 +940,7 @@ int libesedb_page_tree_read_father_data_page_values(
 			}
 			if( page_value_iterator > 1 )
 			{
-				if( sub_page->number != previous_next_child_page_number )
+				if( sub_page->page_number != previous_next_child_page_number )
 				{
 					liberror_error_set(
 					 error,
@@ -790,7 +949,7 @@ int libesedb_page_tree_read_father_data_page_values(
 					 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 previous_next_child_page_number,
-					 sub_page->number );
+					 sub_page->page_number );
 
 					libesedb_page_free(
 					 &sub_page,
@@ -798,7 +957,7 @@ int libesedb_page_tree_read_father_data_page_values(
 
 					return( -1 );
 				}
-				if( sub_page->number_previous != previous_child_page_number )
+				if( sub_page->previous_page_number != previous_child_page_number )
 				{
 					liberror_error_set(
 					 error,
@@ -807,7 +966,7 @@ int libesedb_page_tree_read_father_data_page_values(
 					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 previous_child_page_number,
-					 sub_page->number_previous );
+					 sub_page->previous_page_number );
 
 					libesedb_page_free(
 					 &sub_page,
@@ -818,7 +977,7 @@ int libesedb_page_tree_read_father_data_page_values(
 			}
 			if( page_value_iterator == 1 )
 			{
-				if( sub_page->number_previous != 0 )
+				if( sub_page->previous_page_number != 0 )
 				{
 					liberror_error_set(
 					 error,
@@ -827,7 +986,7 @@ int libesedb_page_tree_read_father_data_page_values(
 					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 0,
-					 sub_page->number_previous );
+					 sub_page->previous_page_number );
 
 					libesedb_page_free(
 					 &sub_page,
@@ -838,7 +997,7 @@ int libesedb_page_tree_read_father_data_page_values(
 			}
 			if( page_value_iterator == ( amount_of_page_values - 1 ) )
 			{
-				if( sub_page->number_next != 0 )
+				if( sub_page->next_page_number != 0 )
 				{
 					liberror_error_set(
 					 error,
@@ -847,7 +1006,7 @@ int libesedb_page_tree_read_father_data_page_values(
 					 "%s: mismatch in next child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 0,
-					 sub_page->number_previous );
+					 sub_page->previous_page_number );
 
 					libesedb_page_free(
 					 &sub_page,
@@ -856,8 +1015,8 @@ int libesedb_page_tree_read_father_data_page_values(
 					return( -1 );
 				}
 			}
-			previous_child_page_number      = sub_page->number;
-			previous_next_child_page_number = sub_page->number_next;
+			previous_child_page_number      = sub_page->page_number;
+			previous_next_child_page_number = sub_page->next_page_number;
 
 			if( libesedb_page_tree_read_leaf_page_values(
 			     page_tree,
@@ -900,7 +1059,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	return( 1 );
 }
 
-/* Reads the space tree page values
+/* Reads the space tree page values from the page
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_space_tree_page_values(
@@ -966,7 +1125,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 		return( -1 );
 	}
-	if( page->number_previous != 0 )
+	if( page->previous_page_number != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -974,11 +1133,11 @@ int libesedb_page_tree_read_space_tree_page_values(
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported previous page number: %" PRIu32 ".",
 		 function,
-		 page->number_previous );
+		 page->previous_page_number );
 
 		return( -1 );
 	}
-	if( page->number_next != 0 )
+	if( page->next_page_number != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -986,7 +1145,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported next page number: %" PRIu32 ".",
 		 function,
-		 page->number_next );
+		 page->next_page_number );
 
 		return( -1 );
 	}
@@ -1180,7 +1339,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 	return( 1 );
 }
 
-/* Reads the leaf page values
+/* Reads the leaf page values from the page
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_leaf_page_values(
@@ -1188,25 +1347,30 @@ int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_t *page,
      liberror_error_t **error )
 {
-	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_page_tree_read_leaf_page_values";
-	uint32_t required_flags           = 0;
-	uint32_t supported_flags          = 0;
-	uint16_t amount_of_page_values    = 0;
-	uint16_t page_value_iterator      = 0;
+	libesedb_column_definition_t *column_definition         = NULL;
+	libesedb_index_definition_t *index_definition           = NULL;
+	libesedb_long_value_definition_t *long_value_definition = NULL;
+	libesedb_page_value_t *page_value                       = NULL;
+	libesedb_table_definition_t *table_definition           = NULL;
+	static char *function                                   = "libesedb_page_tree_read_leaf_page_values";
+	uint32_t required_flags                                 = 0;
+	uint32_t supported_flags                                = 0;
+	uint16_t amount_of_page_values                          = 0;
+	uint16_t page_value_iterator                            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *page_value_data          = NULL;
-	uint8_t *string                   = NULL;
-	size_t string_size                = 0;
-	uint32_t column_type              = 0;
-	uint16_t definition_flags         = 0;
-	uint16_t definition_size          = 0;
-	uint16_t definition_type          = 0;
-	uint16_t page_key_size            = 0;
-	uint16_t page_value_size          = 0;
-	uint16_t record_number            = 0;
-	uint32_t test                     = 0;
+	uint8_t *page_value_data                                = NULL;
+	uint8_t *string                                         = NULL;
+	size_t string_size                                      = 0;
+	uint32_t test                                           = 0;
+	uint16_t definition_flags                               = 0;
+	uint16_t definition_size                                = 0;
+	uint16_t definition_type                                = 0;
+	uint16_t name_size                                      = 0;
+	uint16_t page_key_size                                  = 0;
+	uint16_t page_value_size                                = 0;
+	uint16_t record_number                                  = 0;
+	uint8_t multi_value_iterator                            = 0;
 #endif
 
 	if( page_tree == NULL )
@@ -1387,7 +1551,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			page_value_size -= 2;
 
 			libnotify_verbose_printf(
-			 "%s: value: %03d record (row) number\t\t: 0x%04" PRIx32 "\n",
+			 "%s: value: %03d record (row) number\t\t: %" PRIu32 "\n",
 			 function,
 			 page_value_iterator,
 			 record_number );
@@ -1405,6 +1569,17 @@ int libesedb_page_tree_read_leaf_page_values(
 		 page_value_iterator,
 		 page_key_size );
 
+		if( page_key_size > page_value_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: page key size exceeds page value size.",
+			 function );
+
+			return( -1 );
+		}
 		libnotify_verbose_printf(
 		 "%s: value: %03d key value\t\t\t\t: ",
 		 function,
@@ -1476,12 +1651,11 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 		else
 		{
+			/* TODO make sure the page value size >= 4 */
+
 			endian_little_convert_16bit(
 			 definition_flags,
-			 page_value_data );
-
-			page_value_data += 2;
-			page_value_size -= 2;
+			 ( (esedb_definition_header_t * ) page_value_data )->flags );
 
 			libnotify_verbose_printf(
 			 "%s: value: %03d definition flags\t\t\t: 0x%04" PRIx32 "\n",
@@ -1491,10 +1665,7 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			endian_little_convert_16bit(
 			 definition_size,
-			 page_value_data );
-
-			page_value_data += 2;
-			page_value_size -= 2;
+			 ( (esedb_definition_header_t * ) page_value_data )->size );
 
 			libnotify_verbose_printf(
 			 "%s: value: %03d definition size\t\t\t: %" PRIu32 "\n",
@@ -1502,7 +1673,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 page_value_iterator,
 			 definition_size );
 
-			definition_size -= 4;
+			page_value_data += sizeof( esedb_definition_header_t );
+			page_value_size -= sizeof( esedb_definition_header_t );
+			definition_size -= sizeof( esedb_definition_header_t );
 
 			if( ( definition_flags == 0x8007 )
 			 || ( definition_flags == 0x8008 )
@@ -1511,6 +1684,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			 || ( definition_flags == 0x840a )
 			 || ( definition_flags == 0x880a ) )
 			{
+/*
 				libnotify_verbose_printf(
 				 "%s: value: %03d definition data:\n",
 				 function,
@@ -1518,6 +1692,7 @@ int libesedb_page_tree_read_leaf_page_values(
 				libnotify_verbose_print_data(
 				 page_value_data,
 				 definition_size );
+*/
 
 				endian_little_convert_32bit(
 				 test,
@@ -1551,399 +1726,281 @@ int libesedb_page_tree_read_leaf_page_values(
 				libnotify_verbose_printf(
 				 "\n" );
 
-				if( definition_type == 0x0001 )
+				/* definition type: 0x0001
+				 */
+				if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_TABLE )
 				{
-					endian_little_convert_32bit(
-					 test,
-					 page_value_data );
-
-					page_value_data += 4;
-					page_value_size -= 4;
-					definition_size -= 4;
-
-					libnotify_verbose_printf(
-					 "%s: value: %03d FDP object identifier\t\t: %" PRIu32 "\n",
-					 function,
-					 page_value_iterator,
-					 test );
-
-					if( definition_flags == 0x8008 )
+					if( libesedb_table_definition_initialize(
+					     &table_definition,
+					     error ) != 1 )
 					{
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+						 "%s: unable to create table definition.",
+						 function );
 
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d parent FDP page number\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d table density percentage\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown1_1\t\t\t\t: 0x%08" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d intial amount of pages\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_16bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 2;
-						page_value_size -= 2;
-						definition_size -= 2;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown1_2\t\t\t\t: 0x%04" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
+						return( -1 );
 					}
-				}
-				else if( definition_type == 0x0002 )
-				{
-					endian_little_convert_32bit(
-					 test,
-					 page_value_data );
-
-					page_value_data += 4;
-					page_value_size -= 4;
-					definition_size -= 4;
-
-					libnotify_verbose_printf(
-					 "%s: value: %03d column identifier\t\t\t: %" PRIu32 "\n",
-					 function,
-					 page_value_iterator,
-					 test );
-
-					if( ( definition_flags == 0x8007 )
-					 || ( definition_flags == 0x8009 )
-					 || ( definition_flags == 0x8309 ) )
+					if( libesedb_table_definition_read(
+					     table_definition,
+					     page_value_data,
+					     definition_size,
+					     definition_flags,
+					     error ) != 1 )
 					{
-						endian_little_convert_32bit(
-						 column_type,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d column type\t\t\t: %" PRIu32 " ",
-						 function,
-						 page_value_iterator,
-						 column_type );
-						libesedb_debug_print_column_type(
-						 column_type );
-						libnotify_verbose_printf(
-						 "\n" );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d maximum size\t\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d column group of bits\t\t: ",
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_READ_FAILED,
+						 "%s: unable to read table definition in page value: %d.",
 						 function,
 						 page_value_iterator );
-						libesedb_debug_print_column_group_of_bits(
-						 test );
-						libnotify_verbose_printf(
-						 "\n" );
 
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
+						libesedb_table_definition_free(
+						 (intptr_t *) table_definition,
+						 NULL );
 
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
+						table_definition = NULL;
 
-						libnotify_verbose_printf(
-						 "%s: value: %03d codepage\t\t\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-						 function,
-						 page_value_iterator,
-						 test,
-						 test );
-
-						if( ( definition_flags & 0x0008 ) == 0x0008 )
-						{
-							endian_little_convert_16bit(
-							 test,
-							 page_value_data );
-
-							page_value_data += 2;
-							page_value_size -= 2;
-							definition_size -= 2;
-
-							libnotify_verbose_printf(
-							 "%s: value: %03d unknown2_1\t\t\t\t: %" PRIu32 "\n",
-							 function,
-							 page_value_iterator,
-							 test );
-
-							libnotify_verbose_printf(
-							 "%s: value: %03d unknown2_2\t\t\t\t: 0x%02" PRIx8 "\n",
-							 function,
-							 page_value_iterator,
-							 *page_value_data );
-
-							page_value_data += 1;
-							page_value_size -= 1;
-							definition_size -= 1;
-						}
-						if( ( definition_flags & 0x0001 ) == 0x0001 )
-						{
-							libnotify_verbose_printf(
-							 "%s: value: %03d unknown2_3\t\t\t\t: 0x%02" PRIx8 "\n",
-							 function,
-							 page_value_iterator,
-							 *page_value_data );
-
-							page_value_data += 1;
-							page_value_size -= 1;
-							definition_size -= 1;
-						}
-						if( ( definition_flags & 0x0008 ) == 0x0008 )
-						{
-							libnotify_verbose_printf(
-							 "%s: value: %03d unknown2_4\t\t\t\t: 0x%02" PRIx8 "\n",
-							 function,
-							 page_value_iterator,
-							 *page_value_data );
-
-							page_value_data += 1;
-							page_value_size -= 1;
-							definition_size -= 1;
-						}
+						return( -1 );
 					}
-				}
-				else if( definition_type == 0x0003 )
-				{
-					if( ( definition_flags == 0x840a )
-					 || ( definition_flags == 0x880a ) )
+					if( libesedb_list_append_value(
+					     page_tree->table_definition_list,
+					     (intptr_t *) table_definition,
+					     error ) != 1 )
 					{
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append table definition to list.",
+						 function );
 
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
+						libesedb_table_definition_free(
+						 (intptr_t *) table_definition,
+						 NULL );
 
-						libnotify_verbose_printf(
-						 "%s: value: %03d FDP object identifier\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
+						table_definition = NULL;
 
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d parent FDP page number\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown3_1\t\t\t\t: 0x%08" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown3_2\t\t\t\t: 0x%08" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown3_3\t\t\t\t: 0x%08" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
+						return( -1 );
 					}
+					table_definition = NULL;
+
+					page_value_data += definition_size;
+					page_value_size -= definition_size;
+					definition_size -= definition_size;
 				}
-				else if( definition_type == 0x0004 )
+				/* definition type: 0x0002
+				 */
+				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_COLUMN )
 				{
-					if( definition_flags == 0x8007 )
+					if( libesedb_column_definition_initialize(
+					     &column_definition,
+					     error ) != 1 )
 					{
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+						 "%s: unable to create column definition.",
+						 function );
 
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d FDP object identifier\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d parent FDP page number\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d initial amount of pages\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown4_1\t\t\t\t: 0x%08" PRIx32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d extent space\t\t\t: %" PRIu32 "\n",
-						 function,
-						 page_value_iterator,
-						 test );
-
-						libnotify_verbose_printf(
-						 "%s: value: %03d unknown4_2\t\t\t\t: 0x%02" PRIx8 "\n",
-						 function,
-						 page_value_iterator,
-						 *page_value_data );
-
-						page_value_data += 1;
-						page_value_size -= 1;
-						definition_size -= 1;
+						return( -1 );
 					}
+					if( libesedb_column_definition_read(
+					     column_definition,
+					     page_value_data,
+					     definition_size,
+					     definition_flags,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_READ_FAILED,
+						 "%s: unable to read column definition in page value: %d.",
+						 function,
+						 page_value_iterator );
+
+						libesedb_column_definition_free(
+						 (intptr_t *) column_definition,
+						 NULL );
+
+						column_definition = NULL;
+
+						return( -1 );
+					}
+					if( libesedb_list_append_value(
+					     page_tree->column_definition_list,
+					     (intptr_t *) column_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append column definition to list.",
+						 function );
+
+						libesedb_column_definition_free(
+						 (intptr_t *) column_definition,
+						 NULL );
+
+						column_definition = NULL;
+
+						return( -1 );
+					}
+					column_definition = NULL;
+
+					page_value_data += definition_size;
+					page_value_size -= definition_size;
+					definition_size -= definition_size;
+				}
+				/* definition type: 0x0003
+				 */
+				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_INDEX )
+				{
+					if( libesedb_index_definition_initialize(
+					     &index_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+						 "%s: unable to create index definition.",
+						 function );
+
+						return( -1 );
+					}
+					if( libesedb_index_definition_read(
+					     index_definition,
+					     page_value_data,
+					     definition_size,
+					     definition_flags,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_READ_FAILED,
+						 "%s: unable to read index definition in page value: %d.",
+						 function,
+						 page_value_iterator );
+
+						libesedb_index_definition_free(
+						 (intptr_t *) index_definition,
+						 NULL );
+
+						index_definition = NULL;
+
+						return( -1 );
+					}
+					if( libesedb_list_append_value(
+					     page_tree->index_definition_list,
+					     (intptr_t *) index_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append index definition to list.",
+						 function );
+
+						libesedb_index_definition_free(
+						 (intptr_t *) index_definition,
+						 NULL );
+
+						index_definition = NULL;
+
+						return( -1 );
+					}
+					index_definition = NULL;
+
+					page_value_data += definition_size;
+					page_value_size -= definition_size;
+					definition_size -= definition_size;
+				}
+				/* definition type: 0x0004
+				 */
+				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_LONG_VALUE )
+				{
+					if( libesedb_long_value_definition_initialize(
+					     &long_value_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+						 "%s: unable to create long value definition.",
+						 function );
+
+						return( -1 );
+					}
+					if( libesedb_long_value_definition_read(
+					     long_value_definition,
+					     page_value_data,
+					     definition_size,
+					     definition_flags,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_READ_FAILED,
+						 "%s: unable to read long value definition in page value: %d.",
+						 function,
+						 page_value_iterator );
+
+						libesedb_long_value_definition_free(
+						 (intptr_t *) long_value_definition,
+						 NULL );
+
+						long_value_definition = NULL;
+
+						return( -1 );
+					}
+					if( libesedb_list_append_value(
+					     page_tree->long_value_definition_list,
+					     (intptr_t *) long_value_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+						 "%s: unable to append long value definition to list.",
+						 function );
+
+						libesedb_long_value_definition_free(
+						 (intptr_t *) long_value_definition,
+						 NULL );
+
+						long_value_definition = NULL;
+
+						return( -1 );
+					}
+					long_value_definition = NULL;
+
+					page_value_data += definition_size;
+					page_value_size -= definition_size;
+					definition_size -= definition_size;
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+					 "%s: unsupported definition type: 0x%04" PRIx16 ".",
+					 function,
+					 definition_type );
+
+					return( -1 );
 				}
 			}
 			if( definition_size > 0 )
@@ -1962,39 +2019,54 @@ int libesedb_page_tree_read_leaf_page_values(
 			if( ( definition_flags == 0x8007 )
 			 || ( definition_flags == 0x8008 )
 			 || ( definition_flags == 0x8009 )
-			 || ( definition_flags == 0x8309 ) )
+			 || ( definition_flags == 0x8309 )
+			 || ( definition_flags == 0x840a )
+			 || ( definition_flags == 0x880a ) )
 			{
 				if( page_value_size > 0 )
 				{
 					endian_little_convert_16bit(
-					 test,
+					 name_size,
 					 page_value_data );
 
 					page_value_data += 2;
 					page_value_size -= 2;
 
 					libnotify_verbose_printf(
-					 "%s: value: %03d string size\t\t\t: %" PRIu32 "\n",
+					 "%s: value: %03d name size\t\t\t\t: %" PRIu32 "\n",
 					 function,
 					 page_value_iterator,
-					 test );
+					 name_size );
 
-					if( definition_flags == 0x8309 )
+					if( ( definition_flags == 0x8309 )
+					 || ( definition_flags == 0x840a )
+					 || ( definition_flags == 0x880a ) )
 					{
-						endian_little_convert_32bit(
-						 test,
-						 page_value_data );
-
-						page_value_data += 4;
-						page_value_size -= 4;
-						definition_size -= 4;
-
 						libnotify_verbose_printf(
-						 "%s: value: %03d unknownA_1\t\t\t\t: 0x%08" PRIx32 "\n",
+						 "%s: value: %03d multi value amount\t\t\t: %" PRIu32 "\n",
 						 function,
 						 page_value_iterator,
-						 test );
+						 ( ( definition_flags & 0x7f00 ) >> 8 ) - 1 );
 
+						for( multi_value_iterator = 0;
+						     multi_value_iterator < ( ( ( definition_flags & 0x7f00 ) >> 8 ) - 1 );
+						     multi_value_iterator++ )
+						{
+							endian_little_convert_16bit(
+							 test,
+							 page_value_data );
+
+							page_value_data += 2;
+							page_value_size -= 2;
+							definition_size -= 2;
+
+							libnotify_verbose_printf(
+							 "%s: value: %03d unknownA_%02" PRIu8 "\t\t\t: 0x%04" PRIx32 "\n",
+							 function,
+							 page_value_iterator,
+							 multi_value_iterator,
+							 test );
+						}
 						endian_little_convert_16bit(
 						 test,
 						 page_value_data );
@@ -2011,7 +2083,7 @@ int libesedb_page_tree_read_leaf_page_values(
 					}
 					if( libuna_utf8_string_size_from_byte_stream(
 					     page_value_data,
-					     (size_t) test,
+					     (size_t) name_size,
 					     LIBUNA_CODEPAGE_ASCII,
 					     &string_size,
 					     error ) != 1 )
@@ -2043,7 +2115,7 @@ int libesedb_page_tree_read_leaf_page_values(
 					     string,
 					     string_size,
 					     page_value_data,
-					     (size_t) test,
+					     (size_t) name_size,
 					     LIBUNA_CODEPAGE_ASCII,
 					     error ) != 1 )
 					{
@@ -2059,11 +2131,11 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					page_value_data += test;
-					page_value_size -= test;
+					page_value_data += name_size;
+					page_value_size -= name_size;
 
 					libnotify_verbose_printf(
-					 "%s: value: %03d string\t\t\t\t: %s\n",
+					 "%s: value: %03d name string\t\t\t: %s\n",
 					 function,
 					 (char) page_value_iterator,
 					 string );
@@ -2071,6 +2143,43 @@ int libesedb_page_tree_read_leaf_page_values(
 					memory_free(
 					 string );
 
+					if( ( definition_flags == 0x8309 )
+					 || ( definition_flags == 0x840a )
+					 || ( definition_flags == 0x880a ) )
+					{
+						libnotify_verbose_printf(
+						 "%s: value: %03d column key size\t\t\t: %" PRIu16 "\n",
+						 function,
+						 page_value_iterator,
+						 page_value_size );
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d column key value\t\t\t: ",
+						 function,
+						 page_value_iterator );
+
+						while( page_value_size > 0 )
+						{
+							if( ( ( *page_value_data >= 'A' )
+							  && ( *page_value_data <= 'Z' ) )
+							 || ( *page_value_data == '_' ) )
+							{
+								libnotify_verbose_printf(
+								 "%c",
+								 (char) *page_value_data );
+							}
+							else
+							{
+								libnotify_verbose_printf(
+								 "\\x%02" PRIx8 "",
+								 *page_value_data );
+							}
+							page_value_data++;
+							page_value_size--;
+						}
+						libnotify_verbose_printf(
+						 "\n" );
+					}
 					libnotify_verbose_printf(
 					 "\n" );
 				}

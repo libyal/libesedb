@@ -68,8 +68,7 @@ void libesedb_debug_print_database_state(
 
 		default:
 			libnotify_verbose_printf(
-			 "Unknown (%" PRIu32 ")",
-			 database_state );
+			 "(Unknown)" );
 			break;
 	}
 }
@@ -410,6 +409,98 @@ void libesedb_debug_print_column_group_of_bits(
 	{
 		libnotify_verbose_printf(
 		 "\t(JET_bitColumnUserDefinedDefault)\n" );
+	}
+}
+
+/* Prints the index group of bits
+ */
+void libesedb_debug_print_index_group_of_bits(
+      uint32_t index_group_of_bits )
+{
+	libnotify_verbose_printf(
+	 "0x%08" PRIx32 "\n",
+	 index_group_of_bits );
+
+	if( ( index_group_of_bits & 0x00000001 ) == 0x00000001 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexUnique)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000002 ) == 0x00000002 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexPrimary)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000004 ) == 0x00000004 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexDisallowNull)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000008 ) == 0x00000008 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexIgnoreNull)\n" );
+	}
+
+	if( ( index_group_of_bits & 0x00000020 ) == 0x00000020 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexIgnoreAnyNull)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000040 ) == 0x00000040 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexIgnoreFirstNull)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000080 ) == 0x00000080 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexLazyFlush)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000100 ) == 0x00000100 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexEmpty)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000200 ) == 0x00000200 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexUnversioned)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000400 ) == 0x00000400 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexSortNullsHigh)\n" );
+	}
+	if( ( index_group_of_bits & 0x00000800 ) == 0x00000800 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexUnicode)\n" );
+	}
+	if( ( index_group_of_bits & 0x00001000 ) == 0x00001000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexTuples)\n" );
+	}
+	if( ( index_group_of_bits & 0x00002000 ) == 0x00002000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexTupleLimits)\n" );
+	}
+	if( ( index_group_of_bits & 0x00004000 ) == 0x00004000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexCrossProduct)\n" );
+	}
+	if( ( index_group_of_bits & 0x00008000 ) == 0x00008000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexKeyMost)\n" );
+	}
+	if( ( index_group_of_bits & 0x00010000 ) == 0x00010000 )
+	{
+		libnotify_verbose_printf(
+		 "\t(JET_bitIndexDisallowTruncation)\n" );
 	}
 }
 

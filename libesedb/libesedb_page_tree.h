@@ -29,7 +29,8 @@
 #include <liberror.h>
 
 #include "libesedb_io_handle.h"
-#include "libesedb_tree_type.h"
+#include "libesedb_list_type.h"
+#include "libesedb_page.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -39,9 +40,21 @@ typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
 {
-	/* The page tree root node
+	/* The table definition list
 	 */
-	libesedb_tree_node_t *root_node;
+	libesedb_list_t *table_definition_list;
+
+	/* The column definition list
+	 */
+	libesedb_list_t *column_definition_list;
+
+	/* The index definition list
+	 */
+	libesedb_list_t *index_definition_list;
+
+	/* The long value definition list
+	 */
+	libesedb_list_t *long_value_definition_list;
 };
 
 int libesedb_page_tree_initialize(

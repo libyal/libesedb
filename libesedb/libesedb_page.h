@@ -75,19 +75,19 @@ struct libesedb_page
 {
 	/* The page number
 	 */
-	uint32_t number;
+	uint32_t page_number;
 
 	/* The previous page number
 	 */
-	uint32_t number_previous;
+	uint32_t previous_page_number;
 
 	/* The next page number
 	 */
-	uint32_t number_next;
+	uint32_t next_page_number;
 
-	/* The father object identifier
+	/* The father data page (FPD) object identifier
 	 */
-	uint32_t father_object_identifier;
+	uint32_t father_data_page_object_identifier;
 
 	/* The page flags
 	 */

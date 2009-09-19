@@ -223,6 +223,17 @@ LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
                      int ascii_codepage,
                      libesedb_error_t **error );
 
+/* -------------------------------------------------------------------------
+ * Table functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees a table
+ * Detaches the reference from the file if necessary
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_free(
+                     libesedb_table_t **table,
+                     libesedb_error_t **error );
 
 #if defined( __cplusplus )
 }

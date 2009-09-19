@@ -35,7 +35,7 @@
 
 #include "esedb_page.h"
 
-/* Frees page value
+/* Frees the page value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_value_free(
@@ -52,7 +52,7 @@ int libesedb_page_value_free(
 	return( 1 );
 }
 
-/* Frees page tags value
+/* Frees the page tags value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tags_value_free(
@@ -399,21 +399,21 @@ int libesedb_page_read(
 			return( -1 );
 		}
 	}
-	page->number = page_number;
+	page->page_number = page_number;
 
 	endian_little_convert_16bit(
 	 available_data_size,
 	 ( (esedb_page_header_t *) page->data )->available_data_size );
 
 	endian_little_convert_32bit(
-	 page->number_previous,
+	 page->previous_page_number,
 	 ( (esedb_page_header_t *) page->data )->previous_page );
 	endian_little_convert_32bit(
-	 page->number_next,
+	 page->next_page_number,
 	 ( (esedb_page_header_t *) page->data )->next_page );
 	endian_little_convert_32bit(
-	 page->father_object_identifier,
-	 ( (esedb_page_header_t *) page->data )->father_object_identifier );
+	 page->father_data_page_object_identifier,
+	 ( (esedb_page_header_t *) page->data )->father_data_page_object_identifier );
 
 	endian_little_convert_16bit(
 	 available_page_tag,
@@ -464,15 +464,15 @@ int libesedb_page_read(
 	libnotify_verbose_printf(
 	 "%s: previous page number\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 page->number_previous );
+	 page->previous_page_number );
 	libnotify_verbose_printf(
 	 "%s: next page number\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 page->number_next );
+	 page->next_page_number );
 	libnotify_verbose_printf(
-	 "%s: father object identifier\t\t\t\t: %" PRIu32 "\n",
+	 "%s: father data page (FDP) object identifier\t\t: %" PRIu32 "\n",
 	 function,
-	 page->father_object_identifier );
+	 page->father_data_page_object_identifier );
 
 	libnotify_verbose_printf(
 	 "%s: available data size\t\t\t\t\t: %" PRIu32 "\n",
