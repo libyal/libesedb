@@ -223,6 +223,66 @@ LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
                      int ascii_codepage,
                      libesedb_error_t **error );
 
+/* Retrieves the file (current) format version
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_format_version(
+                     libesedb_file_t *file,
+                     uint32_t *format_version,
+                     uint32_t *format_revision,
+                     libesedb_error_t **error );
+
+/* Retrieves the file creation version
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_creation_format_version(
+                     libesedb_file_t *file,
+                     uint32_t *format_version,
+                     uint32_t *format_revision,
+                     libesedb_error_t **error );
+
+/* Retrieves the file page size
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_page_size(
+                     libesedb_file_t *file,
+                     uint32_t *page_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of tables
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
+                     libesedb_file_t *file,
+                     int *amount_of_tables,
+                     libesedb_error_t **error );
+
+/* Retrieves the table for the specific index
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_table(
+                     libesedb_file_t *file,
+                     int table_entry,
+                     libesedb_table_t **table,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_amount_of_indexes(
+                     libesedb_file_t *file,
+                     int *amount_of_indexes,
+                     libesedb_error_t **error );
+
+/* Retrieves the index for the specific index
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_index(
+                     libesedb_file_t *file,
+                     int index_entry,
+                     libesedb_index_t **index,
+                     libesedb_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Table functions
  * ------------------------------------------------------------------------- */
@@ -233,6 +293,74 @@ LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
  */
 LIBESEDB_EXTERN int libesedb_table_free(
                      libesedb_table_t **table,
+                     libesedb_error_t **error );
+
+/* Retrieves the table identifier or Father Data Page (FDP) object identifier
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_identifier(
+                     libesedb_table_t *table,
+                     uint32_t *identifier,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string size of the table name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_utf8_name_size(
+                     libesedb_table_t *table,
+                     size_t *utf8_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string of the table name
+ * The string is formatted in UTF-8
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
+                     libesedb_table_t *table,
+                     uint8_t *utf8_string,
+                     size_t utf8_string_size,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Index functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees a index
+ * Detaches the reference from the file if necessary
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_free(
+                     libesedb_index_t **index,
+                     libesedb_error_t **error );
+
+/* Retrieves the index identifier or Father Data Page (FDP) object identifier
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_get_identifier(
+                     libesedb_index_t *index,
+                     uint32_t *identifier,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string size of the index name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_get_utf8_name_size(
+                     libesedb_index_t *index,
+                     size_t *utf8_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string of the index name
+ * The string is formatted in UTF-8
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
+                     libesedb_index_t *index,
+                     uint8_t *utf8_string,
+                     size_t utf8_string_size,
                      libesedb_error_t **error );
 
 #if defined( __cplusplus )

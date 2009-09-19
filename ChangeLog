@@ -6,15 +6,19 @@ Debug
 Library
 * compare primary and secondary file header
   - report any differences
+* provide UTF-16 name string functions
+* merge table and index into single item type ?
 
 Tools
 * esedbinfo
   - page summary (scan for uninitialized, empty, etc. pages)
   - file header summary (check backup file header)
   - summary of catalog (check backup catalog)
+  - print
+    - database state
 
 File format
-* where is the root page?
+* where is the root object defined? or is it implied to be object 1?
 
 Deployment:
 * update manuals
@@ -28,7 +32,13 @@ Notes
 * create a root page table instead?
 
 20090919
-* worked on reading catalog
+* worked on reading the catalog
+* esedbinfo now shows
+  - version, revision
+  - creation version, revision
+  - page size
+  - table names
+  - index names
 
 20090918
 * worked on page values

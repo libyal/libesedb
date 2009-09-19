@@ -1,7 +1,7 @@
 /*
  * libesedb Input/Output (IO) handle
  *
- * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -48,9 +48,17 @@ struct libesedb_io_handle
 	 */
 	uint32_t format_revision;
 
+	/* The creation format version
+	 */
+	uint32_t creation_format_version;
+
+	/* The creation format revision number
+	 */
+	uint32_t creation_format_revision;
+
 	/* The page size
 	 */
-	size_t page_size;
+	uint32_t page_size;
 
 	/* The file io handle
 	 */

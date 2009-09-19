@@ -131,6 +131,11 @@ int libesedb_tree_node_get_leaf_node_list(
      libesedb_list_t **leaf_node_list,
      liberror_error_t **error );
 
+int libesedb_tree_node_get_amount_of_child_nodes(
+     libesedb_tree_node_t *node,
+     int *amount_of_child_nodes,
+     liberror_error_t **error );
+
 int libesedb_tree_node_get_child_node(
      libesedb_tree_node_t *node,
      int child_index,

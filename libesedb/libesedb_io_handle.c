@@ -1,7 +1,7 @@
 /*
  * libesedb Input/Output (IO) handle
  *
- * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -431,10 +431,16 @@ int libesedb_io_handle_read_file_header(
 	endian_little_convert_32bit(
 	 io_handle->format_revision,
 	 ( (esedb_file_header_t *) file_header_data )->format_revision );
-
 	endian_little_convert_32bit(
 	 io_handle->page_size,
 	 ( (esedb_file_header_t *) file_header_data )->page_size );
+
+	endian_little_convert_32bit(
+	 io_handle->creation_format_version,
+	 ( (esedb_file_header_t *) file_header_data )->creation_format_version );
+	endian_little_convert_32bit(
+	 io_handle->creation_format_revision,
+	 ( (esedb_file_header_t *) file_header_data )->creation_format_revision );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 	libnotify_verbose_printf(
@@ -687,20 +693,14 @@ int libesedb_io_handle_read_file_header(
 	 ( (esedb_file_header_t *) file_header_data )->current_shadow_volume_backup,
 	 24 );
 
-	endian_little_convert_32bit(
-	 test,
-	 ( (esedb_file_header_t *) file_header_data )->creation_format_version );
 	libnotify_verbose_printf(
 	 "%s: creation format version\t\t: 0x%08" PRIx32 "\n",
 	 function,
-	 test );
-	endian_little_convert_32bit(
-	 test,
-	 ( (esedb_file_header_t *) file_header_data )->creation_format_revision );
+	 io_handle->creation_format_version );
 	libnotify_verbose_printf(
 	 "%s: creation format revision\t\t: 0x%08" PRIx32 "\n",
 	 function,
-	 test );
+	 io_handle->creation_format_revision );
 
 	libnotify_verbose_printf(
 	 "%s: unknown3:\n",

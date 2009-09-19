@@ -78,7 +78,17 @@ int esedbinfo_file_info_fprint(
      libesedb_file_t *file,
      libesedb_error_t **error )
 {
-	static char *function = "esedbinfo_file_info_fprint";
+	libesedb_index_t *index  = NULL;
+	libesedb_table_t *table  = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "esedbinfo_file_info_fprint";
+	size_t value_string_size = 0;
+	uint32_t format_revision = 0;
+	uint32_t format_version  = 0;
+	uint32_t item_identifier = 0;
+	uint32_t page_size       = 0;
+	int amount_of_items      = 0;
+	int item_iterator        = 0;
 
 	if( stream == NULL )
 	{
@@ -106,8 +116,378 @@ int esedbinfo_file_info_fprint(
 	 stream,
 	 "Extensible Storage Engine Database information:\n" );
 
-	/* TODO */
+	if( libesedb_file_get_creation_format_version(
+	     file,
+	     &format_version,
+	     &format_revision,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve creation format version.",
+		 function );
 
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tCreated in format:\t0x%" PRIx32 ",%" PRIu32 "\n",
+	 format_version,
+	 format_revision );
+
+	if( libesedb_file_get_format_version(
+	     file,
+	     &format_version,
+	     &format_revision,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve format version.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tCurrent format:\t\t0x%" PRIx32 ",%" PRIu32 "\n",
+	 format_version,
+	 format_revision );
+
+	if( libesedb_file_get_page_size(
+	     file,
+	     &page_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page size.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tPage size:\t\t%" PRIu32 " bytes\n",
+	 page_size );
+
+	fprintf(
+	 stream,
+	 "\n" );
+
+	fprintf(
+	 stream,
+	 "Catalog content:\n" );
+
+	if( libesedb_file_get_amount_of_tables(
+	     file,
+	     &amount_of_items,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of tables.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tAmount of tables:\t%d\n",
+	 amount_of_items );
+
+	for( item_iterator = 0;
+	     item_iterator < amount_of_items;
+	     item_iterator++ )
+	{
+		if( libesedb_file_get_table(
+		     file,
+		     item_iterator,
+		     &table,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve table: %d.",
+			 function,
+			 item_iterator + 1 );
+
+			return( -1 );
+		}
+		if( libesedb_table_get_identifier(
+		     table,
+		     &item_identifier,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the table identifier.",
+			 function );
+
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libesedb_table_get_utf8_name_size(
+		     table,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the size of the table name.",
+			 function );
+
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		value_string = (uint8_t *) memory_allocate(
+		                            sizeof( uint8_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create table name string.",
+			 function );
+
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libesedb_table_get_utf8_name(
+		     table,
+		     value_string,
+		     value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the table name.",
+			 function );
+
+			memory_free(
+			 value_string );
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		fprintf(
+		 stream,
+		 "\t(%" PRIu32 ")\t%s\n",
+		 item_identifier,
+		 value_string );
+
+		memory_free(
+		 value_string );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( item_identifier == 14 )
+		{
+			if( libesedb_table_test(
+			     table,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read table.",
+				 function );
+
+				if( ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libsystem_notify_print_error_backtrace(
+					 *error );
+				}
+				liberror_error_free(
+				 error );
+			}
+		}
+#endif
+		if( libesedb_table_free(
+		     &table,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	fprintf(
+	 stream,
+	 "\n" );
+
+	if( libesedb_file_get_amount_of_indexes(
+	     file,
+	     &amount_of_items,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of indexes.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tAmount of indexes:\t%d\n",
+	 amount_of_items );
+
+	for( item_iterator = 0;
+	     item_iterator < amount_of_items;
+	     item_iterator++ )
+	{
+		if( libesedb_file_get_index(
+		     file,
+		     item_iterator,
+		     &index,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve index: %d.",
+			 function,
+			 item_iterator + 1 );
+
+			return( -1 );
+		}
+		if( libesedb_index_get_identifier(
+		     index,
+		     &item_identifier,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the index identifier.",
+			 function );
+
+			libesedb_index_free(
+			 &index,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libesedb_index_get_utf8_name_size(
+		     index,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the size of the index name.",
+			 function );
+
+			libesedb_index_free(
+			 &index,
+			 NULL );
+
+			return( -1 );
+		}
+		value_string = (uint8_t *) memory_allocate(
+		                            sizeof( uint8_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create index name string.",
+			 function );
+
+			libesedb_index_free(
+			 &index,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libesedb_index_get_utf8_name(
+		     index,
+		     value_string,
+		     value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the index name.",
+			 function );
+
+			memory_free(
+			 value_string );
+			libesedb_index_free(
+			 &index,
+			 NULL );
+
+			return( -1 );
+		}
+		fprintf(
+		 stream,
+		 "\t(%" PRIu32 ")\t%s\n",
+		 item_identifier,
+		 value_string );
+
+		memory_free(
+		 value_string );
+
+		if( libesedb_index_free(
+		     &index,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index.",
+			 function );
+
+			return( -1 );
+		}
+	}
 	fprintf(
 	 stream,
 	 "\n" );

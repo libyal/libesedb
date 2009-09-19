@@ -73,6 +73,15 @@ struct libesedb_list
 	libesedb_list_element_t *last;
 };
 
+int libesedb_list_element_initialize(
+     libesedb_list_element_t **list_element,
+     liberror_error_t **error );
+
+int libesedb_list_element_free(
+     libesedb_list_element_t **list_element,
+     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     liberror_error_t **error );
+
 int libesedb_list_initialize(
      libesedb_list_t **list,
      liberror_error_t **error );
@@ -132,6 +141,7 @@ int libesedb_list_remove_element(
 
 int libesedb_list_get_amount_of_elements(
      libesedb_list_t *list,
+     int *amount_of_elements,
      liberror_error_t **error );
 
 int libesedb_list_get_element(

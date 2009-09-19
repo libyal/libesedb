@@ -256,17 +256,6 @@ int libesedb_page_read(
 
 		return( -1 );
 	}
-	if( io_handle->page_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid io handle - page size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
 	page_offset = ( page_number + 1 ) * io_handle->page_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -295,7 +284,7 @@ int libesedb_page_read(
 		return( -1 );
 	}
 	page->data = (uint8_t *) memory_allocate(
-	                          io_handle->page_size );
+	                          (size_t) io_handle->page_size );
 
 	if( page->data == NULL )
 	{
@@ -308,7 +297,7 @@ int libesedb_page_read(
 
 		return( -1 );
 	}
-	page->data_size = io_handle->page_size;
+	page->data_size = (size_t) io_handle->page_size;
 
 	read_count = libbfio_handle_read(
 	              io_handle->file_io_handle,
@@ -434,7 +423,8 @@ int libesedb_page_read(
 	 function,
 	 stored_xor32_checksum );
 
-	if( io_handle->format_revision >= 0x0c )
+	if( ( io_handle->format_revision >= 0x0c )
+	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
 		endian_little_convert_32bit(
 		 test,

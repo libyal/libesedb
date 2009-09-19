@@ -129,7 +129,9 @@ int libesedb_tree_node_free(
 		}
 		amount_of_child_nodes = ( *node )->amount_of_child_nodes;
 
-		for( iterator = 0; iterator < amount_of_child_nodes; iterator++ )
+		for( iterator = 0;
+		     iterator < amount_of_child_nodes;
+		     iterator++ )
 		{
 			tree_node = ( *node )->first_child;
 
@@ -293,7 +295,9 @@ int libesedb_tree_node_clone(
 		 */
 		source_child_node = source->first_child;
 
-		for( iterator = 0; iterator < source->amount_of_child_nodes; iterator++ )
+		for( iterator = 0;
+		     iterator < source->amount_of_child_nodes;
+		     iterator++ )
 		{
 			if( source_child_node == NULL )
 			{
@@ -707,7 +711,9 @@ int libesedb_tree_node_insert_node(
 		}
 		child_node = parent_node->first_child;
 
-		for( iterator = 0; iterator < parent_node->amount_of_child_nodes; iterator++ )
+		for( iterator = 0;
+		     iterator < parent_node->amount_of_child_nodes;
+		     iterator++ )
 		{
 			result = value_compare_function(
 			          node->value,
@@ -1032,7 +1038,9 @@ int libesedb_tree_node_get_leaf_node_list(
 	{
 		child_node = node->first_child;
 
-		for( iterator = 0; iterator < node->amount_of_child_nodes; iterator++ )
+		for( iterator = 0;
+		     iterator < node->amount_of_child_nodes;
+		     iterator++ )
 		{
 			if( child_node == NULL )
 			{
@@ -1092,6 +1100,43 @@ int libesedb_tree_node_get_leaf_node_list(
 	return( 1 );
 }
 
+/* Retrieves the amount of child nodes in the tree node
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_tree_node_get_amount_of_child_nodes(
+     libesedb_tree_node_t *node,
+     int *amount_of_child_nodes,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_tree_node_get_amount_of_child_nodes";
+
+	if( node == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid node.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_child_nodes == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid amount of child nodes.",
+		 function );
+
+		return( -1 );
+	}
+	*amount_of_child_nodes = node->amount_of_child_nodes;
+
+	return( 1 );
+}
+
 /* Retrieves a child node by index
  * Returns 1 if successful or -1 on error
  */
@@ -1146,7 +1191,9 @@ int libesedb_tree_node_get_child_node(
 	{
 		*child_node = node->first_child;
 
-		for( iterator = 0; iterator < node->amount_of_child_nodes; iterator++ )
+		for( iterator = 0;
+		     iterator < node->amount_of_child_nodes;
+		     iterator++ )
 		{
 			if( *child_node == NULL )
 			{
@@ -1173,7 +1220,9 @@ int libesedb_tree_node_get_child_node(
 	{
 		*child_node = node->last_child;
 
-		for( iterator = ( node->amount_of_child_nodes - 1 ); iterator >= 0; iterator-- )
+		for( iterator = ( node->amount_of_child_nodes - 1 );
+		     iterator >= 0;
+		     iterator-- )
 		{
 			if( *child_node == NULL )
 			{

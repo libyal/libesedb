@@ -24,6 +24,7 @@ libesedb_la_SOURCES = \
 	libesedb_extern.h \
 	libesedb_file.c libesedb_file.h \
 	libesedb_guid.c libesedb_guid.h \
+	libesedb_index.c libesedb_index.h \
 	libesedb_index_definition.c libesedb_index_definition.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \

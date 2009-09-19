@@ -58,6 +58,20 @@ File functions
 .Fn libesedb_file_get_ascii_codepage "libesedb_file_t *file, int *ascii_codepage, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_file_set_ascii_codepage "libesedb_file_t *file, int ascii_codepage, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_format_version "libesedb_file_t *file, uint32_t *format_version, uint32_t *format_revision, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_creation_format_version "libesedb_file_t *file, uint32_t *format_version, uint32_t *format_revision, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_page_size "libesedb_file_t *file, uint32_t *page_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_amount_of_tables "libesedb_file_t *file, int *amount_of_tables, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_table "libesedb_file_t *file, int table_entry, libesedb_table_t **table, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_amount_of_indexes "libesedb_file_t *file, int *amount_of_indexes, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_index "libesedb_file_t *file, int index_entry, libesedb_index_t **index, libesedb_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
@@ -70,6 +84,22 @@ Available when compiled with libbfio support:
 Table functions
 .Ft int
 .Fn libesedb_table_free "libesedb_table_t **table, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_identifier "libesedb_table_t *table, uint32_t *identifier, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_utf8_name_size "libesedb_table_t *table, size_t *utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_utf8_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Pp
+Index functions
+.Ft int
+.Fn libesedb_index_free "libesedb_index_t **index, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_identifier "libesedb_index_t *index, uint32_t *identifier, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_utf8_name_size "libesedb_index_t *index, size_t *utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_utf8_name "libesedb_index_t *index, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libesedb_get_version
@@ -81,7 +111,7 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libesedb uses UTF-8 encoded strings except for filenames.
+libesedb uses mainly UTF-8 encoded strings except for filenames, but provides several UTF-16 functions.
 
 ASCII strings in a EDB file contain an extended ASCII string using the codepage of the system it was created on. The function
 .Ar libesedb_set_ascii_codepage

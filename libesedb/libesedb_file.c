@@ -35,9 +35,11 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
+#include "libesedb_index.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_table.h"
 
 /* Initialize a file
  * Make sure the value file is pointing to is set to NULL
@@ -94,17 +96,37 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_page_tree_initialize(
-		     &( internal_file->catalog_page_tree ),
+		if( libesedb_list_initialize(
+		     &( internal_file->table_reference_list ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create catalog page tree.",
+			 "%s: unable to create table reference list.",
 			 function );
 
+			memory_free(
+			 internal_file );
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( internal_file->index_reference_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index reference list.",
+			 function );
+
+			libesedb_list_free(
+			 &( internal_file->table_reference_list ),
+			 NULL,
+			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -123,6 +145,14 @@ int libesedb_file_initialize(
 
 			libesedb_page_tree_free(
 			 &( internal_file->catalog_page_tree ),
+			 NULL );
+			libesedb_list_free(
+			 &( internal_file->index_reference_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( internal_file->table_reference_list ),
+			 NULL,
 			 NULL );
 			memory_free(
 			 internal_file );
@@ -162,6 +192,34 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
+		if( libesedb_list_free(
+		     &( internal_file->table_reference_list ),
+		     &libesedb_table_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( internal_file->index_reference_list ),
+		     &libesedb_index_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index list.",
+			 function );
+
+			result = -1;
+		}
 		if( libesedb_page_tree_free(
 		     &( internal_file->catalog_page_tree ),
 		     error ) != 1 )
@@ -678,6 +736,19 @@ int libesedb_file_open_read(
 	 "Reading the catalog page tree:\n" );
 #endif
 
+	if( libesedb_page_tree_initialize(
+	     &( internal_file->catalog_page_tree ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create catalog page tree.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_read(
 	     internal_file->catalog_page_tree,
 	     internal_file->io_handle,
@@ -857,6 +928,551 @@ int libesedb_file_set_ascii_codepage(
 	}
 	internal_file->ascii_codepage = ascii_codepage;
 
+	return( 1 );
+}
+
+/* Retrieves the file (current) version
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_format_version(
+     libesedb_file_t *file,
+     uint32_t *format_version,
+     uint32_t *format_revision,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_format_version";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( format_version == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid format version.",
+		 function );
+
+		return( -1 );
+	}
+	if( format_revision == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid format revision.",
+		 function );
+
+		return( -1 );
+	}
+	*format_version  = internal_file->io_handle->format_version;
+	*format_revision = internal_file->io_handle->format_revision;
+
+	return( 1 );
+}
+
+/* Retrieves the file creation format version
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_creation_format_version(
+     libesedb_file_t *file,
+     uint32_t *format_version,
+     uint32_t *format_revision,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_creation_format_version";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( format_version == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid format version.",
+		 function );
+
+		return( -1 );
+	}
+	if( format_revision == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid format revision.",
+		 function );
+
+		return( -1 );
+	}
+	*format_version  = internal_file->io_handle->creation_format_version;
+	*format_revision = internal_file->io_handle->creation_format_revision;
+
+	return( 1 );
+}
+
+/* Retrieves the file page size
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_page_size(
+     libesedb_file_t *file,
+     uint32_t *page_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_page_size";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page size.",
+		 function );
+
+		return( -1 );
+	}
+	*page_size = internal_file->io_handle->page_size;
+
+	return( 1 );
+}
+
+/* Retrieves the amount of tables
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_amount_of_tables(
+     libesedb_file_t *file,
+     int *amount_of_tables,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_amount_of_tables";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->catalog_page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing catalog page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->catalog_page_tree->table_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - invalid catalog page tree - missing table list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_amount_of_elements(
+	     internal_file->catalog_page_tree->table_definition_list,
+	     amount_of_tables,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of tables.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific table
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_table(
+     libesedb_file_t *file,
+     int table_entry,
+     libesedb_table_t **table,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	libesedb_list_element_t *list_element   = NULL;
+	static char *function                   = "libesedb_file_get_table";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->catalog_page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing catalog page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->catalog_page_tree->table_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - invalid catalog page tree - missing table list.",
+		 function );
+
+		return( -1 );
+	}
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_element(
+	     internal_file->catalog_page_tree->table_definition_list,
+	     table_entry,
+	     &list_element,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve table list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( list_element->value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table list element - missing value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_table_initialize(
+	     table,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_table_attach(
+	     (libesedb_internal_table_t *) *table,
+	     internal_file,
+	     (libesedb_table_definition_t *) list_element->value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to attach table.",
+		 function );
+
+		libesedb_table_free(
+		 table,
+		 NULL );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_amount_of_indexes(
+     libesedb_file_t *file,
+     int *amount_of_indexes,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_amount_of_indexes";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->catalog_page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing catalog page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->catalog_page_tree->index_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - invalid catalog page tree - missing index list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_amount_of_elements(
+	     internal_file->catalog_page_tree->index_definition_list,
+	     amount_of_indexes,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of indexes.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_index(
+     libesedb_file_t *file,
+     int index_entry,
+     libesedb_index_t **index,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	libesedb_list_element_t *list_element   = NULL;
+	static char *function                   = "libesedb_file_get_index";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->catalog_page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing catalog page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->catalog_page_tree->index_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - invalid catalog page tree - missing index list.",
+		 function );
+
+		return( -1 );
+	}
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_element(
+	     internal_file->catalog_page_tree->index_definition_list,
+	     index_entry,
+	     &list_element,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve index list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( list_element->value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid index list element - missing value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_index_initialize(
+	     index,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_index_attach(
+	     (libesedb_internal_index_t *) *index,
+	     internal_file,
+	     (libesedb_index_definition_t *) list_element->value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to attach index.",
+		 function );
+
+		libesedb_index_free(
+		 index,
+		 NULL );
+
+		return( -1 );
+	}
 	return( 1 );
 }
 

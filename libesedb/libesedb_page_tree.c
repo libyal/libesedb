@@ -1730,6 +1730,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				 */
 				if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_TABLE )
 				{
+					table_definition = NULL;
+
 					if( libesedb_table_definition_initialize(
 					     &table_definition,
 					     error ) != 1 )
@@ -1786,8 +1788,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					table_definition = NULL;
-
 					page_value_data += definition_size;
 					page_value_size -= definition_size;
 					definition_size -= definition_size;
@@ -1796,6 +1796,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				 */
 				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_COLUMN )
 				{
+					column_definition = NULL;
+
 					if( libesedb_column_definition_initialize(
 					     &column_definition,
 					     error ) != 1 )
@@ -1852,8 +1854,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					column_definition = NULL;
-
 					page_value_data += definition_size;
 					page_value_size -= definition_size;
 					definition_size -= definition_size;
@@ -1862,6 +1862,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				 */
 				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_INDEX )
 				{
+					index_definition = NULL;
+
 					if( libesedb_index_definition_initialize(
 					     &index_definition,
 					     error ) != 1 )
@@ -1918,8 +1920,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					index_definition = NULL;
-
 					page_value_data += definition_size;
 					page_value_size -= definition_size;
 					definition_size -= definition_size;
@@ -1928,6 +1928,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				 */
 				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_LONG_VALUE )
 				{
+					long_value_definition = NULL;
+
 					if( libesedb_long_value_definition_initialize(
 					     &long_value_definition,
 					     error ) != 1 )
@@ -1984,8 +1986,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					long_value_definition = NULL;
-
 					page_value_data += definition_size;
 					page_value_size -= definition_size;
 					definition_size -= definition_size;
@@ -2140,9 +2140,31 @@ int libesedb_page_tree_read_leaf_page_values(
 					 (char) page_value_iterator,
 					 string );
 
-					memory_free(
-					 string );
-
+					if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_TABLE )
+					{
+						table_definition->name      = string;
+						table_definition->name_size = string_size;
+					}
+					else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_COLUMN )
+					{
+						column_definition->name      = string;
+						column_definition->name_size = string_size;
+					}
+					else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_INDEX )
+					{
+						index_definition->name      = string;
+						index_definition->name_size = string_size;
+					}
+					else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_LONG_VALUE )
+					{
+						long_value_definition->name      = string;
+						long_value_definition->name_size = string_size;
+					}
+					else
+					{
+						memory_free(
+						 string );
+					}
 					if( ( definition_flags == 0x8309 )
 					 || ( definition_flags == 0x840a )
 					 || ( definition_flags == 0x880a ) )

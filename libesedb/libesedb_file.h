@@ -30,6 +30,7 @@
 
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 
 #if defined( __cplusplus )
@@ -40,6 +41,14 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
+	/* The table reference list
+	 */
+	libesedb_list_t *table_reference_list;
+
+	/* The index reference list
+	 */
+	libesedb_list_t *index_reference_list;
+
 	/* The catalog page tree
 	 */
 	libesedb_page_tree_t *catalog_page_tree;
@@ -105,6 +114,45 @@ LIBESEDB_EXTERN int libesedb_file_get_ascii_codepage(
 LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
                      libesedb_file_t *file,
                      int ascii_codepage,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_format_version(
+                     libesedb_file_t *file,
+                     uint32_t *format_version,
+                     uint32_t *format_revision,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_creation_format_version(
+                     libesedb_file_t *file,
+                     uint32_t *format_version,
+                     uint32_t *format_revision,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_page_size(
+                     libesedb_file_t *file,
+                     uint32_t *page_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
+                     libesedb_file_t *file,
+                     int *amount_of_tables,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_table(
+                     libesedb_file_t *file,
+                     int table_entry,
+                     libesedb_table_t **table,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_amount_of_indexes(
+                     libesedb_file_t *file,
+                     int *amount_of_indexes,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_index(
+                     libesedb_file_t *file,
+                     int index_entry,
+                     libesedb_index_t **index,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

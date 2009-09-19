@@ -1,5 +1,5 @@
 /*
- * Table functions
+ * Index functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_TABLE_H )
-#define _LIBESEDB_TABLE_H
+#if !defined( _LIBESEDB_INDEX_H )
+#define _LIBESEDB_INDEX_H
 
 #include <common.h>
 #include <types.h>
@@ -30,79 +30,66 @@
 
 #include "libesedb_extern.h"
 #include "libesedb_file.h"
-#include "libesedb_page_tree.h"
-#include "libesedb_table_definition.h"
+#include "libesedb_index_definition.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_internal_table libesedb_internal_table_t;
+typedef struct libesedb_internal_index libesedb_internal_index_t;
 
-struct libesedb_internal_table
+struct libesedb_internal_index
 {
 	/* The internal file
 	 */
 	libesedb_internal_file_t *internal_file;
 
-	/* The table definition
+	/* The index definition
 	 */
-	libesedb_table_definition_t *table_definition;
+	libesedb_index_definition_t *index_definition;
 
-	/* The table reference list element
+	/* The index reference list element
 	 */
 	libesedb_list_element_t *list_element;
-
-	/* The table page tree
-	 */
-	libesedb_page_tree_t *page_tree;
 };
 
-int libesedb_table_initialize(
-     libesedb_table_t **table,
+int libesedb_index_initialize(
+     libesedb_index_t **index,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_free(
-                     libesedb_table_t **table,
+LIBESEDB_EXTERN int libesedb_index_free(
+                     libesedb_index_t **index,
                      liberror_error_t **error );
 
-int libesedb_table_free_no_detach(
-     intptr_t *internal_table,
+int libesedb_index_free_no_detach(
+     intptr_t *internal_index,
      liberror_error_t **error );
 
-int libesedb_table_attach(
-     libesedb_internal_table_t *internal_table,
+int libesedb_index_attach(
+     libesedb_internal_index_t *internal_index,
      libesedb_internal_file_t *internal_file,
-     libesedb_table_definition_t *table_definition,
+     libesedb_index_definition_t *index_definition,
      liberror_error_t **error );
 
-int libesedb_table_detach(
-     libesedb_internal_table_t *internal_table,
+int libesedb_index_detach(
+     libesedb_internal_index_t *internal_index,
      liberror_error_t **error );
 
-int libesedb_table_read_page_tree(
-     libesedb_internal_table_t *internal_table,
-     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_table_get_identifier(
-                     libesedb_table_t *table,
+LIBESEDB_EXTERN int libesedb_index_get_identifier(
+                     libesedb_index_t *index,
                      uint32_t *identifier,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_name_size(
-                     libesedb_table_t *table,
+LIBESEDB_EXTERN int libesedb_index_get_utf8_name_size(
+                     libesedb_index_t *index,
                      size_t *utf8_string_size,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
-                     libesedb_table_t *table,
+LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
+                     libesedb_index_t *index,
                      uint8_t *utf8_string,
                      size_t utf8_string_size,
-                     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_table_test(
-                     libesedb_table_t *table,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )
