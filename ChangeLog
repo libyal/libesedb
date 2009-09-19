@@ -7,6 +7,12 @@ Library
 * compare primary and secondary file header
   - report any differences
 
+Tools
+* esedbinfo
+  - page summary (scan for uninitialized, empty, etc. pages)
+  - file header summary (check backup file header)
+  - summary of catalog (check backup catalog)
+
 File format
 * where is the root page?
 
@@ -20,6 +26,9 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20090919
+* worked on reading catalog
 
 20090918
 * worked on page values

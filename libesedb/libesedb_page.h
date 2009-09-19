@@ -140,7 +140,6 @@ int libesedb_page_read_values(
      libesedb_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
-     uint32_t page_flags,
      liberror_error_t **error );
 
 int libesedb_page_get_amount_of_values(

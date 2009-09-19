@@ -133,6 +133,40 @@ void libesedb_debug_print_page_flags(
 	}
 }
 
+/* Prints the page tag flags
+ */
+void libesedb_debug_print_page_tag_flags(
+      uint8_t page_tag_flags )
+{
+	libnotify_verbose_printf(
+	 "0x%02" PRIx8 "",
+	 page_tag_flags );
+
+	if( page_tag_flags > 0 )
+	{
+		libnotify_verbose_printf(
+		 " (" );
+
+		if( ( page_tag_flags & 0x01 ) == 0x01 )
+		{
+			libnotify_verbose_printf(
+			 "v" );
+		}
+		if( ( page_tag_flags & 0x02 ) == 0x02 )
+		{
+			libnotify_verbose_printf(
+			 "d" );
+		}
+		if( ( page_tag_flags & 0x04 ) == 0x04 )
+		{
+			libnotify_verbose_printf(
+			 "c" );
+		}
+		libnotify_verbose_printf(
+		 ")" );
+	}
+}
+
 /* Prints the column type
  */
 void libesedb_debug_print_column_type(

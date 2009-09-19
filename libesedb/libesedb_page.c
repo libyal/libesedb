@@ -550,7 +550,6 @@ int libesedb_page_read(
 	     page_tags_array,
 	     &( page->data[ sizeof( esedb_page_header_t ) ] ),
 	     page->data_size - sizeof( esedb_page_header_t ),
-	     page->flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -712,10 +711,13 @@ int libesedb_page_read_tags(
 		 page_tag_number,
 		 page_tags_value->size );
 		libnotify_verbose_printf(
-		 "%s: page tag: %03d flags\t\t\t\t: 0x%" PRIx8 "\n",
+		 "%s: page tag: %03d flags\t\t\t\t: ",
 		 function,
-		 page_tag_number,
+		 page_tag_number );
+		libesedb_debug_print_page_tag_flags(
 		 page_tags_value->flags );
+		libnotify_verbose_printf(
+		 "\n" );
 #endif
 
 		if( libesedb_array_set_entry(
@@ -754,12 +756,11 @@ int libesedb_page_read_values(
      libesedb_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
-     uint32_t page_flags,
      liberror_error_t **error )
 {
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	libesedb_page_value_t *page_value           = NULL;
-	static char *function                       = "libesedb_page_values_tags";
+	static char *function                       = "libesedb_page_read_values";
 	uint16_t page_tag_number                    = 0;
 
 	if( page_values_array == NULL )
@@ -870,12 +871,15 @@ int libesedb_page_read_values(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
-		 "%s: page value: %03d offset: % 4" PRIu16 ", size: % 4" PRIu16 ", flags: 0x%" PRIx8 "\n",
+		 "%s: page value: %03d offset: % 4" PRIu16 ", size: % 4" PRIu16 ", flags: ",
 		 function,
 		 page_tag_number,
 		 page_tags_value->offset,
-		 page_tags_value->size,
+		 page_tags_value->size );
+		libesedb_debug_print_page_tag_flags(
 		 page_tags_value->flags );
+		libnotify_verbose_printf(
+		 "\n" );
 #endif
 
 		page_value->data  = &( page_values_data[ page_tags_value->offset ] );

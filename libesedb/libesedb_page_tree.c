@@ -29,6 +29,7 @@
 
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
+#include "libesedb_libuna.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
 
@@ -320,6 +321,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		return( -1 );
 	}
 	supported_flags = required_flags
+	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
 	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
@@ -691,8 +693,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		{
 			if( ( ( *page_value_data >= 'A' )
 			  && ( *page_value_data <= 'Z' ) )
-			 || ( ( *page_value_data >= 'a' )
-			  && ( *page_value_data <= 'z' ) ) )
+			 || ( *page_value_data == '_' ) )
 			{
 				libnotify_verbose_printf(
 				 "%c",
@@ -948,6 +949,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 		return( -1 );
 	}
 	supported_flags = required_flags
+	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
 	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
@@ -1195,13 +1197,15 @@ int libesedb_page_tree_read_leaf_page_values(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *page_value_data          = NULL;
+	uint8_t *string                   = NULL;
+	size_t string_size                = 0;
 	uint32_t column_type              = 0;
 	uint16_t definition_flags         = 0;
 	uint16_t definition_size          = 0;
 	uint16_t definition_type          = 0;
 	uint16_t page_key_size            = 0;
 	uint16_t page_value_size          = 0;
-	uint16_t page_value_unknown1      = 0;
+	uint16_t record_number            = 0;
 	uint32_t test                     = 0;
 #endif
 
@@ -1312,8 +1316,9 @@ int libesedb_page_tree_read_leaf_page_values(
 
 	while( page_value_size > 0 )
 	{
-		if( ( *page_value_data >= 'A' )
-		 && ( *page_value_data <= 'Z' ) )
+		if( ( ( *page_value_data >= 'A' )
+		  && ( *page_value_data <= 'Z' ) )
+		 || ( *page_value_data == '_' ) )
 		{
 			libnotify_verbose_printf(
 			 "%c",
@@ -1375,17 +1380,17 @@ int libesedb_page_tree_read_leaf_page_values(
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
 			endian_little_convert_16bit(
-			 page_value_unknown1,
+			 record_number,
 			 page_value_data );
 
 			page_value_data += 2;
 			page_value_size -= 2;
 
 			libnotify_verbose_printf(
-			 "%s: value: %03d unknown1\t\t\t\t: 0x%04" PRIx32 "\n",
+			 "%s: value: %03d record (row) number\t\t: 0x%04" PRIx32 "\n",
 			 function,
 			 page_value_iterator,
-			 page_value_unknown1 );
+			 record_number );
 		}
 		endian_little_convert_16bit(
 		 page_key_size,
@@ -1409,8 +1414,7 @@ int libesedb_page_tree_read_leaf_page_values(
 		{
 			if( ( ( *page_value_data >= 'A' )
 			  && ( *page_value_data <= 'Z' ) )
-			 || ( ( *page_value_data >= 'a' )
-			  && ( *page_value_data <= 'z' ) ) )
+			 || ( *page_value_data == '_' ) )
 			{
 				libnotify_verbose_printf(
 				 "%c",
@@ -1438,8 +1442,9 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			while( page_value_size > 0 )
 			{
-				if( ( *page_value_data >= 'A' )
+				if( ( ( *page_value_data >= 'A' )
 				  && ( *page_value_data <= 'Z' ) )
+				 || ( *page_value_data == '_' ) )
 				{
 					libnotify_verbose_printf(
 					 "%c",
@@ -1502,7 +1507,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			if( ( definition_flags == 0x8007 )
 			 || ( definition_flags == 0x8008 )
 			 || ( definition_flags == 0x8009 )
-			 || ( definition_flags == 0x840a ) )
+			 || ( definition_flags == 0x8309 )
+			 || ( definition_flags == 0x840a )
+			 || ( definition_flags == 0x880a ) )
 			{
 				libnotify_verbose_printf(
 				 "%s: value: %03d definition data:\n",
@@ -1650,7 +1657,8 @@ int libesedb_page_tree_read_leaf_page_values(
 					 test );
 
 					if( ( definition_flags == 0x8007 )
-					 || ( definition_flags == 0x8009 ) )
+					 || ( definition_flags == 0x8009 )
+					 || ( definition_flags == 0x8309 ) )
 					{
 						endian_little_convert_32bit(
 						 column_type,
@@ -1770,7 +1778,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				}
 				else if( definition_type == 0x0003 )
 				{
-					if( definition_flags == 0x840a )
+					if( ( definition_flags == 0x840a )
+					 || ( definition_flags == 0x880a ) )
 					{
 						endian_little_convert_32bit(
 						 test,
@@ -1950,13 +1959,132 @@ int libesedb_page_tree_read_leaf_page_values(
 				page_value_data += definition_size;
 				page_value_size -= definition_size;
 			}
-			libnotify_verbose_printf(
-			 "%s: value: %03d value data:\n",
-			 function,
-			 page_value_iterator );
-			libnotify_verbose_print_data(
-			 page_value_data,
-			 page_value_size );
+			if( ( definition_flags == 0x8007 )
+			 || ( definition_flags == 0x8008 )
+			 || ( definition_flags == 0x8009 )
+			 || ( definition_flags == 0x8309 ) )
+			{
+				if( page_value_size > 0 )
+				{
+					endian_little_convert_16bit(
+					 test,
+					 page_value_data );
+
+					page_value_data += 2;
+					page_value_size -= 2;
+
+					libnotify_verbose_printf(
+					 "%s: value: %03d string size\t\t\t: %" PRIu32 "\n",
+					 function,
+					 page_value_iterator,
+					 test );
+
+					if( definition_flags == 0x8309 )
+					{
+						endian_little_convert_32bit(
+						 test,
+						 page_value_data );
+
+						page_value_data += 4;
+						page_value_size -= 4;
+						definition_size -= 4;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknownA_1\t\t\t\t: 0x%08" PRIx32 "\n",
+						 function,
+						 page_value_iterator,
+						 test );
+
+						endian_little_convert_16bit(
+						 test,
+						 page_value_data );
+
+						page_value_data += 2;
+						page_value_size -= 2;
+						definition_size -= 2;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown size\t\t\t: %" PRIu32 "\n",
+						 function,
+						 page_value_iterator,
+						 test );
+					}
+					if( libuna_utf8_string_size_from_byte_stream(
+					     page_value_data,
+					     (size_t) test,
+					     LIBUNA_CODEPAGE_ASCII,
+					     &string_size,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to determine string size.",
+						 function );
+
+						return( -1 );
+					}
+					string = (uint8_t *) memory_allocate(
+					                      sizeof( uint8_t ) * string_size );
+
+					if( string == NULL )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_MEMORY,
+						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create string.",
+						 function );
+
+						return( -1 );
+					}
+					if( libuna_utf8_string_copy_from_byte_stream(
+					     string,
+					     string_size,
+					     page_value_data,
+					     (size_t) test,
+					     LIBUNA_CODEPAGE_ASCII,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_CONVERSION,
+						 LIBERROR_CONVERSION_ERROR_GENERIC,
+						 "%s: unable to set string.",
+						 function );
+
+						memory_free(
+						 string );
+
+						return( -1 );
+					}
+					page_value_data += test;
+					page_value_size -= test;
+
+					libnotify_verbose_printf(
+					 "%s: value: %03d string\t\t\t\t: %s\n",
+					 function,
+					 (char) page_value_iterator,
+					 string );
+
+					memory_free(
+					 string );
+
+					libnotify_verbose_printf(
+					 "\n" );
+				}
+			}
+			if( page_value_size > 0 )
+			{
+				libnotify_verbose_printf(
+				 "%s: value: %03d value data:\n",
+				 function,
+				 page_value_iterator );
+				libnotify_verbose_print_data(
+				 page_value_data,
+				 page_value_size );
+			}
 		}
 #endif
 	}
