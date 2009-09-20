@@ -57,6 +57,11 @@ struct libesedb_page_tree
 	libesedb_list_t *long_value_definition_list;
 };
 
+int libesedb_page_tree_buffer_contains_zero_bytes(
+     uint8_t *buffer,
+     size_t buffer_size,
+     liberror_error_t **error );
+
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      liberror_error_t **error );

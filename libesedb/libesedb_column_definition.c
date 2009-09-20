@@ -137,7 +137,8 @@ int libesedb_column_definition_read(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t column_type  = 0;
-	uint32_t test         = 0;
+	uint32_t value_32bit  = 0;
+	uint16_t value_16bit  = 0;
 #endif
 
 	if( column_definition == NULL )
@@ -190,7 +191,7 @@ int libesedb_column_definition_read(
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 definition_data );
 
 	definition_data      += 4;
@@ -199,7 +200,7 @@ int libesedb_column_definition_read(
 	libnotify_verbose_printf(
 	 "%s: column identifier\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 
 	endian_little_convert_32bit(
 	 column_type,
@@ -218,7 +219,7 @@ int libesedb_column_definition_read(
 	 "\n" );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 definition_data );
 
 	definition_data      += 4;
@@ -227,10 +228,10 @@ int libesedb_column_definition_read(
 	libnotify_verbose_printf(
 	 "%s: maximum size\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 definition_data );
 
 	definition_data      += 4;
@@ -240,12 +241,12 @@ int libesedb_column_definition_read(
 	 "%s: column group of bits\t\t\t\t: ",
 	 function );
 	libesedb_debug_print_column_group_of_bits(
-	 test );
+	 value_32bit );
 	libnotify_verbose_printf(
 	 "\n" );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 definition_data );
 
 	definition_data      += 4;
@@ -254,22 +255,23 @@ int libesedb_column_definition_read(
 	libnotify_verbose_printf(
 	 "%s: codepage\t\t\t\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
 	 function,
-	 test,
-	 test );
+	 value_32bit,
+	 value_32bit );
 
 	if( ( definition_flags & 0x0008 ) == 0x0008 )
 	{
 		endian_little_convert_16bit(
-		 test,
+		 value_16bit,
 		 definition_data );
 
 		definition_data      += 2;
 		definition_data_size -= 2;
 
 		libnotify_verbose_printf(
-		 "%s: unknown1\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: unknown1\t\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 		 function,
-		 test );
+		 value_16bit,
+		 value_16bit );
 
 		libnotify_verbose_printf(
 		 "%s: unknown2\t\t\t\t\t: 0x%02" PRIx8 "\n",

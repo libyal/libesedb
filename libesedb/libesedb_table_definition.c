@@ -138,7 +138,8 @@ int libesedb_table_definition_read(
 	static char *function = "libesedb_table_definition_read";
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t test         = 0;
+	uint32_t value_32bit  = 0;
+	uint16_t value_16bit  = 0;
 #endif
 
 	if( table_definition == NULL )
@@ -209,47 +210,47 @@ int libesedb_table_definition_read(
 	libnotify_verbose_printf(
 	 "%s: father data page (FDP) object identifier\t: %" PRIu32 "\n",
 	 function,
-	 ( ( esedb_table_definition_t *) definition_data )->father_data_page_object_identifier );
+	 table_definition->father_data_page_object_identifier );
 	libnotify_verbose_printf(
 	 "%s: father data page (FDP) number\t\t\t: %" PRIu32 "\n",
 	 function,
 	 table_definition->father_data_page_number );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 ( ( esedb_table_definition_t *) definition_data )->table_density_percentage );
 
 	libnotify_verbose_printf(
 	 "%s: table density percentage\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 ( ( esedb_table_definition_t *) definition_data )->unknown1 );
 
 	libnotify_verbose_printf(
 	 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 
 	endian_little_convert_32bit(
-	 test,
+	 value_32bit,
 	 ( ( esedb_table_definition_t *) definition_data )->initial_amount_of_pages );
 
 	libnotify_verbose_printf(
 	 "%s: intial amount of pages\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 
 	endian_little_convert_16bit(
-	 test,
+	 value_16bit,
 	 ( ( esedb_table_definition_t *) definition_data )->unknown2 );
 
 	libnotify_verbose_printf(
-	 "%s: unknown2\t\t\t\t\t: 0x%04" PRIx32 "\n",
+	 "%s: unknown2\t\t\t\t\t: 0x%04" PRIx16 "\n",
 	 function,
-	 test );
+	 value_16bit );
 
 	libnotify_verbose_printf(
 	 "\n" );

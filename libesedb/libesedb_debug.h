@@ -57,6 +57,9 @@ void libesedb_debug_print_column_group_of_bits(
 void libesedb_debug_print_index_group_of_bits(
       uint32_t index_group_of_bits );
 
+void libesedb_debug_print_file_attribute_flags(
+      uint32_t file_attribute_flags );
+
 int libesedb_debug_print_log_time(
      uint8_t *log_time,
      size_t log_time_size,

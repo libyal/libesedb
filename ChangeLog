@@ -31,7 +31,11 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20090920
+* worked on page values
+
 20090919
+* worked on page values
 * worked on reading the catalog
 * esedbinfo now shows
   - version, revision

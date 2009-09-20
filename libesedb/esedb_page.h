@@ -61,11 +61,11 @@ struct esedb_page_header
 		uint8_t ecc_checksum[ 4 ];
 	};
 
-	/* The last modification time
+	/* The database last modification time
 	 * Consists of 8 bytes
 	 * Contains a database time structure
 	 */
-	uint8_t modification_time[ 8 ];
+	uint8_t database_modification_time[ 8 ];
 
 	/* The previous page number
 	 * Consists of 4 bytes

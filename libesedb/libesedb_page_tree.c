@@ -32,14 +32,61 @@
 #include "libesedb_definitions.h"
 #include "libesedb_index_definition.h"
 #include "libesedb_debug.h"
+#include "libesedb_libfdatetime.h"
 #include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_long_value_definition.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_string.h"
 #include "libesedb_table_definition.h"
 
 #include "esedb_page_values.h"
+
+/* Function to determine if there are zero bytes in a buffer
+ * Returns 1 if the buffer contains zero bytes, 0 if not or -1 on error
+ */
+int libesedb_page_tree_buffer_contains_zero_bytes(
+     uint8_t *buffer,
+     size_t buffer_size,
+     liberror_error_t **error )
+{
+	static char *function  = "libesedb_page_tree_buffer_contains_zero_bytes";
+	size_t buffer_iterator = 0;
+
+	if( buffer == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid buffer.",
+		 function );
+
+		return( -1 );
+	}
+	if( buffer_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid buffer size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	for( buffer_iterator = 0;
+	     buffer_iterator < buffer_size;
+	     buffer_iterator++ )
+	{
+		if( buffer[ buffer_iterator ] == 0 )
+		{
+			return( 1 );
+		}
+	}
+	return( 0 );
+}
 
 /* Creates a page tree
  * Returns 1 if successful or -1 on error
@@ -317,6 +364,13 @@ int libesedb_page_tree_read(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "%s: reading page tree with FDP number\t\t: %" PRIu32 "\n",
+	 function,
+	 father_data_page_number );
+#endif
+
 	if( libesedb_page_initialize(
 	     &page,
 	     error ) != 1 )
@@ -600,7 +654,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	 space_tree_page_number );
 
 	libnotify_verbose_printf(
-	 "%s: primary extent\t\t\t: %" PRIu32 "-%c\n",
+	 "%s: header primary extent\t\t: %" PRIu32 "-%c\n",
 	 function,
 	 initial_amount_of_pages,
 	 ( extent_space == 0 ? 's' : 'm' ) );
@@ -612,7 +666,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	/* Read the space tree pages
 	 */
 	if( ( space_tree_page_number > 0 )
-	 && ( space_tree_page_number < 0xfffffff0UL ) )
+	 && ( space_tree_page_number < 0xffffff00UL ) )
 	{
 		/* Read the owned pages space tree page
 		 */
@@ -814,8 +868,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		if( ( page_value->flags & 0x7 ) != 0 )
 		{
 			libnotify_verbose_printf(
-			 "%s: PAGE TAG FLAGS MARKER: 0x%02" PRIx8 "\n",
-			 function,
+			 "MARKER: unsupported page flags: 0x%02" PRIx8 "\n",
 			 page_value->flags );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -827,7 +880,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		page_value_size -= 2;
 
 		libnotify_verbose_printf(
-		 "%s: value: %03d highest key size\t\t: %" PRIu16 "\n",
+		 "%s: value: %03d highest key size\t: %" PRIu16 "\n",
 		 function,
 		 page_value_iterator,
 		 page_key_size );
@@ -844,26 +897,16 @@ int libesedb_page_tree_read_father_data_page_values(
 			return( -1 );
 		}
 		libnotify_verbose_printf(
-		 "%s: value: %03d highest key value\t\t: ",
+		 "%s: value: %03d highest key value\t: ",
 		 function,
 		 page_value_iterator );
 
 		while( page_key_size > 0 )
 		{
-			if( ( ( *page_value_data >= 'A' )
-			  && ( *page_value_data <= 'Z' ) )
-			 || ( *page_value_data == '_' ) )
-			{
-				libnotify_verbose_printf(
-				 "%c",
-				 (char) *page_value_data );
-			}
-			else
-			{
-				libnotify_verbose_printf(
-				 "\\x%02" PRIx8 "",
-				 *page_value_data );
-			}
+			libnotify_verbose_printf(
+			 "%02" PRIx8 " ",
+			 *page_value_data );
+
 			page_value_data++;
 			page_value_size--;
 			page_key_size--;
@@ -876,7 +919,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		 page_value_data );
 
 		libnotify_verbose_printf(
-		 "%s: value: %03d child page number\t\t: %" PRIu32 "\n",
+		 "%s: value: %03d child page number\t: %" PRIu32 "\n",
 		 function,
 		 page_value_iterator,
 		 child_page_number );
@@ -1357,12 +1400,16 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint32_t supported_flags                                = 0;
 	uint16_t amount_of_page_values                          = 0;
 	uint16_t page_value_iterator                            = 0;
+	int result                                              = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	libesedb_character_t date_time_string[ 22 ];
+
+	libfdatetime_filetime_t *filetime                       = NULL;
 	uint8_t *page_value_data                                = NULL;
 	uint8_t *string                                         = NULL;
 	size_t string_size                                      = 0;
-	uint32_t test                                           = 0;
+	uint32_t value_32bit                                    = 0;
 	uint16_t definition_flags                               = 0;
 	uint16_t definition_size                                = 0;
 	uint16_t definition_type                                = 0;
@@ -1370,6 +1417,7 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint16_t page_key_size                                  = 0;
 	uint16_t page_value_size                                = 0;
 	uint16_t record_number                                  = 0;
+	uint16_t value_16bit                                    = 0;
 	uint8_t multi_value_iterator                            = 0;
 #endif
 
@@ -1480,20 +1528,10 @@ int libesedb_page_tree_read_leaf_page_values(
 
 	while( page_value_size > 0 )
 	{
-		if( ( ( *page_value_data >= 'A' )
-		  && ( *page_value_data <= 'Z' ) )
-		 || ( *page_value_data == '_' ) )
-		{
-			libnotify_verbose_printf(
-			 "%c",
-			 (char) *page_value_data );
-		}
-		else
-		{
-			libnotify_verbose_printf(
-			 "\\x%02" PRIx8 "",
-			 *page_value_data );
-		}
+		libnotify_verbose_printf(
+		 "%02" PRIx8 " ",
+		 *page_value_data );
+
 		page_value_data++;
 		page_value_size--;
 	}
@@ -1531,7 +1569,6 @@ int libesedb_page_tree_read_leaf_page_values(
 		page_value_size = page_value->size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-/*
 		libnotify_verbose_printf(
 		 "%s: value: %03d value:\n",
 		 function,
@@ -1539,7 +1576,15 @@ int libesedb_page_tree_read_leaf_page_values(
 		libnotify_verbose_print_data(
 		 page_value_data,
 		 page_value->size );
-*/
+
+		libnotify_verbose_printf(
+		 "%s: value: %03d page tag flags\t\t\t: ",
+		 function,
+		 page_value_iterator );
+		libesedb_debug_print_page_tag_flags(
+		 page_value->flags );
+		libnotify_verbose_printf(
+		 "\n" );
 
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
@@ -1551,10 +1596,15 @@ int libesedb_page_tree_read_leaf_page_values(
 			page_value_size -= 2;
 
 			libnotify_verbose_printf(
-			 "%s: value: %03d record (row) number\t\t: %" PRIu32 "\n",
+			 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
 			 function,
 			 page_value_iterator,
+			 record_number,
 			 record_number );
+		}
+		else
+		{
+			record_number = 0;
 		}
 		endian_little_convert_16bit(
 		 page_key_size,
@@ -1587,20 +1637,10 @@ int libesedb_page_tree_read_leaf_page_values(
 
 		while( page_key_size > 0 )
 		{
-			if( ( ( *page_value_data >= 'A' )
-			  && ( *page_value_data <= 'Z' ) )
-			 || ( *page_value_data == '_' ) )
-			{
-				libnotify_verbose_printf(
-				 "%c",
-				 (char) *page_value_data );
-			}
-			else
-			{
-				libnotify_verbose_printf(
-				 "\\x%02" PRIx8 "",
-				 *page_value_data );
-			}
+			libnotify_verbose_printf(
+			 "%02" PRIx8 " ",
+			 *page_value_data );
+
 			page_value_data++;
 			page_value_size--;
 			page_key_size--;
@@ -1617,20 +1657,10 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			while( page_value_size > 0 )
 			{
-				if( ( ( *page_value_data >= 'A' )
-				  && ( *page_value_data <= 'Z' ) )
-				 || ( *page_value_data == '_' ) )
-				{
-					libnotify_verbose_printf(
-					 "%c",
-					 (char) *page_value_data );
-				}
-				else
-				{
-					libnotify_verbose_printf(
-					 "\\x%02" PRIx8 "",
-					 *page_value_data );
-				}
+				libnotify_verbose_printf(
+				 "%02" PRIx8 " ",
+				 *page_value_data );
+
 				page_value_data++;
 				page_value_size--;
 			}
@@ -1677,12 +1707,22 @@ int libesedb_page_tree_read_leaf_page_values(
 			page_value_size -= sizeof( esedb_definition_header_t );
 			definition_size -= sizeof( esedb_definition_header_t );
 
-			if( ( definition_flags == 0x8007 )
-			 || ( definition_flags == 0x8008 )
-			 || ( definition_flags == 0x8009 )
-			 || ( definition_flags == 0x8309 )
-			 || ( definition_flags == 0x840a )
-			 || ( definition_flags == 0x880a ) )
+
+			if( ( definition_flags == 0x8009 )
+			 && ( definition_size  == ( 27 - sizeof( esedb_definition_header_t ) ) ) )
+			{
+				libnotify_verbose_printf(
+				 "MARKER: unsupported definition size: %" PRIu16 " for definition flags: 0x%04" PRIx16 "\n",
+				 definition_size + sizeof( esedb_definition_header_t ),
+				 definition_flags );
+			}
+			else if( ( definition_flags == 0x8007 )
+			      || ( definition_flags == 0x8008 )
+			      || ( definition_flags == 0x8009 )
+			      || ( definition_flags == 0x8209 )
+			      || ( definition_flags == 0x8309 )
+			      || ( definition_flags == 0x840a )
+			      || ( definition_flags == 0x880a ) )
 			{
 /*
 				libnotify_verbose_printf(
@@ -1695,7 +1735,7 @@ int libesedb_page_tree_read_leaf_page_values(
 */
 
 				endian_little_convert_32bit(
-				 test,
+				 value_32bit,
 				 page_value_data );
 
 				page_value_data += 4;
@@ -1703,32 +1743,373 @@ int libesedb_page_tree_read_leaf_page_values(
 				definition_size -= 4;
 
 				libnotify_verbose_printf(
-				 "%s: value: %03d parent FDP object identifier\t: %" PRIu32 "\n",
+				 "%s: value: %03d unknown\t\t\t\t: %" PRIu32 "\n",
 				 function,
 				 page_value_iterator,
-				 test );
+				 value_32bit );
 
-				endian_little_convert_16bit(
-				 definition_type,
-				 page_value_data );
+				/* TODO some check to see if this value is present
+				 */
+				{
+					endian_little_convert_16bit(
+					 definition_type,
+					 page_value_data );
 
-				page_value_data += 2;
-				page_value_size -= 2;
-				definition_size -= 2;
+					page_value_data += 2;
+					page_value_size -= 2;
+					definition_size -= 2;
 
-				libnotify_verbose_printf(
-				 "%s: value: %03d definition type\t\t\t: 0x%04" PRIx16 " ",
-				 function,
-				 page_value_iterator,
-				 definition_type );
-				libesedb_debug_print_page_value_definition_type(
-				 definition_type );
-				libnotify_verbose_printf(
-				 "\n" );
+					libnotify_verbose_printf(
+					 "%s: value: %03d definition type\t\t\t: 0x%04" PRIx16 " ",
+					 function,
+					 page_value_iterator,
+					 definition_type );
+					libesedb_debug_print_page_value_definition_type(
+					 definition_type );
+					libnotify_verbose_printf(
+					 "\n" );
+				}
+				if( definition_type == 0x0000 )
+				{
+					if( ( definition_flags == 0x8009 )
+					 || ( definition_flags == 0x8209 ) )
+					{
+						libnotify_verbose_printf(
+						 "%s: value: %03d definition data:\n",
+						 function,
+						 page_value_iterator );
+						libnotify_verbose_print_data(
+						 page_value_data,
+						 definition_size );
 
+						if( libfdatetime_filetime_initialize(
+						     &filetime,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+							 "%s: unable to create filetime.",
+							 function );
+
+							return( -1 );
+						}
+						endian_little_convert_16bit(
+						 value_16bit,
+						 page_value_data );
+
+						page_value_data += 2;
+						page_value_size -= 2;
+						definition_size -= 2;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown1\t\t\t\t: 0x%04" PRIx16 "\n",
+						 function,
+						 page_value_iterator,
+						 value_16bit );
+
+						endian_little_convert_32bit(
+						 value_32bit,
+						 page_value_data );
+
+						page_value_data += 4;
+						page_value_size -= 4;
+						definition_size -= 4;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown2\t\t\t\t: 0x%08" PRIx32 "\n",
+						 function,
+						 page_value_iterator,
+						 value_32bit );
+
+						if( libfdatetime_filetime_copy_from_byte_stream(
+						     filetime,
+						     page_value_data,
+						     8,
+						     LIBFDATETIME_ENDIAN_BIG,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create creation time.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						page_value_data += 8;
+						page_value_size -= 8;
+						definition_size -= 8;
+
+						if( libfdatetime_filetime_copy_to_string(
+						     filetime,
+						     date_time_string,
+						     22,
+						     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+						     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create filetime string.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown3\t\t\t\t: %s\n",
+						 function,
+						 page_value_iterator,
+						 (char *) date_time_string );
+
+						endian_big_convert_32bit(
+						 value_32bit,
+						 page_value_data );
+
+						page_value_data += 4;
+						page_value_size -= 4;
+						definition_size -= 4;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d file size (upper 32-bit)\t\t: %" PRIu32 "\n",
+						 function,
+						 page_value_iterator,
+						 value_32bit );
+
+						endian_big_convert_32bit(
+						 value_32bit,
+						 page_value_data );
+
+						page_value_data += 4;
+						page_value_size -= 4;
+						definition_size -= 4;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d file size (lower 32-bit)\t\t: %" PRIu32 " bytes\n",
+						 function,
+						 page_value_iterator,
+						 value_32bit );
+
+						endian_big_convert_32bit(
+						 value_32bit,
+						 page_value_data );
+
+						page_value_data += 4;
+						page_value_size -= 4;
+						definition_size -= 4;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d file attribute flags\t\t: ",
+						 function,
+						 page_value_iterator );
+						libesedb_debug_print_file_attribute_flags(
+						 value_32bit );
+						libnotify_verbose_printf(
+						 "\n" );
+
+						if( libfdatetime_filetime_copy_from_byte_stream(
+						     filetime,
+						     page_value_data,
+						     8,
+						     LIBFDATETIME_ENDIAN_BIG,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create creation time.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						page_value_data += 8;
+						page_value_size -= 8;
+						definition_size -= 8;
+
+						if( libfdatetime_filetime_copy_to_string(
+						     filetime,
+						     date_time_string,
+						     22,
+						     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+						     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create filetime string.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						libnotify_verbose_printf(
+						 "%s: value: %03d file creation time\t\t\t: %s\n",
+						 function,
+						 page_value_iterator,
+						 (char *) date_time_string );
+
+						if( libfdatetime_filetime_copy_from_byte_stream(
+						     filetime,
+						     page_value_data,
+						     8,
+						     LIBFDATETIME_ENDIAN_BIG,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create creation time.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						page_value_data += 8;
+						page_value_size -= 8;
+						definition_size -= 8;
+
+						if( libfdatetime_filetime_copy_to_string(
+						     filetime,
+						     date_time_string,
+						     22,
+						     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+						     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create filetime string.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						libnotify_verbose_printf(
+						 "%s: value: %03d file modification time\t\t: %s\n",
+						 function,
+						 page_value_iterator,
+						 (char *) date_time_string );
+
+						if( libfdatetime_filetime_copy_from_byte_stream(
+						     filetime,
+						     page_value_data,
+						     8,
+						     LIBFDATETIME_ENDIAN_BIG,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create creation time.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						page_value_data += 8;
+						page_value_size -= 8;
+						definition_size -= 8;
+
+						if( libfdatetime_filetime_copy_to_string(
+						     filetime,
+						     date_time_string,
+						     22,
+						     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+						     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to create filetime string.",
+							 function );
+
+							libfdatetime_filetime_free(
+							 &filetime,
+							 NULL );
+
+							return( -1 );
+						}
+						libnotify_verbose_printf(
+						 "%s: value: %03d file access time\t\t\t: %s\n",
+						 function,
+						 page_value_iterator,
+						 (char *) date_time_string );
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown4\t\t\t\t: 0x%02" PRIx8 "\n",
+						 function,
+						 page_value_iterator,
+						 *page_value_data );
+
+						page_value_data += 1;
+						page_value_size -= 1;
+						definition_size -= 1;
+
+						libnotify_verbose_printf(
+						 "%s: value: %03d unknown5\t\t\t\t: 0x%02" PRIx8 "\n",
+						 function,
+						 page_value_iterator,
+						 *page_value_data );
+
+						page_value_data += 1;
+						page_value_size -= 1;
+						definition_size -= 1;
+
+						if( libfdatetime_filetime_free(
+						     &filetime,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+							 "%s: unable to free filetime.",
+							 function );
+
+							return( -1 );
+						}
+					}
+				}
 				/* definition type: 0x0001
 				 */
-				if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_TABLE )
+				else if( definition_type == LIBESEDB_PAGE_VALUE_DEFINITION_TYPE_TABLE )
 				{
 					table_definition = NULL;
 
@@ -1992,15 +2373,21 @@ int libesedb_page_tree_read_leaf_page_values(
 				}
 				else
 				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-					 "%s: unsupported definition type: 0x%04" PRIx16 ".",
-					 function,
+					libnotify_verbose_printf(
+					 "MARKER: unsupported definition type: 0x%04" PRIx16 "\n",
 					 definition_type );
 
-					return( -1 );
+					libnotify_verbose_printf(
+					 "%s: value: %03d definition data:\n",
+					 function,
+					 page_value_iterator );
+					libnotify_verbose_print_data(
+					 page_value_data,
+					 definition_size );
+
+					page_value_data += definition_size;
+					page_value_size -= definition_size;
+					definition_size -= definition_size;
 				}
 			}
 			if( definition_size > 0 )
@@ -2053,7 +2440,7 @@ int libesedb_page_tree_read_leaf_page_values(
 						     multi_value_iterator++ )
 						{
 							endian_little_convert_16bit(
-							 test,
+							 value_16bit,
 							 page_value_data );
 
 							page_value_data += 2;
@@ -2061,14 +2448,14 @@ int libesedb_page_tree_read_leaf_page_values(
 							definition_size -= 2;
 
 							libnotify_verbose_printf(
-							 "%s: value: %03d unknownA_%02" PRIu8 "\t\t\t: 0x%04" PRIx32 "\n",
+							 "%s: value: %03d unknownA_%02" PRIu8 "\t\t\t: 0x%04" PRIx16 "\n",
 							 function,
 							 page_value_iterator,
 							 multi_value_iterator,
-							 test );
+							 value_16bit );
 						}
 						endian_little_convert_16bit(
-						 test,
+						 value_16bit,
 						 page_value_data );
 
 						page_value_data += 2;
@@ -2076,26 +2463,64 @@ int libesedb_page_tree_read_leaf_page_values(
 						definition_size -= 2;
 
 						libnotify_verbose_printf(
-						 "%s: value: %03d unknown size\t\t\t: %" PRIu32 "\n",
+						 "%s: value: %03d unknown size\t\t\t: %" PRIu16 "\n",
 						 function,
 						 page_value_iterator,
-						 test );
+						 value_16bit );
 					}
-					if( libuna_utf8_string_size_from_byte_stream(
-					     page_value_data,
-					     (size_t) name_size,
-					     LIBUNA_CODEPAGE_ASCII,
-					     &string_size,
-					     error ) != 1 )
+					result = libesedb_page_tree_buffer_contains_zero_bytes(
+					          page_value_data,
+					          (size_t) name_size,
+					          error );
+
+					if( result == -1 )
 					{
 						liberror_error_set(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_RUNTIME,
 						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to determine string size.",
+						 "%s: unable to determine name string contains zero bytes.",
 						 function );
 
 						return( -1 );
+					}
+					else if( result == 0 )
+					{
+						if( libuna_utf8_string_size_from_byte_stream(
+						     page_value_data,
+						     (size_t) name_size,
+						     LIBUNA_CODEPAGE_ASCII,
+						     &string_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to determine string size.",
+							 function );
+
+							return( -1 );
+						}
+					}
+					else
+					{
+						if( libuna_utf8_string_size_from_utf16_stream(
+						     page_value_data,
+						     (size_t) name_size,
+						     LIBUNA_ENDIAN_LITTLE,
+						     &string_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to determine string size.",
+							 function );
+
+							return( -1 );
+						}
 					}
 					string = (uint8_t *) memory_allocate(
 					                      sizeof( uint8_t ) * string_size );
@@ -2111,25 +2536,51 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						return( -1 );
 					}
-					if( libuna_utf8_string_copy_from_byte_stream(
-					     string,
-					     string_size,
-					     page_value_data,
-					     (size_t) name_size,
-					     LIBUNA_CODEPAGE_ASCII,
-					     error ) != 1 )
+					if( result == 0 )
 					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_CONVERSION,
-						 LIBERROR_CONVERSION_ERROR_GENERIC,
-						 "%s: unable to set string.",
-						 function );
+						if( libuna_utf8_string_copy_from_byte_stream(
+						     string,
+						     string_size,
+						     page_value_data,
+						     (size_t) name_size,
+						     LIBUNA_CODEPAGE_ASCII,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to set string.",
+							 function );
 
-						memory_free(
-						 string );
+							memory_free(
+							 string );
 
-						return( -1 );
+							return( -1 );
+						}
+					}
+					else
+					{
+						if( libuna_utf8_string_copy_from_utf16_stream(
+						     string,
+						     string_size,
+						     page_value_data,
+						     (size_t) name_size,
+						     LIBUNA_ENDIAN_LITTLE,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to set string.",
+							 function );
+
+							memory_free(
+							 string );
+
+							return( -1 );
+						}
 					}
 					page_value_data += name_size;
 					page_value_size -= name_size;
@@ -2182,20 +2633,10 @@ int libesedb_page_tree_read_leaf_page_values(
 
 						while( page_value_size > 0 )
 						{
-							if( ( ( *page_value_data >= 'A' )
-							  && ( *page_value_data <= 'Z' ) )
-							 || ( *page_value_data == '_' ) )
-							{
-								libnotify_verbose_printf(
-								 "%c",
-								 (char) *page_value_data );
-							}
-							else
-							{
-								libnotify_verbose_printf(
-								 "\\x%02" PRIx8 "",
-								 *page_value_data );
-							}
+							libnotify_verbose_printf(
+							 "%02" PRIx8 " ",
+							 *page_value_data );
+
 							page_value_data++;
 							page_value_size--;
 						}

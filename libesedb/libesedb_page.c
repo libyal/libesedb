@@ -445,10 +445,10 @@ int libesedb_page_read(
 		 test );
 	}
 	libnotify_verbose_printf(
-	 "%s: modification time:\n",
+	 "%s: database modification time:\n",
 	 function );
 	libnotify_verbose_print_data(
-	 ( (esedb_page_header_t *) page->data )->modification_time,
+	 ( (esedb_page_header_t *) page->data )->database_modification_time,
 	 8 );
 
 	libnotify_verbose_printf(
