@@ -136,7 +136,6 @@ int libesedb_column_definition_read(
 	static char *function = "libesedb_column_definition_read";
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t column_type  = 0;
 	uint32_t value_32bit  = 0;
 	uint16_t value_16bit  = 0;
 #endif
@@ -189,32 +188,32 @@ int libesedb_column_definition_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
 	endian_little_convert_32bit(
-	 value_32bit,
+	 column_definition->column_identifier,
 	 definition_data );
 
 	definition_data      += 4;
 	definition_data_size -= 4;
 
+	endian_little_convert_32bit(
+	 column_definition->column_type,
+	 definition_data );
+
+	definition_data      += 4;
+	definition_data_size -= 4;
+
+#if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
 	 "%s: column identifier\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 value_32bit );
-
-	endian_little_convert_32bit(
-	 column_type,
-	 definition_data );
-
-	definition_data      += 4;
-	definition_data_size -= 4;
+	 column_definition->column_identifier );
 
 	libnotify_verbose_printf(
 	 "%s: column type\t\t\t\t\t: %" PRIu32 " ",
 	 function,
-	 column_type );
+	 column_definition->column_type );
 	libesedb_debug_print_column_type(
-	 column_type );
+	 column_definition->column_type );
 	libnotify_verbose_printf(
 	 "\n" );
 

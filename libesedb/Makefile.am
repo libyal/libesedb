@@ -18,6 +18,7 @@ libesedb_la_SOURCES = \
 	libesedb_array_type.c libesedb_array_type.h \
 	libesedb_checksum.c libesedb_checksum.h \
 	libesedb_column_definition.c libesedb_column_definition.h \
+	libesedb_data_definition.c libesedb_data_definition.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
 	libesedb_error.c libesedb_error.h \

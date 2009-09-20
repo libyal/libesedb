@@ -76,20 +76,143 @@ struct esedb_space_tree_page_entry
 	uint8_t amount_of_pages[ 4 ];
 };
 
-typedef struct esedb_definition_header esedb_definition_header_t;
+typedef struct esedb_data_definition_header esedb_data_definition_header_t;
 
-struct esedb_definition_header
+struct esedb_data_definition_header
 {
-	/* The definition flags
-	 * Consists of 2 bytes
+	/* The last fixed size data type
+	 * Consists of 1 byte
 	 */
-	uint8_t flags[ 2 ];
+	uint8_t last_fixed_size_data_type;
 
-	/* The definition size
-	 * Consists of 2 bytes
-	 * Includes the 4 bytes of the header (flags and size)
+	/* The last variable size data type
+	 * Consists of 1 byte
 	 */
-	uint8_t size[ 2 ];
+	uint8_t last_variable_size_data_type;
+
+	/* The size of data types
+	 * Consists of 2 bytes
+	 */
+	uint8_t size_of_data_types[ 2 ];
+};
+
+typedef struct esedb_data_definition esedb_data_definition_t;
+
+struct esedb_data_definition
+{
+	/* Data type identifier: 1 (ObjidTable)
+	 * The father data page (FDP) object identifier
+	 * Consists of 4 bytes
+	 */
+	uint8_t father_data_page_object_identifier[ 4 ];
+
+	/* Data type identifier: 2 (Type)
+	 * The definition type
+	 * Consists of 2 bytes
+	 */
+	uint8_t type[ 2 ];
+
+	/* Data type identifier: 3 (Id)
+	 * The indentifier
+	 * Consists of 4 bytes
+	 */
+	uint8_t identifier[ 4 ];
+
+	/* Data type identifier: 4 (ColtypOrPgnoFDP)
+	 */
+	union
+	{
+		/* The father data page (FDP) number
+		 * Consists of 4 bytes
+		 */
+		uint8_t father_data_page_number[ 4 ];
+
+		/* The column type
+		 * Consists of 4 bytes
+		 */
+		uint8_t column_type[ 4 ];
+	};
+
+	/* Data type identifier: 5 (SpaceUsage)
+	 * The space usage (density percentage)
+	 * Consists of 4 bytes
+	 */
+	uint8_t space_usage[ 4 ];
+
+	/* Data type identifier: 6 (Flags)
+	 * Flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t flags[ 4 ];
+
+	/* Data type identifier: 7 (PagesOrLocale)
+	 */
+	union
+	{
+		/* The (initial) amount of pages
+		 * Consists of 4 bytes
+		 */
+		uint8_t amount_of_pages[ 4 ];
+
+		/* The codepage
+		 * Consists of 4 bytes
+		 */
+		uint8_t codepage[ 4 ];
+
+		/* The locale identifier
+		 * Consists of 4 bytes
+		 */
+		uint8_t locale_identifier[ 4 ];
+	};
+
+	/* Data type identifier: 8 (RootFlag)
+	 * The root flag
+	 * Consists of 1 byte
+	 */
+	uint8_t root_flag;
+
+	/* Data type identifier: 9 (RecordOffset)
+	 * The record offset
+	 * Consists of 1 byte
+	 */
+	uint8_t record_offset;
+
+	/* Data type identifier: 10 (LCMapFlags)
+	 * LC Map flags
+	 * Consists of 4 bytes
+	 */
+	uint8_t lc_map_flags[ 4 ];
+
+	/* Data type identifier: 128 (Name)
+	 * The name
+	 */
+
+	/* Data type identifier: 129 (Stats)
+	 */
+
+	/* Data type identifier: 130 (TemplateTable)
+	 */
+
+	/* Data type identifier: 131 (DefaultValue)
+	 */
+
+	/* Data type identifier: 132 (KeyFldIDs)
+	 */
+
+	/* Data type identifier: 133 (VarSegMac)
+	 */
+
+	/* Data type identifier: 134 (ConditionalColumns)
+	 */
+
+	/* Data type identifier: 135 (TupleLimits)
+	 */
+
+	/* Data type identifier: 256 (CallbackData)
+	 */
+
+	/* Data type identifier: 257 (CallbackDependencies)
+	 */
 };
 
 typedef struct esedb_table_definition esedb_table_definition_t;

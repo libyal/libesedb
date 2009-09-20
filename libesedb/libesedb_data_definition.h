@@ -1,5 +1,5 @@
 /*
- * Column definition functions
+ * Data definition functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_COLUMN_DEFINITION_H )
-#define _LIBPFF_COLUMN_DEFINITION_H
+#if !defined( _LIBPFF_DATA_DEFINITION_H )
+#define _LIBPFF_DATA_DEFINITION_H
 
 #include <common.h>
 #include <types.h>
@@ -34,17 +34,32 @@
 extern "C" {
 #endif
 
-typedef struct libesedb_column_definition libesedb_column_definition_t;
+typedef struct libesedb_data_definition libesedb_data_definition_t;
 
-struct libesedb_column_definition
+struct libesedb_data_definition
 {
-	/* The column identifier
+	/* The father data page (FDP) object identifier
 	 */
-	uint32_t column_identifier;
+	uint32_t father_data_page_object_identifier;
 
-	/* The column type
+	/* The type
 	 */
-	uint32_t column_type;
+	uint16_t type;
+
+	/* The identifier
+	 */
+	uint32_t identifier;
+
+	union
+	{
+		/* The father data page (FDP) number 
+		 */
+		uint32_t father_data_page_number;
+
+		/* The column type
+		 */
+		uint32_t column_type;
+	};
 
 	/* The name string
 	 */
@@ -55,19 +70,18 @@ struct libesedb_column_definition
 	size_t name_size;
 };
 
-int libesedb_column_definition_initialize(
-     libesedb_column_definition_t **column_definition,
+int libesedb_data_definition_initialize(
+     libesedb_data_definition_t **data_definition,
      liberror_error_t **error );
 
-int libesedb_column_definition_free(
-     intptr_t *column_definition,
+int libesedb_data_definition_free(
+     intptr_t *data_definition,
      liberror_error_t **error );
 
-int libesedb_column_definition_read(
-     libesedb_column_definition_t *column_definition,
+int libesedb_data_definition_read(
+     libesedb_data_definition_t *data_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
-     uint16_t definition_flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )
