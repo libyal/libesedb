@@ -28,6 +28,8 @@
 
 #include <liberror.h>
 
+#include "libesedb_data_definition.h"
+#include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
 #if defined( __cplusplus )
@@ -38,36 +40,45 @@ typedef struct libesedb_table_definition libesedb_table_definition_t;
 
 struct libesedb_table_definition
 {
-	/* The father data page (FDP) object identifier
+	/* The table data definition
 	 */
-	uint32_t father_data_page_object_identifier;
+	libesedb_data_definition_t *table_data_definition;
 
-	/* The father data page (FDP) number 
+	/* The column data definition list
 	 */
-	uint32_t father_data_page_number;
+	libesedb_list_t *column_data_definition_list;
 
-	/* The name string
+	/* The index data definition list
 	 */
-	uint8_t *name;
+	libesedb_list_t *index_data_definition_list;
 
-	/* The size of the name string
+	/* The long value data definition list
 	 */
-	size_t name_size;
+	libesedb_list_t *long_value_data_definition_list;
 };
 
 int libesedb_table_definition_initialize(
      libesedb_table_definition_t **table_definition,
+     libesedb_data_definition_t *table_data_definition,
      liberror_error_t **error );
 
 int libesedb_table_definition_free(
      intptr_t *table_definition,
      liberror_error_t **error );
 
-int libesedb_table_definition_read(
+int libesedb_table_definition_append_column_data_definition(
      libesedb_table_definition_t *table_definition,
-     uint8_t *definition_data,
-     size_t definition_data_size,
-     uint16_t definition_flags,
+     libesedb_data_definition_t *column_data_definition,
+     liberror_error_t **error );
+
+int libesedb_table_definition_append_index_data_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_data_definition_t *index_data_definition,
+     liberror_error_t **error );
+
+int libesedb_table_definition_append_long_value_data_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_data_definition_t *long_value_data_definition,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

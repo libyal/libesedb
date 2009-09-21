@@ -8,6 +8,10 @@ Library
   - report any differences
 * provide UTF-16 name string functions
 * merge table and index into single item type ?
+* make data definition type more flexible
+  - allow reading a table definition
+  - define the catalog table as a table definition? and bootstrap it
+* bind get index to table type not file type
 
 Tools
 * esedbinfo
@@ -32,13 +36,13 @@ Notes
 * create a root page table instead?
 
 20090921
-* worked on page values
+* worked on page values and data definition types
 
 20090920
-* worked on page values
+* worked on page values and data definition types
 
 20090919
-* worked on page values
+* worked on page values and data definition types
 * worked on reading the catalog
 * esedbinfo now shows
   - version, revision
@@ -48,26 +52,26 @@ Notes
   - index names
 
 20090918
-* worked on page values
+* worked on page values and data definition types
 
 20090917
 * worked on page trees
-* worked on page values
+* worked on page values and data definition types
 * refactored creation of array out of libesedb_page_read_tags
 
 20090916
 * worked on unknown values in file header
-* worked on page values
+* worked on page values and data definition types
 
 20090915
 * worked on table support
 * implement XOR-32 checksum support
 * worked on unknown values in file header
-* worked on page values
+* worked on page values and data definition types
 
 20090914
 * worked on page trees
-* worked on page values
+* worked on page values and data definition types
 
 20090913
 * initial version based on liblnk

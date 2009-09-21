@@ -31,6 +31,7 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
+#include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -57,17 +58,18 @@ struct libesedb_page_tree
 	libesedb_list_t *long_value_definition_list;
 };
 
-int libesedb_page_tree_buffer_contains_zero_bytes(
-     uint8_t *buffer,
-     size_t buffer_size,
-     liberror_error_t **error );
-
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      liberror_error_t **error );
 
 int libesedb_page_tree_free(
      libesedb_page_tree_t **page_tree,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_table_definition_by_identifier(
+     libesedb_page_tree_t *page_tree,
+     uint32_t identifier,
+     libesedb_table_definition_t **table_definition,
      liberror_error_t **error );
 
 int libesedb_page_tree_read(

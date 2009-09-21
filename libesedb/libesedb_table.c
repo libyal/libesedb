@@ -26,9 +26,14 @@
 
 #include <liberror.h>
 
+#include "libesedb_column.h"
 #include "libesedb_definitions.h"
+#include "libesedb_index.h"
+#include "libesedb_file.h"
+#include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table.h"
+#include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
 /* Creates a table
@@ -96,6 +101,50 @@ int libesedb_table_initialize(
 			 "%s: unable to create list element.",
 			 function );
 
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( internal_table->column_reference_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create column reference list.",
+			 function );
+
+			libesedb_list_element_free(
+			 &( internal_table->list_element ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( internal_table->index_reference_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index reference list.",
+			 function );
+
+			libesedb_list_free(
+			 &( internal_table->column_reference_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_element_free(
+			 &( internal_table->list_element ),
+			 NULL,
+			 NULL );
 			memory_free(
 			 internal_table );
 
@@ -174,6 +223,34 @@ int libesedb_table_free(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free page tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( internal_table->column_reference_list ),
+		     &libesedb_column_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free column reference list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( internal_table->index_reference_list ),
+		     &libesedb_index_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index reference list.",
 			 function );
 
 			result = -1;
@@ -400,6 +477,17 @@ int libesedb_table_read_page_tree(
 
 		return( -1 );
 	}
+	if( internal_table->table_definition->table_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_table->page_tree != NULL )
 	{
 		liberror_error_set(
@@ -427,7 +515,7 @@ int libesedb_table_read_page_tree(
 	if( libesedb_page_tree_read(
 	     internal_table->page_tree,
 	     internal_table->internal_file->io_handle,
-	     internal_table->table_definition->father_data_page_number,
+	     internal_table->table_definition->table_data_definition->father_data_page_number,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -477,6 +565,17 @@ int libesedb_table_get_identifier(
 
 		return( -1 );
 	}
+	if( internal_table->table_definition->table_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 function );
+
+		return( -1 );
+	}
 	if( identifier == NULL )
 	{
 		liberror_error_set(
@@ -488,7 +587,7 @@ int libesedb_table_get_identifier(
 
 		return( -1 );
 	}
-	*identifier = internal_table->table_definition->father_data_page_object_identifier;
+	*identifier = internal_table->table_definition->table_data_definition->identifier;
 
 	return( 1 );
 }
@@ -529,6 +628,17 @@ int libesedb_table_get_utf8_name_size(
 
 		return( -1 );
 	}
+	if( internal_table->table_definition->table_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 function );
+
+		return( -1 );
+	}
 	if( utf8_string_size == NULL )
 	{
 		liberror_error_set(
@@ -540,7 +650,7 @@ int libesedb_table_get_utf8_name_size(
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_table->table_definition->name_size;
+	*utf8_string_size = internal_table->table_definition->table_data_definition->name_size;
 
 	return( 1 );
 }
@@ -583,6 +693,17 @@ int libesedb_table_get_utf8_name(
 
 		return( -1 );
 	}
+	if( internal_table->table_definition->table_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 function );
+
+		return( -1 );
+	}
 	if( utf8_string == NULL )
 	{
 		liberror_error_set(
@@ -605,7 +726,7 @@ int libesedb_table_get_utf8_name(
 
 		return( -1 );
 	}
-	if( utf8_string_size < internal_table->table_definition->name_size )
+	if( utf8_string_size < internal_table->table_definition->table_data_definition->name_size )
 	{
 		liberror_error_set(
 		 error,
@@ -618,8 +739,8 @@ int libesedb_table_get_utf8_name(
 	}
 	if( memory_copy(
 	     utf8_string,
-	     internal_table->table_definition->name,
-	     internal_table->table_definition->name_size ) == NULL )
+	     internal_table->table_definition->table_data_definition->name,
+	     internal_table->table_definition->table_data_definition->name_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -633,6 +754,373 @@ int libesedb_table_get_utf8_name(
 	return( 1 );
 }
 
+/* Retrieves the amount of columns
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_amount_of_columns(
+     libesedb_table_t *table,
+     int *amount_of_columns,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	static char *function                     = "libesedb_table_get_amount_of_columns";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->column_data_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing column data definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_amount_of_elements(
+	     internal_table->table_definition->column_data_definition_list,
+	     amount_of_columns,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of columns.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific column
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_column(
+     libesedb_table_t *table,
+     int column_entry,
+     libesedb_column_t **column,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	libesedb_list_element_t *list_element     = NULL;
+	static char *function                     = "libesedb_table_get_column";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->column_data_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing column data definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( column == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_element(
+	     internal_table->table_definition->column_data_definition_list,
+	     column_entry,
+	     &list_element,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column data definition list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( list_element->value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid column data definition list element - missing value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_column_initialize(
+	     column,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create column.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_column_attach(
+	     (libesedb_internal_column_t *) *column,
+	     internal_table,
+	     (libesedb_data_definition_t *) list_element->value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to attach column.",
+		 function );
+
+		libesedb_column_free(
+		 column,
+		 NULL );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_amount_of_indexes(
+     libesedb_table_t *table,
+     int *amount_of_indexes,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	static char *function                     = "libesedb_table_get_amount_of_indexes";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->index_data_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing index data definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_amount_of_elements(
+	     internal_table->table_definition->index_data_definition_list,
+	     amount_of_indexes,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of indexes.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_index(
+     libesedb_table_t *table,
+     int index_entry,
+     libesedb_index_t **index,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	libesedb_list_element_t *list_element     = NULL;
+	static char *function                     = "libesedb_table_get_index";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->index_data_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing index data definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_element(
+	     internal_table->table_definition->index_data_definition_list,
+	     index_entry,
+	     &list_element,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve index data definition list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( list_element->value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid index data definition list element - missing value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_index_initialize(
+	     index,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_index_attach(
+	     (libesedb_internal_index_t *) *index,
+	     internal_table,
+	     (libesedb_data_definition_t *) list_element->value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to attach index.",
+		 function );
+
+		libesedb_index_free(
+		 index,
+		 NULL );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* TODO remove when done testing */
 int libesedb_table_test(
      libesedb_table_t *table,
      liberror_error_t **error )

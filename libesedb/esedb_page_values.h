@@ -186,8 +186,9 @@ struct esedb_data_definition
 	 */
 
 	/* Data type identifier: 11 (KeyMost)
-	 * Keu most
+	 * Key most
 	 * Consists of 2 bytes
+	 * Introduces in Windows Vista
 	 */
 
 	/* Data type identifier: 128 (Name)
@@ -215,133 +216,15 @@ struct esedb_data_definition
 	/* Data type identifier: 135 (TupleLimits)
 	 */
 
+	/* Data type identifier: 136 (Version)
+	 * Introduces in Windows Vista
+	 */
+
 	/* Data type identifier: 256 (CallbackData)
 	 */
 
 	/* Data type identifier: 257 (CallbackDependencies)
 	 */
-};
-
-typedef struct esedb_table_definition esedb_table_definition_t;
-
-struct esedb_table_definition
-{
-	/* The father data page (FDP) object identifier
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_object_identifier[ 4 ];
-
-	/* The father data page (FDP) number
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_number[ 4 ];
-
-	/* The table density percentage
-	 * Consists of 4 bytes
-	 */
-	uint8_t table_density_percentage[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown1[ 4 ];
-
-	/* The initial amount of pages
-	 * Consists of 4 bytes
-	 */
-	uint8_t initial_amount_of_pages[ 4 ];
-
-	/* Unknown
-	 * Consists of 2 bytes
-	 */
-	uint8_t unknown2[ 2 ];
-};
-
-typedef struct esedb_column_definition esedb_column_definition_t;
-
-struct esedb_column_definition
-{
-	uint8_t dummy;
-};
-
-typedef struct esedb_index_definition esedb_index_definition_t;
-
-struct esedb_index_definition
-{
-	/* The father data page (FDP) object identifier
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_object_identifier[ 4 ];
-
-	/* The father data page (FDP) number
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_number[ 4 ];
-
-	/* The index density percentage
-	 * Consists of 4 bytes
-	 */
-	uint8_t index_density_percentage[ 4 ];
-
-	/* The index group of bits
-	 * Consists of 4 bytes
-	 */
-	uint8_t group_of_bits[ 4 ];
-
-	/* The locale identifier
-	 * Consists of 4 bytes
-	 */
-	uint8_t locale_identifier[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown1[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown2[ 4 ];
-
-	/* Unknown
-	 * Consists of 1 byte
-	 */
-	uint8_t unknown3;
-};
-
-typedef struct esedb_long_value_definition esedb_long_value_definition_t;
-
-struct esedb_long_value_definition
-{
-	/* The father data page (FDP) object identifier
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_object_identifier[ 4 ];
-
-	/* The father data page (FDP) number
-	 * Consists of 4 bytes
-	 */
-	uint8_t father_data_page_number[ 4 ];
-
-	/* The initial amount of pages
-	 * Consists of 4 bytes
-	 */
-	uint8_t initial_amount_of_pages[ 4 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown1[ 4 ];
-
-	/* The extent space
-	 * Consists of 4 bytes
-	 */
-	uint8_t extent_space[ 4 ];
-
-	/* Unknown
-	 * Consists of 1 byte
-	 */
-	uint8_t unknown2;
 };
 
 #if defined( __cplusplus )

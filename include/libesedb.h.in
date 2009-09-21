@@ -257,30 +257,13 @@ LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
                      int *amount_of_tables,
                      libesedb_error_t **error );
 
-/* Retrieves the table for the specific index
+/* Retrieves the table for the specific entry
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_get_table(
                      libesedb_file_t *file,
                      int table_entry,
                      libesedb_table_t **table,
-                     libesedb_error_t **error );
-
-/* Retrieves the amount of indexes
- * Returns 1 if successful or -1 on error
- */
-LIBESEDB_EXTERN int libesedb_file_get_amount_of_indexes(
-                     libesedb_file_t *file,
-                     int *amount_of_indexes,
-                     libesedb_error_t **error );
-
-/* Retrieves the index for the specific index
- * Returns 1 if successful or -1 on error
- */
-LIBESEDB_EXTERN int libesedb_file_get_index(
-                     libesedb_file_t *file,
-                     int index_entry,
-                     libesedb_index_t **index,
                      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
@@ -323,12 +306,86 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
+/* Retrieves the amount of columns
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
+                     libesedb_table_t *table,
+                     int *amount_of_columns,
+                     libesedb_error_t **error );
+
+/* Retrieves the column for the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_column(
+                     libesedb_table_t *table,
+                     int column_entry,
+                     libesedb_column_t **column,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
+                     libesedb_table_t *table,
+                     int *amount_of_indexes,
+                     libesedb_error_t **error );
+
+/* Retrieves the index for the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_index(
+                     libesedb_table_t *table,
+                     int index_entry,
+                     libesedb_index_t **index,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Column functions
+ * ------------------------------------------------------------------------- */
+
+/* Frees a column
+ * Detaches the reference from the table if necessary
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_column_free(
+                     libesedb_column_t **column,
+                     libesedb_error_t **error );
+
+/* Retrieves the column identifier or Father Data Page (FDP) object identifier
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_column_get_identifier(
+                     libesedb_column_t *column,
+                     uint32_t *identifier,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string size of the column name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_column_get_utf8_name_size(
+                     libesedb_column_t *column,
+                     size_t *utf8_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string of the column name
+ * The string is formatted in UTF-8
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_column_get_utf8_name(
+                     libesedb_column_t *column,
+                     uint8_t *utf8_string,
+                     size_t utf8_string_size,
+                     libesedb_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Index functions
  * ------------------------------------------------------------------------- */
 
 /* Frees a index
- * Detaches the reference from the file if necessary
+ * Detaches the reference from the table if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_index_free(

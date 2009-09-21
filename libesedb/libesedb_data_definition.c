@@ -27,7 +27,6 @@
 #include <liberror.h>
 #include <libnotify.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_codepage.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
@@ -96,7 +95,7 @@ int libesedb_data_definition_initialize(
 	return( 1 );
 }
 
-/* Frees data definition
+/* Frees the data definition
  * Returns 1 if successful or -1 on error
  */
 int libesedb_data_definition_free(
@@ -312,7 +311,7 @@ int libesedb_data_definition_read(
 	 data_definition->identifier,
 	 ( (esedb_data_definition_t *) definition_data )->identifier );
 
-	if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
+	if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
 	{
 		endian_little_convert_32bit(
 		 data_definition->column_type,
@@ -350,7 +349,7 @@ int libesedb_data_definition_read(
 	 data_type_number++,
 	 data_definition->identifier );
 
-	if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
+	if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
 	{
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") column type\t\t\t\t: 0x%08" PRIx32 " ",
@@ -386,7 +385,7 @@ int libesedb_data_definition_read(
 
 	if( last_fixed_size_data_type >= 6 )
 	{
-		if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
+		if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
 		{
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: ",
@@ -397,7 +396,7 @@ int libesedb_data_definition_read(
 			libnotify_verbose_printf(
 			 "\n" );
 		}
-		else if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_INDEX )
+		else if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_INDEX )
 		{
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: ",
@@ -419,7 +418,7 @@ int libesedb_data_definition_read(
 	}
 	if( last_fixed_size_data_type >= 7 )
 	{
-		if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
+		if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
 		{
 			endian_little_convert_32bit(
 			 ascii_codepage,
@@ -443,7 +442,7 @@ int libesedb_data_definition_read(
 			libnotify_verbose_printf(
 			 "\n" );
 		}
-		else if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_INDEX )
+		else if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_INDEX )
 		{
 			endian_little_convert_32bit(
 			 value_32bit,

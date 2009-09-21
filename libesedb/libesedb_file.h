@@ -45,10 +45,6 @@ struct libesedb_internal_file
 	 */
 	libesedb_list_t *table_reference_list;
 
-	/* The index reference list
-	 */
-	libesedb_list_t *index_reference_list;
-
 	/* The catalog page tree
 	 */
 	libesedb_page_tree_t *catalog_page_tree;
@@ -142,17 +138,6 @@ LIBESEDB_EXTERN int libesedb_file_get_table(
                      libesedb_file_t *file,
                      int table_entry,
                      libesedb_table_t **table,
-                     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_file_get_amount_of_indexes(
-                     libesedb_file_t *file,
-                     int *amount_of_indexes,
-                     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_file_get_index(
-                     libesedb_file_t *file,
-                     int index_entry,
-                     libesedb_index_t **index,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

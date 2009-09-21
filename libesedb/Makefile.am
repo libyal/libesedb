@@ -8,12 +8,6 @@ AM_CPPFLAGS = \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
 
-OLD_FILES = \
-	libesedb_column_definition.c libesedb_column_definition.h \
-	libesedb_index_definition.c libesedb_index_definition.h \
-	libesedb_long_value_definition.c libesedb_long_value_definition.h \
-	libesedb_table_definition.c libesedb_table_definition.h
-
 lib_LTLIBRARIES = libesedb.la
 
 libesedb_la_SOURCES = \
@@ -24,6 +18,7 @@ libesedb_la_SOURCES = \
 	libesedb_array_type.c libesedb_array_type.h \
 	libesedb_checksum.c libesedb_checksum.h \
 	libesedb_codepage.c libesedb_codepage.h \
+	libesedb_column.c libesedb_column.h \
 	libesedb_data_definition.c libesedb_data_definition.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
@@ -44,9 +39,9 @@ libesedb_la_SOURCES = \
 	libesedb_string.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \
+	libesedb_table_definition.c libesedb_table_definition.h \
 	libesedb_tree_type.c libesedb_tree_type.h \
-	libesedb_value_type.c libesedb_value_type.h \
-	$(OLD_FILES)
+	libesedb_value_type.c libesedb_value_type.h
 
 libesedb_la_LIBADD = \
 	../liberror/liberror.la \

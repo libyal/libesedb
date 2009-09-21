@@ -1,5 +1,5 @@
 /*
- * Index functions
+ * Column functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INDEX_H )
-#define _LIBESEDB_INDEX_H
+#if !defined( _LIBESEDB_COLUMN_H )
+#define _LIBESEDB_COLUMN_H
 
 #include <common.h>
 #include <types.h>
@@ -37,9 +37,9 @@
 extern "C" {
 #endif
 
-typedef struct libesedb_internal_index libesedb_internal_index_t;
+typedef struct libesedb_internal_column libesedb_internal_column_t;
 
-struct libesedb_internal_index
+struct libesedb_internal_column
 {
 	/* The internal table
 	 */
@@ -49,45 +49,45 @@ struct libesedb_internal_index
 	 */
 	libesedb_data_definition_t *data_definition;
 
-	/* The index reference list element
+	/* The column reference list element
 	 */
 	libesedb_list_element_t *list_element;
 };
 
-int libesedb_index_initialize(
-     libesedb_index_t **index,
+int libesedb_column_initialize(
+     libesedb_column_t **column,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_index_free(
-                     libesedb_index_t **index,
+LIBESEDB_EXTERN int libesedb_column_free(
+                     libesedb_column_t **column,
                      liberror_error_t **error );
 
-int libesedb_index_free_no_detach(
-     intptr_t *internal_index,
+int libesedb_column_free_no_detach(
+     intptr_t *internal_column,
      liberror_error_t **error );
 
-int libesedb_index_attach(
-     libesedb_internal_index_t *internal_index,
+int libesedb_column_attach(
+     libesedb_internal_column_t *internal_column,
      libesedb_internal_table_t *internal_table,
      libesedb_data_definition_t *data_definition,
      liberror_error_t **error );
 
-int libesedb_index_detach(
-     libesedb_internal_index_t *internal_index,
+int libesedb_column_detach(
+     libesedb_internal_column_t *internal_column,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_index_get_identifier(
-                     libesedb_index_t *index,
+LIBESEDB_EXTERN int libesedb_column_get_identifier(
+                     libesedb_column_t *column,
                      uint32_t *identifier,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_index_get_utf8_name_size(
-                     libesedb_index_t *index,
+LIBESEDB_EXTERN int libesedb_column_get_utf8_name_size(
+                     libesedb_column_t *column,
                      size_t *utf8_string_size,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
-                     libesedb_index_t *index,
+LIBESEDB_EXTERN int libesedb_column_get_utf8_name(
+                     libesedb_column_t *column,
                      uint8_t *utf8_string,
                      size_t utf8_string_size,
                      liberror_error_t **error );

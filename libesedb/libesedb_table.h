@@ -30,6 +30,7 @@
 
 #include "libesedb_extern.h"
 #include "libesedb_file.h"
+#include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
@@ -57,6 +58,14 @@ struct libesedb_internal_table
 	/* The table page tree
 	 */
 	libesedb_page_tree_t *page_tree;
+
+	/* The column reference list
+	 */
+	libesedb_list_t *column_reference_list;
+
+	/* The index reference list
+	 */
+	libesedb_list_t *index_reference_list;
 };
 
 int libesedb_table_initialize(
@@ -101,6 +110,18 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
+                     libesedb_table_t *table,
+                     int *amount_of_indexes,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_table_get_index(
+                     libesedb_table_t *table,
+                     int index_entry,
+                     libesedb_index_t **index,
+                     liberror_error_t **error );
+
+/* TODO remove when done testing */
 LIBESEDB_EXTERN int libesedb_table_test(
                      libesedb_table_t *table,
                      liberror_error_t **error );

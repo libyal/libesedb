@@ -28,18 +28,15 @@
 #include <libnotify.h>
 
 #include "libesedb_array_type.h"
-#include "libesedb_column_definition.h"
-#include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_table_definition.h"
-
-#include "esedb_page_values.h"
 
 /* Creates a table definition
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_definition_initialize(
      libesedb_table_definition_t **table_definition,
+     libesedb_data_definition_t *table_data_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_initialize";
@@ -52,6 +49,29 @@ int libesedb_table_definition_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
+
+		return( -1 );
+	}
+	if( table_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_data_definition->type != LIBESEDB_DATA_DEFINITION_TYPE_TABLE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data definition type: %" PRIu16 ".",
+		 function,
+		 table_data_definition->type );
 
 		return( -1 );
 	}
@@ -90,11 +110,78 @@ int libesedb_table_definition_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_list_initialize(
+		     &( ( *table_definition )->column_data_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create column data definition list.",
+			 function );
+
+			memory_free(
+			 *table_definition );
+
+			*table_definition = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *table_definition )->index_data_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index data definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *table_definition )->column_data_definition_list ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 *table_definition );
+
+			*table_definition = NULL;
+
+			return( -1 );
+		}
+		if( libesedb_list_initialize(
+		     &( ( *table_definition )->long_value_data_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create long value data definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *table_definition )->index_data_definition_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( ( *table_definition )->column_data_definition_list ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 *table_definition );
+
+			*table_definition = NULL;
+
+			return( -1 );
+		}
+		( *table_definition )->table_data_definition = table_data_definition;
 	}
 	return( 1 );
 }
 
-/* Frees table definition
+/* Frees the table definition
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_definition_free(
@@ -102,6 +189,7 @@ int libesedb_table_definition_free(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_free";
+	int result            = 1;
 
 	if( table_definition == NULL )
 	{
@@ -114,33 +202,63 @@ int libesedb_table_definition_free(
 
 		return( -1 );
 	}
-	if( ( ( libesedb_table_definition_t *) table_definition )->name != NULL )
+	if( libesedb_list_free(
+	     &( ( (libesedb_table_definition_t *) table_definition )->column_data_definition_list ),
+	     &libesedb_data_definition_free,
+	     error ) != 1 )
 	{
-		memory_free(
-		 ( (libesedb_table_definition_t *) table_definition )->name );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free column data definition list.",
+		 function );
+
+		result = -1;
+	}
+	if( libesedb_list_free(
+	     &( ( (libesedb_table_definition_t *) table_definition )->index_data_definition_list ),
+	     &libesedb_data_definition_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free index data definition list.",
+		 function );
+
+		result = -1;
+	}
+	if( libesedb_list_free(
+	     &( ( (libesedb_table_definition_t *) table_definition )->long_value_data_definition_list ),
+	     &libesedb_data_definition_free,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free long value data definition list.",
+		 function );
+
+		result = -1;
 	}
 	memory_free(
 	table_definition );
 
-	return( 1 );
+	return( result );
 }
 
-/* Reads the table definition from the definition data
+/* Appends a column data definition to the table definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_table_definition_read(
+int libesedb_table_definition_append_column_data_definition(
      libesedb_table_definition_t *table_definition,
-     uint8_t *definition_data,
-     size_t definition_data_size,
-     uint16_t definition_flags,
+     libesedb_data_definition_t *column_data_definition,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_table_definition_read";
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit  = 0;
-	uint16_t value_16bit  = 0;
-#endif
+	static char *function = "libesedb_table_definition_append_column_data_definition";
 
 	if( table_definition == NULL )
 	{
@@ -153,108 +271,165 @@ int libesedb_table_definition_read(
 
 		return( -1 );
 	}
-	if( definition_data == NULL )
+	if( column_data_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid definition data.",
+		 "%s: invalid column data definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( definition_data_size > (size_t) SSIZE_MAX )
+	if( column_data_definition->type != LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data definition type: %" PRIu16 ".",
+		 function,
+		 column_data_definition->type );
+
+		return( -1 );
+	}
+	if( libesedb_list_append_value(
+	     table_definition->column_data_definition_list,
+	     (intptr_t *) column_data_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append column data definition to list.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Appends an index data definition to the table definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_append_index_data_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_data_definition_t *index_data_definition,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_append_index_data_definition";
+
+	if( table_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid definition data size value exceeds maximum.",
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( definition_data_size != sizeof( esedb_table_definition_t ) )
+	if( index_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_data_definition->type != LIBESEDB_DATA_DEFINITION_TYPE_INDEX )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported definition data size.",
-		 function );
-
-		return( -1 );
-	}
-	if( definition_flags != 0x8008 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported definition flags: 0x%08" PRIx32 ".",
+		 "%s: unsupported data definition type: %" PRIu16 ".",
 		 function,
-		 definition_flags );
+		 index_data_definition->type );
 
 		return( -1 );
 	}
-	endian_little_convert_32bit(
-	 table_definition->father_data_page_object_identifier,
-	 ( ( esedb_table_definition_t *) definition_data )->father_data_page_object_identifier );
-	endian_little_convert_32bit(
-	 table_definition->father_data_page_number,
-	 ( ( esedb_table_definition_t *) definition_data )->father_data_page_number );
+	if( libesedb_list_append_value(
+	     table_definition->index_data_definition_list,
+	     (intptr_t *) index_data_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append index data definition to list.",
+		 function );
 
+		return( -1 );
+	}
+	return( 1 );
+}
 
-#if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: father data page (FDP) object identifier\t: %" PRIu32 "\n",
-	 function,
-	 table_definition->father_data_page_object_identifier );
-	libnotify_verbose_printf(
-	 "%s: father data page (FDP) number\t\t\t: %" PRIu32 "\n",
-	 function,
-	 table_definition->father_data_page_number );
+/* Appends a long value data definition to the table definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_append_long_value_data_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_data_definition_t *long_value_data_definition,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_append_long_value_data_definition";
 
-	endian_little_convert_32bit(
-	 value_32bit,
-	 ( ( esedb_table_definition_t *) definition_data )->table_density_percentage );
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
 
-	libnotify_verbose_printf(
-	 "%s: table density percentage\t\t\t: %" PRIu32 "\n",
-	 function,
-	 value_32bit );
+		return( -1 );
+	}
+	if( long_value_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value data definition.",
+		 function );
 
-	endian_little_convert_32bit(
-	 value_32bit,
-	 ( ( esedb_table_definition_t *) definition_data )->unknown1 );
+		return( -1 );
+	}
+	if( long_value_data_definition->type != LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data definition type: %" PRIu16 ".",
+		 function,
+		 long_value_data_definition->type );
 
-	libnotify_verbose_printf(
-	 "%s: unknown1\t\t\t\t\t: 0x%08" PRIx32 "\n",
-	 function,
-	 value_32bit );
+		return( -1 );
+	}
+	if( libesedb_list_append_value(
+	     table_definition->long_value_data_definition_list,
+	     (intptr_t *) long_value_data_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append long value data definition to list.",
+		 function );
 
-	endian_little_convert_32bit(
-	 value_32bit,
-	 ( ( esedb_table_definition_t *) definition_data )->initial_amount_of_pages );
-
-	libnotify_verbose_printf(
-	 "%s: initial amount of pages\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 value_32bit );
-
-	endian_little_convert_16bit(
-	 value_16bit,
-	 ( ( esedb_table_definition_t *) definition_data )->unknown2 );
-
-	libnotify_verbose_printf(
-	 "%s: unknown2\t\t\t\t\t: 0x%04" PRIx16 "\n",
-	 function,
-	 value_16bit );
-
-	libnotify_verbose_printf(
-	 "\n" );
-#endif
+		return( -1 );
+	}
 	return( 1 );
 }
 

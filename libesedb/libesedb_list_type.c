@@ -724,8 +724,8 @@ int libesedb_list_append_value(
 }
 
 /* Inserts a list element into the list
- * Uses the value_compare_function to determine the order of the child nodes
- * Returns 1 if successful, 0 if the node already exists or -1 on error
+ * Uses the value_compare_function to determine the order of the list elements
+ * Returns 1 if successful, 0 if the list element already exists or -1 on error
  */
 int libesedb_list_insert_element(
      libesedb_list_t *list,
@@ -906,8 +906,8 @@ int libesedb_list_insert_element(
 
 /* Inserts a value to the list
  * Creates a new list element
- * Uses the value_compare_function to determine the order of the child nodes
- * Returns 1 if successful, 0 if the node already exists or -1 on error
+ * Uses the value_compare_function to determine the order of the list element
+ * Returns 1 if successful, 0 if the list element already exists or -1 on error
  */
 int libesedb_list_insert_value(
      libesedb_list_t *list,
