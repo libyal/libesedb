@@ -41,25 +41,22 @@ typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
 {
+	/* The table definition
+	 */
+	libesedb_table_definition_t *table_definition;
+
 	/* The table definition list
 	 */
 	libesedb_list_t *table_definition_list;
 
-	/* The column definition list
+	/* The value definition list
 	 */
-	libesedb_list_t *column_definition_list;
-
-	/* The index definition list
-	 */
-	libesedb_list_t *index_definition_list;
-
-	/* The long value definition list
-	 */
-	libesedb_list_t *long_value_definition_list;
+	libesedb_list_t *value_definition_list;
 };
 
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
+     libesedb_table_definition_t *table_definition,
      liberror_error_t **error );
 
 int libesedb_page_tree_free(

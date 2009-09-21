@@ -700,6 +700,7 @@ int libesedb_file_open_read(
 
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->catalog_page_tree ),
+	     NULL,
 	     error ) != 1 )
 	{
 		liberror_error_set(

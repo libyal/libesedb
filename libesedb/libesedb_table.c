@@ -501,6 +501,7 @@ int libesedb_table_read_page_tree(
 	}
 	if( libesedb_page_tree_initialize(
 	     &( internal_table->page_tree ),
+	     internal_table->table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(

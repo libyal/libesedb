@@ -1,4 +1,4 @@
-.Dd September 13, 2009
+.Dd September 21, 2009
 .Dt esedbinfo
 .Os libesedb
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd determines information about an Extensible Storage Engine (ESE) Database File (EDB)
 .Sh SYNOPSIS
 .Nm esedbinfo
-.Op Fl ahvV
+.Op Fl hvV
 .Va Ar source
 .Sh DESCRIPTION
 .Nm esedbinfo
@@ -24,8 +24,6 @@ is the source file.
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl a
-shows allocation information
 .It Fl h
 shows this help
 .It Fl v
@@ -39,10 +37,48 @@ None
 None
 .Sh EXAMPLES
 .Bd -literal
-# esedbinfo -a file.esedb
-esedbinfo 20090905 (libesedb 20090905, libuna 20090901, libbfio 20090901)
+# esedbinfo file.esedb
+esedbinfo 20090921 (libesedb 20090921, libuna 20090901, libbfio 20090901, libfdatetime 20090906)
 
 Extensible Storage Engine Database information:
+        Created in format:      0x620,12
+        Current format:         0x620,12
+        Page size:              8192 bytes
+
+Catalog content:
+        Amount of tables:       15
+
+Table: 1                        MSysObjects (2)
+        Amount of columns:      22
+        Column: 1               ObjidTable (1)
+        Column: 2               Type (2)
+        Column: 3               Id (3)
+        Column: 4               ColtypOrPgnoFDP (4)
+        Column: 5               SpaceUsage (5)
+        Column: 6               Flags (6)
+        Column: 7               PagesOrLocale (7)
+        Column: 8               RootFlag (8)
+        Column: 9               RecordOffset (9)
+        Column: 10              LCMapFlags (10)
+        Column: 11              KeyMost (11)
+        Column: 12              Name (128)
+        Column: 13              Stats (129)
+        Column: 14              TemplateTable (130)
+        Column: 15              DefaultValue (131)
+        Column: 16              KeyFldIDs (132)
+        Column: 17              VarSegMac (133)
+        Column: 18              ConditionalColumns (134)
+        Column: 19              TupleLimits (135)
+        Column: 20              Version (136)
+        Column: 21              CallbackData (256)
+        Column: 22              CallbackDependencies (257)
+
+        Amount of indexes:      3
+        Index: 1                Id (2)
+        Index: 2                Name (4)
+        Index: 3                RootObjects (5)
+
+Table: 2                        MSysObjectsShadow (3)
 .Dl        ...
 
 .Ed

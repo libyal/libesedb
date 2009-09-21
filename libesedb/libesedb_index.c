@@ -185,8 +185,21 @@ int libesedb_index_free_no_detach(
 	{
 		if( ( (libesedb_internal_index_t *) internal_index )->internal_table != NULL )
 		{
-			memory_free(
-			 ( (libesedb_internal_index_t *) internal_index )->list_element );
+			if( ( ( (libesedb_internal_index_t *) internal_index )->list_element != NULL )
+			 && ( libesedb_list_element_free(
+			       &( ( (libesedb_internal_index_t *) internal_index )->list_element ),
+			       NULL,
+			       error ) != 1 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free list element.",
+				 function );
+
+				result = -1;
+			}
 		}
 		/* The internal_table and data_definition references
 		 * are freed elsewhere

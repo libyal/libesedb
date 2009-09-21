@@ -1,5 +1,10 @@
 TODO
 
+Error:
+* error in offset tracking ?
+  20987904 ( 0x01404000 ) - 20996096 ( 0x01406000 ) size: 8192
+  4290912256 ( 0xffc22000 ) - 4290912256 ( 0xffc22000 ) size: 0
+
 Debug
 * is function libesedb_debug_print_table_group_of_bits needed?
 
@@ -9,9 +14,10 @@ Library
 * provide UTF-16 name string functions
 * merge table and index into single item type ?
 * make data definition type more flexible
-  - allow reading a table definition
+  - allow reading a data definition using a table definition
   - define the catalog table as a table definition? and bootstrap it
-* bind get index to table type not file type
+    what about handling the root flags?
+* how to store value data, raw? like libpff table and convert it later
 
 Tools
 * esedbinfo

@@ -652,7 +652,6 @@ int esedbinfo_file_info_fprint(
 			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-#ifdef IGNORE
 		if( table_identifier != 2 )
 		{
 			if( libesedb_table_test(
@@ -676,7 +675,6 @@ int esedbinfo_file_info_fprint(
 				 error );
 			}
 		}
-#endif
 #endif
 		if( libesedb_table_free(
 		     &table,

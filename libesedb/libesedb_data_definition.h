@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
 #if defined( __cplusplus )
@@ -61,6 +62,10 @@ struct libesedb_data_definition
 		uint32_t column_type;
 	};
 
+	/* The size (or space usage)
+	 */
+	uint32_t size;
+
 	/* The name string
 	 */
 	uint8_t *name;
@@ -78,8 +83,15 @@ int libesedb_data_definition_free(
      intptr_t *data_definition,
      liberror_error_t **error );
 
+int libesedb_data_definition_read_catalog(
+     libesedb_data_definition_t *data_definition,
+     uint8_t *definition_data,
+     size_t definition_data_size,
+     liberror_error_t **error );
+
 int libesedb_data_definition_read(
      libesedb_data_definition_t *data_definition,
+     libesedb_list_t *column_data_definition_list,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error );

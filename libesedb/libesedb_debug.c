@@ -166,122 +166,13 @@ void libesedb_debug_print_page_tag_flags(
 	}
 }
 
-/* Prints the column type
- */
-void libesedb_debug_print_column_type(
-      uint32_t column_type )
-{
-	switch( column_type )
-	{
-		case 0:
-			libnotify_verbose_printf(
-			 "(JET_coltypNil)" );
-			break;
-
-		case 1:
-			libnotify_verbose_printf(
-			 "(JET_coltypBit)" );
-			break;
-
-		case 2:
-			libnotify_verbose_printf(
-			 "(JET_coltypUnsignedByte)" );
-			break;
-
-		case 3:
-			libnotify_verbose_printf(
-			 "(JET_coltypShort)" );
-			break;
-
-		case 4:
-			libnotify_verbose_printf(
-			 "(JET_coltypLong)" );
-			break;
-
-		case 5:
-			libnotify_verbose_printf(
-			 "(JET_coltypCurrency)" );
-			break;
-
-		case 6:
-			libnotify_verbose_printf(
-			 "(JET_coltypIEEESingle)" );
-			break;
-
-		case 7:
-			libnotify_verbose_printf(
-			 "(JET_coltypIEEEDouble)" );
-			break;
-
-		case 8:
-			libnotify_verbose_printf(
-			 "(JET_coltypDateTime)" );
-			break;
-
-		case 9:
-			libnotify_verbose_printf(
-			 "(JET_coltypBinary)" );
-			break;
-
-		case 10:
-			libnotify_verbose_printf(
-			 "(JET_coltypText)" );
-			break;
-
-		case 11:
-			libnotify_verbose_printf(
-			 "(JET_coltypLongBinary)" );
-			break;
-
-		case 12:
-			libnotify_verbose_printf(
-			 "(JET_coltypLongText)" );
-			break;
-
-		case 13:
-			libnotify_verbose_printf(
-			 "(JET_coltypSLV)" );
-			break;
-
-		case 14:
-			libnotify_verbose_printf(
-			 "(JET_coltypUnsignedLong)" );
-			break;
-
-		case 15:
-			libnotify_verbose_printf(
-			 "(JET_coltypLongLong)" );
-			break;
-
-		case 16:
-			libnotify_verbose_printf(
-			 "(JET_coltypGUID)" );
-			break;
-
-		case 17:
-			libnotify_verbose_printf(
-			 "(JET_coltypUnsignedShort)" );
-			break;
-
-		default:
-			libnotify_verbose_printf(
-			 "(Unknown)" );
-			break;
-	}
-}
-
-/* Prints the column type
+/* Prints the data definition type
  */
 void libesedb_debug_print_page_value_definition_type(
       uint16_t page_value_definition_type )
 {
 	switch( page_value_definition_type )
 	{
-		case 0:
-			libnotify_verbose_printf(
-			 "(Data)" );
-			break;
-
 		case 1:
 			libnotify_verbose_printf(
 			 "(Table)" );
