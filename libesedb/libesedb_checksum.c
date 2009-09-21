@@ -29,7 +29,7 @@
 #include "libesedb_checksum.h"
 
 /* Calculates the little-endian XOR-32 of a buffer
- * Use a intial value to calculate a new XOR-32
+ * Use a initial value to calculate a new XOR-32
  * Returns 1 if successful or -1 on error
  */
 int libesedb_checksum_calculate_little_endian_xor32(

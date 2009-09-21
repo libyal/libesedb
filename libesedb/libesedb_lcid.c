@@ -436,7 +436,7 @@ libesedb_lcid_language_tag_t libesedb_lcid_language_tags[ ] = {
 
 	{ (uint16_t) -1, "_UNKNOWN_", "Unknown" } };
 
-/* Retrieves a string containing the value type identifier
+/* Retrieves a string containing the language tag identifier
  */
 const char *libesedb_lcid_language_tag_get_identifier(
              uint16_t lcid_language_tag )
@@ -455,7 +455,7 @@ const char *libesedb_lcid_language_tag_get_identifier(
 	 ( libesedb_lcid_language_tags[ iterator ] ).identifier );
 }
 
-/* Retrieves a string containing the value type description
+/* Retrieves a string containing the language tag description
  */
 const char *libesedb_lcid_language_tag_get_description(
              uint16_t lcid_language_tag )

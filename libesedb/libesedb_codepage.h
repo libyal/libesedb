@@ -1,5 +1,5 @@
 /*
- * LCID functions
+ * Codepage functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LCID_H )
-#define _LIBESEDB_LCID_H
+#if !defined( _LIBESEDB_CODEPAGE_H )
+#define _LIBESEDB_CODEPAGE_H
 
 #include <common.h>
 #include <types.h>
@@ -32,13 +32,13 @@ extern "C" {
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 
-typedef struct libesedb_lcid_language_tag libesedb_lcid_language_tag_t;
+typedef struct libesedb_codepage libesedb_codepage_t;
 
-struct libesedb_lcid_language_tag
+struct libesedb_codepage
 {
-	/* The LCID language tag value
+	/* The codepage
 	 */
-	uint16_t lcid_language_tag;
+	uint32_t codepage;
 
 	/* The identifier
 	 */
@@ -48,11 +48,11 @@ struct libesedb_lcid_language_tag
 	 */
 	const char *description;
 };
-const char *libesedb_lcid_language_tag_get_identifier(
-             uint16_t lcid_language_tag );
+const char *libesedb_codepage_get_identifier(
+             uint32_t codepage );
 
-const char *libesedb_lcid_language_tag_get_description(
-             uint16_t lcid_language_tag );
+const char *libesedb_codepage_get_description(
+             uint32_t codepage );
 
 #endif
 

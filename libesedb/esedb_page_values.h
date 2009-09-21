@@ -34,7 +34,7 @@ typedef struct esedb_father_data_page_header esedb_father_data_page_header_t;
 
 struct esedb_father_data_page_header
 {
-	/* The intial amount of pages
+	/* The initial amount of pages
 	 * Consists of 4 bytes
 	 */
 	uint8_t initial_amount_of_pages[ 4 ];
@@ -90,10 +90,10 @@ struct esedb_data_definition_header
 	 */
 	uint8_t last_variable_size_data_type;
 
-	/* The size of data types
+	/* The variable size data types offset
 	 * Consists of 2 bytes
 	 */
-	uint8_t size_of_data_types[ 2 ];
+	uint8_t variable_size_data_types_offset[ 2 ];
 };
 
 typedef struct esedb_data_definition esedb_data_definition_t;
@@ -171,17 +171,24 @@ struct esedb_data_definition
 	 */
 	uint8_t root_flag;
 
+	/* Note that a root flags is defined for every
+	 * variable size data type
+	 */
+
 	/* Data type identifier: 9 (RecordOffset)
 	 * The record offset
-	 * Consists of 1 byte
+	 * Consists of 2 bytes
 	 */
-	uint8_t record_offset;
 
 	/* Data type identifier: 10 (LCMapFlags)
 	 * LC Map flags
 	 * Consists of 4 bytes
 	 */
-	uint8_t lc_map_flags[ 4 ];
+
+	/* Data type identifier: 11 (KeyMost)
+	 * Keu most
+	 * Consists of 2 bytes
+	 */
 
 	/* Data type identifier: 128 (Name)
 	 * The name

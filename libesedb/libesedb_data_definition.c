@@ -28,10 +28,12 @@
 #include <libnotify.h>
 
 #include "libesedb_array_type.h"
+#include "libesedb_codepage.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_data_definition.h"
 #include "libesedb_lcid.h"
+#include "libesedb_value_type.h"
 
 #include "esedb_page_values.h"
 
@@ -134,14 +136,23 @@ int libesedb_data_definition_read(
      size_t definition_data_size,
      liberror_error_t **error )
 {
-	static char *function                  = "libesedb_data_definition_read";
-	uint16_t calculated_size_of_data_types = 0;
-	uint16_t size_of_data_types            = 0;
-	uint8_t last_fixed_size_data_type      = 0;
-	uint8_t last_variable_size_data_type   = 0;
+	uint8_t *value_data                                 = NULL;
+	static char *function                               = "libesedb_data_definition_read";
+	uint32_t ascii_codepage                             = 0;
+	uint16_t calculated_variable_size_data_types_offset = 0;
+	uint16_t data_type_number                           = 0;
+	uint16_t previous_variable_size_data_type_size      = 0;
+	uint16_t record_offset                              = 0;
+	uint16_t variable_size_data_type_size               = 0;
+	uint16_t variable_size_data_types_offset            = 0;
+	uint8_t amount_of_variable_size_data_types          = 0;
+	uint8_t last_fixed_size_data_type                   = 0;
+	uint8_t last_variable_size_data_type                = 0;
+	uint8_t variable_size_data_type_iterator            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit        = 0;
+	uint32_t value_32bit                                = 0;
+	uint16_t value_16bit                                = 0;
 #endif
 
 	if( data_definition == NULL )
@@ -192,8 +203,8 @@ int libesedb_data_definition_read(
 	last_variable_size_data_type = ( (esedb_data_definition_header_t *) definition_data )->last_variable_size_data_type;
 
 	endian_little_convert_16bit(
-	 size_of_data_types,
-	 ( (esedb_data_definition_header_t *) definition_data )->size_of_data_types );
+	 variable_size_data_types_offset,
+	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
@@ -207,9 +218,9 @@ int libesedb_data_definition_read(
 	 last_variable_size_data_type );
 
 	libnotify_verbose_printf(
-	 "%s: size of data types\t\t\t\t: %" PRIu16 "\n",
+	 "%s: variable size data types offset\t\t\t: %" PRIu16 "\n",
 	 function,
-	 size_of_data_types );
+	 variable_size_data_types_offset );
 #endif
 
 	definition_data      += sizeof( esedb_data_definition_header_t );
@@ -241,59 +252,50 @@ int libesedb_data_definition_read(
 
 		return( -1 );
 	}
-	/* TODO is this right ? */
-	calculated_size_of_data_types += sizeof( esedb_data_definition_header_t );
+	if( last_variable_size_data_type > 127 )
+	{
+		amount_of_variable_size_data_types = last_variable_size_data_type - 127;
+	}
+	calculated_variable_size_data_types_offset += sizeof( esedb_data_definition_header_t );
 
 	/* Use a fall through to determine the size of the fixed size data types
 	 */
 	switch( last_fixed_size_data_type )
 	{
+		case 11:
+			calculated_variable_size_data_types_offset += 2;
 		case 10:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 9:
-			calculated_size_of_data_types += 1;
+			calculated_variable_size_data_types_offset += 2;
 		case 8:
-			calculated_size_of_data_types += 1;
+			if( last_variable_size_data_type > 127 )
+			{
+				calculated_variable_size_data_types_offset += 1 * amount_of_variable_size_data_types;
+			}
 		case 7:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 6:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 5:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 4:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 3:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 		case 2:
-			calculated_size_of_data_types += 2;
+			calculated_variable_size_data_types_offset += 2;
 		case 1:
-			calculated_size_of_data_types += 4;
+			calculated_variable_size_data_types_offset += 4;
 			break;
 	}
-	if( last_variable_size_data_type > 127 )
-	{
-		calculated_size_of_data_types += last_variable_size_data_type - 127;
-	}
-	if( size_of_data_types != calculated_size_of_data_types )
+	if( variable_size_data_types_offset > definition_data_size )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: mismatch in stored and calculated size of data types (%" PRIu16 " != %" PRIu16 ")",
-		 function,
-		 size_of_data_types,
-		 calculated_size_of_data_types );
-
-		return( -1 );
-	}
-	if( definition_data_size < size_of_data_types )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: definition data too small.",
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: variable size data types offset exceeds definition data.",
 		 function );
 
 		return( -1 );
@@ -324,14 +326,18 @@ int libesedb_data_definition_read(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	data_type_number = 1;
+
 	libnotify_verbose_printf(
-	 "%s: father data page (FDP) object identifier\t\t: %" PRIu32 "\n",
+	 "%s: (%03" PRIu16 ") father data page (FDP) object identifier\t: %" PRIu32 "\n",
 	 function,
+	 data_type_number++,
 	 data_definition->father_data_page_object_identifier );
 
 	libnotify_verbose_printf(
-	 "%s: type\t\t\t\t\t\t: 0x%04" PRIx16 " ",
+	 "%s: (%03" PRIu16 ") type\t\t\t\t\t: 0x%04" PRIx16 " ",
 	 function,
+	 data_type_number++,
 	 data_definition->type );
 	libesedb_debug_print_page_value_definition_type(
 	 data_definition->type );
@@ -339,15 +345,17 @@ int libesedb_data_definition_read(
 	 "\n" );
 
 	libnotify_verbose_printf(
-	 "%s: identifier\t\t\t\t\t: %" PRIu32 "\n",
+	 "%s: (%03" PRIu16 ") identifier\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
+	 data_type_number++,
 	 data_definition->identifier );
 
 	if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
 	{
 		libnotify_verbose_printf(
-		 "%s: column type\t\t\t\t\t: 0x%08" PRIx32 " ",
+		 "%s: (%03" PRIu16 ") column type\t\t\t\t: 0x%08" PRIx32 " ",
 		 function,
+		 data_type_number++,
 		 data_definition->column_type );
 		libesedb_debug_print_column_type(
 		 data_definition->column_type );
@@ -357,8 +365,9 @@ int libesedb_data_definition_read(
 	else
 	{
 		libnotify_verbose_printf(
-		 "%s: father data page (FDP) number\t\t\t: %" PRIu32 "\n",
+		 "%s: (%03" PRIu16 ") father data page (FDP) number\t\t: %" PRIu32 "\n",
 		 function,
+		 data_type_number++,
 		 data_definition->father_data_page_number );
 	}
 	endian_little_convert_32bit(
@@ -366,8 +375,9 @@ int libesedb_data_definition_read(
 	 ( (esedb_data_definition_t *) definition_data )->space_usage );
 
 	libnotify_verbose_printf(
-	 "%s: space usage\t\t\t\t\t: %" PRIu32 "\n",
+	 "%s: (%03" PRIu16 ") space usage\t\t\t\t: %" PRIu32 "\n",
 	 function,
+	 data_type_number++,
 	 value_32bit );
 
 	endian_little_convert_32bit(
@@ -379,8 +389,9 @@ int libesedb_data_definition_read(
 		if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
 		{
 			libnotify_verbose_printf(
-			 "%s: flags\t\t\t\t\t\t: ",
-			 function );
+			 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: ",
+			 function,
+			 data_type_number++ );
 			libesedb_debug_print_column_group_of_bits(
 			 value_32bit );
 			libnotify_verbose_printf(
@@ -389,8 +400,9 @@ int libesedb_data_definition_read(
 		else if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_INDEX )
 		{
 			libnotify_verbose_printf(
-			 "%s: flags\t\t\t\t\t\t: ",
-			 function );
+			 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: ",
+			 function,
+			 data_type_number++ );
 			libesedb_debug_print_index_group_of_bits(
 			 value_32bit );
 			libnotify_verbose_printf(
@@ -399,8 +411,9 @@ int libesedb_data_definition_read(
 		else
 		{
 			libnotify_verbose_printf(
-			 "%s: flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
+			 data_type_number++,
 			 value_32bit );
 		}
 	}
@@ -409,13 +422,26 @@ int libesedb_data_definition_read(
 		if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_COLUMN )
 		{
 			endian_little_convert_32bit(
-			 value_32bit,
+			 ascii_codepage,
 			 ( (esedb_data_definition_t *) definition_data )->codepage );
 
 			libnotify_verbose_printf(
-			 "%s: codepage\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
 			 function,
-			 value_32bit );
+			 data_type_number++,
+			 ascii_codepage );
+
+			if( ascii_codepage != 0 )
+			{
+				libnotify_verbose_printf(
+				 " (%s) %s",
+				 libesedb_codepage_get_identifier(
+				  ascii_codepage ),
+				 libesedb_codepage_get_description(
+				  ascii_codepage ) );
+			}
+			libnotify_verbose_printf(
+			 "\n" );
 		}
 		else if( data_definition->type == LIBESEDB_PAGE_VALUE_DATA_DEFINITION_TYPE_INDEX )
 		{
@@ -424,10 +450,13 @@ int libesedb_data_definition_read(
 			 ( (esedb_data_definition_t *) definition_data )->locale_identifier );
 
 			libnotify_verbose_printf(
-			 "%s: locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+			 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
 			 function,
+			 data_type_number++,
 			 value_32bit,
 			 libesedb_lcid_language_tag_get_identifier(
+			  value_32bit ),
+			 libesedb_lcid_language_tag_get_description(
 			  value_32bit ) );
 		}
 		else
@@ -437,39 +466,390 @@ int libesedb_data_definition_read(
 			 ( (esedb_data_definition_t *) definition_data )->amount_of_pages );
 
 			libnotify_verbose_printf(
-			 "%s: amount of pages\t\t\t\t\t: %" PRIu32 "\n",
+			 "%s: (%03" PRIu16 ") amount of pages\t\t\t\t: %" PRIu32 "\n",
 			 function,
+			 data_type_number++,
 			 value_32bit );
 		}
 	}
+	value_data =&(  ( (esedb_data_definition_t *) definition_data )->root_flag );
+
 	if( last_fixed_size_data_type >= 8 )
 	{
-		libnotify_verbose_printf(
-		 "%s: root flag\t\t\t\t\t: 0x%02" PRIx8 "\n",
-		 function,
-		 ( (esedb_data_definition_t *) definition_data )->root_flag );
+		for( variable_size_data_type_iterator = 0;
+		     variable_size_data_type_iterator < amount_of_variable_size_data_types;
+		     variable_size_data_type_iterator++ )
+		{
+			libnotify_verbose_printf(
+			 "%s: (%03" PRIu16 ") root flag: %03" PRIu8 "\t\t\t\t: 0x%02" PRIx8 "\n",
+			 function,
+			 data_type_number++,
+			 variable_size_data_type_iterator + 1,
+			 *value_data );
+
+			value_data += 1;
+		}
 	}
 	if( last_fixed_size_data_type >= 9 )
 	{
+		endian_little_convert_16bit(
+		 record_offset,
+		 value_data );
+
+		value_data += 2;
+
 		libnotify_verbose_printf(
-		 "%s: record offset\t\t\t\t: 0x%02" PRIx8 "\n",
+		 "%s: (%03" PRIu16 ") record offset\t\t\t\t: %" PRIu16 "\n",
 		 function,
-		 ( (esedb_data_definition_t *) definition_data )->record_offset );
+		 data_type_number++,
+		 record_offset );
 	}
 	if( last_fixed_size_data_type >= 10 )
 	{
 		endian_little_convert_32bit(
 		 value_32bit,
-		 ( (esedb_data_definition_t *) definition_data )->lc_map_flags );
+		 value_data );
+
+		value_data += 4;
 
 		libnotify_verbose_printf(
-		 "%s: LC map flags\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: (%03" PRIu16 ") LC map flags\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
+		 data_type_number++,
 		 value_32bit );
+	}
+	if( last_fixed_size_data_type >= 11 )
+	{
+		endian_little_convert_16bit(
+		 value_16bit,
+		 value_data );
+
+		value_data += 2;
+
+		libnotify_verbose_printf(
+		 "%s: (%03" PRIu16 ") key most\t\t\t\t\t: 0x04%" PRIx16 "\n",
+		 function,
+		 data_type_number++,
+		 record_offset );
 	}
 	libnotify_verbose_printf(
 	 "\n" );
 #endif
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( variable_size_data_types_offset > calculated_variable_size_data_types_offset )
+	{
+		libnotify_verbose_printf(
+		 "%s: trailing data:\n",
+		 function );
+		libnotify_verbose_print_data(
+		 &( definition_data[ calculated_variable_size_data_types_offset - sizeof( esedb_data_definition_header_t ) ] ),
+		 variable_size_data_types_offset - calculated_variable_size_data_types_offset );
+	}
+#endif
+
+	if( amount_of_variable_size_data_types > 0 )
+	{
+		definition_data = &( definition_data[ variable_size_data_types_offset - sizeof( esedb_data_definition_header_t ) ] );
+		value_data      = &( definition_data[ amount_of_variable_size_data_types * 2 ] );
+
+		/* The default codepage is 1252
+		 */
+		if( ascii_codepage == 0 )
+		{
+			ascii_codepage = LIBUNA_CODEPAGE_WINDOWS_1252;
+		}
+		data_type_number = 128;
+
+		for( variable_size_data_type_iterator = 0;
+		     variable_size_data_type_iterator < amount_of_variable_size_data_types;
+		     variable_size_data_type_iterator++ )
+		{
+			endian_little_convert_16bit(
+			 variable_size_data_type_size,
+			 definition_data );
+
+			definition_data += 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			libnotify_verbose_printf(
+			 "%s: (%03" PRIu16 ") variable size data type size\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+			 function,
+			 data_type_number,
+			 variable_size_data_type_size,
+			 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
+#endif
+
+			switch( data_type_number )
+			{
+				case 128:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						if( libesedb_value_type_get_utf8_string_size(
+						     &( value_data[ previous_variable_size_data_type_size ] ),
+						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
+						     1,
+						     ascii_codepage,
+						     &( data_definition->name_size ),
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to determine size of name string.",
+							 function );
+
+							return( -1 );
+						}
+						data_definition->name = (uint8_t *) memory_allocate(
+										     sizeof( uint8_t ) * data_definition->name_size );
+
+						if( data_definition->name == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 "%s: unable to create name string.",
+							 function );
+
+							data_definition->name_size = 0;
+
+							return( -1 );
+						}
+						if( libesedb_value_type_copy_to_utf8_string(
+						     &( value_data[ previous_variable_size_data_type_size ] ),
+						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
+						     1,
+						     ascii_codepage,
+						     data_definition->name,
+						     data_definition->name_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to set name string.",
+							 function );
+
+							memory_free(
+							 data_definition->name );
+
+							data_definition->name      = NULL;
+							data_definition->name_size = 0;
+
+							return( -1 );
+						}
+
+#if defined( HAVE_DEBUG_OUTPUT )
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") name\t\t\t\t\t: %s\n",
+						 function,
+						 data_type_number,
+						 data_definition->name );
+#endif
+					}
+#if defined( HAVE_DEBUG_OUTPUT )
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") name\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+#endif
+					break;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+				case 129:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") stats:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") stats\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 130:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") temporary table:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") temporary table\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 131:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") default value:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") default value\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 132:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") KeyFldIDs:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") KeyFldIDs\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 133:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") VarSegMac:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 134:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") ConditionalColumns:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+
+				case 135:
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") TupleLimits:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") TupleLimits\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+					break;
+#endif
+
+				default:
+#if defined( HAVE_DEBUG_OUTPUT )
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") variable size data type:\n",
+						 function );
+						libnotify_verbose_print_data(
+						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 variable_size_data_type_size - previous_variable_size_data_type_size );
+					}
+					else
+					{
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu8 ") variable size data type\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+#endif
+					break;
+			}
+			/* The MSB signifies that the variable size data type is empty
+			 */
+			if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+			{
+				previous_variable_size_data_type_size = variable_size_data_type_size;
+			}
+			data_type_number++;
+		}
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "\n" );
+#endif
+
 	return( 1 );
 }
 

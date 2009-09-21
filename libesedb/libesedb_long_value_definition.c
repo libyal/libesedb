@@ -217,7 +217,7 @@ int libesedb_long_value_definition_read(
 	 ( ( esedb_long_value_definition_t *) definition_data )->initial_amount_of_pages );
 
 	libnotify_verbose_printf(
-	 "%s: intial amount of pages\t\t\t\t: %" PRIu32 "\n",
+	 "%s: initial amount of pages\t\t\t\t: %" PRIu32 "\n",
 	 function,
 	 test );
 
