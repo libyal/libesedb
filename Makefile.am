@@ -8,6 +8,7 @@ SUBDIRS = \
 	libuna \
 	libbfio \
 	libfdatetime \
+	libfwintype \
 	libesedb \
 	libsystem \
 	esedbtools \
@@ -40,6 +41,7 @@ library:
 	(cd $(srcdir)/libuna && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libbfio && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfwintype && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
@@ -60,6 +62,7 @@ splint:
 	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libbfio && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfwintype && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))

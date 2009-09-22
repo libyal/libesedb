@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20090921],
+  [20090922],
   [forensics@hoffmannbv.nl])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libesedb],
- [20090921])
+ [20090922])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -960,6 +960,69 @@ AM_CONDITIONAL(
  [HAVE_LOCAL_LIBFDATETIME],
  [test "x$ac_libesedb_have_libfdatetime" = xlocal])
 
+dnl Check for enabling libfwintype for file common Windows type support
+AC_CHECK_HEADERS(
+ [libfwintype.h],
+ [],
+ [ac_libesedb_have_libfwintype=no])
+
+AS_IF(
+	[test "x$ac_libesedb_have_libfwintype" != xno],
+	[ac_libesedb_have_libfwintype=yes
+	AC_CHECK_LIB(
+	 fwintype,
+	 libfwintype_get_version,
+	 [],
+	 [ac_libesedb_have_libfwintype=no])
+
+	])
+
+AS_IF(
+	[test "x$ac_libesedb_have_libfwintype" = xyes],
+	[AC_SUBST(
+	 [libesedb_pc_libs_private_libfwintype],
+	 [-lfwintype])
+	AC_SUBST(
+	 [libesedb_spec_requires_libfwintype],
+	 [libfwintype])
+	AC_SUBST(
+	 [libesedb_spec_build_requires_libfwintype],
+	 [libfwintype-devel])
+	AC_SUBST(
+	 [LIBFWINTYPE_CPPFLAGS],
+	 [])
+	AC_SUBST(
+	 [LIBFWINTYPE_LIBADD],
+	 []) ],
+	[dnl If libfwintype is not available use the (local) version that came with libesedb
+	AC_DEFINE(
+	 [HAVE_LOCAL_LIBFWINTYPE],
+	 [1],
+	 [Define to 1 if the local version of libfwintype is used.])
+	AC_SUBST(
+	 [HAVE_LOCAL_LIBFWINTYPE],
+	 [1])
+	AC_SUBST(
+	 [libesedb_pc_libs_private_libfwintype],
+	 [])
+	AC_SUBST(
+	 [libesedb_spec_requires_libfwintype],
+	 [])
+	AC_SUBST(
+	 [libesedb_spec_build_requires_libfwintype],
+	 [])
+	AC_SUBST(
+	 [LIBFWINTYPE_CPPFLAGS],
+	 [-I../libfwintype])
+	AC_SUBST(
+	 [LIBFWINTYPE_LIBADD],
+	 [../libfwintype/libfwintype.la])
+	ac_libesedb_have_libfwintype=local])
+
+AM_CONDITIONAL(
+ [HAVE_LOCAL_LIBFWINTYPE],
+ [test "x$ac_libesedb_have_libfwintype" = xlocal])
+
 dnl Check if libesedb should be build with wide character type support
 AS_IF(
 	[test "x$ac_cv_libesedb_enable_wide_character_type" != xno ],
@@ -1137,7 +1200,7 @@ AS_IF(
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
-	[test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes],
+	[test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfwintype" = xyes],
 	[AC_SUBST(
 	 [libesedb_spec_requires],
 	 [Requires:])
@@ -1192,6 +1255,7 @@ AC_CONFIG_FILES([libnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libbfio/Makefile])
 AC_CONFIG_FILES([libfdatetime/Makefile])
+AC_CONFIG_FILES([libfwintype/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
@@ -1220,6 +1284,7 @@ Building:
    libuna support:                             $ac_libesedb_have_libuna
    libbfio support:                            $ac_libesedb_have_libbfio
    libfdatetime support:                       $ac_libesedb_have_libfdatetime
+   libfwintype support:                        $ac_libesedb_have_libfwintype
 
 Features:
    Wide character type support:                $ac_cv_libesedb_enable_wide_character_type

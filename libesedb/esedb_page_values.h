@@ -171,25 +171,24 @@ struct esedb_data_definition
 	 */
 	uint8_t root_flag;
 
-	/* Note that a root flags is defined for every
-	 * variable size data type
-	 */
-
 	/* Data type identifier: 9 (RecordOffset)
 	 * The record offset
 	 * Consists of 2 bytes
 	 */
+	uint8_t record_offset[ 2 ];
 
 	/* Data type identifier: 10 (LCMapFlags)
 	 * LC Map flags
 	 * Consists of 4 bytes
 	 */
+	uint8_t lc_map_flags[ 4 ];
 
 	/* Data type identifier: 11 (KeyMost)
 	 * Key most
 	 * Consists of 2 bytes
-	 * Introduces in Windows Vista
+	 * Introduced in Windows Vista
 	 */
+	uint8_t key_most[ 2 ];
 
 	/* Data type identifier: 128 (Name)
 	 * The name
@@ -217,7 +216,7 @@ struct esedb_data_definition
 	 */
 
 	/* Data type identifier: 136 (Version)
-	 * Introduces in Windows Vista
+	 * Introduced in Windows Vista
 	 */
 
 	/* Data type identifier: 256 (CallbackData)

@@ -31,7 +31,6 @@
 #include "libesedb_checksum.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
-#include "libesedb_guid.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdatetime.h"

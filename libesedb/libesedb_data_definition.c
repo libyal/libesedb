@@ -137,7 +137,9 @@ int libesedb_data_definition_read_catalog(
      size_t definition_data_size,
      liberror_error_t **error )
 {
-	uint8_t *value_data                                 = NULL;
+	uint8_t *fixed_size_data_type_value_data           = NULL;
+	uint8_t *variable_size_data_type_size_data         = NULL;
+	uint8_t *variable_size_data_type_value_data        = NULL;
 	static char *function                               = "libesedb_data_definition_read_catalog";
 	uint32_t ascii_codepage                             = 0;
 	uint16_t calculated_variable_size_data_types_offset = 0;
@@ -224,9 +226,6 @@ int libesedb_data_definition_read_catalog(
 	 variable_size_data_types_offset );
 #endif
 
-	definition_data      += sizeof( esedb_data_definition_header_t );
-	definition_data_size -= sizeof( esedb_data_definition_header_t );
-
 	/* As far as the documentation states
 	 * the column data FIELD structure is 16 bytes of size
 	 */
@@ -301,33 +300,35 @@ int libesedb_data_definition_read_catalog(
 
 		return( -1 );
 	}
+	fixed_size_data_type_value_data = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
+
 	endian_little_convert_32bit(
 	 data_definition->father_data_page_object_identifier,
-	 ( (esedb_data_definition_t *) definition_data )->father_data_page_object_identifier );
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_object_identifier );
 
 	endian_little_convert_16bit(
 	 data_definition->type,
-	 ( (esedb_data_definition_t *) definition_data )->type );
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->type );
 
 	endian_little_convert_32bit(
 	 data_definition->identifier,
-	 ( (esedb_data_definition_t *) definition_data )->identifier );
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->identifier );
 
 	if( data_definition->type == LIBESEDB_DATA_DEFINITION_TYPE_COLUMN )
 	{
 		endian_little_convert_32bit(
 		 data_definition->column_type,
-		 ( (esedb_data_definition_t *) definition_data )->column_type );
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->column_type );
 	}
 	else
 	{
 		endian_little_convert_32bit(
 		 data_definition->father_data_page_number,
-		 ( (esedb_data_definition_t *) definition_data )->father_data_page_number );
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_number );
 	}
 	endian_little_convert_32bit(
 	 data_definition->size,
-	 ( (esedb_data_definition_t *) definition_data )->space_usage );
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->space_usage );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	data_type_number = 1;
@@ -382,7 +383,7 @@ int libesedb_data_definition_read_catalog(
 
 	endian_little_convert_32bit(
 	 value_32bit,
-	 ( (esedb_data_definition_t *) definition_data )->flags );
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->flags );
 
 	if( last_fixed_size_data_type >= 6 )
 	{
@@ -423,7 +424,7 @@ int libesedb_data_definition_read_catalog(
 		{
 			endian_little_convert_32bit(
 			 ascii_codepage,
-			 ( (esedb_data_definition_t *) definition_data )->codepage );
+			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage );
 
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
@@ -447,7 +448,7 @@ int libesedb_data_definition_read_catalog(
 		{
 			endian_little_convert_32bit(
 			 value_32bit,
-			 ( (esedb_data_definition_t *) definition_data )->locale_identifier );
+			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->locale_identifier );
 
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
@@ -463,7 +464,7 @@ int libesedb_data_definition_read_catalog(
 		{
 			endian_little_convert_32bit(
 			 value_32bit,
-			 ( (esedb_data_definition_t *) definition_data )->amount_of_pages );
+			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->amount_of_pages );
 
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") amount of pages\t\t\t\t: %" PRIu32 "\n",
@@ -472,31 +473,19 @@ int libesedb_data_definition_read_catalog(
 			 value_32bit );
 		}
 	}
-	value_data =&(  ( (esedb_data_definition_t *) definition_data )->root_flag );
-
 	if( last_fixed_size_data_type >= 8 )
 	{
-		for( variable_size_data_type_iterator = 0;
-		     variable_size_data_type_iterator < amount_of_variable_size_data_types;
-		     variable_size_data_type_iterator++ )
-		{
-			libnotify_verbose_printf(
-			 "%s: (%03" PRIu16 ") root flag: %03" PRIu8 "\t\t\t\t: 0x%02" PRIx8 "\n",
-			 function,
-			 data_type_number++,
-			 variable_size_data_type_iterator + 1,
-			 *value_data );
-
-			value_data += 1;
-		}
+		libnotify_verbose_printf(
+		 "%s: (%03" PRIu16 ") root flag\t\t\t\t\t: 0x%02" PRIx8 "\n",
+		 function,
+		 data_type_number++,
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->root_flag );
 	}
 	if( last_fixed_size_data_type >= 9 )
 	{
 		endian_little_convert_16bit(
 		 record_offset,
-		 value_data );
-
-		value_data += 2;
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->record_offset );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") record offset\t\t\t\t: %" PRIu16 "\n",
@@ -508,9 +497,7 @@ int libesedb_data_definition_read_catalog(
 	{
 		endian_little_convert_32bit(
 		 value_32bit,
-		 value_data );
-
-		value_data += 4;
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") LC map flags\t\t\t\t: 0x%08" PRIx32 "\n",
@@ -522,15 +509,13 @@ int libesedb_data_definition_read_catalog(
 	{
 		endian_little_convert_16bit(
 		 value_16bit,
-		 value_data );
-
-		value_data += 2;
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->key_most );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") key most\t\t\t\t\t: 0x04%" PRIx16 "\n",
 		 function,
 		 data_type_number++,
-		 record_offset );
+		 value_16bit );
 	}
 	libnotify_verbose_printf(
 	 "\n" );
@@ -543,15 +528,15 @@ int libesedb_data_definition_read_catalog(
 		 "%s: trailing data:\n",
 		 function );
 		libnotify_verbose_print_data(
-		 &( definition_data[ calculated_variable_size_data_types_offset - sizeof( esedb_data_definition_header_t ) ] ),
+		 &( definition_data[ calculated_variable_size_data_types_offset ] ),
 		 variable_size_data_types_offset - calculated_variable_size_data_types_offset );
 	}
 #endif
 
 	if( amount_of_variable_size_data_types > 0 )
 	{
-		definition_data = &( definition_data[ variable_size_data_types_offset - sizeof( esedb_data_definition_header_t ) ] );
-		value_data      = &( definition_data[ amount_of_variable_size_data_types * 2 ] );
+		variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
+		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
 
 		/* The default codepage is 1252
 		 */
@@ -567,9 +552,9 @@ int libesedb_data_definition_read_catalog(
 		{
 			endian_little_convert_16bit(
 			 variable_size_data_type_size,
-			 definition_data );
+			 variable_size_data_type_size_data );
 
-			definition_data += 2;
+			variable_size_data_type_size_data += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			libnotify_verbose_printf(
@@ -588,7 +573,7 @@ int libesedb_data_definition_read_catalog(
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
 						if( libesedb_value_type_get_utf8_string_size(
-						     &( value_data[ previous_variable_size_data_type_size ] ),
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
 						     1,
 						     ascii_codepage,
@@ -621,7 +606,7 @@ int libesedb_data_definition_read_catalog(
 							return( -1 );
 						}
 						if( libesedb_value_type_copy_to_utf8_string(
-						     &( value_data[ previous_variable_size_data_type_size ] ),
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
 						     1,
 						     ascii_codepage,
@@ -675,7 +660,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -697,7 +682,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -719,7 +704,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -741,7 +726,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -763,7 +748,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -785,7 +770,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -807,7 +792,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -829,7 +814,7 @@ int libesedb_data_definition_read_catalog(
 						 function,
 						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
@@ -849,16 +834,17 @@ int libesedb_data_definition_read_catalog(
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
 						libnotify_verbose_printf(
-						 "%s: (%03" PRIu8 ") variable size data type:\n",
-						 function );
+						 "%s: (%03" PRIu16 ") variable size data type:\n",
+						 function,
+						 data_type_number );
 						libnotify_verbose_print_data(
-						 &( value_data[ previous_variable_size_data_type_size ] ),
+						 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						 variable_size_data_type_size - previous_variable_size_data_type_size );
 					}
 					else
 					{
 						libnotify_verbose_printf(
-						 "%s: (%03" PRIu8 ") variable size data type\t\t\t: <NULL>\n",
+						 "%s: (%03" PRIu16 ") variable size data type\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
 					}
@@ -892,28 +878,23 @@ int libesedb_data_definition_read(
      size_t definition_data_size,
      liberror_error_t **error )
 {
-	libesedb_data_definition_t *column_data_definition  = NULL;
-	libesedb_list_element_t *list_element               = NULL;
-	uint8_t *value_data                                 = NULL;
-	static char *function                               = "libesedb_data_definition_read";
-	uint32_t ascii_codepage                             = 0;
-	uint16_t calculated_variable_size_data_types_offset = 0;
-	uint16_t data_type_number                           = 0;
-	uint16_t previous_variable_size_data_type_size      = 0;
-	uint16_t record_offset                              = 0;
-	uint16_t variable_size_data_type_size               = 0;
-	uint16_t variable_size_data_types_offset            = 0;
-	uint8_t amount_of_variable_size_data_types          = 0;
-	uint8_t last_fixed_size_data_type                   = 0;
-	uint8_t last_variable_size_data_type                = 0;
-	uint8_t variable_size_data_type_iterator            = 0;
+	libesedb_data_definition_t *column_data_definition = NULL;
+	libesedb_list_element_t *list_element              = NULL;
+	uint8_t *fixed_size_data_type_value_data           = NULL;
+	uint8_t *variable_size_data_type_size_data         = NULL;
+	uint8_t *variable_size_data_type_value_data        = NULL;
+	static char *function                              = "libesedb_data_definition_read";
+	uint32_t ascii_codepage                            = 0;
+	uint16_t previous_variable_size_data_type_size     = 0;
+	uint16_t record_offset                             = 0;
+	uint16_t variable_size_data_type_size              = 0;
+	uint16_t variable_size_data_types_offset           = 0;
+	uint8_t amount_of_variable_size_data_types         = 0;
+	uint8_t last_fixed_size_data_type                  = 0;
+	uint8_t last_variable_size_data_type               = 0;
+	uint8_t variable_size_data_type_iterator           = 0;
 
-	int list_element_iterator                           = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit                                = 0;
-	uint16_t value_16bit                                = 0;
-#endif
+	int list_element_iterator                          = 0;
 
 	if( data_definition == NULL )
 	{
@@ -994,17 +975,14 @@ int libesedb_data_definition_read(
 	 variable_size_data_types_offset );
 #endif
 
-	definition_data      += sizeof( esedb_data_definition_header_t );
-	definition_data_size -= sizeof( esedb_data_definition_header_t );
-
 	if( last_variable_size_data_type > 127 )
 	{
 		amount_of_variable_size_data_types = last_variable_size_data_type - 127;
 	}
-	calculated_variable_size_data_types_offset += sizeof( esedb_data_definition_header_t );
-
-	list_element = column_data_definition_list->first;
-	value_data   = definition_data;
+	list_element                       = column_data_definition_list->first;
+	fixed_size_data_type_value_data    = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
+	variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
+	variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
 
 	for( list_element_iterator = 0;
 	     list_element_iterator < column_data_definition_list->amount_of_elements;
@@ -1067,7 +1045,7 @@ int libesedb_data_definition_read(
 		  column_data_definition->column_type ) );
 #endif
 
-		if( column_data_definition->identifier < 128 )
+		if( column_data_definition->identifier <= last_fixed_size_data_type )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			libnotify_verbose_printf(
@@ -1075,45 +1053,89 @@ int libesedb_data_definition_read(
 			 function,
 			 column_data_definition->identifier,
 		 	 column_data_definition->size );
+
+			if( libesedb_debug_print_column_value(
+			     column_data_definition->column_type,
+			     fixed_size_data_type_value_data,
+			     column_data_definition->size,
+			     LIBUNA_CODEPAGE_ASCII,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print column value.",
+				 function );
+
+				return( -1 );
+			}
+#endif
+			fixed_size_data_type_value_data += column_data_definition->size;
+		}
+		else if( ( column_data_definition->identifier >= 128 )
+		      && ( column_data_definition->identifier <= last_variable_size_data_type ) )
+		{
+			endian_little_convert_16bit(
+			 variable_size_data_type_size,
+			 variable_size_data_type_size_data );
+
+			variable_size_data_type_size_data += 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
 			libnotify_verbose_printf(
-			 "%s: (%03" PRIu32 ") fixed size data type:\n",
+			 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 			 function,
-			 column_data_definition->identifier );
-			libnotify_verbose_print_data(
-			 value_data,
-			 column_data_definition->size );
+			 column_data_definition->identifier,
+			 variable_size_data_type_size,
+			 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
+#endif
+			/* The MSB signifies that the variable size data type is empty
+			 */
+			if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+			{
+#if defined( HAVE_DEBUG_OUTPUT )
+				libnotify_verbose_printf(
+				 "%s: (%03" PRIu32 ") variable size data type:\n",
+				 function,
+				 column_data_definition->identifier );
+				libnotify_verbose_print_data(
+				 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+				 variable_size_data_type_size - previous_variable_size_data_type_size );
 #endif
 
-			value_data += column_data_definition->size;
+				previous_variable_size_data_type_size = variable_size_data_type_size;
+			}
+			else
+			{
+#if defined( HAVE_DEBUG_OUTPUT )
+				libnotify_verbose_printf(
+				 "%s: (%03" PRIu32 ") variable size data type\t\t\t\t: <NULL>\n",
+				 function,
+				 column_data_definition->identifier );
+#endif
+			}
 		}
-
-		/* TODO */
-
 		list_element = list_element->next;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( definition_data + variable_size_data_types_offset ) > value_data )
+	if( fixed_size_data_type_value_data < &( definition_data[ variable_size_data_types_offset ] ) )
 	{
 		libnotify_verbose_printf(
-		 "%s: trailing data:\n",
+		 "%s: fixed size data types trailing data:\n",
 		 function );
 		libnotify_verbose_print_data(
-		 value_data,
-		 ( definition_data + variable_size_data_types_offset ) - value_data );
+		 fixed_size_data_type_value_data,
+		 &( definition_data[ variable_size_data_types_offset ] ) - fixed_size_data_type_value_data );
 	}
-#endif
-
-	value_data = &( definition_data[ variable_size_data_types_offset ] );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( definition_data_size > variable_size_data_types_offset )
+	if( &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ) < ( definition_data + definition_data_size ) )
 	{
 		libnotify_verbose_printf(
-		 "%s: variable size data definition data:\n",
+		 "%s: variable size data types trailing data:\n",
 		 function );
 		libnotify_verbose_print_data(
-		 value_data,
-		 definition_data_size - variable_size_data_types_offset );
+		 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+		 definition_data_size - ( &( definition_data[ variable_size_data_types_offset ] ) - definition_data ) );
 	}
 #endif
 #if defined( HAVE_DEBUG_OUTPUT )

@@ -64,6 +64,13 @@ int libesedb_debug_print_log_time(
      const char *indentation,
      liberror_error_t **error );
 
+int libesedb_debug_print_column_value(
+     uint32_t column_type,
+     uint8_t *value_data,
+     size_t value_data_size,
+     int ascii_codepage,
+     liberror_error_t **error );
+
 int libesedb_debug_print_read_offsets(
      libbfio_handle_t *file_io_handle,
      liberror_error_t **error );

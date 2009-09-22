@@ -30,6 +30,7 @@
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfwintype.h"
 #include "libesedb_string.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -570,6 +571,247 @@ int libesedb_debug_print_log_time(
 	 log_time[ 6 ],
 	 log_time[ 7 ] );
 
+	return( 1 );
+}
+
+/* Prints the column value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_debug_print_column_value(
+     uint32_t column_type,
+     uint8_t *value_data,
+     size_t value_data_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	uint8_t guid_string[ LIBFWINTYPE_GUID_STRING_SIZE ];
+
+	uint8_t *value_string    = NULL;
+	static char *function    = "libesedb_debug_print_column_value";
+	size_t value_string_size = 0;
+	double value_double      = 0.0;
+	float value_float        = 0.0;
+	uint64_t value_64bit     = 0;
+	uint32_t value_32bit     = 0;
+	uint16_t value_16bit     = 0;
+
+	if( value_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value data.",
+		 function );
+
+		return( -1 );
+	}
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_NULL:
+			libnotify_verbose_print_data(
+			 value_data,
+			 value_data_size );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
+			libnotify_verbose_printf(
+			 "Boolean\t: " );
+
+			if( *value_data == 0 )
+			{
+				libnotify_verbose_printf(
+				 "false" );
+			}
+			else
+			{
+				libnotify_verbose_printf(
+				 "true" );
+			}
+			libnotify_verbose_printf(
+			 "\n\n" );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
+			libnotify_verbose_printf(
+			 "Integer 8-bit unsigned\t: %" PRIu8 "\n\n",
+			 *value_data );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
+			endian_little_convert_16bit(
+			 value_16bit,
+			 value_data );
+
+			libnotify_verbose_printf(
+			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",
+			 (int16_t) value_16bit );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
+			endian_little_convert_32bit(
+			 value_32bit,
+			 value_data );
+
+			libnotify_verbose_printf(
+			 "Integer 32-bit signed\t: %" PRIi32 "\n\n",
+			 (int32_t) value_32bit );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_CURRENCY:
+			libnotify_verbose_print_data(
+			 value_data,
+			 value_data_size );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
+			endian_little_convert_32bit(
+			 value_32bit,
+			 value_data );
+
+			if( memory_copy(
+			     &value_float,
+			     &value_32bit,
+			     sizeof( uint32_t ) ) == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to convert 32-bit value into float.",
+				 function );
+
+				return( -1 );
+			}
+			libnotify_verbose_printf(
+			 "Floating point single precision value\t: %f\n\n",
+			 value_float );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
+			endian_little_convert_64bit(
+			 value_64bit,
+			 value_data );
+
+			if( memory_copy(
+			     &value_double,
+			     &value_64bit,
+			     sizeof( uint64_t ) ) == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+				 "%s: unable to convert 64-bit value into double.",
+				 function );
+
+				return( -1 );
+			}
+			libnotify_verbose_printf(
+			 "Floating point double precision value\t: %f\n\n",
+			 value_double );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+		case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
+		case LIBESEDB_COLUMN_TYPE_TEXT:
+		case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
+		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+		case LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE:
+			libnotify_verbose_print_data(
+			 value_data,
+			 value_data_size );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
+			endian_little_convert_32bit(
+			 value_32bit,
+			 value_data );
+
+			libnotify_verbose_printf(
+			 "Integer 32-bit unsigned\t: %" PRIu32 "\n\n",
+			 value_32bit );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
+			endian_little_convert_64bit(
+			 value_64bit,
+			 value_data );
+
+			libnotify_verbose_printf(
+			 "Integer 64-bit signed\t: %" PRIi64 "\n\n",
+			 (int64_t) value_64bit );
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_GUID:
+			if( value_data == NULL )
+			{
+				libnotify_verbose_printf(
+				 "GUID\t: <NULL>\n\n" );
+			}
+			else  if( value_data_size == 16 )
+			{
+				if( libfwintype_guid_to_string(
+				     (libfwintype_guid_t *) value_data,
+				     LIBFWINTYPE_ENDIAN_LITTLE,
+				     guid_string,
+				     LIBFWINTYPE_GUID_STRING_SIZE,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_CONVERSION,
+					 LIBERROR_CONVERSION_ERROR_GENERIC,
+					 "%s: unable to create guid string.",
+					 function );
+
+					return( -1 );
+				}
+				libnotify_verbose_printf(
+				 "GUID\t: %s\n\n",
+				 guid_string );
+			}
+			else
+			{
+				libnotify_verbose_print_data(
+				 value_data,
+				 value_data_size );
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
+			endian_little_convert_16bit(
+			 value_16bit,
+			 value_data );
+
+			libnotify_verbose_printf(
+			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",
+			 (int16_t) value_16bit );
+
+			break;
+
+		default:
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported column type: %" PRIu16 ".",
+			 function,
+			 column_type );
+
+			break;
+	}
 	return( 1 );
 }
 

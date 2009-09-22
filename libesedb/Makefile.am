@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
+	@LIBFWINTYPE_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
 
 lib_LTLIBRARIES = libesedb.la
@@ -26,12 +27,12 @@ libesedb_la_SOURCES = \
 	libesedb_error.c libesedb_error.h \
 	libesedb_extern.h \
 	libesedb_file.c libesedb_file.h \
-	libesedb_guid.c libesedb_guid.h \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_libbfio.h \
 	libesedb_libfdatetime.h \
+	libesedb_libfwintype.h \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \
 	libesedb_notify.c libesedb_notify.h \
@@ -49,7 +50,8 @@ libesedb_la_LIBADD = \
 	../libnotify/libnotify.la \
 	@LIBUNA_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
-	@LIBFDATETIME_LIBADD@
+	@LIBFDATETIME_LIBADD@ \
+	@LIBFWINTYPE_LIBADD@
 
 libesedb_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
