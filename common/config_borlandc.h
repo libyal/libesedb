@@ -47,8 +47,18 @@
 
 #define SIZEOF_WCHAR_T		2
 
-/* Use the native WINAPI functions instead of the POSIX like functions
-#define USE_NATIVE_WINAPI_FUNCTIONS	1
+/* Use the C Runtime (CRT) functions instead of the WINAPI functions
+#define USE_CRT_FUNCTIONS	1
+ */
+
+/* Disables a Windows 98 safe version of GetFileSizeEx
+ * uses a hardcoded version
+#define HAVE_GETFILESIZEEX	1
+ */
+
+/* Disables a Windows 98 safe version of SetFilePointerEx
+ * uses a hardcoded version
+#define HAVE_SETFILEPOINTEREX	1
  */
 
 /* Enable verbose output

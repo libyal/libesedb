@@ -32,6 +32,7 @@
 #include <libbfio_definitions.h>
 #include <libbfio_file.h>
 #include <libbfio_handle.h>
+#include <libbfio_types.h>
 
 #elif defined( HAVE_LIBBFIO_H )
 

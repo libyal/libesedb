@@ -45,6 +45,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20090927
+* updated libbfio and libsystem
+
 20090925
 * worked on page values and data definition types
 
