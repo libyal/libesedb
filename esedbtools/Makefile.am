@@ -11,7 +11,23 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
 
-bin_PROGRAMS = esedbinfo
+bin_PROGRAMS = esedbexport esedbinfo
+
+esedbexport_SOURCES = \
+	filetime.c filetime.h \
+	guid.c guid.h \
+	esedbcommon.h \
+	esedbexport.c \
+	esedbinput.c esedbinput.h \
+	esedboutput.c esedboutput.h \
+	export_handle.c export_handle.h \
+	log_handle.c log_handle.h
+
+esedbexport_LDADD  = \
+	../liberror/liberror.la \
+	../libesedb/libesedb.la \
+	../libsystem/libsystem.la \
+	@MEMWATCH_LIBADD@
 
 esedbinfo_SOURCES = \
 	filetime.c filetime.h \
@@ -30,6 +46,8 @@ distclean: clean
 	/bin/rm -f Makefile
 
 splint:
+	@echo "Running splint on esedbexport ..." 
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbexport_SOURCES) 
 	@echo "Running splint on esedbinfo ..." 
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbinfo_SOURCES) 
 

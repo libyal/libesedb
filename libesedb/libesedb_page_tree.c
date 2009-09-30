@@ -65,7 +65,7 @@ int libesedb_page_tree_initialize(
 	if( *page_tree == NULL )
 	{
 		*page_tree = (libesedb_page_tree_t *) memory_allocate(
-		                             sizeof( libesedb_page_tree_t ) );
+		                                       sizeof( libesedb_page_tree_t ) );
 
 		if( *page_tree == NULL )
 		{
@@ -115,6 +115,28 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_list_initialize(
+		     &( ( *page_tree )->value_definition_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create value definition list.",
+			 function );
+
+			libesedb_list_free(
+			 &( ( *page_tree )->table_definition_list ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
 		( *page_tree )->table_definition = table_definition;
 	}
 	return( 1 );
@@ -153,6 +175,20 @@ int libesedb_page_tree_free(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table definition list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( *page_tree )->value_definition_list ),
+		     &libesedb_data_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free value definition list.",
 			 function );
 
 			result = -1;
@@ -1899,6 +1935,21 @@ int libesedb_page_tree_read_leaf_page_values(
 
 					return( -1 );
 				}
+				if( libesedb_list_append_value(
+				     page_tree->value_definition_list,
+				     (intptr_t *) data_definition,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append value data definition to list.",
+					 function );
+
+					return( -1 );
+				}
+				data_definition = NULL;
 			}
 		}
 	}

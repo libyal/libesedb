@@ -328,6 +328,10 @@ int libesedb_file_open(
                  "%s: unable to set track offsets read in file io handle.",
                  function );
 
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+
                 return( -1 );
 	}
 #endif
@@ -345,6 +349,10 @@ int libesedb_file_open(
                  "%s: unable to set filename in file io handle.",
                  function );
 
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+
                 return( -1 );
 	}
 	if( libesedb_file_open_file_io_handle(
@@ -360,6 +368,10 @@ int libesedb_file_open(
 		 "%s: unable to open file: %s.",
 		 function,
 		 filename );
+
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
 
 		return( -1 );
 	}
@@ -456,6 +468,10 @@ int libesedb_file_open_wide(
                  "%s: unable to set track offsets read in file io handle.",
                  function );
 
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+
                 return( -1 );
 	}
 #endif
@@ -473,6 +489,10 @@ int libesedb_file_open_wide(
                  "%s: unable to set filename in file io handle.",
                  function );
 
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+
                 return( -1 );
 	}
 	if( libesedb_file_open_file_io_handle(
@@ -488,6 +508,10 @@ int libesedb_file_open_wide(
 		 "%s: unable to open file: %ls.",
 		 function,
 		 filename );
+
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
 
 		return( -1 );
 	}

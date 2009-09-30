@@ -196,7 +196,7 @@ extern "C" {
 
 #elif defined( _MSC_VER )
 #define narrow_string_vsnprintf( string, size, format, ... ) \
-	_vsnprintf( string, size, format, __VA_ARGS__ )
+	_vsnprintf_s( string, size, size, format, __VA_ARGS__ )
 
 #elif defined( HAVE_VSNPRINTF ) || defined( WINAPI )
 #define narrow_string_vsnprintf( string, size, format, ... ) \

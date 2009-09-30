@@ -32,6 +32,7 @@
 #include "libesedb_file.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_record.h"
 #include "libesedb_table.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
@@ -150,6 +151,34 @@ int libesedb_table_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_list_initialize(
+		     &( internal_table->record_reference_list ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create record reference list.",
+			 function );
+
+			libesedb_list_free(
+			 &( internal_table->index_reference_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_free(
+			 &( internal_table->column_reference_list ),
+			 NULL,
+			 NULL );
+			libesedb_list_element_free(
+			 &( internal_table->list_element ),
+			 NULL,
+			 NULL );
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
 		*table = (libesedb_table_t *) internal_table;
 	}
 	return( 1 );
@@ -255,6 +284,20 @@ int libesedb_table_free(
 
 			result = -1;
 		}
+		if( libesedb_list_free(
+		     &( internal_table->record_reference_list ),
+		     &libesedb_record_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record reference list.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 internal_table );
 	}
@@ -304,6 +347,48 @@ int libesedb_table_free_no_detach(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free page tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( (libesedb_internal_table_t *) internal_table )->column_reference_list ),
+		     &libesedb_column_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free column reference list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( (libesedb_internal_table_t *) internal_table )->index_reference_list ),
+		     &libesedb_index_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index reference list.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_list_free(
+		     &( ( (libesedb_internal_table_t *) internal_table )->record_reference_list ),
+		     &libesedb_record_free_no_detach,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record reference list.",
 			 function );
 
 			result = -1;
@@ -1121,13 +1206,16 @@ int libesedb_table_get_index(
 	return( 1 );
 }
 
-/* TODO remove when done testing */
-int libesedb_table_test(
+/* Retrieves the amount of records
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_amount_of_records(
      libesedb_table_t *table,
+     int *amount_of_records,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_test";
+	static char *function                     = "libesedb_table_get_amount_of_records";
 
 	if( table == NULL )
 	{
@@ -1142,16 +1230,213 @@ int libesedb_table_test(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( libesedb_table_read_page_tree(
-	     internal_table,
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->page_tree == NULL )
+	{
+		if( libesedb_table_read_page_tree(
+		     internal_table,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read page tree.",
+			 function );
+
+			return( -1 );
+		}
+		if( internal_table->page_tree == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid internal table - missing page tree.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( internal_table->page_tree->value_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid page tree - missing value definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_amount_of_elements(
+	     internal_table->page_tree->value_definition_list,
+	     amount_of_records,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tree.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of records.",
 		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific record
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_record(
+     libesedb_table_t *table,
+     int record_entry,
+     libesedb_record_t **record,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	libesedb_list_element_t *list_element     = NULL;
+	static char *function                     = "libesedb_table_get_record";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->page_tree == NULL )
+	{
+		if( libesedb_table_read_page_tree(
+		     internal_table,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read page tree.",
+			 function );
+
+			return( -1 );
+		}
+		if( internal_table->page_tree == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid internal table - missing page tree.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( internal_table->page_tree->value_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid page tree - missing value definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_element(
+	     internal_table->page_tree->value_definition_list,
+	     record_entry,
+	     &list_element,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value definition list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( list_element->value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid value definition list element - missing value.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_initialize(
+	     record,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create record.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_attach(
+	     (libesedb_internal_record_t *) *record,
+	     internal_table,
+	     (libesedb_data_definition_t *) list_element->value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to attach record.",
+		 function );
+
+		libesedb_record_free(
+		 record,
+		 NULL );
 
 		return( -1 );
 	}

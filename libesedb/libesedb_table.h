@@ -66,6 +66,10 @@ struct libesedb_internal_table
 	/* The index reference list
 	 */
 	libesedb_list_t *index_reference_list;
+
+	/* The record reference list
+	 */
+	libesedb_list_t *record_reference_list;
 };
 
 int libesedb_table_initialize(
@@ -121,9 +125,15 @@ LIBESEDB_EXTERN int libesedb_table_get_index(
                      libesedb_index_t **index,
                      liberror_error_t **error );
 
-/* TODO remove when done testing */
-LIBESEDB_EXTERN int libesedb_table_test(
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_records(
                      libesedb_table_t *table,
+                     int *amount_of_records,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_table_get_record(
+                     libesedb_table_t *table,
+                     int record_entry,
+                     libesedb_record_t **record,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

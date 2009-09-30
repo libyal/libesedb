@@ -1,5 +1,5 @@
 /*
- * The internal type definitions
+ * Common functions for the esedbtools
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -10,36 +10,34 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * 
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_TYPES_H )
-#define _LIBESEDB_INTERNAL_TYPES_H
+#if !defined( _ESEDBCOMMON_H )
+#define _ESEDBCOMMON_H
 
 #include <common.h>
-#include <types.h>
 
-/* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
- * The definitions in <libesedb/types.h> are copied here
- * for local use of libesedb
- */
-#if defined( HAVE_LOCAL_LIBESEDB )
+#if defined( __cplusplus )
+extern "C" {
+#endif
 
-/* The following type definitions hide internal data structures
- */
-typedef intptr_t libesedb_file_t;
-typedef intptr_t libesedb_table_t;
-typedef intptr_t libesedb_column_t;
-typedef intptr_t libesedb_index_t;
-typedef intptr_t libesedb_record_t;
+#if defined( WINAPI )
+#define ESEDBCOMMON_PATH_SEPARATOR	'\\'
 
+#else
+#define ESEDBCOMMON_PATH_SEPARATOR	'/'
+#endif
+
+#if defined( __cplusplus )
+}
 #endif
 
 #endif

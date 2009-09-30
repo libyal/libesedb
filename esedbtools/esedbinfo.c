@@ -651,31 +651,6 @@ int esedbinfo_file_info_fprint(
 				return( -1 );
 			}
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( table_identifier != 2 )
-		{
-			if( libesedb_table_test(
-			     table,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read table.",
-				 function );
-
-				if( ( error != NULL )
-				 && ( *error != NULL ) )
-				{
-					libsystem_notify_print_error_backtrace(
-					 *error );
-				}
-				liberror_error_free(
-				 error );
-			}
-		}
-#endif
 		if( libesedb_table_free(
 		     &table,
 		     error ) != 1 )
