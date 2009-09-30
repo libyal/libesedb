@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_array_type.h"
 #include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
@@ -73,6 +74,10 @@ struct libesedb_data_definition
 	/* The size of the name string
 	 */
 	size_t name_size;
+
+	/* The data type definitions array
+	 */
+	libesedb_array_t *data_type_definitions_array;
 };
 
 int libesedb_data_definition_initialize(

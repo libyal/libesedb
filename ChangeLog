@@ -1,5 +1,8 @@
 TODO
 
+* read catalog data type defintions and convert them into column definitions
+* use column definitions to read data definitions
+
 Error:
 * error in offset tracking ?
   20987904 ( 0x01404000 ) - 20996096 ( 0x01406000 ) size: 8192

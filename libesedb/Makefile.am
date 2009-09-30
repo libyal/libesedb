@@ -22,6 +22,7 @@ libesedb_la_SOURCES = \
 	libesedb_column.c libesedb_column.h \
 	libesedb_column_type.c libesedb_column_type.h \
 	libesedb_data_definition.c libesedb_data_definition.h \
+	libesedb_data_type_definition.c libesedb_data_type_definition.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
 	libesedb_error.c libesedb_error.h \

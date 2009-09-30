@@ -638,7 +638,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	/* Read the space tree pages
 	 */
 	if( ( space_tree_page_number > 0 )
-	 && ( space_tree_page_number < 0xffffff00UL ) )
+	 && ( space_tree_page_number < 0xff000000UL ) )
 	{
 		/* Read the owned pages space tree page
 		 */
