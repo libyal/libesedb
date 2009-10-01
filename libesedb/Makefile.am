@@ -17,6 +17,7 @@ libesedb_la_SOURCES = \
 	esedb_page_values.h \
 	libesedb.c \
 	libesedb_array_type.c libesedb_array_type.h \
+	libesedb_catalog_definition.c libesedb_catalog_definition.h \
 	libesedb_checksum.c libesedb_checksum.h \
 	libesedb_codepage.c libesedb_codepage.h \
 	libesedb_column.c libesedb_column.h \

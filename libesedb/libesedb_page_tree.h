@@ -37,6 +37,11 @@
 extern "C" {
 #endif
 
+enum LIBESEDB_PAGE_TREE_FLAGS
+{
+	LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION		= 0x01
+};
+
 typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
@@ -73,12 +78,14 @@ int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
      libesedb_io_handle_t *io_handle,
      uint32_t father_data_page_number,
+     uint8_t flags,
      liberror_error_t **error );
 
 int libesedb_page_tree_read_father_data_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
+     uint8_t flags,
      liberror_error_t **error );
 
 int libesedb_page_tree_read_space_tree_page_values(
@@ -89,6 +96,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
+     uint8_t flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

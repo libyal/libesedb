@@ -740,6 +740,7 @@ int libesedb_file_open_read(
 	     internal_file->catalog_page_tree,
 	     internal_file->io_handle,
 	     LIBESEDB_PAGE_NUMBER_CATALOG,
+	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1169,9 +1170,9 @@ int libesedb_file_get_table(
      libesedb_table_t **table,
      liberror_error_t **error )
 {
-	libesedb_internal_file_t *internal_file = NULL;
-	libesedb_list_element_t *list_element   = NULL;
-	static char *function                   = "libesedb_file_get_table";
+	libesedb_internal_file_t *internal_file       = NULL;
+	libesedb_table_definition_t *table_definition = NULL;
+	static char *function                         = "libesedb_file_get_table";
 
 	if( file == NULL )
 	{
@@ -1219,28 +1220,17 @@ int libesedb_file_get_table(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_element(
+	if( libesedb_list_get_value(
 	     internal_file->catalog_page_tree->table_definition_list,
 	     table_entry,
-	     &list_element,
+	     (intptr_t **) &table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table definition list element.",
-		 function );
-
-		return( -1 );
-	}
-	if( list_element->value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table definition list element - missing value.",
+		 "%s: unable to retrieve table definition.",
 		 function );
 
 		return( -1 );
@@ -1261,7 +1251,7 @@ int libesedb_file_get_table(
 	if( libesedb_table_attach(
 	     (libesedb_internal_table_t *) *table,
 	     internal_file,
-	     (libesedb_table_definition_t *) list_element->value,
+	     table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(

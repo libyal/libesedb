@@ -156,7 +156,7 @@ int libesedb_array_free(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_array_free";
-	int iterator          = 0;
+	int entry_iterator    = 0;
 	int result            = 1;
 
 	if( array == NULL )
@@ -174,13 +174,15 @@ int libesedb_array_free(
 	{
 		if( ( *array )->entry != NULL )
 		{
-			for( iterator = 0; iterator < ( *array )->amount_of_entries; iterator++ )
+			for( entry_iterator = 0;
+			     entry_iterator < ( *array )->amount_of_entries;
+			     entry_iterator++ )
 			{
-				if( ( *array )->entry[ iterator ] != NULL )
+				if( ( *array )->entry[ entry_iterator ] != NULL )
 				{
 					if( ( entry_free_function != NULL )
 					 && ( entry_free_function(
-					       ( *array )->entry[ iterator ],
+					       ( *array )->entry[ entry_iterator ],
 					       error ) != 1 ) )
 					{
 						liberror_error_set(
@@ -189,7 +191,7 @@ int libesedb_array_free(
 						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 						 "%s: unable to free array entry: %" PRIu16 ".",
 						 function,
-						 iterator );
+						 entry_iterator );
 
 						result = -1;
 					}
@@ -289,6 +291,43 @@ int libesedb_array_resize(
 			return( -1 );
 		}
 	}
+	return( 1 );
+}
+
+/* Retrieves the amount of entries in the array
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_array_get_amount_of_entries(
+     libesedb_array_t *array,
+     int *amount_of_entries,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_array_get_amount_of_entries";
+
+	if( array == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid array.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_entries == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid amount of entries.",
+		 function );
+
+		return( -1 );
+	}
+	*amount_of_entries = array->amount_of_entries;
+
 	return( 1 );
 }
 

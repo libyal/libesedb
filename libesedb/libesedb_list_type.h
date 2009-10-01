@@ -102,6 +102,23 @@ int libesedb_list_clone(
      int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
      liberror_error_t **error );
 
+int libesedb_list_get_amount_of_elements(
+     libesedb_list_t *list,
+     int *amount_of_elements,
+     liberror_error_t **error );
+
+int libesedb_list_get_element(
+     libesedb_list_t *list,
+     int element_index,
+     libesedb_list_element_t **element,
+     liberror_error_t **error );
+
+int libesedb_list_get_value(
+     libesedb_list_t *list,
+     int element_index,
+     intptr_t **value,
+     liberror_error_t **error );
+
 int libesedb_list_prepend_element(
      libesedb_list_t *list,
      libesedb_list_element_t *element,
@@ -137,17 +154,6 @@ int libesedb_list_insert_value(
 int libesedb_list_remove_element(
      libesedb_list_t *list,
      libesedb_list_element_t *element,
-     liberror_error_t **error );
-
-int libesedb_list_get_amount_of_elements(
-     libesedb_list_t *list,
-     int *amount_of_elements,
-     liberror_error_t **error );
-
-int libesedb_list_get_element(
-     libesedb_list_t *list,
-     int element_index,
-     libesedb_list_element_t **element,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

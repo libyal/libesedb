@@ -477,6 +477,194 @@ int libesedb_list_clone(
 	return( 1 );
 }
 
+/* Retrieves the amount of elements in the list
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_list_get_amount_of_elements(
+     libesedb_list_t *list,
+     int *amount_of_elements,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_list_get_amount_of_elements";
+
+	if( list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid list.",
+		 function );
+
+		return( -1 );
+	}
+	if( amount_of_elements == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid amount of elements.",
+		 function );
+
+		return( -1 );
+	}
+	*amount_of_elements = list->amount_of_elements;
+
+	return( 1 );
+}
+
+/* Retrieves a specific element from the list
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libesedb_list_get_element(
+     libesedb_list_t *list,
+     int element_index,
+     libesedb_list_element_t **element,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_list_get_element";
+	int iterator                          = 0;
+
+	if( list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid list.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( element_index < 0 )
+	 || ( element_index >= list->amount_of_elements ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid element index out of range.",
+		 function );
+
+		return( -1 );
+	}
+	if( element == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid element.",
+		 function );
+
+		return( -1 );
+	}
+	if( element_index < ( list->amount_of_elements / 2 ) )
+	{
+		list_element = list->first;
+
+		for( iterator = 0;
+		     iterator < element_index;
+		     iterator++ )
+		{
+			if( list_element == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: corruption detected in element: %d.",
+				 function,
+				 iterator + 1 );
+
+				return( -1 );
+			}
+			list_element = list_element->next;
+		}
+	}
+	else
+	{
+		list_element = list->last;
+
+		for( iterator = ( list->amount_of_elements - 1 );
+		     iterator > element_index;
+		     iterator-- )
+		{
+			if( list_element == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: corruption detected in element: %d.",
+				 function,
+				 iterator + 1 );
+
+				return( -1 );
+			}
+			list_element = list_element->previous;
+		}
+	}
+	*element = list_element;
+
+	if( list_element == NULL )
+	{
+		return( 0 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific value from the list
+ * Returns 1 if successful, 0 if not available or -1 on error
+ */
+int libesedb_list_get_value(
+     libesedb_list_t *list,
+     int element_index,
+     intptr_t **value,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_list_get_value";
+	int result                            = 0;
+
+	if( value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value.",
+		 function );
+
+		return( -1 );
+	}
+	result = libesedb_list_get_element(
+	          list,
+	          element_index,
+	          &list_element,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve list element for index: %d.",
+		 function,
+		 element_index );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		*value = list_element->value;
+	}
+	return( 1 );
+}
+
 /* Prepend an element to the list
  * Returns 1 if successful or -1 on error
  */
@@ -1040,145 +1228,6 @@ int libesedb_list_remove_element(
 	element->previous         = NULL;
 	list->amount_of_elements -= 1;
 
-	return( 1 );
-}
-
-/* Retrieves the amount of elements in the list
- * Returns 1 if successful or -1 on error
- */
-int libesedb_list_get_amount_of_elements(
-     libesedb_list_t *list,
-     int *amount_of_elements,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_list_get_amount_of_elements";
-
-	if( list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid list.",
-		 function );
-
-		return( -1 );
-	}
-	if( amount_of_elements == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of elements.",
-		 function );
-
-		return( -1 );
-	}
-	*amount_of_elements = list->amount_of_elements;
-
-	return( 1 );
-}
-
-/* Retrieves a specific element from the list
- * Returns 1 if successful, 0 if not available or -1 on error
- */
-int libesedb_list_get_element(
-     libesedb_list_t *list,
-     int element_index,
-     libesedb_list_element_t **element,
-     liberror_error_t **error )
-{
-	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_list_get_element";
-	int iterator                          = 0;
-
-	if( list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid list.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( element_index < 0 )
-	 || ( element_index >= list->amount_of_elements ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid element index out of range.",
-		 function );
-
-		return( -1 );
-	}
-	if( element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
-		 function );
-
-		return( -1 );
-	}
-	if( element_index < ( list->amount_of_elements / 2 ) )
-	{
-		list_element = list->first;
-
-		for( iterator = 0;
-		     iterator < element_index;
-		     iterator++ )
-		{
-			if( list_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: corruption detected in element: %d.",
-				 function,
-				 iterator + 1 );
-
-				return( -1 );
-			}
-			list_element = list_element->next;
-		}
-	}
-	else
-	{
-		list_element = list->last;
-
-		for( iterator = ( list->amount_of_elements - 1 );
-		     iterator > element_index;
-		     iterator-- )
-		{
-			if( list_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: corruption detected in element: %d.",
-				 function,
-				 iterator + 1 );
-
-				return( -1 );
-			}
-			list_element = list_element->previous;
-		}
-	}
-	*element = list_element;
-
-	if( list_element == NULL )
-	{
-		return( 0 );
-	}
 	return( 1 );
 }
 

@@ -48,8 +48,16 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091001
+* worked on page values and data definition types (dynamic version)
+* worked on esedbexport
+* worked on record API
+
 20090930
 * fixed possible memory leak of libbfio handle
+* worked on page values and data definition types (dynamic version)
+* worked on esedbexport
+* worked on record API
 
 20090927
 * updated libbfio and libsystem

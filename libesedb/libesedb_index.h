@@ -28,7 +28,7 @@
 
 #include <liberror.h>
 
-#include "libesedb_data_definition.h"
+#include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_table.h"
 #include "libesedb_types.h"
@@ -45,9 +45,9 @@ struct libesedb_internal_index
 	 */
 	libesedb_internal_table_t *internal_table;
 
-	/* The data definition
+	/* The catalog definition
 	 */
-	libesedb_data_definition_t *data_definition;
+	libesedb_catalog_definition_t *catalog_definition;
 
 	/* The index reference list element
 	 */
@@ -69,7 +69,7 @@ int libesedb_index_free_no_detach(
 int libesedb_index_attach(
      libesedb_internal_index_t *internal_index,
      libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
+     libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
 int libesedb_index_detach(

@@ -76,11 +76,24 @@ int libesedb_record_detach(
      libesedb_internal_record_t *internal_record,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_record_get_identifier(
+LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      libesedb_record_t *record,
-                     uint32_t *identifier,
+                     int *amount_of_values,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_record_get_value_identifier(
+                     libesedb_table_t *table,
+                     int value_entry,
+                     uint32_t *value_identifier,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value(
+                     libesedb_table_t *table,
+                     int value_entry,
+                     uint32_t *column_type,
+                     uint8_t **value_data,
+                     size_t *value_data_size,
+                     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

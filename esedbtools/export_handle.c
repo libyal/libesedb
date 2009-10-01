@@ -595,15 +595,20 @@ int export_handle_export_table(
 	libesedb_column_t *column          = NULL;
 	libesedb_record_t *record          = NULL;
 	FILE *table_file_stream            = NULL;
+	uint8_t *value_data                = NULL;
 	uint8_t *value_string              = NULL;
 	static char *function              = "export_handle_export_table";
 	size_t target_path_size            = 0;
+	size_t value_data_size             = 0;
 	size_t value_string_size           = 0;
+	uint32_t column_type               = 0;
 	uint32_t table_identifier          = 0;
 	int amount_of_columns              = 0;
 	int amount_of_records              = 0;
+	int amount_of_values               = 0;
 	int column_iterator                = 0;
 	int record_iterator                = 0;
+	int value_iterator                 = 0;
 	int result                         = 0;
 
 	if( table == NULL )
@@ -964,8 +969,87 @@ int export_handle_export_table(
 
 			return( -1 );
 		}
-		/* TODO */
+		if( libesedb_record_get_amount_of_values(
+		     record,
+		     &amount_of_values,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve amount of values.",
+			 function );
 
+			libesedb_record_free(
+			 &record,
+			 NULL );
+			libsystem_file_stream_close(
+			 table_file_stream );
+
+			return( -1 );
+		}
+		for( value_iterator = 0;
+		     value_iterator < amount_of_values;
+		     value_iterator++ )
+		{
+			if( libesedb_record_get_value(
+			     record,
+			     value_iterator,
+			     &column_type,
+			     &value_data,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value: %d.",
+				 function,
+				 record_iterator + 1 );
+
+				libesedb_record_free(
+				 &record,
+				 NULL );
+				libsystem_file_stream_close(
+				 table_file_stream );
+
+				return( -1 );
+			}
+			while( value_data_size > 0 )
+			{
+				if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
+				 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+				{
+					fprintf(
+					 table_file_stream,
+					 "%c",
+					 *value_data );
+				}
+				else
+				{
+					fprintf(
+					 table_file_stream,
+					 "%02" PRIx8 "",
+					 *value_data );
+				}
+				value_data      += 1;
+				value_data_size -= 1;
+			}
+			if( value_iterator == ( amount_of_values - 1 ) )
+			{
+				fprintf(
+				 table_file_stream,
+				 "\n" );
+			}
+			else
+			{
+				fprintf(
+				 table_file_stream,
+				 "\t" );
+			}
+		}
 		if( libesedb_record_free(
 		     &record,
 		     error ) != 1 )

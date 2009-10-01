@@ -1,5 +1,5 @@
 /*
- * Data definition functions
+ * Catalog definition functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -20,42 +20,70 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_DATA_DEFINITION_H )
-#define _LIBPFF_DATA_DEFINITION_H
+#if !defined( _LIBPFF_CATALOG_DEFINITION_H )
+#define _LIBPFF_CATALOG_DEFINITION_H
 
 #include <common.h>
 #include <types.h>
 
 #include <liberror.h>
 
-#include "libesedb_array_type.h"
-#include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_data_definition libesedb_data_definition_t;
+typedef struct libesedb_catalog_definition libesedb_catalog_definition_t;
 
-struct libesedb_data_definition
+struct libesedb_catalog_definition
 {
-	/* The data type definitions array
+	/* The father data page (FDP) object identifier
 	 */
-	libesedb_array_t *data_type_definitions_array;
+	uint32_t father_data_page_object_identifier;
+
+	/* The type
+	 */
+	uint16_t type;
+
+	/* The identifier
+	 */
+	uint32_t identifier;
+
+	union
+	{
+		/* The father data page (FDP) number 
+		 */
+		uint32_t father_data_page_number;
+
+		/* The column type
+		 */
+		uint32_t column_type;
+	};
+
+	/* The size (or space usage)
+	 */
+	uint32_t size;
+
+	/* The name string
+	 */
+	uint8_t *name;
+
+	/* The size of the name string
+	 */
+	size_t name_size;
 };
 
-int libesedb_data_definition_initialize(
-     libesedb_data_definition_t **data_definition,
+int libesedb_catalog_definition_initialize(
+     libesedb_catalog_definition_t **catalog_definition,
      liberror_error_t **error );
 
-int libesedb_data_definition_free(
-     intptr_t *data_definition,
+int libesedb_catalog_definition_free(
+     intptr_t *catalog_definition,
      liberror_error_t **error );
 
-int libesedb_data_definition_read(
-     libesedb_data_definition_t *data_definition,
-     libesedb_list_t *column_catalog_definition_list,
+int libesedb_catalog_definition_read(
+     libesedb_catalog_definition_t *catalog_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error );

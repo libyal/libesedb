@@ -28,7 +28,7 @@
 
 #include <liberror.h>
 
-#include "libesedb_data_definition.h"
+#include "libesedb_catalog_definition.h"
 #include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
@@ -40,45 +40,45 @@ typedef struct libesedb_table_definition libesedb_table_definition_t;
 
 struct libesedb_table_definition
 {
-	/* The table data definition
+	/* The table catalog definition
 	 */
-	libesedb_data_definition_t *table_data_definition;
+	libesedb_catalog_definition_t *table_catalog_definition;
 
-	/* The column data definition list
+	/* The column catalog definition list
 	 */
-	libesedb_list_t *column_data_definition_list;
+	libesedb_list_t *column_catalog_definition_list;
 
-	/* The index data definition list
+	/* The index catalog definition list
 	 */
-	libesedb_list_t *index_data_definition_list;
+	libesedb_list_t *index_catalog_definition_list;
 
-	/* The long value data definition list
+	/* The long value catalog definition list
 	 */
-	libesedb_list_t *long_value_data_definition_list;
+	libesedb_list_t *long_value_catalog_definition_list;
 };
 
 int libesedb_table_definition_initialize(
      libesedb_table_definition_t **table_definition,
-     libesedb_data_definition_t *table_data_definition,
+     libesedb_catalog_definition_t *table_catalog_definition,
      liberror_error_t **error );
 
 int libesedb_table_definition_free(
      intptr_t *table_definition,
      liberror_error_t **error );
 
-int libesedb_table_definition_append_column_data_definition(
+int libesedb_table_definition_append_column_catalog_definition(
      libesedb_table_definition_t *table_definition,
-     libesedb_data_definition_t *column_data_definition,
+     libesedb_catalog_definition_t *column_catalog_definition,
      liberror_error_t **error );
 
-int libesedb_table_definition_append_index_data_definition(
+int libesedb_table_definition_append_index_catalog_definition(
      libesedb_table_definition_t *table_definition,
-     libesedb_data_definition_t *index_data_definition,
+     libesedb_catalog_definition_t *index_catalog_definition,
      liberror_error_t **error );
 
-int libesedb_table_definition_append_long_value_data_definition(
+int libesedb_table_definition_append_long_value_catalog_definition(
      libesedb_table_definition_t *table_definition,
-     libesedb_data_definition_t *long_value_data_definition,
+     libesedb_catalog_definition_t *long_value_catalog_definition,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

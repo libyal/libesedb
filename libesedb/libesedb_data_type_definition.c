@@ -164,7 +164,6 @@ int libesedb_data_type_definition_set_data(
 	}
 	data_type_definition->data = (uint8_t *) memory_allocate(
 	                                          sizeof( uint8_t ) * data_size );
-	
 
 	if( data_type_definition->data == NULL )
 	{
@@ -191,6 +190,8 @@ int libesedb_data_type_definition_set_data(
 
 		return( -1 );
 	}
+	data_type_definition->data_size = data_size;
+
 	return( 1 );
 }
 

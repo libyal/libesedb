@@ -562,13 +562,13 @@ int libesedb_table_read_page_tree(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->table_data_definition == NULL )
+	if( internal_table->table_definition->table_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
 		 function );
 
 		return( -1 );
@@ -601,7 +601,8 @@ int libesedb_table_read_page_tree(
 	if( libesedb_page_tree_read(
 	     internal_table->page_tree,
 	     internal_table->internal_file->io_handle,
-	     internal_table->table_definition->table_data_definition->father_data_page_number,
+	     internal_table->table_definition->table_catalog_definition->father_data_page_number,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -651,13 +652,13 @@ int libesedb_table_get_identifier(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->table_data_definition == NULL )
+	if( internal_table->table_definition->table_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
 		 function );
 
 		return( -1 );
@@ -673,7 +674,7 @@ int libesedb_table_get_identifier(
 
 		return( -1 );
 	}
-	*identifier = internal_table->table_definition->table_data_definition->identifier;
+	*identifier = internal_table->table_definition->table_catalog_definition->identifier;
 
 	return( 1 );
 }
@@ -714,13 +715,13 @@ int libesedb_table_get_utf8_name_size(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->table_data_definition == NULL )
+	if( internal_table->table_definition->table_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
 		 function );
 
 		return( -1 );
@@ -736,7 +737,7 @@ int libesedb_table_get_utf8_name_size(
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_table->table_definition->table_data_definition->name_size;
+	*utf8_string_size = internal_table->table_definition->table_catalog_definition->name_size;
 
 	return( 1 );
 }
@@ -779,13 +780,13 @@ int libesedb_table_get_utf8_name(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->table_data_definition == NULL )
+	if( internal_table->table_definition->table_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing table data definition.",
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
 		 function );
 
 		return( -1 );
@@ -812,7 +813,7 @@ int libesedb_table_get_utf8_name(
 
 		return( -1 );
 	}
-	if( utf8_string_size < internal_table->table_definition->table_data_definition->name_size )
+	if( utf8_string_size < internal_table->table_definition->table_catalog_definition->name_size )
 	{
 		liberror_error_set(
 		 error,
@@ -825,8 +826,8 @@ int libesedb_table_get_utf8_name(
 	}
 	if( memory_copy(
 	     utf8_string,
-	     internal_table->table_definition->table_data_definition->name,
-	     internal_table->table_definition->table_data_definition->name_size ) == NULL )
+	     internal_table->table_definition->table_catalog_definition->name,
+	     internal_table->table_definition->table_catalog_definition->name_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -840,7 +841,7 @@ int libesedb_table_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the amount of columns
+/* Retrieves the amount of columns in the table
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_get_amount_of_columns(
@@ -875,19 +876,19 @@ int libesedb_table_get_amount_of_columns(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->column_data_definition_list == NULL )
+	if( internal_table->table_definition->column_catalog_definition_list == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing column data definition list.",
+		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_list_get_amount_of_elements(
-	     internal_table->table_definition->column_data_definition_list,
+	     internal_table->table_definition->column_catalog_definition_list,
 	     amount_of_columns,
 	     error ) != 1 )
 	{
@@ -912,9 +913,9 @@ int libesedb_table_get_column(
      libesedb_column_t **column,
      liberror_error_t **error )
 {
-	libesedb_internal_table_t *internal_table = NULL;
-	libesedb_list_element_t *list_element     = NULL;
-	static char *function                     = "libesedb_table_get_column";
+	libesedb_internal_table_t *internal_table                = NULL;
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	static char *function                                    = "libesedb_table_get_column";
 
 	if( table == NULL )
 	{
@@ -940,13 +941,13 @@ int libesedb_table_get_column(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->column_data_definition_list == NULL )
+	if( internal_table->table_definition->column_catalog_definition_list == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing column data definition list.",
+		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
 		 function );
 
 		return( -1 );
@@ -962,28 +963,17 @@ int libesedb_table_get_column(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_element(
-	     internal_table->table_definition->column_data_definition_list,
+	if( libesedb_list_get_value(
+	     internal_table->table_definition->column_catalog_definition_list,
 	     column_entry,
-	     &list_element,
+	     (intptr_t **) &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve column data definition list element.",
-		 function );
-
-		return( -1 );
-	}
-	if( list_element->value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid column data definition list element - missing value.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -1004,7 +994,7 @@ int libesedb_table_get_column(
 	if( libesedb_column_attach(
 	     (libesedb_internal_column_t *) *column,
 	     internal_table,
-	     (libesedb_data_definition_t *) list_element->value,
+	     column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1058,19 +1048,8 @@ int libesedb_table_get_amount_of_indexes(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->index_data_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing index data definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_list_get_amount_of_elements(
-	     internal_table->table_definition->index_data_definition_list,
+	     internal_table->table_definition->index_catalog_definition_list,
 	     amount_of_indexes,
 	     error ) != 1 )
 	{
@@ -1095,9 +1074,9 @@ int libesedb_table_get_index(
      libesedb_index_t **index,
      liberror_error_t **error )
 {
-	libesedb_internal_table_t *internal_table = NULL;
-	libesedb_list_element_t *list_element     = NULL;
-	static char *function                     = "libesedb_table_get_index";
+	libesedb_internal_table_t *internal_table               = NULL;
+	libesedb_catalog_definition_t *index_catalog_definition = NULL;
+	static char *function                                   = "libesedb_table_get_index";
 
 	if( table == NULL )
 	{
@@ -1123,13 +1102,13 @@ int libesedb_table_get_index(
 
 		return( -1 );
 	}
-	if( internal_table->table_definition->index_data_definition_list == NULL )
+	if( internal_table->table_definition->index_catalog_definition_list == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing index data definition list.",
+		 "%s: invalid internal table - invalid table definition - missing index catalog definition list.",
 		 function );
 
 		return( -1 );
@@ -1145,28 +1124,17 @@ int libesedb_table_get_index(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_element(
-	     internal_table->table_definition->index_data_definition_list,
+	if( libesedb_list_get_value(
+	     internal_table->table_definition->index_catalog_definition_list,
 	     index_entry,
-	     &list_element,
+	     (intptr_t **) &index_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve index data definition list element.",
-		 function );
-
-		return( -1 );
-	}
-	if( list_element->value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid index data definition list element - missing value.",
+		 "%s: unable to retrieve index catalog definition.",
 		 function );
 
 		return( -1 );
@@ -1187,7 +1155,7 @@ int libesedb_table_get_index(
 	if( libesedb_index_attach(
 	     (libesedb_internal_index_t *) *index,
 	     internal_table,
-	     (libesedb_data_definition_t *) list_element->value,
+	     index_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1206,7 +1174,7 @@ int libesedb_table_get_index(
 	return( 1 );
 }
 
-/* Retrieves the amount of records
+/* Retrieves the amount of records in the table
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_get_amount_of_records(
@@ -1268,17 +1236,6 @@ int libesedb_table_get_amount_of_records(
 			return( -1 );
 		}
 	}
-	if( internal_table->page_tree->value_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid page tree - missing value definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_list_get_amount_of_elements(
 	     internal_table->page_tree->value_definition_list,
 	     amount_of_records,
@@ -1305,9 +1262,9 @@ int libesedb_table_get_record(
      libesedb_record_t **record,
      liberror_error_t **error )
 {
-	libesedb_internal_table_t *internal_table = NULL;
-	libesedb_list_element_t *list_element     = NULL;
-	static char *function                     = "libesedb_table_get_record";
+	libesedb_internal_table_t *internal_table          = NULL;
+	libesedb_data_definition_t *record_data_definition = NULL;
+	static char *function                              = "libesedb_table_get_record";
 
 	if( table == NULL )
 	{
@@ -1382,28 +1339,17 @@ int libesedb_table_get_record(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_element(
+	if( libesedb_list_get_value(
 	     internal_table->page_tree->value_definition_list,
 	     record_entry,
-	     &list_element,
+	     (intptr_t **) &record_data_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value definition list element.",
-		 function );
-
-		return( -1 );
-	}
-	if( list_element->value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid value definition list element - missing value.",
+		 "%s: unable to retrieve record data definition.",
 		 function );
 
 		return( -1 );
@@ -1424,7 +1370,7 @@ int libesedb_table_get_record(
 	if( libesedb_record_attach(
 	     (libesedb_internal_record_t *) *record,
 	     internal_table,
-	     (libesedb_data_definition_t *) list_element->value,
+	     record_data_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(

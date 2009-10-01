@@ -26,7 +26,7 @@
 
 #include <liberror.h>
 
-#include "libesedb_data_definition.h"
+#include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_index.h"
 #include "libesedb_table.h"
@@ -134,7 +134,7 @@ int libesedb_index_free(
 		internal_index = (libesedb_internal_index_t *) *index;
 		*index         = NULL;
 
-		/* The internal_table and data_definition references
+		/* The internal_table and catalog_definition references
 		 * are freed elsewhere
 		 */
 		if( libesedb_index_detach(
@@ -201,7 +201,7 @@ int libesedb_index_free_no_detach(
 				result = -1;
 			}
 		}
-		/* The internal_table and data_definition references
+		/* The internal_table and catalog_definition references
 		 * are freed elsewhere
 		 */
 		memory_free(
@@ -216,7 +216,7 @@ int libesedb_index_free_no_detach(
 int libesedb_index_attach(
      libesedb_internal_index_t *internal_index,
      libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
+     libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_index_attach";
@@ -270,8 +270,8 @@ int libesedb_index_attach(
 
 		return( -1 );
 	}
-	internal_index->internal_table  = internal_table;
-	internal_index->data_definition = data_definition;
+	internal_index->internal_table     = internal_table;
+	internal_index->catalog_definition = catalog_definition;
 
 	return( 1 );
 }
@@ -325,8 +325,8 @@ int libesedb_index_detach(
 
 			return( -1 );
 		}
-		internal_index->internal_table  = NULL;
-		internal_index->data_definition = NULL;
+		internal_index->internal_table     = NULL;
+		internal_index->catalog_definition = NULL;
 	}
 	return( 1 );
 }
@@ -355,13 +355,13 @@ int libesedb_index_get_identifier(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->data_definition == NULL )
+	if( internal_index->catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing data definition.",
+		 "%s: invalid internal index - missing catalog definition.",
 		 function );
 
 		return( -1 );
@@ -377,7 +377,7 @@ int libesedb_index_get_identifier(
 
 		return( -1 );
 	}
-	*identifier = internal_index->data_definition->identifier;
+	*identifier = internal_index->catalog_definition->identifier;
 
 	return( 1 );
 }
@@ -407,13 +407,13 @@ int libesedb_index_get_utf8_name_size(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->data_definition == NULL )
+	if( internal_index->catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing data definition.",
+		 "%s: invalid internal index - missing catalog definition.",
 		 function );
 
 		return( -1 );
@@ -429,7 +429,7 @@ int libesedb_index_get_utf8_name_size(
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_index->data_definition->name_size;
+	*utf8_string_size = internal_index->catalog_definition->name_size;
 
 	return( 1 );
 }
@@ -461,13 +461,13 @@ int libesedb_index_get_utf8_name(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->data_definition == NULL )
+	if( internal_index->catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing data definition.",
+		 "%s: invalid internal index - missing catalog definition.",
 		 function );
 
 		return( -1 );
@@ -494,7 +494,7 @@ int libesedb_index_get_utf8_name(
 
 		return( -1 );
 	}
-	if( utf8_string_size < internal_index->data_definition->name_size )
+	if( utf8_string_size < internal_index->catalog_definition->name_size )
 	{
 		liberror_error_set(
 		 error,
@@ -507,8 +507,8 @@ int libesedb_index_get_utf8_name(
 	}
 	if( memory_copy(
 	     utf8_string,
-	     internal_index->data_definition->name,
-	     internal_index->data_definition->name_size ) == NULL )
+	     internal_index->catalog_definition->name,
+	     internal_index->catalog_definition->name_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,

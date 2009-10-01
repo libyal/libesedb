@@ -60,6 +60,11 @@ int libesedb_array_resize(
      int amount_of_entries,
      liberror_error_t **error );
 
+int libesedb_array_get_amount_of_entries(
+     libesedb_array_t *array,
+     int *amount_of_entries,
+     liberror_error_t **error );
+
 int libesedb_array_get_entry(
      libesedb_array_t *array,
      int entry_index,
