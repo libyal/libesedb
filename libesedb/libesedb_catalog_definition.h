@@ -65,6 +65,10 @@ struct libesedb_catalog_definition
 	 */
 	uint32_t size;
 
+	/* The codepage
+	 */
+	uint32_t codepage;
+
 	/* The name string
 	 */
 	uint8_t *name;

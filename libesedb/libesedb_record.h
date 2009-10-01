@@ -87,12 +87,79 @@ LIBESEDB_EXTERN int libesedb_record_get_value_identifier(
                      uint32_t *value_identifier,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_record_get_value_type(
+                     libesedb_table_t *table,
+                     int value_entry,
+                     uint32_t *value_type,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_record_get_value(
                      libesedb_table_t *table,
                      int value_entry,
-                     uint32_t *column_type,
                      uint8_t **value_data,
                      size_t *value_data_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_8bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_16bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint16_t *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_32bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint32_t *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint64_t *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *utf8_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *utf8_string,
+                     size_t utf8_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint16_t *utf16_string,
+                     size_t utf16_string_size,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

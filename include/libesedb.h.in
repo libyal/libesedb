@@ -449,7 +449,7 @@ LIBESEDB_EXTERN int libesedb_record_free(
                      libesedb_record_t **record,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of values in the record
+/* Retrieves the amount of values in the record of the referenced record
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
@@ -457,7 +457,7 @@ LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      int *amount_of_values,
                      libesedb_error_t **error );
 
-/* Retrieves the value identifier of the specific entry
+/* Retrieves the value identifier of the specific entry from the referenced record
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_record_get_value_identifier(
@@ -466,15 +466,125 @@ LIBESEDB_EXTERN int libesedb_record_get_value_identifier(
                      uint32_t *value_identifier,
                      libesedb_error_t **error );
 
-/* Retrieves the value of the specific entry
+/* Retrieves the value (column) type of the specific entry from the referenced record
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_type(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint32_t *value_type,
+                     libesedb_error_t **error );
+
+/* Retrieves the value of the specific entry from the referenced record
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_record_get_value(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint32_t *column_type,
                      uint8_t **value_data,
                      size_t *value_data_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the boolean value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the 8-bit value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_8bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the 16-bit value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_16bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint16_t *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the 32-bit value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_32bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint32_t *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the 64-bit value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint64_t *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the floating point value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string size of a specific entry from the referenced record
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *utf8_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-8 string value of a specific entry from the referenced record
+ * The string is formatted in UTF-8
+ * The function uses a codepage if necessary, it tries to read the codepage in the column definition
+ * if not available it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *utf8_string,
+                     size_t utf8_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-16 string size of a specific entry from the referenced record
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *utf16_string_size,
+                     libesedb_error_t **error );
+
+/* Retrieves the UTF-16 string value of a specific entry from the referenced record
+ * The string is formatted in UTF-16
+ * The function uses a codepage if necessary, it tries to read the codepage in the column definition
+ * if not available it uses the codepage set for the library
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint16_t *utf16_string,
+                     size_t utf16_string_size,
                      libesedb_error_t **error );
 
 #if defined( __cplusplus )

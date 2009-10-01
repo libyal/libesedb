@@ -37,10 +37,10 @@ int libesedb_value_type_buffer_contains_zero_bytes(
      size_t buffer_size,
      liberror_error_t **error );
 
-int libesedb_value_type_copy_to_boolean(
+int libesedb_value_type_copy_to_8bit(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t *value_boolean,
+     uint8_t *value_8bit,
      liberror_error_t **error );
 
 int libesedb_value_type_copy_to_16bit(
@@ -76,16 +76,14 @@ int libesedb_value_type_copy_to_floating_point(
 int libesedb_value_type_get_utf8_string_size(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      size_t *utf8_string_size,
      liberror_error_t **error );
 
 int libesedb_value_type_copy_to_utf8_string(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      liberror_error_t **error );
@@ -93,16 +91,14 @@ int libesedb_value_type_copy_to_utf8_string(
 int libesedb_value_type_get_utf16_string_size(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      size_t *utf16_string_size,
      liberror_error_t **error );
 
 int libesedb_value_type_copy_to_utf16_string(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      liberror_error_t **error );

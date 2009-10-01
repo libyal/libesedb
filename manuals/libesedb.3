@@ -127,7 +127,9 @@ Record functions
 .Ft int
 .Fn libesedb_record_get_value_identifier "libesedb_record_t *record, int value_entry, uint32_t *value_identifier, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value "libesedb_record_t *record, int value_entry, uint32_t *column_type, uint8_t **value_data, size_t *value_data_size libesedb_error_t **error"
+.Fn libesedb_record_get_value_type "libesedb_record_t *record, int value_entry, uint32_t *value_type, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_value "libesedb_record_t *record, int value_entry, uint8_t **value_data, size_t *value_data_size libesedb_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libesedb_get_version

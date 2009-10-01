@@ -28,6 +28,8 @@
 
 #include <liberror.h>
 
+#include "libesedb_catalog_definition.h"
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
@@ -36,13 +38,9 @@ typedef struct libesedb_data_type_definition libesedb_data_type_definition_t;
 
 struct libesedb_data_type_definition
 {
-	/* The data type definition (column) identifier
+	/* The data type (column) catalog definition
 	 */
-	uint32_t identifier;
-
-	/* The data type definition (column) type
-	 */
-	uint32_t type;
+	libesedb_catalog_definition_t *column_catalog_definition;
 
 	/* The data type definition data
 	 */
@@ -55,6 +53,7 @@ struct libesedb_data_type_definition
 
 int libesedb_data_type_definition_initialize(
      libesedb_data_type_definition_t **data_type_definition,
+     libesedb_catalog_definition_t *column_catalog_definition,
      liberror_error_t **error );
 
 int libesedb_data_type_definition_free(

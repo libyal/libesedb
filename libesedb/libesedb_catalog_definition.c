@@ -140,7 +140,6 @@ int libesedb_catalog_definition_read(
 	uint8_t *variable_size_data_type_size_data          = NULL;
 	uint8_t *variable_size_data_type_value_data         = NULL;
 	static char *function                               = "libesedb_catalog_definition_read";
-	uint32_t ascii_codepage                             = 0;
 	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;
 	uint16_t previous_variable_size_data_type_size      = 0;
@@ -329,6 +328,12 @@ int libesedb_catalog_definition_read(
 	 catalog_definition->size,
 	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->space_usage );
 
+	if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
+	{
+		endian_little_convert_32bit(
+		 catalog_definition->codepage,
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	data_type_number = 1;
 
@@ -421,24 +426,20 @@ int libesedb_catalog_definition_read(
 	{
 		if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 		{
-			endian_little_convert_32bit(
-			 ascii_codepage,
-			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage );
-
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
 			 function,
 			 data_type_number++,
-			 ascii_codepage );
+			 catalog_definition->codepage );
 
-			if( ascii_codepage != 0 )
+			if( catalog_definition->codepage != 0 )
 			{
 				libnotify_verbose_printf(
 				 " (%s) %s",
 				 libesedb_codepage_get_identifier(
-				  ascii_codepage ),
+				  catalog_definition->codepage ),
 				 libesedb_codepage_get_description(
-				  ascii_codepage ) );
+				  catalog_definition->codepage ) );
 			}
 			libnotify_verbose_printf(
 			 "\n" );
@@ -537,12 +538,6 @@ int libesedb_catalog_definition_read(
 		variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
 		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
 
-		/* The default codepage is 1252
-		 */
-		if( ascii_codepage == 0 )
-		{
-			ascii_codepage = LIBUNA_CODEPAGE_WINDOWS_1252;
-		}
 		data_type_number = 128;
 
 		for( variable_size_data_type_iterator = 0;
@@ -574,8 +569,7 @@ int libesedb_catalog_definition_read(
 						if( libesedb_value_type_get_utf8_string_size(
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     1,
-						     ascii_codepage,
+						     LIBUNA_CODEPAGE_WINDOWS_1252,
 						     &( catalog_definition->name_size ),
 						     error ) != 1 )
 						{
@@ -607,8 +601,7 @@ int libesedb_catalog_definition_read(
 						if( libesedb_value_type_copy_to_utf8_string(
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     1,
-						     ascii_codepage,
+						     LIBUNA_CODEPAGE_WINDOWS_1252,
 						     catalog_definition->name,
 						     catalog_definition->name_size,
 						     error ) != 1 )

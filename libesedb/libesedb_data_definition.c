@@ -365,6 +365,7 @@ int libesedb_data_definition_read(
 
 		if( libesedb_data_type_definition_initialize(
 		     &data_type_definition,
+		     column_catalog_definition,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -376,9 +377,6 @@ int libesedb_data_definition_read(
 
 			return( -1 );
 		}
-		data_type_definition->identifier = column_catalog_definition->identifier;
-		data_type_definition->type       = column_catalog_definition->column_type;
-
 		if( column_catalog_definition->identifier <= last_fixed_size_data_type )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -580,6 +578,15 @@ int libesedb_data_definition_read(
 					 tagged_data_type_size );
 #endif
 					remaining_definition_data_size -= tagged_data_type_size;
+
+					/* TODO ignoring the tag for now
+					 */
+					if( ( previous_tagged_data_type_offset & 0x4000 ) == 0x4000 )
+					{
+						previous_tagged_data_type_offset += 1;
+						tagged_data_type_size            -= 1;
+					}
+					previous_tagged_data_type_offset &= 0x3fff;
 				}
 #if defined( HAVE_DEBUG_OUTPUT )
 				else
@@ -590,6 +597,28 @@ int libesedb_data_definition_read(
 					 column_catalog_definition->identifier );
 				}
 #endif
+				if( tagged_data_type_size > 0 )
+				{
+					if( libesedb_data_type_definition_set_data(
+					     data_type_definition,
+					     &( tagged_data_type_value_data[ previous_tagged_data_type_offset ] ),
+					     tagged_data_type_size,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+						 "%s: unable to set data in tagged data type definition.",
+						 function );
+
+						libesedb_data_type_definition_free(
+						 (intptr_t *) data_type_definition,
+						 NULL );
+
+						return( -1 );
+					}
+				}
 			}
 
 		}

@@ -135,7 +135,7 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		internal_file->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1250;
+		internal_file->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
 
 		*file = (libesedb_file_t *) internal_file;
 	}

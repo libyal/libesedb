@@ -31,16 +31,18 @@
 #include "libesedb_libuna.h"
 #include "libesedb_value_type.h"
 
-/* Function to determine if there are zero bytes in a buffer
+/* Function to determine if there are zero bytes in a string
+ * Trailing zero bytes not included
  * Returns 1 if the buffer contains zero bytes, 0 if not or -1 on error
  */
-int libesedb_value_type_buffer_contains_zero_bytes(
+int libesedb_value_type_string_contains_zero_bytes(
      uint8_t *buffer,
      size_t buffer_size,
      liberror_error_t **error )
 {
-	static char *function  = "libesedb_value_type_buffer_contains_zero_bytes";
-	size_t buffer_iterator = 0;
+	static char *function   = "libesedb_value_type_string_contains_zero_bytes";
+	size_t buffer_iterator  = 0;
+	uint8_t zero_byte_found = 0;
 
 	if( buffer == NULL )
 	{
@@ -68,24 +70,34 @@ int libesedb_value_type_buffer_contains_zero_bytes(
 	     buffer_iterator < buffer_size;
 	     buffer_iterator++ )
 	{
-		if( buffer[ buffer_iterator ] == 0 )
+		if( zero_byte_found == 0 )
 		{
-			return( 1 );
+			if( buffer[ buffer_iterator ] == 0 )
+			{
+				zero_byte_found = 0;
+			}
+		}
+		else
+		{
+			if( buffer[ buffer_iterator ] != 0 )
+			{
+				return( 1 );
+			}
 		}
 	}
 	return( 0 );
 }
 
-/* Converts the value data into a boolean value
+/* Converts the value data into an 8-bit value
  * Returns 1 if successful or -1 on error
  */
-int libesedb_value_type_copy_to_boolean(
+int libesedb_value_type_copy_to_8bit(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t *value_boolean,
+     uint8_t *value_8bit,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_value_type_copy_to_boolean";
+	static char *function = "libesedb_value_type_copy_to_8bit";
 
 	if( value_data == NULL )
 	{
@@ -98,18 +110,18 @@ int libesedb_value_type_copy_to_boolean(
 
 		return( -1 );
 	}
-	if( value_boolean == NULL )
+	if( value_8bit == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value boolean.",
+		 "%s: invalid value 8-bit.",
 		 function );
 
 		return( -1 );
 	}
-	/* The value data size of a boolean value is 1
+	/* The value data size of a 8-bit value is 1
 	 */
 	if( value_data_size != 1 )
 	{
@@ -122,7 +134,7 @@ int libesedb_value_type_copy_to_boolean(
 
 		return( -1 );
 	}
-	*value_boolean = value_data[ 0 ];
+	*value_8bit = value_data[ 0 ];
 
 	return( 1 );
 }
@@ -450,16 +462,22 @@ int libesedb_value_type_copy_to_floating_point(
 int libesedb_value_type_get_utf8_string_size(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      size_t *utf8_string_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_value_type_get_utf8_string_size";
-	int result            = 0;
+	static char *function              = "libesedb_value_type_get_utf8_string_size";
+	uint8_t is_narrow_character_string = 0;
+	int result                         = 0;
 
-	if( ( ascii_codepage != 1200 )
-	 && ( ascii_codepage != 1252 ) )
+	/* The default codepage is 1252
+	 */
+	if( codepage == 0 )
+	{
+		codepage = 1252;
+	}
+	if( ( codepage != 1200 )
+	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
 		 error,
@@ -467,7 +485,7 @@ int libesedb_value_type_get_utf8_string_size(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupport codepage: %d.",
 		 function,
-		 ascii_codepage );
+		 codepage );
 
 		return( -1 );
 	}
@@ -482,13 +500,20 @@ int libesedb_value_type_get_utf8_string_size(
 
 		return( -1 );
 	}
+	/* Internally an empty string is represented by a NULL reference
+	 */
+	if( value_data == NULL )
+	{
+		*utf8_string_size = 0;
+
+		return( 1 );
+	}
 	/* Codepage 1200 represents Unicode
 	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
 	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
+	if( codepage == 1200 )
 	{
-		result = libesedb_value_type_buffer_contains_zero_bytes(
+		result = libesedb_value_type_string_contains_zero_bytes(
 		          value_data,
 		          value_data_size,
 		          error );
@@ -504,25 +529,23 @@ int libesedb_value_type_get_utf8_string_size(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == 0 )
 		{
-			/* String is in UTF-16 little-endian
+			/* String is in UTF-8
 			 */
-			is_ascii_string = 0;
+			is_narrow_character_string = 1;
 		}
 	}
-	/* Internally an empty string is represented by a NULL reference
-	 */
-	if( value_data == NULL )
+	else
 	{
-		*utf8_string_size = 0;
+		is_narrow_character_string = 1;
 	}
-	else if( is_ascii_string != 0 )
+	if( is_narrow_character_string != 0 )
 	{
 		/* Codepage 1200 represents Unicode
 		 * no zero bytes were found so assume it is UTF-8
 		 */
-		if( ascii_codepage == 1200 )
+		if( codepage == 1200 )
 		{
 			if( libuna_utf8_string_size_from_utf8_stream(
 			     value_data,
@@ -548,7 +571,7 @@ int libesedb_value_type_get_utf8_string_size(
 			if( libuna_utf8_string_size_from_byte_stream(
 			     value_data,
 			     value_data_size,
-			     (int) ascii_codepage,
+			     (int) codepage,
 			     utf8_string_size,
 			     error ) != 1 )
 			{
@@ -591,17 +614,23 @@ int libesedb_value_type_get_utf8_string_size(
 int libesedb_value_type_copy_to_utf8_string(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_value_type_copy_to_utf8_string";
-	int result            = 0;
+	static char *function              = "libesedb_value_type_copy_to_utf8_string";
+	uint8_t is_narrow_character_string = 0;
+	int result                         = 0;
 
-	if( ( ascii_codepage != 1200 )
-	 && ( ascii_codepage != 1252 ) )
+	/* The default codepage is 1252
+	 */
+	if( codepage == 0 )
+	{
+		codepage = 1252;
+	}
+	if( ( codepage != 1200 )
+	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
 		 error,
@@ -609,7 +638,7 @@ int libesedb_value_type_copy_to_utf8_string(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupport codepage: %d.",
 		 function,
-		 ascii_codepage );
+		 codepage );
 
 		return( -1 );
 	}
@@ -646,13 +675,20 @@ int libesedb_value_type_copy_to_utf8_string(
 
 		return( -1 );
 	}
+	/* Internally an empty string is represented by a NULL reference
+	 */
+	if( value_data == NULL )
+	{
+		utf8_string[ 0 ] = 0;
+
+		return( 1 );
+	}
 	/* Codepage 1200 represents Unicode
 	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
 	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
+	if( codepage == 1200 )
 	{
-		result = libesedb_value_type_buffer_contains_zero_bytes(
+		result = libesedb_value_type_string_contains_zero_bytes(
 		          value_data,
 		          value_data_size,
 		          error );
@@ -668,25 +704,23 @@ int libesedb_value_type_copy_to_utf8_string(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == 0 )
 		{
-			/* String is in UTF-16 little-endian
+			/* String is in UTF-8
 			 */
-			is_ascii_string = 0;
+			is_narrow_character_string = 1;
 		}
 	}
-	/* Internally an empty string is represented by a NULL reference
-	 */
-	if( value_data == NULL )
+	else
 	{
-		utf8_string[ 0 ] = 0;
+		is_narrow_character_string = 1;
 	}
-	else if( is_ascii_string != 0 )
+	if( is_narrow_character_string != 0 )
 	{
 		/* Codepage 1200 represents Unicode
 		 * no zero bytes were found so assume it is UTF-8
 		 */
-		if( ascii_codepage == 1200 )
+		if( codepage == 1200 )
 		{
 			if( libuna_utf8_string_copy_from_utf8_stream(
 			     utf8_string,
@@ -715,7 +749,7 @@ int libesedb_value_type_copy_to_utf8_string(
 			     utf8_string_size,
 			     value_data,
 			     value_data_size,
-			     (int) ascii_codepage,
+			     (int) codepage,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -758,14 +792,33 @@ int libesedb_value_type_copy_to_utf8_string(
 int libesedb_value_type_get_utf16_string_size(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      size_t *utf16_string_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_value_type_get_utf16_string_size";
-	int result            = 0;
+	static char *function              = "libesedb_value_type_get_utf16_string_size";
+	uint8_t is_narrow_character_string = 0;
+	int result                         = 0;
 
+	/* The default codepage is 1252
+	 */
+	if( codepage == 0 )
+	{
+		codepage = 1252;
+	}
+	if( ( codepage != 1200 )
+	 && ( codepage != 1252 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupport codepage: %d.",
+		 function,
+		 codepage );
+
+		return( -1 );
+	}
 	if( utf16_string_size == NULL )
 	{
 		liberror_error_set(
@@ -777,26 +830,20 @@ int libesedb_value_type_get_utf16_string_size(
 
 		return( -1 );
 	}
-	if( ( ascii_codepage != 1200 )
-	 && ( ascii_codepage != 1252 ) )
+	/* Internally an empty string is represented by a NULL reference
+	 */
+	if( value_data == NULL )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport codepage: %d.",
-		 function,
-		 ascii_codepage );
+		*utf16_string_size = 0;
 
-		return( -1 );
+		return( 1 );
 	}
 	/* Codepage 1200 represents Unicode
 	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
 	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
+	if( codepage == 1200 )
 	{
-		result = libesedb_value_type_buffer_contains_zero_bytes(
+		result = libesedb_value_type_string_contains_zero_bytes(
 		          value_data,
 		          value_data_size,
 		          error );
@@ -812,25 +859,23 @@ int libesedb_value_type_get_utf16_string_size(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == 0 )
 		{
-			/* String is in UTF-16 little-endian
+			/* String is in UTF-8
 			 */
-			is_ascii_string = 0;
+			is_narrow_character_string = 1;
 		}
 	}
-	/* Internally an empty string is represented by a NULL reference
-	 */
-	if( value_data == NULL )
+	else
 	{
-		*utf16_string_size = 0;
+		is_narrow_character_string = 1;
 	}
-	else if( is_ascii_string != 0 )
+	if( is_narrow_character_string != 0 )
 	{
 		/* Codepage 1200 represents Unicode
 		 * no zero bytes were found so assume it is UTF-8
 		 */
-		if( ascii_codepage == 1200 )
+		if( codepage == 1200 )
 		{
 			if( libuna_utf16_string_size_from_utf8(
 			     value_data,
@@ -856,7 +901,7 @@ int libesedb_value_type_get_utf16_string_size(
 			if( libuna_utf16_string_size_from_byte_stream(
 			     value_data,
 			     value_data_size,
-			     (int) ascii_codepage,
+			     (int) codepage,
 			     utf16_string_size,
 			     error ) != 1 )
 			{
@@ -899,17 +944,23 @@ int libesedb_value_type_get_utf16_string_size(
 int libesedb_value_type_copy_to_utf16_string(
      uint8_t *value_data,
      size_t value_data_size,
-     uint8_t is_ascii_string,
-     uint32_t ascii_codepage,
+     uint32_t codepage,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_value_type_copy_to_utf16_string";
-	int result            = 0;
+	static char *function              = "libesedb_value_type_copy_to_utf16_string";
+	uint8_t is_narrow_character_string = 0;
+	int result                         = 0;
 
-	if( ( ascii_codepage != 1200 )
-	 && ( ascii_codepage != 1252 ) )
+	/* The default codepage is 1252
+	 */
+	if( codepage == 0 )
+	{
+		codepage = 1252;
+	}
+	if( ( codepage != 1200 )
+	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
 		 error,
@@ -917,7 +968,7 @@ int libesedb_value_type_copy_to_utf16_string(
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupport codepage: %d.",
 		 function,
-		 ascii_codepage );
+		 codepage );
 
 		return( -1 );
 	}
@@ -954,13 +1005,20 @@ int libesedb_value_type_copy_to_utf16_string(
 
 		return( -1 );
 	}
+	/* Internally an empty string is represented by a NULL reference
+	 */
+	if( value_data == NULL )
+	{
+		utf16_string[ 0 ] = 0;
+
+		return( 1 );
+	}
 	/* Codepage 1200 represents Unicode
 	 * If the codepage is 1200 find out if the string is encoded in UTF-8 or UTF-16 little-endian
 	 */
-	if( ( is_ascii_string != 0 )
-	 && ( ascii_codepage == 1200 ) )
+	if( codepage == 1200 )
 	{
-		result = libesedb_value_type_buffer_contains_zero_bytes(
+		result = libesedb_value_type_string_contains_zero_bytes(
 		          value_data,
 		          value_data_size,
 		          error );
@@ -976,25 +1034,23 @@ int libesedb_value_type_copy_to_utf16_string(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == 0 )
 		{
-			/* String is in UTF-16 little-endian
+			/* String is in UTF-8
 			 */
-			is_ascii_string = 0;
+			is_narrow_character_string = 1;
 		}
 	}
-	/* Internally an empty string is represented by a NULL reference
-	 */
-	if( value_data == NULL )
+	else
 	{
-		utf16_string[ 0 ] = 0;
+		is_narrow_character_string = 1;
 	}
-	else if( is_ascii_string != 0 )
+	if( is_narrow_character_string != 0 )
 	{
 		/* Codepage 1200 represents Unicode
 		 * no zero bytes were found so assume it is UTF-8
 		 */
-		if( ascii_codepage == 1200 )
+		if( codepage == 1200 )
 		{
 			if( libuna_utf16_string_copy_from_utf8(
 			     utf16_string,
@@ -1023,7 +1079,7 @@ int libesedb_value_type_copy_to_utf16_string(
 			     utf16_string_size,
 			     value_data,
 			     value_data_size,
-			     (int) ascii_codepage,
+			     (int) codepage,
 			     error ) != 1 )
 			{
 				liberror_error_set(
