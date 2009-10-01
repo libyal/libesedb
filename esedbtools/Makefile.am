@@ -21,7 +21,8 @@ esedbexport_SOURCES = \
 	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h \
 	export_handle.c export_handle.h \
-	log_handle.c log_handle.h
+	log_handle.c log_handle.h \
+	windows_search.c windows_search.h
 
 esedbexport_LDADD  = \
 	../liberror/liberror.la \

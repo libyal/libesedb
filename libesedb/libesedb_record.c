@@ -385,18 +385,18 @@ int libesedb_record_get_amount_of_values(
 	return( 1 );
 }
 
-/* Retrieves the value identifier of the specific entry from the referenced record
+/* Retrieves the column type of the specific entry from the referenced record
  * Returns 1 if successful or -1 on error
  */
-int libesedb_record_get_value_identifier(
+int libesedb_record_get_column_type(
      libesedb_record_t *record,
      int value_entry,
-     uint32_t *value_identifier,
+     uint32_t *column_type,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_identifier";
+	static char *function                                 = "libesedb_record_get_column_type";
 
 	if( record == NULL )
 	{
@@ -409,13 +409,13 @@ int libesedb_record_get_value_identifier(
 
 		return( -1 );
 	}
-	if( value_identifier == NULL )
+	if( column_type == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value identifier.",
+		 "%s: invalid column type.",
 		 function );
 
 		return( -1 );
@@ -471,23 +471,24 @@ int libesedb_record_get_value_identifier(
 
 		return( -1 );
 	}
-	*value_identifier = data_type_definition->column_catalog_definition->identifier;
+	*column_type = data_type_definition->column_catalog_definition->column_type;
 
 	return( 1 );
 }
 
-/* Retrieves the value type of the specific entry from the referenced record
+/* Retrieves the UTF-8 string size of the column name of the specific entry from the referenced record
+ * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libesedb_record_get_value_type(
+int libesedb_record_get_utf8_column_name_size(
      libesedb_record_t *record,
      int value_entry,
-     uint32_t *value_type,
+     size_t *utf8_string_size,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_type";
+	static char *function                                 = "libesedb_record_get_utf8_column_name_size";
 
 	if( record == NULL )
 	{
@@ -500,13 +501,13 @@ int libesedb_record_get_value_type(
 
 		return( -1 );
 	}
-	if( value_type == NULL )
+	if( utf8_string_size == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value type.",
+		 "%s: invalid UTF-8 string size.",
 		 function );
 
 		return( -1 );
@@ -562,8 +563,136 @@ int libesedb_record_get_value_type(
 
 		return( -1 );
 	}
-	*value_type = data_type_definition->column_catalog_definition->column_type;
+	*utf8_string_size = data_type_definition->column_catalog_definition->name_size;
 
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string of the column name of the specific entry from the referenced record
+ * The string is formatted in UTF-8
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_record_get_utf8_column_name(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_utf8_column_name";
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->data_type_definitions_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size < data_type_definition->column_catalog_definition->name_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: UTF-8 string is too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     utf8_string,
+	     data_type_definition->column_catalog_definition->name,
+	     data_type_definition->column_catalog_definition->name_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
 	return( 1 );
 }
 

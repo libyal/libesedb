@@ -470,13 +470,8 @@ int libesedb_value_type_get_utf8_string_size(
 	uint8_t is_narrow_character_string = 0;
 	int result                         = 0;
 
-	/* The default codepage is 1252
-	 */
-	if( codepage == 0 )
-	{
-		codepage = 1252;
-	}
-	if( ( codepage != 1200 )
+	if( ( codepage != 0 )
+	 && ( codepage != 1200 )
 	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
@@ -565,6 +560,12 @@ int libesedb_value_type_get_utf8_string_size(
 		}
 		else
 		{
+			/* The default codepage is 1252
+			 */
+			if( codepage == 0 )
+			{
+				codepage = 1252;
+			}
 			/* TODO currently libuna uses the same numeric values for the codepages as ESEDB
 			 * add a mapping function if this implementation changes
 			 */
@@ -623,13 +624,8 @@ int libesedb_value_type_copy_to_utf8_string(
 	uint8_t is_narrow_character_string = 0;
 	int result                         = 0;
 
-	/* The default codepage is 1252
-	 */
-	if( codepage == 0 )
-	{
-		codepage = 1252;
-	}
-	if( ( codepage != 1200 )
+	if( ( codepage != 0 )
+	 && ( codepage != 1200 )
 	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
@@ -741,6 +737,12 @@ int libesedb_value_type_copy_to_utf8_string(
 		}
 		else
 		{
+			/* The default codepage is 1252
+			 */
+			if( codepage == 0 )
+			{
+				codepage = 1252;
+			}
 			/* TODO currently libuna uses the same numeric values for the codepages as ESEDB
 			 * add a mapping function if this implementation changes
 			 */
@@ -800,13 +802,8 @@ int libesedb_value_type_get_utf16_string_size(
 	uint8_t is_narrow_character_string = 0;
 	int result                         = 0;
 
-	/* The default codepage is 1252
-	 */
-	if( codepage == 0 )
-	{
-		codepage = 1252;
-	}
-	if( ( codepage != 1200 )
+	if( ( codepage != 0 )
+	 && ( codepage != 1200 )
 	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
@@ -895,6 +892,12 @@ int libesedb_value_type_get_utf16_string_size(
 		}
 		else
 		{
+			/* The default codepage is 1252
+			 */
+			if( codepage == 0 )
+			{
+				codepage = 1252;
+			}
 			/* TODO currently libuna uses the same numeric values for the codepages as ESEDB
 			 * add a mapping function if this implementation changes
 			 */
@@ -953,13 +956,8 @@ int libesedb_value_type_copy_to_utf16_string(
 	uint8_t is_narrow_character_string = 0;
 	int result                         = 0;
 
-	/* The default codepage is 1252
-	 */
-	if( codepage == 0 )
-	{
-		codepage = 1252;
-	}
-	if( ( codepage != 1200 )
+	if( ( codepage != 0 )
+	 && ( codepage != 1200 )
 	 && ( codepage != 1252 ) )
 	{
 		liberror_error_set(
@@ -1071,6 +1069,12 @@ int libesedb_value_type_copy_to_utf16_string(
 		}
 		else
 		{
+			/* The default codepage is 1252
+			 */
+			if( codepage == 0 )
+			{
+				codepage = 1252;
+			}
 			/* TODO currently libuna uses the same numeric values for the codepages as ESEDB
 			 * add a mapping function if this implementation changes
 			 */

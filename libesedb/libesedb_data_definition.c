@@ -620,7 +620,6 @@ int libesedb_data_definition_read(
 					}
 				}
 			}
-
 		}
 		if( libesedb_array_set_entry(
 		     data_definition->data_type_definitions_array,

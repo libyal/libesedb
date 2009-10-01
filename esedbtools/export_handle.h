@@ -24,6 +24,7 @@
 #define _EXPORT_HANDLE_H
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
 
 #include <liberror.h>
@@ -96,6 +97,17 @@ int export_handle_export_table(
      libsystem_character_t *export_path,
      size_t export_path_size,
      log_handle_t *log_handle,
+     liberror_error_t **error );
+
+int export_handle_export_record(
+     libesedb_record_t *record,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
+int export_handle_export_record_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
      liberror_error_t **error );
 
 int export_handle_export_file(
