@@ -442,6 +442,7 @@ int libesedb_page_tree_read_father_data_page_values(
 {
 	libesedb_page_t *sub_page                = NULL;
 	libesedb_page_value_t *page_value        = NULL;
+	uint8_t *page_value_data                 = NULL;
 	static char *function                    = "libesedb_page_tree_read_father_data_page_values";
 	uint32_t child_page_number               = 0;
 	uint32_t previous_child_page_number      = 0;
@@ -451,13 +452,12 @@ int libesedb_page_tree_read_father_data_page_values(
 	uint32_t supported_flags                 = 0;
 	uint16_t amount_of_page_values           = 0;
 	uint16_t page_value_iterator             = 0;
+	uint16_t page_value_size                 = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *page_value_data                 = NULL;
 	uint32_t extent_space                    = 0;
 	uint32_t initial_amount_of_pages         = 0;
 	uint16_t page_key_size                   = 0;
-	uint16_t page_value_size                 = 0;
 	uint32_t test                            = 0;
 #endif
 
@@ -1372,19 +1372,16 @@ int libesedb_page_tree_read_leaf_page_values(
 	libesedb_data_definition_t *data_definition       = NULL;
 	libesedb_page_value_t *page_value                 = NULL;
 	libesedb_table_definition_t *table_definition     = NULL;
+	uint8_t *page_value_data                          = NULL;
 	static char *function                             = "libesedb_page_tree_read_leaf_page_values";
 	uint32_t required_flags                           = 0;
 	uint32_t supported_flags                          = 0;
 	uint16_t amount_of_page_values                    = 0;
 	uint16_t page_value_iterator                      = 0;
-	int result                                        = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *page_value_data                          = NULL;
 	uint16_t page_key_size                            = 0;
 	uint16_t page_value_size                          = 0;
 	uint16_t record_number                            = 0;
-#endif
+	int result                                        = 0;
 
 	if( page_tree == NULL )
 	{
