@@ -571,6 +571,23 @@ int libesedb_data_definition_read(
 
 				if( tagged_data_type_size > 0 )
 				{
+					remaining_definition_data_size -= tagged_data_type_size;
+
+					/* TODO ignoring the tag byte for now
+					 */
+					if( ( previous_tagged_data_type_offset & 0x4000 ) == 0x4000 )
+					{
+#if defined( HAVE_DEBUG_OUTPUT )
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu16 ") tag byte\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+						 function,
+						 column_catalog_definition->identifier,
+						 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
+#endif
+
+						previous_tagged_data_type_offset += 1;
+						tagged_data_type_size            -= 1;
+					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					libnotify_verbose_printf(
 					 "%s: (%03" PRIu16 ") tagged data type:\n",
@@ -580,15 +597,6 @@ int libesedb_data_definition_read(
 					 &( tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] ),
 					 tagged_data_type_size );
 #endif
-					remaining_definition_data_size -= tagged_data_type_size;
-
-					/* TODO ignoring the tag for now
-					 */
-					if( ( previous_tagged_data_type_offset & 0x4000 ) == 0x4000 )
-					{
-						previous_tagged_data_type_offset += 1;
-						tagged_data_type_size            -= 1;
-					}
 					previous_tagged_data_type_offset &= 0x3fff;
 				}
 #if defined( HAVE_DEBUG_OUTPUT )

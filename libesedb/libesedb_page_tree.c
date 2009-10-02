@@ -1850,7 +1850,7 @@ int libesedb_page_tree_read_leaf_page_values(
 						break;
 
 					case LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE:
-						if( libesedb_table_definition_append_long_value_catalog_definition(
+						if( libesedb_table_definition_set_long_value_catalog_definition(
 						     table_definition,
 						     catalog_definition,
 						     error ) != 1 )
@@ -1858,8 +1858,8 @@ int libesedb_page_tree_read_leaf_page_values(
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-							 "%s: unable to append long value catalog definition to table definition.",
+							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 "%s: unable to set long value catalog definition in table definition.",
 							 function );
 
 							libesedb_catalog_definition_free(

@@ -500,7 +500,7 @@ int libesedb_catalog_definition_read(
 		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags );
 
 		libnotify_verbose_printf(
-		 "%s: (%03" PRIu16 ") LC map flags\t\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 data_type_number++,
 		 value_32bit );

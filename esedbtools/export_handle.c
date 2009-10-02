@@ -1556,6 +1556,7 @@ int export_handle_export_record_value(
 
 			if( result == -1 )
 			{
+#ifdef TODO
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
@@ -1565,6 +1566,41 @@ int export_handle_export_record_value(
 				 record_value_entry + 1 );
 
 				return( -1 );
+#else
+				liberror_error_free(
+				 error );
+
+				if( libesedb_record_get_value(
+				     record,
+				     record_value_entry,
+				     &value_data,
+				     &value_data_size,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value: %d.",
+					 function,
+					 record_value_entry + 1 );
+
+					return( -1 );
+				}
+				if( value_data != NULL )
+				{
+					while( value_data_size > 0 )
+					{
+						fprintf(
+						 table_file_stream,
+						 "%02" PRIx8 "",
+						 *value_data );
+
+						value_data      += 1;
+						value_data_size -= 1;
+					}
+				}
+#endif
 			}
 			else if( result != 0 )
 			{

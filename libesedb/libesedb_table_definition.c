@@ -151,32 +151,6 @@ int libesedb_table_definition_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_initialize(
-		     &( ( *table_definition )->long_value_catalog_definition_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create long value catalog definition list.",
-			 function );
-
-			libesedb_list_free(
-			 &( ( *table_definition )->index_catalog_definition_list ),
-			 NULL,
-			 NULL );
-			libesedb_list_free(
-			 &( ( *table_definition )->column_catalog_definition_list ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 *table_definition );
-
-			*table_definition = NULL;
-
-			return( -1 );
-		}
 		( *table_definition )->table_catalog_definition = table_catalog_definition;
 	}
 	return( 1 );
@@ -202,6 +176,34 @@ int libesedb_table_definition_free(
 		 function );
 
 		return( -1 );
+	}
+	if( ( ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition != NULL )
+	 && ( libesedb_catalog_definition_free(
+	       (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition,
+	       error ) != 1 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free table catalog definition.",
+		 function );
+
+		result = -1;
+	}
+	if( ( ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition != NULL )
+	 && ( libesedb_catalog_definition_free(
+	       (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition,
+	       error ) != 1 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free long value catalog definition.",
+		 function );
+
+		result = -1;
 	}
 	if( libesedb_list_free(
 	     &( ( (libesedb_table_definition_t *) table_definition )->column_catalog_definition_list ),
@@ -231,24 +233,70 @@ int libesedb_table_definition_free(
 
 		result = -1;
 	}
-	if( libesedb_list_free(
-	     &( ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition_list ),
-	     &libesedb_catalog_definition_free,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free long value catalog definition list.",
-		 function );
-
-		result = -1;
-	}
 	memory_free(
 	table_definition );
 
 	return( result );
+}
+
+/* Sets a long value catalog definition to the table definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_set_long_value_catalog_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_catalog_definition_t *long_value_catalog_definition,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_set_long_value_catalog_definition";
+
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition->long_value_catalog_definition != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table definition - long value catalog definition already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported catalog definition type: %" PRIu16 ".",
+		 function,
+		 long_value_catalog_definition->type );
+
+		return( -1 );
+	}
+	table_definition->long_value_catalog_definition = long_value_catalog_definition;
+
+	return( 1 );
 }
 
 /* Appends a column catalog definition to the table definition
@@ -366,67 +414,6 @@ int libesedb_table_definition_append_index_catalog_definition(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append index catalog definition to list.",
-		 function );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
-/* Appends a long value catalog definition to the table definition
- * Returns 1 if successful or -1 on error
- */
-int libesedb_table_definition_append_long_value_catalog_definition(
-     libesedb_table_definition_t *table_definition,
-     libesedb_catalog_definition_t *long_value_catalog_definition,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_table_definition_append_long_value_catalog_definition";
-
-	if( table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( long_value_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid long value catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( long_value_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported catalog definition type: %" PRIu16 ".",
-		 function,
-		 long_value_catalog_definition->type );
-
-		return( -1 );
-	}
-	if( libesedb_list_append_value(
-	     table_definition->long_value_catalog_definition_list,
-	     (intptr_t *) long_value_catalog_definition,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value catalog definition to list.",
 		 function );
 
 		return( -1 );

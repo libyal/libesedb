@@ -57,7 +57,11 @@ struct libesedb_internal_table
 
 	/* The table page tree
 	 */
-	libesedb_page_tree_t *page_tree;
+	libesedb_page_tree_t *table_page_tree;
+
+	/* The long value page tree
+	 */
+	libesedb_page_tree_t *long_value_page_tree;
 
 	/* The column reference list
 	 */

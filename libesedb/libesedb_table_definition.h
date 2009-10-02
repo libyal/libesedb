@@ -44,6 +44,10 @@ struct libesedb_table_definition
 	 */
 	libesedb_catalog_definition_t *table_catalog_definition;
 
+	/* The long value catalog definition
+	 */
+	libesedb_catalog_definition_t *long_value_catalog_definition;
+
 	/* The column catalog definition list
 	 */
 	libesedb_list_t *column_catalog_definition_list;
@@ -51,10 +55,6 @@ struct libesedb_table_definition
 	/* The index catalog definition list
 	 */
 	libesedb_list_t *index_catalog_definition_list;
-
-	/* The long value catalog definition list
-	 */
-	libesedb_list_t *long_value_catalog_definition_list;
 };
 
 int libesedb_table_definition_initialize(
@@ -66,6 +66,11 @@ int libesedb_table_definition_free(
      intptr_t *table_definition,
      liberror_error_t **error );
 
+int libesedb_table_definition_set_long_value_catalog_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_catalog_definition_t *long_value_catalog_definition,
+     liberror_error_t **error );
+
 int libesedb_table_definition_append_column_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *column_catalog_definition,
@@ -74,11 +79,6 @@ int libesedb_table_definition_append_column_catalog_definition(
 int libesedb_table_definition_append_index_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
-     liberror_error_t **error );
-
-int libesedb_table_definition_append_long_value_catalog_definition(
-     libesedb_table_definition_t *table_definition,
-     libesedb_catalog_definition_t *long_value_catalog_definition,
      liberror_error_t **error );
 
 #if defined( __cplusplus )
