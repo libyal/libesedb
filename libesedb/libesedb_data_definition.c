@@ -515,6 +515,8 @@ int libesedb_data_definition_read(
 					tagged_data_type_offset_data += 2;
 
 					tagged_data_type_offset_data_size = ( tagged_data_type_offset & 0x3fff ) - 4;
+
+					remaining_definition_data_size -= 4;
 				}
 			}
 			if( ( remaining_definition_data_size > 0 )
@@ -551,6 +553,7 @@ int libesedb_data_definition_read(
 					tagged_data_type_offset_data += 2;
 
 					tagged_data_type_offset_data_size -= 4;
+					remaining_definition_data_size    -= 4;
 
 					tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
 				}
