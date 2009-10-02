@@ -61,6 +61,12 @@ int libesedb_value_type_copy_to_64bit(
      uint64_t *value_64bit,
      liberror_error_t **error );
 
+int libesedb_value_type_copy_to_filetime(
+     uint8_t *value_data,
+     size_t value_data_size,
+     uint64_t *value_filetime,
+     liberror_error_t **error );
+
 int libesedb_value_type_copy_to_size(
      uint8_t *value_data,
      size_t value_data_size,

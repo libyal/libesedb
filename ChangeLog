@@ -1,10 +1,14 @@
 TODO
 
+* windows search
+  - change libuna utf16 functions to libsystem utf16 functions
+  - create libsystm utf16 functions
+
 * read catalog data type defintions and convert them into column definitions
 * use column definitions to read data definitions
 
 Error:
-* error in offset tracking ?
+* error in libbfio offset tracking ?
   20987904 ( 0x01404000 ) - 20996096 ( 0x01406000 ) size: 8192
   4290912256 ( 0xffc22000 ) - 4290912256 ( 0xffc22000 ) size: 0
 
@@ -14,16 +18,11 @@ Debug
 Library
 * compare primary and secondary file header
   - report any differences
+* compare primary and secondary catalog
 * provide UTF-16 name string functions
-* merge table and index into single item type ?
-* make data definition type more flexible
-  - allow reading a data definition using a table definition
-  - define the catalog table as a table definition? and bootstrap it
-    what about handling the root flags?
-* how to store value data, raw? like libpff table and convert it later
-* create generic solution to handle object (item) referencing
+* limit the amount of active data type definitions for large tables?
 
-* libfwintyp
+* libfwintype
   - change GUID function to match libfdatetime like structure
 
 Tools
@@ -36,6 +35,10 @@ Tools
 
 File format
 * where is the root object defined? or is it implied to be object 1?
+* flag 0x4000 in tagged values
+* page flags
+* long values
+* page keys
 
 Deployment:
 * update manuals
@@ -47,6 +50,10 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20091002
+* worked on exporting Windows Search database
+* worked on record API
 
 20091001
 * worked on page values and data definition types (dynamic version)

@@ -27,6 +27,31 @@
 
 #include <liberror.h>
 
+/* Define HAVE_LOCAL_LIBFDATETIME for local use of libfdatetime
+ */
+#if defined( HAVE_LOCAL_LIBFDATETIME )
+
+#include <libfdatetime_definitions.h>
+#include <libfdatetime_error.h>
+#include <libfdatetime_fat_date_time.h>
+#include <libfdatetime_filetime.h>
+#include <libfdatetime_types.h>
+
+#elif defined( HAVE_LIBFDATETIME_H )
+
+/* If libtool DLL support is enabled set LIBFDATETIME_DLL_IMPORT
+ * before including libfdatetime.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBFDATETIME_DLL_IMPORT
+#endif
+
+#include <libfdatetime.h>
+
+#else
+#error Missing libfdatetime.h
+#endif
+
 /* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
  * before including libesedb_extern.h
  */
@@ -986,7 +1011,22 @@ int export_handle_export_table(
 		}
 		known_table = 0;
 
-		if( table_name_size == 17 )
+		if( table_name_size == 15 )
+		{
+			if( narrow_string_compare(
+			     (char *) table_name,
+			     "SystemIndex_0A",
+			     14 ) == 0 )
+			{
+				known_table = 1;
+
+				result = windows_search_export_record_systemindex_0a(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
+		else if( table_name_size == 17 )
 		{
 			if( narrow_string_compare(
 			     (char *) table_name,
@@ -1014,7 +1054,7 @@ int export_handle_export_table(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to export reord.",
+			 "%s: unable to export record.",
 			 function );
 
 			libesedb_record_free(
@@ -1160,18 +1200,21 @@ int export_handle_export_record_value(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *value_data         = NULL;
-	uint8_t *value_string       = NULL;
-	static char *function       = "export_handle_export_record_value";
-	size_t value_data_size      = 0;
-	size_t value_string_size    = 0;
-	double value_floating_point = 0.0;
-	uint64_t value_64bit        = 0;
-	uint32_t column_type        = 0;
-	uint32_t value_32bit        = 0;
-	uint16_t value_16bit        = 0;
-	uint8_t value_8bit          = 0;
-	int result                  = 0;
+	uint8_t filetime_string[ 22 ];
+
+	libfdatetime_filetime_t *filetime = NULL;
+	uint8_t *value_data               = NULL;
+	uint8_t *value_string             = NULL;
+	static char *function             = "export_handle_export_record_value";
+	size_t value_data_size            = 0;
+	size_t value_string_size          = 0;
+	double value_floating_point       = 0.0;
+	uint64_t value_64bit              = 0;
+	uint32_t column_type              = 0;
+	uint32_t value_32bit              = 0;
+	uint16_t value_16bit              = 0;
+	uint8_t value_8bit                = 0;
+	int result                        = 0;
 
 	if( record == NULL )
 	{
@@ -1383,6 +1426,99 @@ int export_handle_export_record_value(
 			}
 			break;
 
+		case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+			result = libesedb_record_get_value_filetime(
+				  record,
+				  record_value_entry,
+				  &value_64bit,
+				  error );
+
+			if( result == -1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve filetime value: %d.",
+				 function,
+				 record_value_entry + 1 );
+
+				return( -1 );
+			}
+			else if( result != 0 )
+			{
+				if( libfdatetime_filetime_initialize(
+				     &filetime,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create filetime.",
+					 function );
+
+					return( -1 );
+				}
+				if( libfdatetime_filetime_copy_from_uint64(
+				     filetime,
+				     value_64bit,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_CONVERSION,
+					 LIBERROR_CONVERSION_ERROR_GENERIC,
+					 "%s: unable to create filetime.",
+					 function );
+
+					libfdatetime_filetime_free(
+					 &filetime,
+					 NULL );
+
+					return( -1 );
+				}
+				if( libfdatetime_filetime_copy_to_string(
+				     filetime,
+				     filetime_string,
+				     22,
+				     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+				     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_CONVERSION,
+					 LIBERROR_CONVERSION_ERROR_GENERIC,
+					 "%s: unable to create filetime string.",
+					 function );
+
+					libfdatetime_filetime_free(
+					 &filetime,
+					 NULL );
+
+					return( -1 );
+				}
+				if( libfdatetime_filetime_free(
+				     &filetime,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free filetime.",
+					 function );
+
+					return( -1 );
+				}
+				fprintf(
+				 table_file_stream,
+				 "%s",
+				 filetime_string );
+			}
+			break;
+
 		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
 		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
 			if( libesedb_record_get_value_floating_point(
@@ -1481,11 +1617,8 @@ int export_handle_export_record_value(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_MEMORY,
 					 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-					 "%s: unable to create column name string.",
+					 "%s: unable to value string.",
 					 function );
-
-					libsystem_file_stream_close(
-					 table_file_stream );
 
 					return( -1 );
 				}

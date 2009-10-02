@@ -881,7 +881,7 @@ int libesedb_record_get_value_boolean(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -990,7 +990,7 @@ int libesedb_record_get_value_8bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1100,7 +1100,7 @@ int libesedb_record_get_value_16bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1210,7 +1210,7 @@ int libesedb_record_get_value_32bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1319,7 +1319,7 @@ int libesedb_record_get_value_64bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1340,6 +1340,115 @@ int libesedb_record_get_value_64bit(
 		 LIBERROR_ERROR_DOMAIN_CONVERSION,
 		 LIBERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set 64-bit value.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the 64-bit filetime value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+int libesedb_record_get_value_filetime(
+     libesedb_record_t *record,
+     int value_entry,
+     uint64_t *value,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_value_filetime";
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->data_type_definitions_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
+		 function,
+		 data_type_definition->column_catalog_definition->column_type );
+
+		return( -1 );
+	}
+	if( data_type_definition->data == NULL )
+	{
+		return( 0 );
+	}
+	if( libesedb_value_type_copy_to_64bit(
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set filetime value.",
 		 function );
 
 		return( -1 );
@@ -1429,7 +1538,7 @@ int libesedb_record_get_value_floating_point(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1540,7 +1649,7 @@ int libesedb_record_get_value_utf8_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1656,7 +1765,7 @@ int libesedb_record_get_value_utf8_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1751,13 +1860,13 @@ int libesedb_record_get_value_utf16_string_size(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	if( data_type_definition->column_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: invalid data type definition - missing column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -1769,7 +1878,7 @@ int libesedb_record_get_value_utf16_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1867,13 +1976,13 @@ int libesedb_record_get_value_utf16_string(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	if( data_type_definition->column_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: invalid data type definition - missing column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -1885,7 +1994,7 @@ int libesedb_record_get_value_utf16_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition value (column) type: %" PRIu32 ".",
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
 		 function,
 		 data_type_definition->column_catalog_definition->column_type );
 
@@ -1908,6 +2017,228 @@ int libesedb_record_get_value_utf16_string(
 		 LIBERROR_ERROR_DOMAIN_CONVERSION,
 		 LIBERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to set UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the binary data size of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+int libesedb_record_get_value_binary_data_size(
+     libesedb_record_t *record,
+     int value_entry,
+     size_t *binary_data_size,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_value_binary_data_size";
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->data_type_definitions_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
+		 function,
+		 data_type_definition->column_catalog_definition->column_type );
+
+		return( -1 );
+	}
+	if( data_type_definition->data == NULL )
+	{
+		return( 0 );
+	}
+	if( libesedb_value_type_get_binary_data_size(
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     binary_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set binary data size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the binary data value of a specific entry from the referenced record
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+int libesedb_record_get_value_binary_data(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_value_binary_data";
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->data_type_definitions_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition column type: %" PRIu32 ".",
+		 function,
+		 data_type_definition->column_catalog_definition->column_type );
+
+		return( -1 );
+	}
+	if( data_type_definition->data == NULL )
+	{
+		return( 0 );
+	}
+	if( libesedb_value_type_copy_to_binary_data(
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     binary_data,
+	     binary_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to set binary data.",
 		 function );
 
 		return( -1 );

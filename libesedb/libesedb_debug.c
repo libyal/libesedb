@@ -30,6 +30,7 @@
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfdatetime.h"
 #include "libesedb_libfwintype.h"
 #include "libesedb_string.h"
 
@@ -584,16 +585,18 @@ int libesedb_debug_print_column_value(
      int ascii_codepage,
      liberror_error_t **error )
 {
+	uint8_t filetime_string[ 22 ];
 	uint8_t guid_string[ LIBFWINTYPE_GUID_STRING_SIZE ];
 
-	uint8_t *value_string    = NULL;
-	static char *function    = "libesedb_debug_print_column_value";
-	size_t value_string_size = 0;
-	double value_double      = 0.0;
-	float value_float        = 0.0;
-	uint64_t value_64bit     = 0;
-	uint32_t value_32bit     = 0;
-	uint16_t value_16bit     = 0;
+	libfdatetime_filetime_t *filetime = NULL;
+	uint8_t *value_string             = NULL;
+	static char *function             = "libesedb_debug_print_column_value";
+	size_t value_string_size          = 0;
+	double value_double               = 0.0;
+	float value_float                 = 0.0;
+	uint64_t value_64bit              = 0;
+	uint32_t value_32bit              = 0;
+	uint16_t value_16bit              = 0;
 
 	if( value_data == NULL )
 	{
@@ -721,6 +724,79 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+			if( libfdatetime_filetime_initialize(
+			     &filetime,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create filetime.",
+				 function );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_copy_from_byte_stream(
+			     filetime,
+			     value_data,
+			     value_data_size,
+			     LIBFDATETIME_ENDIAN_LITTLE,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create filetime.",
+				 function );
+
+				libfdatetime_filetime_free(
+				 &filetime,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_copy_to_string(
+			     filetime,
+			     filetime_string,
+			     22,
+			     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create filetime string.",
+				 function );
+
+				libfdatetime_filetime_free(
+				 &filetime,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_free(
+			     &filetime,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free filetime.",
+				 function );
+
+				return( -1 );
+			}
+			libnotify_verbose_printf(
+			 "Filetime\t: %s UTC\n\n",
+			 filetime_string );
+
+			break;
+
 		case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
 		case LIBESEDB_COLUMN_TYPE_TEXT:
 		case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:

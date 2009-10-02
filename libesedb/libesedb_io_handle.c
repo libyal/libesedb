@@ -33,7 +33,6 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
-#include "libesedb_libfdatetime.h"
 #include "libesedb_string.h"
 
 #include "esedb_file_header.h"

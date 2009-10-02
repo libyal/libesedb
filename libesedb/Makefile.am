@@ -33,7 +33,6 @@ libesedb_la_SOURCES = \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_libbfio.h \
-	libesedb_libfdatetime.h \
 	libesedb_libfwintype.h \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \

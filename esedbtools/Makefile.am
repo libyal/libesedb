@@ -14,7 +14,6 @@ AM_LDFLAGS = @STATIC_LDFLAGS@
 bin_PROGRAMS = esedbexport esedbinfo
 
 esedbexport_SOURCES = \
-	filetime.c filetime.h \
 	guid.c guid.h \
 	esedbcommon.h \
 	esedbexport.c \
@@ -28,10 +27,11 @@ esedbexport_LDADD  = \
 	../liberror/liberror.la \
 	../libesedb/libesedb.la \
 	../libsystem/libsystem.la \
+	@LIBUNA_LIBADD@ \
+	@LIBFDATETIME_LIBADD@ \
 	@MEMWATCH_LIBADD@
 
 esedbinfo_SOURCES = \
-	filetime.c filetime.h \
 	guid.c guid.h \
 	esedbinfo.c \
 	esedbinput.c esedbinput.h \

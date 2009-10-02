@@ -27,6 +27,62 @@
 
 #include <liberror.h>
 
+/* Define HAVE_LOCAL_LIBUNA for local use of libuna
+ */
+#if defined( HAVE_LOCAL_LIBUNA )
+
+#include <libuna_byte_stream.h>
+#include <libuna_compare.h>
+#include <libuna_error.h>
+#include <libuna_unicode_character.h>
+#include <libuna_utf8_stream.h>
+#include <libuna_utf8_string.h>
+#include <libuna_utf16_stream.h>
+#include <libuna_utf16_string.h>
+#include <libuna_utf32_stream.h>
+#include <libuna_utf32_string.h>
+#include <libuna_types.h>
+
+#elif defined( HAVE_LIBUNA_H )
+
+/* If libtool DLL support is enabled set LIBUNA_DLL_IMPORT
+ * before including libuna.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBUNA_DLL_IMPORT
+#endif
+
+#include <libuna.h>
+
+#else
+#error Missing libuna.h
+#endif
+
+/* Define HAVE_LOCAL_LIBFDATETIME for local use of libfdatetime
+ */
+#if defined( HAVE_LOCAL_LIBFDATETIME )
+
+#include <libfdatetime_definitions.h>
+#include <libfdatetime_error.h>
+#include <libfdatetime_fat_date_time.h>
+#include <libfdatetime_filetime.h>
+#include <libfdatetime_types.h>
+
+#elif defined( HAVE_LIBFDATETIME_H )
+
+/* If libtool DLL support is enabled set LIBFDATETIME_DLL_IMPORT
+ * before including libfdatetime.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBFDATETIME_DLL_IMPORT
+#endif
+
+#include <libfdatetime.h>
+
+#else
+#error Missing libfdatetime.h
+#endif
+
 /* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
  * before including libesedb_extern.h
  */
@@ -37,16 +93,853 @@
 #include <libesedb.h>
 
 #include "export_handle.h"
-#include "filetime.h"
 #include "windows_search.h"
 
 enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 {
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN,
-	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_LITTLE_ENDIAN,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN,
 };
+
+/* Exports a 32-bit value in a binary data table record value
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_record_value_32bit(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t *value_data    = NULL;
+	static char *function  = "windows_search_export_record_value_32bit";
+	size_t value_data_size = 0;
+	uint32_t column_type   = 0;
+	uint32_t value_32bit   = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( byte_order != _ENDIAN_BIG )
+	 && ( byte_order != _ENDIAN_LITTLE ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported byte order: 0x%02" PRIx8 "",
+		 function,
+		 byte_order );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 "",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_value(
+	     record,
+	     record_value_entry,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( value_data != NULL )
+	{
+		if( value_data_size != 4 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value data size: %" PRIzd "",
+			 function,
+			 value_data_size );
+
+			return( -1 );
+		}
+		if( byte_order == _ENDIAN_BIG )
+		{
+			endian_big_convert_32bit(
+			 value_32bit,
+			 value_data );
+		}
+		else
+		{
+			endian_little_convert_32bit(
+			 value_32bit,
+			 value_data );
+		}
+		fprintf(
+		 table_file_stream,
+		 "%" PRIu32 "",
+		 value_32bit );
+	}
+	return( 1 );
+}
+
+/* Exports a 64-bit value in a binary data table record value
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_record_value_64bit(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t *value_data    = NULL;
+	static char *function  = "windows_search_export_record_value_64bit";
+	size_t value_data_size = 0;
+	uint64_t value_64bit   = 0;
+	uint32_t column_type   = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( byte_order != _ENDIAN_BIG )
+	 && ( byte_order != _ENDIAN_LITTLE ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported byte order: 0x%02" PRIx8 "",
+		 function,
+		 byte_order );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 "",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_value(
+	     record,
+	     record_value_entry,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( value_data != NULL )
+	{
+		if( value_data_size != 8 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value data size: %" PRIzd "",
+			 function,
+			 value_data_size );
+
+			return( -1 );
+		}
+		if( byte_order == _ENDIAN_BIG )
+		{
+			endian_big_convert_64bit(
+			 value_64bit,
+			 value_data );
+		}
+		else
+		{
+			endian_little_convert_64bit(
+			 value_64bit,
+			 value_data );
+		}
+		fprintf(
+		 table_file_stream,
+		 "%" PRIu64 "",
+		 value_64bit );
+	}
+	return( 1 );
+}
+
+/* Exports a filetime value in a binary data table record value
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_record_value_filetime(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t filetime_string[ 22 ];
+
+	libfdatetime_filetime_t *filetime = NULL;
+	uint8_t *value_data               = NULL;
+	static char *function             = "windows_search_export_record_value_filetime";
+	size_t value_data_size            = 0;
+	uint32_t column_type              = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 "",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_value(
+	     record,
+	     record_value_entry,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( value_data != NULL )
+	{
+		if( value_data_size != 8 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported value data size: %" PRIzd "",
+			 function,
+			 value_data_size );
+
+			return( -1 );
+		}
+		if( libfdatetime_filetime_initialize(
+		     &filetime,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create filetime.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfdatetime_filetime_copy_from_byte_stream(
+		     filetime,
+		     value_data,
+		     value_data_size,
+		     byte_order,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 "%s: unable to create filetime.",
+			 function );
+
+			libfdatetime_filetime_free(
+			 &filetime,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libfdatetime_filetime_copy_to_string(
+		     filetime,
+		     filetime_string,
+		     22,
+		     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+		     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_CONVERSION,
+			 LIBERROR_CONVERSION_ERROR_GENERIC,
+			 "%s: unable to create filetime string.",
+			 function );
+
+			libfdatetime_filetime_free(
+			 &filetime,
+			 NULL );
+
+			return( -1 );
+		}
+		if( libfdatetime_filetime_free(
+		     &filetime,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free filetime.",
+			 function );
+
+			return( -1 );
+		}
+		fprintf(
+		 table_file_stream,
+		 "%s",
+		 filetime_string );
+	}
+	return( 1 );
+}
+
+/* Exports an UTF-16 string in a binary data table record value
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_record_value_utf16_string(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t *value_data      = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "windows_search_export_record_value_utf16_string";
+	size_t value_data_size   = 0;
+	size_t value_string_size = 0;
+	uint32_t column_type     = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 "",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_value(
+	     record,
+	     record_value_entry,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d.",
+		 function,
+		 record_value_entry + 1 );
+
+		return( -1 );
+	}
+	if( value_data != NULL )
+	{
+		if( libuna_utf8_string_size_from_utf16_stream(
+		     value_data,
+		     value_data_size,
+		     byte_order,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine size of value string: %d.",
+			 function,
+			 record_value_entry + 1 );
+
+			return( -1 );
+		}
+		value_string = (uint8_t *) memory_allocate(
+		                            sizeof( uint8_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value string.",
+			 function );
+
+			return( -1 );
+		}
+		if( libuna_utf8_string_copy_from_utf16_stream(
+		     value_string,
+		     value_string_size,
+		     value_data,
+		     value_data_size,
+		     byte_order,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value string: %d.",
+			 function,
+			 record_value_entry + 1 );
+
+			memory_free(
+			 value_string );
+
+			return( -1 );
+		}
+		fprintf(
+		 table_file_stream,
+		 "%s",
+		 value_string );
+
+		memory_free(
+		 value_string );
+	}
+	return( 1 );
+}
+
+/* Exports the values in a SystemIndex_0A table record
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_record_systemindex_0a(
+     libesedb_record_t *record,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t column_name[ 256 ];
+
+	static char *function   = "windows_search_export_record_systemindex_0a";
+	size_t column_name_size = 0;
+	uint32_t column_type    = 0;
+	int amount_of_values    = 0;
+	int known_column_type   = 0;
+	int result              = 0;
+	int value_iterator      = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_amount_of_values(
+	     record,
+	     &amount_of_values,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of values.",
+		 function );
+
+		return( -1 );
+	}
+	for( value_iterator = 0;
+	     value_iterator < amount_of_values;
+	     value_iterator++ )
+	{
+		if( libesedb_record_get_utf8_column_name_size(
+		     record,
+		     value_iterator,
+		     &column_name_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column name size of value: %d.",
+			 function,
+			 value_iterator + 1 );
+
+			return( -1 );
+		}
+		/* It is assumed that the column name cannot be larger than 255 characters
+		 * otherwise using dynamic allocation is more appropriate
+		 */
+		if( column_name_size > 256 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: column name size value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_record_get_utf8_column_name(
+		     record,
+		     value_iterator,
+		     column_name,
+		     column_name_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column name of value: %d.",
+			 function,
+			 value_iterator + 1 );
+
+			return( -1 );
+		}
+		if( libesedb_record_get_column_type(
+		     record,
+		     value_iterator,
+		     &column_type,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column type of value: %d.",
+			 function,
+			 value_iterator + 1 );
+
+			return( -1 );
+		}
+		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
+
+		if( column_name_size == 7 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "__SDID",
+			     6 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN;
+			}
+		}
+		else if( column_name_size == 12 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "System_Size",
+			     11 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN;
+			}
+		}
+		else if( column_name_size == 16 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "System_ItemDate",
+			     15 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+			}
+		}
+		else if( column_name_size == 19 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "System_DateCreated",
+			     18 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+			}
+		}
+		else if( column_name_size == 20 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "System_DateModified",
+			     19 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+			}
+			else if( narrow_string_compare(
+			          (char *) column_name,
+			          "System_DateAccessed",
+			          19 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+			}
+		}
+		else if( column_name_size == 25 )
+		{
+			if( narrow_string_compare(
+			     (char *) column_name,
+			     "System_Search_GatherTime",
+			     24 ) == 0 )
+			{
+				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+			}
+		}
+		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN )
+		{
+			result = windows_search_export_record_value_32bit(
+			          record,
+			          value_iterator,
+			          _ENDIAN_BIG,
+			          table_file_stream,
+			          error );
+		}
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN )
+		{
+			result = windows_search_export_record_value_64bit(
+			          record,
+			          value_iterator,
+			          _ENDIAN_BIG,
+			          table_file_stream,
+			          error );
+		}
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN )
+		{
+			result = windows_search_export_record_value_filetime(
+			          record,
+			          value_iterator,
+			          LIBFDATETIME_ENDIAN_BIG,
+			          table_file_stream,
+			          error );
+		}
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
+		{
+			result = export_handle_export_record_value(
+			          record,
+			          value_iterator,
+			          table_file_stream,
+			          error );
+		}
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export record value: %d.",
+			 function,
+			 value_iterator + 1 );
+
+			return( -1 );
+		}
+		if( value_iterator == ( amount_of_values - 1 ) )
+		{
+			fprintf(
+			 table_file_stream,
+			 "\n" );
+		}
+		else
+		{
+			fprintf(
+			 table_file_stream,
+			 "\t" );
+		}
+	}
+	return( 1 );
+}
 
 /* Exports the values in a SystemIndex_Gthr table record
  * Returns 1 if successful or -1 on error
@@ -58,22 +951,13 @@ int windows_search_export_record_systemindex_gthr(
 {
 	uint8_t column_name[ 256 ];
 
-	uint8_t *value_data         = NULL;
-	uint8_t *value_string       = NULL;
-	static char *function       = "windows_search_export_record_systemindex_gthr";
-	size_t column_name_size     = 0;
-	size_t value_data_size      = 0;
-	size_t value_string_size    = 0;
-	double value_floating_point = 0.0;
-	uint64_t value_64bit        = 0;
-	uint32_t column_type        = 0;
-	uint32_t value_32bit        = 0;
-	uint16_t value_16bit        = 0;
-	uint8_t value_8bit          = 0;
-	int amount_of_values        = 0;
-	int known_column_type       = 0;
-	int result                  = 0;
-	int value_iterator          = 0;
+	static char *function   = "windows_search_export_record_systemindex_gthr";
+	size_t column_name_size = 0;
+	uint32_t column_type    = 0;
+	int amount_of_values    = 0;
+	int known_column_type   = 0;
+	int result              = 0;
+	int value_iterator      = 0;
 
 	if( record == NULL )
 	{
@@ -184,83 +1068,47 @@ int windows_search_export_record_systemindex_gthr(
 		{
 			if( narrow_string_compare(
 			     (char *) column_name,
-			     "Filename1",
+			     "FileName1",
 			     9 ) == 0 )
 			{
 				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
 			}
 			else if( narrow_string_compare(
 			         (char *) column_name,
-			         "Filename2",
+			         "FileName2",
 			         9 ) == 0 )
 			{
 				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
 			}
 		}
-		else if( column_name_size == 11 )
+		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
 		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "LastAccess",
-			     10 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
-			}
-		}
-		else if( column_name_size == 12 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "FirstAccess",
-			     11 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
-			}
-		}
-		else if( column_name_size == 13 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "LastModified",
-			     12 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
-			}
-		}
-		else if( column_name_size == 15 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "TimeMD5Changed",
-			     14 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
-			}
-		}
-		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN )
-		{
-		}
-		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
-		{
+			result = windows_search_export_record_value_utf16_string(
+			          record,
+			          value_iterator,
+			          LIBUNA_ENDIAN_LITTLE,
+			          table_file_stream,
+			          error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
-			if( export_handle_export_record_value(
-			     record,
-			     value_iterator,
-			     table_file_stream,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GENERIC,
-				 "%s: unable to export record value: %d.",
-				 function,
-				 value_iterator + 1 );
+			result = export_handle_export_record_value(
+			          record,
+			          value_iterator,
+			          table_file_stream,
+			          error );
+		}
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export record value: %d.",
+			 function,
+			 value_iterator + 1 );
 
-				return( -1 );
-			}
+			return( -1 );
 		}
 		if( value_iterator == ( amount_of_values - 1 ) )
 		{
@@ -274,458 +1122,6 @@ int windows_search_export_record_systemindex_gthr(
 			 table_file_stream,
 			 "\t" );
 		}
-	}
-	return( 1 );
-}
-
-/* Exports a filetime in a binary data table record value
- * Returns 1 if successful or -1 on error
- */
-int windows_search_export_record_value_filetime(
-     libesedb_record_t *record,
-     int record_value_entry,
-     uint8_t byte_order,
-     FILE *table_file_stream,
-     liberror_error_t **error )
-{
-	uint8_t *value_data         = NULL;
-	static char *function       = "windows_search_export_record_value_filetime";
-	size_t value_data_size      = 0;
-	size_t value_string_size    = 0;
-	double value_floating_point = 0.0;
-	uint64_t value_64bit        = 0;
-	uint32_t column_type        = 0;
-	uint32_t value_32bit        = 0;
-	uint16_t value_16bit        = 0;
-	uint8_t value_8bit          = 0;
-	int result                  = 0;
-
-	if( record == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record.",
-		 function );
-
-		return( -1 );
-	}
-	if( table_file_stream == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
-		 function );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
-/* Exports an UTF-16 string in a binary data table record value
- * Returns 1 if successful or -1 on error
- */
-int windows_search_export_record_value_utf16_string(
-     libesedb_record_t *record,
-     int record_value_entry,
-     uint8_t byte_order,
-     FILE *table_file_stream,
-     liberror_error_t **error )
-{
-	uint8_t *value_data         = NULL;
-	uint8_t *value_string       = NULL;
-	static char *function       = "windows_search_export_record_value_utf16_string";
-	size_t value_data_size      = 0;
-	size_t value_string_size    = 0;
-	double value_floating_point = 0.0;
-	uint64_t value_64bit        = 0;
-	uint32_t column_type        = 0;
-	uint32_t value_32bit        = 0;
-	uint16_t value_16bit        = 0;
-	uint8_t value_8bit          = 0;
-	int result                  = 0;
-
-	if( record == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record.",
-		 function );
-
-		return( -1 );
-	}
-	if( table_file_stream == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_record_get_column_type(
-	     record,
-	     record_value_entry,
-	     &column_type,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve column type of value: %d.",
-		 function,
-		 record_value_entry + 1 );
-
-		return( -1 );
-	}
-	switch( column_type )
-	{
-		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
-			result = libesedb_record_get_value_boolean(
-				  record,
-				  record_value_entry,
-				  &value_8bit,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve boolean value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				if( value_8bit == 0 )
-				{
-					fprintf(
-					 table_file_stream,
-					 "false" );
-				}
-				else
-				{
-					fprintf(
-					 table_file_stream,
-					 "true" );
-				}
-			}
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
-			result = libesedb_record_get_value_8bit(
-				  record,
-				  record_value_entry,
-				  &value_8bit,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve 8-bit value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				fprintf(
-				 table_file_stream,
-				 "%" PRIu8 "",
-				 value_8bit );
-			}
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
-		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
-			result = libesedb_record_get_value_16bit(
-				  record,
-				  record_value_entry,
-				  &value_16bit,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve 16-bit value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
-				{
-					fprintf(
-					 table_file_stream,
-					 "%" PRIi16 "",
-					 (int16_t) value_16bit );
-				}
-				else
-				{
-					fprintf(
-					 table_file_stream,
-					 "%" PRIu16 "",
-					 value_16bit );
-				}
-			}
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
-		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
-			result = libesedb_record_get_value_32bit(
-				  record,
-				  record_value_entry,
-				  &value_32bit,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve 32-bit value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
-				{
-					fprintf(
-					 table_file_stream,
-					 "%" PRIi32 "",
-					 (int32_t) value_32bit );
-				}
-				else
-				{
-					fprintf(
-					 table_file_stream,
-					 "%" PRIu32 "",
-					 value_32bit );
-				}
-			}
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
-			result = libesedb_record_get_value_64bit(
-				  record,
-				  record_value_entry,
-				  &value_64bit,
-				  error );
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve 64-bit value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			else if( result != 0 )
-			{
-				fprintf(
-				 table_file_stream,
-				 "%" PRIi64 "",
-				 (int64_t) value_64bit );
-			}
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
-		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
-			if( libesedb_record_get_value_floating_point(
-			     record,
-			     record_value_entry,
-			     &value_floating_point,
-			     error ) != 1 )
-
-			if( result == -1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve floating point value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			fprintf(
-			 table_file_stream,
-			 "%f",
-			 value_floating_point );
-
-			break;
-
-		case LIBESEDB_COLUMN_TYPE_TEXT:
-		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
-			result = libesedb_record_get_value_utf8_string_size(
-				  record,
-				  record_value_entry,
-				  &value_string_size,
-				  error );
-
-			if( result == -1 )
-			{
-#ifdef TODO
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve size of value string: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-#else
-				/* TODO some string values seem to contain binary data
-				 * is this an unknown feature of the EDB format or
-				 * is ESE not strict about the data in text column types?
-				 */
-				liberror_error_free(
-				 error );
-
-				if( libesedb_record_get_value(
-				     record,
-				     record_value_entry,
-				     &value_data,
-				     &value_data_size,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value: %d.",
-					 function,
-					 record_value_entry + 1 );
-
-					return( -1 );
-				}
-				if( value_data != NULL )
-				{
-					while( value_data_size > 0 )
-					{
-						fprintf(
-						 table_file_stream,
-						 "%02" PRIx8 "",
-						 *value_data );
-
-						value_data      += 1;
-						value_data_size -= 1;
-					}
-				}
-#endif
-			}
-			else if( result != 0 )
-			{
-				value_string = (uint8_t *) memory_allocate(
-							    sizeof( uint8_t ) * value_string_size );
-
-				if( value_string == NULL )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_MEMORY,
-					 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-					 "%s: unable to create column name string.",
-					 function );
-
-					libsystem_file_stream_close(
-					 table_file_stream );
-
-					return( -1 );
-				}
-				if( libesedb_record_get_value_utf8_string(
-				     record,
-				     record_value_entry,
-				     value_string,
-				     value_string_size,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value string: %d.",
-					 function,
-					 record_value_entry + 1 );
-
-					memory_free(
-					 value_string );
-
-					return( -1 );
-				}
-				fprintf(
-				 table_file_stream,
-				 "%s",
-				 value_string );
-
-				memory_free(
-				 value_string );
-			}
-			break;
-
-		default:
-			if( libesedb_record_get_value(
-			     record,
-			     record_value_entry,
-			     &value_data,
-			     &value_data_size,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve value: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				return( -1 );
-			}
-			if( value_data != NULL )
-			{
-				while( value_data_size > 0 )
-				{
-					fprintf(
-					 table_file_stream,
-					 "%02" PRIx8 "",
-					 *value_data );
-
-					value_data      += 1;
-					value_data_size -= 1;
-				}
-			}
-			break;
 	}
 	return( 1 );
 }

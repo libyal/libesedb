@@ -47,7 +47,6 @@
 
 #include <libsystem.h>
 
-#include "filetime.h"
 #include "esedboutput.h"
 
 /* Prints the executable usage information

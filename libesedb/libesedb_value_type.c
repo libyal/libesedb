@@ -74,7 +74,7 @@ int libesedb_value_type_string_contains_zero_bytes(
 		{
 			if( buffer[ buffer_iterator ] == 0 )
 			{
-				zero_byte_found = 0;
+				zero_byte_found = 1;
 			}
 		}
 		else
@@ -293,6 +293,61 @@ int libesedb_value_type_copy_to_64bit(
 	}
 	endian_little_convert_64bit(
 	 *value_64bit,
+	 value_data );
+
+	return( 1 );
+}
+
+/* Converts the value data into a 64-bit filetime value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_value_type_copy_to_filetime(
+     uint8_t *value_data,
+     size_t value_data_size,
+     uint64_t *value_filetime,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_value_type_copy_to_filetime";
+
+	if( value_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_filetime == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value filetime.",
+		 function );
+
+		return( -1 );
+	}
+	/* The value data size of a 64-bit filetime value is 8
+	 */
+	if( value_data_size != 8 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: invalid value data size.",
+		 function );
+
+		return( -1 );
+	}
+	/* The filetime is stored in big-endian
+	 */
+	endian_big_convert_64bit(
+	 *value_filetime,
 	 value_data );
 
 	return( 1 );

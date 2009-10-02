@@ -137,6 +137,12 @@ LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
                      uint64_t *value,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_record_get_value_filetime(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint64_t *value,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
                      libesedb_record_t *record,
                      int value_entry,
@@ -167,6 +173,19 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string(
                      int value_entry,
                      uint16_t *utf16_string,
                      size_t utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_binary_data_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *binary_data_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_binary_data(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint8_t *binary_data,
+                     size_t binary_data_size,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

@@ -1,4 +1,4 @@
-.Dd October 1, 2009
+.Dd October 2, 2009
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -145,6 +145,8 @@ Record functions
 .Ft int
 .Fn libesedb_record_get_value_64bit "libesedb_record_t *record, int value_entry, uint64_t *value, libesedb_error_t **error"
 .Ft int
+.Fn libesedb_record_get_value_filetime "libesedb_record_t *record, int value_entry, uint64_t *value, libesedb_error_t **error"
+.Ft int
 .Fn libesedb_record_get_value_floating_point "libesedb_record_t *record, int value_entry, double *value, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_value_utf8_string_size "libesedb_record_t *record, int value_entry, size_t *utf8_string_size, libesedb_error_t **error"
@@ -154,6 +156,10 @@ Record functions
 .Fn libesedb_record_get_value_utf16_string_size "libesedb_record_t *record, int value_entry, size_t *utf16_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_value_utf16_string "libesedb_record_t *record, int value_entry, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_value_binary_data_size "libesedb_record_t *record, int value_entry, size_t *binary_data_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_value_binary_data "libesedb_record_t *record, int value_entry, uint8_t *binary_data, size_t binary_data_size, libesedb_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libesedb_get_version
