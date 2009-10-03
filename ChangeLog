@@ -51,6 +51,11 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091003
+* updated libbfio
+* corrected license in several of the esedbtool handles
+* updated acinclude
+
 20091002
 * worked on exporting Windows Search database
 * worked on record API

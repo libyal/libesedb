@@ -176,12 +176,12 @@ AC_DEFUN([LIBESEDB_CHECK_FUNC_CTIME],
 				  [1]) ]) ])
 			])
 		])
-	AC_LANG_POP(C) ]) ],
+	AC_LANG_POP(C) ],
 	[AC_CHECK_FUNCS(
 	 [ctime],
 	 [],
 	 [AC_MSG_FAILURE(
 	  [Missing function: ctime_r and ctime],
-	  [1]) ])
+	  [1]) ]) ])
 ])
 
