@@ -143,7 +143,6 @@ int libesedb_catalog_definition_read(
 	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;
 	uint16_t previous_variable_size_data_type_size      = 0;
-	uint16_t record_offset                              = 0;
 	uint16_t variable_size_data_type_size               = 0;
 	uint16_t variable_size_data_types_offset            = 0;
 	uint8_t amount_of_variable_size_data_types          = 0;

@@ -51,6 +51,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091004
+* added missing libesedb_types.h to dist
+
 20091003
 * updated libbfio
 * corrected license in several of the esedbtool handles
