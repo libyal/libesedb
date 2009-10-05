@@ -152,6 +152,7 @@ int libesedb_catalog_definition_read(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t value_32bit                                = 0;
+	uint16_t record_offset                              = 0;
 	uint16_t value_16bit                                = 0;
 #endif
 
