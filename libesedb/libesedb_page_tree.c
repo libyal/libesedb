@@ -486,8 +486,7 @@ int libesedb_page_tree_read_father_data_page_values(
 
 		return( -1 );
 	}
-	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
-	               | LIBESEDB_PAGE_FLAG_IS_PARENT;
+	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT;
 
 	if( ( page->flags & required_flags ) != required_flags )
 	{
@@ -502,6 +501,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		return( -1 );
 	}
 	supported_flags = required_flags
+	                | LIBESEDB_PAGE_FLAG_IS_PARENT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
 	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
@@ -618,9 +618,25 @@ int libesedb_page_tree_read_father_data_page_values(
 
 	/* Read the space tree pages
 	 */
-	if( ( space_tree_page_number > 0 )
-	 && ( space_tree_page_number < 0xff000000UL ) )
+	if( extent_space > 0 )
 	{
+		if( ( space_tree_page_number == 0 )
+		 && ( space_tree_page_number >= 0xff000000UL ) )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported space tree page number.",
+			 function,
+			 space_tree_page_number );
+
+			libesedb_page_free(
+			 &space_tree_page,
+			 NULL );
+
+			return( -1 );
+		}
 		/* Read the owned pages space tree page
 		 */
 		if( libesedb_page_initialize(
@@ -996,6 +1012,7 @@ int libesedb_page_tree_read_child_pages(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint16_t page_key_size                   = 0;
+	uint16_t page_key_type                   = 0;
 #endif
 
 	if( page_tree == NULL )
@@ -1073,11 +1090,33 @@ int libesedb_page_tree_read_child_pages(
 		page_value_size = page_value->size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( ( page_value->flags & 0x7 ) != 0 )
+		if( ( page_value->flags & 0x04 ) == 0x04 )
+		{
+			endian_little_convert_16bit(
+			 page_key_type,
+			 page_value_data );
+
+			page_value_data += 2;
+			page_value_size -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			libnotify_verbose_printf(
+			 "%s: value: %03d key type\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+			 function,
+			 page_value_iterator,
+			 page_key_type,
+			 page_key_type );
+#endif
+		}
+		else if( ( page_value->flags & 0x7 ) != 0 )
 		{
 			libnotify_verbose_printf(
-			 "MARKER: unsupported page flags: 0x%02" PRIx8 "\n",
+			 "MARKER: unsupported page value flags: 0x%02" PRIx8 "\n",
 			 page_value->flags );
+
+			libnotify_verbose_print_data(
+			 page_value_data,
+			 page_value_size );
 		}
 		endian_little_convert_16bit(
 		 page_key_size,
@@ -1179,102 +1218,68 @@ int libesedb_page_tree_read_child_pages(
 
 			return( -1 );
 		}
+		if( page->father_data_page_object_identifier != child_page->father_data_page_object_identifier )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
+			 function,
+			 page->father_data_page_object_identifier,
+			 child_page->father_data_page_object_identifier );
+
+			libesedb_page_free(
+			 &child_page,
+			 NULL );
+
+			return( -1 );
+		}
 		if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 		{
-			if( page->father_data_page_object_identifier != child_page->father_data_page_object_identifier )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
-				 function,
-				 page->father_data_page_object_identifier,
-				 child_page->father_data_page_object_identifier );
-
-				libesedb_page_free(
-				 &child_page,
-				 NULL );
-
-				return( -1 );
-			}
 			if( page_value_iterator > 1 )
 			{
 				if( child_page->page_number != previous_next_child_page_number )
 				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-					 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").",
+					libnotify_verbose_printf(
+					 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").\n",
 					 function,
 					 previous_next_child_page_number,
 					 child_page->page_number );
-
-					libesedb_page_free(
-					 &child_page,
-					 NULL );
-
-					return( -1 );
 				}
 				if( child_page->previous_page_number != previous_child_page_number )
 				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
+					libnotify_verbose_printf(
+					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").\n",
 					 function,
 					 previous_child_page_number,
 					 child_page->previous_page_number );
-
-					libesedb_page_free(
-					 &child_page,
-					 NULL );
-
-					return( -1 );
 				}
 			}
+/* TODO need the actual values for the following checks
 			if( page_value_iterator == 1 )
 			{
 				if( child_page->previous_page_number != 0 )
 				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+					libnotify_verbose_printf(
 					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 0,
 					 child_page->previous_page_number );
-
-					libesedb_page_free(
-					 &child_page,
-					 NULL );
-
-					return( -1 );
 				}
 			}
 			if( page_value_iterator == ( amount_of_page_values - 1 ) )
 			{
 				if( child_page->next_page_number != 0 )
 				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+					libnotify_verbose_printf(
 					 "%s: mismatch in next child page number (%" PRIu32 " != %" PRIu32 ").",
 					 function,
 					 0,
 					 child_page->previous_page_number );
-
-					libesedb_page_free(
-					 &child_page,
-					 NULL );
-
-					return( -1 );
 				}
 			}
+*/
 			previous_child_page_number      = child_page->page_number;
 			previous_next_child_page_number = child_page->next_page_number;
 
@@ -1351,6 +1356,7 @@ int libesedb_page_tree_read_space_tree_page_values(
      libesedb_page_t *page,
      liberror_error_t **error )
 {
+	libesedb_page_t *space_tree_page  = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	static char *function             = "libesedb_page_tree_read_space_tree_page_values";
 	uint32_t required_flags           = 0;
@@ -1376,7 +1382,6 @@ int libesedb_page_tree_read_space_tree_page_values(
 		return( -1 );
 	}
 	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
-	               | LIBESEDB_PAGE_FLAG_IS_LEAF
 	               | LIBESEDB_PAGE_FLAG_IS_SPACE_TREE;
 
 	if( ( page->flags & required_flags ) != required_flags )
@@ -1392,6 +1397,8 @@ int libesedb_page_tree_read_space_tree_page_values(
 		return( -1 );
 	}
 	supported_flags = required_flags
+	                | LIBESEDB_PAGE_FLAG_IS_LEAF
+	                | LIBESEDB_PAGE_FLAG_IS_PARENT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
 	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
@@ -1483,31 +1490,34 @@ int libesedb_page_tree_read_space_tree_page_values(
 	 page_value->size );
 #endif
 
-	if( ( page_value->data[  0 ] != 0 )
-	 || ( page_value->data[  1 ] != 0 )
-	 || ( page_value->data[  2 ] != 0 )
-	 || ( page_value->data[  3 ] != 0 )
-	 || ( page_value->data[  4 ] != 0 )
-	 || ( page_value->data[  5 ] != 0 )
-	 || ( page_value->data[  6 ] != 0 )
-	 || ( page_value->data[  7 ] != 0 )
-	 || ( page_value->data[  8 ] != 0 )
-	 || ( page_value->data[  9 ] != 0 )
-	 || ( page_value->data[ 10 ] != 0 )
-	 || ( page_value->data[ 11 ] != 0 )
-	 || ( page_value->data[ 12 ] != 0 )
-	 || ( page_value->data[ 13 ] != 0 )
-	 || ( page_value->data[ 14 ] != 0 )
-	 || ( page_value->data[ 15 ] != 0 ) )
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported header.",
-		 function );
+		if( ( page_value->data[  0 ] != 0 )
+		 || ( page_value->data[  1 ] != 0 )
+		 || ( page_value->data[  2 ] != 0 )
+		 || ( page_value->data[  3 ] != 0 )
+		 || ( page_value->data[  4 ] != 0 )
+		 || ( page_value->data[  5 ] != 0 )
+		 || ( page_value->data[  6 ] != 0 )
+		 || ( page_value->data[  7 ] != 0 )
+		 || ( page_value->data[  8 ] != 0 )
+		 || ( page_value->data[  9 ] != 0 )
+		 || ( page_value->data[ 10 ] != 0 )
+		 || ( page_value->data[ 11 ] != 0 )
+		 || ( page_value->data[ 12 ] != 0 )
+		 || ( page_value->data[ 13 ] != 0 )
+		 || ( page_value->data[ 14 ] != 0 )
+		 || ( page_value->data[ 15 ] != 0 ) )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported header.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
 	/* TODO handle the space tree page header */
 
@@ -1531,82 +1541,177 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 			return( -1 );
 		}
-		if( ( page_value->flags & 0x05 ) != 0 )
+		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported page value flags: 0x%02" PRIx8 ".",
-			 function,
-			 page_value->flags );
+			if( ( page_value->flags & 0x05 ) != 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page value flags: 0x%02" PRIx8 ".",
+				 function,
+				 page_value->flags );
 
-			return( -1 );
-		}
-		if( page_value->size != sizeof( esedb_space_tree_page_entry_t ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported page value size: %" PRIzd ".",
-			 function,
-			 page_value->size );
+				return( -1 );
+			}
+			if( page_value->size != sizeof( esedb_space_tree_page_entry_t ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page value size: %" PRIzd ".",
+				 function,
+				 page_value->size );
 
-			return( -1 );
-		}
-		endian_little_convert_16bit(
-		 page_key_size,
-		 ( (esedb_space_tree_page_entry_t *) page_value->data )->key_size );
+				return( -1 );
+			}
+			endian_little_convert_16bit(
+			 page_key_size,
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->key_size );
 
-		if( page_key_size != 4 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported page key size: %" PRIu16 ".",
-			 function,
-			 page_key_size);
+			if( page_key_size != 4 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page key size: %" PRIu16 ".",
+				 function,
+				 page_key_size);
 
-			return( -1 );
-		}
-		/* TODO handle the space tree page values */
+				return( -1 );
+			}
+			/* TODO handle the space tree page values */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d key size\t\t: %" PRIu16 "\n",
-		 function,
-		 page_value_iterator,
-		 page_key_size );
+			libnotify_verbose_printf(
+			 "%s: value: %03d key size\t\t: %" PRIu16 "\n",
+			 function,
+			 page_value_iterator,
+			 page_key_size );
 
-		endian_little_convert_32bit(
-		 test,
-		 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number );
-		libnotify_verbose_printf(
-		 "%s: value: %03d key value\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-		 function,
-		 page_value_iterator,
-		 test,
-		 test );
+			endian_little_convert_32bit(
+			 test,
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number );
+			libnotify_verbose_printf(
+			 "%s: value: %03d key value\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
+			 function,
+			 page_value_iterator,
+			 test,
+			 test );
 
-		endian_little_convert_32bit(
-		 test,
-		 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages );
-		libnotify_verbose_printf(
-		 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
-		 function,
-		 page_value_iterator,
-		 test );
+			endian_little_convert_32bit(
+			 test,
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages );
+			libnotify_verbose_printf(
+			 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
+			 function,
+			 page_value_iterator,
+			 test );
 
-		libnotify_verbose_printf(
-		 "\n" );
+			libnotify_verbose_printf(
+			 "\n" );
 
-		if( ( page_value->flags & 0x02 ) == 0 )
-		{
-			total_amount_of_pages += test;
-		}
+			if( ( page_value->flags & 0x02 ) == 0 )
+			{
+				total_amount_of_pages += test;
+			}
 #endif
+		}
+		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
+		{
+			libnotify_verbose_printf(
+			 "%s: data:\n",
+			 function );
+			libnotify_verbose_print_data(
+			 page_value->data,
+			 page_value->size );
+#ifdef X
+			if( libesedb_page_initialize(
+			     &space_tree_page,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create space tree page.",
+				 function );
+
+				return( -1 );
+			}
+			if( libesedb_page_read(
+			     space_tree_page,
+			     io_handle,
+			     space_tree_page_number,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read space tree page: %" PRIu32 ".",
+				 function,
+				 space_tree_page_number );
+
+				libesedb_page_free(
+				 &space_tree_page,
+				 NULL );
+
+				return( -1 );
+			}
+			if( page->father_data_page_object_identifier != space_tree_page->father_data_page_object_identifier )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
+				 function,
+				 page->father_data_page_object_identifier,
+				 space_tree_page->father_data_page_object_identifier );
+
+				libesedb_page_free(
+				 &space_tree_page,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_page_tree_read_space_tree_page_values(
+			     page_tree,
+			     space_tree_page,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read space tree page values.",
+				 function );
+
+				libesedb_page_free(
+				 &space_tree_page,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_page_free(
+			     &space_tree_page,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free space tree page.",
+				 function );
+
+				return( -1 );
+			}
+#endif
+		}
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1642,8 +1747,8 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint16_t amount_of_page_values                    = 0;
 	uint16_t page_value_iterator                      = 0;
 	uint16_t page_key_size                            = 0;
+	uint16_t page_key_type                            = 0;
 	uint16_t page_value_size                          = 0;
-	uint16_t record_number                            = 0;
 	int result                                        = 0;
 
 	if( page_tree == NULL )
@@ -1823,7 +1928,7 @@ int libesedb_page_tree_read_leaf_page_values(
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
 			endian_little_convert_16bit(
-			 record_number,
+			 page_key_type,
 			 page_value_data );
 
 			page_value_data += 2;
@@ -1834,13 +1939,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
 			 function,
 			 page_value_iterator,
-			 record_number,
-			 record_number );
+			 page_key_type,
+			 page_key_type );
 #endif
-		}
-		else
-		{
-			record_number = 0;
 		}
 		endian_little_convert_16bit(
 		 page_key_size,

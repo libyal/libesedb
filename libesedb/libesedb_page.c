@@ -496,79 +496,82 @@ int libesedb_page_read(
 	 "\n" );
 #endif
 
-	/* Create the page tags array
-	 */
-	if( libesedb_array_initialize(
-	     &page_tags_array,
-	     0,
-	     error ) != 1 )
+	if( available_page_tag > 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create page tags array.",
-		 function );
+		/* Create the page tags array
+		 */
+		if( libesedb_array_initialize(
+		     &page_tags_array,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create page tags array.",
+			 function );
 
-		return( -1 );
-	}
-	if( libesedb_page_read_tags(
-	     page_tags_array,
-	     available_page_tag,
-	     page->data,
-	     page->data_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tags.",
-		 function );
+			return( -1 );
+		}
+		if( libesedb_page_read_tags(
+		     page_tags_array,
+		     available_page_tag,
+		     page->data,
+		     page->data_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read page tags.",
+			 function );
 
-		libesedb_array_free(
-		 &page_tags_array,
-		 &libesedb_page_tags_value_free,
-		 NULL );
+			libesedb_array_free(
+			 &page_tags_array,
+			 &libesedb_page_tags_value_free,
+			 NULL );
 
-		return( -1 );
-	}
-	/* The offsets in the page tags are relative after the page header
-	 */
-	if( libesedb_page_read_values(
-	     page->values_array,
-	     page_tags_array,
-	     &( page->data[ sizeof( esedb_page_header_t ) ] ),
-	     page->data_size - sizeof( esedb_page_header_t ),
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tags.",
-		 function );
+			return( -1 );
+		}
+		/* The offsets in the page tags are relative after the page header
+		 */
+		if( libesedb_page_read_values(
+		     page->values_array,
+		     page_tags_array,
+		     &( page->data[ sizeof( esedb_page_header_t ) ] ),
+		     page->data_size - sizeof( esedb_page_header_t ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read page tags.",
+			 function );
 
-		libesedb_array_free(
-		 &page_tags_array,
-		 &libesedb_page_tags_value_free,
-		 NULL );
+			libesedb_array_free(
+			 &page_tags_array,
+			 &libesedb_page_tags_value_free,
+			 NULL );
 
-		return( -1 );
-	}
-	if( libesedb_array_free(
-	     &page_tags_array,
-	     &libesedb_page_tags_value_free,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free the page tags array.",
-		 function );
+			return( -1 );
+		}
+		if( libesedb_array_free(
+		     &page_tags_array,
+		     &libesedb_page_tags_value_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free the page tags array.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
 	return( 1 );
 }

@@ -717,6 +717,7 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+	/* TODO What about page 1 ? present in empty database */
 #if defined( HAVE_VERBOSE_OUTPUT )
 	libnotify_verbose_printf(
 	 "Reading the catalog page tree:\n" );
@@ -736,6 +737,7 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+	/* TODO handle missing catalog e.g. empty database*/
 	if( libesedb_page_tree_read(
 	     internal_file->catalog_page_tree,
 	     internal_file->io_handle,
@@ -752,8 +754,8 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+#ifdef TEST
 #if defined( HAVE_DEBUG_OUTPUT )
-#ifdef PAGETEST
 	uint32_t page_number  = 0;
 	libesedb_page_t *page = NULL;
 	off64_t file_offset   = 0;
@@ -825,6 +827,7 @@ int libesedb_file_open_read(
 
 			return( -1 );
 		}
+		page_number += 1;
 	}
 #endif
 #endif
