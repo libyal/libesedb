@@ -51,6 +51,10 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091007
+* added column get type
+* changed output of esedbinfo to print column type
+
 20091006
 * worked on page tree support
 

@@ -331,7 +331,7 @@ int libesedb_column_detach(
 	return( 1 );
 }
 
-/* Retrieves the column identifier or Father Data Page (FDP) object identifier
+/* Retrieves the column identifier
  * Returns 1 if successful or -1 on error
  */
 int libesedb_column_get_identifier(
@@ -378,6 +378,57 @@ int libesedb_column_get_identifier(
 		return( -1 );
 	}
 	*identifier = internal_column->catalog_definition->identifier;
+
+	return( 1 );
+}
+
+/* Retrieves the column type
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_column_get_type(
+     libesedb_column_t *column,
+     uint32_t *type,
+     liberror_error_t **error )
+{
+	libesedb_internal_column_t *internal_column = NULL;
+	static char *function                       = "libesedb_column_get_type";
+
+	if( column == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column.",
+		 function );
+
+		return( -1 );
+	}
+	internal_column = (libesedb_internal_column_t *) column;
+
+	if( internal_column->catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal column - missing catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( type == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid type.",
+		 function );
+
+		return( -1 );
+	}
+	*type = internal_column->catalog_definition->column_type;
 
 	return( 1 );
 }

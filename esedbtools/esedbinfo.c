@@ -69,6 +69,73 @@ void usage_fprint(
 	fprintf( stream, "\t-V:     print version\n" );
 }
 
+/* Retrieve a description of the column type
+ */
+const char *esedbinfo_get_column_type_description(
+             uint32_t column_type )
+{
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_NULL:
+			return( "NULL" );
+
+		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
+			return( "Boolean" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
+			return( "Integer 8-bit unsigned" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
+			return( "Integer 16-bit signed" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
+			return( "Integer 32-bit signed" );
+
+		case LIBESEDB_COLUMN_TYPE_CURRENCY:
+			return( "Currency (64-bit)" );
+
+		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
+			return( "Floating point single precision (32-bit)" );
+
+		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
+			return( "Floating point double precision (64-bit)" );
+
+		case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+			return( "Date and time" );
+
+		case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
+			return( "Binary data" );
+
+		case LIBESEDB_COLUMN_TYPE_TEXT:
+			return( "Text" );
+
+		case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
+			return( "Large binary data" );
+
+		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+			return( "Large text" );
+
+		case LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE:
+			return( "Super large value" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
+			return( "Integer 32-bit unsigned" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
+			return( "Integer 64-bit signed" );
+
+		case LIBESEDB_COLUMN_TYPE_GUID:
+			return( "GUID" );
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
+			return( "Integer 16-bit unsigned" );
+
+		default:
+			return( "Unknown" );
+
+	}
+}
+
 /* Prints file information
  * Returns 1 if successful or -1 on error
  */
@@ -86,6 +153,7 @@ int esedbinfo_file_info_fprint(
 	uint32_t format_revision   = 0;
 	uint32_t format_version    = 0;
 	uint32_t column_identifier = 0;
+	uint32_t column_type       = 0;
 	uint32_t index_identifier  = 0;
 	uint32_t table_identifier  = 0;
 	uint32_t page_size         = 0;
@@ -343,6 +411,9 @@ int esedbinfo_file_info_fprint(
 		 stream,
 		 "\tAmount of columns:\t%d\n",
 		 amount_of_columns );
+		fprintf(
+		 stream,
+		 "\tColumn\tIdentifier\tName\tType\n" );
 
 		for( column_iterator = 0;
 		     column_iterator < amount_of_columns;
@@ -378,6 +449,27 @@ int esedbinfo_file_info_fprint(
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve the column identifier.",
+				 function );
+
+				libesedb_column_free(
+				 &column,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_column_get_type(
+			     column,
+			     &column_type,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the column type.",
 				 function );
 
 				libesedb_column_free(
@@ -457,10 +549,12 @@ int esedbinfo_file_info_fprint(
 			}
 			fprintf(
 			 stream,
-			 "\tColumn: %d\t\t%s (%" PRIu32 ")\n",
+			 "\t%d\t%" PRIu32 "\t%s\t%s\n",
 			 column_iterator + 1,
+			 column_identifier,
 			 value_string,
-			 column_identifier );
+			 esedbinfo_get_column_type_description(
+			  column_type ) );
 
 			memory_free(
 			 value_string );

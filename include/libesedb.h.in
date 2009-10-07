@@ -369,12 +369,20 @@ LIBESEDB_EXTERN int libesedb_column_free(
                      libesedb_column_t **column,
                      libesedb_error_t **error );
 
-/* Retrieves the column identifier or Father Data Page (FDP) object identifier
+/* Retrieves the column identifier
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_column_get_identifier(
                      libesedb_column_t *column,
                      uint32_t *identifier,
+                     libesedb_error_t **error );
+
+/* Retrieves the column type
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_column_get_type(
+                     libesedb_column_t *column,
+                     uint32_t *type,
                      libesedb_error_t **error );
 
 /* Retrieves the UTF-8 string size of the column name

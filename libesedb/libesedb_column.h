@@ -81,6 +81,11 @@ LIBESEDB_EXTERN int libesedb_column_get_identifier(
                      uint32_t *identifier,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_column_get_type(
+                     libesedb_column_t *column,
+                     uint32_t *type,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_column_get_utf8_name_size(
                      libesedb_column_t *column,
                      size_t *utf8_string_size,
