@@ -377,101 +377,29 @@ int libesedb_data_definition_read(
 
 			return( -1 );
 		}
-		if( column_catalog_definition->identifier <= last_fixed_size_data_type )
+		if( column_catalog_definition->identifier <= 127 )
 		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: (%03" PRIu32 ") fixed size data type size\t\t\t\t: %" PRIu32 "\n",
-			 function,
-			 column_catalog_definition->identifier,
-		 	 column_catalog_definition->size );
-
-			if( libesedb_debug_print_column_value(
-			     column_catalog_definition->column_type,
-			     fixed_size_data_type_value_data,
-			     column_catalog_definition->size,
-			     LIBUNA_CODEPAGE_ASCII,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
-				 "%s: unable to print column value.",
-				 function );
-
-				libesedb_data_type_definition_free(
-				 (intptr_t *) data_type_definition,
-				 NULL );
-
-				return( -1 );
-			}
-#endif
-
-			if( libesedb_data_type_definition_set_data(
-			     data_type_definition,
-			     fixed_size_data_type_value_data,
-			     column_catalog_definition->size,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set data in fixed size data type definition.",
-				 function );
-
-				libesedb_data_type_definition_free(
-				 (intptr_t *) data_type_definition,
-				 NULL );
-
-				return( -1 );
-			}
-			fixed_size_data_type_value_data += column_catalog_definition->size;
-		}
-		else if( ( column_catalog_definition->identifier >= 128 )
-		      && ( column_catalog_definition->identifier <= last_variable_size_data_type ) )
-		{
-			endian_little_convert_16bit(
-			 variable_size_data_type_size,
-			 variable_size_data_type_size_data );
-
-			variable_size_data_type_size_data += 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-			 function,
-			 column_catalog_definition->identifier,
-			 variable_size_data_type_size,
-			 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
-#endif
-
-			/* The MSB signifies that the variable size data type is empty
-			 */
-			if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+			if( column_catalog_definition->identifier <= last_fixed_size_data_type )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
 				libnotify_verbose_printf(
-				 "%s: (%03" PRIu32 ") variable size data type:\n",
+				 "%s: (%03" PRIu32 ") fixed size data type size\t\t\t\t: %" PRIu32 "\n",
 				 function,
-				 column_catalog_definition->identifier );
-				libnotify_verbose_print_data(
-				 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-				 variable_size_data_type_size - previous_variable_size_data_type_size );
-#endif
+				 column_catalog_definition->identifier,
+			 	 column_catalog_definition->size );
 
-				if( libesedb_data_type_definition_set_data(
-				     data_type_definition,
-				     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-				     variable_size_data_type_size,
+				if( libesedb_debug_print_column_value(
+				     column_catalog_definition->column_type,
+				     fixed_size_data_type_value_data,
+				     column_catalog_definition->size,
+				     LIBUNA_CODEPAGE_ASCII,
 				     error ) != 1 )
 				{
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set data in variable size data type definition.",
+					 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
+					 "%s: unable to print column value.",
 					 function );
 
 					libesedb_data_type_definition_free(
@@ -480,17 +408,95 @@ int libesedb_data_definition_read(
 
 					return( -1 );
 				}
-				previous_variable_size_data_type_size = variable_size_data_type_size;
-			}
-#if defined( HAVE_DEBUG_OUTPUT )
-			else
-			{
-				libnotify_verbose_printf(
-				 "%s: (%03" PRIu32 ") variable size data type\t\t\t\t: <NULL>\n",
-				 function,
-				 column_catalog_definition->identifier );
-			}
 #endif
+
+				if( libesedb_data_type_definition_set_data(
+				     data_type_definition,
+				     fixed_size_data_type_value_data,
+				     column_catalog_definition->size,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+					 "%s: unable to set data in fixed size data type definition.",
+					 function );
+
+					libesedb_data_type_definition_free(
+					 (intptr_t *) data_type_definition,
+					 NULL );
+
+					return( -1 );
+				}
+				fixed_size_data_type_value_data += column_catalog_definition->size;
+			}
+		}
+		else if( ( column_catalog_definition->identifier >= 128 )
+		      && ( column_catalog_definition->identifier <= 255 ) )
+		{
+			if( column_catalog_definition->identifier <= last_variable_size_data_type )
+			{
+				endian_little_convert_16bit(
+				 variable_size_data_type_size,
+				 variable_size_data_type_size_data );
+
+				variable_size_data_type_size_data += 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+				libnotify_verbose_printf(
+				 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+				 function,
+				 column_catalog_definition->identifier,
+				 variable_size_data_type_size,
+				 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
+#endif
+
+				/* The MSB signifies that the variable size data type is empty
+				 */
+				if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+				{
+#if defined( HAVE_DEBUG_OUTPUT )
+					libnotify_verbose_printf(
+					 "%s: (%03" PRIu32 ") variable size data type:\n",
+					 function,
+					 column_catalog_definition->identifier );
+					libnotify_verbose_print_data(
+					 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+					 variable_size_data_type_size - previous_variable_size_data_type_size );
+#endif
+
+					if( libesedb_data_type_definition_set_data(
+					     data_type_definition,
+					     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+					     variable_size_data_type_size,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+						 "%s: unable to set data in variable size data type definition.",
+						 function );
+
+						libesedb_data_type_definition_free(
+						 (intptr_t *) data_type_definition,
+						 NULL );
+
+						return( -1 );
+					}
+					previous_variable_size_data_type_size = variable_size_data_type_size;
+				}
+#if defined( HAVE_DEBUG_OUTPUT )
+				else
+				{
+					libnotify_verbose_printf(
+					 "%s: (%03" PRIu32 ") variable size data type\t\t\t\t: <NULL>\n",
+					 function,
+					 column_catalog_definition->identifier );
+				}
+#endif
+			}
 		}
 		else
 		{
@@ -514,9 +520,34 @@ int libesedb_data_definition_read(
 
 					tagged_data_type_offset_data += 2;
 
+					if( tagged_data_type_offset == 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+						 "%s: invalid tagged data type offset value out of range.",
+						 function );
+
+						return( -1 );
+					}
 					tagged_data_type_offset_data_size = ( tagged_data_type_offset & 0x3fff ) - 4;
 
 					remaining_definition_data_size -= 4;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+					libnotify_verbose_printf(
+					 "%s: tagged data type offset data size\t\t\t: %" PRIu16 "\n",
+					 function,
+					 tagged_data_type_offset_data_size );
+					libnotify_verbose_printf(
+					 "%s: tagged data type offset data:\n",
+					 function );
+					libnotify_verbose_print_data(
+					 tagged_data_type_value_data,
+					 tagged_data_type_offset_data_size + 4 );
+#endif
+
 				}
 			}
 			if( ( remaining_definition_data_size > 0 )
@@ -554,7 +585,13 @@ int libesedb_data_definition_read(
 
 					tagged_data_type_offset_data_size -= 4;
 					remaining_definition_data_size    -= 4;
+				}
 
+				/* TODO handle zero size tagged data type values
+				 */
+
+				if( tagged_data_type_offset_data_size > 0 )
+				{
 					tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
 				}
 				else
@@ -571,6 +608,19 @@ int libesedb_data_definition_read(
 
 				if( tagged_data_type_size > 0 )
 				{
+					if( tagged_data_type_size > remaining_definition_data_size )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+						 "%s: invalid tagged data type size value exceeds remaining data size.",
+						 function );
+
+						return( -1 );
+					}
+					/* TODO 0x8000 flag?
+					 */
 					remaining_definition_data_size -= tagged_data_type_size;
 
 					/* TODO ignoring the tag byte for now

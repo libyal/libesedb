@@ -51,6 +51,11 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091008
+* added support for empty space tree header
+* added support for default value of tagged data type definition
+* improved column identifier check in data type definition
+
 20091007
 * added column get type
 * changed output of esedbinfo to print column type

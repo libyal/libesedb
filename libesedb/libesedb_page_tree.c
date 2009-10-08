@@ -1492,28 +1492,42 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 	{
-		if( ( page_value->data[  0 ] != 0 )
-		 || ( page_value->data[  1 ] != 0 )
-		 || ( page_value->data[  2 ] != 0 )
-		 || ( page_value->data[  3 ] != 0 )
-		 || ( page_value->data[  4 ] != 0 )
-		 || ( page_value->data[  5 ] != 0 )
-		 || ( page_value->data[  6 ] != 0 )
-		 || ( page_value->data[  7 ] != 0 )
-		 || ( page_value->data[  8 ] != 0 )
-		 || ( page_value->data[  9 ] != 0 )
-		 || ( page_value->data[ 10 ] != 0 )
-		 || ( page_value->data[ 11 ] != 0 )
-		 || ( page_value->data[ 12 ] != 0 )
-		 || ( page_value->data[ 13 ] != 0 )
-		 || ( page_value->data[ 14 ] != 0 )
-		 || ( page_value->data[ 15 ] != 0 ) )
+		if( page_value->size == 16 )
+		{
+			if( ( page_value->data[  0 ] != 0 )
+			 || ( page_value->data[  1 ] != 0 )
+			 || ( page_value->data[  2 ] != 0 )
+			 || ( page_value->data[  3 ] != 0 )
+			 || ( page_value->data[  4 ] != 0 )
+			 || ( page_value->data[  5 ] != 0 )
+			 || ( page_value->data[  6 ] != 0 )
+			 || ( page_value->data[  7 ] != 0 )
+			 || ( page_value->data[  8 ] != 0 )
+			 || ( page_value->data[  9 ] != 0 )
+			 || ( page_value->data[ 10 ] != 0 )
+			 || ( page_value->data[ 11 ] != 0 )
+			 || ( page_value->data[ 12 ] != 0 )
+			 || ( page_value->data[ 13 ] != 0 )
+			 || ( page_value->data[ 14 ] != 0 )
+			 || ( page_value->data[ 15 ] != 0 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported header.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		else if( page_value->size != 0 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported header.",
+			 "%s: unsupported header size.",
 			 function );
 
 			return( -1 );
