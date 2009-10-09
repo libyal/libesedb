@@ -29,6 +29,7 @@
 #include <liberror.h>
 
 #include "libesedb_array_type.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_list_type.h"
 #include "libesedb_string.h"
 
@@ -56,6 +57,7 @@ int libesedb_data_definition_free(
 int libesedb_data_definition_read(
      libesedb_data_definition_t *data_definition,
      libesedb_list_t *column_catalog_definition_list,
+     libesedb_io_handle_t *io_handle,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error );

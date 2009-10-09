@@ -110,6 +110,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
      uint8_t flags,
      liberror_error_t **error );
 

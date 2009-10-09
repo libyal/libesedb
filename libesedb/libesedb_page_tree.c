@@ -382,6 +382,7 @@ int libesedb_page_tree_read(
 		if( libesedb_page_tree_read_leaf_page_values(
 		     page_tree,
 		     page,
+		     io_handle,
 		     flags,
 		     error ) != 1 )
 		{
@@ -1286,6 +1287,7 @@ int libesedb_page_tree_read_child_pages(
 			if( libesedb_page_tree_read_leaf_page_values(
 			     page_tree,
 			     child_page,
+			     io_handle,
 			     flags,
 			     error ) != 1 )
 			{
@@ -1747,6 +1749,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -2296,6 +2299,7 @@ int libesedb_page_tree_read_leaf_page_values(
 				if( libesedb_data_definition_read(
 				     data_definition,
 				     page_tree->table_definition->column_catalog_definition_list,
+				     io_handle,
 				     page_value_data,
 				     page_value_size,
 				     error ) != 1 )
