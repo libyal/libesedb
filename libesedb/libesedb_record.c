@@ -385,6 +385,97 @@ int libesedb_record_get_amount_of_values(
 	return( 1 );
 }
 
+/* Retrieves the column identifier of the specific entry from the referenced record
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_record_get_column_identifier(
+     libesedb_record_t *record,
+     int value_entry,
+     uint32_t *column_identifier,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_column_identifier";
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_identifier == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column identifier.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->data_type_definitions_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	*column_identifier = data_type_definition->column_catalog_definition->identifier;
+
+	return( 1 );
+}
+
 /* Retrieves the column type of the specific entry from the referenced record
  * Returns 1 if successful or -1 on error
  */
@@ -704,6 +795,7 @@ int libesedb_record_get_value(
      int value_entry,
      uint8_t **value_data,
      size_t *value_data_size,
+     uint8_t *value_tag_byte,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
@@ -739,6 +831,17 @@ int libesedb_record_get_value(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid value data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_tag_byte == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value tage byte.",
 		 function );
 
 		return( -1 );
@@ -796,6 +899,7 @@ int libesedb_record_get_value(
 	}
 	*value_data      = data_type_definition->data;
 	*value_data_size = data_type_definition->data_size;
+	*value_tag_byte  = data_type_definition->tag_byte;
 
 	return( 1 );
 }

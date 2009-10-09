@@ -465,6 +465,15 @@ LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      int *amount_of_values,
                      libesedb_error_t **error );
 
+/* Retrieves the column identifier of the specific entry from the referenced record
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_column_identifier(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint32_t *column_identifier,
+                     libesedb_error_t **error );
+
 /* Retrieves the column type of the specific entry from the referenced record
  * Returns 1 if successful or -1 on error
  */
@@ -504,6 +513,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value(
                      int value_entry,
                      uint8_t **value_data,
                      size_t *value_data_size,
+                     uint8_t *value_tag_byte,
                      libesedb_error_t **error );
 
 /* Retrieves the boolean value of a specific entry from the referenced record

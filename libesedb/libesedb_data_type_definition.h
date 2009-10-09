@@ -49,6 +49,10 @@ struct libesedb_data_type_definition
 	/* The data type definition data size
 	 */
 	size_t data_size;
+
+	/* The tag byte
+	 */
+	uint8_t tag_byte;
 };
 
 int libesedb_data_type_definition_initialize(
@@ -64,6 +68,11 @@ int libesedb_data_type_definition_set_data(
      libesedb_data_type_definition_t *data_type_definition,
      uint8_t *data,
      size_t data_size,
+     liberror_error_t **error );
+
+int libesedb_data_type_definition_set_tag_byte(
+     libesedb_data_type_definition_t *data_type_definition,
+     uint8_t tag_byte,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

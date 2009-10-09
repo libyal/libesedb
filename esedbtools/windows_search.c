@@ -119,6 +119,7 @@ int windows_search_export_record_value_32bit(
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint32_t value_32bit   = 0;
+	uint8_t value_tag_byte = 0;
 
 	if( record == NULL )
 	{
@@ -188,6 +189,7 @@ int windows_search_export_record_value_32bit(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
+	     &value_tag_byte,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -249,6 +251,7 @@ int windows_search_export_record_value_64bit(
 	size_t value_data_size = 0;
 	uint64_t value_64bit   = 0;
 	uint32_t column_type   = 0;
+	uint8_t value_tag_byte = 0;
 
 	if( record == NULL )
 	{
@@ -318,6 +321,7 @@ int windows_search_export_record_value_64bit(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
+	     &value_tag_byte,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -381,6 +385,7 @@ int windows_search_export_record_value_filetime(
 	static char *function             = "windows_search_export_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
+	uint8_t value_tag_byte            = 0;
 
 	if( record == NULL )
 	{
@@ -437,6 +442,7 @@ int windows_search_export_record_value_filetime(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
+	     &value_tag_byte,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -554,6 +560,7 @@ int windows_search_export_record_value_utf16_string(
 	size_t value_data_size   = 0;
 	size_t value_string_size = 0;
 	uint32_t column_type     = 0;
+	uint8_t value_tag_byte   = 0;
 
 	if( record == NULL )
 	{
@@ -611,6 +618,7 @@ int windows_search_export_record_value_utf16_string(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
+	     &value_tag_byte,
 	     error ) != 1 )
 	{
 		liberror_error_set(

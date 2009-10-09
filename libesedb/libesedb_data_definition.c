@@ -527,7 +527,7 @@ int libesedb_data_definition_read(
 		{
 			if( tagged_data_types_format == LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR )
 			{
-				if( tagged_data_type_offset_data == NULL )
+				if( tagged_data_type_value_data == NULL )
 				{
 					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] );
 					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
@@ -561,16 +561,40 @@ int libesedb_data_definition_read(
 					 column_catalog_definition->identifier,
 					 tagged_data_type_size,
 					 tagged_data_type_size & 0x3fff );
-
-					libnotify_verbose_printf(
-					 "%s: (%03" PRIu16 ") tag byte\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
-					 function,
-					 column_catalog_definition->identifier,
-					 *tagged_data_type_value_data );
 #endif
-					tagged_data_type_value_data += 1;
-					tagged_data_type_size       -= 1;
 
+					if( ( tagged_data_type_size & 0x8000 ) == 0x8000 )
+					{
+#if defined( HAVE_DEBUG_OUTPUT )
+						libnotify_verbose_printf(
+						 "%s: (%03" PRIu16 ") tag byte\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+						 function,
+						 column_catalog_definition->identifier,
+						 *tagged_data_type_value_data );
+#endif
+
+						if( libesedb_data_type_definition_set_tag_byte(
+						     data_type_definition,
+						     *tagged_data_type_value_data,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 "%s: unable to set tag byte in tagged data type definition.",
+							 function );
+
+							libesedb_data_type_definition_free(
+							 (intptr_t *) data_type_definition,
+							 NULL );
+
+							return( -1 );
+						}
+						tagged_data_type_value_data    += 1;
+						tagged_data_type_size           = ( tagged_data_type_size & 0x5fff ) - 1;
+						remaining_definition_data_size -= 1;
+					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( tagged_data_type_size > 0 )
 					{
@@ -592,6 +616,17 @@ int libesedb_data_definition_read(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
+						if( tagged_data_type_size > remaining_definition_data_size )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+							 "%s: invalid tagged data type size value exceeds remaining data size.",
+							 function );
+
+							return( -1 );
+						}
 						if( libesedb_data_type_definition_set_data(
 						     data_type_definition,
 						     tagged_data_type_value_data,
@@ -611,8 +646,25 @@ int libesedb_data_definition_read(
 
 							return( -1 );
 						}
+						tagged_data_type_value_data    += tagged_data_type_size;
+						remaining_definition_data_size -= tagged_data_type_size;
 					}
-					tagged_data_type_value_data += tagged_data_type_size;
+					if( remaining_definition_data_size > 0 )
+					{
+						endian_little_convert_16bit(
+						 tagged_data_type_identifier,
+						 tagged_data_type_value_data );
+
+						tagged_data_type_value_data += 2;
+
+						endian_little_convert_16bit(
+						 tagged_data_type_size,
+						 tagged_data_type_value_data );
+
+						tagged_data_type_value_data += 2;
+
+						remaining_definition_data_size -= 4;
+					}
 				}
 			}
 			else if( tagged_data_types_format == LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX )
@@ -703,7 +755,7 @@ int libesedb_data_definition_read(
 						tagged_data_type_offset_data_size -= 4;
 						remaining_definition_data_size    -= 4;
 					}
-					if( previous_tagged_data_type_offset > tagged_data_type_offset )
+					if( ( previous_tagged_data_type_offset & 0x3fff ) > ( tagged_data_type_offset & 0x3fff ) )
 					{
 						liberror_error_set(
 						 error,
@@ -745,8 +797,6 @@ int libesedb_data_definition_read(
 						}
 						remaining_definition_data_size -= tagged_data_type_size;
 
-						/* TODO ignoring the tag byte for now
-						 */
 						if( ( previous_tagged_data_type_offset & 0x4000 ) == 0x4000 )
 						{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -757,6 +807,24 @@ int libesedb_data_definition_read(
 							 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
 #endif
 
+							if( libesedb_data_type_definition_set_tag_byte(
+							     data_type_definition,
+							     tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ],
+							     error ) != 1 )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+								 "%s: unable to set tag byte in tagged data type definition.",
+								 function );
+
+								libesedb_data_type_definition_free(
+								 (intptr_t *) data_type_definition,
+								 NULL );
+
+								return( -1 );
+							}
 							previous_tagged_data_type_offset += 1;
 							tagged_data_type_size            -= 1;
 						}

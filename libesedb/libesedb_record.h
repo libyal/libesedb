@@ -81,6 +81,12 @@ LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      int *amount_of_values,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_record_get_column_identifier(
+                     libesedb_table_t *table,
+                     int value_entry,
+                     uint32_t *column_identifier,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_record_get_column_type(
                      libesedb_table_t *table,
                      int value_entry,
@@ -105,6 +111,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value(
                      int value_entry,
                      uint8_t **value_data,
                      size_t *value_data_size,
+                     uint8_t *value_tag_byte,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_boolean(

@@ -211,3 +211,29 @@ int libesedb_data_type_definition_set_data(
 	return( 1 );
 }
 
+/* Sets the tag byte in the data type definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_data_type_definition_set_tag_byte(
+     libesedb_data_type_definition_t *data_type_definition,
+     uint8_t tag_byte,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_data_type_definition_set_tag_byte";
+
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	data_type_definition->tag_byte = tag_byte;
+
+	return( 1 );
+}
+
