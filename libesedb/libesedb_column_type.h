@@ -1,5 +1,5 @@
 /*
- * Column_type functions
+ * Column type functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.
@@ -48,6 +48,7 @@ struct libesedb_column_type
 	 */
 	const char *description;
 };
+
 const char *libesedb_column_type_get_identifier(
              uint32_t column_type );
 

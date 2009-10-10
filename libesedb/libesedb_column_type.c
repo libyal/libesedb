@@ -1,5 +1,5 @@
 /*
- * Column_type functions
+ * Column type functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations. All rights reserved.

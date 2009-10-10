@@ -44,7 +44,7 @@ int libesedb_page_value_free(
 {
 	if( page_value != NULL )
 	{
-		/* The data reference and is freed elsewhere
+		/* The referenced data is freed elsewhere
 		 */
 		memory_free(
 		 page_value );
@@ -209,7 +209,7 @@ int libesedb_page_read(
 	uint16_t available_page_tag        = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t test                      = 0;
+	uint32_t value_32bit               = 0;
 #endif
 
 	if( page == NULL )
@@ -427,22 +427,22 @@ int libesedb_page_read(
 	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
 		endian_little_convert_32bit(
-		 test,
+		 value_32bit,
 		 ( (esedb_page_header_t *) page->data )->ecc_checksum );
 		libnotify_verbose_printf(
 		 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 test );
+		 value_32bit );
 	}
 	else
 	{
 		endian_little_convert_32bit(
-		 test,
+		 value_32bit,
 		 ( (esedb_page_header_t *) page->data )->page_number );
 		libnotify_verbose_printf(
 		 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 test );
+		 value_32bit );
 	}
 	libnotify_verbose_printf(
 	 "%s: database modification time:\n",
@@ -469,19 +469,19 @@ int libesedb_page_read(
 	 function,
 	 available_data_size );
 	endian_little_convert_16bit(
-	 test,
+	 value_32bit,
 	 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size );
 	libnotify_verbose_printf(
 	 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 	endian_little_convert_16bit(
-	 test,
+	 value_32bit,
 	 ( (esedb_page_header_t *) page->data )->available_data_offset );
 	libnotify_verbose_printf(
 	 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 test );
+	 value_32bit );
 	libnotify_verbose_printf(
 	 "%s: available page tag\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
@@ -548,7 +548,7 @@ int libesedb_page_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read page tags.",
+			 "%s: unable to read page values.",
 			 function );
 
 			libesedb_array_free(
