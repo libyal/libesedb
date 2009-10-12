@@ -1181,6 +1181,7 @@ int libesedb_page_tree_read_child_pages(
 #if defined( HAVE_DEBUG_OUTPUT )
 			libnotify_verbose_printf(
 			 "%s: value: %03d ignoring child page\n",
+			 function,
 			 page_value_iterator );
 #endif
 
@@ -2112,6 +2113,9 @@ int libesedb_page_tree_read_leaf_page_values(
 							 "%s: missing table definition: %" PRIu32 ".",
 							 function,
 							 catalog_definition->father_data_page_object_identifier );
+
+							/* TODO build-in table 1 support */
+							continue;
 						}
 						if( result != 1 )
 						{

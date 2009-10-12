@@ -1,5 +1,7 @@
 TODO
 
+* add support for build in table 1
+
 * windows search
   - change libuna utf16 functions to libsystem utf16 functions
   - create libsystm utf16 functions
@@ -50,6 +52,9 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20091012
+* change for version 0x620 revision 0x0b
 
 20091009
 * worked on EWF revision 2 version of tagged data type definitions

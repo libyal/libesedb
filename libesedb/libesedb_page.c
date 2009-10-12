@@ -44,7 +44,7 @@ int libesedb_page_value_free(
 {
 	if( page_value != NULL )
 	{
-		/* The referenced data is freed elsewhere
+		/* The data reference and is freed elsewhere
 		 */
 		memory_free(
 		 page_value );
@@ -209,7 +209,7 @@ int libesedb_page_read(
 	uint16_t available_page_tag        = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t value_32bit               = 0;
+	uint32_t test                      = 0;
 #endif
 
 	if( page == NULL )
@@ -325,70 +325,11 @@ int libesedb_page_read(
 	 sizeof( esedb_page_header_t ) );
 #endif
 
-	/* TODO for now don't bother calculating a checksum for uninitialized pages */
-
-	if( ( page->data[ 0 ] != 0 )
-	 || ( page->data[ 1 ] != 0 )
-	 || ( page->data[ 2 ] != 0 )
-	 || ( page->data[ 3 ] != 0 ) )
-	{
-		if( io_handle->format_revision >= 0x0c )
-		{
-			if( libesedb_checksum_calculate_little_endian_xor32(
-			     &calculated_xor32_checksum,
-			     &( ( page->data )[ 8 ] ),
-			     page->data_size - 8,
-			     page_number,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unable to calculate XOR-32 checksum.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else
-		{
-			if( libesedb_checksum_calculate_little_endian_xor32(
-			     &calculated_xor32_checksum,
-			     &( ( page->data )[ 4 ] ),
-			     page->data_size - 4,
-			     0x89abcdef,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unable to calculate XOR-32 checksum.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		endian_little_convert_32bit(
-		 stored_xor32_checksum,
-		 ( (esedb_page_header_t *) page->data )->xor_checksum );
-
-		if( stored_xor32_checksum != calculated_xor32_checksum )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_INPUT,
-			 LIBERROR_INPUT_ERROR_CRC_MISMATCH,
-			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
-			 function,
-			 stored_xor32_checksum,
-			 calculated_xor32_checksum );
-
-			return( -1 );
-		}
-	}
 	page->page_number = page_number;
+
+	endian_little_convert_32bit(
+	 stored_xor32_checksum,
+	 ( (esedb_page_header_t *) page->data )->xor_checksum );
 
 	endian_little_convert_16bit(
 	 available_data_size,
@@ -427,22 +368,22 @@ int libesedb_page_read(
 	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
 		endian_little_convert_32bit(
-		 value_32bit,
+		 test,
 		 ( (esedb_page_header_t *) page->data )->ecc_checksum );
 		libnotify_verbose_printf(
 		 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 value_32bit );
+		 test );
 	}
 	else
 	{
 		endian_little_convert_32bit(
-		 value_32bit,
+		 test,
 		 ( (esedb_page_header_t *) page->data )->page_number );
 		libnotify_verbose_printf(
 		 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 value_32bit );
+		 test );
 	}
 	libnotify_verbose_printf(
 	 "%s: database modification time:\n",
@@ -469,19 +410,19 @@ int libesedb_page_read(
 	 function,
 	 available_data_size );
 	endian_little_convert_16bit(
-	 value_32bit,
+	 test,
 	 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size );
 	libnotify_verbose_printf(
 	 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
 	 function,
-	 value_32bit );
+	 test );
 	endian_little_convert_16bit(
-	 value_32bit,
+	 test,
 	 ( (esedb_page_header_t *) page->data )->available_data_offset );
 	libnotify_verbose_printf(
 	 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
 	 function,
-	 value_32bit );
+	 test );
 	libnotify_verbose_printf(
 	 "%s: available page tag\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
@@ -496,6 +437,73 @@ int libesedb_page_read(
 	 "\n" );
 #endif
 
+	/* TODO for now don't bother calculating a checksum for uninitialized pages */
+
+	if( ( page->data[ 0 ] != 0 )
+	 || ( page->data[ 1 ] != 0 )
+	 || ( page->data[ 2 ] != 0 )
+	 || ( page->data[ 3 ] != 0 ) )
+	{
+		if( io_handle->format_revision >= 0x0b )
+		{
+			if( libesedb_checksum_calculate_little_endian_xor32(
+			     &calculated_xor32_checksum,
+			     &( ( page->data )[ 8 ] ),
+			     page->data_size - 8,
+			     page_number,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unable to calculate XOR-32 checksum.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		else
+		{
+			if( libesedb_checksum_calculate_little_endian_xor32(
+			     &calculated_xor32_checksum,
+			     &( ( page->data )[ 4 ] ),
+			     page->data_size - 4,
+			     0x89abcdef,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unable to calculate XOR-32 checksum.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		if( stored_xor32_checksum != calculated_xor32_checksum )
+		{
+#ifdef TODO
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_INPUT,
+			 LIBERROR_INPUT_ERROR_CRC_MISMATCH,
+			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
+			 function,
+			 stored_xor32_checksum,
+			 calculated_xor32_checksum );
+
+			return( -1 );
+#else
+			libnotify_verbose_printf(
+			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n"
+			 function,
+			 stored_xor32_checksum,
+			 calculated_xor32_checksum );
+#endif
+		}
+	}
 	if( available_page_tag > 0 )
 	{
 		/* Create the page tags array
@@ -548,7 +556,7 @@ int libesedb_page_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read page values.",
+			 "%s: unable to read page tags.",
 			 function );
 
 			libesedb_array_free(
