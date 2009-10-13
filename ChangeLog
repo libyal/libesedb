@@ -53,6 +53,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091013
+* some textual corrections
+
 20091012
 * change for version 0x620 revision 0x0b
 

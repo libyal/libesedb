@@ -533,7 +533,7 @@ int libesedb_value_type_get_utf8_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport codepage: %d.",
+		 "%s: unsupported codepage: %d.",
 		 function,
 		 codepage );
 
@@ -687,7 +687,7 @@ int libesedb_value_type_copy_to_utf8_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport codepage: %d.",
+		 "%s: unsupported codepage: %d.",
 		 function,
 		 codepage );
 
@@ -865,7 +865,7 @@ int libesedb_value_type_get_utf16_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport codepage: %d.",
+		 "%s: unsupported codepage: %d.",
 		 function,
 		 codepage );
 
@@ -1019,7 +1019,7 @@ int libesedb_value_type_copy_to_utf16_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport codepage: %d.",
+		 "%s: unsupported codepage: %d.",
 		 function,
 		 codepage );
 
