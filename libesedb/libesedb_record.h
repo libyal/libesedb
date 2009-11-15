@@ -2,7 +2,7 @@
  * Record (row) functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -48,10 +48,6 @@ struct libesedb_internal_record
 	/* The data definition
 	 */
 	libesedb_data_definition_t *data_definition;
-
-	/* The record reference list element
-	 */
-	libesedb_list_element_t *list_element;
 };
 
 int libesedb_record_initialize(
@@ -61,10 +57,6 @@ int libesedb_record_initialize(
 LIBESEDB_EXTERN int libesedb_record_free(
                      libesedb_record_t **record,
                      liberror_error_t **error );
-
-int libesedb_record_free_no_detach(
-     intptr_t *internal_record,
-     liberror_error_t **error );
 
 int libesedb_record_attach(
      libesedb_internal_record_t *internal_record,

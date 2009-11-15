@@ -2,7 +2,7 @@
  * Page functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -327,31 +328,31 @@ int libesedb_page_read(
 
 	page->page_number = page_number;
 
-	endian_little_convert_32bit(
-	 stored_xor32_checksum,
-	 ( (esedb_page_header_t *) page->data )->xor_checksum );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_page_header_t *) page->data )->xor_checksum,
+	 stored_xor32_checksum );
 
-	endian_little_convert_16bit(
-	 available_data_size,
-	 ( (esedb_page_header_t *) page->data )->available_data_size );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_page_header_t *) page->data )->available_data_size,
+	 available_data_size );
 
-	endian_little_convert_32bit(
-	 page->previous_page_number,
-	 ( (esedb_page_header_t *) page->data )->previous_page );
-	endian_little_convert_32bit(
-	 page->next_page_number,
-	 ( (esedb_page_header_t *) page->data )->next_page );
-	endian_little_convert_32bit(
-	 page->father_data_page_object_identifier,
-	 ( (esedb_page_header_t *) page->data )->father_data_page_object_identifier );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_page_header_t *) page->data )->previous_page,
+	 page->previous_page_number );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_page_header_t *) page->data )->next_page,
+	 page->next_page_number );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_page_header_t *) page->data )->father_data_page_object_identifier,
+	 page->father_data_page_object_identifier );
 
-	endian_little_convert_16bit(
-	 available_page_tag,
-	 ( (esedb_page_header_t *) page->data )->available_page_tag );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_page_header_t *) page->data )->available_page_tag,
+	 available_page_tag );
 
-	endian_little_convert_32bit(
-	 page->flags,
-	 ( (esedb_page_header_t *) page->data )->page_flags );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_page_header_t *) page->data )->page_flags,
+	 page->flags );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
@@ -367,9 +368,9 @@ int libesedb_page_read(
 	if( ( io_handle->format_revision >= 0x0c )
 	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
-		endian_little_convert_32bit(
-		 test,
-		 ( (esedb_page_header_t *) page->data )->ecc_checksum );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_page_header_t *) page->data )->ecc_checksum,
+		 test );
 		libnotify_verbose_printf(
 		 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
@@ -377,9 +378,9 @@ int libesedb_page_read(
 	}
 	else
 	{
-		endian_little_convert_32bit(
-		 test,
-		 ( (esedb_page_header_t *) page->data )->page_number );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_page_header_t *) page->data )->page_number,
+		 test );
 		libnotify_verbose_printf(
 		 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
@@ -409,16 +410,16 @@ int libesedb_page_read(
 	 "%s: available data size\t\t\t\t\t: %" PRIu32 "\n",
 	 function,
 	 available_data_size );
-	endian_little_convert_16bit(
-	 test,
-	 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size,
+	 test );
 	libnotify_verbose_printf(
 	 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
 	 function,
 	 test );
-	endian_little_convert_16bit(
-	 test,
-	 ( (esedb_page_header_t *) page->data )->available_data_offset );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_page_header_t *) page->data )->available_data_offset,
+	 test );
 	libnotify_verbose_printf(
 	 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
 	 function,
@@ -497,7 +498,7 @@ int libesedb_page_read(
 			return( -1 );
 #else
 			libnotify_verbose_printf(
-			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n"
+			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
 			 function,
 			 stored_xor32_checksum,
 			 calculated_xor32_checksum );
@@ -685,15 +686,15 @@ int libesedb_page_read_tags(
 
 			return( -1 );
 		}
-		endian_little_convert_16bit(
-		 page_tags_value->offset,
-		 page_tags_data );
+		byte_stream_copy_to_uint16_little_endian(
+		 page_tags_data,
+		 page_tags_value->offset );
 
 		page_tags_data -= 2;
 
-		endian_little_convert_16bit(
-		 page_tags_value->size,
-		 page_tags_data );
+		byte_stream_copy_to_uint16_little_endian(
+		 page_tags_data,
+		 page_tags_value->size );
 
 		page_tags_data -= 2;
 

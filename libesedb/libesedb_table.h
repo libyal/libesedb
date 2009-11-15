@@ -2,7 +2,7 @@
  * Table functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -51,10 +51,6 @@ struct libesedb_internal_table
 	 */
 	libesedb_table_definition_t *table_definition;
 
-	/* The table reference list element
-	 */
-	libesedb_list_element_t *list_element;
-
 	/* The table page tree
 	 */
 	libesedb_page_tree_t *table_page_tree;
@@ -62,18 +58,6 @@ struct libesedb_internal_table
 	/* The long value page tree
 	 */
 	libesedb_page_tree_t *long_value_page_tree;
-
-	/* The column reference list
-	 */
-	libesedb_list_t *column_reference_list;
-
-	/* The index reference list
-	 */
-	libesedb_list_t *index_reference_list;
-
-	/* The record reference list
-	 */
-	libesedb_list_t *record_reference_list;
 };
 
 int libesedb_table_initialize(
@@ -83,10 +67,6 @@ int libesedb_table_initialize(
 LIBESEDB_EXTERN int libesedb_table_free(
                      libesedb_table_t **table,
                      liberror_error_t **error );
-
-int libesedb_table_free_no_detach(
-     intptr_t *internal_table,
-     liberror_error_t **error );
 
 int libesedb_table_attach(
      libesedb_internal_table_t *internal_table,

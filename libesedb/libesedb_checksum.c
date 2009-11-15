@@ -3,7 +3,7 @@
  * Based on RFC 1952
  *
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <types.h>
 
 #include <liberror.h>
@@ -82,9 +83,9 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	     buffer_iterator < size;
 	     buffer_iterator += 4 )
 	{
-		endian_little_convert_32bit(
-		 value_32bit,
-		 buffer );
+		byte_stream_copy_to_uint32_little_endian(
+		 buffer,
+		 value_32bit );
 
 		*checksum_value ^= value_32bit;
 

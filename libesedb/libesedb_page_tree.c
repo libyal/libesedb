@@ -2,7 +2,7 @@
  * Page tree functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -570,32 +571,32 @@ int libesedb_page_tree_read_father_data_page_values(
 
 		return( -1 );
 	}
-	endian_little_convert_32bit(
-	 space_tree_page_number,
-	 ( (esedb_father_data_page_header_t *) page_value->data )->space_tree_page_number );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_father_data_page_header_t *) page_value->data )->space_tree_page_number,
+	 space_tree_page_number );
 
 	/* TODO handle the root page header */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	endian_little_convert_32bit(
-	 initial_amount_of_pages,
-	 ( (esedb_father_data_page_header_t *) page_value->data )->initial_amount_of_pages );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_father_data_page_header_t *) page_value->data )->initial_amount_of_pages,
+	 initial_amount_of_pages );
 	libnotify_verbose_printf(
 	 "%s: header initial amount of pages\t: %" PRIu32 "\n",
 	 function,
 	 initial_amount_of_pages );
 
-	endian_little_convert_32bit(
-	 test,
-	 ( (esedb_father_data_page_header_t *) page_value->data )->parent_father_data_page_number );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_father_data_page_header_t *) page_value->data )->parent_father_data_page_number,
+	 test );
 	libnotify_verbose_printf(
 	 "%s: header parent FDP number\t: %" PRIu32 "\n",
 	 function,
 	 test );
 
-	endian_little_convert_32bit(
-	 extent_space,
-	 ( (esedb_father_data_page_header_t *) page_value->data )->extent_space );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_father_data_page_header_t *) page_value->data )->extent_space,
+	 extent_space );
 	libnotify_verbose_printf(
 	 "%s: header extent space\t\t: %" PRIu32 "\n",
 	 function,
@@ -1093,9 +1094,9 @@ int libesedb_page_tree_read_child_pages(
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
-			endian_little_convert_16bit(
-			 page_key_type,
-			 page_value_data );
+			byte_stream_copy_to_uint16_little_endian(
+			 page_value_data,
+			 page_key_type );
 
 			page_value_data += 2;
 			page_value_size -= 2;
@@ -1119,9 +1120,9 @@ int libesedb_page_tree_read_child_pages(
 			 page_value_data,
 			 page_value_size );
 		}
-		endian_little_convert_16bit(
-		 page_key_size,
-		 page_value_data );
+		byte_stream_copy_to_uint16_little_endian(
+		 page_value_data,
+		 page_key_size );
 
 		page_value_data += 2;
 		page_value_size -= 2;
@@ -1161,9 +1162,9 @@ int libesedb_page_tree_read_child_pages(
 		libnotify_verbose_printf(
 		 "\n" );
 
-		endian_little_convert_32bit(
-		 child_page_number,
-		 page_value_data );
+		byte_stream_copy_to_uint32_little_endian(
+		 page_value_data,
+		 child_page_number );
 
 		libnotify_verbose_printf(
 		 "%s: value: %03d child page number\t: %" PRIu32 "\n",
@@ -1584,9 +1585,9 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 				return( -1 );
 			}
-			endian_little_convert_16bit(
-			 page_key_size,
-			 ( (esedb_space_tree_page_entry_t *) page_value->data )->key_size );
+			byte_stream_copy_to_uint16_little_endian(
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->key_size,
+			 page_key_size );
 
 			if( page_key_size != 4 )
 			{
@@ -1609,9 +1610,9 @@ int libesedb_page_tree_read_space_tree_page_values(
 			 page_value_iterator,
 			 page_key_size );
 
-			endian_little_convert_32bit(
-			 test,
-			 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number,
+			 test );
 			libnotify_verbose_printf(
 			 "%s: value: %03d key value\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
 			 function,
@@ -1619,9 +1620,9 @@ int libesedb_page_tree_read_space_tree_page_values(
 			 test,
 			 test );
 
-			endian_little_convert_32bit(
-			 test,
-			 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages,
+			 test );
 			libnotify_verbose_printf(
 			 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
 			 function,
@@ -1945,9 +1946,9 @@ int libesedb_page_tree_read_leaf_page_values(
 
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
-			endian_little_convert_16bit(
-			 page_key_type,
-			 page_value_data );
+			byte_stream_copy_to_uint16_little_endian(
+			 page_value_data,
+			 page_key_type );
 
 			page_value_data += 2;
 			page_value_size -= 2;
@@ -1961,9 +1962,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 page_key_type );
 #endif
 		}
-		endian_little_convert_16bit(
-		 page_key_size,
-		 page_value_data );
+		byte_stream_copy_to_uint16_little_endian(
+		 page_value_data,
+		 page_key_size );
 
 		page_value_data += 2;
 		page_value_size -= 2;
@@ -2242,6 +2243,31 @@ int libesedb_page_tree_read_leaf_page_values(
 							 LIBERROR_ERROR_DOMAIN_RUNTIME,
 							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
 							 "%s: unable to set long value catalog definition in table definition.",
+							 function );
+
+							libesedb_catalog_definition_free(
+							 (intptr_t *) catalog_definition,
+							 NULL );
+
+							catalog_definition = NULL;
+
+							return( -1 );
+						}
+						catalog_definition = NULL;
+
+						break;
+
+					case LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK:
+						if( libesedb_table_definition_set_callback_catalog_definition(
+						     table_definition,
+						     catalog_definition,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 "%s: unable to set callback catalog definition in table definition.",
 							 function );
 
 							libesedb_catalog_definition_free(

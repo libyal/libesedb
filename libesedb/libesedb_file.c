@@ -2,7 +2,7 @@
  * libesedb file
  *
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -29,9 +29,8 @@
 #include <liberror.h>
 #include <libnotify.h>
 
-#include <libesedb/codepage.h>
-
 #include "libesedb_array_type.h"
+#include "libesedb_codepage.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
@@ -96,22 +95,6 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_initialize(
-		     &( internal_file->table_reference_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create table reference list.",
-			 function );
-
-			memory_free(
-			 internal_file );
-
-			return( -1 );
-		}
 		if( libesedb_io_handle_initialize(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
@@ -125,10 +108,6 @@ int libesedb_file_initialize(
 
 			libesedb_page_tree_free(
 			 &( internal_file->catalog_page_tree ),
-			 NULL );
-			libesedb_list_free(
-			 &( internal_file->table_reference_list ),
-			 NULL,
 			 NULL );
 			memory_free(
 			 internal_file );
@@ -168,20 +147,6 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
-		if( libesedb_list_free(
-		     &( internal_file->table_reference_list ),
-		     &libesedb_table_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table reference list.",
-			 function );
-
-			result = -1;
-		}
 		if( libesedb_page_tree_free(
 		     &( internal_file->catalog_page_tree ),
 		     error ) != 1 )

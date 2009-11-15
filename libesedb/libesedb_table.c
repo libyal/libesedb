@@ -2,7 +2,7 @@
  * Table functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -91,94 +91,6 @@ int libesedb_table_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_element_initialize(
-		     &( internal_table->list_element ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create list element.",
-			 function );
-
-			memory_free(
-			 internal_table );
-
-			return( -1 );
-		}
-		if( libesedb_list_initialize(
-		     &( internal_table->column_reference_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create column reference list.",
-			 function );
-
-			libesedb_list_element_free(
-			 &( internal_table->list_element ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 internal_table );
-
-			return( -1 );
-		}
-		if( libesedb_list_initialize(
-		     &( internal_table->index_reference_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index reference list.",
-			 function );
-
-			libesedb_list_free(
-			 &( internal_table->column_reference_list ),
-			 NULL,
-			 NULL );
-			libesedb_list_element_free(
-			 &( internal_table->list_element ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 internal_table );
-
-			return( -1 );
-		}
-		if( libesedb_list_initialize(
-		     &( internal_table->record_reference_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create record reference list.",
-			 function );
-
-			libesedb_list_free(
-			 &( internal_table->index_reference_list ),
-			 NULL,
-			 NULL );
-			libesedb_list_free(
-			 &( internal_table->column_reference_list ),
-			 NULL,
-			 NULL );
-			libesedb_list_element_free(
-			 &( internal_table->list_element ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 internal_table );
-
-			return( -1 );
-		}
 		*table = (libesedb_table_t *) internal_table;
 	}
 	return( 1 );
@@ -227,21 +139,6 @@ int libesedb_table_free(
 
 			return( -1 );
 		}
-		if( ( internal_table->list_element != NULL )
-		 && ( libesedb_list_element_free(
-		       &( internal_table->list_element ),
-		       NULL,
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free list element.",
-			 function );
-
-			result = -1;
-		}
 		if( ( internal_table->table_page_tree != NULL )
 		 && ( libesedb_page_tree_free(
 		       &( internal_table->table_page_tree ),
@@ -266,157 +163,6 @@ int libesedb_table_free(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free long value page tree.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( internal_table->column_reference_list ),
-		     &libesedb_column_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free column reference list.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( internal_table->index_reference_list ),
-		     &libesedb_index_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index reference list.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( internal_table->record_reference_list ),
-		     &libesedb_record_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free record reference list.",
-			 function );
-
-			result = -1;
-		}
-		memory_free(
-		 internal_table );
-	}
-	return( result );
-}
-
-/* Frees an table
- * Return 1 if successful or -1 on error
- */
-int libesedb_table_free_no_detach(
-     intptr_t *internal_table,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_table_free_no_detach";
-	int result            = 1;
-
-	if( internal_table != NULL )
-	{
-		if( ( (libesedb_internal_table_t *) internal_table )->internal_file != NULL )
-		{
-			if( ( ( (libesedb_internal_table_t *) internal_table )->list_element != NULL )
-			 && ( libesedb_list_element_free(
-			       &( ( (libesedb_internal_table_t *) internal_table )->list_element ),
-			       NULL,
-			       error ) != 1 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free list element.",
-				 function );
-
-				result = -1;
-			}
-		}
-		/* The internal_file and table_definition references
-		 * are freed elsewhere
-		 */
-		if( ( ( (libesedb_internal_table_t *) internal_table )->table_page_tree != NULL )
-		 && ( libesedb_page_tree_free(
-		       &( ( (libesedb_internal_table_t *) internal_table )->table_page_tree ),
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table page tree.",
-			 function );
-
-			result = -1;
-		}
-		if( ( ( (libesedb_internal_table_t *) internal_table )->long_value_page_tree != NULL )
-		 && ( libesedb_page_tree_free(
-		       &( ( (libesedb_internal_table_t *) internal_table )->long_value_page_tree ),
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value page tree.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( ( (libesedb_internal_table_t *) internal_table )->column_reference_list ),
-		     &libesedb_column_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free column reference list.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( ( (libesedb_internal_table_t *) internal_table )->index_reference_list ),
-		     &libesedb_index_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index reference list.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_list_free(
-		     &( ( (libesedb_internal_table_t *) internal_table )->record_reference_list ),
-		     &libesedb_record_free_no_detach,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free record reference list.",
 			 function );
 
 			result = -1;
@@ -449,17 +195,6 @@ int libesedb_table_attach(
 
 		return( -1 );
 	}
-	if( internal_table->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_table->internal_file != NULL )
 	{
 		liberror_error_set(
@@ -467,22 +202,6 @@ int libesedb_table_attach(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal table - already attached to file.",
-		 function );
-
-		return( -1 );
-	}
-	/* Add table to file
-	 */
-	if( libesedb_list_append_element(
-	     internal_file->table_reference_list,
-	     internal_table->list_element,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append internal table to file.",
 		 function );
 
 		return( -1 );
@@ -513,35 +232,8 @@ int libesedb_table_detach(
 
 		return( -1 );
 	}
-	if( internal_table->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_table->internal_file != NULL )
 	{
-		/* Remove table from file
-		 */
-		if( libesedb_list_remove_element(
-		     internal_table->internal_file->table_reference_list,
-		     internal_table->list_element,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to remove internal table from file.",
-			 function );
-
-			return( -1 );
-		}
 		internal_table->internal_file    = NULL;
 		internal_table->table_definition = NULL;
 	}

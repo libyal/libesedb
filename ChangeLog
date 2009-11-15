@@ -1,6 +1,9 @@
 TODO
 
 * add support for build in table 1
+* move bfio handle to item layer
+* implement cloning of items for improved asynchronous and multi threaded
+usage
 
 * windows search
   - change libuna utf16 functions to libsystem utf16 functions
@@ -52,6 +55,16 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20091115
+* updated common, libuna, libbfio, liberror, libnotify, libsystem
+  libdatetime
+* removed All rights reserved
+* updated codepage header
+* removed item reference lists and list elements
+* replaces endian.h by byte_stream.h
+* updated float conversions
+* worked on support for callback catalog type
 
 20091013
 * some textual corrections

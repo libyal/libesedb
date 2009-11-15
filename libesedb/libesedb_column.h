@@ -2,7 +2,7 @@
  * Column functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -48,10 +48,6 @@ struct libesedb_internal_column
 	/* The catalog definition
 	 */
 	libesedb_catalog_definition_t *catalog_definition;
-
-	/* The column reference list element
-	 */
-	libesedb_list_element_t *list_element;
 };
 
 int libesedb_column_initialize(
@@ -61,10 +57,6 @@ int libesedb_column_initialize(
 LIBESEDB_EXTERN int libesedb_column_free(
                      libesedb_column_t **column,
                      liberror_error_t **error );
-
-int libesedb_column_free_no_detach(
-     intptr_t *internal_column,
-     liberror_error_t **error );
 
 int libesedb_column_attach(
      libesedb_internal_column_t *internal_column,

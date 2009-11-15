@@ -2,7 +2,7 @@
  * libesedb file
  *
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -41,10 +41,6 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
-	/* The table reference list
-	 */
-	libesedb_list_t *table_reference_list;
-
 	/* The catalog page tree
 	 */
 	libesedb_page_tree_t *catalog_page_tree;

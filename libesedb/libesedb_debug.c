@@ -2,7 +2,7 @@
  * Debug functions
  *
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -588,12 +589,13 @@ int libesedb_debug_print_column_value(
 	uint8_t filetime_string[ 22 ];
 	uint8_t guid_string[ LIBFWINTYPE_GUID_STRING_SIZE ];
 
+        byte_stream_float64_t value_double;
+        byte_stream_float32_t value_float;
+
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_string             = NULL;
 	static char *function             = "libesedb_debug_print_column_value";
 	size_t value_string_size          = 0;
-	double value_double               = 0.0;
-	float value_float                 = 0.0;
 	uint64_t value_64bit              = 0;
 	uint32_t value_32bit              = 0;
 	uint16_t value_16bit              = 0;
@@ -645,9 +647,9 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
-			endian_little_convert_16bit(
-			 value_16bit,
-			 value_data );
+			byte_stream_copy_to_uint16_little_endian(
+			 value_data,
+			 value_16bit );
 
 			libnotify_verbose_printf(
 			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",
@@ -656,9 +658,9 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
-			endian_little_convert_32bit(
-			 value_32bit,
-			 value_data );
+			byte_stream_copy_to_uint32_little_endian(
+			 value_data,
+			 value_32bit );
 
 			libnotify_verbose_printf(
 			 "Integer 32-bit signed\t: %" PRIi32 "\n\n",
@@ -674,52 +676,24 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
-			endian_little_convert_32bit(
-			 value_32bit,
-			 value_data );
+			byte_stream_copy_to_uint32_little_endian(
+			 value_data,
+			 value_float.integer );
 
-			if( memory_copy(
-			     &value_float,
-			     &value_32bit,
-			     sizeof( uint32_t ) ) == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-				 "%s: unable to convert 32-bit value into float.",
-				 function );
-
-				return( -1 );
-			}
 			libnotify_verbose_printf(
 			 "Floating point single precision value\t: %f\n\n",
-			 value_float );
+			 value_float.floating_point );
 
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
-			endian_little_convert_64bit(
-			 value_64bit,
-			 value_data );
+			byte_stream_copy_to_uint64_little_endian(
+			 value_data,
+			 value_double.integer );
 
-			if( memory_copy(
-			     &value_double,
-			     &value_64bit,
-			     sizeof( uint64_t ) ) == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-				 "%s: unable to convert 64-bit value into double.",
-				 function );
-
-				return( -1 );
-			}
 			libnotify_verbose_printf(
 			 "Floating point double precision value\t: %f\n\n",
-			 value_double );
+			 value_double.floating_point );
 
 			break;
 
@@ -809,9 +783,9 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
-			endian_little_convert_32bit(
-			 value_32bit,
-			 value_data );
+			byte_stream_copy_to_uint32_little_endian(
+			 value_data,
+			 value_32bit );
 
 			libnotify_verbose_printf(
 			 "Integer 32-bit unsigned\t: %" PRIu32 "\n\n",
@@ -820,9 +794,9 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
-			endian_little_convert_64bit(
-			 value_64bit,
-			 value_data );
+			byte_stream_copy_to_uint64_little_endian(
+			 value_data,
+			 value_64bit );
 
 			libnotify_verbose_printf(
 			 "Integer 64-bit signed\t: %" PRIi64 "\n\n",
@@ -867,9 +841,9 @@ int libesedb_debug_print_column_value(
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
-			endian_little_convert_16bit(
-			 value_16bit,
-			 value_data );
+			byte_stream_copy_to_uint16_little_endian(
+			 value_data,
+			 value_16bit );
 
 			libnotify_verbose_printf(
 			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",

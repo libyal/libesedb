@@ -1,11 +1,11 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include
 
 EXTRA_DIST = \
+	byte_stream.h \
 	common.h \
 	config.h \
 	config_borlandc.h \
 	config_msc.h \
-	endian.h \
 	file_stream.h \
 	memory.h \
 	narrow_string.h \

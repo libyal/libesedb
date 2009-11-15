@@ -2,7 +2,7 @@
  * Catalog definition functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -203,9 +204,9 @@ int libesedb_catalog_definition_read(
 	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) definition_data )->last_fixed_size_data_type;
 	last_variable_size_data_type = ( (esedb_data_definition_header_t *) definition_data )->last_variable_size_data_type;
 
-	endian_little_convert_16bit(
-	 variable_size_data_types_offset,
-	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset,
+	 variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
@@ -300,39 +301,39 @@ int libesedb_catalog_definition_read(
 	}
 	fixed_size_data_type_value_data = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
 
-	endian_little_convert_32bit(
-	 catalog_definition->father_data_page_object_identifier,
-	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_object_identifier );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_object_identifier,
+	 catalog_definition->father_data_page_object_identifier );
 
-	endian_little_convert_16bit(
-	 catalog_definition->type,
-	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->type );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->type,
+	 catalog_definition->type );
 
-	endian_little_convert_32bit(
-	 catalog_definition->identifier,
-	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->identifier );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->identifier,
+	 catalog_definition->identifier );
 
 	if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 	{
-		endian_little_convert_32bit(
-		 catalog_definition->column_type,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->column_type );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->column_type,
+		 catalog_definition->column_type );
 	}
 	else
 	{
-		endian_little_convert_32bit(
-		 catalog_definition->father_data_page_number,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_number );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_number,
+		 catalog_definition->father_data_page_number );
 	}
-	endian_little_convert_32bit(
-	 catalog_definition->size,
-	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->space_usage );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->space_usage,
+	 catalog_definition->size );
 
 	if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 	{
-		endian_little_convert_32bit(
-		 catalog_definition->codepage,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage,
+		 catalog_definition->codepage );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	data_type_number = 1;
@@ -385,9 +386,9 @@ int libesedb_catalog_definition_read(
 	 data_type_number++,
 	 catalog_definition->size );
 
-	endian_little_convert_32bit(
-	 value_32bit,
-	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->flags );
+	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->flags,
+	 value_32bit );
 
 	if( last_fixed_size_data_type >= 6 )
 	{
@@ -446,9 +447,9 @@ int libesedb_catalog_definition_read(
 		}
 		else if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
 		{
-			endian_little_convert_32bit(
-			 value_32bit,
-			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->locale_identifier );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->locale_identifier,
+			 value_32bit );
 
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
@@ -462,9 +463,9 @@ int libesedb_catalog_definition_read(
 		}
 		else
 		{
-			endian_little_convert_32bit(
-			 value_32bit,
-			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->amount_of_pages );
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->amount_of_pages,
+			 value_32bit );
 
 			libnotify_verbose_printf(
 			 "%s: (%03" PRIu16 ") amount of pages\t\t\t\t\t: %" PRIu32 "\n",
@@ -483,9 +484,9 @@ int libesedb_catalog_definition_read(
 	}
 	if( last_fixed_size_data_type >= 9 )
 	{
-		endian_little_convert_16bit(
-		 record_offset,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->record_offset );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->record_offset,
+		 record_offset );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") record offset\t\t\t\t\t: %" PRIu16 "\n",
@@ -495,9 +496,9 @@ int libesedb_catalog_definition_read(
 	}
 	if( last_fixed_size_data_type >= 10 )
 	{
-		endian_little_convert_32bit(
-		 value_32bit,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags,
+		 value_32bit );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t: 0x%08" PRIx32 "\n",
@@ -507,9 +508,9 @@ int libesedb_catalog_definition_read(
 	}
 	if( last_fixed_size_data_type >= 11 )
 	{
-		endian_little_convert_16bit(
-		 value_16bit,
-		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->key_most );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->key_most,
+		 value_16bit );
 
 		libnotify_verbose_printf(
 		 "%s: (%03" PRIu16 ") key most\t\t\t\t\t: 0x04%" PRIx16 "\n",
@@ -544,9 +545,9 @@ int libesedb_catalog_definition_read(
 		     variable_size_data_type_iterator < amount_of_variable_size_data_types;
 		     variable_size_data_type_iterator++ )
 		{
-			endian_little_convert_16bit(
-			 variable_size_data_type_size,
-			 variable_size_data_type_size_data );
+			byte_stream_copy_to_uint16_little_endian(
+			 variable_size_data_type_size_data,
+			 variable_size_data_type_size );
 
 			variable_size_data_type_size_data += 2;
 

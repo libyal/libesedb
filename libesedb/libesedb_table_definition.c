@@ -2,7 +2,7 @@
  * Table definition functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -177,33 +177,53 @@ int libesedb_table_definition_free(
 
 		return( -1 );
 	}
-	if( ( ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition != NULL )
-	 && ( libesedb_catalog_definition_free(
-	       (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition,
-	       error ) != 1 ) )
+	if( ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition != NULL )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table catalog definition.",
-		 function );
+		if( libesedb_catalog_definition_free(
+		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table catalog definition.",
+			 function );
 
-		result = -1;
+			result = -1;
+		}
 	}
-	if( ( ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition != NULL )
-	 && ( libesedb_catalog_definition_free(
-	       (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition,
-	       error ) != 1 ) )
+	if( ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition != NULL )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free long value catalog definition.",
-		 function );
+		if( libesedb_catalog_definition_free(
+		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free long value catalog definition.",
+			 function );
 
-		result = -1;
+			result = -1;
+		}
+	}
+	if( ( (libesedb_table_definition_t *) table_definition )->callback_catalog_definition != NULL )
+	{
+		if( libesedb_catalog_definition_free(
+		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->callback_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free callback catalog definition.",
+			 function );
+
+			result = -1;
+		}
 	}
 	if( libesedb_list_free(
 	     &( ( (libesedb_table_definition_t *) table_definition )->column_catalog_definition_list ),
@@ -295,6 +315,66 @@ int libesedb_table_definition_set_long_value_catalog_definition(
 		return( -1 );
 	}
 	table_definition->long_value_catalog_definition = long_value_catalog_definition;
+
+	return( 1 );
+}
+
+/* Sets a callback catalog definition to the table definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_set_callback_catalog_definition(
+     libesedb_table_definition_t *table_definition,
+     libesedb_catalog_definition_t *callback_catalog_definition,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_set_callback_catalog_definition";
+
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition->callback_catalog_definition != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table definition - callback catalog definition already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( callback_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid callback catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( callback_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported catalog definition type: %" PRIu16 ".",
+		 function,
+		 callback_catalog_definition->type );
+
+		return( -1 );
+	}
+	table_definition->callback_catalog_definition = callback_catalog_definition;
 
 	return( 1 );
 }

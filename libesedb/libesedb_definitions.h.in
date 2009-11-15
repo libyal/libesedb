@@ -2,7 +2,7 @@
  * The internal definitions
  *
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,10 +24,10 @@
 #define _LIBESEDB_INTERNAL_DEFINITIONS_H
 
 #include <common.h>
-#include <endian.h>
+#include <byte_stream.h>
 
-#define LIBESEDB_ENDIAN_BIG						_ENDIAN_BIG
-#define LIBESEDB_ENDIAN_LITTLE						_ENDIAN_LITTLE
+#define LIBESEDB_ENDIAN_BIG						_BYTE_STREAM_ENDIAN_BIG
+#define LIBESEDB_ENDIAN_LITTLE						_BYTE_STREAM_ENDIAN_LITTLE
 
 /* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
  */
@@ -120,7 +120,8 @@ enum LIBESEDB_CATALOG_DEFINITION_TYPES
 	LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE				= 1,
 	LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN				= 2,
 	LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX				= 3,
-	LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE			= 4
+	LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE			= 4,
+	LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK			= 5
 };
 
 /* Definitions of fixed FDP object identifiers

@@ -2,7 +2,7 @@
  * Record functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -88,22 +88,6 @@ int libesedb_record_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_element_initialize(
-		     &( internal_record->list_element ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create list element.",
-			 function );
-
-			memory_free(
-			 internal_record );
-
-			return( -1 );
-		}
 		*record = (libesedb_record_t *) internal_record;
 	}
 	return( 1 );
@@ -152,60 +136,6 @@ int libesedb_record_free(
 
 			return( -1 );
 		}
-		if( ( internal_record->list_element != NULL )
-		 && ( libesedb_list_element_free(
-		       &( internal_record->list_element ),
-		       NULL,
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free list element.",
-			 function );
-
-			result = -1;
-		}
-		memory_free(
-		 internal_record );
-	}
-	return( result );
-}
-
-/* Frees an record
- * Return 1 if successful or -1 on error
- */
-int libesedb_record_free_no_detach(
-     intptr_t *internal_record,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_record_free_no_detach";
-	int result            = 1;
-
-	if( internal_record != NULL )
-	{
-		if( ( (libesedb_internal_record_t *) internal_record )->internal_table != NULL )
-		{
-			if( ( ( (libesedb_internal_record_t *) internal_record )->list_element != NULL )
-			 && ( libesedb_list_element_free(
-			       &( ( (libesedb_internal_record_t *) internal_record )->list_element ),
-			       NULL,
-			       error ) != 1 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free list element.",
-				 function );
-
-				result = -1;
-			}
-		}
-		/* The internal_table and data_definition references
-		 * are freed elsewhere
-		 */
 		memory_free(
 		 internal_record );
 	}
@@ -234,17 +164,6 @@ int libesedb_record_attach(
 
 		return( -1 );
 	}
-	if( internal_record->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_record->internal_table != NULL )
 	{
 		liberror_error_set(
@@ -252,22 +171,6 @@ int libesedb_record_attach(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal record - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	/* Add record to table
-	 */
-	if( libesedb_list_append_element(
-	     internal_table->record_reference_list,
-	     internal_record->list_element,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append internal record to table.",
 		 function );
 
 		return( -1 );
@@ -298,35 +201,8 @@ int libesedb_record_detach(
 
 		return( -1 );
 	}
-	if( internal_record->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_record->internal_table != NULL )
 	{
-		/* Remove record from table
-		 */
-		if( libesedb_list_remove_element(
-		     internal_record->internal_table->record_reference_list,
-		     internal_record->list_element,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to remove internal record from table.",
-			 function );
-
-			return( -1 );
-		}
 		internal_record->internal_table  = NULL;
 		internal_record->data_definition = NULL;
 	}

@@ -2,7 +2,7 @@
  * Index functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -86,22 +86,6 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_element_initialize(
-		     &( internal_index->list_element ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create list element.",
-			 function );
-
-			memory_free(
-			 internal_index );
-
-			return( -1 );
-		}
 		*index = (libesedb_index_t *) internal_index;
 	}
 	return( 1 );
@@ -148,62 +132,8 @@ int libesedb_index_free(
 			 "%s: unable to detach internal index.",
 			 function );
 
-			return( -1 );
-		}
-		if( ( internal_index->list_element != NULL )
-		 && ( libesedb_list_element_free(
-		       &( internal_index->list_element ),
-		       NULL,
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free list element.",
-			 function );
-
 			result = -1;
 		}
-		memory_free(
-		 internal_index );
-	}
-	return( result );
-}
-
-/* Frees an index
- * Return 1 if successful or -1 on error
- */
-int libesedb_index_free_no_detach(
-     intptr_t *internal_index,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_index_free_no_detach";
-	int result            = 1;
-
-	if( internal_index != NULL )
-	{
-		if( ( (libesedb_internal_index_t *) internal_index )->internal_table != NULL )
-		{
-			if( ( ( (libesedb_internal_index_t *) internal_index )->list_element != NULL )
-			 && ( libesedb_list_element_free(
-			       &( ( (libesedb_internal_index_t *) internal_index )->list_element ),
-			       NULL,
-			       error ) != 1 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free list element.",
-				 function );
-
-				result = -1;
-			}
-		}
-		/* The internal_table and catalog_definition references
-		 * are freed elsewhere
-		 */
 		memory_free(
 		 internal_index );
 	}
@@ -232,17 +162,6 @@ int libesedb_index_attach(
 
 		return( -1 );
 	}
-	if( internal_index->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_index->internal_table != NULL )
 	{
 		liberror_error_set(
@@ -250,22 +169,6 @@ int libesedb_index_attach(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal index - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	/* Add index to table
-	 */
-	if( libesedb_list_append_element(
-	     internal_table->index_reference_list,
-	     internal_index->list_element,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append internal index to table.",
 		 function );
 
 		return( -1 );
@@ -296,35 +199,8 @@ int libesedb_index_detach(
 
 		return( -1 );
 	}
-	if( internal_index->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_index->internal_table != NULL )
 	{
-		/* Remove index from table
-		 */
-		if( libesedb_list_remove_element(
-		     internal_index->internal_table->index_reference_list,
-		     internal_index->list_element,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to remove internal index from table.",
-			 function );
-
-			return( -1 );
-		}
 		internal_index->internal_table     = NULL;
 		internal_index->catalog_definition = NULL;
 	}

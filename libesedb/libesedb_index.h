@@ -2,7 +2,7 @@
  * Index functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -48,10 +48,6 @@ struct libesedb_internal_index
 	/* The catalog definition
 	 */
 	libesedb_catalog_definition_t *catalog_definition;
-
-	/* The index reference list element
-	 */
-	libesedb_list_element_t *list_element;
 };
 
 int libesedb_index_initialize(
@@ -61,10 +57,6 @@ int libesedb_index_initialize(
 LIBESEDB_EXTERN int libesedb_index_free(
                      libesedb_index_t **index,
                      liberror_error_t **error );
-
-int libesedb_index_free_no_detach(
-     intptr_t *internal_index,
-     liberror_error_t **error );
 
 int libesedb_index_attach(
      libesedb_internal_index_t *internal_index,

@@ -2,7 +2,7 @@
  * Data definition functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -269,9 +270,9 @@ int libesedb_data_definition_read(
 	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) definition_data )->last_fixed_size_data_type;
 	last_variable_size_data_type = ( (esedb_data_definition_header_t *) definition_data )->last_variable_size_data_type;
 
-	endian_little_convert_16bit(
-	 variable_size_data_types_offset,
-	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset );
+	byte_stream_copy_to_uint16_little_endian(
+	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset,
+	 variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
@@ -462,9 +463,9 @@ int libesedb_data_definition_read(
 		{
 			if( column_catalog_definition->identifier <= last_variable_size_data_type )
 			{
-				endian_little_convert_16bit(
-				 variable_size_data_type_size,
-				 variable_size_data_type_size_data );
+				byte_stream_copy_to_uint16_little_endian(
+				 variable_size_data_type_size_data,
+				 variable_size_data_type_size );
 
 				variable_size_data_type_size_data += 2;
 
@@ -532,15 +533,15 @@ int libesedb_data_definition_read(
 					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] );
 					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
 
-					endian_little_convert_16bit(
-					 tagged_data_type_identifier,
-					 tagged_data_type_value_data );
+					byte_stream_copy_to_uint16_little_endian(
+					 tagged_data_type_value_data,
+					 tagged_data_type_identifier );
 
 					tagged_data_type_value_data += 2;
 
-					endian_little_convert_16bit(
-					 tagged_data_type_size,
-					 tagged_data_type_value_data );
+					byte_stream_copy_to_uint16_little_endian(
+					 tagged_data_type_value_data,
+					 tagged_data_type_size );
 
 					tagged_data_type_value_data += 2;
 
@@ -651,15 +652,15 @@ int libesedb_data_definition_read(
 					}
 					if( remaining_definition_data_size > 0 )
 					{
-						endian_little_convert_16bit(
-						 tagged_data_type_identifier,
-						 tagged_data_type_value_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_value_data,
+						 tagged_data_type_identifier );
 
 						tagged_data_type_value_data += 2;
 
-						endian_little_convert_16bit(
-						 tagged_data_type_size,
-						 tagged_data_type_value_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_value_data,
+						 tagged_data_type_size );
 
 						tagged_data_type_value_data += 2;
 
@@ -677,15 +678,15 @@ int libesedb_data_definition_read(
 
 					if( remaining_definition_data_size > 0 )
 					{
-						endian_little_convert_16bit(
-						 tagged_data_type_identifier,
-						 tagged_data_type_offset_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_offset_data,
+						 tagged_data_type_identifier );
 
 						tagged_data_type_offset_data += 2;
 
-						endian_little_convert_16bit(
-						 tagged_data_type_offset,
-						 tagged_data_type_offset_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_offset_data,
+						 tagged_data_type_offset );
 
 						tagged_data_type_offset_data += 2;
 
@@ -740,15 +741,15 @@ int libesedb_data_definition_read(
 
 					if( tagged_data_type_offset_data_size > 0 )
 					{
-						endian_little_convert_16bit(
-						 tagged_data_type_identifier,
-						 tagged_data_type_offset_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_offset_data,
+						 tagged_data_type_identifier );
 
 						tagged_data_type_offset_data += 2;
 
-						endian_little_convert_16bit(
-						 tagged_data_type_offset,
-						 tagged_data_type_offset_data );
+						byte_stream_copy_to_uint16_little_endian(
+						 tagged_data_type_offset_data,
+						 tagged_data_type_offset );
 
 						tagged_data_type_offset_data += 2;
 

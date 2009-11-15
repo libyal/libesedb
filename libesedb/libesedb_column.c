@@ -2,7 +2,7 @@
  * Column functions
  *
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -86,22 +86,6 @@ int libesedb_column_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_element_initialize(
-		     &( internal_column->list_element ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create list element.",
-			 function );
-
-			memory_free(
-			 internal_column );
-
-			return( -1 );
-		}
 		*column = (libesedb_column_t *) internal_column;
 	}
 	return( 1 );
@@ -150,60 +134,6 @@ int libesedb_column_free(
 
 			return( -1 );
 		}
-		if( ( internal_column->list_element != NULL )
-		 && ( libesedb_list_element_free(
-		       &( internal_column->list_element ),
-		       NULL,
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free list element.",
-			 function );
-
-			result = -1;
-		}
-		memory_free(
-		 internal_column );
-	}
-	return( result );
-}
-
-/* Frees an column
- * Return 1 if successful or -1 on error
- */
-int libesedb_column_free_no_detach(
-     intptr_t *internal_column,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_column_free_no_detach";
-	int result            = 1;
-
-	if( internal_column != NULL )
-	{
-		if( ( (libesedb_internal_column_t *) internal_column )->internal_table != NULL )
-		{
-			if( ( ( (libesedb_internal_column_t *) internal_column )->list_element != NULL )
-			 && ( libesedb_list_element_free(
-			       &( ( (libesedb_internal_column_t *) internal_column )->list_element ),
-			       NULL,
-			       error ) != 1 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free list element.",
-				 function );
-
-				result = -1;
-			}
-		}
-		/* The internal_table and catalog_definition references
-		 * are freed elsewhere
-		 */
 		memory_free(
 		 internal_column );
 	}
@@ -232,17 +162,6 @@ int libesedb_column_attach(
 
 		return( -1 );
 	}
-	if( internal_column->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_column->internal_table != NULL )
 	{
 		liberror_error_set(
@@ -250,22 +169,6 @@ int libesedb_column_attach(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal column - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	/* Add column to table
-	 */
-	if( libesedb_list_append_element(
-	     internal_table->column_reference_list,
-	     internal_column->list_element,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append internal column to table.",
 		 function );
 
 		return( -1 );
@@ -296,35 +199,8 @@ int libesedb_column_detach(
 
 		return( -1 );
 	}
-	if( internal_column->list_element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing list element.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_column->internal_table != NULL )
 	{
-		/* Remove column from table
-		 */
-		if( libesedb_list_remove_element(
-		     internal_column->internal_table->column_reference_list,
-		     internal_column->list_element,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to remove internal column from table.",
-			 function );
-
-			return( -1 );
-		}
 		internal_column->internal_table     = NULL;
 		internal_column->catalog_definition = NULL;
 	}

@@ -2,7 +2,7 @@
  * Windows Search database export functions
  *
  * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations. All rights reserved.
+ * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
 #include <types.h>
@@ -132,8 +133,8 @@ int windows_search_export_record_value_32bit(
 
 		return( -1 );
 	}
-	if( ( byte_order != _ENDIAN_BIG )
-	 && ( byte_order != _ENDIAN_LITTLE ) )
+	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
+	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
 		liberror_error_set(
 		 error,
@@ -216,17 +217,17 @@ int windows_search_export_record_value_32bit(
 
 			return( -1 );
 		}
-		if( byte_order == _ENDIAN_BIG )
+		if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 		{
-			endian_big_convert_32bit(
-			 value_32bit,
-			 value_data );
+			byte_stream_copy_to_uint32_big_endian(
+			 value_data,
+			 value_32bit );
 		}
 		else
 		{
-			endian_little_convert_32bit(
-			 value_32bit,
-			 value_data );
+			byte_stream_copy_to_uint32_little_endian(
+			 value_data,
+			 value_32bit );
 		}
 		fprintf(
 		 table_file_stream,
@@ -264,8 +265,8 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( ( byte_order != _ENDIAN_BIG )
-	 && ( byte_order != _ENDIAN_LITTLE ) )
+	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
+	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
 		liberror_error_set(
 		 error,
@@ -348,17 +349,17 @@ int windows_search_export_record_value_64bit(
 
 			return( -1 );
 		}
-		if( byte_order == _ENDIAN_BIG )
+		if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 		{
-			endian_big_convert_64bit(
-			 value_64bit,
-			 value_data );
+			byte_stream_copy_to_uint64_big_endian(
+			 value_data,
+			 value_64bit );
 		}
 		else
 		{
-			endian_little_convert_64bit(
-			 value_64bit,
-			 value_data );
+			byte_stream_copy_to_uint64_little_endian(
+			 value_data,
+			 value_64bit );
 		}
 		fprintf(
 		 table_file_stream,
@@ -891,7 +892,7 @@ int windows_search_export_record_systemindex_0a(
 			result = windows_search_export_record_value_32bit(
 			          record,
 			          value_iterator,
-			          _ENDIAN_BIG,
+			          _BYTE_STREAM_ENDIAN_BIG,
 			          table_file_stream,
 			          error );
 		}
@@ -900,7 +901,7 @@ int windows_search_export_record_systemindex_0a(
 			result = windows_search_export_record_value_64bit(
 			          record,
 			          value_iterator,
-			          _ENDIAN_BIG,
+			          _BYTE_STREAM_ENDIAN_BIG,
 			          table_file_stream,
 			          error );
 		}
