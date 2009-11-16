@@ -744,6 +744,175 @@ int esedbinfo_file_info_fprint(
 				return( -1 );
 			}
 		}
+		fprintf(
+		 stream,
+		 "\n" );
+
+		for( index_iterator = 0;
+		     index_iterator < amount_of_indexes;
+		     index_iterator++ )
+		{
+			if( libesedb_table_get_index(
+			     table,
+			     index_iterator,
+			     &index,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve index: %d.",
+				 function,
+				 index_iterator + 1 );
+
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_index_get_identifier(
+			     index,
+			     &index_identifier,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the index identifier.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_index_get_utf8_name_size(
+			     index,
+			     &value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the size of the index name.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			value_string = (uint8_t *) memory_allocate(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create index name string.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_index_get_utf8_name(
+			     index,
+			     value_string,
+			     value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the index name.",
+				 function );
+
+				memory_free(
+				 value_string );
+				libesedb_index_free(
+				 &index,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			fprintf(
+			 stream,
+			 "Index: %d\t\t\t%s (%d)\n",
+			 index_iterator + 1,
+			 value_string,
+			 index_identifier );
+
+			memory_free(
+			 value_string );
+
+			if( libesedb_index_test(
+			     index,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to test read index.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+
+			/* TODO print index columns */
+
+			if( libesedb_index_free(
+			     &index,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free index.",
+				 function );
+
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			fprintf(
+			 stream,
+			 "\n" );
+		}
 		if( libesedb_table_free(
 		     &table,
 		     error ) != 1 )
@@ -757,9 +926,6 @@ int esedbinfo_file_info_fprint(
 
 			return( -1 );
 		}
-		fprintf(
-		 stream,
-		 "\n" );
 	}
 	fprintf(
 	 stream,

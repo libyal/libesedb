@@ -30,6 +30,8 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
+#include "libesedb_file.h"
+#include "libesedb_page_tree.h"
 #include "libesedb_table.h"
 #include "libesedb_types.h"
 
@@ -41,6 +43,10 @@ typedef struct libesedb_internal_index libesedb_internal_index_t;
 
 struct libesedb_internal_index
 {
+	/* The internal file
+	 */
+	libesedb_internal_file_t *internal_file;
+
 	/* The internal table
 	 */
 	libesedb_internal_table_t *internal_table;
@@ -48,6 +54,10 @@ struct libesedb_internal_index
 	/* The catalog definition
 	 */
 	libesedb_catalog_definition_t *catalog_definition;
+
+	/* The index page tree
+	 */
+	libesedb_page_tree_t *index_page_tree;
 };
 
 int libesedb_index_initialize(
@@ -61,10 +71,15 @@ LIBESEDB_EXTERN int libesedb_index_free(
 int libesedb_index_attach(
      libesedb_internal_index_t *internal_index,
      libesedb_internal_table_t *internal_table,
+     libesedb_internal_file_t *internal_file,
      libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
 int libesedb_index_detach(
+     libesedb_internal_index_t *internal_index,
+     liberror_error_t **error );
+
+int libesedb_index_read_page_tree(
      libesedb_internal_index_t *internal_index,
      liberror_error_t **error );
 
@@ -82,6 +97,10 @@ LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
                      libesedb_index_t *index,
                      uint8_t *utf8_string,
                      size_t utf8_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_index_test(
+                     libesedb_index_t *index,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

@@ -247,7 +247,7 @@ int libesedb_table_read_page_tree(
      libesedb_internal_table_t *internal_table,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_table_detach";
+	static char *function = "libesedb_table_read_page_tree";
 
 	if( internal_table == NULL )
 	{
@@ -919,6 +919,7 @@ int libesedb_table_get_index(
 	if( libesedb_index_attach(
 	     (libesedb_internal_index_t *) *index,
 	     internal_table,
+	     internal_table->internal_file,
 	     index_catalog_definition,
 	     error ) != 1 )
 	{
@@ -962,17 +963,6 @@ int libesedb_table_get_amount_of_records(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_table->table_page_tree == NULL )
 	{
 		if( libesedb_table_read_page_tree(
@@ -1043,17 +1033,6 @@ int libesedb_table_get_record(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_table->table_page_tree == NULL )
 	{
 		if( libesedb_table_read_page_tree(
