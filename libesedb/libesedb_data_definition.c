@@ -561,7 +561,7 @@ int libesedb_data_definition_read(
 					 function,
 					 column_catalog_definition->identifier,
 					 tagged_data_type_size,
-					 tagged_data_type_size & 0x3fff );
+					 tagged_data_type_size & 0x5fff );
 #endif
 
 					if( ( tagged_data_type_size & 0x8000 ) == 0x8000 )
@@ -767,7 +767,7 @@ int libesedb_data_definition_read(
 
 						return( -1 );
 					}
-					if( tagged_data_type_offset_data_size > 0 )
+					if( ( tagged_data_type_offset & 0x3fff ) > ( previous_tagged_data_type_offset & 0x3fff ) )
 					{
 						tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
 					}

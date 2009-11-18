@@ -122,10 +122,15 @@ void libesedb_debug_print_page_flags(
 		 "\tIs long value\n" );
 	}
 
-	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PRIMARY ) == LIBESEDB_PAGE_FLAG_IS_PRIMARY )
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_0x0400 ) == LIBESEDB_PAGE_FLAG_0x0400 )
 	{
 		libnotify_verbose_printf(
-		 "\tIs primary\n" );
+		 "\t0x0400\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_0x0800 ) == LIBESEDB_PAGE_FLAG_0x0800 )
+	{
+		libnotify_verbose_printf(
+		 "\t0x0800 (primary?)\n" );
 	}
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT )

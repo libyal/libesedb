@@ -56,6 +56,12 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091118
+* worked on file format
+
+20091116
+* worked on file format
+
 20091115
 * updated common, libuna, libbfio, liberror, libnotify, libsystem
   libdatetime
@@ -73,7 +79,7 @@ Notes
 * change for version 0x620 revision 0x0b
 
 20091009
-* worked on EWF revision 2 version of tagged data type definitions
+* worked on EDB revision 2 version of tagged data type definitions
 
 20091008
 * added support for empty space tree header

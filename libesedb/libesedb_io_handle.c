@@ -299,10 +299,8 @@ int libesedb_io_handle_read_file_header(
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
-	 "%s: reading file header at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
-	 function,
-	 0,
-	 0 );
+	 "%s: reading file header at offset: 0 (0x00000000)\n",
+	 function );
 #endif
 
 	if( libbfio_handle_seek_offset(

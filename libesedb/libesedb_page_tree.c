@@ -506,7 +506,8 @@ int libesedb_page_tree_read_father_data_page_values(
 	                | LIBESEDB_PAGE_FLAG_IS_PARENT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
-	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
+	                | LIBESEDB_PAGE_FLAG_0x0400
+	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
@@ -896,7 +897,7 @@ int libesedb_page_tree_read_parent_page_values(
 	                | LIBESEDB_PAGE_FLAG_IS_ROOT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
-	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
+	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
@@ -1405,7 +1406,8 @@ int libesedb_page_tree_read_space_tree_page_values(
 	                | LIBESEDB_PAGE_FLAG_IS_PARENT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
-	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
+	                | LIBESEDB_PAGE_FLAG_0x0400
+	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
@@ -1810,7 +1812,8 @@ int libesedb_page_tree_read_leaf_page_values(
 	                | LIBESEDB_PAGE_FLAG_IS_ROOT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
-	                | LIBESEDB_PAGE_FLAG_IS_PRIMARY
+	                | LIBESEDB_PAGE_FLAG_0x0400
+	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
