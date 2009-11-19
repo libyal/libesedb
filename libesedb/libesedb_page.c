@@ -204,7 +204,10 @@ int libesedb_page_read(
 	static char *function              = "libesedb_page_read";
 	ssize_t read_count                 = 0;
 	off64_t page_offset                = 0;
+	uint32_t calculated_ecc32_checksum = 0;
 	uint32_t calculated_xor32_checksum = 0;
+	uint32_t stored_ecc32_checksum     = 0;
+	uint32_t stored_page_number        = 0;
 	uint32_t stored_xor32_checksum     = 0;
 	uint16_t available_data_size       = 0;
 	uint16_t available_page_tag        = 0;
@@ -354,6 +357,21 @@ int libesedb_page_read(
 	 ( (esedb_page_header_t *) page->data )->page_flags,
 	 page->flags );
 
+	/* Make sure to read after the page flags
+	 */
+	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
+	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_page_header_t *) page->data )->ecc_checksum,
+		 stored_ecc32_checksum );
+	}
+	else
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_page_header_t *) page->data )->page_number,
+		 stored_page_number );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	libnotify_verbose_printf(
 	 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
@@ -365,26 +383,20 @@ int libesedb_page_read(
 	 function,
 	 stored_xor32_checksum );
 
-	if( ( io_handle->format_revision >= 0x0c )
+	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
 	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_page_header_t *) page->data )->ecc_checksum,
-		 test );
 		libnotify_verbose_printf(
 		 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 test );
+		 stored_ecc32_checksum );
 	}
 	else
 	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_page_header_t *) page->data )->page_number,
-		 test );
 		libnotify_verbose_printf(
 		 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 test );
+		 stored_page_number );
 	}
 	libnotify_verbose_printf(
 	 "%s: database modification time:\n",
@@ -445,12 +457,14 @@ int libesedb_page_read(
 	 || ( page->data[ 2 ] != 0 )
 	 || ( page->data[ 3 ] != 0 ) )
 	{
-		if( io_handle->format_revision >= 0x0b )
+		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
 		{
-			if( libesedb_checksum_calculate_little_endian_xor32(
+			if( libesedb_checksum_calculate_little_endian_ecc32(
+			     &calculated_ecc32_checksum,
 			     &calculated_xor32_checksum,
 			     &( ( page->data )[ 8 ] ),
 			     page->data_size - 8,
+			     page->data_size,
 			     page_number,
 			     error ) != 1 )
 			{
@@ -458,7 +472,7 @@ int libesedb_page_read(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unable to calculate XOR-32 checksum.",
+				 "%s: unable to calculate ECC-32 and XOR-32 checksum.",
 				 function );
 
 				return( -1 );
@@ -490,7 +504,7 @@ int libesedb_page_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_INPUT,
 			 LIBERROR_INPUT_ERROR_CRC_MISMATCH,
-			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
+			 "%s: mismatch in page XOR-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
 			 function,
 			 stored_xor32_checksum,
 			 calculated_xor32_checksum );
@@ -498,10 +512,31 @@ int libesedb_page_read(
 			return( -1 );
 #else
 			libnotify_verbose_printf(
-			 "%s: mismatch in page XOR checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+			 "%s: mismatch in page XOR-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
 			 function,
 			 stored_xor32_checksum,
 			 calculated_xor32_checksum );
+#endif
+		}
+		if( stored_ecc32_checksum != calculated_ecc32_checksum )
+		{
+#ifdef TODO
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_INPUT,
+			 LIBERROR_INPUT_ERROR_CRC_MISMATCH,
+			 "%s: mismatch in page ECC-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
+			 function,
+			 stored_ecc32_checksum,
+			 calculated_ecc32_checksum );
+
+			return( -1 );
+#else
+			libnotify_verbose_printf(
+			 "%s: mismatch in page ECC-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+			 function,
+			 stored_ecc32_checksum,
+			 calculated_ecc32_checksum );
 #endif
 		}
 	}
