@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_CRC_H )
-#define _LIBESEDB_CRC_H
+#if !defined( _LIBESEDB_CHECKSUM_H )
+#define _LIBESEDB_CHECKSUM_H
 
 #include <common.h>
 #include <types.h>

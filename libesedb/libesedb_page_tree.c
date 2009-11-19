@@ -394,6 +394,10 @@ int libesedb_page_tree_read(
 			 "%s: unable to read leaf page values.",
 			 function );
 
+			libesedb_page_free(
+			 &page,
+			 NULL );
+
 			return( -1 );
 		}
 	}
@@ -412,6 +416,10 @@ int libesedb_page_tree_read(
 			 LIBERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read father data page values.",
 			 function );
+
+			libesedb_page_free(
+			 &page,
+			 NULL );
 
 			return( -1 );
 		}
