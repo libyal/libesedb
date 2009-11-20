@@ -1437,6 +1437,7 @@ int export_handle_export_record_value(
 				}
 				break;
 
+			case LIBESEDB_COLUMN_TYPE_CURRENCY:
 			case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
 				result = libesedb_record_get_value_64bit(
 					  record,
@@ -1458,10 +1459,20 @@ int export_handle_export_record_value(
 				}
 				else if( result != 0 )
 				{
-					fprintf(
-					 table_file_stream,
-					 "%" PRIi64 "",
-					 (int64_t) value_64bit );
+					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
+					{ 
+						fprintf(
+						 table_file_stream,
+						 "%" PRIi64 "",
+						 (int64_t) value_64bit );
+					}
+					else
+					{
+						fprintf(
+						 table_file_stream,
+						 "%" PRIu64 "",
+						 value_64bit );
+					}
 				}
 				break;
 

@@ -462,9 +462,9 @@ int libesedb_page_read(
 			if( libesedb_checksum_calculate_little_endian_ecc32(
 			     &calculated_ecc32_checksum,
 			     &calculated_xor32_checksum,
-			     &( ( page->data )[ 8 ] ),
-			     page->data_size - 8,
+			     page->data,
 			     page->data_size,
+			     8,
 			     page_number,
 			     error ) != 1 )
 			{

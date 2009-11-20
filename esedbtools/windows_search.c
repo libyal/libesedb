@@ -99,9 +99,9 @@
 enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 {
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED,
-	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN,
-	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN,
-	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN,
 };
 
@@ -714,6 +714,7 @@ int windows_search_export_record_systemindex_0a(
 	int known_column_type   = 0;
 	int result              = 0;
 	int value_iterator      = 0;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 
 	if( record == NULL )
 	{
@@ -818,13 +819,13 @@ int windows_search_export_record_systemindex_0a(
 
 			return( -1 );
 		}
+		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
+
 		/* Only check for known columns of the binary data type
 		 * some columns get their type reassigned over time
 		 */
 		if( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 		{
-			known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
-
 			if( column_name_size == 7 )
 			{
 				if( narrow_string_compare(
@@ -832,7 +833,12 @@ int windows_search_export_record_systemindex_0a(
 				     "__SDID",
 				     6 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN;
+					/* In the Windows Search XP database this value is of type binary data
+					 * the SystemIndex_0A table in the Windows Search XP database contains
+					 * binary values in big-endian
+					 */
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 				}
 			}
 			else if( column_name_size == 12 )
@@ -842,7 +848,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Size",
 				     11 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 			else if( column_name_size == 16 )
@@ -852,7 +858,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_ItemDate",
 				     15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 			}
 			else if( column_name_size == 19 )
@@ -862,7 +868,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_DateCreated",
 				     18 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 			}
 			else if( column_name_size == 20 )
@@ -872,14 +878,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_DateModified",
 				     19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( narrow_string_compare(
 					  (char *) column_name,
 					  "System_DateAccessed",
 					  19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 			}
 			else if( column_name_size == 25 )
@@ -889,34 +895,34 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Search_GatherTime",
 				     24 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 			}
 		}
-		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN )
+		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
 			result = windows_search_export_record_value_32bit(
 				  record,
 				  value_iterator,
-				  _BYTE_STREAM_ENDIAN_BIG,
+				  byte_order,
 				  table_file_stream,
 				  error );
 		}
-		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN )
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
 			result = windows_search_export_record_value_64bit(
 				  record,
 				  value_iterator,
-				  _BYTE_STREAM_ENDIAN_BIG,
+				  byte_order,
 				  table_file_stream,
 				  error );
 		}
-		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN )
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME )
 		{
 			result = windows_search_export_record_value_filetime(
 				  record,
 				  value_iterator,
-				  LIBFDATETIME_ENDIAN_BIG,
+				  byte_order,
 				  table_file_stream,
 				  error );
 		}
@@ -1077,13 +1083,13 @@ int windows_search_export_record_systemindex_gthr(
 
 			return( -1 );
 		}
+		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
+
 		/* Only check for known columns of the binary data type
 		 * some columns get their type reassigned over time
 		 */
 		if( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 		{
-			known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
-
 			if( column_name_size == 10 )
 			{
 				if( narrow_string_compare(

@@ -37,8 +37,8 @@ int libesedb_checksum_calculate_little_endian_ecc32(
      uint32_t *xor_checksum_value,
      uint8_t *buffer,
      size_t size,
-     size_t page_size,
-     uint32_t page_number,
+     size_t offset,
+     uint32_t initial_value,
      liberror_error_t **error );
 
 int libesedb_checksum_calculate_little_endian_xor32(

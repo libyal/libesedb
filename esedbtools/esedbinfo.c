@@ -1090,6 +1090,9 @@ int main( int argc, char * const argv[] )
 		libesedb_error_free(
 		 &error );
 
+		libesedb_file_close(
+		 esedb_file,
+		 NULL );
 		libesedb_file_free(
 		 &esedb_file,
 		 NULL );

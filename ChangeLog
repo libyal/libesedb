@@ -59,6 +59,9 @@ Notes
 
 20091120
 * worked on file format
+* fixed ECC for 32-bit architectures
+* worked on support of Windows Search Vista database
+* fixed memory leak in clean up of index page tree
 
 20091119
 * worked on file format

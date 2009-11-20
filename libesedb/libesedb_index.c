@@ -136,6 +136,20 @@ int libesedb_index_free(
 
 			result = -1;
 		}
+		if( ( internal_index->index_page_tree != NULL )
+		 && ( libesedb_page_tree_free(
+		       &( internal_index->index_page_tree ),
+		       error ) != 1 ) )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index page tree.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 internal_index );
 	}
