@@ -179,6 +179,7 @@ int libesedb_data_definition_read(
 	uint16_t variable_size_data_type_size                    = 0;
 	uint16_t variable_size_data_types_offset                 = 0;
 	uint8_t amount_of_variable_size_data_types               = 0;
+	uint8_t current_variable_size_data_type                  = 0;
 	uint8_t last_fixed_size_data_type                        = 0;
 	uint8_t last_variable_size_data_type                     = 0;
 	uint8_t tagged_data_types_format                         = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
@@ -325,6 +326,7 @@ int libesedb_data_definition_read(
 	}
 	list_element                       = column_catalog_definition_list->first;
 	fixed_size_data_type_value_data    = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
+	current_variable_size_data_type    = 127;
 	variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
 	variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
 
@@ -458,10 +460,9 @@ int libesedb_data_definition_read(
 				fixed_size_data_type_value_data += column_catalog_definition->size;
 			}
 		}
-		else if( ( column_catalog_definition->identifier >= 128 )
-		      && ( column_catalog_definition->identifier <= 255 ) )
+		else if( current_variable_size_data_type < last_variable_size_data_type )
 		{
-			if( column_catalog_definition->identifier <= last_variable_size_data_type )
+			if( current_variable_size_data_type < column_catalog_definition->identifier )
 			{
 				byte_stream_copy_to_uint16_little_endian(
 				 variable_size_data_type_size_data,
@@ -469,15 +470,19 @@ int libesedb_data_definition_read(
 
 				variable_size_data_type_size_data += 2;
 
+				current_variable_size_data_type++;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 				libnotify_verbose_printf(
 				 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 				 function,
-				 column_catalog_definition->identifier,
+				 current_variable_size_data_type,
 				 variable_size_data_type_size,
 				 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
 #endif
-
+			}
+			if( current_variable_size_data_type == column_catalog_definition->identifier )
+			{
 				/* The MSB signifies that the variable size data type is empty
 				 */
 				if( ( variable_size_data_type_size & 0x8000 ) == 0 )
@@ -526,11 +531,13 @@ int libesedb_data_definition_read(
 		}
 		else
 		{
+			variable_size_data_type_size &= 0x7fff;
+
 			if( tagged_data_types_format == LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR )
 			{
 				if( tagged_data_type_value_data == NULL )
 				{
-					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] );
+					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
 					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
 
 					byte_stream_copy_to_uint16_little_endian(
@@ -672,8 +679,8 @@ int libesedb_data_definition_read(
 			{
 				if( tagged_data_type_offset_data == NULL )
 				{
-					tagged_data_type_offset_data   = &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] );
-					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] );
+					tagged_data_type_offset_data   = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
+					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
 					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
 
 					if( remaining_definition_data_size > 0 )
@@ -692,6 +699,7 @@ int libesedb_data_definition_read(
 
 						if( tagged_data_type_offset == 0 )
 						{
+fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) );
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,

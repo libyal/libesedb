@@ -68,7 +68,6 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	uint32_t bitmask               = 0;
 	uint32_t bit_iterator          = 0;
 	uint32_t final_bitmask         = 0;
-	uint32_t lookup_mask           = 0;
 	uint32_t value_32bit           = 0;
 	uint32_t xor32_value           = 0;
 	uint32_t xor32_vertical_first  = 0;
@@ -176,17 +175,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 			xor32_value     >>= 8;
 			mask_table_index ^= ( xor32_value & 0xff );
 
-			lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-			lookup_mask <<= 8;
-			lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-			lookup_mask <<= 8;
-			lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-			lookup_mask <<= 8;
-			lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-			lookup_mask  &= bitmask;
-
-			*ecc_checksum_value ^= lookup_mask;
-
+			if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+			{
+				*ecc_checksum_value ^= bitmask;
+			}
 			bitmask         -= 0x007fff80UL;
 			buffer_alignment = 0;
 			xor32_value      = 0;
@@ -202,16 +194,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 		xor32_value     >>= 8;
 		mask_table_index ^= ( xor32_value & 0xff );
 
-		lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-		lookup_mask <<= 8;
-		lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-		lookup_mask <<= 8;
-		lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-		lookup_mask <<= 8;
-		lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-		lookup_mask  &= bitmask;
-
-		*ecc_checksum_value ^= lookup_mask;
+		if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+		{
+			*ecc_checksum_value ^= bitmask;
+		}
 	}
 	/* Determine the checksum part of the combination of
 	 * the first and second vertical XOR
@@ -227,17 +213,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	xor32_value     >>= 8;
 	mask_table_index ^= ( xor32_value & 0xff );
 
-	lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask &= 0x00400000UL;
-
-	*ecc_checksum_value ^= lookup_mask;
-
+	if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+	{
+		*ecc_checksum_value ^= (uint32_t) 0x00400000UL;
+	}
 	/* Determine the checksum part of the combination of
 	 * the first and third vertical XOR
 	 */
@@ -252,17 +231,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	xor32_value     >>= 8;
 	mask_table_index ^= ( xor32_value & 0xff );
 
-	lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask &= 0x00200000UL;
-
-	*ecc_checksum_value ^= lookup_mask;
-
+	if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+	{
+		*ecc_checksum_value ^= (uint32_t) 0x00200000UL;
+	}
 	/* Determine the checksum part of the combination of
 	 * the second and fourth vertical XOR
 	 */
@@ -277,17 +249,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	xor32_value     >>= 8;
 	mask_table_index ^= ( xor32_value & 0xff );
 
-	lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask &= 0x00000020UL;
-
-	*ecc_checksum_value ^= lookup_mask;
-
+	if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+	{
+		*ecc_checksum_value ^= (uint32_t) 0x00000020UL;
+	}
 	/* Determine the checksum part of the combination of
 	 * the third and fourth vertical XOR
 	 */
@@ -302,17 +267,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	xor32_value     >>= 8;
 	mask_table_index ^= ( xor32_value & 0xff );
 
-	lookup_mask   = libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask <<= 8;
-	lookup_mask  |= libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ];
-	lookup_mask &= 0x00000040UL;
-
-	*ecc_checksum_value ^= lookup_mask;
-
+	if( libesedb_checksum_ecc32_mask_lookup_table[ mask_table_index ] != 0 )
+	{
+		*ecc_checksum_value ^= (uint32_t) 0x00000040UL;
+	}
 	/* Determine the XOR-32
 	 */
 	xor32_value  = xor32_vertical_first;
@@ -337,11 +295,11 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	}
 	/* Determine the buffer size bitmask
 	 */
-	if( page_size > 8192 )
+	if( page_size < 8192 )
 	{
 		*ecc_checksum_value &= 0xffffffffUL ^ (uint32_t) ( page_size << 19 );
 	}
-	*ecc_checksum_value = ( *ecc_checksum_value ) ^ ( ( *ecc_checksum_value ^ final_bitmask ) & 0x001f001fUL );
+	*ecc_checksum_value ^= ( *ecc_checksum_value ^ final_bitmask ) & 0x001f001fUL;
 	*xor_checksum_value ^= xor32_value;
 
 	return( 1 );

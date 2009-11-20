@@ -818,109 +818,115 @@ int windows_search_export_record_systemindex_0a(
 
 			return( -1 );
 		}
-		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
+		/* Only check for known columns of the binary data type
+		 * some columns get their type reassigned over time
+		 */
+		if( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+		{
+			known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
 
-		if( column_name_size == 7 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "__SDID",
-			     6 ) == 0 )
+			if( column_name_size == 7 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "__SDID",
+				     6 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN;
+				}
 			}
-		}
-		else if( column_name_size == 12 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "System_Size",
-			     11 ) == 0 )
+			else if( column_name_size == 12 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "System_Size",
+				     11 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN;
+				}
 			}
-		}
-		else if( column_name_size == 16 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "System_ItemDate",
-			     15 ) == 0 )
+			else if( column_name_size == 16 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "System_ItemDate",
+				     15 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				}
 			}
-		}
-		else if( column_name_size == 19 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "System_DateCreated",
-			     18 ) == 0 )
+			else if( column_name_size == 19 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "System_DateCreated",
+				     18 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				}
 			}
-		}
-		else if( column_name_size == 20 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "System_DateModified",
-			     19 ) == 0 )
+			else if( column_name_size == 20 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "System_DateModified",
+				     19 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				}
+				else if( narrow_string_compare(
+					  (char *) column_name,
+					  "System_DateAccessed",
+					  19 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				}
 			}
-			else if( narrow_string_compare(
-			          (char *) column_name,
-			          "System_DateAccessed",
-			          19 ) == 0 )
+			else if( column_name_size == 25 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
-			}
-		}
-		else if( column_name_size == 25 )
-		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "System_Search_GatherTime",
-			     24 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "System_Search_GatherTime",
+				     24 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN;
+				}
 			}
 		}
 		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT_BIG_ENDIAN )
 		{
 			result = windows_search_export_record_value_32bit(
-			          record,
-			          value_iterator,
-			          _BYTE_STREAM_ENDIAN_BIG,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  _BYTE_STREAM_ENDIAN_BIG,
+				  table_file_stream,
+				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT_BIG_ENDIAN )
 		{
 			result = windows_search_export_record_value_64bit(
-			          record,
-			          value_iterator,
-			          _BYTE_STREAM_ENDIAN_BIG,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  _BYTE_STREAM_ENDIAN_BIG,
+				  table_file_stream,
+				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME_BIG_ENDIAN )
 		{
 			result = windows_search_export_record_value_filetime(
-			          record,
-			          value_iterator,
-			          LIBFDATETIME_ENDIAN_BIG,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  LIBFDATETIME_ENDIAN_BIG,
+				  table_file_stream,
+				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
-			          record,
-			          value_iterator,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  table_file_stream,
+				  error );
 		}
 		if( result != 1 )
 		{
@@ -1071,41 +1077,47 @@ int windows_search_export_record_systemindex_gthr(
 
 			return( -1 );
 		}
-		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
-
-		if( column_name_size == 10 )
+		/* Only check for known columns of the binary data type
+		 * some columns get their type reassigned over time
+		 */
+		if( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 		{
-			if( narrow_string_compare(
-			     (char *) column_name,
-			     "FileName1",
-			     9 ) == 0 )
+			known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
+
+			if( column_name_size == 10 )
 			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
-			}
-			else if( narrow_string_compare(
-			         (char *) column_name,
-			         "FileName2",
-			         9 ) == 0 )
-			{
-				known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "FileName1",
+				     9 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
+				}
+				else if( narrow_string_compare(
+					 (char *) column_name,
+					 "FileName2",
+					 9 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
+				}
 			}
 		}
 		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
 		{
 			result = windows_search_export_record_value_utf16_string(
-			          record,
-			          value_iterator,
-			          LIBUNA_ENDIAN_LITTLE,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  LIBUNA_ENDIAN_LITTLE,
+				  table_file_stream,
+				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
-			          record,
-			          value_iterator,
-			          table_file_stream,
-			          error );
+				  record,
+				  value_iterator,
+				  table_file_stream,
+				  error );
 		}
 		if( result != 1 )
 		{
