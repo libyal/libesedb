@@ -500,7 +500,7 @@ int libesedb_data_definition_read(
 					if( libesedb_data_type_definition_set_data(
 					     data_type_definition,
 					     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-					     variable_size_data_type_size,
+					     variable_size_data_type_size - previous_variable_size_data_type_size,
 					     error ) != 1 )
 					{
 						liberror_error_set(

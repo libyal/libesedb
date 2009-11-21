@@ -14,6 +14,7 @@ AM_LDFLAGS = @STATIC_LDFLAGS@
 bin_PROGRAMS = esedbexport esedbinfo
 
 esedbexport_SOURCES = \
+	ascii7.c ascii7.h \
 	guid.c guid.h \
 	esedbcommon.h \
 	esedbexport.c \

@@ -1293,7 +1293,8 @@ int libesedb_record_get_value_64bit(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
+	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
+	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
 	{
 		liberror_error_set(
 		 error,

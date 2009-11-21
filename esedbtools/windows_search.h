@@ -63,6 +63,12 @@ int windows_search_export_record_value_filetime(
      FILE *table_file_stream,
      liberror_error_t **error );
 
+int windows_search_export_record_value_ascii7_compressed_string(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
 int windows_search_export_record_value_utf16_string(
      libesedb_record_t *record,
      int record_value_entry,

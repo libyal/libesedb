@@ -1,10 +1,13 @@
 TODO
 
+* ascii 7-bit compression
+  - handle extended ascii strings with leading byte 0x01
+* handle multi values
+
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table 1
 * move bfio handle to item layer
-* implement cloning of items for improved asynchronous and multi threaded
-usage
+* implement cloning of items for improved asynchronous and multi threaded usage
 
 * windows search
   - change libuna utf16 functions to libsystem utf16 functions
@@ -56,6 +59,11 @@ Deployment:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20091121
+* worked on support of Windows Search Vista database
+  - added ASCII 7-bit compression support
+* fixed error regarding variable size data type size
 
 20091120
 * worked on file format
