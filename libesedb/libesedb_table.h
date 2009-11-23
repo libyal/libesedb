@@ -98,6 +98,17 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
+                     libesedb_table_t *table,
+                     int *amount_of_columns,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_table_get_column(
+                     libesedb_table_t *table,
+                     int column_entry,
+                     libesedb_column_t **column,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
                      libesedb_table_t *table,
                      int *amount_of_indexes,

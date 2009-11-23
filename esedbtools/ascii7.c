@@ -233,19 +233,21 @@ int ascii7_decompress_to_utf8_string(
 	{
 		if( ( compressed_data_iterator % 4 ) == 0 )
 		{
-			bitmask = compressed_data[ 0 ] ^ ( compressed_data_iterator + 1 );
+			bitmask = compressed_data[ 0 ] ^ ( (uint8_t) compressed_data_iterator + 1 );
 		}
 		else if( ( compressed_data_iterator % 4 ) == 1 )
 		{
-			bitmask = compressed_data_iterator - 1;
+			bitmask = (uint8_t) compressed_data_iterator;
+
+			bitmask -= 1;
 		}
 		else if( ( compressed_data_iterator % 4 ) == 2 )
 		{
-			bitmask = compressed_data_iterator;
+			bitmask = (uint8_t) compressed_data_iterator;
 		}
 		else if( ( compressed_data_iterator % 4 ) == 3 )
 		{
-			bitmask = compressed_data_iterator ^ 0x05;
+			bitmask = (uint8_t) compressed_data_iterator ^ 0x05;
 		}
 		utf8_string[ utf8_string_iterator++ ] = compressed_data[ compressed_data_iterator ] ^ bitmask;
 	}
@@ -330,19 +332,21 @@ int ascii7_decompress_to_utf16_string(
 	{
 		if( ( compressed_data_iterator % 4 ) == 0 )
 		{
-			bitmask = compressed_data[ 0 ] ^ ( compressed_data_iterator + 1 );
+			bitmask = compressed_data[ 0 ] ^ ( (uint8_t) compressed_data_iterator + 1 );
 		}
 		else if( ( compressed_data_iterator % 4 ) == 1 )
 		{
-			bitmask = compressed_data_iterator - 1;
+			bitmask = (uint8_t) compressed_data_iterator;
+
+			bitmask -= 1;
 		}
 		else if( ( compressed_data_iterator % 4 ) == 2 )
 		{
-			bitmask = compressed_data_iterator;
+			bitmask = (uint8_t) compressed_data_iterator;
 		}
 		else if( ( compressed_data_iterator % 4 ) == 3 )
 		{
-			bitmask = compressed_data_iterator ^ 0x05;
+			bitmask = (uint8_t) compressed_data_iterator ^ 0x05;
 		}
 		utf16_string[ utf16_string_iterator++ ] = compressed_data[ compressed_data_iterator ] ^ bitmask;
 	}

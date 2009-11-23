@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="libnotify"
-	ProjectGUID="{9381BD88-C1D2-4573-9567-5A9D705AE74E}"
-	RootNamespace="libnotify"
+	Version="9.00"
+	Name="libfwintype"
+	ProjectGUID="{CDB03E65-C81B-47E0-B70F-C880D841DD61}"
+	RootNamespace="libfwintype"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -39,10 +39,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFWINTYPE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
-				WarnAsError="false"
 				CompileAs="1"
 			/>
 			<Tool
@@ -56,7 +55,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libnotify.lib"
+				OutputFile="$(OutDir)\libfwintype.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -100,10 +99,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFWINTYPE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
-				WarnAsError="false"
 				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
@@ -118,7 +116,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libnotify.lib"
+				OutputFile="$(OutDir)\libfwintype.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -148,7 +146,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libnotify\libnotify.c"
+				RelativePath="..\..\libfwintype\libfwintype_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_guid.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_support.c"
 				>
 			</File>
 		</Filter>
@@ -158,7 +164,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libnotify\libnotify.h"
+				RelativePath="..\..\libfwintype\libfwintype_definitions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_error.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_guid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_support.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwintype\libfwintype_types.h"
 				>
 			</File>
 		</Filter>

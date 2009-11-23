@@ -60,6 +60,10 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091123
+* worked on file format
+* changes for MSVSCPP compilation
+
 20091121
 * worked on support of Windows Search Vista database
   - added ASCII 7-bit compression support

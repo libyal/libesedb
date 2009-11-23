@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="libnotify"
-	ProjectGUID="{9381BD88-C1D2-4573-9567-5A9D705AE74E}"
-	RootNamespace="libnotify"
+	Version="9.00"
+	Name="esedbinfo"
+	ProjectGUID="{A7545354-5D50-49F6-A3D0-1F97F6228955}"
+	RootNamespace="esedbinfo"
+	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -19,7 +20,9 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -38,72 +41,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libsystem"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE;LIBESEDB_DLL_IMPORT"
 				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="4"
-				WarnAsError="false"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libnotify.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
-				RuntimeLibrary="2"
-				WarningLevel="4"
-				WarnAsError="false"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
@@ -117,13 +60,23 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libnotify.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
+				Name="VCLinkerTool"
+				AdditionalDependencies=""
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -133,6 +86,87 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfmapi;..\..\libsystem"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFMAPI;LIBESEDB_DLL_IMPORT"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CompileAs="1"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies=""
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -148,7 +182,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libnotify\libnotify.c"
+				RelativePath="..\..\esedbtools\esedbinfo.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedbinput.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedboutput.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\guid.c"
 				>
 			</File>
 		</Filter>
@@ -158,7 +204,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libnotify\libnotify.h"
+				RelativePath="..\..\esedbtools\esedbinput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedboutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\guid.h"
 				>
 			</File>
 		</Filter>

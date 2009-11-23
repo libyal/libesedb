@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="libsystem"
-	ProjectGUID="{A2B861D5-6751-43A9-B085-8D48F8754AC5}"
-	RootNamespace="libsystem"
+	Version="9.00"
+	Name="esedbexport"
+	ProjectGUID="{6B758D1D-FE05-49C6-836B-9B8AC8DC4FCD}"
+	RootNamespace="esedbexport"
+	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -19,8 +20,9 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
 			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -39,73 +41,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libsystem"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE;LIBESEDB_DLL_IMPORT"
 				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="4"
-				WarnAsError="false"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libsystem.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
-				RuntimeLibrary="2"
-				WarningLevel="4"
-				WarnAsError="false"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
@@ -119,13 +60,23 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libsystem.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
+				Name="VCLinkerTool"
+				AdditionalDependencies="libfdatetime.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -135,6 +86,87 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfmapi;..\..\libsystem"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFMAPI;LIBESEDB_DLL_IMPORT"
+				RuntimeLibrary="2"
+				UsePrecompiledHeader="0"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CompileAs="1"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libfdatetime.lib libfmapi.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -150,39 +182,35 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libsystem\libsystem_date_time.c"
+				RelativePath="..\..\esedbtools\ascii7.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error.c"
+				RelativePath="..\..\esedbtools\esedbexport.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file.c"
+				RelativePath="..\..\esedbtools\esedbinput.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_getopt.c"
+				RelativePath="..\..\esedbtools\esedboutput.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_glob.c"
+				RelativePath="..\..\esedbtools\export_handle.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_notify.c"
+				RelativePath="..\..\esedbtools\guid.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_signal.c"
+				RelativePath="..\..\esedbtools\log_handle.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_string.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_support.c"
+				RelativePath="..\..\esedbtools\windows_search.c"
 				>
 			</File>
 		</Filter>
@@ -192,63 +220,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libsystem\libsystem.h"
+				RelativePath="..\..\esedbtools\ascii7.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_date_time.h"
+				RelativePath="..\..\esedbtools\esedbcommon.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_directory.h"
+				RelativePath="..\..\esedbtools\esedbinput.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_directory_io.h"
+				RelativePath="..\..\esedbtools\esedboutput.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error.h"
+				RelativePath="..\..\esedbtools\export_handle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file.h"
+				RelativePath="..\..\esedbtools\guid.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file_io.h"
+				RelativePath="..\..\esedbtools\log_handle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file_stream.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_getopt.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_glob.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_libuna.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_notify.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_signal.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_string.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_support.h"
+				RelativePath="..\..\esedbtools\windows_search.h"
 				>
 			</File>
 		</Filter>

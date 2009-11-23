@@ -453,12 +453,12 @@ int libesedb_page_tree_read_father_data_page_values(
 	libesedb_page_t *space_tree_page  = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	static char *function             = "libesedb_page_tree_read_father_data_page_values";
+	uint32_t extent_space             = 0;
 	uint32_t required_flags           = 0;
 	uint32_t space_tree_page_number   = 0;
 	uint32_t supported_flags          = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t extent_space             = 0;
 	uint32_t initial_amount_of_pages  = 0;
 	uint32_t test                     = 0;
 #endif
@@ -1098,7 +1098,7 @@ int libesedb_page_tree_read_child_pages(
 		/* TODO handle leaf page values */
 
 		page_value_data = page_value->data;
-		page_value_size = page_value->size;
+		page_value_size = (uint16_t) page_value->size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( ( page_value->flags & 0x04 ) == 0x04 )
@@ -1934,7 +1934,7 @@ int libesedb_page_tree_read_leaf_page_values(
 		/* TODO handle the leaf page keys */
 
 		page_value_data = page_value->data;
-		page_value_size = page_value->size;
+		page_value_size = (uint16_t) page_value->size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(

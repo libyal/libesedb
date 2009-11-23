@@ -1044,6 +1044,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
+				          "System_EndDate",
+				          14 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
 				          "System_ItemUrl",
 				          14 ) == 0 )
 				{
@@ -1313,6 +1320,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
+				          "System_Music_PartOfSet",
+				          22 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
 				          "System_Photo_DateTaken",
 				          22 ) == 0 )
 				{
@@ -1361,29 +1375,43 @@ int windows_search_export_record_systemindex_0a(
 			{
 				if( narrow_string_compare(
 				     (char *) column_name,
-				     "System_Media_DateEncoded",
+				     "System_Calendar_Location",
 				     24 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Media_DateEncoded",
+				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
-				      "System_Message_ToAddress",
-				      24 ) == 0 )
+				          "System_Message_CcAddress",
+				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
-				      "System_Music_AlbumArtist",
-				      24 ) == 0 )
+				          "System_Message_ToAddress",
+				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
-				      "System_Search_GatherTime",
-				      24 ) == 0 )
+				          "System_Music_AlbumArtist",
+				          24 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Search_GatherTime",
+				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
@@ -1498,8 +1526,15 @@ int windows_search_export_record_systemindex_0a(
 			{
 				if( narrow_string_compare(
 				     (char *) column_name,
-				     "System_Media_CollectionGroupID",
+				     "System_Calendar_ShowTimeAsText",
 				     30 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Media_CollectionGroupID",
+				          30 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
