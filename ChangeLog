@@ -1,7 +1,6 @@
 TODO
 
 * ascii 7-bit compression
-  - handle extended ascii strings with leading byte 0x01
 * handle multi values
 
 * parse variable types even when they are not part of the table catalog definition
@@ -79,6 +78,9 @@ Notes
 * worked on file format
 * worked on ECC
 * fixed possible memory leak on error
+* worked on handling ASCII 7-bit compression
+  - additional findings regarding leading byte 0xa0
+  - now handles extended ascii strings with leading byte 0x01
 
 20091118
 * worked on file format

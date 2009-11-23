@@ -239,7 +239,10 @@ int ascii7_decompress_to_utf8_string(
 		{
 			bitmask = (uint8_t) compressed_data_iterator;
 
-			bitmask -= 1;
+			if( compressed_data[ 0 ] != 0xa0 )
+			{
+				bitmask -= 1;
+			}
 		}
 		else if( ( compressed_data_iterator % 4 ) == 2 )
 		{
@@ -338,7 +341,10 @@ int ascii7_decompress_to_utf16_string(
 		{
 			bitmask = (uint8_t) compressed_data_iterator;
 
-			bitmask -= 1;
+			if( compressed_data[ 0 ] != 0xa0 )
+			{
+				bitmask -= 1;
+			}
 		}
 		else if( ( compressed_data_iterator % 4 ) == 2 )
 		{

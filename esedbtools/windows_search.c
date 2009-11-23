@@ -556,13 +556,15 @@ int windows_search_export_record_value_ascii_7bit_compressed_string(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *value_data      = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "windows_search_export_record_value_ascii_7bit_compressed_string";
-	size_t value_data_size   = 0;
-	size_t value_string_size = 0;
-	uint32_t column_type     = 0;
-	uint8_t value_tag_byte   = 0;
+	uint8_t *ascii_value_string    = NULL;
+	uint8_t *value_data            = NULL;
+	uint8_t *value_string          = NULL;
+	static char *function          = "windows_search_export_record_value_ascii_7bit_compressed_string";
+	size_t ascii_value_string_size = 0;
+	size_t value_data_size         = 0;
+	size_t value_string_size       = 0;
+	uint32_t column_type           = 0;
+	uint8_t value_tag_byte         = 0;
 
 	if( record == NULL )
 	{
@@ -684,6 +686,74 @@ int windows_search_export_record_value_ascii_7bit_compressed_string(
 			 value_string );
 
 			return( -1 );
+		}
+		if( value_string[ 0 ] == 0x01 )
+		{
+			ascii_value_string      = value_string;
+			ascii_value_string_size = value_string_size;
+
+			if( libuna_utf8_string_size_from_byte_stream(
+			     &( ascii_value_string[ 1 ] ),
+			     ascii_value_string_size - 1,
+			     LIBUNA_CODEPAGE_WINDOWS_1252,
+			     &value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to determine size of value string: %d.",
+				 function,
+				 record_value_entry + 1 );
+
+				memory_free(
+				 ascii_value_string );
+
+				return( -1 );
+			}
+			value_string = (uint8_t *) memory_allocate(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value string.",
+				 function );
+
+				memory_free(
+				 ascii_value_string );
+
+				return( -1 );
+			}
+			if( libuna_utf8_string_copy_from_byte_stream(
+			     value_string,
+			     value_string_size,
+			     &( ascii_value_string[ 1 ] ),
+			     ascii_value_string_size - 1,
+			     LIBUNA_CODEPAGE_WINDOWS_1252,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value string: %d.",
+				 function,
+				 record_value_entry + 1 );
+
+				memory_free(
+				 ascii_value_string );
+				memory_free(
+				 value_string );
+
+				return( -1 );
+			}
+			memory_free(
+			 ascii_value_string );
 		}
 		fprintf(
 		 table_file_stream,
