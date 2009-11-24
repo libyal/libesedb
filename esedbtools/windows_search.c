@@ -1543,6 +1543,13 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Message_MessageClass",
+				          27 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
 			}
 			else if( column_name_size == 29 )
 			{
@@ -1587,6 +1594,13 @@ int windows_search_export_record_systemindex_0a(
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_RecordedTV_EpisodeName",
+				          29 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Message_ConversationID",
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;

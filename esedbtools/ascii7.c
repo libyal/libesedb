@@ -239,7 +239,7 @@ int ascii7_decompress_to_utf8_string(
 		{
 			bitmask = (uint8_t) compressed_data_iterator;
 
-			if( compressed_data[ 0 ] != 0xa0 )
+			if( compressed_data_size <= 256 )
 			{
 				bitmask -= 1;
 			}
@@ -341,7 +341,7 @@ int ascii7_decompress_to_utf16_string(
 		{
 			bitmask = (uint8_t) compressed_data_iterator;
 
-			if( compressed_data[ 0 ] != 0xa0 )
+			if( compressed_data_size <= 256 )
 			{
 				bitmask -= 1;
 			}

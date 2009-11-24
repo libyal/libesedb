@@ -528,7 +528,7 @@ int libesedb_data_definition_read(
 					}
 #endif
 				}
-				if( current_variable_size_data_type == 255 )
+				if( current_variable_size_data_type >= last_variable_size_data_type )
 				{
 					break;
 				}

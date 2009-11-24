@@ -31,12 +31,14 @@ libesedb_la_SOURCES = \
 	libesedb_file.c libesedb_file.h \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
+	libesedb_key.c libesedb_key.h \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_libbfio.h \
 	libesedb_libfdatetime.h \
 	libesedb_libfwintype.h \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \
+	libesedb_long_value.c libesedb_long_value.h \
 	libesedb_notify.c libesedb_notify.h \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_tree.c libesedb_page_tree.h \

@@ -33,6 +33,7 @@
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_debug.h"
+#include "libesedb_key.h"
 #include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
@@ -905,6 +906,7 @@ int libesedb_page_tree_read_parent_page_values(
 	                | LIBESEDB_PAGE_FLAG_IS_ROOT
 	                | LIBESEDB_PAGE_FLAG_IS_INDEX
 	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
+	                | LIBESEDB_PAGE_FLAG_0x0400
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
 
@@ -1018,13 +1020,10 @@ int libesedb_page_tree_read_child_pages(
 	uint32_t previous_child_page_number      = 0;
 	uint32_t previous_next_child_page_number = 0;
 	uint16_t amount_of_page_values           = 0;
-	uint16_t page_value_iterator             = 0;
-	uint16_t page_value_size                 = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
 	uint16_t page_key_size                   = 0;
 	uint16_t page_key_type                   = 0;
-#endif
+	uint16_t page_value_iterator             = 0;
+	uint16_t page_value_size                 = 0;
 
 	if( page_tree == NULL )
 	{
@@ -1100,7 +1099,6 @@ int libesedb_page_tree_read_child_pages(
 		page_value_data = page_value->data;
 		page_value_size = (uint16_t) page_value->size;
 
-#if defined( HAVE_DEBUG_OUTPUT )
 		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
 			byte_stream_copy_to_uint16_little_endian(
@@ -1119,6 +1117,7 @@ int libesedb_page_tree_read_child_pages(
 			 page_key_type );
 #endif
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
 		else if( ( page_value->flags & 0x7 ) != 0 )
 		{
 			libnotify_verbose_printf(
@@ -1129,6 +1128,7 @@ int libesedb_page_tree_read_child_pages(
 			 page_value_data,
 			 page_value_size );
 		}
+#endif
 		byte_stream_copy_to_uint16_little_endian(
 		 page_value_data,
 		 page_key_size );
@@ -1136,11 +1136,13 @@ int libesedb_page_tree_read_child_pages(
 		page_value_data += 2;
 		page_value_size -= 2;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
 		 "%s: value: %03d highest key size\t: %" PRIu16 "\n",
 		 function,
 		 page_value_iterator,
 		 page_key_size );
+#endif
 
 		if( page_key_size > page_value_size )
 		{
@@ -1153,10 +1155,12 @@ int libesedb_page_tree_read_child_pages(
 
 			return( -1 );
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
 		 "%s: value: %03d highest key value\t: ",
 		 function,
 		 page_value_iterator );
+#endif
 
 		while( page_key_size > 0 )
 		{
@@ -1168,13 +1172,15 @@ int libesedb_page_tree_read_child_pages(
 			page_value_size--;
 			page_key_size--;
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
 		 "\n" );
-
+#endif
 		byte_stream_copy_to_uint32_little_endian(
 		 page_value_data,
 		 child_page_number );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
 		 "%s: value: %03d child page number\t: %" PRIu32 "\n",
 		 function,
@@ -1767,6 +1773,7 @@ int libesedb_page_tree_read_leaf_page_values(
 {
 	libesedb_catalog_definition_t *catalog_definition = NULL;
 	libesedb_data_definition_t *data_definition       = NULL;
+	libesedb_key_t *page_key                          = NULL;
 	libesedb_page_value_t *page_value                 = NULL;
 	libesedb_table_definition_t *table_definition     = NULL;
 	uint8_t *page_value_data                          = NULL;
@@ -1931,8 +1938,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			return( -1 );
 		}
-		/* TODO handle the leaf page keys */
-
 		page_value_data = page_value->data;
 		page_value_size = (uint16_t) page_value->size;
 
@@ -1999,6 +2004,38 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			return( -1 );
 		}
+		if( libesedb_key_initialize(
+		     &page_key,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create page key.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_key_set_data(
+		     page_key,
+		     page_value_data,
+		     page_value_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set page key data.",
+			 function );
+
+			libesedb_key_free(
+			 (intptr_t *) page_key,
+			 NULL );
+
+			return( -1 );
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		libnotify_verbose_printf(
 		 "%s: value: %03d key value\t\t\t\t: ",
@@ -2017,7 +2054,25 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 		libnotify_verbose_printf(
 		 "\n" );
+#else
+		page_value_data += page_key_size;
+		page_value_size -= page_key_size;
 #endif
+
+		if( libesedb_key_free(
+		     (intptr_t *) page_key,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page key.",
+			 function );
+
+			return( -1 );
+		}
+		page_key = NULL;
 
 		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
 		{

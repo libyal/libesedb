@@ -59,6 +59,13 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091124
+* worked on file format
+  - data type definition with fixed and variable size values
+    without corresponding definition
+  - worked on long value support
+* fix for reading files without debug mode
+
 20091123
 * worked on file format
 * changes for MSVSCPP compilation
