@@ -234,13 +234,13 @@ int ascii7_decompress_to_utf8_string(
 		if( ( compressed_data_iterator % 4 ) == 0 )
 		{
 			bitmask = compressed_data[ 0 ] 
-			        ^ (uint8_t) ( compressed_data_iterator + 1 ) 
-			        ^ (uint8_t) ( compressed_data_size / 256 );
+			        ^ (uint8_t) ( compressed_data_iterator + 1
+			        - (uint8_t) ( compressed_data_size / 0x200 ) );
 		}
 		else if( ( compressed_data_iterator % 4 ) == 1 )
 		{
 			bitmask = (uint8_t) ( compressed_data_iterator - 1 )
-			        ^ (uint8_t) ( compressed_data_size / 256 );
+			        ^ (uint8_t) ( compressed_data_size / 0x100 );
 		}
 		else if( ( compressed_data_iterator % 4 ) == 2 )
 		{

@@ -1543,6 +1543,15 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
+#ifdef IGNORE
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Message_DateReceived",
+				          27 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+#endif
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_MessageClass",
@@ -1574,6 +1583,15 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
 				}
+#ifdef IGNORE
+				else if( narrow_string_compare(
+				          (char *) column_name,
+				          "System_Message_SenderAddress",
+				          28 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+				}
+#endif
 			}
 			else if( column_name_size == 30 )
 			{

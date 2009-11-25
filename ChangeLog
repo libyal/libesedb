@@ -59,6 +59,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091125
+* worked on file format
+
 20091124
 * worked on file format
   - data type definition with fixed and variable size values
