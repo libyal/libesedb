@@ -103,9 +103,111 @@ enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME,
-	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED,
+	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED,
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN,
 };
+
+/* Decode data using MS Search encoding
+ * Returns 1 on success or -1 on error
+ */
+int windows_search_decode(
+     uint8_t *data,
+     size_t data_size,
+     uint8_t *encoded_data, 
+     size_t encoded_data_size,
+     liberror_error_t **error )
+{
+	static char *function        = "windows_search_decode";
+	size_t encoded_data_iterator = 0;
+	size_t data_iterator         = 0;
+	uint32_t bitmask32           = 0;
+	uint8_t bitmask              = 0;
+
+	if( data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( encoded_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid encoded data.",
+		 function );
+
+		return( -1 );
+	}
+	if( encoded_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid encoded data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size < encoded_data_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	bitmask32  = 0x05000113;
+
+	bitmask32 ^= (uint32_t) encoded_data_size;
+
+	for( encoded_data_iterator = 0;
+	     encoded_data_iterator < encoded_data_size;
+	     encoded_data_iterator++ )
+	{
+		switch( encoded_data_iterator & 0x03 )
+		{
+			case 3:
+				bitmask = (uint8_t) ( ( bitmask32 >> 24 ) & 0xff );
+				break;
+			case 2:
+				bitmask = (uint8_t) ( ( bitmask32 >> 16 ) & 0xff );
+				break;
+			case 1:
+				bitmask = (uint8_t) ( ( bitmask32 >> 8 ) & 0xff );
+				break;
+			default:
+				bitmask = (uint8_t) ( bitmask32 & 0xff );
+				break;
+		}
+		bitmask ^= encoded_data_iterator;
+
+		data[ data_iterator++ ] = encoded_data[ encoded_data_iterator ]
+		                        ^ bitmask;
+	}
+	return( 1 );
+}
 
 /* Exports a 32-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
@@ -547,24 +649,22 @@ int windows_search_export_record_value_filetime(
 	return( 1 );
 }
 
-/* Exports an ASCII 7-bit compressed string in a binary data table record value
+/* Exports a compressed string in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int windows_search_export_record_value_ascii_7bit_compressed_string(
+int windows_search_export_record_value_compressed_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *ascii_value_string    = NULL;
-	uint8_t *value_data            = NULL;
-	uint8_t *value_string          = NULL;
-	static char *function          = "windows_search_export_record_value_ascii_7bit_compressed_string";
-	size_t ascii_value_string_size = 0;
-	size_t value_data_size         = 0;
-	size_t value_string_size       = 0;
-	uint32_t column_type           = 0;
-	uint8_t value_tag_byte         = 0;
+	uint8_t *value_data      = NULL;
+	uint8_t *value_string    = NULL;
+	static char *function    = "windows_search_export_record_value_compressed_string";
+	size_t value_data_size   = 0;
+	size_t value_string_size = 0;
+	uint32_t column_type     = 0;
+	uint8_t value_tag_byte   = 0;
 
 	if( record == NULL )
 	{
@@ -637,22 +737,8 @@ int windows_search_export_record_value_ascii_7bit_compressed_string(
 	}
 	if( value_data != NULL )
 	{
-		if( ascii7_decompress_get_utf8_string_size(
-		     value_data,
-		     value_data_size,
-		     &value_string_size,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine size of compressed value string: %d.",
-			 function,
-			 record_value_entry + 1 );
+		value_string_size = value_data_size;
 
-			return( -1 );
-		}
 		value_string = (uint8_t *) memory_allocate(
 		                            sizeof( uint8_t ) * value_string_size );
 
@@ -667,18 +753,18 @@ int windows_search_export_record_value_ascii_7bit_compressed_string(
 
 			return( -1 );
 		}
-		if( ascii7_decompress_to_utf8_string(
-		     value_data,
-		     value_data_size,
+		if( windows_search_decode(
 		     value_string,
 		     value_string_size,
+		     value_data,
+		     value_data_size,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to decompress value string: %d.",
+			 "%s: unable to decode value string: %d.",
 			 function,
 			 record_value_entry + 1 );
 
@@ -686,74 +772,6 @@ int windows_search_export_record_value_ascii_7bit_compressed_string(
 			 value_string );
 
 			return( -1 );
-		}
-		if( value_string[ 0 ] == 0x01 )
-		{
-			ascii_value_string      = value_string;
-			ascii_value_string_size = value_string_size;
-
-			if( libuna_utf8_string_size_from_byte_stream(
-			     &( ascii_value_string[ 1 ] ),
-			     ascii_value_string_size - 1,
-			     LIBUNA_CODEPAGE_WINDOWS_1252,
-			     &value_string_size,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to determine size of value string: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				memory_free(
-				 ascii_value_string );
-
-				return( -1 );
-			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
-
-			if( value_string == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create value string.",
-				 function );
-
-				memory_free(
-				 ascii_value_string );
-
-				return( -1 );
-			}
-			if( libuna_utf8_string_copy_from_byte_stream(
-			     value_string,
-			     value_string_size,
-			     &( ascii_value_string[ 1 ] ),
-			     ascii_value_string_size - 1,
-			     LIBUNA_CODEPAGE_WINDOWS_1252,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve value string: %d.",
-				 function,
-				 record_value_entry + 1 );
-
-				memory_free(
-				 ascii_value_string );
-				memory_free(
-				 value_string );
-
-				return( -1 );
-			}
-			memory_free(
-			 ascii_value_string );
 		}
 		fprintf(
 		 table_file_stream,
@@ -1073,7 +1091,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Kind",
 				     11 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1090,7 +1108,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Title",
 				     12 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 14 )
@@ -1100,7 +1118,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Author",
 				     13 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 15 )
@@ -1110,7 +1128,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Comment",
 				     14 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1124,14 +1142,14 @@ int windows_search_export_record_systemindex_0a(
 				          "System_ItemUrl",
 				          14 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Subject",
 				          14 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 16 )
@@ -1141,14 +1159,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_FileName",
 				     15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Identity",
 				          15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1162,28 +1180,28 @@ int windows_search_export_record_systemindex_0a(
 				          "System_ItemName",
 				          15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ItemType",
 				          15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_KindText",
 				          15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_MIMEType",
 				          15 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 17 )
@@ -1193,14 +1211,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Copyright",
 				     16 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_FileOwner",
 				          16 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 18 )
@@ -1210,14 +1228,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Media_MCDI",
 				     17 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_RatingText",
 				          17 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 19 )
@@ -1234,21 +1252,21 @@ int windows_search_export_record_systemindex_0a(
 				          "System_ItemAuthors",
 				          18 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_Genre",
 				          18 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ParsingName",
 				          18 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 20 )
@@ -1258,7 +1276,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_ComputerName",
 				     19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1293,21 +1311,21 @@ int windows_search_export_record_systemindex_0a(
 				          "System_ItemTypeText",
 				          19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_Artist",
 				          19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Search_Store",
 				          19 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 21 )
@@ -1317,14 +1335,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_FileExtension",
 				     20 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_Store",
 				          20 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 22 )
@@ -1334,28 +1352,28 @@ int windows_search_export_record_systemindex_0a(
 				     "System_FlagStatusText",
 				     21 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_SubTitle",
 				          21 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_ToName",
 				          21 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_Composer",
 				          21 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 23 )
@@ -1365,35 +1383,35 @@ int windows_search_export_record_systemindex_0a(
 				     "System_ItemNameDisplay",
 				     22 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ItemPathDisplay",
 				          22 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_ContentID",
 				          22 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_Publisher",
 				          22 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_PartOfSet",
 				          22 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1410,14 +1428,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Image_Dimensions",
 				     23 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ItemParticipants",
 				          23 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1431,14 +1449,14 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Message_FromName",
 				          23 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_AlbumTitle",
 				          23 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 25 )
@@ -1448,7 +1466,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Calendar_Location",
 				     24 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1462,21 +1480,21 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Message_CcAddress",
 				          24 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_ToAddress",
 				          24 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Music_AlbumArtist",
 				          24 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
@@ -1500,21 +1518,21 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Media_CollectionID",
 				          25 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_DateReleased",
 				          25 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Search_AutoSummary",
 				          25 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 27 )
@@ -1524,7 +1542,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Message_FromAddress",
 				     26 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 28 )
@@ -1541,7 +1559,7 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Media_ClassPrimaryID",
 				          27 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 #ifdef IGNORE
 				else if( narrow_string_compare(
@@ -1557,7 +1575,7 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Message_MessageClass",
 				          27 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 29 )
@@ -1567,21 +1585,21 @@ int windows_search_export_record_systemindex_0a(
 				     "System_ItemFolderNameDisplay",
 				     28 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ItemFolderPathDisplay",
 				          28 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_ItemPathDisplayNarrow",
 				          28 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 #ifdef IGNORE
 				else if( narrow_string_compare(
@@ -1589,7 +1607,7 @@ int windows_search_export_record_systemindex_0a(
 				          "System_Message_SenderAddress",
 				          28 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 #endif
 			}
@@ -1600,28 +1618,28 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Link_TargetParsingPath",
 				     29 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_ClassSecondaryID",
 				          29 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_RecordedTV_EpisodeName",
 				          29 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_ConversationID",
 				          29 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 31 )
@@ -1631,14 +1649,14 @@ int windows_search_export_record_systemindex_0a(
 				     "System_Calendar_ShowTimeAsText",
 				     30 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Media_CollectionGroupID",
 				          30 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 32 )
@@ -1658,7 +1676,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_ItemFolderPathDisplayNarrow",
 				     34 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 			else if( column_name_size == 37 )
@@ -1668,7 +1686,7 @@ int windows_search_export_record_systemindex_0a(
 				     "System_RecordedTV_ProgramDescription",
 				     36 ) == 0 )
 				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED;
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 			}
 		}
@@ -1699,9 +1717,9 @@ int windows_search_export_record_systemindex_0a(
 				  table_file_stream,
 				  error );
 		}
-		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_ASCII7_COMPRESSED )
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED )
 		{
-			result = windows_search_export_record_value_ascii_7bit_compressed_string(
+			result = windows_search_export_record_value_compressed_string(
 				  record,
 				  value_iterator,
 				  table_file_stream,

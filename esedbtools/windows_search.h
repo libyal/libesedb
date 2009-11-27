@@ -42,6 +42,13 @@
 extern "C" {
 #endif
 
+int windows_search_decode(
+     uint8_t *data,
+     size_t data_size,
+     uint8_t *encoded_data,
+     size_t encoded_data_size,
+     liberror_error_t **error );
+
 int windows_search_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,

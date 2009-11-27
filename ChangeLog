@@ -59,6 +59,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20091127
+* worked on Windows Search
+
 20091125
 * worked on file format
 
