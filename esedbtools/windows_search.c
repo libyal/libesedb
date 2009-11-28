@@ -740,7 +740,7 @@ int windows_search_export_record_value_compressed_string(
 		value_string_size = value_data_size;
 
 		value_string = (uint8_t *) memory_allocate(
-		                            sizeof( uint8_t ) * value_string_size );
+		                            sizeof( uint8_t ) * ( value_string_size + 1 ) );
 
 		if( value_string == NULL )
 		{
@@ -773,10 +773,14 @@ int windows_search_export_record_value_compressed_string(
 
 			return( -1 );
 		}
+		/* TODO for debugging purposes */
+		value_string[ value_string_size ] = 0;
+
 		fprintf(
 		 table_file_stream,
-		 "%s",
-		 value_string );
+		 "0x%02" PRIx8 " %s",
+		 value_string[ 0 ],
+		 &( value_string[ 1 ] ) );
 
 		memory_free(
 		 value_string );

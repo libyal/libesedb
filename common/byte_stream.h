@@ -84,7 +84,7 @@ typedef union byte_stream_float64
 	value <<= 8; \
 	value  |= ( byte_stream )[ 3 ]; \
 	value <<= 8; \
-	value   = ( byte_stream )[ 4 ]; \
+	value  |= ( byte_stream )[ 4 ]; \
 	value <<= 8; \
 	value  |= ( byte_stream )[ 5 ]; \
 	value <<= 8; \
@@ -101,7 +101,7 @@ typedef union byte_stream_float64
 	value <<= 8; \
 	value  |= ( byte_stream )[ 4 ]; \
 	value <<= 8; \
-	value   = ( byte_stream )[ 3 ]; \
+	value  |= ( byte_stream )[ 3 ]; \
 	value <<= 8; \
 	value  |= ( byte_stream )[ 2 ]; \
 	value <<= 8; \
