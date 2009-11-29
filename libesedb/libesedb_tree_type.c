@@ -176,25 +176,25 @@ int libesedb_tree_node_free(
 				return( -1 );
 			}
 		}
-		/* The root node does not contain any values
-		 */
 		if( ( *node )->value != NULL )
 		{
-			if( ( value_free_function != NULL )
-			 && ( value_free_function(
-			       ( *node )->value,
-			       error ) != 1 ) )
+			if( value_free_function != NULL )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free value.",
-				function );
+				if( value_free_function(
+				     ( *node )->value,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free value.",
+					function );
 
-				return( -1 );
+					return( -1 );
+				}
+				( *node )->value = NULL;
 			}
-			( *node )->value = NULL;
 		}
 		memory_free(
 		 *node );
@@ -209,17 +209,17 @@ int libesedb_tree_node_free(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_tree_node_clone(
-     libesedb_tree_node_t **destination,
-     libesedb_tree_node_t *source,
+     libesedb_tree_node_t **destination_tree_node,
+     libesedb_tree_node_t *source_tree_node,
      int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
      liberror_error_t **error )
 {
-	libesedb_tree_node_t *source_child_node = NULL;
-	intptr_t *destination_value             = NULL;
-	static char *function                   = "libesedb_tree_node_clone";
-	int iterator                            = 0;
+	libesedb_tree_node_t *destination_child_node = NULL;
+	libesedb_tree_node_t *source_child_node      = NULL;
+	static char *function                        = "libesedb_tree_node_clone";
+	int iterator                                 = 0;
 
-	if( destination == NULL )
+	if( destination_tree_node == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -230,7 +230,7 @@ int libesedb_tree_node_clone(
 
 		return( -1 );
 	}
-	if( *destination != NULL )
+	if( *destination_tree_node != NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -252,51 +252,50 @@ int libesedb_tree_node_clone(
 
 		return( -1 );
 	}
-	if( source == NULL )
+	if( source_tree_node == NULL )
 	{
-		*destination = NULL;
+		*destination_tree_node = NULL;
 	}
 	else
 	{
-		*destination = (libesedb_tree_node_t *) memory_allocate(
-		                                         sizeof( libesedb_tree_node_t ) );
-
-		if( *destination == NULL )
+		if( libesedb_tree_node_initialize(
+		     destination_tree_node,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create tree node.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create destination tree node.",
 			 function );
 
 			return( -1 );
 		}
-		if( memory_set(
-		     *destination,
-		     0,
-		     sizeof( libesedb_tree_node_t ) ) == NULL )
+		if( value_clone_function(
+		     &( ( *destination_tree_node )->value ),
+		     source_tree_node->value,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear tree node.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to clone tree node value.",
 			 function );
 
-			memory_free(
-			 *destination );
-
-			*destination = NULL;
+			libesedb_tree_node_free(
+			 destination_tree_node,
+			 NULL,
+			 NULL );
 
 			return( -1 );
 		}
 		/* Clone the child nodes
 		 */
-		source_child_node = source->first_child;
+		source_child_node = source_tree_node->first_child;
 
 		for( iterator = 0;
-		     iterator < source->amount_of_child_nodes;
+		     iterator < source_tree_node->amount_of_child_nodes;
 		     iterator++ )
 		{
 			if( source_child_node == NULL )
@@ -311,39 +310,39 @@ int libesedb_tree_node_clone(
 
 				return( -1 );
 			}
-			destination_value = NULL;
-
-			if( value_clone_function(
-			     &destination_value,
-			     source_child_node->value,
+			if( libesedb_tree_node_clone(
+			     &destination_child_node,
+			     source_child_node,
+			     value_clone_function,
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to clone value of child node: %d.",
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to clone child node: %d.",
 				 function,
 				 iterator + 1 );
 
 				return( -1 );
 			}
-			if( libesedb_tree_node_append_value(
-			     *destination,
-			     destination_value,
+			if( libesedb_tree_node_append_node(
+			     *destination_tree_node,
+			     destination_child_node,
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append value of child node: %d.",
+				 "%s: unable to append child node: %d.",
 				 function,
 				 iterator + 1 );
 
 				return( -1 );
 			}
-			source_child_node = source_child_node->next;
+			destination_child_node = NULL;
+			source_child_node      = source_child_node->next;
 		}
 	}
 	return( 1 );
@@ -394,7 +393,7 @@ int libesedb_tree_node_set_value(
      intptr_t *value,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_tree_node_get_value";
+	static char *function = "libesedb_tree_node_set_value";
 
 	if( node == NULL )
 	{

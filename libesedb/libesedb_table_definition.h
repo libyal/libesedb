@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_TABLE_DEFINITION_H )
-#define _LIBPFF_TABLE_DEFINITION_H
+#if !defined( _LIBESEDB_TABLE_DEFINITION_H )
+#define _LIBESEDB_TABLE_DEFINITION_H
 
 #include <common.h>
 #include <types.h>

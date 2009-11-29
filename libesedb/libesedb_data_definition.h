@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_DATA_DEFINITION_H )
-#define _LIBPFF_DATA_DEFINITION_H
+#if !defined( _LIBESEDB_DATA_DEFINITION_H )
+#define _LIBESEDB_DATA_DEFINITION_H
 
 #include <common.h>
 #include <types.h>
@@ -41,9 +41,17 @@ typedef struct libesedb_data_definition libesedb_data_definition_t;
 
 struct libesedb_data_definition
 {
-	/* The data type definitions array
+	/* The key data
 	 */
-	libesedb_array_t *data_type_definitions_array;
+	uint8_t *key;
+
+	/* The key data size
+	 */
+	size_t key_size;
+
+	/* The values array
+	 */
+	libesedb_array_t *values_array;
 };
 
 int libesedb_data_definition_initialize(
@@ -54,10 +62,22 @@ int libesedb_data_definition_free(
      intptr_t *data_definition,
      liberror_error_t **error );
 
-int libesedb_data_definition_read(
+int libesedb_data_definition_set_key(
+     libesedb_data_definition_t *data_definition,
+     uint8_t *key,
+     size_t key_size,
+     liberror_error_t **error );
+
+int libesedb_data_definition_read_record(
      libesedb_data_definition_t *data_definition,
      libesedb_list_t *column_catalog_definition_list,
      libesedb_io_handle_t *io_handle,
+     uint8_t *definition_data,
+     size_t definition_data_size,
+     liberror_error_t **error );
+
+int libesedb_data_definition_read_long_value(
+     libesedb_data_definition_t *data_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error );

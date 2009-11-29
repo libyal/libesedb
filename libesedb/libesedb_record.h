@@ -103,7 +103,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value(
                      int value_entry,
                      uint8_t **value_data,
                      size_t *value_data_size,
-                     uint8_t *value_tag_byte,
+                     uint8_t *value_flags,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
@@ -185,6 +185,18 @@ LIBESEDB_EXTERN int libesedb_record_get_value_binary_data(
                      int value_entry,
                      uint8_t *binary_data,
                      size_t binary_data_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_long_value(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     libesedb_long_value_t **long_value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_multi_value(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     libesedb_multi_value_t **multi_value,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

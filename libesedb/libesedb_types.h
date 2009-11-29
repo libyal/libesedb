@@ -39,6 +39,8 @@ typedef intptr_t libesedb_table_t;
 typedef intptr_t libesedb_column_t;
 typedef intptr_t libesedb_index_t;
 typedef intptr_t libesedb_record_t;
+typedef intptr_t libesedb_long_value_t;
+typedef intptr_t libesedb_multi_value_t;
 
 #endif
 

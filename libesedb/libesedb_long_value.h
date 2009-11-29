@@ -20,30 +20,25 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_LONG_VALUE_H )
-#define _LIBPFF_LONG_VALUE_H
+#if !defined( _LIBESEDB_INTERNAL_LONG_VALUE_H )
+#define _LIBESEDB_INTERNAL_LONG_VALUE_H
 
 #include <common.h>
 #include <types.h>
 
 #include <liberror.h>
 
+#include "libesedb_extern.h"
+#include "libesedb_types.h"
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_long_value libesedb_long_value_t;
+typedef struct libesedb_internal_long_value libesedb_internal_long_value_t;
 
-struct libesedb_long_value
+struct libesedb_internal_long_value
 {
-	/* The (page) key
-	 */
-	uint8_t *key;
-
-	/* The (page) key size
-	 */
-	size_t key_size;
-
 	/* The data
 	 */
 	uint8_t *data;
@@ -57,18 +52,12 @@ int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      liberror_error_t **error );
 
-int libesedb_long_value_free(
-     intptr_t *long_value,
-     liberror_error_t **error );
-
-int libesedb_long_value_set_key(
-     libesedb_long_value_t *long_value,
-     uint8_t *key,
-     size_t key_size,
-     liberror_error_t **error );
+LIBESEDB_EXTERN int libesedb_long_value_free(
+                     libesedb_long_value_t **long_value,
+                     liberror_error_t **error );
 
 int libesedb_long_value_set_data(
-     libesedb_long_value_t *long_value,
+     libesedb_internal_long_value_t *internal_long_value,
      uint8_t *data,
      size_t data_size,
      liberror_error_t **error );

@@ -20,8 +20,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBPFF_DATA_TYPE_DEFINITION_H )
-#define _LIBPFF_DATA_TYPE_DEFINITION_H
+#if !defined( _LIBESEDB_DATA_TYPE_DEFINITION_H )
+#define _LIBESEDB_DATA_TYPE_DEFINITION_H
 
 #include <common.h>
 #include <types.h>
@@ -50,9 +50,9 @@ struct libesedb_data_type_definition
 	 */
 	size_t data_size;
 
-	/* The tag byte
+	/* The flags
 	 */
-	uint8_t tag_byte;
+	uint8_t flags;
 };
 
 int libesedb_data_type_definition_initialize(
@@ -70,9 +70,9 @@ int libesedb_data_type_definition_set_data(
      size_t data_size,
      liberror_error_t **error );
 
-int libesedb_data_type_definition_set_tag_byte(
+int libesedb_data_type_definition_set_flags(
      libesedb_data_type_definition_t *data_type_definition,
-     uint8_t tag_byte,
+     uint8_t flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

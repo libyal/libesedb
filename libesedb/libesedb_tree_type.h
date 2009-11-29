@@ -84,8 +84,8 @@ int libesedb_tree_node_free(
      liberror_error_t **error );
 
 int libesedb_tree_node_clone(
-     libesedb_tree_node_t **destination,
-     libesedb_tree_node_t *source,
+     libesedb_tree_node_t **destination_tree_node,
+     libesedb_tree_node_t *source_tree_node,
      int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
      liberror_error_t **error );
 

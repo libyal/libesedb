@@ -35,7 +35,8 @@ int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_long_value_initialize";
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_initialize";
 
 	if( long_value == NULL )
 	{
@@ -50,8 +51,8 @@ int libesedb_long_value_initialize(
 	}
 	if( *long_value == NULL )
 	{
-		*long_value = (libesedb_long_value_t *) memory_allocate(
-		                                         sizeof( libesedb_long_value_t ) );
+		internal_long_value = (libesedb_internal_long_value_t *) memory_allocate(
+		                                                          sizeof( libesedb_internal_long_value_t ) );
 
 		if( *long_value == NULL )
 		{
@@ -67,7 +68,7 @@ int libesedb_long_value_initialize(
 		if( memory_set(
 		     *long_value,
 		     0,
-		     sizeof( libesedb_long_value_t ) ) == NULL )
+		     sizeof( libesedb_internal_long_value_t ) ) == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -83,6 +84,7 @@ int libesedb_long_value_initialize(
 
 			return( -1 );
 		}
+		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}
 	return( 1 );
 }
@@ -91,7 +93,7 @@ int libesedb_long_value_initialize(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_free(
-     intptr_t *long_value,
+     libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_long_value_free";
@@ -107,93 +109,19 @@ int libesedb_long_value_free(
 
 		return( -1 );
 	}
-	if( ( ( libesedb_long_value_t *) long_value )->data != NULL )
+	if( *long_value != NULL )
 	{
+
+		if( ( ( libesedb_internal_long_value_t *) *long_value )->data != NULL )
+		{
+			memory_free(
+			 ( (libesedb_internal_long_value_t *) *long_value )->data );
+		}
 		memory_free(
-		 ( (libesedb_long_value_t *) long_value )->key );
-		memory_free(
-		 ( (libesedb_long_value_t *) long_value )->data );
+		 *long_value );
+
+		*long_value = NULL;
 	}
-	memory_free(
-	 long_value );
-
-	return( 1 );
-}
-
-/* Sets the key in the long value
- * Returns 1 if successful or -1 on error
- */
-int libesedb_long_value_set_key(
-     libesedb_long_value_t *long_value,
-     uint8_t *key,
-     size_t key_size,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_long_value_set_key";
-
-	if( long_value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid long value.",
-		 function );
-
-		return( -1 );
-	}
-	if( long_value->key != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid long value - key already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( key_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid key size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	long_value->key = (uint8_t *) memory_allocate(
-	                               sizeof( uint8_t ) * key_size );
-
-	if( long_value->key == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create long value key.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_copy(
-	     long_value->key,
-	     key,
-	     sizeof( uint8_t ) * key_size ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy key.",
-		 function );
-
-		return( -1 );
-	}
-	long_value->key_size = key_size;
-
 	return( 1 );
 }
 
@@ -201,31 +129,31 @@ int libesedb_long_value_set_key(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_set_data(
-     libesedb_long_value_t *long_value,
+     libesedb_internal_long_value_t *internal_long_value,
      uint8_t *data,
      size_t data_size,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_long_value_set_data";
 
-	if( long_value == NULL )
+	if( internal_long_value == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid long value.",
+		 "%s: invalid internal long value.",
 		 function );
 
 		return( -1 );
 	}
-	if( long_value->data != NULL )
+	if( internal_long_value->data != NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid long value - data already set.",
+		 "%s: invalid internal long value - data already set.",
 		 function );
 
 		return( -1 );
@@ -241,10 +169,10 @@ int libesedb_long_value_set_data(
 
 		return( -1 );
 	}
-	long_value->data = (uint8_t *) memory_allocate(
-	                                sizeof( uint8_t ) * data_size );
+	internal_long_value->data = (uint8_t *) memory_allocate(
+	                                         sizeof( uint8_t ) * data_size );
 
-	if( long_value->data == NULL )
+	if( internal_long_value->data == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -256,7 +184,7 @@ int libesedb_long_value_set_data(
 		return( -1 );
 	}
 	if( memory_copy(
-	     long_value->data,
+	     internal_long_value->data,
 	     data,
 	     sizeof( uint8_t ) * data_size ) == NULL )
 	{
@@ -269,7 +197,7 @@ int libesedb_long_value_set_data(
 
 		return( -1 );
 	}
-	long_value->data_size = data_size;
+	internal_long_value->data_size = data_size;
 
 	return( 1 );
 }

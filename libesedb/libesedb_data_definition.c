@@ -129,19 +129,27 @@ int libesedb_data_definition_free(
 
 		return( -1 );
 	}
-	if( libesedb_array_free(
-	     &( ( (libesedb_data_definition_t *) data_definition )->data_type_definitions_array ),
-	     &libesedb_data_type_definition_free,
-	     error ) != 1 )
+	if( ( (libesedb_data_definition_t *) data_definition )->key != NULL )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free data type definitions array.",
-		 function );
+		memory_free(
+		 ( (libesedb_data_definition_t *) data_definition )->key );
+	}
+	if( ( (libesedb_data_definition_t *) data_definition )->values_array != NULL )
+	{
+		if( libesedb_array_free(
+		     &( ( (libesedb_data_definition_t *) data_definition )->values_array ),
+		     &libesedb_data_type_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free values array.",
+			 function );
 
-		result = -1;
+			result = -1;
+		}
 	}
 	memory_free(
 	 data_definition );
@@ -149,10 +157,99 @@ int libesedb_data_definition_free(
 	return( result );
 }
 
-/* Reads the data definition from the definition data using the predefined catalog definitions
+/* Sets the key in the data definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_data_definition_read(
+int libesedb_data_definition_set_key(
+     libesedb_data_definition_t *data_definition,
+     uint8_t *key,
+     size_t key_size,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_data_definition_set_key";
+
+	if( data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_definition->key != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid data definition - key already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid key.",
+		 function );
+
+		return( -1 );
+	}
+	if( key_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid key size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	data_definition->key = (uint8_t *) memory_allocate(
+	                                    sizeof( uint8_t ) * key_size );
+
+	if( data_definition->key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create key.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     data_definition->key,
+	     key,
+	     sizeof( uint8_t ) * key_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy key.",
+		 function );
+
+		return( -1 );
+	}
+	data_definition->key_size = key_size;
+
+	return( 1 );
+}
+
+/* Reads the record data definition
+ * Uses the definition data in the catalog definitions
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_data_definition_read_record(
      libesedb_data_definition_t *data_definition,
      libesedb_list_t *column_catalog_definition_list,
      libesedb_io_handle_t *io_handle,
@@ -168,7 +265,7 @@ int libesedb_data_definition_read(
 	uint8_t *tagged_data_type_value_data                     = NULL;
 	uint8_t *variable_size_data_type_size_data               = NULL;
 	uint8_t *variable_size_data_type_value_data              = NULL;
-	static char *function                                    = "libesedb_data_definition_read";
+	static char *function                                    = "libesedb_data_definition_read_record";
 	size_t remaining_definition_data_size                    = 0;
 	uint16_t previous_tagged_data_type_offset                = 0;
 	uint16_t previous_variable_size_data_type_size           = 0;
@@ -197,13 +294,13 @@ int libesedb_data_definition_read(
 
 		return( -1 );
 	}
-	if( data_definition->data_type_definitions_array != NULL )
+	if( data_definition->values_array != NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid data definition - data type definitions array already set.",
+		 "%s: invalid data definition - values array already set.",
 		 function );
 
 		return( -1 );
@@ -307,7 +404,7 @@ int libesedb_data_definition_read(
 		return( -1 );
 	}
 	if( libesedb_array_initialize(
-	     &( data_definition->data_type_definitions_array ),
+	     &( data_definition->values_array ),
 	     amount_of_column_catalog_definitions,
 	     error ) != 1 )
 	{
@@ -315,7 +412,7 @@ int libesedb_data_definition_read(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data type definitions array.",
+		 "%s: unable to create values array.",
 		 function );
 
 		return( -1 );
@@ -580,13 +677,13 @@ int libesedb_data_definition_read(
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
 						libnotify_verbose_printf(
-						 "%s: (%03" PRIu16 ") tag byte\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+						 "%s: (%03" PRIu16 ") tagged data type flags\t\t\t\t: 0x%02" PRIx8 "\n",
 						 function,
 						 column_catalog_definition->identifier,
 						 *tagged_data_type_value_data );
 #endif
 
-						if( libesedb_data_type_definition_set_tag_byte(
+						if( libesedb_data_type_definition_set_flags(
 						     data_type_definition,
 						     *tagged_data_type_value_data,
 						     error ) != 1 )
@@ -595,7 +692,7 @@ int libesedb_data_definition_read(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_RUNTIME,
 							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-							 "%s: unable to set tag byte in tagged data type definition.",
+							 "%s: unable to set tagged data type flags in tagged data type definition.",
 							 function );
 
 							libesedb_data_type_definition_free(
@@ -815,13 +912,13 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 						{
 #if defined( HAVE_DEBUG_OUTPUT )
 							libnotify_verbose_printf(
-							 "%s: (%03" PRIu16 ") tag byte\t\t\t\t\t\t: 0x%02" PRIx8 "\n",
+							 "%s: (%03" PRIu16 ") tagged data type flags\t\t\t\t: 0x%02" PRIx8 "\n",
 							 function,
 							 column_catalog_definition->identifier,
 							 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
 #endif
 
-							if( libesedb_data_type_definition_set_tag_byte(
+							if( libesedb_data_type_definition_set_flags(
 							     data_type_definition,
 							     tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ],
 							     error ) != 1 )
@@ -830,7 +927,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 								 error,
 								 LIBERROR_ERROR_DOMAIN_RUNTIME,
 								 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-								 "%s: unable to set tag byte in tagged data type definition.",
+								 "%s: unable to set tagged data type flags in tagged data type definition.",
 								 function );
 
 								libesedb_data_type_definition_free(
@@ -890,7 +987,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 			}
 		}
 		if( libesedb_array_set_entry(
-		     data_definition->data_type_definitions_array,
+		     data_definition->values_array,
 		     column_catalog_definition_iterator,
 		     (intptr_t *) data_type_definition,
 		     error ) != 1 )
@@ -927,6 +1024,117 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 	 "\n" );
 #endif
 
+	return( 1 );
+}
+
+/* Reads the long value data definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_data_definition_read_long_value(
+     libesedb_data_definition_t *data_definition,
+     uint8_t *definition_data,
+     size_t definition_data_size,
+     liberror_error_t **error )
+{
+	static char *function            = "libesedb_data_definition_read_long_value";
+	uint32_t amount_of_data_segments = 0;
+	uint32_t total_data_size         = 0;
+
+	if( data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_definition->values_array != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid data definition - values array already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( definition_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid definition data.",
+		 function );
+
+		return( -1 );
+	}
+	if( definition_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid definition data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( definition_data_size != 8 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data definition size: %" PRIzd ".",
+		 function,
+		 definition_data_size );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_little_endian(
+	 definition_data,
+	 amount_of_data_segments );
+
+	definition_data += 4;
+
+	byte_stream_copy_to_uint16_little_endian(
+	 definition_data,
+	 total_data_size );
+
+	definition_data += 4;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "%s: long value amount of data segments\t\t: %" PRIu32 "\n",
+	 function,
+	 amount_of_data_segments );
+	libnotify_verbose_printf(
+	 "%s: long value amount total data size\t\t: %" PRIu32 "\n",
+	 function,
+	 total_data_size );
+	libnotify_verbose_printf(
+	 "\n" );
+#endif
+
+	if( libesedb_array_initialize(
+	     &( data_definition->values_array ),
+	     amount_of_data_segments,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create values array.",
+		 function );
+
+		return( -1 );
+	}
 	return( 1 );
 }
 

@@ -211,15 +211,15 @@ int libesedb_data_type_definition_set_data(
 	return( 1 );
 }
 
-/* Sets the tag byte in the data type definition
+/* Sets the flags in the data type definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_data_type_definition_set_tag_byte(
+int libesedb_data_type_definition_set_flags(
      libesedb_data_type_definition_t *data_type_definition,
-     uint8_t tag_byte,
+     uint8_t flags,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_data_type_definition_set_tag_byte";
+	static char *function = "libesedb_data_type_definition_set_flags";
 
 	if( data_type_definition == NULL )
 	{
@@ -232,7 +232,7 @@ int libesedb_data_type_definition_set_tag_byte(
 
 		return( -1 );
 	}
-	data_type_definition->tag_byte = tag_byte;
+	data_type_definition->flags = flags;
 
 	return( 1 );
 }

@@ -93,7 +93,6 @@
 
 #include <libesedb.h>
 
-#include "ascii7.h"
 #include "export_handle.h"
 #include "windows_search.h"
 
@@ -209,6 +208,491 @@ int windows_search_decode(
 	return( 1 );
 }
 
+/* Determines the uncompressed data size using MS Search UTF-16 string compression
+ * Returns 1 on success or -1 on error
+ */
+int windows_search_get_utf16_string_uncompressed_data_size(
+     uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *uncompressed_data_size,
+     liberror_error_t **error )
+{
+	static char *function           = "windows_search_decompress_utf16_string";
+	size_t compressed_data_iterator = 0;
+	uint8_t compression_size        = 0;
+
+	if( compressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data size.",
+		 function );
+
+		return( -1 );
+	}
+	*uncompressed_data_size = 0;
+
+	while( compressed_data_iterator < compressed_data_size )
+	{
+		if( compressed_data_iterator >= compressed_data_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: compressed data size value too small.",
+			 function );
+
+			return( -1 );
+		}
+		compression_size = compressed_data[ compressed_data_iterator++ ];
+
+		*uncompressed_data_size  += compression_size * 2;
+		compressed_data_iterator += 1 + compression_size;
+	}
+	if( compressed_data_iterator > compressed_data_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: compressed data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Decompresses a UTF-16 string compressed string into a UTF-16 little-endian string
+ * Returns 1 on success or -1 on error
+ */
+int windows_search_decompress_utf16_string(
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     uint8_t *compressed_data,
+     size_t compressed_data_size,
+     liberror_error_t **error )
+{
+	static char *function             = "windows_search_decompress_utf16_string";
+	size_t compressed_data_iterator   = 0;
+	size_t uncompressed_data_iterator = 0;
+	uint8_t compression_size          = 0;
+	uint8_t compression_byte          = 0;
+
+	if( uncompressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid uncompressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	while( compressed_data_iterator < compressed_data_size )
+	{
+		if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: compressed data size value too small.",
+			 function );
+
+			return( -1 );
+		}
+		compression_size = compressed_data[ compressed_data_iterator++ ];
+		compression_byte = compressed_data[ compressed_data_iterator++ ];
+
+		while( compression_size > 0 )
+		{
+			if( compressed_data_iterator >= compressed_data_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: compressed data size value too small.",
+				 function );
+
+				return( -1 );
+			}
+			if( ( uncompressed_data_iterator + 1 ) >= uncompressed_data_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: uncompressed data size value too small.",
+				 function );
+
+				return( -1 );
+			}
+			uncompressed_data[ uncompressed_data_iterator++ ] = compressed_data[ compressed_data_iterator++ ];
+			uncompressed_data[ uncompressed_data_iterator++ ] = compression_byte;
+
+			compression_size--;
+		}
+	}
+	return( 1 );
+}
+
+/* Exports a compressed string
+ * Returns 1 if successful or -1 on error
+ */
+int windows_search_export_compressed_string_value(
+     uint8_t *value_data,
+     size_t value_data_size,
+     FILE *table_file_stream,
+     liberror_error_t **error )
+{
+	uint8_t *decoded_value_data    = NULL;
+	uint8_t *value_string          = NULL;
+	uint8_t *value_utf16_stream    = NULL;
+	static char *function          = "windows_search_export_compressed_string_value";
+	size_t decoded_value_data_size = 0;
+	size_t value_string_size       = 0;
+	size_t value_utf16_stream_size = 0;
+
+	if( value_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid value data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table file stream.",
+		 function );
+
+		return( -1 );
+	}
+	decoded_value_data_size = value_data_size;
+
+	decoded_value_data = (uint8_t *) memory_allocate(
+					  sizeof( uint8_t ) * decoded_value_data_size );
+
+	if( decoded_value_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create decoded value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( windows_search_decode(
+	     decoded_value_data,
+	     decoded_value_data_size,
+	     value_data,
+	     value_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to decode value data.",
+		 function );
+
+		memory_free(
+		 decoded_value_data );
+
+		return( -1 );
+	}
+	if( decoded_value_data[ 0 ] == 0 )
+	{
+		if( windows_search_get_utf16_string_uncompressed_data_size(
+		     &( decoded_value_data[ 1 ] ),
+		     decoded_value_data_size - 1,
+		     &value_utf16_stream_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 string uncompressed data size.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		value_utf16_stream = (uint8_t *) memory_allocate(
+						  sizeof( uint8_t ) * value_utf16_stream_size );
+
+		if( value_utf16_stream == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value UTF-16 stream.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		if( windows_search_decompress_utf16_string(
+		     value_utf16_stream,
+		     value_utf16_stream_size,
+		     &( decoded_value_data[ 1 ] ),
+		     decoded_value_data_size - 1,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to decompress UTF-16 string compressed data size.",
+			 function );
+
+			memory_free(
+			 value_utf16_stream );
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		memory_free(
+		 decoded_value_data );
+
+		if( libuna_utf8_string_size_from_utf16_stream(
+		     value_utf16_stream,
+		     value_utf16_stream_size,
+		     LIBUNA_ENDIAN_LITTLE,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine size of value UTF-16 stream.",
+			 function );
+
+			memory_free(
+			 value_utf16_stream );
+
+			return( -1 );
+		}
+		value_string = (uint8_t *) memory_allocate(
+					    sizeof( uint8_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value string.",
+			 function );
+
+			memory_free(
+			 value_utf16_stream );
+
+			return( -1 );
+		}
+		if( libuna_utf8_string_copy_from_utf16_stream(
+		     value_string,
+		     value_string_size,
+		     value_utf16_stream,
+		     value_utf16_stream_size,
+		     LIBUNA_ENDIAN_LITTLE,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value string.",
+			 function );
+
+			memory_free(
+			 value_string );
+			memory_free(
+			 value_utf16_stream );
+
+			return( -1 );
+		}
+		memory_free(
+		 value_utf16_stream );
+
+		fprintf(
+		 table_file_stream,
+		 "%s",
+		 value_string );
+
+		memory_free(
+		 value_string );
+	}
+	else if( decoded_value_data[ 0 ] == 1 )
+	{
+		if( libuna_utf8_string_size_from_byte_stream(
+		     &( decoded_value_data[ 1 ] ),
+		     decoded_value_data_size - 1,
+		     LIBUNA_CODEPAGE_ASCII,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine size of value string.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		value_string = (uint8_t *) memory_allocate(
+					    sizeof( uint8_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value string.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		if( libuna_utf8_string_copy_from_byte_stream(
+		     value_string,
+		     value_string_size,
+		     &( decoded_value_data[ 1 ] ),
+		     decoded_value_data_size - 1,
+		     LIBUNA_CODEPAGE_ASCII,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value string.",
+			 function );
+
+			memory_free(
+			 value_string );
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		memory_free(
+		 decoded_value_data );
+
+		fprintf(
+		 table_file_stream,
+		 "%s",
+		 value_string );
+
+		memory_free(
+		 value_string );
+	}
+	else
+	{
+		fprintf(
+		 table_file_stream,
+		 "COMPRESSION TYPE: 0x%02" PRIx8 "",
+		 decoded_value_data[ 0 ] );
+	}
+	return( 1 );
+}
+
 /* Exports a 32-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
@@ -224,7 +708,7 @@ int windows_search_export_record_value_32bit(
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint32_t value_32bit   = 0;
-	uint8_t value_tag_byte = 0;
+	uint8_t value_flags    = 0;
 
 	if( record == NULL )
 	{
@@ -294,7 +778,7 @@ int windows_search_export_record_value_32bit(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -307,36 +791,55 @@ int windows_search_export_record_value_32bit(
 
 		return( -1 );
 	}
-	if( value_data != NULL )
+	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
 	{
-		if( value_data_size != 4 )
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value data size: %" PRIzd "",
-			 function,
-			 value_data_size );
+			if( value_data_size != 4 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value data size: %" PRIzd "",
+				 function,
+				 value_data_size );
 
-			return( -1 );
-		}
-		if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
-		{
-			byte_stream_copy_to_uint32_big_endian(
-			 value_data,
+				return( -1 );
+			}
+			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+			{
+				byte_stream_copy_to_uint32_big_endian(
+				 value_data,
+				 value_32bit );
+			}
+			else
+			{
+				byte_stream_copy_to_uint32_little_endian(
+				 value_data,
+				 value_32bit );
+			}
+			fprintf(
+			 table_file_stream,
+			 "%" PRIu32 "",
 			 value_32bit );
 		}
-		else
+	}
+	else
+	{
+		if( value_data != NULL )
 		{
-			byte_stream_copy_to_uint32_little_endian(
-			 value_data,
-			 value_32bit );
+			while( value_data_size > 0 )
+			{
+				fprintf(
+				 table_file_stream,
+				 "%02" PRIx8 "",
+				 *value_data );
+
+				value_data      += 1;
+				value_data_size -= 1;
+			}
 		}
-		fprintf(
-		 table_file_stream,
-		 "%" PRIu32 "",
-		 value_32bit );
 	}
 	return( 1 );
 }
@@ -356,7 +859,7 @@ int windows_search_export_record_value_64bit(
 	size_t value_data_size = 0;
 	uint64_t value_64bit   = 0;
 	uint32_t column_type   = 0;
-	uint8_t value_tag_byte = 0;
+	uint8_t value_flags    = 0;
 
 	if( record == NULL )
 	{
@@ -426,7 +929,7 @@ int windows_search_export_record_value_64bit(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -439,36 +942,55 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( value_data != NULL )
+	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
 	{
-		if( value_data_size != 8 )
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value data size: %" PRIzd "",
-			 function,
-			 value_data_size );
+			if( value_data_size != 8 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value data size: %" PRIzd "",
+				 function,
+				 value_data_size );
 
-			return( -1 );
-		}
-		if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
-		{
-			byte_stream_copy_to_uint64_big_endian(
-			 value_data,
+				return( -1 );
+			}
+			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+			{
+				byte_stream_copy_to_uint64_big_endian(
+				 value_data,
+				 value_64bit );
+			}
+			else
+			{
+				byte_stream_copy_to_uint64_little_endian(
+				 value_data,
+				 value_64bit );
+			}
+			fprintf(
+			 table_file_stream,
+			 "%" PRIu64 "",
 			 value_64bit );
 		}
-		else
+	}
+	else
+	{
+		if( value_data != NULL )
 		{
-			byte_stream_copy_to_uint64_little_endian(
-			 value_data,
-			 value_64bit );
+			while( value_data_size > 0 )
+			{
+				fprintf(
+				 table_file_stream,
+				 "%02" PRIx8 "",
+				 *value_data );
+
+				value_data      += 1;
+				value_data_size -= 1;
+			}
 		}
-		fprintf(
-		 table_file_stream,
-		 "%" PRIu64 "",
-		 value_64bit );
 	}
 	return( 1 );
 }
@@ -490,7 +1012,7 @@ int windows_search_export_record_value_filetime(
 	static char *function             = "windows_search_export_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
-	uint8_t value_tag_byte            = 0;
+	uint8_t value_flags               = 0;
 
 	if( record == NULL )
 	{
@@ -547,7 +1069,7 @@ int windows_search_export_record_value_filetime(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -560,91 +1082,110 @@ int windows_search_export_record_value_filetime(
 
 		return( -1 );
 	}
-	if( value_data != NULL )
+	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
 	{
-		if( value_data_size != 8 )
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value data size: %" PRIzd "",
-			 function,
-			 value_data_size );
+			if( value_data_size != 8 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value data size: %" PRIzd "",
+				 function,
+				 value_data_size );
 
-			return( -1 );
+				return( -1 );
+			}
+			if( libfdatetime_filetime_initialize(
+			     &filetime,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create filetime.",
+				 function );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_copy_from_byte_stream(
+			     filetime,
+			     value_data,
+			     value_data_size,
+			     byte_order,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create filetime.",
+				 function );
+
+				libfdatetime_filetime_free(
+				 &filetime,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_copy_to_string(
+			     filetime,
+			     filetime_string,
+			     22,
+			     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create filetime string.",
+				 function );
+
+				libfdatetime_filetime_free(
+				 &filetime,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libfdatetime_filetime_free(
+			     &filetime,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free filetime.",
+				 function );
+
+				return( -1 );
+			}
+			fprintf(
+			 table_file_stream,
+			 "%s",
+			 filetime_string );
 		}
-		if( libfdatetime_filetime_initialize(
-		     &filetime,
-		     error ) != 1 )
+	}
+	else
+	{
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create filetime.",
-			 function );
+			while( value_data_size > 0 )
+			{
+				fprintf(
+				 table_file_stream,
+				 "%02" PRIx8 "",
+				 *value_data );
 
-			return( -1 );
+				value_data      += 1;
+				value_data_size -= 1;
+			}
 		}
-		if( libfdatetime_filetime_copy_from_byte_stream(
-		     filetime,
-		     value_data,
-		     value_data_size,
-		     byte_order,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_CONVERSION,
-			 LIBERROR_CONVERSION_ERROR_GENERIC,
-			 "%s: unable to create filetime.",
-			 function );
-
-			libfdatetime_filetime_free(
-			 &filetime,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libfdatetime_filetime_copy_to_string(
-		     filetime,
-		     filetime_string,
-		     22,
-		     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-		     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_CONVERSION,
-			 LIBERROR_CONVERSION_ERROR_GENERIC,
-			 "%s: unable to create filetime string.",
-			 function );
-
-			libfdatetime_filetime_free(
-			 &filetime,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libfdatetime_filetime_free(
-		     &filetime,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free filetime.",
-			 function );
-
-			return( -1 );
-		}
-		fprintf(
-		 table_file_stream,
-		 "%s",
-		 filetime_string );
 	}
 	return( 1 );
 }
@@ -658,13 +1199,14 @@ int windows_search_export_record_value_compressed_string(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *value_data      = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "windows_search_export_record_value_compressed_string";
-	size_t value_data_size   = 0;
-	size_t value_string_size = 0;
-	uint32_t column_type     = 0;
-	uint8_t value_tag_byte   = 0;
+	libesedb_multi_value_t *multi_value = NULL;
+	uint8_t *value_data                 = NULL;
+	static char *function               = "windows_search_export_record_value_compressed_string";
+	size_t value_data_size              = 0;
+	uint32_t column_type                = 0;
+	uint8_t value_flags                 = 0;
+	int amount_of_multi_values          = 0;
+	int multi_value_iterator            = 0;
 
 	if( record == NULL )
 	{
@@ -722,68 +1264,155 @@ int windows_search_export_record_value_compressed_string(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value of record entry: %d.",
 		 function,
 		 record_value_entry + 1 );
 
 		return( -1 );
 	}
-	if( value_data != NULL )
+	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
 	{
-		value_string_size = value_data_size;
-
-		value_string = (uint8_t *) memory_allocate(
-		                            sizeof( uint8_t ) * ( value_string_size + 1 ) );
-
-		if( value_string == NULL )
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create value string.",
-			 function );
+			if( windows_search_export_compressed_string_value(
+			     value_data,
+			     value_data_size,
+			     table_file_stream,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to export compressed string value of record entry: %d.",
+				 function,
+				 record_value_entry + 1 );
 
-			return( -1 );
+				return( -1 );
+			}
 		}
-		if( windows_search_decode(
-		     value_string,
-		     value_string_size,
-		     value_data,
-		     value_data_size,
+	}
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	{
+		if( libesedb_record_get_multi_value(
+		     record,
+		     record_value_entry,
+		     &multi_value,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to decode value string: %d.",
+			 "%s: unable to retrieve multi value of record entry: %d.",
 			 function,
 			 record_value_entry + 1 );
 
-			memory_free(
-			 value_string );
+			return( -1 );
+		}
+		if( libesedb_multi_value_get_amount_of_values(
+		     multi_value,
+		     &amount_of_multi_values,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve amount of multi values.",
+			 function );
+
+			libesedb_multi_value_free(
+			 &multi_value,
+			 NULL );
 
 			return( -1 );
 		}
-		/* TODO for debugging purposes */
-		value_string[ value_string_size ] = 0;
+		for( multi_value_iterator = 0;
+	 	     multi_value_iterator < amount_of_multi_values;
+		     multi_value_iterator++ )
+		{
+			if( libesedb_multi_value_get_value(
+			     multi_value,
+			     multi_value_iterator,
+			     &column_type,
+			     &value_data,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve mulit value: %d of record entry: %d.",
+				 function,
+				 multi_value_iterator + 1,
+				 record_value_entry + 1 );
 
-		fprintf(
-		 table_file_stream,
-		 "0x%02" PRIx8 " %s",
-		 value_string[ 0 ],
-		 &( value_string[ 1 ] ) );
+				return( -1 );
+			}
+			if( value_data != NULL )
+			{
+				if( windows_search_export_compressed_string_value(
+				     value_data,
+				     value_data_size,
+				     table_file_stream,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_GENERIC,
+					 "%s: unable to export compressed string value of record entry: %d.",
+					 function,
+					 record_value_entry + 1 );
 
-		memory_free(
-		 value_string );
+					return( -1 );
+				}
+				if( multi_value_iterator < ( amount_of_multi_values - 1 ) )
+				{
+					fprintf(
+					 table_file_stream,
+					 "; " );
+				}
+			}
+		}
+		if( libesedb_multi_value_free(
+		     &multi_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free multi value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( value_data != NULL )
+		{
+			while( value_data_size > 0 )
+			{
+				fprintf(
+				 table_file_stream,
+				 "%02" PRIx8 "",
+				 *value_data );
+
+				value_data      += 1;
+				value_data_size -= 1;
+			}
+		}
 	}
 	return( 1 );
 }
@@ -804,7 +1433,7 @@ int windows_search_export_record_value_utf16_string(
 	size_t value_data_size   = 0;
 	size_t value_string_size = 0;
 	uint32_t column_type     = 0;
-	uint8_t value_tag_byte   = 0;
+	uint8_t value_flags      = 0;
 
 	if( record == NULL )
 	{
@@ -862,7 +1491,7 @@ int windows_search_export_record_value_utf16_string(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -875,67 +1504,86 @@ int windows_search_export_record_value_utf16_string(
 
 		return( -1 );
 	}
-	if( value_data != NULL )
+	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
 	{
-		if( libuna_utf8_string_size_from_utf16_stream(
-		     value_data,
-		     value_data_size,
-		     byte_order,
-		     &value_string_size,
-		     error ) != 1 )
+		if( value_data != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine size of value string: %d.",
-			 function,
-			 record_value_entry + 1 );
+			if( libuna_utf8_string_size_from_utf16_stream(
+			     value_data,
+			     value_data_size,
+			     byte_order,
+			     &value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to determine size of value string: %d.",
+				 function,
+				 record_value_entry + 1 );
 
-			return( -1 );
-		}
-		value_string = (uint8_t *) memory_allocate(
-		                            sizeof( uint8_t ) * value_string_size );
+				return( -1 );
+			}
+			value_string = (uint8_t *) memory_allocate(
+						    sizeof( uint8_t ) * value_string_size );
 
-		if( value_string == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create value string.",
-			 function );
+			if( value_string == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value string.",
+				 function );
 
-			return( -1 );
-		}
-		if( libuna_utf8_string_copy_from_utf16_stream(
-		     value_string,
-		     value_string_size,
-		     value_data,
-		     value_data_size,
-		     byte_order,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value string: %d.",
-			 function,
-			 record_value_entry + 1 );
+				return( -1 );
+			}
+			if( libuna_utf8_string_copy_from_utf16_stream(
+			     value_string,
+			     value_string_size,
+			     value_data,
+			     value_data_size,
+			     byte_order,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value string: %d.",
+				 function,
+				 record_value_entry + 1 );
+
+				memory_free(
+				 value_string );
+
+				return( -1 );
+			}
+			fprintf(
+			 table_file_stream,
+			 "%s",
+			 value_string );
 
 			memory_free(
 			 value_string );
-
-			return( -1 );
 		}
-		fprintf(
-		 table_file_stream,
-		 "%s",
-		 value_string );
+	}
+	else
+	{
+		if( value_data != NULL )
+		{
+			while( value_data_size > 0 )
+			{
+				fprintf(
+				 table_file_stream,
+				 "%02" PRIx8 "",
+				 *value_data );
 
-		memory_free(
-		 value_string );
+				value_data      += 1;
+				value_data_size -= 1;
+			}
+		}
 	}
 	return( 1 );
 }
@@ -1565,7 +2213,6 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-#ifdef IGNORE
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_DateReceived",
@@ -1573,7 +2220,6 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-#endif
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_MessageClass",
@@ -1605,7 +2251,6 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-#ifdef IGNORE
 				else if( narrow_string_compare(
 				          (char *) column_name,
 				          "System_Message_SenderAddress",
@@ -1613,7 +2258,6 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-#endif
 			}
 			else if( column_name_size == 30 )
 			{

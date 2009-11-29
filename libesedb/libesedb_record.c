@@ -29,6 +29,8 @@
 #include "libesedb_data_definition.h"
 #include "libesedb_data_type_definition.h"
 #include "libesedb_definitions.h"
+#include "libesedb_long_value.h"
+#include "libesedb_multi_value.h"
 #include "libesedb_record.h"
 #include "libesedb_table.h"
 #include "libesedb_types.h"
@@ -245,7 +247,7 @@ int libesedb_record_get_amount_of_values(
 		return( -1 );
 	}
 	if( libesedb_array_get_amount_of_entries(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     amount_of_values,
 	     error ) != 1 )
 	{
@@ -310,7 +312,7 @@ int libesedb_record_get_column_identifier(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -401,7 +403,7 @@ int libesedb_record_get_column_type(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -493,7 +495,7 @@ int libesedb_record_get_utf8_column_name_size(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -598,7 +600,7 @@ int libesedb_record_get_utf8_column_name(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -671,7 +673,7 @@ int libesedb_record_get_value(
      int value_entry,
      uint8_t **value_data,
      size_t *value_data_size,
-     uint8_t *value_tag_byte,
+     uint8_t *value_flags,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
@@ -711,13 +713,13 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	if( value_tag_byte == NULL )
+	if( value_flags == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value tage byte.",
+		 "%s: invalid value flags.",
 		 function );
 
 		return( -1 );
@@ -736,7 +738,7 @@ int libesedb_record_get_value(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -775,7 +777,7 @@ int libesedb_record_get_value(
 	}
 	*value_data      = data_type_definition->data;
 	*value_data_size = data_type_definition->data_size;
-	*value_tag_byte  = data_type_definition->tag_byte;
+	*value_flags     = data_type_definition->flags;
 
 	return( 1 );
 }
@@ -818,7 +820,7 @@ int libesedb_record_get_value_boolean(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -927,7 +929,7 @@ int libesedb_record_get_value_8bit(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1036,7 +1038,7 @@ int libesedb_record_get_value_16bit(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1146,7 +1148,7 @@ int libesedb_record_get_value_32bit(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1256,7 +1258,7 @@ int libesedb_record_get_value_64bit(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1366,7 +1368,7 @@ int libesedb_record_get_value_filetime(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1475,7 +1477,7 @@ int libesedb_record_get_value_floating_point(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1586,7 +1588,7 @@ int libesedb_record_get_value_utf8_string_size(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1702,7 +1704,7 @@ int libesedb_record_get_value_utf8_string(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1815,7 +1817,7 @@ int libesedb_record_get_value_utf16_string_size(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1931,7 +1933,7 @@ int libesedb_record_get_value_utf16_string(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2043,7 +2045,7 @@ int libesedb_record_get_value_binary_data_size(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2154,7 +2156,7 @@ int libesedb_record_get_value_binary_data(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->data_type_definitions_array,
+	     internal_record->data_definition->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2223,6 +2225,431 @@ int libesedb_record_get_value_binary_data(
 		 function );
 
 		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the long value of a specific entry from the referenced record
+ * Creates a new long value
+ * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
+ */
+int libesedb_record_get_long_value(
+     libesedb_record_t *record,
+     int value_entry,
+     libesedb_long_value_t **long_value,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_long_value_t *internal_long_value   = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	uint8_t *value_data                                   = NULL;
+	static char *function                                 = "libesedb_record_get_long_value";
+	uint16_t value_offset_iterator                        = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	if( *long_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: long value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->values_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != LIBESEDB_VALUE_FLAG_LONG_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
+		 function,
+		 data_type_definition->flags );
+
+		return( -1 );
+	}
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
+		 function,
+		 data_type_definition->flags );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->data == NULL )
+	{
+		return( 0 );
+	}
+	if( libesedb_long_value_initialize(
+	     long_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create long value.",
+		 function );
+
+		return( -1 );
+	}
+	/* TODO
+	 * get the long value indentifier
+	 * find the corresponding long value page tree entry
+	 */
+
+	return( 1 );
+}
+
+/* Retrieves the multi value of a specific entry from the referenced record
+ * Creates a new multi value
+ * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
+ */
+int libesedb_record_get_multi_value(
+     libesedb_record_t *record,
+     int value_entry,
+     libesedb_multi_value_t **multi_value,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	uint8_t *value_data                                   = NULL;
+	static char *function                                 = "libesedb_record_get_multi_value";
+	uint16_t value_offset_iterator                        = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( internal_record->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( multi_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	if( *multi_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: multi value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_record->data_definition->values_array,
+	     value_entry,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data type definition: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
+		 function,
+		 data_type_definition->flags );
+
+		return( -1 );
+	}
+	if( ( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == LIBESEDB_VALUE_FLAG_LONG_VALUE )
+	 || ( ( data_type_definition->flags & 0x10 ) == 0x10 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
+		 function,
+		 data_type_definition->flags );
+
+		return( -1 );
+	}
+	if( data_type_definition->column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data type definition - missing column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_type_definition->data == NULL )
+	{
+		return( 0 );
+	}
+	if( libesedb_multi_value_initialize(
+	     multi_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) *multi_value;
+
+	internal_multi_value->column_type     = data_type_definition->column_catalog_definition->column_type;
+	internal_multi_value->value_data_size = data_type_definition->data_size;
+
+	internal_multi_value->value_data = (uint8_t *) memory_allocate(
+							internal_multi_value->value_data_size );
+
+	if( internal_multi_value->value_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create multi value data.",
+		 function );
+
+		libesedb_multi_value_free(
+		 multi_value,
+		 NULL );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     internal_multi_value->value_data,
+	     data_type_definition->data,
+	     internal_multi_value->value_data_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set multi value data.",
+		 function );
+
+		libesedb_multi_value_free(
+		 multi_value,
+		 NULL );
+
+		return( -1 );
+	}
+	value_data = internal_multi_value->value_data;
+
+	/* The first 2 byte contain the offset to the first value
+	 * there is an offset for every value
+	 * therefore first offset / 2 = the amount of values
+	 */
+	byte_stream_copy_to_uint16_little_endian(
+	 value_data,
+	 internal_multi_value->amount_of_values );
+
+	internal_multi_value->amount_of_values /= 2;
+
+	if( internal_multi_value->amount_of_values > 0 )
+	{
+		internal_multi_value->value_offset = (uint16_t *) memory_allocate(
+								   sizeof( uint16_t ) * internal_multi_value->amount_of_values );
+
+		if( internal_multi_value->value_offset == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create multi value offsets.",
+			 function );
+
+			libesedb_multi_value_free(
+			 multi_value,
+			 NULL );
+
+			return( -1 );
+		}
+		internal_multi_value->value_size = (size_t *) memory_allocate(
+							       sizeof( size_t ) * internal_multi_value->amount_of_values );
+
+		if( internal_multi_value->value_offset == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create multi value offsets.",
+			 function );
+
+			libesedb_multi_value_free(
+			 multi_value,
+			 NULL );
+
+			return( -1 );
+		}
+		for( value_offset_iterator = 0;
+		     value_offset_iterator < internal_multi_value->amount_of_values;
+		     value_offset_iterator++ )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 value_data,
+			 internal_multi_value->value_offset[ value_offset_iterator ] );
+
+			value_data += 2;
+
+			if( internal_multi_value->value_offset[ value_offset_iterator ] > internal_multi_value->value_data_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
+				 function,
+				 internal_multi_value->value_offset[ value_offset_iterator ],
+				 internal_multi_value->value_data_size );
+
+				libesedb_multi_value_free(
+				 multi_value,
+				 NULL );
+
+				return( -1 );
+			}
+			if( value_offset_iterator > 0 )
+			{
+				internal_multi_value->value_size[ value_offset_iterator - 1 ] = internal_multi_value->value_offset[ value_offset_iterator ]
+											      - internal_multi_value->value_offset[ value_offset_iterator - 1 ];
+			}
+		}
+		internal_multi_value->value_size[ value_offset_iterator - 1 ] = internal_multi_value->value_data_size
+									      - internal_multi_value->value_offset[ value_offset_iterator - 1 ];
+
+		internal_multi_value->codepage = data_type_definition->column_catalog_definition->codepage;
 	}
 	return( 1 );
 }
