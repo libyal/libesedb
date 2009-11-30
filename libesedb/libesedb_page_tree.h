@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_data_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
@@ -121,6 +122,13 @@ int libesedb_page_tree_read_leaf_page_values(
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
      uint8_t flags,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_data_definition_by_key(
+     libesedb_page_tree_t *page_tree,
+     uint8_t *key,
+     size_t key_size,
+     libesedb_data_definition_t **data_definition,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

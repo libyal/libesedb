@@ -661,7 +661,7 @@ int libesedb_data_definition_read_record(
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					libnotify_verbose_printf(
-					 "%s: (%03" PRIu16 ") tagged data type identifier\t\t\t: %" PRIu16 "\n",
+					 "%s: (%03" PRIu16 ") tagged data type identifier\t\t\t\t: %" PRIu16 "\n",
 					 function,
 					 column_catalog_definition->identifier,
 					 tagged_data_type_identifier );
@@ -835,7 +835,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
 					libnotify_verbose_printf(
-					 "%s: (%03" PRIu16 ") tagged data type identifier\t\t\t: %" PRIu16 "\n",
+					 "%s: (%03" PRIu16 ") tagged data type identifier\t\t\t\t: %" PRIu16 "\n",
 					 function,
 					 column_catalog_definition->identifier,
 					 tagged_data_type_identifier );
@@ -1038,7 +1038,6 @@ int libesedb_data_definition_read_long_value(
 {
 	static char *function            = "libesedb_data_definition_read_long_value";
 	uint32_t amount_of_data_segments = 0;
-	uint32_t total_data_size         = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1104,7 +1103,7 @@ int libesedb_data_definition_read_long_value(
 
 	byte_stream_copy_to_uint16_little_endian(
 	 definition_data,
-	 total_data_size );
+	 data_definition->size );
 
 	definition_data += 4;
 
@@ -1116,14 +1115,14 @@ int libesedb_data_definition_read_long_value(
 	libnotify_verbose_printf(
 	 "%s: long value amount total data size\t\t: %" PRIu32 "\n",
 	 function,
-	 total_data_size );
+	 data_definition->size );
 	libnotify_verbose_printf(
 	 "\n" );
 #endif
 
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
-	     amount_of_data_segments,
+	     (int) amount_of_data_segments,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1132,6 +1131,157 @@ int libesedb_data_definition_read_long_value(
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create values array.",
 		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Reads the long value segment data definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_data_definition_read_long_value_segment(
+     libesedb_data_definition_t *data_definition,
+     uint32_t data_segment_number,
+     uint8_t *definition_data,
+     size_t definition_data_size,
+     liberror_error_t **error )
+{
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	static char *function                                 = "libesedb_data_definition_read_long_value_segment";
+	int amount_of_data_segments                           = 0;
+
+	if( data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_definition->values_array == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid data definition - missing values array.",
+		 function );
+
+		return( -1 );
+	}
+	if( definition_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid definition data.",
+		 function );
+
+		return( -1 );
+	}
+	if( definition_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid definition data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_amount_of_entries(
+	     data_definition->values_array,
+	     &amount_of_data_segments,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve amount of entries in values array.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_segment_number > (uint32_t) amount_of_data_segments )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid data segment number: %" PRIu32 " value exceeds amount of data segments: %d.",
+		 function,
+		 data_segment_number,
+		 amount_of_data_segments );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libnotify_verbose_printf(
+	 "%s: long value data segment\t\t: %" PRIu32 "\n",
+	 function,
+	 data_segment_number );
+	libnotify_verbose_printf(
+	 "\n" );
+#endif
+
+	if( libesedb_data_type_definition_initialize(
+	     &data_type_definition,
+	     NULL,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data type definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_data_type_definition_set_data(
+	     data_type_definition,
+	     definition_data,
+	     definition_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set data in long value segment data type definition: %" PRIu32 ".",
+		 function,
+		 data_segment_number );
+
+		libesedb_data_type_definition_free(
+		 (intptr_t *) data_type_definition,
+		 NULL );
+
+		return( -1 );
+	}
+	if( libesedb_array_set_entry(
+	     data_definition->values_array,
+	     (int) data_segment_number,
+	     (intptr_t *) data_type_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to set long value segment data type definition: %" PRIu32 ".",
+		 function,
+		 data_segment_number );
+
+		libesedb_data_type_definition_free(
+		 (intptr_t *) data_type_definition,
+		 NULL );
 
 		return( -1 );
 	}

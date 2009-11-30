@@ -26,6 +26,8 @@
 
 #include <liberror.h>
 
+#include "libesedb_array_type.h"
+#include "libesedb_data_type_definition.h"
 #include "libesedb_long_value.h"
 
 /* Creates a long value
@@ -54,7 +56,7 @@ int libesedb_long_value_initialize(
 		internal_long_value = (libesedb_internal_long_value_t *) memory_allocate(
 		                                                          sizeof( libesedb_internal_long_value_t ) );
 
-		if( *long_value == NULL )
+		if( internal_long_value == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -66,7 +68,7 @@ int libesedb_long_value_initialize(
 			return( -1 );
 		}
 		if( memory_set(
-		     *long_value,
+		     internal_long_value,
 		     0,
 		     sizeof( libesedb_internal_long_value_t ) ) == NULL )
 		{
@@ -78,9 +80,7 @@ int libesedb_long_value_initialize(
 			 function );
 
 			memory_free(
-			 *long_value );
-
-			*long_value = NULL;
+			 internal_long_value );
 
 			return( -1 );
 		}
@@ -111,12 +111,8 @@ int libesedb_long_value_free(
 	}
 	if( *long_value != NULL )
 	{
-
-		if( ( ( libesedb_internal_long_value_t *) *long_value )->data != NULL )
-		{
-			memory_free(
-			 ( (libesedb_internal_long_value_t *) *long_value )->data );
-		}
+		/* The data definition is freed elsewhere
+		 */
 		memory_free(
 		 *long_value );
 
@@ -125,79 +121,84 @@ int libesedb_long_value_free(
 	return( 1 );
 }
 
-/* Sets the data in the long value
- * Returns 1 if successful or -1 on error
+/* Retrieve the segment data
+ * Return 1 if successful or -1 on error
  */
-int libesedb_long_value_set_data(
-     libesedb_internal_long_value_t *internal_long_value,
-     uint8_t *data,
-     size_t data_size,
+int libesedb_long_value_get_segment_data(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     uint8_t **segment_data,
+     size_t *segment_data_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_long_value_set_data";
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_long_value_t *internal_long_value   = NULL;
+	static char *function                                 = "libesedb_long_value_free";
 
-	if( internal_long_value == NULL )
+	if( long_value == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal long value.",
+		 "%s: invalid long value.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_long_value->data != NULL )
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( internal_long_value->data_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal long value - data already set.",
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid long value - missing data definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( data_size > (size_t) SSIZE_MAX )
+	if( segment_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment data.",
+		 function );
+
+		return( -1 );
+	}
+	if( segment_data_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry(
+	     internal_long_value->data_definition->values_array,
+	     data_segment_index,
+	     (intptr_t **) &data_type_definition,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data segments: %d.",
+		 function,
+		 data_segment_index );
 
 		return( -1 );
 	}
-	internal_long_value->data = (uint8_t *) memory_allocate(
-	                                         sizeof( uint8_t ) * data_size );
-
-	if( internal_long_value->data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create long value data.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_copy(
-	     internal_long_value->data,
-	     data,
-	     sizeof( uint8_t ) * data_size ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy data.",
-		 function );
-
-		return( -1 );
-	}
-	internal_long_value->data_size = data_size;
+	*segment_data      = data_type_definition->data;
+	*segment_data_size = data_type_definition->data_size;
 
 	return( 1 );
 }

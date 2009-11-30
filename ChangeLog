@@ -1,8 +1,5 @@
 TODO
 
-* ascii 7-bit compression
-* handle multi values
-
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table 1
 * move bfio handle to item layer
@@ -45,7 +42,6 @@ File format
 * where is the root object defined? or is it implied to be object 1?
 * flag 0x4000 in tagged values
 * page flags
-* long values
 * page keys
 
 Deployment:
@@ -55,9 +51,16 @@ Deployment:
 * update codegear files
 * check msvcpp files
 
+Performance
+* create data definition tree in page tree for faster lookup of keys
+  keep list for sequential access (B+-tree)
+
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20091130
+* worked on long value support
 
 20091129
 * worked on Windows Search

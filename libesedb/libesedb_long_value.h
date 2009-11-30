@@ -28,6 +28,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_data_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_types.h"
 
@@ -39,13 +40,17 @@ typedef struct libesedb_internal_long_value libesedb_internal_long_value_t;
 
 struct libesedb_internal_long_value
 {
-	/* The data
+	/* The multi column type
 	 */
-	uint8_t *data;
+	uint32_t column_type;
 
-	/* The data size
+	/* The data definition
 	 */
-	size_t data_size;
+	libesedb_data_definition_t *data_definition;
+
+	/* A copy of the codepage
+	 */
+	int codepage;
 };
 
 int libesedb_long_value_initialize(
@@ -56,11 +61,16 @@ LIBESEDB_EXTERN int libesedb_long_value_free(
                      libesedb_long_value_t **long_value,
                      liberror_error_t **error );
 
-int libesedb_long_value_set_data(
-     libesedb_internal_long_value_t *internal_long_value,
-     uint8_t *data,
-     size_t data_size,
-     liberror_error_t **error );
+LIBESEDB_EXTERN int libesedb_long_value_free(
+                     libesedb_long_value_t **long_value,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_long_value_get_segment_data(
+                     libesedb_long_value_t *long_value,
+                     int data_segment_index,
+                     uint8_t **segment_data,
+                     size_t *segment_data_size,
+                     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

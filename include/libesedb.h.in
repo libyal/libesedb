@@ -677,6 +677,16 @@ LIBESEDB_EXTERN int libesedb_long_value_free(
                      libesedb_long_value_t **long_value,
                      libesedb_error_t **error );
 
+/* Retrieve the segment data
+ * Return 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_long_value_get_segment_data(
+                     libesedb_long_value_t *long_value,
+                     int data_segment_index,
+                     uint8_t **segment_data,
+                     size_t *segment_data_size,
+                     libesedb_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Multi value functions
  * ------------------------------------------------------------------------- */

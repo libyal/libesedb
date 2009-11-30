@@ -49,6 +49,10 @@ struct libesedb_data_definition
 	 */
 	size_t key_size;
 
+	/* The size
+	 */
+	size_t size;
+
 	/* The values array
 	 */
 	libesedb_array_t *values_array;
@@ -78,6 +82,13 @@ int libesedb_data_definition_read_record(
 
 int libesedb_data_definition_read_long_value(
      libesedb_data_definition_t *data_definition,
+     uint8_t *definition_data,
+     size_t definition_data_size,
+     liberror_error_t **error );
+
+int libesedb_data_definition_read_long_value_segment(
+     libesedb_data_definition_t *data_definition,
+     uint32_t data_segment_number,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error );

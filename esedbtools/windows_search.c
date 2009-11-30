@@ -1199,6 +1199,7 @@ int windows_search_export_record_value_compressed_string(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
+	libesedb_long_value_t *long_value   = NULL;
 	libesedb_multi_value_t *multi_value = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
@@ -1297,6 +1298,40 @@ int windows_search_export_record_value_compressed_string(
 
 				return( -1 );
 			}
+		}
+	}
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == LIBESEDB_VALUE_FLAG_LONG_VALUE )
+	{
+		if( libesedb_record_get_long_value(
+		     record,
+		     record_value_entry,
+		     &long_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve long value of record entry: %d.",
+			 function,
+			 record_value_entry + 1 );
+
+			return( -1 );
+		}
+		/* TODO */
+
+		if( libesedb_long_value_free(
+		     &long_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free long value.",
+			 function );
+
+			return( -1 );
 		}
 	}
 	else if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == LIBESEDB_VALUE_FLAG_MULTI_VALUE )

@@ -2242,9 +2242,7 @@ int libesedb_record_get_long_value(
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	libesedb_internal_long_value_t *internal_long_value   = NULL;
 	libesedb_internal_record_t *internal_record           = NULL;
-	uint8_t *value_data                                   = NULL;
 	static char *function                                 = "libesedb_record_get_long_value";
-	uint16_t value_offset_iterator                        = 0;
 
 	if( record == NULL )
 	{
@@ -2259,6 +2257,28 @@ int libesedb_record_get_long_value(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( internal_record->internal_table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing internal table.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record->internal_table->long_value_page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - invalid internal table - missing long value page tree.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_record->data_definition == NULL )
 	{
 		liberror_error_set(
@@ -2371,10 +2391,30 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	/* TODO
-	 * get the long value indentifier
-	 * find the corresponding long value page tree entry
-	 */
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( libesedb_page_tree_get_data_definition_by_key(
+	     internal_record->internal_table->long_value_page_tree,
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     &( internal_long_value->data_definition ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value data definition.",
+		 function );
+
+		libesedb_long_value_free(
+		 long_value,
+		 NULL );
+
+		return( -1 );
+	}
+	internal_long_value->column_type = data_type_definition->column_catalog_definition->column_type;
+	internal_long_value->codepage    = data_type_definition->column_catalog_definition->codepage;
 
 	return( 1 );
 }

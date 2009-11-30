@@ -50,17 +50,6 @@ int libesedb_data_type_definition_initialize(
 
 		return( -1 );
 	}
-	if( column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( *data_type_definition == NULL )
 	{
 		*data_type_definition = (libesedb_data_type_definition_t *) memory_allocate(
