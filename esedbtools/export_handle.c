@@ -31,6 +31,7 @@
  */
 #if defined( HAVE_LOCAL_LIBFDATETIME )
 
+#include <libfdatetime_date_time_values.h>
 #include <libfdatetime_definitions.h>
 #include <libfdatetime_error.h>
 #include <libfdatetime_fat_date_time.h>
@@ -1528,7 +1529,7 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					if( libfdatetime_filetime_copy_to_string(
+					if( libfdatetime_filetime_copy_to_utf8_string(
 					     filetime,
 					     filetime_string,
 					     22,

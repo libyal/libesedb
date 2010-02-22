@@ -1,7 +1,8 @@
 /*
  * Narrow character string functions
  *
- * Copyright (c) 2006-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -124,7 +125,7 @@ extern "C" {
 	(char *) memrchr( (void *) string, (int) character, size )
 #endif
 
-/* String formatted print (snprinf)
+/* String formatted print (snprintf)
  */
 #if defined( HAVE_GLIB_H )
 #define narrow_string_snprintf( target, size, ... ) \
@@ -134,23 +135,27 @@ extern "C" {
 #define narrow_string_snprintf( target, size, ... ) \
 	sprintf_s( target, size, __VA_ARGS__ )
 
+#elif defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define narrow_string_snprintf \
+	snprintf
+
 #elif defined( HAVE_SNPRINTF ) || defined( WINAPI )
 #define narrow_string_snprintf( target, size, ... ) \
 	snprintf( target, size, __VA_ARGS__ )
-
-#elif defined( HAVE_SPRINTF )
-#define narrow_string_snprintf( target, size, ... ) \
-	sprintf( target, __VA_ARGS__ )
 #endif
 
 /* String input conversion (sscanf)
  */
-#if defined( HAVE_SSCANF ) || defined( WINAPI )
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define narrow_string_sscanf \
+	sscanf
+
+#elif defined( HAVE_SSCANF ) || defined( WINAPI )
 #define narrow_string_sscanf( string, format, ... ) \
 	sscanf( string, format, __VA_ARGS__ )
 #endif
 
-/* String to singed long long (int64)
+/* String to signed long long (int64)
  */
 #if defined( HAVE_GLIB_H )
 #define narrow_string_to_signed_long_long( string, end_of_string, base ) \
@@ -188,17 +193,15 @@ extern "C" {
 	(uint64_t) atoll( string )
 #endif
 
-/* Variable arguments formatted print to string function
+/* Variable arguments formatted print to string function (vsnprintf)
  */
 #if defined( HAVE_GLIB_H )
 #define narrow_string_vsnprintf( string, size, format, ... ) \
 	g_vsnprintf( string, size, format, __VA_ARGS__ )
 
-/* This definition causes problems
-#elif defined( _MSC_VER )
-#define narrow_string_vsnprintf( string, size, format, ... ) \
-	_vsnprintf_s( string, size, size, format, __VA_ARGS__ )
-*/
+#elif defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define narrow_string_vsnprintf \
+	vsnprintf
 
 #elif defined( HAVE_VSNPRINTF ) || defined( WINAPI )
 #define narrow_string_vsnprintf( string, size, format, ... ) \

@@ -1,6 +1,7 @@
 /*
  * Page tree functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -357,10 +358,13 @@ int libesedb_page_tree_read(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: reading page tree with FDP number\t\t: %" PRIu32 "\n",
-	 function,
-	 father_data_page_number );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: reading page tree with FDP number\t\t: %" PRIu32 "\n",
+		 function,
+		 father_data_page_number );
+	}
 #endif
 
 	if( libesedb_page_initialize(
@@ -621,44 +625,47 @@ int libesedb_page_tree_read_father_data_page_values(
 	/* TODO handle the root page header */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_father_data_page_header_t *) page_value->data )->initial_amount_of_pages,
-	 initial_amount_of_pages );
-	libnotify_verbose_printf(
-	 "%s: header initial amount of pages\t: %" PRIu32 "\n",
-	 function,
-	 initial_amount_of_pages );
+	if( libnotify_verbose != 0 )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_father_data_page_header_t *) page_value->data )->initial_amount_of_pages,
+		 initial_amount_of_pages );
+		libnotify_printf(
+		 "%s: header initial amount of pages\t: %" PRIu32 "\n",
+		 function,
+		 initial_amount_of_pages );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_father_data_page_header_t *) page_value->data )->parent_father_data_page_number,
-	 test );
-	libnotify_verbose_printf(
-	 "%s: header parent FDP number\t: %" PRIu32 "\n",
-	 function,
-	 test );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_father_data_page_header_t *) page_value->data )->parent_father_data_page_number,
+		 test );
+		libnotify_printf(
+		 "%s: header parent FDP number\t: %" PRIu32 "\n",
+		 function,
+		 test );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_father_data_page_header_t *) page_value->data )->extent_space,
-	 extent_space );
-	libnotify_verbose_printf(
-	 "%s: header extent space\t\t: %" PRIu32 "\n",
-	 function,
-	 extent_space );
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_father_data_page_header_t *) page_value->data )->extent_space,
+		 extent_space );
+		libnotify_printf(
+		 "%s: header extent space\t\t: %" PRIu32 "\n",
+		 function,
+		 extent_space );
 
-	libnotify_verbose_printf(
-	 "%s: header space tree page number\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-	 function,
-	 space_tree_page_number,
-	 space_tree_page_number );
+		libnotify_printf(
+		 "%s: header space tree page number\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
+		 function,
+		 space_tree_page_number,
+		 space_tree_page_number );
 
-	libnotify_verbose_printf(
-	 "%s: header primary extent\t\t: %" PRIu32 "-%c\n",
-	 function,
-	 initial_amount_of_pages,
-	 ( extent_space == 0 ? 's' : 'm' ) );
+		libnotify_printf(
+		 "%s: header primary extent\t\t: %" PRIu32 "-%c\n",
+		 function,
+		 initial_amount_of_pages,
+		 ( extent_space == 0 ? 's' : 'm' ) );
 
-	libnotify_verbose_printf(
-	 "\n" );
+		libnotify_printf(
+		 "\n" );
+	}
 #endif
 
 	/* Read the space tree pages
@@ -1008,12 +1015,15 @@ int libesedb_page_tree_read_parent_page_values(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: header:\n",
-	 function );
-	libnotify_verbose_print_data(
-	 page_value->data,
-	 page_value->size );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: header:\n",
+		 function );
+		libnotify_print_data(
+		 page_value->data,
+		 page_value->size );
+	}
 #endif
 
 	/* Read the page values
@@ -1146,22 +1156,26 @@ int libesedb_page_tree_read_child_pages(
 			page_value_size -= 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: value: %03d key type\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
-			 function,
-			 page_value_iterator,
-			 key_type,
-			 key_type );
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d key type\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+				 function,
+				 page_value_iterator,
+				 key_type,
+				 key_type );
+			}
 #endif
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		else if( ( page_value->flags & 0x7 ) != 0 )
+		else if( ( libnotify_verbose != 0 )
+		      && ( ( page_value->flags & 0x7 ) != 0 ) )
 		{
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "MARKER: unsupported page value flags: 0x%02" PRIx8 "\n",
 			 page_value->flags );
 
-			libnotify_verbose_print_data(
+			libnotify_print_data(
 			 page_value_data,
 			 page_value_size );
 		}
@@ -1174,11 +1188,14 @@ int libesedb_page_tree_read_child_pages(
 		page_value_size -= 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d highest key size\t: %" PRIu16 "\n",
-		 function,
-		 page_value_iterator,
-		 key_size );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d highest key size\t: %" PRIu16 "\n",
+			 function,
+			 page_value_iterator,
+			 key_size );
+		}
 #endif
 
 		if( key_size > page_value_size )
@@ -1193,38 +1210,49 @@ int libesedb_page_tree_read_child_pages(
 			return( -1 );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d highest key value\t: ",
-		 function,
-		 page_value_iterator );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d highest key value\t: ",
+			 function,
+			 page_value_iterator );
+		}
 #endif
 
 		while( key_size > 0 )
 		{
-			libnotify_verbose_printf(
-			 "%02" PRIx8 " ",
-			 *page_value_data );
-
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%02" PRIx8 " ",
+				 *page_value_data );
+			}
 			page_value_data++;
 			page_value_size--;
 			key_size--;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "\n" );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "\n" );
+		}
 #endif
 		byte_stream_copy_to_uint32_little_endian(
 		 page_value_data,
 		 child_page_number );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d child page number\t: %" PRIu32 "\n",
-		 function,
-		 page_value_iterator,
-		 child_page_number );
-		libnotify_verbose_printf(
-		 "\n" );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d child page number\t: %" PRIu32 "\n",
+			 function,
+			 page_value_iterator,
+			 child_page_number );
+			libnotify_printf(
+			 "\n" );
+		}
 #endif
 
 		/* TODO can an upper bound be determined ?
@@ -1232,10 +1260,13 @@ int libesedb_page_tree_read_child_pages(
 		if( child_page_number >= 0x117f02 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: value: %03d ignoring child page\n",
-			 function,
-			 page_value_iterator );
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d ignoring child page\n",
+				 function,
+				 page_value_iterator );
+			}
 #endif
 
 			continue;
@@ -1292,49 +1323,52 @@ int libesedb_page_tree_read_child_pages(
 		}
 		if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 		{
-			if( page_value_iterator > 1 )
+			if( libnotify_verbose != 0 )
 			{
-				if( child_page->page_number != previous_next_child_page_number )
+				if( page_value_iterator > 1 )
 				{
-					libnotify_verbose_printf(
-					 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").\n",
-					 function,
-					 previous_next_child_page_number,
-					 child_page->page_number );
+					if( child_page->page_number != previous_next_child_page_number )
+					{
+						libnotify_printf(
+						 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").\n",
+						 function,
+						 previous_next_child_page_number,
+						 child_page->page_number );
+					}
+					if( child_page->previous_page_number != previous_child_page_number )
+					{
+						libnotify_printf(
+						 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").\n",
+						 function,
+						 previous_child_page_number,
+						 child_page->previous_page_number );
+					}
 				}
-				if( child_page->previous_page_number != previous_child_page_number )
-				{
-					libnotify_verbose_printf(
-					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").\n",
-					 function,
-					 previous_child_page_number,
-					 child_page->previous_page_number );
-				}
-			}
 /* TODO need the actual values for the following checks
-			if( page_value_iterator == 1 )
-			{
-				if( child_page->previous_page_number != 0 )
+				if( page_value_iterator == 1 )
 				{
-					libnotify_verbose_printf(
-					 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
-					 function,
-					 0,
-					 child_page->previous_page_number );
+					if( child_page->previous_page_number != 0 )
+					{
+						libnotify_printf(
+						 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
+						 function,
+						 0,
+						 child_page->previous_page_number );
+					}
 				}
-			}
-			if( page_value_iterator == ( amount_of_page_values - 1 ) )
-			{
-				if( child_page->next_page_number != 0 )
+				if( page_value_iterator == ( amount_of_page_values - 1 ) )
 				{
-					libnotify_verbose_printf(
-					 "%s: mismatch in next child page number (%" PRIu32 " != %" PRIu32 ").",
-					 function,
-					 0,
-					 child_page->previous_page_number );
+					if( child_page->next_page_number != 0 )
+					{
+						libnotify_printf(
+						 "%s: mismatch in next child page number (%" PRIu32 " != %" PRIu32 ").",
+						 function,
+						 0,
+						 child_page->previous_page_number );
+					}
 				}
-			}
 */
+			}
 			previous_child_page_number      = child_page->page_number;
 			previous_next_child_page_number = child_page->next_page_number;
 
@@ -1399,10 +1433,12 @@ int libesedb_page_tree_read_child_pages(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "\n" );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "\n" );
+	}
 #endif
-
 	return( 1 );
 }
 
@@ -1541,12 +1577,15 @@ int libesedb_page_tree_read_space_tree_page_values(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: header:\n",
-	 function );
-	libnotify_verbose_print_data(
-	 page_value->data,
-	 page_value->size );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: header:\n",
+		 function );
+		libnotify_print_data(
+		 page_value->data,
+		 page_value->size );
+	}
 #endif
 
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
@@ -1659,48 +1698,56 @@ int libesedb_page_tree_read_space_tree_page_values(
 			/* TODO handle the space tree page values */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: value: %03d key size\t\t: %" PRIu16 "\n",
-			 function,
-			 page_value_iterator,
-			 key_size );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number,
-			 test );
-			libnotify_verbose_printf(
-			 "%s: value: %03d key value\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-			 function,
-			 page_value_iterator,
-			 test,
-			 test );
-
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages,
-			 test );
-			libnotify_verbose_printf(
-			 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
-			 function,
-			 page_value_iterator,
-			 test );
-
-			libnotify_verbose_printf(
-			 "\n" );
-
-			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+			if( libnotify_verbose != 0 )
 			{
-				total_amount_of_pages += test;
+				libnotify_printf(
+				 "%s: value: %03d key size\t\t: %" PRIu16 "\n",
+				 function,
+				 page_value_iterator,
+				 key_size );
+
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (esedb_space_tree_page_entry_t *) page_value->data )->last_page_number,
+				 test );
+				libnotify_printf(
+				 "%s: value: %03d key value\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
+				 function,
+				 page_value_iterator,
+				 test,
+				 test );
+
+				byte_stream_copy_to_uint32_little_endian(
+				 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages,
+				 test );
+				libnotify_printf(
+				 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
+				 function,
+				 page_value_iterator,
+				 test );
+
+				libnotify_printf(
+				 "\n" );
+
+				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+				{
+					total_amount_of_pages += test;
+				}
 			}
 #endif
 		}
 		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
 		{
-			libnotify_verbose_printf(
-			 "%s: data:\n",
-			 function );
-			libnotify_verbose_print_data(
-			 page_value->data,
-			 page_value->size );
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: data:\n",
+				 function );
+				libnotify_print_data(
+				 page_value->data,
+				 page_value->size );
+			}
+#endif
 #ifdef X
 			if( libesedb_page_initialize(
 			     &space_tree_page,
@@ -1788,13 +1835,16 @@ int libesedb_page_tree_read_space_tree_page_values(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: total amount of pages\t\t: %" PRIu32 "\n",
-	 function,
-	 total_amount_of_pages );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: total amount of pages\t\t: %" PRIu32 "\n",
+		 function,
+		 total_amount_of_pages );
 
-	libnotify_verbose_printf(
-	 "\n" );
+		libnotify_printf(
+		 "\n" );
+	}
 #endif
 
 	return( 1 );
@@ -1937,35 +1987,38 @@ int libesedb_page_tree_read_leaf_page_values(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	page_value_data = page_value->data;
-	page_value_size = page_value->size;
-
-	libnotify_verbose_printf(
-	 "%s: value: %03d value:\n",
-	 function,
-	 page_value_iterator );
-	libnotify_verbose_print_data(
-	 page_value_data,
-	 page_value->size );
-
-	libnotify_verbose_printf(
-	 "%s: header (record key)\t\t\t\t: ",
-	 function,
-	 page_value_iterator );
-
-	while( page_value_size > 0 )
+	if( libnotify_verbose != 0 )
 	{
-		libnotify_verbose_printf(
-		 "%02" PRIx8 " ",
-		 *page_value_data );
+		page_value_data = page_value->data;
+		page_value_size = page_value->size;
 
-		page_value_data++;
-		page_value_size--;
+		libnotify_printf(
+		 "%s: value: %03d value:\n",
+		 function,
+		 page_value_iterator );
+		libnotify_print_data(
+		 page_value_data,
+		 page_value->size );
+
+		libnotify_printf(
+		 "%s: header (record key)\t\t\t\t: ",
+		 function,
+		 page_value_iterator );
+
+		while( page_value_size > 0 )
+		{
+			libnotify_printf(
+			 "%02" PRIx8 " ",
+			 *page_value_data );
+
+			page_value_data++;
+			page_value_size--;
+		}
+		libnotify_printf(
+		 "\n" );
+		libnotify_printf(
+		 "\n" );
 	}
-	libnotify_verbose_printf(
-	 "\n" );
-	libnotify_verbose_printf(
-	 "\n" );
 #endif
 
 	/* TODO handle the leaf page header */
@@ -1994,22 +2047,25 @@ int libesedb_page_tree_read_leaf_page_values(
 		page_value_size = (uint16_t) page_value->size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d value:\n",
-		 function,
-		 page_value_iterator );
-		libnotify_verbose_print_data(
-		 page_value_data,
-		 page_value->size );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d value:\n",
+			 function,
+			 page_value_iterator );
+			libnotify_print_data(
+			 page_value_data,
+			 page_value->size );
 
-		libnotify_verbose_printf(
-		 "%s: value: %03d page tag flags\t\t\t: ",
-		 function,
-		 page_value_iterator );
-		libesedb_debug_print_page_tag_flags(
-		 page_value->flags );
-		libnotify_verbose_printf(
-		 "\n" );
+			libnotify_printf(
+			 "%s: value: %03d page tag flags\t\t\t: ",
+			 function,
+			 page_value_iterator );
+			libesedb_debug_print_page_tag_flags(
+			 page_value->flags );
+			libnotify_printf(
+			 "\n" );
+		}
 #endif
 
 		if( ( page_value->flags & 0x04 ) == 0x04 )
@@ -2022,12 +2078,15 @@ int libesedb_page_tree_read_leaf_page_values(
 			page_value_size -= 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			libnotify_verbose_printf(
-			 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
-			 function,
-			 page_value_iterator,
-			 key_type,
-			 key_type );
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+				 function,
+				 page_value_iterator,
+				 key_type,
+				 key_type );
+			}
 #endif
 		}
 		byte_stream_copy_to_uint16_little_endian(
@@ -2038,11 +2097,14 @@ int libesedb_page_tree_read_leaf_page_values(
 		page_value_size -= 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d key size\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 page_value_iterator,
-		 key_size );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d key size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 page_value_iterator,
+			 key_size );
+		}
 #endif
 
 		if( key_size > page_value_size )
@@ -2094,23 +2156,31 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: value: %03d key value\t\t\t\t: ",
-		 function,
-		 page_value_iterator );
-
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d key value\t\t\t\t: ",
+			 function,
+			 page_value_iterator );
+		}
 		while( key_size > 0 )
 		{
-			libnotify_verbose_printf(
-			 "%02" PRIx8 " ",
-			 *page_value_data );
-
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%02" PRIx8 " ",
+				 *page_value_data );
+			}
 			page_value_data++;
 			page_value_size--;
 			key_size--;
+
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "\n" );
+			}
 		}
-		libnotify_verbose_printf(
-		 "\n" );
 #else
 		page_value_data += key_size;
 		page_value_size -= key_size;
@@ -2393,24 +2463,31 @@ int libesedb_page_tree_read_leaf_page_values(
 			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
-				libnotify_verbose_printf(
-				 "%s: value: %03d index value\t\t\t: ",
-				 function,
-				 page_value_iterator );
-
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "%s: value: %03d index value\t\t\t: ",
+					 function,
+					 page_value_iterator );
+				}
 				while( page_value_size > 0 )
 				{
-					libnotify_verbose_printf(
-					 "%02" PRIx8 " ",
-					 *page_value_data );
-
+					if( libnotify_verbose != 0 )
+					{
+						libnotify_printf(
+						 "%02" PRIx8 " ",
+						 *page_value_data );
+					}
 					page_value_data++;
 					page_value_size--;
 				}
-				libnotify_verbose_printf(
-				 "\n" );
-				libnotify_verbose_printf(
-				 "\n" );
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "\n" );
+					libnotify_printf(
+					 "\n" );
+				}
 #endif
 			}
 			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_IS_LONG_VALUE )

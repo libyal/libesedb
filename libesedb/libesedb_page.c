@@ -1,6 +1,7 @@
 /*
  * Page functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -263,12 +264,15 @@ int libesedb_page_read(
 	page_offset = ( page_number + 1 ) * io_handle->page_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: reading page: %" PRIu32 " at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
-	 function,
-	 page_number,
-	 page_offset,
-	 page_offset );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: reading page: %" PRIu32 " at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 page_number,
+		 page_offset,
+		 page_offset );
+	}
 #endif
 
 	if( libbfio_handle_seek_offset(
@@ -321,12 +325,15 @@ int libesedb_page_read(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: page header:\n",
-	 function );
-	libnotify_verbose_print_data(
-	 page->data,
-	 sizeof( esedb_page_header_t ) );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: page header:\n",
+		 function );
+		libnotify_print_data(
+		 page->data,
+		 sizeof( esedb_page_header_t ) );
+	}
 #endif
 
 	page->page_number = page_number;
@@ -373,81 +380,84 @@ int libesedb_page_read(
 		 stored_page_number );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 page_number );
-
-	libnotify_verbose_printf(
-	 "%s: XOR checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
-	 function,
-	 stored_xor32_checksum );
-
-	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
-	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
+	if( libnotify_verbose != 0 )
 	{
-		libnotify_verbose_printf(
-		 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+		libnotify_printf(
+		 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 stored_ecc32_checksum );
-	}
-	else
-	{
-		libnotify_verbose_printf(
-		 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
+		 page_number );
+
+		libnotify_printf(
+		 "%s: XOR checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 stored_page_number );
+		 stored_xor32_checksum );
+
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
+		 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
+		{
+			libnotify_printf(
+			 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 stored_ecc32_checksum );
+		}
+		else
+		{
+			libnotify_printf(
+			 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
+			 function,
+			 stored_page_number );
+		}
+		libnotify_printf(
+		 "%s: database modification time:\n",
+		 function );
+		libnotify_print_data(
+		 ( (esedb_page_header_t *) page->data )->database_modification_time,
+		 8 );
+
+		libnotify_printf(
+		 "%s: previous page number\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 page->previous_page_number );
+		libnotify_printf(
+		 "%s: next page number\t\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 page->next_page_number );
+		libnotify_printf(
+		 "%s: father data page (FDP) object identifier\t\t: %" PRIu32 "\n",
+		 function,
+		 page->father_data_page_object_identifier );
+
+		libnotify_printf(
+		 "%s: available data size\t\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 available_data_size );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size,
+		 test );
+		libnotify_printf(
+		 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
+		 function,
+		 test );
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (esedb_page_header_t *) page->data )->available_data_offset,
+		 test );
+		libnotify_printf(
+		 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 test );
+		libnotify_printf(
+		 "%s: available page tag\t\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 available_page_tag );
+
+		libnotify_printf(
+		 "%s: page flags\t\t\t\t\t\t: ",
+		 function );
+		libesedb_debug_print_page_flags(
+		 page->flags );
+		libnotify_printf(
+		 "\n" );
 	}
-	libnotify_verbose_printf(
-	 "%s: database modification time:\n",
-	 function );
-	libnotify_verbose_print_data(
-	 ( (esedb_page_header_t *) page->data )->database_modification_time,
-	 8 );
-
-	libnotify_verbose_printf(
-	 "%s: previous page number\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 page->previous_page_number );
-	libnotify_verbose_printf(
-	 "%s: next page number\t\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 page->next_page_number );
-	libnotify_verbose_printf(
-	 "%s: father data page (FDP) object identifier\t\t: %" PRIu32 "\n",
-	 function,
-	 page->father_data_page_object_identifier );
-
-	libnotify_verbose_printf(
-	 "%s: available data size\t\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 available_data_size );
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size,
-	 test );
-	libnotify_verbose_printf(
-	 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
-	 function,
-	 test );
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_page_header_t *) page->data )->available_data_offset,
-	 test );
-	libnotify_verbose_printf(
-	 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 test );
-	libnotify_verbose_printf(
-	 "%s: available page tag\t\t\t\t\t: %" PRIu32 "\n",
-	 function,
-	 available_page_tag );
-
-	libnotify_verbose_printf(
-	 "%s: page flags\t\t\t\t\t\t: ",
-	 function );
-	libesedb_debug_print_page_flags(
-	 page->flags );
-	libnotify_verbose_printf(
-	 "\n" );
 #endif
 
 	/* TODO for now don't bother calculating a checksum for uninitialized pages */
@@ -511,11 +521,14 @@ int libesedb_page_read(
 
 			return( -1 );
 #else
-			libnotify_verbose_printf(
-			 "%s: mismatch in page XOR-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
-			 function,
-			 stored_xor32_checksum,
-			 calculated_xor32_checksum );
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: mismatch in page XOR-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+				 function,
+				 stored_xor32_checksum,
+				 calculated_xor32_checksum );
+			}
 #endif
 		}
 		if( stored_ecc32_checksum != calculated_ecc32_checksum )
@@ -532,11 +545,14 @@ int libesedb_page_read(
 
 			return( -1 );
 #else
-			libnotify_verbose_printf(
-			 "%s: mismatch in page ECC-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
-			 function,
-			 stored_ecc32_checksum,
-			 calculated_ecc32_checksum );
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: mismatch in page ECC-32 checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).\n",
+				 function,
+				 stored_ecc32_checksum,
+				 calculated_ecc32_checksum );
+			}
 #endif
 		}
 	}
@@ -689,14 +705,17 @@ int libesedb_page_read_tags(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	page_tags_data_size = 4 * amount_of_page_entries;
+	if( libnotify_verbose != 0 )
+	{
+		page_tags_data_size = 4 * amount_of_page_entries;
 
-	libnotify_verbose_printf(
-	 "%s: page tags:\n",
-	 function );
-	libnotify_verbose_print_data(
-	 &( page_data[ page_data_size - page_tags_data_size ] ),
-	 page_tags_data_size );
+		libnotify_printf(
+		 "%s: page tags:\n",
+		 function );
+		libnotify_print_data(
+		 &( page_data[ page_data_size - page_tags_data_size ] ),
+		 page_tags_data_size );
+	}
 #endif
 
 	/* Read the page tags back to front
@@ -737,24 +756,27 @@ int libesedb_page_read_tags(
 		page_tags_value->offset &= 0x1fff;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: page tag: %03d offset\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 page_tag_number,
-		 page_tags_value->offset );
-		libnotify_verbose_printf(
-		 "%s: page tag: %03d size\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 page_tag_number,
-		 page_tags_value->size );
-		libnotify_verbose_printf(
-		 "%s: page tag: %03d flags\t\t\t\t: ",
-		 function,
-		 page_tag_number );
-		libesedb_debug_print_page_tag_flags(
-		 page_tags_value->flags );
-		libnotify_verbose_printf(
-		 "\n" );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: page tag: %03d offset\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 page_tag_number,
+			 page_tags_value->offset );
+			libnotify_printf(
+			 "%s: page tag: %03d size\t\t\t\t: %" PRIu16 "\n",
+			 function,
+			 page_tag_number,
+			 page_tags_value->size );
+			libnotify_printf(
+			 "%s: page tag: %03d flags\t\t\t\t: ",
+			 function,
+			 page_tag_number );
+			libesedb_debug_print_page_tag_flags(
+			 page_tags_value->flags );
+			libnotify_printf(
+			 "\n" );
+		}
 #endif
 
 		if( libesedb_array_set_entry(
@@ -778,10 +800,12 @@ int libesedb_page_read_tags(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	 "\n" );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "\n" );
+	}
 #endif
-
 	return( 1 );
 }
 
@@ -907,16 +931,19 @@ int libesedb_page_read_values(
 		}
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_verbose_printf(
-		 "%s: page value: %03d offset: % 4" PRIu16 ", size: % 4" PRIu16 ", flags: ",
-		 function,
-		 page_tag_number,
-		 page_tags_value->offset,
-		 page_tags_value->size );
-		libesedb_debug_print_page_tag_flags(
-		 page_tags_value->flags );
-		libnotify_verbose_printf(
-		 "\n" );
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: page value: %03d offset: % 4" PRIu16 ", size: % 4" PRIu16 ", flags: ",
+			 function,
+			 page_tag_number,
+			 page_tags_value->offset,
+			 page_tags_value->size );
+			libesedb_debug_print_page_tag_flags(
+			 page_tags_value->flags );
+			libnotify_printf(
+			 "\n" );
+		}
 #endif
 
 		page_value->data  = &( page_values_data[ page_tags_value->offset ] );
@@ -944,8 +971,11 @@ int libesedb_page_read_values(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libnotify_verbose_printf(
-	"\n" );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		"\n" );
+	}
 #endif
 
 	return( 1 );

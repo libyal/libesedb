@@ -1,6 +1,7 @@
 /* 
  * Array type functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -52,7 +53,9 @@ int libesedb_array_initialize(
 
 int libesedb_array_free(
      libesedb_array_t **array,
-     int (*entry_free_function)( intptr_t *entry, liberror_error_t **error ),
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_array_resize(

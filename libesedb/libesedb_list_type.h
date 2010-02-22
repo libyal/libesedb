@@ -1,6 +1,7 @@
 /*
  * List type functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -79,7 +80,9 @@ int libesedb_list_element_initialize(
 
 int libesedb_list_element_free(
      libesedb_list_element_t **list_element,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_initialize(
@@ -88,18 +91,25 @@ int libesedb_list_initialize(
 
 int libesedb_list_free(
      libesedb_list_t **list,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_empty(
      libesedb_list_t *list,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_clone(
      libesedb_list_t **destination,
      libesedb_list_t *source,
-     int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
+     int (*value_clone_function)(
+            intptr_t **destination,
+            intptr_t *source,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_get_amount_of_elements(
@@ -142,13 +152,19 @@ int libesedb_list_append_value(
 int libesedb_list_insert_element(
      libesedb_list_t *list,
      libesedb_list_element_t *element,
-     int (*value_compare_function)( intptr_t *first, intptr_t *second, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first,
+            intptr_t *second,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_insert_value(
      libesedb_list_t *list,
      intptr_t *value,
-     int (*value_compare_function)( intptr_t *first, intptr_t *second, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first,
+            intptr_t *second,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_remove_element(

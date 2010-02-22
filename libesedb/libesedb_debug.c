@@ -1,6 +1,7 @@
 /*
  * Debug functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -45,32 +46,32 @@ void libesedb_debug_print_database_state(
 	switch( database_state )
 	{
 		case 1:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Just created (JET_dbstateJustCreated)" );
 			break;
 
 		case 2:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Dirty Shutdown (JET_dbstateDirtyShutdown)" );
 			break;
 
 		case 3:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Clean Shutdown (JET_dbstateCleanShutdown)" );
 			break;
 
 		case 4:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Being converted (JET_dbstateBeingConverted)" );
 			break;
 
 		case 5:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Force Detach (JET_dbstateForceDetach)" );
 			break;
 
 		default:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Unknown)" );
 			break;
 	}
@@ -81,61 +82,61 @@ void libesedb_debug_print_database_state(
 void libesedb_debug_print_page_flags(
       uint32_t page_flags )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%08" PRIx32 "\n",
 	 page_flags );
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs root\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs leaf\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs parent\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) == LIBESEDB_PAGE_FLAG_IS_EMPTY )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs empty\n" );
 	}
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_SPACE_TREE ) == LIBESEDB_PAGE_FLAG_IS_SPACE_TREE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs space tree\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs index\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_IS_LONG_VALUE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs long value\n" );
 	}
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_0x0400 ) == LIBESEDB_PAGE_FLAG_0x0400 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t0x0400\n" );
 	}
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_0x0800 ) == LIBESEDB_PAGE_FLAG_0x0800 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t0x0800 (primary?)\n" );
 	}
 
 	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs new record format\n" );
 	}
 }
@@ -145,31 +146,31 @@ void libesedb_debug_print_page_flags(
 void libesedb_debug_print_page_tag_flags(
       uint8_t page_tag_flags )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%02" PRIx8 "",
 	 page_tag_flags );
 
 	if( page_tag_flags > 0 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 " (" );
 
 		if( ( page_tag_flags & 0x04 ) == 0x04 )
 		{
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "c" );
 		}
 		if( ( page_tag_flags & 0x02 ) == 0x02 )
 		{
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "d" );
 		}
 		if( ( page_tag_flags & 0x01 ) == 0x01 )
 		{
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "v" );
 		}
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 ")" );
 	}
 }
@@ -182,27 +183,27 @@ void libesedb_debug_print_page_value_definition_type(
 	switch( page_value_definition_type )
 	{
 		case 1:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Table)" );
 			break;
 
 		case 2:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Column)" );
 			break;
 
 		case 3:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Index)" );
 			break;
 
 		case 4:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Long Value)" );
 			break;
 
 		default:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "(Unknown)" );
 			break;
 	}
@@ -213,23 +214,23 @@ void libesedb_debug_print_page_value_definition_type(
 void libesedb_debug_print_table_group_of_bits(
       uint32_t table_group_of_bits )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%08" PRIx32 "\n",
 	 table_group_of_bits );
 
 	if( ( table_group_of_bits & 0x00000001 ) == 0x00000001 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitTableCreateFixedDDL)\n" );
 	}
 	if( ( table_group_of_bits & 0x00000002 ) == 0x00000002 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitTableCreateTemplateTable)\n" );
 	}
 	if( ( table_group_of_bits & 0x00000004 ) == 0x00000004 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitTableCreateNoFixedVarColumnsInDerivedTables)\n" );
 	}
 }
@@ -239,79 +240,79 @@ void libesedb_debug_print_table_group_of_bits(
 void libesedb_debug_print_column_group_of_bits(
       uint32_t column_group_of_bits )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%08" PRIx32 "\n",
 	 column_group_of_bits );
 
 	if( ( column_group_of_bits & 0x00000001 ) == 0x00000001 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs fixed size (JET_bitColumnFixed)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000002 ) == 0x00000002 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs tagged (JET_bitColumnTagged)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000004 ) == 0x00000004 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tNot empty (JET_bitColumnNotNULL)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000008 ) == 0x00000008 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs version column (JET_bitColumnVersion)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000010 ) == 0x00000010 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnAutoincrement)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000020 ) == 0x00000020 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnUpdatable)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000040 ) == 0x00000040 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnTTKey)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000080 ) == 0x00000080 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnTTDescending)\n" );
 	}
 
 	if( ( column_group_of_bits & 0x00000400 ) == 0x00000400 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnMultiValued)\n" );
 	}
 	if( ( column_group_of_bits & 0x00000800 ) == 0x00000800 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnEscrowUpdate)\n" );
 	}
 	if( ( column_group_of_bits & 0x00001000 ) == 0x00001000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnUnversioned)\n" );
 	}
 	if( ( column_group_of_bits & 0x00002000 ) == 0x00002000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnDeleteOnZero or JET_bitColumnMaybeNull)\n" );
 	}
 	if( ( column_group_of_bits & 0x00004000 ) == 0x00004000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnFinalize)\n" );
 	}
 	if( ( column_group_of_bits & 0x00008000 ) == 0x00008000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitColumnUserDefinedDefault)\n" );
 	}
 }
@@ -321,89 +322,89 @@ void libesedb_debug_print_column_group_of_bits(
 void libesedb_debug_print_index_group_of_bits(
       uint32_t index_group_of_bits )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%08" PRIx32 "\n",
 	 index_group_of_bits );
 
 	if( ( index_group_of_bits & 0x00000001 ) == 0x00000001 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexUnique)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000002 ) == 0x00000002 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexPrimary)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000004 ) == 0x00000004 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexDisallowNull)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000008 ) == 0x00000008 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexIgnoreNull)\n" );
 	}
 
 	if( ( index_group_of_bits & 0x00000020 ) == 0x00000020 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexIgnoreAnyNull)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000040 ) == 0x00000040 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexIgnoreFirstNull)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000080 ) == 0x00000080 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexLazyFlush)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000100 ) == 0x00000100 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexEmpty)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000200 ) == 0x00000200 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexUnversioned)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000400 ) == 0x00000400 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexSortNullsHigh)\n" );
 	}
 	if( ( index_group_of_bits & 0x00000800 ) == 0x00000800 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexUnicode)\n" );
 	}
 	if( ( index_group_of_bits & 0x00001000 ) == 0x00001000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexTuples)\n" );
 	}
 	if( ( index_group_of_bits & 0x00002000 ) == 0x00002000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexTupleLimits)\n" );
 	}
 	if( ( index_group_of_bits & 0x00004000 ) == 0x00004000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexCrossProduct)\n" );
 	}
 	if( ( index_group_of_bits & 0x00008000 ) == 0x00008000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexKeyMost)\n" );
 	}
 	if( ( index_group_of_bits & 0x00010000 ) == 0x00010000 )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\t(JET_bitIndexDisallowTruncation)\n" );
 	}
 }
@@ -414,85 +415,85 @@ void libesedb_debug_print_index_group_of_bits(
 void libesedb_debug_print_file_attribute_flags(
       uint32_t file_attribute_flags )
 {
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "0x%08" PRIx32 "\n",
 	 file_attribute_flags );
 
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_READ_ONLY ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_READ_ONLY )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs read-only (FILE_ATTRIBUTE_READ_ONLY)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_HIDDEN ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_HIDDEN )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs hidden (FILE_ATTRIBUTE_HIDDEN)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_SYSTEM ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_SYSTEM )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs system (FILE_ATTRIBUTE_SYSTEM)\n" );
 	}
 
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_DIRECTORY ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_DIRECTORY )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs directory (FILE_ATTRIBUTE_DIRECTORY)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_ARCHIVE ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_ARCHIVE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tShould be archived (FILE_ATTRIBUTE_ARCHIVE)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_DEVICE ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_DEVICE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs device (FILE_ATTRIBUTE_DEVICE)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_NORMAL ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_NORMAL )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs normal (FILE_ATTRIBUTE_NORMAL)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_TEMPORARY ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_TEMPORARY )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs temporary (FILE_ATTRIBUTE_TEMPORARY)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_SPARSE_FILE ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_SPARSE_FILE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs a sparse file (FILE_ATTRIBUTE_SPARSE_FILE)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_REPARSE_POINT ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_REPARSE_POINT )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs a reparse point or symbolic link (FILE_ATTRIBUTE_FLAG_REPARSE_POINT)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_COMPRESSED ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_COMPRESSED )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs compressed (FILE_ATTRIBUTE_COMPRESSED)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_OFFLINE ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_OFFLINE )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs offline (FILE_ATTRIBUTE_OFFLINE)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_NOT_CONTENT_INDEXED ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_NOT_CONTENT_INDEXED )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tContent should not be indexed (FILE_ATTRIBUTE_NOT_CONTENT_INDEXED)\n" );
 	}
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_ENCRYPTED ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_ENCRYPTED )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs encrypted (FILE_ATTRIBUTE_ENCRYPTED)\n" );
 	}
 
 	if( ( file_attribute_flags & LIBESEDB_FILE_ATTRIBUTE_FLAG_VIRTUAL ) == LIBESEDB_FILE_ATTRIBUTE_FLAG_VIRTUAL )
 	{
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "\tIs virtual (FILE_ATTRIBUTE_VIRTUAL)\n" );
 	}
 }
@@ -564,7 +565,7 @@ int libesedb_debug_print_log_time(
 
 		return( -1 );
 	}
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "%s: %s%s: %04d-%02d-%02d %02d:%02d:%02d (0x%02x 0x%02x)\n",
 	 function,
 	 description,
@@ -619,33 +620,33 @@ int libesedb_debug_print_column_value(
 	switch( column_type )
 	{
 		case LIBESEDB_COLUMN_TYPE_NULL:
-			libnotify_verbose_print_data(
+			libnotify_print_data(
 			 value_data,
 			 value_data_size );
 
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Boolean\t: " );
 
 			if( *value_data == 0 )
 			{
-				libnotify_verbose_printf(
+				libnotify_printf(
 				 "false" );
 			}
 			else
 			{
-				libnotify_verbose_printf(
+				libnotify_printf(
 				 "true" );
 			}
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "\n\n" );
 
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 8-bit unsigned\t: %" PRIu8 "\n\n",
 			 *value_data );
 
@@ -656,7 +657,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_16bit );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",
 			 (int16_t) value_16bit );
 
@@ -667,14 +668,14 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_32bit );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 32-bit signed\t: %" PRIi32 "\n\n",
 			 (int32_t) value_32bit );
 
 			break;
 
 		case LIBESEDB_COLUMN_TYPE_CURRENCY:
-			libnotify_verbose_print_data(
+			libnotify_print_data(
 			 value_data,
 			 value_data_size );
 
@@ -685,7 +686,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_float.integer );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Floating point single precision value\t: %f\n\n",
 			 value_float.floating_point );
 
@@ -696,7 +697,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_double.integer );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Floating point double precision value\t: %f\n\n",
 			 value_double.floating_point );
 
@@ -736,7 +737,7 @@ int libesedb_debug_print_column_value(
 
 				return( -1 );
 			}
-			if( libfdatetime_filetime_copy_to_string(
+			if( libfdatetime_filetime_copy_to_utf8_string(
 			     filetime,
 			     filetime_string,
 			     22,
@@ -770,7 +771,7 @@ int libesedb_debug_print_column_value(
 
 				return( -1 );
 			}
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Filetime\t: %s UTC\n\n",
 			 filetime_string );
 
@@ -781,7 +782,7 @@ int libesedb_debug_print_column_value(
 		case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
 		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
 		case LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE:
-			libnotify_verbose_print_data(
+			libnotify_print_data(
 			 value_data,
 			 value_data_size );
 
@@ -792,7 +793,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_32bit );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 32-bit unsigned\t: %" PRIu32 "\n\n",
 			 value_32bit );
 
@@ -803,7 +804,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_64bit );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 64-bit signed\t: %" PRIi64 "\n\n",
 			 (int64_t) value_64bit );
 
@@ -812,7 +813,7 @@ int libesedb_debug_print_column_value(
 		case LIBESEDB_COLUMN_TYPE_GUID:
 			if( value_data == NULL )
 			{
-				libnotify_verbose_printf(
+				libnotify_printf(
 				 "GUID\t: <NULL>\n\n" );
 			}
 			else  if( value_data_size == 16 )
@@ -833,13 +834,13 @@ int libesedb_debug_print_column_value(
 
 					return( -1 );
 				}
-				libnotify_verbose_printf(
+				libnotify_printf(
 				 "GUID\t: %s\n\n",
 				 guid_string );
 			}
 			else
 			{
-				libnotify_verbose_print_data(
+				libnotify_print_data(
 				 value_data,
 				 value_data_size );
 			}
@@ -850,7 +851,7 @@ int libesedb_debug_print_column_value(
 			 value_data,
 			 value_16bit );
 
-			libnotify_verbose_printf(
+			libnotify_printf(
 			 "Integer 16-bit signed\t: %" PRIi16 "\n\n",
 			 (int16_t) value_16bit );
 
@@ -908,7 +909,7 @@ int libesedb_debug_print_read_offsets(
 
 		return( -1 );
 	}
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "Offsets read:\n" );
 
 	for( offset_iterator = 0;
@@ -932,7 +933,7 @@ int libesedb_debug_print_read_offsets(
 
 			return( -1 );
 		}
-		libnotify_verbose_printf(
+		libnotify_printf(
 		 "%08" PRIu64 " ( 0x%08" PRIx64 " ) - %08" PRIu64 " ( 0x%08" PRIx64 " ) size: %" PRIu64 "\n",
 		 offset,
 		 offset,
@@ -940,7 +941,7 @@ int libesedb_debug_print_read_offsets(
 		 offset + size,
 		 size );
 	}
-	libnotify_verbose_printf(
+	libnotify_printf(
 	 "\n" );
 
 	return( 1 );

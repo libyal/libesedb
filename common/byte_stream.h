@@ -1,7 +1,8 @@
 /*
  * Byte stream functions
  *
- * Copyright (c) 2006-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -54,6 +55,20 @@ typedef union byte_stream_float64
 
 #define byte_stream_copy_to_uint16_little_endian( byte_stream, value ) \
 	value   = ( byte_stream )[ 1 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 0 ];
+
+#define byte_stream_copy_to_uint24_big_endian( byte_stream, value ) \
+	value   = ( byte_stream )[ 0 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 1 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 2 ];
+
+#define byte_stream_copy_to_uint24_little_endian( byte_stream, value ) \
+	value   = ( byte_stream )[ 2 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 1 ]; \
 	value <<= 8; \
 	value  |= ( byte_stream )[ 0 ];
 
@@ -114,6 +129,16 @@ typedef union byte_stream_float64
 	( byte_stream )[ 1 ] = (uint8_t) ( value & 0x0ff )
 
 #define byte_stream_copy_from_uint16_little_endian( byte_stream, value ) \
+	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
+	( byte_stream )[ 0 ] = (uint8_t) ( value & 0x0ff )
+
+#define byte_stream_copy_from_uint24_big_endian( byte_stream, value ) \
+	( byte_stream )[ 0 ] = (uint8_t) ( ( value >> 16 ) & 0x0ff ); \
+	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
+	( byte_stream )[ 2 ] = (uint8_t) ( value & 0x0ff )
+
+#define byte_stream_copy_from_uint24_little_endian( byte_stream, value ) \
+	( byte_stream )[ 2 ] = (uint8_t) ( ( value >> 16 ) & 0x0ff ); \
 	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
 	( byte_stream )[ 0 ] = (uint8_t) ( value & 0x0ff )
 

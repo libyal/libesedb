@@ -1,7 +1,8 @@
 /*
  * Wide character string functions
  *
- * Copyright (c) 2006-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2006-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -113,22 +114,26 @@ extern "C" {
 	(wchar_t *) wmemrchr( (void *) string, (wchar_t) character, size )
 #endif
 
-/* String formatted print (snprinf)
+/* String formatted print (snwprintf)
  */
 #if defined( _MSC_VER )
-#define wide_string_snprintf( target, size, ... ) \
+#define wide_string_snwprintf( target, size, ... ) \
 	swprintf_s( target, size, __VA_ARGS__ )
 
-#elif defined( __BORLANDC__ )
-#define wide_string_snprintf( target, size, ... ) \
-	swprintf( target, __VA_ARGS__ )
+#elif defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define wide_string_snwprintf \
+	snwprintf
 
-#elif defined( HAVE_SWPRINTF ) || defined( WINAPI )
-#define wide_string_snprintf( target, size, ... ) \
+#elif defined( WINAPI )
+#define wide_string_snwprintf( target, size, ... ) \
+	snwprintf( target, size, __VA_ARGS__ )
+
+#elif defined( HAVE_SWPRINTF )
+#define wide_string_snwprintf( target, size, ... ) \
 	swprintf( target, size, __VA_ARGS__ )
 #endif
 
-/* String to singed long long (int64)
+/* String to signed long long (int64)
  */
 #if defined( WINAPI )
 #define wide_string_to_signed_long_long( string, end_of_string, base ) \
@@ -139,7 +144,7 @@ extern "C" {
 	(int64_t) wcstoll( string, end_of_string, base )
 #endif
 
-/* String to unsinged long long (uint64)
+/* String to unsigned long long (uint64)
  */
 #if defined( WINAPI )
 #define wide_string_to_unsigned_long_long( string, end_of_string, base ) \
@@ -148,6 +153,21 @@ extern "C" {
 #elif defined( HAVE_WCSTOULL )
 #define wide_string_to_unsigned_long_long( string, end_of_string, base ) \
 	(uint64_t) wcstoull( string, end_of_string, base )
+#endif
+
+/* Variable arguments formatted print to string function (vsnwprintf)
+ */
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define wide_string_vsnwprintf \
+	_vsnwprintf
+
+#elif defined( WINAPI )
+#define wide_string_vsnwprintf( string, size, format, ... ) \
+	_vsnwprintf( string, size, format, __VA_ARGS__ )
+
+#elif defined( HAVE_VSWPRINTF )
+#define wide_string_vsnwprintf( string, size, format, ... ) \
+	vswprintf( string, size, format, __VA_ARGS__ )
 #endif
 
 #if defined( __cplusplus )

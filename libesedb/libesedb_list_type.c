@@ -1,6 +1,7 @@
 /*
  * List type functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -93,7 +94,9 @@ int libesedb_list_element_initialize(
  */
 int libesedb_list_element_free(
      libesedb_list_element_t **list_element,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	static char *function = "libesedb_list_element_free";
@@ -211,7 +214,9 @@ int libesedb_list_initialize(
  */
 int libesedb_list_free(
      libesedb_list_t **list,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	static char *function = "libesedb_list_free";
@@ -258,7 +263,9 @@ int libesedb_list_free(
  */
 int libesedb_list_empty(
      libesedb_list_t *list,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_list_element_t *list_element = NULL;
@@ -341,7 +348,10 @@ int libesedb_list_empty(
 int libesedb_list_clone(
      libesedb_list_t **destination,
      libesedb_list_t *source,
-     int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
+     int (*value_clone_function)(
+            intptr_t **destination,
+            intptr_t *source,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_list_element_t *source_list_element = NULL;
@@ -918,7 +928,10 @@ int libesedb_list_append_value(
 int libesedb_list_insert_element(
      libesedb_list_t *list,
      libesedb_list_element_t *element,
-     int (*value_compare_function)( intptr_t *first_value, intptr_t *second_value, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first_value,
+            intptr_t *second_value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_list_element_t *list_element = NULL;
@@ -1094,13 +1107,16 @@ int libesedb_list_insert_element(
 
 /* Inserts a value to the list
  * Creates a new list element
- * Uses the value_compare_function to determine the order of the list element
+ * Uses the value_compare_function to determine the order of the list elements
  * Returns 1 if successful, 0 if the list element already exists or -1 on error
  */
 int libesedb_list_insert_value(
      libesedb_list_t *list,
      intptr_t *value,
-     int (*value_compare_function)( intptr_t *first_value, intptr_t *second_value, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first_value,
+            intptr_t *second_value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_list_element_t *element = NULL;

@@ -1,6 +1,7 @@
 /*
- * libesedb file
+ * File functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -665,8 +666,11 @@ int libesedb_file_open_read(
 		return( -1 );
 	}
 #if defined( HAVE_VERBOSE_OUTPUT )
-	libnotify_verbose_printf(
-	 "Reading file header:\n" );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "Reading file header:\n" );
+	}
 #endif
 
 	if( libesedb_io_handle_read_file_header(
@@ -684,8 +688,11 @@ int libesedb_file_open_read(
 	}
 	/* TODO What about page 1 ? present in empty database */
 #if defined( HAVE_VERBOSE_OUTPUT )
-	libnotify_verbose_printf(
-	 "Reading the catalog page tree:\n" );
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "Reading the catalog page tree:\n" );
+	}
 #endif
 
 	if( libesedb_page_tree_initialize(

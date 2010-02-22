@@ -1,6 +1,7 @@
 /*
  * Tree type functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -93,13 +94,16 @@ int libesedb_tree_node_initialize(
  */
 int libesedb_tree_node_free(
      libesedb_tree_node_t **node,
-     int (*value_free_function)( intptr_t *value, liberror_error_t **error ),
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_tree_node_t *tree_node = NULL;
 	static char *function           = "libesedb_tree_node_free";
 	int amount_of_child_nodes       = 0;
 	int iterator                    = 0;
+	int result                      = 1;
 
 	if( node == NULL )
 	{
@@ -173,7 +177,7 @@ int libesedb_tree_node_free(
 				 "%s: unable to free child node.",
 				 function );
 
-				return( -1 );
+				result = -1;
 			}
 		}
 		if( ( *node )->value != NULL )
@@ -191,7 +195,7 @@ int libesedb_tree_node_free(
 					 "%s: unable to free value.",
 					function );
 
-					return( -1 );
+					result = -1;
 				}
 				( *node )->value = NULL;
 			}
@@ -201,7 +205,7 @@ int libesedb_tree_node_free(
 
 		*node = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Clones the existing tree node and its child nodes
@@ -211,7 +215,10 @@ int libesedb_tree_node_free(
 int libesedb_tree_node_clone(
      libesedb_tree_node_t **destination_tree_node,
      libesedb_tree_node_t *source_tree_node,
-     int (*value_clone_function)( intptr_t **destination, intptr_t *source, liberror_error_t **error ),
+     int (*value_clone_function)(
+            intptr_t **destination,
+            intptr_t *source,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_tree_node_t *destination_child_node = NULL;
@@ -601,7 +608,10 @@ int libesedb_tree_node_append_value(
 int libesedb_tree_node_insert_node(
      libesedb_tree_node_t *parent_node,
      libesedb_tree_node_t *node,
-     int (*value_compare_function)( intptr_t *first_value, intptr_t *second_value, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first_value,
+            intptr_t *second_value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_tree_node_t *child_node = NULL;
@@ -786,7 +796,10 @@ int libesedb_tree_node_insert_node(
 int libesedb_tree_node_insert_value(
      libesedb_tree_node_t *parent_node,
      intptr_t *value,
-     int (*value_compare_function)( intptr_t *first_value, intptr_t *second_value, liberror_error_t **error ),
+     int (*value_compare_function)(
+            intptr_t *first_value,
+            intptr_t *second_value,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	libesedb_tree_node_t *node = NULL;

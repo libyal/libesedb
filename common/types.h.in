@@ -1,6 +1,7 @@
 /*
  * Type and type-support defintions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2006-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -252,7 +253,7 @@
 /* The maximum signed 64-bit integer is 9223372036854775807 (0x7fffffffffffffff)
  */
 #if !defined( INT64_MAX )
-#define INT64_MAX (0x7fffffffffffffffLL)
+#define INT64_MAX (0x7fffffffffffffffULL)
 #endif
 
 /* The maximum signed integer

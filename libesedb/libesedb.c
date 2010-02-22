@@ -1,6 +1,7 @@
 /*
  * Library to support the Extensible Storage Engine (ESE) Database File (EDB) fomat
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *

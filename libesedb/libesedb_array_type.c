@@ -1,6 +1,7 @@
 /* 
  * Array type functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -152,7 +153,9 @@ int libesedb_array_initialize(
  */
 int libesedb_array_free(
      libesedb_array_t **array,
-     int (*entry_free_function)( intptr_t *entry, liberror_error_t **error ),
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
      liberror_error_t **error )
 {
 	static char *function = "libesedb_array_free";
@@ -242,7 +245,7 @@ int libesedb_array_resize(
 
 		return( -1 );
 	}
-	if( array->amount_of_entries < amount_of_entries )
+	if( amount_of_entries > array->amount_of_entries )
 	{
 		entries_size = sizeof( intptr_t * ) * amount_of_entries;
 
@@ -274,10 +277,8 @@ int libesedb_array_resize(
 		}
 		array->entry = (intptr_t **) reallocation;
 
-		array->amount_of_entries = amount_of_entries;
-
 		if( memory_set(
-		     array->entry,
+		     &( array->entry[ array->amount_of_entries ] ),
 		     0,
 		     sizeof( intptr_t ) * ( amount_of_entries - array->amount_of_entries ) ) == NULL )
 		{
@@ -290,6 +291,7 @@ int libesedb_array_resize(
 
 			return( -1 );
 		}
+		array->amount_of_entries = amount_of_entries;
 	}
 	return( 1 );
 }
@@ -360,7 +362,7 @@ int libesedb_array_get_entry(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid entry index out of range.",
+		 "%s: invalid entry index value out of range.",
 		 function );
 
 		return( -1 );
@@ -410,7 +412,7 @@ int libesedb_array_set_entry(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid entry index out of range.",
+		 "%s: invalid entry index value out of range.",
 		 function );
 
 		return( -1 );

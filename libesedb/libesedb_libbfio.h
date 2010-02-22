@@ -1,6 +1,7 @@
 /*
  * The libbfio header wrapper
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -32,6 +33,7 @@
 #include <libbfio_definitions.h>
 #include <libbfio_file.h>
 #include <libbfio_handle.h>
+#include <libbfio_pool.h>
 #include <libbfio_types.h>
 
 #elif defined( HAVE_LIBBFIO_H )

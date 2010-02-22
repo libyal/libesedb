@@ -2,15 +2,15 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20091130],
-  [forensics@hoffmannbv.nl])
+  [20100222],
+  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
  [include/libesedb.h.in])
 
 AM_INIT_AUTOMAKE(
  [libesedb],
- [20091130])
+ [20100222])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -291,12 +291,9 @@ dnl Narrow character string functions used in common/narrow_string.h
 AC_CHECK_FUNCS(
  [snprintf],
  [],
- [AC_CHECK_FUNCS(
-  [sprintf],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing functions: snprintf and sprintf],
-   [1]) ]) ])
+ [AC_MSG_FAILURE(
+  [Missing functions: snprintf],
+  [1]) ])
 
 AC_CHECK_FUNCS(
  [sscanf],
@@ -1044,21 +1041,6 @@ AS_IF(
 	AC_CHECK_SIZEOF([wchar_t])
 
 	dnl Check for wide character string functions
-	dnl Wide character string functions used in common/string_conversion.h
-	AC_CHECK_FUNCS(
-	 [btowc],
-	 [],
-	 [AC_MSG_FAILURE(
-	  [Missing functions: btowc],
-	  [1]) ])
-
-	AC_CHECK_FUNCS(
-	 [wctob],
-	 [],
-	 [AC_MSG_FAILURE(
-	  [Missing functions: wctob],
-	  [1]) ])
-
 	dnl Wide character string functions used in common/wide_string.h
 	AC_CHECK_FUNCS(
 	 [fgetws],
@@ -1072,6 +1054,13 @@ AS_IF(
 	 [],
 	 [AC_MSG_FAILURE(
 	  [Missing functions: swprintf],
+	  [1]) ])
+
+	AC_CHECK_FUNCS(
+	 [vswprintf],
+	 [],
+	 [AC_MSG_FAILURE(
+	  [Missing functions: vswprintf],
 	  [1]) ])
 
 	AC_CHECK_FUNCS(

@@ -1,5 +1,4 @@
 TODO
-
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table 1
 * move bfio handle to item layer
@@ -58,6 +57,12 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20200222
+* 2010 update and email change
+* updated common, liberror, libnotify, libuna, libbfio, libsystem
+* updated array, list and tree type
+* worked on libnotify update
 
 20091130
 * worked on long value support

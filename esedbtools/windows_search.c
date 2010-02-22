@@ -32,17 +32,18 @@
  */
 #if defined( HAVE_LOCAL_LIBUNA )
 
+#include <libuna_base16_stream.h>
+#include <libuna_base64_stream.h>
+#include <libuna_base64url_stream.h>
 #include <libuna_byte_stream.h>
-#include <libuna_compare.h>
-#include <libuna_error.h>
 #include <libuna_unicode_character.h>
-#include <libuna_utf8_stream.h>
-#include <libuna_utf8_string.h>
+#include <libuna_url_stream.h>
 #include <libuna_utf16_stream.h>
 #include <libuna_utf16_string.h>
 #include <libuna_utf32_stream.h>
 #include <libuna_utf32_string.h>
-#include <libuna_types.h>
+#include <libuna_utf8_stream.h>
+#include <libuna_utf8_string.h>
 
 #elif defined( HAVE_LIBUNA_H )
 
@@ -63,6 +64,7 @@
  */
 #if defined( HAVE_LOCAL_LIBFDATETIME )
 
+#include <libfdatetime_date_time_values.h>
 #include <libfdatetime_definitions.h>
 #include <libfdatetime_error.h>
 #include <libfdatetime_fat_date_time.h>
@@ -1131,7 +1133,7 @@ int windows_search_export_record_value_filetime(
 
 				return( -1 );
 			}
-			if( libfdatetime_filetime_copy_to_string(
+			if( libfdatetime_filetime_copy_to_utf8_string(
 			     filetime,
 			     filetime_string,
 			     22,
