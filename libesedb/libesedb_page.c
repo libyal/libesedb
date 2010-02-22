@@ -202,7 +202,9 @@ int libesedb_page_read(
      liberror_error_t **error )
 {
 	libesedb_array_t *page_tags_array  = NULL;
+	uint8_t *page_values_data          = NULL;
 	static char *function              = "libesedb_page_read";
+	size_t page_values_data_size       = 0;
 	ssize_t read_count                 = 0;
 	off64_t page_offset                = 0;
 	uint32_t calculated_ecc32_checksum = 0;
@@ -324,6 +326,9 @@ int libesedb_page_read(
 
 		return( -1 );
 	}
+	page_values_data      = page->data;
+	page_values_data_size = page->data_size;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -331,7 +336,7 @@ int libesedb_page_read(
 		 "%s: page header:\n",
 		 function );
 		libnotify_print_data(
-		 page->data,
+		 page_values_data,
 		 sizeof( esedb_page_header_t ) );
 	}
 #endif
@@ -339,29 +344,29 @@ int libesedb_page_read(
 	page->page_number = page_number;
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_page_header_t *) page->data )->xor_checksum,
+	 ( (esedb_page_header_t *) page_values_data )->xor_checksum,
 	 stored_xor32_checksum );
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_page_header_t *) page->data )->available_data_size,
+	 ( (esedb_page_header_t *) page_values_data )->available_data_size,
 	 available_data_size );
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_page_header_t *) page->data )->previous_page,
+	 ( (esedb_page_header_t *) page_values_data )->previous_page,
 	 page->previous_page_number );
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_page_header_t *) page->data )->next_page,
+	 ( (esedb_page_header_t *) page_values_data )->next_page,
 	 page->next_page_number );
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_page_header_t *) page->data )->father_data_page_object_identifier,
+	 ( (esedb_page_header_t *) page_values_data )->father_data_page_object_identifier,
 	 page->father_data_page_object_identifier );
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_page_header_t *) page->data )->available_page_tag,
+	 ( (esedb_page_header_t *) page_values_data )->available_page_tag,
 	 available_page_tag );
 
 	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_page_header_t *) page->data )->page_flags,
+	 ( (esedb_page_header_t *) page_values_data )->page_flags,
 	 page->flags );
 
 	/* Make sure to read after the page flags
@@ -370,13 +375,13 @@ int libesedb_page_read(
 	 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
 	{
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_page_header_t *) page->data )->ecc_checksum,
+		 ( (esedb_page_header_t *) page_values_data )->ecc_checksum,
 		 stored_ecc32_checksum );
 	}
 	else
 	{
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_page_header_t *) page->data )->page_number,
+		 ( (esedb_page_header_t *) page_values_data )->page_number,
 		 stored_page_number );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -411,7 +416,7 @@ int libesedb_page_read(
 		 "%s: database modification time:\n",
 		 function );
 		libnotify_print_data(
-		 ( (esedb_page_header_t *) page->data )->database_modification_time,
+		 ( (esedb_page_header_t *) page_values_data )->database_modification_time,
 		 8 );
 
 		libnotify_printf(
@@ -432,14 +437,14 @@ int libesedb_page_read(
 		 function,
 		 available_data_size );
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (esedb_page_header_t *) page->data )->available_uncommitted_data_size,
+		 ( (esedb_page_header_t *) page_values_data )->available_uncommitted_data_size,
 		 test );
 		libnotify_printf(
 		 "%s: available uncommitted data size\t\t\t: %" PRIu32 "\n",
 		 function,
 		 test );
 		byte_stream_copy_to_uint16_little_endian(
-		 ( (esedb_page_header_t *) page->data )->available_data_offset,
+		 ( (esedb_page_header_t *) page_values_data )->available_data_offset,
 		 test );
 		libnotify_printf(
 		 "%s: available data offset\t\t\t\t: %" PRIu32 "\n",
@@ -462,18 +467,18 @@ int libesedb_page_read(
 
 	/* TODO for now don't bother calculating a checksum for uninitialized pages */
 
-	if( ( page->data[ 0 ] != 0 )
-	 || ( page->data[ 1 ] != 0 )
-	 || ( page->data[ 2 ] != 0 )
-	 || ( page->data[ 3 ] != 0 ) )
+	if( ( page_values_data[ 0 ] != 0 )
+	 || ( page_values_data[ 1 ] != 0 )
+	 || ( page_values_data[ 2 ] != 0 )
+	 || ( page_values_data[ 3 ] != 0 ) )
 	{
 		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
 		{
 			if( libesedb_checksum_calculate_little_endian_ecc32(
 			     &calculated_ecc32_checksum,
 			     &calculated_xor32_checksum,
-			     page->data,
-			     page->data_size,
+			     page_values_data,
+			     page_values_data_size,
 			     8,
 			     page_number,
 			     error ) != 1 )
@@ -492,8 +497,8 @@ int libesedb_page_read(
 		{
 			if( libesedb_checksum_calculate_little_endian_xor32(
 			     &calculated_xor32_checksum,
-			     &( ( page->data )[ 4 ] ),
-			     page->data_size - 4,
+			     &( page_values_data[ 4 ] ),
+			     page_values_data_size - 4,
 			     0x89abcdef,
 			     error ) != 1 )
 			{
@@ -556,6 +561,25 @@ int libesedb_page_read(
 #endif
 		}
 	}
+	page_values_data      += sizeof( esedb_page_header_t );
+	page_values_data_size -= sizeof( esedb_page_header_t );
+
+	if( io_handle->format_revision >= 0x11 )
+	{
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: extended page header:\n",
+			 function );
+			libnotify_print_data(
+			 page_values_data,
+			 40 );
+		}
+#endif
+		page_values_data      += 40;
+		page_values_data_size -= 40;
+	}
 	if( available_page_tag > 0 )
 	{
 		/* Create the page tags array
@@ -600,8 +624,8 @@ int libesedb_page_read(
 		if( libesedb_page_read_values(
 		     page->values_array,
 		     page_tags_array,
-		     &( page->data[ sizeof( esedb_page_header_t ) ] ),
-		     page->data_size - sizeof( esedb_page_header_t ),
+		     page_values_data,
+		     page_values_data_size,
 		     error ) != 1 )
 		{
 			liberror_error_set(

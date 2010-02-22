@@ -1218,15 +1218,16 @@ int libesedb_page_tree_read_child_pages(
 			 page_value_iterator );
 		}
 #endif
-
 		while( key_size > 0 )
 		{
+#if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
 				 "%02" PRIx8 " ",
 				 *page_value_data );
 			}
+#endif
 			page_value_data++;
 			page_value_size--;
 			key_size--;
@@ -2174,12 +2175,11 @@ int libesedb_page_tree_read_leaf_page_values(
 			page_value_data++;
 			page_value_size--;
 			key_size--;
-
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_printf(
-				 "\n" );
-			}
+		}
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "\n" );
 		}
 #else
 		page_value_data += key_size;

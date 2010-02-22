@@ -42,6 +42,7 @@ File format
 * flag 0x4000 in tagged values
 * page flags
 * page keys
+* (revision 0x11) extended page header
 
 Deployment:
 * update manuals
