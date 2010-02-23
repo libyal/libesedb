@@ -59,11 +59,15 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20200223
+* worked on windows 7 engine support
+
 20200222
 * 2010 update and email change
 * updated common, liberror, libnotify, libuna, libbfio, libsystem
 * updated array, list and tree type
 * worked on libnotify update
+* worked on windows 7 engine support
 
 20091130
 * worked on long value support

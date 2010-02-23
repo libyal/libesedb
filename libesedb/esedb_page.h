@@ -109,6 +109,37 @@ struct esedb_page_header
 	uint8_t page_flags[ 4 ];
 };
 
+typedef struct esedb_extended_page_header esedb_extended_page_header_t;
+
+struct esedb_extended_page_header
+{
+	/* The 1st (extended) checksum
+	 * Consists of 8 bytes
+	 */
+	uint8_t checksum1[ 8 ];
+
+	/* The 2nd (extended) checksum
+	 * Consists of 8 bytes
+	 */
+	uint8_t checksum2[ 8 ];
+
+	/* The 3rd (extended) checksum
+	 * Consists of 8 bytes
+	 */
+	uint8_t checksum3[ 8 ];
+
+	/* The page number
+	 * Consists of 8 bytes
+	 */
+	uint8_t page_number[ 8 ];
+
+	/* Unknown (empty values)
+	 * Consists of 8 bytes
+	 */
+	uint8_t unknown1[ 8 ];
+
+};
+
 #if defined( __cplusplus )
 }
 #endif

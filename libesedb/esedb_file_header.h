@@ -321,9 +321,24 @@ struct esedb_file_header
 	uint8_t previous_differential_backup[ 24 ];
 
 	/* Unknown
-	 * Consists of 196 bytes
+	 * Consists of 40 bytes
 	 */
-	uint8_t unknown4[ 196 ];
+	uint8_t unknown4[ 40 ];
+
+	/* NLS major version
+	 * Consists of 4 bytes
+	 */
+	uint8_t nls_major_version[ 4 ];
+
+	/* NLS minor version
+	 * Consists of 4 bytes
+	 */
+	uint8_t nls_minor_version[ 4 ];
+
+	/* Unknown
+	 * Consists of 148 bytes
+	 */
+	uint8_t unknown5[ 148 ];
 
 	/* Unknown flags
 	 * Consists of 4 bytes

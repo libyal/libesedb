@@ -243,7 +243,7 @@ int libesedb_catalog_definition_read(
 
 		return( -1 );
 	}
-	if( last_fixed_size_data_type > 10 )
+	if( last_fixed_size_data_type > 11 )
 	{
 		liberror_error_set(
 		 error,

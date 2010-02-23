@@ -131,6 +131,7 @@ int libesedb_page_read(
 
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
+     libesedb_io_handle_t *io_handle,
      uint16_t amount_of_page_entries,
      uint8_t *page_data,
      size_t page_data_size,

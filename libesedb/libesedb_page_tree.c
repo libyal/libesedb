@@ -1873,9 +1873,10 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint32_t required_flags                                = 0;
 	uint32_t supported_flags                               = 0;
 	uint16_t amount_of_page_values                         = 0;
-	uint16_t page_value_iterator                           = 0;
 	uint16_t key_size                                      = 0;
 	uint16_t key_type                                      = 0;
+	uint16_t value_flags                                   = 0;
+	uint16_t page_value_iterator                           = 0;
 	uint16_t page_value_size                               = 0;
 	int result                                             = 0;
 
@@ -1908,6 +1909,17 @@ int libesedb_page_tree_read_leaf_page_values(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid parent tree node.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -2069,26 +2081,48 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 #endif
 
-		if( ( page_value->flags & 0x04 ) == 0x04 )
+		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		{
+#if defined( HAVE_DEBUG_OUTPUT )
 			byte_stream_copy_to_uint16_little_endian(
 			 page_value_data,
-			 key_type );
+			 value_flags );
 
-			page_value_data += 2;
-			page_value_size -= 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+				 "%s: value: %03d flags\t\t\t\t: 0x%04" PRIx16 "\n",
 				 function,
 				 page_value_iterator,
-				 key_type,
-				 key_type );
+				 value_flags );
 			}
 #endif
+			page_value_data += 2;
+			page_value_size -= 2;
+		}
+		else
+		{
+			if( ( page_value->flags & 0x04 ) == 0x04 )
+			{
+				byte_stream_copy_to_uint16_little_endian(
+				 page_value_data,
+				 key_type );
+
+				page_value_data += 2;
+				page_value_size -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+					 function,
+					 page_value_iterator,
+					 key_type,
+					 key_type );
+				}
+#endif
+			}
 		}
 		byte_stream_copy_to_uint16_little_endian(
 		 page_value_data,
@@ -2107,7 +2141,6 @@ int libesedb_page_tree_read_leaf_page_values(
 			 key_size );
 		}
 #endif
-
 		if( key_size > page_value_size )
 		{
 			liberror_error_set(
