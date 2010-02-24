@@ -1875,7 +1875,6 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint16_t amount_of_page_values                         = 0;
 	uint16_t key_size                                      = 0;
 	uint16_t key_type                                      = 0;
-	uint16_t value_flags                                   = 0;
 	uint16_t page_value_iterator                           = 0;
 	uint16_t page_value_size                               = 0;
 	int result                                             = 0;
@@ -2081,48 +2080,26 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 #endif
 
-		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		if( ( page_value->flags & 0x04 ) == 0x04 )
 		{
-#if defined( HAVE_DEBUG_OUTPUT )
 			byte_stream_copy_to_uint16_little_endian(
 			 page_value_data,
-			 value_flags );
+			 key_type );
 
+			page_value_data += 2;
+			page_value_size -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: value: %03d flags\t\t\t\t: 0x%04" PRIx16 "\n",
+				 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
 				 function,
 				 page_value_iterator,
-				 value_flags );
-			}
-#endif
-			page_value_data += 2;
-			page_value_size -= 2;
-		}
-		else
-		{
-			if( ( page_value->flags & 0x04 ) == 0x04 )
-			{
-				byte_stream_copy_to_uint16_little_endian(
-				 page_value_data,
+				 key_type,
 				 key_type );
-
-				page_value_data += 2;
-				page_value_size -= 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libnotify_verbose != 0 )
-				{
-					libnotify_printf(
-					 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
-					 function,
-					 page_value_iterator,
-					 key_type,
-					 key_type );
-				}
-#endif
 			}
+#endif
 		}
 		byte_stream_copy_to_uint16_little_endian(
 		 page_value_data,

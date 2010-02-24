@@ -850,6 +850,8 @@ int libesedb_io_handle_read_file_header(
 	memory_free(
 	 file_header_data );
 
+	/* TODO check if page size is correct for version */
+
 	return( 1 );
 }
 

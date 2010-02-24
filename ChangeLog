@@ -59,6 +59,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20200224
+* worked on windows 7 engine support
+
 20200223
 * worked on windows 7 engine support
 

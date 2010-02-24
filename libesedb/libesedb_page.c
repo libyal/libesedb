@@ -698,6 +698,7 @@ int libesedb_page_read(
 		 */
 		if( libesedb_page_read_values(
 		     page->values_array,
+		     io_handle,
 		     page_tags_array,
 		     page_values_data,
 		     page_values_data_size,
@@ -867,7 +868,6 @@ int libesedb_page_read_tags(
 
 		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		{
-			/* TODO page flags */
 			page_tags_value->flags  = 0;
 			page_tags_value->offset = page_tag_offset & 0x7fff;
 			page_tags_value->size   = page_tag_size & 0x7fff;;
@@ -895,15 +895,17 @@ int libesedb_page_read_tags(
 			 page_tags_value->size,
 			 page_tag_size );
 
-			libnotify_printf(
-			 "%s: page tag: %03d flags\t\t\t\t: ",
-			 function,
-			 page_tag_number );
-			libesedb_debug_print_page_tag_flags(
-			 page_tags_value->flags );
-
-			libnotify_printf(
-			 "\n" );
+			if( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+			{
+				libnotify_printf(
+				 "%s: page tag: %03d flags\t\t\t\t: ",
+				 function,
+				 page_tag_number );
+				libesedb_debug_print_page_tag_flags(
+				 page_tags_value->flags );
+				libnotify_printf(
+				 "\n" );
+			}
 		}
 #endif
 
@@ -942,6 +944,7 @@ int libesedb_page_read_tags(
  */
 int libesedb_page_read_values(
      libesedb_array_t *page_values_array,
+     libesedb_io_handle_t *io_handle,
      libesedb_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
@@ -959,6 +962,17 @@ int libesedb_page_read_values(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page values array.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid io handle.",
 		 function );
 
 		return( -1 );
@@ -1057,7 +1071,16 @@ int libesedb_page_read_values(
 
 			return( -1 );
 		}
+		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		{
+			/* TODO does this also apply to non leaf pages ? */
 
+			/* The page tags flags are stored in the upper byte of the first 16-bit value
+			 */
+			page_tags_value->flags = page_values_data[ page_tags_value->offset + 1 ] >> 5;
+
+			page_values_data[ page_tags_value->offset + 1 ] &= 0x1f;
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{

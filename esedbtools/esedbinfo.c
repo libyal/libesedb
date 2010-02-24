@@ -869,6 +869,7 @@ int esedbinfo_file_info_fprint(
 			memory_free(
 			 value_string );
 
+/* TODO
 			if( libesedb_index_test(
 			     index,
 			     error ) != 1 )
@@ -890,6 +891,7 @@ int esedbinfo_file_info_fprint(
 				return( -1 );
 			}
 
+*/
 			/* TODO print index columns */
 
 			if( libesedb_index_free(
