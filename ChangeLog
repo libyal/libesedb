@@ -18,6 +18,7 @@ Error:
 
 Debug
 * is function libesedb_debug_print_table_group_of_bits needed?
+* print value flags
 
 Library
 * compare primary and secondary file header
@@ -58,6 +59,16 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20200302
+* worked on windows 7 engine support
+
+20200301
+* worked on windows 7 engine support
+
+20200227
+* worked on windows 7 engine support
+* enlarged filetime string to 24
 
 20200224
 * worked on windows 7 engine support

@@ -2559,12 +2559,27 @@ int libesedb_page_tree_read_leaf_page_values(
 				{
 		 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
 					{
+/* TODO old method
 						if( ( long_value_data_definition == NULL )
 						 || ( long_value_data_definition->key_size != data_definition->key_size )
 						 || ( memory_compare(
 						       long_value_data_definition->key,
 						       data_definition->key,
 						       data_definition->key_size ) != 0 ) )
+*/
+
+/* TODO handle next page keys
+ * XP search
+ * descriptor: a4
+ * first segment: a4 00 00 00 00
+ * segment on other page: 00 00 00 a4 00 00 00 00
+ */
+						if( ( long_value_data_definition == NULL )
+						 || ( long_value_data_definition->key_size >= data_definition->key_size )
+						 || ( memory_compare(
+						       long_value_data_definition->key,
+						       data_definition->key,
+						       long_value_data_definition->key_size ) != 0 ) )
 						{
 							if( libesedb_page_tree_get_data_definition_by_key(
 							     page_tree,

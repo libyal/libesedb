@@ -1201,7 +1201,7 @@ int export_handle_export_record_value(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t filetime_string[ 22 ];
+	uint8_t filetime_string[ 24 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -1216,7 +1216,7 @@ int export_handle_export_record_value(
 	uint32_t value_32bit              = 0;
 	uint16_t value_16bit              = 0;
 	uint8_t value_8bit                = 0;
-	uint8_t value_tag_byte            = 0;
+	uint8_t value_flags               = 0;
 	int result                        = 0;
 
 	if( record == NULL )
@@ -1278,7 +1278,7 @@ int export_handle_export_record_value(
 	     record_value_entry,
 	     &value_data,
 	     &value_data_size,
-	     &value_tag_byte,
+	     &value_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1291,8 +1291,7 @@ int export_handle_export_record_value(
 
 		return( -1 );
 	}
-	if( ( value_tag_byte == 0x00 )
-	 || ( value_tag_byte == 0x01 ) )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		switch( column_type )
 		{
@@ -1532,7 +1531,7 @@ int export_handle_export_record_value(
 					if( libfdatetime_filetime_copy_to_utf8_string(
 					     filetime,
 					     filetime_string,
-					     22,
+					     24,
 					     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 					     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
 					     error ) != 1 )
@@ -1607,7 +1606,7 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-#ifdef TODO
+#ifndef TEST
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
@@ -1635,7 +1634,7 @@ int export_handle_export_record_value(
 							value_data_size -= 1;
 						}
 					}
-#endif
+#endif /* TEST */
 				}
 				else if( result != 0 )
 				{
@@ -1648,7 +1647,7 @@ int export_handle_export_record_value(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_MEMORY,
 						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to value string.",
+						 "%s: unable to create value string.",
 						 function );
 
 						return( -1 );
@@ -1677,6 +1676,78 @@ int export_handle_export_record_value(
 					 table_file_stream,
 					 "%s",
 					 value_string );
+
+					memory_free(
+					 value_string );
+				}
+				break;
+
+			default:
+				if( value_data != NULL )
+				{
+					while( value_data_size > 0 )
+					{
+						fprintf(
+						 table_file_stream,
+						 "%02" PRIx8 "",
+						 *value_data );
+
+						value_data      += 1;
+						value_data_size -= 1;
+					}
+				}
+				break;
+		}
+	}
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
+	{
+		switch( column_type )
+		{
+			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+				if( value_data != NULL )
+				{
+					value_string_size = 1 + ( ( ( value_data_size - 1 ) * 8 ) / 7 ) + 1;
+
+					value_string = (uint8_t *) memory_allocate(
+					                            sizeof( uint8_t ) * value_string_size );
+
+					if( value_string == NULL )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_MEMORY,
+						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create value string.",
+						 function );
+
+						return( -1 );
+					}
+					if( decompress_7bit_ascii(
+					     value_string,
+					     value_string_size,
+					     value_data,
+					     value_data_size,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to decompress 7-bit ASCII compressed value string.",
+						 function );
+
+						memory_free(
+						 value_string );
+
+						return( -1 );
+					}
+					value_string[ value_string_size - 1 ] = 0;
+
+					fprintf(
+					 table_file_stream,
+					 "0x%02x:%s",
+					 value_string[ 0 ],
+					 &( value_string[ 1 ] ) );
 
 					memory_free(
 					 value_string );
@@ -1843,6 +1914,109 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
+	}
+	return( 1 );
+}
+
+/* Decompresses 7-bit ASCII compressed data
+ * Returns 1 on success or -1 on error
+ */
+int decompress_7bit_ascii(
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     uint8_t *compressed_data, 
+     size_t compressed_data_size,
+     liberror_error_t **error )
+{
+	static char *function             = "decompress_7bit_ascii";
+	size_t compressed_data_iterator   = 0;
+	size_t uncompressed_data_iterator = 0;
+	uint16_t value_16bit              = 0;
+	uint8_t bit_index                 = 0;
+
+	if( uncompressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid uncompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid uncompressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( uncompressed_data_size < ( 1 + ( ( compressed_data_size - 1 ) * 8 ) / 7 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: uncompressed data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	uncompressed_data[ uncompressed_data_iterator++ ] = compressed_data[ 0 ];
+
+	compressed_data_iterator = 1;
+
+	for( compressed_data_iterator = 1;
+	     compressed_data_iterator < compressed_data_size;
+	     compressed_data_iterator++ )
+	{
+		value_16bit |= (uint16_t) compressed_data[ compressed_data_iterator ] << bit_index;
+
+		uncompressed_data[ uncompressed_data_iterator++ ] = (uint8_t) ( value_16bit & 0x7f );
+
+		value_16bit >>= 7;
+
+		bit_index++;
+
+		if( bit_index == 7 )
+		{
+			uncompressed_data[ uncompressed_data_iterator++ ] = value_16bit & 0x7f;
+
+			value_16bit >>= 7;
+
+			bit_index = 0;
+		}
+	}
+	if( value_16bit != 0 )
+	{
+		uncompressed_data[ uncompressed_data_iterator++ ] = value_16bit & 0x7f;
 	}
 	return( 1 );
 }

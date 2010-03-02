@@ -826,7 +826,6 @@ int libesedb_data_definition_read_record(
 
 						if( tagged_data_type_offset == 0 )
 						{
-fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) );
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
@@ -844,7 +843,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 						if( libnotify_verbose != 0 )
 						{
 							libnotify_printf(
-							 "%s: tagged data type offset data size\t\t\t: %" PRIu16 "\n",
+							 "%s: tagged data type offset data size\t\t\t\t: %" PRIu16 "\n",
 							 function,
 							 tagged_data_type_offset_data_size );
 							libnotify_printf(
@@ -854,8 +853,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 							 tagged_data_type_value_data,
 							 tagged_data_type_offset_data_size + 4 );
 						}
-#endif
-
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 					}
 				}
 				if( ( remaining_definition_data_size > 0 )
@@ -876,7 +874,7 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 						 tagged_data_type_offset,
 						 tagged_data_type_offset & 0x3fff );
 					}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 					previous_tagged_data_type_offset = tagged_data_type_offset;
 
@@ -942,7 +940,8 @@ fprintf( stderr, "X: %zd\n", ( tagged_data_type_offset_data - definition_data ) 
 						}
 						remaining_definition_data_size -= tagged_data_type_size;
 
-						if( ( previous_tagged_data_type_offset & 0x4000 ) == 0x4000 )
+						if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+						 || ( ( previous_tagged_data_type_offset & 0x4000 ) != 0 ) )
 						{
 #if defined( HAVE_DEBUG_OUTPUT )
 							if( libnotify_verbose != 0 )
@@ -1154,7 +1153,7 @@ int libesedb_data_definition_read_long_value(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: long value amount of data segments\t\t: %" PRIu32 "\n",
+		 "%s: long value last data segment\t\t\t: %" PRIu32 "\n",
 		 function,
 		 amount_of_data_segments );
 		libnotify_printf(
@@ -1165,6 +1164,7 @@ int libesedb_data_definition_read_long_value(
 		 "\n" );
 	}
 #endif
+	amount_of_data_segments += 1;
 
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
@@ -1255,7 +1255,8 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( data_segment_number > (uint32_t) amount_of_data_segments )
+	if( ( amount_of_data_segments != 0 )
+	 && ( data_segment_number > (uint32_t) amount_of_data_segments ) )
 	{
 		liberror_error_set(
 		 error,

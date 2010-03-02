@@ -119,33 +119,11 @@ int windows_search_decode(
      liberror_error_t **error )
 {
 	static char *function        = "windows_search_decode";
-	size_t encoded_data_iterator = 0;
 	size_t data_iterator         = 0;
+	size_t encoded_data_iterator = 0;
 	uint32_t bitmask32           = 0;
 	uint8_t bitmask              = 0;
 
-	if( data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid data.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
 	if( encoded_data == NULL )
 	{
 		liberror_error_set(
@@ -179,9 +157,7 @@ int windows_search_decode(
 
 		return( -1 );
 	}
-	bitmask32  = 0x05000113;
-
-	bitmask32 ^= (uint32_t) encoded_data_size;
+	bitmask32 = 0x05000113 ^ (uint32_t) encoded_data_size;
 
 	for( encoded_data_iterator = 0;
 	     encoded_data_iterator < encoded_data_size;
@@ -793,7 +769,7 @@ int windows_search_export_record_value_32bit(
 
 		return( -1 );
 	}
-	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -944,7 +920,7 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -1007,7 +983,7 @@ int windows_search_export_record_value_filetime(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t filetime_string[ 22 ];
+	uint8_t filetime_string[ 24 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -1084,7 +1060,7 @@ int windows_search_export_record_value_filetime(
 
 		return( -1 );
 	}
-	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -1136,7 +1112,7 @@ int windows_search_export_record_value_filetime(
 			if( libfdatetime_filetime_copy_to_utf8_string(
 			     filetime,
 			     filetime_string,
-			     22,
+			     24,
 			     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 			     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
 			     error ) != 1 )
@@ -1203,9 +1179,12 @@ int windows_search_export_record_value_compressed_string(
 {
 	libesedb_long_value_t *long_value   = NULL;
 	libesedb_multi_value_t *multi_value = NULL;
+	uint8_t *decoded_value_data         = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
+	size_t decoded_value_data_size      = 0;
 	size_t value_data_size              = 0;
+	uint32_t column_identifier          = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_flags                 = 0;
 	int amount_of_multi_values          = 0;
@@ -1280,7 +1259,7 @@ int windows_search_export_record_value_compressed_string(
 
 		return( -1 );
 	}
-	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -1302,7 +1281,7 @@ int windows_search_export_record_value_compressed_string(
 			}
 		}
 	}
-	else if( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == LIBESEDB_VALUE_FLAG_LONG_VALUE )
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
 	{
 		if( libesedb_record_get_long_value(
 		     record,
@@ -1336,7 +1315,7 @@ int windows_search_export_record_value_compressed_string(
 			return( -1 );
 		}
 	}
-	else if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 	{
 		if( libesedb_record_get_multi_value(
 		     record,
@@ -1541,7 +1520,7 @@ int windows_search_export_record_value_utf16_string(
 
 		return( -1 );
 	}
-	if( ( value_flags & ~LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) == 0 )
+	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -2463,6 +2442,7 @@ int windows_search_export_record_systemindex_gthr(
 	int known_column_type   = 0;
 	int result              = 0;
 	int value_iterator      = 0;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 
 	if( record == NULL )
 	{
@@ -2572,7 +2552,8 @@ int windows_search_export_record_systemindex_gthr(
 		/* Only check for known columns of the binary data type
 		 * some columns get their type reassigned over time
 		 */
-		if( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+		if( ( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+		 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 		{
 			if( column_name_size == 10 )
 			{
@@ -2591,13 +2572,42 @@ int windows_search_export_record_systemindex_gthr(
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
 				}
 			}
+			else if( column_name_size == 13 )
+			{
+				if( narrow_string_compare(
+				     (char *) column_name,
+				     "LastModified",
+				     12 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
+
+					byte_order = _BYTE_STREAM_ENDIAN_BIG;
+				}
+			}
 		}
-		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
+		if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME )
+		{
+			result = windows_search_export_record_value_filetime(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  table_file_stream,
+				  error );
+		}
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
 		{
 			result = windows_search_export_record_value_utf16_string(
 				  record,
 				  value_iterator,
 				  LIBUNA_ENDIAN_LITTLE,
+				  table_file_stream,
+				  error );
+		}
+		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED )
+		{
+			result = windows_search_export_record_value_compressed_string(
+				  record,
+				  value_iterator,
 				  table_file_stream,
 				  error );
 		}
