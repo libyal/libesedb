@@ -13,7 +13,6 @@ SUBDIRS = \
 	libsystem \
 	esedbtools \
 	manuals \
-	macosx \
 	msvscpp
 
 REDHAT_FILES = \

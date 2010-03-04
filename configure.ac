@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100302],
+  [20100304],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -10,7 +10,7 @@ AC_CONFIG_SRCDIR(
 
 AM_INIT_AUTOMAKE(
  [libesedb],
- [20100302])
+ [20100304])
 
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -1205,7 +1205,7 @@ AS_IF(
 	ac_libesedb_dummy=yes])
 
 dnl Set memwatch support
-ac_libesedb_have_memwatch=yes
+ac_libesedb_have_memwatch=no
 
 AS_IF(
 	[test "x$ac_libesedb_have_memwatch" != xno ],
@@ -1249,7 +1249,6 @@ AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([manuals/Makefile])
-AC_CONFIG_FILES([macosx/Makefile])
 AC_CONFIG_FILES([msvscpp/Makefile])
 dnl Have configure make the include files
 AC_CONFIG_FILES([include/libesedb.h])
@@ -1259,7 +1258,6 @@ AC_CONFIG_FILES([include/libesedb/types.h])
 AC_CONFIG_FILES([libesedb/libesedb_definitions.h])
 dnl Have configure make distribution specific files
 AC_CONFIG_FILES([common/types.h])
-AC_CONFIG_FILES([macosx/Introduction.rtf])
 AC_CONFIG_FILES([libesedb.pc])
 AC_CONFIG_FILES([libesedb.spec])
 dnl Have configure write its configuration

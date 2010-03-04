@@ -179,6 +179,10 @@
 				RelativePath="..\..\libbfio\libbfio_support.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libbfio\libbfio_system_string.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

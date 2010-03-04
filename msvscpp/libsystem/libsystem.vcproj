@@ -178,6 +178,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_split_values.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_string.c"
 				>
 			</File>
@@ -224,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_find.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_getopt.h"
 				>
 			</File>
@@ -240,7 +248,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_path.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_signal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsystem\libsystem_split_values.h"
 				>
 			</File>
 			<File

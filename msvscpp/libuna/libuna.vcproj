@@ -146,6 +146,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\libuna\libuna_base16_stream.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libuna\libuna_base64_stream.c"
 				>
 			</File>
@@ -258,10 +262,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_compare.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libuna\libuna_support.c"
 				>
 			</File>
@@ -286,6 +286,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libuna\libuna_utf7_stream.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libuna\libuna_utf8_stream.c"
 				>
 			</File>
@@ -299,6 +303,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\libuna\libuna_base16_stream.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\libuna\libuna_base64_stream.h"
 				>
@@ -424,10 +432,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_compare.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libuna\libuna_definitions.h"
 				>
 			</File>
@@ -469,6 +473,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libuna\libuna_utf32_string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libuna\libuna_utf7_stream.h"
 				>
 			</File>
 			<File
