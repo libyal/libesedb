@@ -38,8 +38,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libfdatetime"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFWINTYPE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -98,8 +98,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libfdatetime"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFWINTYPE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				DebugInformationFormat="3"

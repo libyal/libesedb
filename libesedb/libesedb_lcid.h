@@ -49,6 +49,7 @@ struct libesedb_lcid_language_tag
 	 */
 	const char *description;
 };
+
 const char *libesedb_lcid_language_tag_get_identifier(
              uint16_t lcid_language_tag );
 

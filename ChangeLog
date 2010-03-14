@@ -60,14 +60,8 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
-20200304
-* removed macosx build directory for now
-* updated msvscpp solution files
-* worked on msvscpp build
-
 20200302
 * worked on windows 7 engine support
-* worked on 7-bit ASCII compression
 
 20200301
 * worked on windows 7 engine support
