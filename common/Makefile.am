@@ -8,10 +8,8 @@ EXTRA_DIST = \
 	config_msc.h \
 	file_stream.h \
 	memory.h \
-	narrow_string.h \
 	types.h \
-	types.h.in \
-	wide_string.h
+	types.h.in
 
 if HAVE_MEMWATCH
 noinst_LTLIBRARIES = libmemwatch.la

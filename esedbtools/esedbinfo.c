@@ -938,18 +938,18 @@ int esedbinfo_file_info_fprint(
 
 /* The main program
  */
-#if defined( LIBSYSTEM_HAVE_WIDE_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
 #endif
 {
-	libesedb_error_t *error       = NULL;
-	libesedb_file_t *esedb_file   = NULL;
-	libsystem_character_t *source = NULL;
-	char *program                 = "esedbinfo";
-	libsystem_integer_t option    = 0;
-	int verbose                   = 0;
+	libesedb_error_t *error               = NULL;
+	libesedb_file_t *esedb_file           = NULL;
+	libcstring_system_character_t *source = NULL;
+	char *program                         = "esedbinfo";
+	libcstring_system_integer_t option    = 0;
+	int verbose                           = 0;
 
 	libsystem_notify_set_stream(
 	 stderr,
@@ -978,15 +978,15 @@ int main( int argc, char * const argv[] )
 	while( ( option = libsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBSYSTEM_CHARACTER_T_STRING( "hvV" ) ) ) != (libsystem_integer_t) -1 )
+	                   _LIBCSTRING_SYSTEM_STRING( "hvV" ) ) ) != (libcstring_system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libsystem_integer_t) '?':
+			case (libcstring_system_integer_t) '?':
 			default:
 				fprintf(
 				 stderr,
-				 "Invalid argument: %s\n",
+				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM "\n",
 				 argv[ optind ] );
 
 				usage_fprint(
@@ -994,18 +994,18 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_FAILURE );
 
-			case (libsystem_integer_t) 'h':
+			case (libcstring_system_integer_t) 'h':
 				usage_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
 
-			case (libsystem_integer_t) 'v':
+			case (libcstring_system_integer_t) 'v':
 				verbose = 1;
 
 				break;
 
-			case (libsystem_integer_t) 'V':
+			case (libcstring_system_integer_t) 'V':
 				esedboutput_copyright_fprint(
 				 stdout );
 
@@ -1048,7 +1048,7 @@ int main( int argc, char * const argv[] )
 
 		return( EXIT_FAILURE );
 	}
-#if defined( LIBSYSTEM_HAVE_WIDE_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libesedb_file_open_wide(
 	     esedb_file,
 	     source,
@@ -1064,7 +1064,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error opening file: %" PRIs_LIBSYSTEM ".\n",
+		 "Error opening file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 argv[ optind ] );
 
 		libsystem_notify_print_error_backtrace(
@@ -1107,7 +1107,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error closing file: %" PRIs_LIBSYSTEM ".\n",
+		 "Error closing file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 argv[ optind ] );
 
 		libsystem_notify_print_error_backtrace(

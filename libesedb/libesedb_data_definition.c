@@ -39,6 +39,7 @@
 #include "libesedb_data_type_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_lcid.h"
+#include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_value_type.h"
 

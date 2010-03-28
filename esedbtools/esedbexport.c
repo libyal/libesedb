@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 
 #if defined( HAVE_UNISTD_H )
@@ -68,8 +69,8 @@ void usage_fprint(
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
-	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-1250 (default),\n"
-	                 "\t        windows-1251, windows-1252, windows-1253, windows-1254,\n"
+	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-1250,\n"
+	                 "\t        windows-1251, windows-1252 (default), windows-1253, windows-1254,\n"
 	                 "\t        windows-1255, windows-1256, windows-1257 or windows-1258\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
 	fprintf( stream, "\t-l:     logs information about the exported items\n" );
@@ -82,29 +83,29 @@ void usage_fprint(
 
 /* The main program
  */
-#if defined( LIBSYSTEM_HAVE_WIDE_CHARACTER )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain( int argc, wchar_t * const argv[] )
 #else
 int main( int argc, char * const argv[] )
 #endif
 {
-	export_handle_t *export_handle            = NULL;
-	liberror_error_t *error                   = NULL;
-	log_handle_t *log_handle                  = NULL;
-	libsystem_character_t *export_path        = NULL;
-	libsystem_character_t *log_filename       = NULL;
-	libsystem_character_t *option_target_path = NULL;
-	libsystem_character_t *path_separator     = NULL;
-	libsystem_character_t *source             = NULL;
-	libsystem_character_t *target_path        = NULL;
-	char *program                             = "esedbexport";
-	size_t export_path_length                 = 0;
-	size_t source_length                      = 0;
-	size_t target_path_length                 = 0;
-	libsystem_integer_t option                = 0;
-	int ascii_codepage                        = LIBESEDB_CODEPAGE_WINDOWS_1250;
-	int result                                = 0;
-	int verbose                               = 0;
+	export_handle_t *export_handle                    = NULL;
+	liberror_error_t *error                           = NULL;
+	log_handle_t *log_handle                          = NULL;
+	libcstring_system_character_t *export_path        = NULL;
+	libcstring_system_character_t *log_filename       = NULL;
+	libcstring_system_character_t *option_target_path = NULL;
+	libcstring_system_character_t *path_separator     = NULL;
+	libcstring_system_character_t *source             = NULL;
+	libcstring_system_character_t *target_path        = NULL;
+	char *program                                     = "esedbexport";
+	size_t export_path_length                         = 0;
+	size_t source_length                              = 0;
+	size_t target_path_length                         = 0;
+	libcstring_system_integer_t option                = 0;
+	int ascii_codepage                                = LIBESEDB_CODEPAGE_WINDOWS_1252;
+	int result                                        = 0;
+	int verbose                                       = 0;
 
 	libsystem_notify_set_stream(
 	 stderr,
@@ -133,15 +134,15 @@ int main( int argc, char * const argv[] )
 	while( ( option = libsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBSYSTEM_CHARACTER_T_STRING( "c:hl:t:vV" ) ) ) != (libsystem_integer_t) -1 )
+	                   _LIBCSTRING_SYSTEM_STRING( "c:hl:t:vV" ) ) ) != (libcstring_system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libsystem_integer_t) '?':
+			case (libcstring_system_integer_t) '?':
 			default:
 				fprintf(
 				 stderr,
-				 "Invalid argument: %s\n",
+				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM "\n",
 				 argv[ optind ] );
 
 				usage_fprint(
@@ -149,7 +150,7 @@ int main( int argc, char * const argv[] )
 
 				return( EXIT_FAILURE );
 
-			case (libsystem_integer_t) 'c':
+			case (libcstring_system_integer_t) 'c':
 				if( esedbinput_determine_ascii_codepage(
 				     optarg,
 				     &ascii_codepage,
@@ -160,36 +161,36 @@ int main( int argc, char * const argv[] )
 					liberror_error_free(
 					 &error );
 
-					ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1250;
+					ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
 
 					fprintf(
 					 stderr,
-					 "Unsupported ASCII codepage defaulting to: windows-1250.\n" );
+					 "Unsupported ASCII codepage defaulting to: windows-1252.\n" );
 				}
 				break;
 
-			case (libsystem_integer_t) 'h':
+			case (libcstring_system_integer_t) 'h':
 				usage_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
 
-			case (libsystem_integer_t) 'l':
+			case (libcstring_system_integer_t) 'l':
 				log_filename = optarg;
 
 				break;
 
-			case (libsystem_integer_t) 't':
+			case (libcstring_system_integer_t) 't':
 				option_target_path = optarg;
 
 				break;
 
-			case (libsystem_integer_t) 'v':
+			case (libcstring_system_integer_t) 'v':
 				verbose = 1;
 
 				break;
 
-			case (libsystem_integer_t) 'V':
+			case (libcstring_system_integer_t) 'V':
 				esedboutput_copyright_fprint(
 				 stdout );
 
@@ -225,12 +226,12 @@ int main( int argc, char * const argv[] )
 	}
 	else
 	{
-		source_length = libsystem_string_length(
+		source_length = libcstring_system_string_length(
 		                 source );
 
-		path_separator = libsystem_string_search_reverse(
+		path_separator = libcstring_system_string_search_reverse(
 		                  source,
-		                  (libsystem_character_t) ESEDBCOMMON_PATH_SEPARATOR,
+		                  (libcstring_system_character_t) ESEDBCOMMON_PATH_SEPARATOR,
 		                  source_length );
 
 		if( path_separator == NULL )
@@ -243,15 +244,15 @@ int main( int argc, char * const argv[] )
 		}
 		target_path = path_separator;
 	}
-	target_path_length = libsystem_string_length(
+	target_path_length = libcstring_system_string_length(
 	                      target_path );
 
 	/* Create the export path
 	 */
 	export_path_length = 7 + target_path_length;
 
-	export_path = (libsystem_character_t *) memory_allocate(
-	                                         sizeof( libsystem_character_t ) * ( export_path_length + 1 ) );
+	export_path = (libcstring_system_character_t *) memory_allocate(
+	                                                 sizeof( libcstring_system_character_t ) * ( export_path_length + 1 ) );
 
 	if( export_path == NULL )
 	{
@@ -261,10 +262,10 @@ int main( int argc, char * const argv[] )
 
 		return( EXIT_FAILURE );
 	}
-	if( libsystem_string_snprintf(
+	if( libcstring_system_string_sprintf(
 	     export_path,
 	     export_path_length + 1,
-	     _LIBSYSTEM_CHARACTER_T_STRING( "%" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIs_LIBSYSTEM ) _LIBSYSTEM_CHARACTER_T_STRING( ".export" ),
+	     _LIBCSTRING_SYSTEM_STRING( "%" ) _LIBCSTRING_SYSTEM_STRING( PRIs_LIBCSTRING_SYSTEM ) _LIBCSTRING_SYSTEM_STRING( ".export" ),
 	     target_path ) == -1 )
 	{
 		fprintf(
@@ -286,7 +287,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to determine if %" PRIs_LIBSYSTEM " exists.\n",
+		 "Unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.\n",
 		 export_path );
 
 		libsystem_notify_print_error_backtrace(
@@ -298,7 +299,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "%" PRIs_LIBSYSTEM " already exists.\n",
+		 "%" PRIs_LIBCSTRING_SYSTEM " already exists.\n",
 		 export_path );
 	}
 	if( result != 0 )
@@ -354,7 +355,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to open log file: %" PRIs_LIBSYSTEM ".\n",
+		 "Unable to open log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 log_filename );
 
 		libsystem_notify_print_error_backtrace(
@@ -384,7 +385,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error opening file: %" PRIs_LIBSYSTEM ".\n",
+		 "Error opening file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 argv[ optind ] );
 
 		libsystem_notify_print_error_backtrace(
@@ -439,7 +440,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error closing file: %" PRIs_LIBSYSTEM "",
+		 "Error closing file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 argv[ optind ] );
 
 		libsystem_notify_print_error_backtrace(
@@ -481,7 +482,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to close log file: %" PRIs_LIBSYSTEM ".\n",
+		 "Unable to close log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 log_filename );
 
 		libsystem_notify_print_error_backtrace(

@@ -35,6 +35,7 @@
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_lcid.h"
+#include "libesedb_libuna.h"
 #include "libesedb_value_type.h"
 
 #include "esedb_page_values.h"

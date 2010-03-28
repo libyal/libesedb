@@ -114,10 +114,12 @@ enum LIBESEDB_COMPRESSION_ERROR
 	 */
 	LIBESEDB_COMPRESSION_ERROR_COMPRESS_FAILED     = 1,
 
-	/* The de/uncompression failed
+	/* The decompression failed
 	 */
-	LIBESEDB_COMPRESSION_ERROR_UNCOMPRESS_FAILED   = 2
+	LIBESEDB_COMPRESSION_ERROR_DECOMPRESS_FAILED   = 2
 };
+
+#define LIBESEDB_COMPRESSION_ERROR_UNCOMPRESS_FAILED	LIBESEDB_COMPRESSION_ERROR_DECOMPRESS_FAILED
 
 /* The input/output error codes
  * to signify errors regarding input/output

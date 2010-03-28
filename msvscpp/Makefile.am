@@ -1,5 +1,6 @@
 EXTRA_DIST = \
 	libbfio/libbfio.vcproj \
+	libcstring/libcstring.vcproj \
 	liberror/liberror.vcproj \
 	libfdatetime/libfdatetime.vcproj \
 	libfwintype/libfwintype.vcproj \

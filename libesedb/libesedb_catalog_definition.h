@@ -29,8 +29,6 @@
 
 #include <liberror.h>
 
-#include "libesedb_string.h"
-
 #if defined( __cplusplus )
 extern "C" {
 #endif

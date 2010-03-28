@@ -39,74 +39,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				WarnAsError="false"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libsystem.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libuna;"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
-				RuntimeLibrary="2"
-				WarningLevel="4"
-				WarnAsError="false"
-				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
 			<Tool
@@ -178,6 +115,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_split_values.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_string.c"
 				>
 			</File>
@@ -224,6 +165,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_find.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_getopt.h"
 				>
 			</File>
@@ -240,7 +185,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_path.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_signal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsystem\libsystem_split_values.h"
 				>
 			</File>
 			<File

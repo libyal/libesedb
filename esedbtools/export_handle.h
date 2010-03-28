@@ -27,6 +27,7 @@
 #include <file_stream.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 
 /* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
@@ -37,8 +38,6 @@
 #endif
 
 #include <libesedb.h>
-
-#include <libsystem.h>
 
 #include "log_handle.h"
 
@@ -65,7 +64,7 @@ int export_handle_free(
 
 int export_handle_open(
      export_handle_t *export_handle,
-     const libsystem_character_t *filename,
+     const libcstring_system_character_t *filename,
      liberror_error_t **error );
 
 int export_handle_close(
@@ -73,28 +72,28 @@ int export_handle_close(
      liberror_error_t **error );
 
 int export_handle_make_directory(
-     libsystem_character_t *directory_name,
+     libcstring_system_character_t *directory_name,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_handle_sanitize_filename(
-     libsystem_character_t *filename,
+     libcstring_system_character_t *filename,
      size_t filename_size,
      liberror_error_t **error );
 
 int export_handle_create_target_path(
-     libsystem_character_t *export_path,
+     libcstring_system_character_t *export_path,
      size_t export_path_size,
      uint8_t *utf8_filename,
      size_t utf8_filename_size,
-     libsystem_character_t **target_path,
+     libcstring_system_character_t **target_path,
      size_t *target_path_size,
      liberror_error_t **error );
 
 int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
-     libsystem_character_t *export_path,
+     libcstring_system_character_t *export_path,
      size_t export_path_size,
      log_handle_t *log_handle,
      liberror_error_t **error );
@@ -112,7 +111,7 @@ int export_handle_export_record_value(
 
 int export_handle_export_file(
      export_handle_t *export_handle,
-     libsystem_character_t *export_path,
+     libcstring_system_character_t *export_path,
      size_t export_path_size,
      log_handle_t *log_handle,
      liberror_error_t **error );

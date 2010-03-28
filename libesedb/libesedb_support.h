@@ -25,9 +25,7 @@
 #define _LIBESEDB_SUPPORT_H
 
 #include <common.h>
-#include <narrow_string.h>
 #include <types.h>
-#include <wide_string.h>
 
 #include <liberror.h>
 

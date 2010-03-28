@@ -1,6 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
+	-I$(top_srcdir)/libcstring \
 	-I$(top_srcdir)/liberror \
 	-I$(top_srcdir)/libsystem \
 	@LIBUNA_CPPFLAGS@ \
@@ -25,6 +26,7 @@ esedbexport_SOURCES = \
 	windows_search.c windows_search.h
 
 esedbexport_LDADD  = \
+	../libcstring/libcstring.la \
 	../liberror/liberror.la \
 	../libesedb/libesedb.la \
 	../libsystem/libsystem.la \
@@ -39,6 +41,7 @@ esedbinfo_SOURCES = \
 	esedboutput.c esedboutput.h
 
 esedbinfo_LDADD  = \
+	../libcstring/libcstring.la \
 	../liberror/liberror.la \
 	../libesedb/libesedb.la \
 	../libsystem/libsystem.la \

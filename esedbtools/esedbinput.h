@@ -26,16 +26,15 @@
 #include <common.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
-
-#include <libsystem.h>
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
 int esedbinput_determine_ascii_codepage(
-     const libsystem_character_t *argument,
+     const libcstring_system_character_t *argument,
      int *ascii_codepage,
      liberror_error_t **error );
 

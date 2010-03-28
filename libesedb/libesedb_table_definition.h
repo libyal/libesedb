@@ -31,7 +31,6 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_list_type.h"
-#include "libesedb_string.h"
 
 #if defined( __cplusplus )
 extern "C" {

@@ -22,11 +22,10 @@
  */
 
 #include <common.h>
-#include <narrow_string.h>
 #include <memory.h>
 #include <types.h>
-#include <wide_string.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -304,7 +303,7 @@ int libesedb_file_open(
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     narrow_string_length(
+	     libcstring_narrow_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
@@ -444,7 +443,7 @@ int libesedb_file_open_wide(
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     wide_string_length(
+	     libcstring_wide_string_length(
 	      filename ) + 1,
 	     error ) != 1 )
 	{

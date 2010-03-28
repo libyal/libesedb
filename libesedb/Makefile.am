@@ -1,6 +1,7 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
+	-I$(top_srcdir)/libcstring \
 	-I$(top_srcdir)/liberror \
 	-I$(top_srcdir)/libnotify \
 	@LIBUNA_CPPFLAGS@ \
@@ -44,7 +45,6 @@ libesedb_la_SOURCES = \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
 	libesedb_record.c libesedb_record.h \
-	libesedb_string.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \
 	libesedb_table_definition.c libesedb_table_definition.h \
@@ -53,6 +53,7 @@ libesedb_la_SOURCES = \
 	libesedb_value_type.c libesedb_value_type.h
 
 libesedb_la_LIBADD = \
+	../libcstring/libcstring.la \
 	../liberror/liberror.la \
 	../libnotify/libnotify.la \
 	@LIBUNA_LIBADD@ \

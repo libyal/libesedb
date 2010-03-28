@@ -38,7 +38,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libesedb"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libesedb"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE;LIBESEDB_DLL_EXPORT"
 				RuntimeLibrary="2"
 				WarningLevel="4"
@@ -57,76 +57,6 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\libesedb.dll"
 				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
-				RandomizedBaseAddress="2"
-				DataExecutionPrevention="2"
-				ImportLibrary="$(OutDir)\libesedb.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libesedb"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFWINTYPE;LIBESEDB_DLL_EXPORT"
-				RuntimeLibrary="2"
-				WarningLevel="4"
-				DebugInformationFormat="3"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\libesedb.dll"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
-				GenerateDebugInformation="true"
 				RandomizedBaseAddress="2"
 				DataExecutionPrevention="2"
 				ImportLibrary="$(OutDir)\libesedb.lib"

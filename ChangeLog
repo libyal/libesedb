@@ -1,6 +1,10 @@
 TODO
+* update msvscpp files
+* update codegear files
+* update macosx files
+
 * parse variable types even when they are not part of the table catalog definition
-* add support for build in table 1
+* add support for build in table number 1
 * move bfio handle to item layer
 * implement cloning of items for improved asynchronous and multi threaded usage
 
@@ -37,6 +41,8 @@ Tools
   - summary of catalog (check backup catalog)
   - print
     - database state
+* esedbexport
+  - move libesedb file handle from export handle to esedbexport
 
 File format
 * where is the root object defined? or is it implied to be object 1?
@@ -47,10 +53,8 @@ File format
 
 Deployment:
 * update manuals
+  - add esedbexport.1
 * create debian package files
-* update macosx package files
-* update codegear files
-* check msvcpp files
 
 Performance
 * create data definition tree in page tree for faster lookup of keys
@@ -59,6 +63,12 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20200328
+* added libcstring
+* updated liberror, libnotify, libsystem, libfdatetime, libuna, libbfio
+* removed common/narrow_string.h common/wide_string.h
+* worked on libcstring support
 
 20200302
 * worked on windows 7 engine support

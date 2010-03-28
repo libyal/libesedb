@@ -1,7 +1,8 @@
 /*
  * GUID functions
  *
- * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2008-2010, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
@@ -24,9 +25,8 @@
 #include <byte_stream.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
-
-#include <libsystem.h>
 
 #include "guid.h"
 
@@ -34,10 +34,9 @@
  * Returns 1 if successful or -1 on error
  */
 int guid_to_string(
-     uint8_t *guid,
-     size_t guid_size,
+     guid_t *guid,
      int byte_order,
-     libsystem_character_t *string,
+     libcstring_system_character_t *string,
      size_t string_size,
      liberror_error_t **error )
 {
@@ -51,28 +50,6 @@ int guid_to_string(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid guid.",
-		 function );
-
-		return( -1 );
-	}
-	if( guid_size < GUID_SIZE )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: GUID too small.",
-		 function );
-
-		return( -1 );
-	}
-	if( guid_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid GUID size value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -127,25 +104,25 @@ int guid_to_string(
 	 */
 	if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 	{
-		print_count = libsystem_string_snprintf(
+		print_count = libcstring_system_string_sprintf(
 			       string,
 			       string_size,
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 ),
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 ),
 			       guid[ 0 ], guid[ 1 ], guid[ 2 ], guid[ 3 ],
 			       guid[ 4 ], guid[ 5 ],
 			       guid[ 6 ], guid[ 7 ],
@@ -154,32 +131,31 @@ int guid_to_string(
 	}
 	else if( byte_order == _BYTE_STREAM_ENDIAN_LITTLE )
 	{
-		print_count = libsystem_string_snprintf(
+		print_count = libcstring_system_string_sprintf(
 			       string,
 			       string_size,
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "-%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 )
-			       _LIBSYSTEM_CHARACTER_T_STRING( "%.2" ) _LIBSYSTEM_CHARACTER_T_STRING( PRIx8 ),
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "-%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 )
+			       _LIBCSTRING_SYSTEM_STRING( "%.2" ) _LIBCSTRING_SYSTEM_STRING( PRIx8 ),
 			       guid[ 3 ], guid[ 2 ], guid[ 1 ], guid[ 0 ],
 			       guid[ 5 ], guid[ 4 ],
 			       guid[ 7 ], guid[ 6 ],
 			       guid[ 8 ], guid[ 9 ],
 			       guid[ 10 ], guid[ 11 ], guid[ 12 ], guid[ 13 ], guid[ 14 ], guid[ 15 ] );
 	}
-
 	if( ( print_count < 0 )
 	 || ( (size_t) print_count > string_size ) )
 	{

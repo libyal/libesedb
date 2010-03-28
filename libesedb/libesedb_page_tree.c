@@ -38,7 +38,6 @@
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
-#include "libesedb_string.h"
 #include "libesedb_table_definition.h"
 
 #include "esedb_page_values.h"

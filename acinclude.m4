@@ -124,7 +124,7 @@ if( ( string[ 0 ] != '1' ) || ( string[ 1 ] != '0' ) ) return( 1 ); ]] )],
 	CFLAGS="$SAVE_CFLAGS"])
 
 dnl Function to detect if ctime_r or ctime is available
-dnl Also checks if ctime_t is defined according to the POSIX standard
+dnl Also checks if ctime_r is defined according to the POSIX standard
 AC_DEFUN([LIBESEDB_CHECK_FUNC_CTIME],
 	[AC_CHECK_FUNC(
 	 [ctime_r],

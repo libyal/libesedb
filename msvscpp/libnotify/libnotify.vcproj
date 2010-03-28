@@ -20,6 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -38,73 +39,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				WarnAsError="false"
-				CompileAs="1"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libnotify.lib"
-				ModuleDefinitionFile=""
-				IgnoreAllDefaultLibraries="false"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
-				RuntimeLibrary="2"
-				WarningLevel="4"
-				WarnAsError="false"
-				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
 			<Tool
@@ -151,6 +90,14 @@
 				RelativePath="..\..\libnotify\libnotify.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libnotify\libnotify_print.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libnotify\libnotify_stream.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -159,6 +106,14 @@
 			>
 			<File
 				RelativePath="..\..\libnotify\libnotify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libnotify\libnotify_print.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libnotify\libnotify_stream.h"
 				>
 			</File>
 		</Filter>

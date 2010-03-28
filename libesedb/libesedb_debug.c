@@ -34,7 +34,6 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdatetime.h"
 #include "libesedb_libfwintype.h"
-#include "libesedb_string.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 

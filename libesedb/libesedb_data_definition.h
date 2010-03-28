@@ -32,7 +32,6 @@
 #include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_list_type.h"
-#include "libesedb_string.h"
 
 #if defined( __cplusplus )
 extern "C" {
