@@ -116,7 +116,7 @@ AC_CHECK_HEADERS(
    [Missing headers: stdarg.h and varargs.h],
    [1]) ]) ])
 
-dnl Headers included in libnotify/libnotify.c, libbfio/libbfio_file.c and libewf/libewf_header_values.c
+dnl Headers included in libnotify/libnotify_stream.c and libbfio/libbfio_file.c
 AC_CHECK_HEADERS([errno.h])
 
 dnl Headers included in libbfio/libbfio_file.c, libsystem/libsystem_directory_io.h and libsystem/libsystem_file_io.h
@@ -454,24 +454,6 @@ AC_CHECK_FUNCS(
  [],
  [AC_MSG_FAILURE(
   [Missing function: fstat],
-  [1]) ])
-
-dnl Date and time functions used in libewf/libewf_date_time.h
-AC_CHECK_FUNCS(
- [localtime_r],
- [],
- [AC_CHECK_FUNCS(
-  [localtime],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing functions: localtime_r and localtime],
-   [1]) ]) ])
-
-AC_CHECK_FUNCS(
- [mktime],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: mktime],
   [1]) ])
 
 dnl Date and time functions used in libsystem/libsystem_date_time.h
