@@ -330,8 +330,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_checksum_calculate_little_endian_xor32";
-	size_t buffer_iterator = 0;
-	uint32_t value_32bit   = 0;
+	uint32_t value_32bit  = 0;
 
 	if( checksum_value == NULL )
 	{
@@ -368,13 +367,30 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	}
 	*checksum_value = initial_value;
 
-	for( buffer_iterator = 0;
-	     buffer_iterator < size;
-	     buffer_iterator += 4 )
+	while( size > 0 )
 	{
-		byte_stream_copy_to_uint32_little_endian(
-		 buffer,
-		 value_32bit );
+		value_32bit = 0;
+
+		if( size >= 4 )
+		{
+			value_32bit  |= buffer[ 3 ];
+			value_32bit <<= 8;
+			size         -= 1;
+		}
+		if( size >= 3 )
+		{
+			value_32bit  |= buffer[ 2 ];
+			value_32bit <<= 8;
+			size         -= 1;
+		}
+		if( size >= 2 )
+		{
+			value_32bit  |= buffer[ 1 ];
+			value_32bit <<= 8;
+			size         -= 1;
+		}
+		value_32bit |= buffer[ 0 ];
+		size        -= 1;
 
 		*checksum_value ^= value_32bit;
 

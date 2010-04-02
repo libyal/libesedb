@@ -2,7 +2,6 @@
  * Compression functions
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *

@@ -1,4 +1,5 @@
 TODO
+* ECC32 check non 4 byte modulus buffer support
 * update msvscpp files
 * update codegear files
 * update macosx files
@@ -59,10 +60,14 @@ Deployment:
 Performance
 * create data definition tree in page tree for faster lookup of keys
   keep list for sequential access (B+-tree)
+* XOR32 add memory alignment support
 
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20200402
+* fixed non 4 byte modulus sized buffers issue in XOR32
 
 20200328
 * added libcstring
