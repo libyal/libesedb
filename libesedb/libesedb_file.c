@@ -767,6 +767,7 @@ int libesedb_file_open_read(
 		if( libesedb_page_read(
 		     page,
 		     internal_file->io_handle,
+		     internal_file->io_handle->file_io_handle,
 		     page_number,
 		     error ) != 1 )
 		{

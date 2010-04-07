@@ -382,6 +382,7 @@ int libesedb_page_tree_read(
 	if( libesedb_page_read(
 	     page,
 	     io_handle,
+	     io_handle->file_io_handle,
 	     father_data_page_number,
 	     error ) != 1 )
 	{
@@ -706,6 +707,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		if( libesedb_page_read(
 		     space_tree_page,
 		     io_handle,
+		     io_handle->file_io_handle,
 		     space_tree_page_number,
 		     error ) != 1 )
 		{
@@ -792,6 +794,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		if( libesedb_page_read(
 		     space_tree_page,
 		     io_handle,
+		     io_handle->file_io_handle,
 		     space_tree_page_number,
 		     error ) != 1 )
 		{
@@ -1287,6 +1290,7 @@ int libesedb_page_tree_read_child_pages(
 		if( libesedb_page_read(
 		     child_page,
 		     io_handle,
+		     io_handle->file_io_handle,
 		     child_page_number,
 		     error ) != 1 )
 		{
@@ -1765,6 +1769,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 			if( libesedb_page_read(
 			     space_tree_page,
 			     io_handle,
+			     io_handle->file_io_handle,
 			     space_tree_page_number,
 			     error ) != 1 )
 			{

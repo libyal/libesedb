@@ -33,6 +33,7 @@
 #include "libesedb_checksum.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
+#include "libesedb_libbfio.h"
 #include "libesedb_page.h"
 
 #include "esedb_page.h"
@@ -46,7 +47,7 @@ int libesedb_page_value_free(
 {
 	if( page_value != NULL )
 	{
-		/* The data reference and is freed elsewhere
+		/* The data is referenced and freed elsewhere
 		 */
 		memory_free(
 		 page_value );
@@ -198,6 +199,7 @@ int libesedb_page_free(
 int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint32_t page_number,
      liberror_error_t **error )
 {
@@ -253,17 +255,6 @@ int libesedb_page_read(
 
 		return( -1 );
 	}
-	if( io_handle->file_io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid io handle - missing file io handle.",
-		 function );
-
-		return( -1 );
-	}
 	page_offset = ( page_number + 1 ) * io_handle->page_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -279,7 +270,7 @@ int libesedb_page_read(
 #endif
 
 	if( libbfio_handle_seek_offset(
-	     io_handle->file_io_handle,
+	     file_io_handle,
 	     page_offset,
 	     SEEK_SET,
 	     error ) == -1 )
@@ -311,7 +302,7 @@ int libesedb_page_read(
 	page->data_size = (size_t) io_handle->page_size;
 
 	read_count = libbfio_handle_read(
-	              io_handle->file_io_handle,
+	              file_io_handle,
 	              page->data,
 	              page->data_size,
 	              error );
@@ -708,7 +699,7 @@ int libesedb_page_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read page tags.",
+			 "%s: unable to read page values.",
 			 function );
 
 			libesedb_array_free(
@@ -750,7 +741,7 @@ int libesedb_page_read_tags(
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	uint8_t *page_tags_data                     = NULL;
 	static char *function                       = "libesedb_page_read_tags";
-	uint16_t page_tag_number                    = 0;
+	uint16_t page_tag_iterator                  = 0;
 	uint16_t page_tag_offset                    = 0;
 	uint16_t page_tag_size                      = 0;
 
@@ -836,9 +827,9 @@ int libesedb_page_read_tags(
 	 */
 	page_tags_data = &( page_data[ page_data_size - 2 ] );
 
-	for( page_tag_number = 0;
-	     page_tag_number < amount_of_page_entries;
-	     page_tag_number++ )
+	for( page_tag_iterator = 0;
+	     page_tag_iterator < amount_of_page_entries;
+	     page_tag_iterator++ )
 	{
 		page_tags_value = (libesedb_page_tags_value_t *) memory_allocate(
 		                                                  sizeof( libesedb_page_tags_value_t ) );
@@ -882,25 +873,25 @@ int libesedb_page_read_tags(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: page tag: %03d offset\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
+			 "%s: page tag: %03" PRIu16 " offset\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 			 function,
-			 page_tag_number,
+			 page_tag_iterator,
 			 page_tags_value->offset,
 			 page_tag_offset );
 
 			libnotify_printf(
-			 "%s: page tag: %03d size\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
+			 "%s: page tag: %03" PRIu16 " size\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 			 function,
-			 page_tag_number,
+			 page_tag_iterator,
 			 page_tags_value->size,
 			 page_tag_size );
 
 			if( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 			{
 				libnotify_printf(
-				 "%s: page tag: %03d flags\t\t\t\t: ",
+				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: ",
 				 function,
-				 page_tag_number );
+				 page_tag_iterator );
 				libesedb_debug_print_page_tag_flags(
 				 page_tags_value->flags );
 				libnotify_printf(
@@ -911,7 +902,7 @@ int libesedb_page_read_tags(
 
 		if( libesedb_array_set_entry(
 		     page_tags_array,
-		     page_tag_number,
+		     page_tag_iterator,
 		     (intptr_t *) page_tags_value,
 		     error ) != 1 )
 		{
@@ -921,7 +912,7 @@ int libesedb_page_read_tags(
 			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set page tag: %" PRIu16 ".",
 			 function,
-			 page_tag_number );
+			 page_tag_iterator );
 
 			memory_free(
 			 page_tags_value );
@@ -953,7 +944,7 @@ int libesedb_page_read_values(
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	libesedb_page_value_t *page_value           = NULL;
 	static char *function                       = "libesedb_page_read_values";
-	uint16_t page_tag_number                    = 0;
+	uint16_t page_tag_iterator                  = 0;
 
 	if( page_values_array == NULL )
 	{
@@ -1026,13 +1017,13 @@ int libesedb_page_read_values(
 
 		return( -1 );
 	}
-	for( page_tag_number = 0;
-	     page_tag_number < page_tags_array->amount_of_entries;
-	     page_tag_number++ )
+	for( page_tag_iterator = 0;
+	     page_tag_iterator < page_tags_array->amount_of_entries;
+	     page_tag_iterator++ )
 	{
 		if( libesedb_array_get_entry(
 		     page_tags_array,
-		     page_tag_number,
+		     page_tag_iterator,
 		     (intptr_t **) &page_tags_value,
 		     error ) != 1 )
 		{
@@ -1042,7 +1033,7 @@ int libesedb_page_read_values(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve page tag: %" PRIu16 ".",
 			 function,
-			 page_tag_number );
+			 page_tag_iterator );
 
 			return( -1 );
 		}
@@ -1085,9 +1076,9 @@ int libesedb_page_read_values(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: page value: %03d offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: ",
+			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: ",
 			 function,
-			 page_tag_number,
+			 page_tag_iterator,
 			 page_tags_value->offset,
 			 page_tags_value->size );
 			libesedb_debug_print_page_tag_flags(
@@ -1097,13 +1088,15 @@ int libesedb_page_read_values(
 		}
 #endif
 
+		/* TODO check sanity of offset and size */
+
 		page_value->data  = &( page_values_data[ page_tags_value->offset ] );
 		page_value->size  = page_tags_value->size;
 		page_value->flags = page_tags_value->flags;
 
 		if( libesedb_array_set_entry(
 		     page_values_array,
-		     page_tag_number,
+		     page_tag_iterator,
 		     (intptr_t *) page_value,
 		     error ) != 1 )
 		{
@@ -1113,7 +1106,7 @@ int libesedb_page_read_values(
 			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set page value: %" PRIu16 ".",
 			 function,
-			 page_tag_number );
+			 page_tag_iterator );
 
 			memory_free(
 			 page_value );

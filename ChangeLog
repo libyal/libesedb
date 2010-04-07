@@ -66,6 +66,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20200407
+* worked on refactoring file io handle out of io handle
+
 20200402
 * fixed non 4 byte modulus sized buffers issue in XOR32
 
