@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-int libesedb_value_type_buffer_contains_zero_bytes(
+int libesedb_value_type_string_contains_zero_bytes(
      uint8_t *buffer,
      size_t buffer_size,
      liberror_error_t **error );
