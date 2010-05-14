@@ -180,6 +180,11 @@ int libesedb_page_free(
 
 			result = -1;
 		}
+		if( ( *page )->key != NULL )
+		{
+			memory_free(
+			 ( *page )->key );
+		}
 		if( ( *page )->data != NULL )
 		{
 			memory_free(
@@ -473,8 +478,9 @@ int libesedb_page_read(
 		 available_page_tag );
 
 		libnotify_printf(
-		 "%s: page flags\t\t\t\t\t\t: ",
-		 function );
+		 "%s: page flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+		 function,
+		 page->flags );
 		libesedb_debug_print_page_flags(
 		 page->flags );
 		libnotify_printf(
@@ -889,9 +895,10 @@ int libesedb_page_read_tags(
 			if( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 			{
 				libnotify_printf(
-				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: ",
+				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
 				 function,
-				 page_tag_iterator );
+				 page_tag_iterator,
+				 page_tags_value->flags );
 				libesedb_debug_print_page_tag_flags(
 				 page_tags_value->flags );
 				libnotify_printf(
@@ -1076,11 +1083,12 @@ int libesedb_page_read_values(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: ",
+			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: 0x%02" PRIx8 "",
 			 function,
 			 page_tag_iterator,
 			 page_tags_value->offset,
-			 page_tags_value->size );
+			 page_tags_value->size,
+			 page_tags_value->flags );
 			libesedb_debug_print_page_tag_flags(
 			 page_tags_value->flags );
 			libnotify_printf(
@@ -1233,6 +1241,94 @@ int libesedb_page_get_value(
 
 		return( -1 );
 	}
+	return( 1 );
+}
+
+/* Sets the key in the page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_set_key(
+     libesedb_page_t *page,
+     uint8_t *key,
+     size_t key_size,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_page_set_key";
+
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( page->key != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid page - key already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid key.",
+		 function );
+
+		return( -1 );
+	}
+	if( key_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid key size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	page->key = (uint8_t *) memory_allocate(
+	                         sizeof( uint8_t ) * key_size );
+
+	if( page->key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create key.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     page->key,
+	     key,
+	     sizeof( uint8_t ) * key_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to copy key.",
+		 function );
+
+		return( -1 );
+	}
+	page->key_size = key_size;
+
 	return( 1 );
 }
 

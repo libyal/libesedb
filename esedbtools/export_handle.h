@@ -1,6 +1,7 @@
 /* 
  * Export handle
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -116,7 +117,6 @@ int export_handle_export_file(
      log_handle_t *log_handle,
      liberror_error_t **error );
 
-/* TODO move to ascii7 or libesedb */
 int decompress_7bit_ascii(
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,

@@ -1,6 +1,7 @@
 /*
  * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *

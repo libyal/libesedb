@@ -33,7 +33,7 @@
 #include "libesedb_value_type.h"
 
 /* Function to determine if there are zero bytes in a string
- * Trailing zero bytes not included
+ * A single trailing zero byte not included
  * Returns 1 if the buffer contains zero bytes, 0 if not or -1 on error
  */
 int libesedb_value_type_string_contains_zero_bytes(
@@ -41,9 +41,8 @@ int libesedb_value_type_string_contains_zero_bytes(
      size_t buffer_size,
      liberror_error_t **error )
 {
-	static char *function   = "libesedb_value_type_string_contains_zero_bytes";
-	size_t buffer_iterator  = 0;
-	uint8_t zero_byte_found = 0;
+	static char *function  = "libesedb_value_type_string_contains_zero_bytes";
+	size_t buffer_iterator = 0;
 
 	if( buffer == NULL )
 	{
@@ -67,23 +66,19 @@ int libesedb_value_type_string_contains_zero_bytes(
 
 		return( -1 );
 	}
+	/* Ignore a single trailing zero byte
+	 */
+	if( buffer[ buffer_size - 1 ] == 0 )
+	{
+		buffer_size--;
+	}
 	for( buffer_iterator = 0;
 	     buffer_iterator < buffer_size;
 	     buffer_iterator++ )
 	{
-		if( zero_byte_found == 0 )
+		if( buffer[ buffer_iterator ] == 0 )
 		{
-			if( buffer[ buffer_iterator ] == 0 )
-			{
-				zero_byte_found = 1;
-			}
-		}
-		else
-		{
-			if( buffer[ buffer_iterator ] != 0 )
-			{
-				return( 1 );
-			}
+			return( 1 );
 		}
 	}
 	return( 0 );

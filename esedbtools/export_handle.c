@@ -1,6 +1,7 @@
 /* 
  * Export handle
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -617,22 +618,22 @@ int export_handle_export_table(
      liberror_error_t **error )
 {
 	libcstring_system_character_t *target_path = NULL;
-	libesedb_column_t *column          = NULL;
-	libesedb_record_t *record          = NULL;
-	FILE *table_file_stream            = NULL;
-	uint8_t *table_name                = NULL;
-	uint8_t *value_string              = NULL;
-	static char *function              = "export_handle_export_table";
-	size_t target_path_size            = 0;
-	size_t table_name_size             = 0;
-	size_t value_string_size           = 0;
-	uint32_t table_identifier          = 0;
-	int column_iterator                = 0;
-	int known_table                    = 0;
-	int number_of_columns              = 0;
-	int number_of_records              = 0;
-	int record_iterator                = 0;
-	int result                         = 0;
+	libesedb_column_t *column                  = NULL;
+	libesedb_record_t *record                  = NULL;
+	FILE *table_file_stream                    = NULL;
+	uint8_t *table_name                        = NULL;
+	uint8_t *value_string                      = NULL;
+	static char *function                      = "export_handle_export_table";
+	size_t target_path_size                    = 0;
+	size_t table_name_size                     = 0;
+	size_t value_string_size                   = 0;
+	uint32_t table_identifier                  = 0;
+	int column_iterator                        = 0;
+	int known_table                            = 0;
+	int number_of_columns                      = 0;
+	int number_of_records                      = 0;
+	int record_iterator                        = 0;
+	int result                                 = 0;
 
 	if( table == NULL )
 	{
@@ -848,7 +849,7 @@ int export_handle_export_table(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column: %d.",
 			 function,
-			 column_iterator + 1 );
+			 column_iterator );
 
 			libsystem_file_stream_close(
 			 table_file_stream );
@@ -1002,7 +1003,7 @@ int export_handle_export_table(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record: %d.",
 			 function,
-			 record_iterator + 1 );
+			 record_iterator );
 
 			libsystem_file_stream_close(
 			 table_file_stream );
@@ -1173,7 +1174,7 @@ int export_handle_export_record(
 			 LIBERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -1204,21 +1205,25 @@ int export_handle_export_record_value(
 {
 	uint8_t filetime_string[ 24 ];
 
-	libfdatetime_filetime_t *filetime = NULL;
-	uint8_t *value_data               = NULL;
-	uint8_t *value_string             = NULL;
-	static char *function             = "export_handle_export_record_value";
-	size_t value_data_size            = 0;
-	size_t value_string_size          = 0;
-	double value_floating_point       = 0.0;
-	uint64_t value_64bit              = 0;
-	uint32_t column_identifier        = 0;
-	uint32_t column_type              = 0;
-	uint32_t value_32bit              = 0;
-	uint16_t value_16bit              = 0;
-	uint8_t value_8bit                = 0;
-	uint8_t value_flags               = 0;
-	int result                        = 0;
+        libesedb_long_value_t *long_value   = NULL;
+        libesedb_multi_value_t *multi_value = NULL;
+	libfdatetime_filetime_t *filetime   = NULL;
+	uint8_t *value_data                 = NULL;
+	uint8_t *value_string               = NULL;
+	static char *function               = "export_handle_export_record_value";
+	size_t value_data_size              = 0;
+	size_t value_string_size            = 0;
+	double value_floating_point         = 0.0;
+	uint64_t value_64bit                = 0;
+	uint32_t column_identifier          = 0;
+	uint32_t column_type                = 0;
+	uint32_t value_32bit                = 0;
+	uint16_t value_16bit                = 0;
+	uint8_t value_8bit                  = 0;
+	uint8_t value_flags                 = 0;
+	int multi_value_iterator            = 0;
+	int number_of_multi_values          = 0;
+	int result                          = 0;
 
 	if( record == NULL )
 	{
@@ -1254,7 +1259,7 @@ int export_handle_export_record_value(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column identifier of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1270,7 +1275,7 @@ int export_handle_export_record_value(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1288,7 +1293,7 @@ int export_handle_export_record_value(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1311,7 +1316,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve boolean value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1347,7 +1352,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 8-bit value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1376,7 +1381,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 16-bit value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1415,7 +1420,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 32-bit value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1454,7 +1459,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 64-bit value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1492,7 +1497,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve filetime value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1586,7 +1591,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve floating point value: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1614,7 +1619,7 @@ int export_handle_export_record_value(
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
 					 function,
-					 record_value_entry + 1,
+					 record_value_entry,
 					 column_identifier );
 
 					return( -1 );
@@ -1666,7 +1671,7 @@ int export_handle_export_record_value(
 						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable to retrieve value string: %d.",
 						 function,
-						 record_value_entry + 1 );
+						 record_value_entry );
 
 						memory_free(
 						 value_string );
@@ -1770,6 +1775,221 @@ int export_handle_export_record_value(
 					}
 				}
 				break;
+		}
+	}
+	else if( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
+	{
+		if( libesedb_record_get_long_value(
+		     record,
+		     record_value_entry,
+		     &long_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve long value of record entry: %d.",
+			 function,
+			 record_value_entry );
+
+			return( -1 );
+		}
+		/* TODO */
+
+		if( libesedb_long_value_free(
+		     &long_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free long value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	/* TODO handle 0x10 flag */
+	else if( ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	      && ( ( value_flags & 0x10 ) == 0 ) )
+	{
+		/* TODO what about non string multi values ?
+		 */
+		if( libesedb_record_get_multi_value(
+		     record,
+		     record_value_entry,
+		     &multi_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve multi value of record entry: %d.",
+			 function,
+			 record_value_entry );
+
+			return( -1 );
+		}
+		if( libesedb_multi_value_get_number_of_values(
+		     multi_value,
+		     &number_of_multi_values,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of multi values.",
+			 function );
+
+			libesedb_multi_value_free(
+			 &multi_value,
+			 NULL );
+
+			return( -1 );
+		}
+		for( multi_value_iterator = 0;
+	 	     multi_value_iterator < number_of_multi_values;
+		     multi_value_iterator++ )
+		{
+			if( libesedb_multi_value_get_value(
+			     multi_value,
+			     multi_value_iterator,
+			     &column_type,
+			     &value_data,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve multi value: %d of record entry: %d.",
+				 function,
+				 multi_value_iterator,
+				 record_value_entry );
+
+				return( -1 );
+			}
+			if( value_data != NULL )
+			{
+				if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
+				 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+				{
+					result = libesedb_multi_value_get_value_utf8_string_size(
+						  multi_value,
+						  multi_value_iterator,
+						  &value_string_size,
+						  error );
+
+					if( result == -1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to retrieve size of string of multi value: %d of record entry: %d (%" PRIu32 ").",
+						 function,
+						 multi_value_iterator,
+						 record_value_entry,
+						 column_identifier );
+
+						libesedb_multi_value_free(
+						 &multi_value,
+						 NULL );
+
+						return( -1 );
+					}
+					else if( result != 0 )
+					{
+						value_string = (uint8_t *) memory_allocate(
+									    sizeof( uint8_t ) * value_string_size );
+
+						if( value_string == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 "%s: unable to create value string.",
+							 function );
+
+							libesedb_multi_value_free(
+							 &multi_value,
+							 NULL );
+
+							return( -1 );
+						}
+						if( libesedb_multi_value_get_value_utf8_string(
+						     multi_value,
+						     multi_value_iterator,
+						     value_string,
+						     value_string_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to retrieve string of multi value: %d of record entry: %d.",
+							 function,
+							 multi_value_iterator,
+							 record_value_entry );
+
+							memory_free(
+							 value_string );
+							libesedb_multi_value_free(
+							 &multi_value,
+							 NULL );
+
+							return( -1 );
+						}
+						fprintf(
+						 table_file_stream,
+						 "%s",
+						 value_string );
+
+						memory_free(
+						 value_string );
+					}
+					if( multi_value_iterator < ( number_of_multi_values - 1 ) )
+					{
+						fprintf(
+						 table_file_stream,
+						 "; " );
+					}
+				}
+				else
+				{
+					while( value_data_size > 0 )
+					{
+						fprintf(
+						 table_file_stream,
+						 "%02" PRIx8 "",
+						 *value_data );
+
+						value_data      += 1;
+						value_data_size -= 1;
+					}
+				}
+			}
+		}
+		if( libesedb_multi_value_free(
+		     &multi_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free multi value: %d.",
+			 function,
+			 multi_value_iterator );
+
+			return( -1 );
 		}
 	}
 	else
@@ -1877,7 +2097,7 @@ int export_handle_export_file(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve table: %d.",
 			 function,
-			 table_iterator + 1 );
+			 table_iterator );
 
 			return( -1 );
 		}
@@ -1893,8 +2113,9 @@ int export_handle_export_file(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to export table.",
-			 function );
+			 "%s: unable to export table: %d.",
+			 function,
+			 table_iterator );
 
 			libesedb_table_free(
 			 &table,
@@ -1910,8 +2131,9 @@ int export_handle_export_file(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table.",
-			 function );
+			 "%s: unable to free table: %d.",
+			 function,
+			 table_iterator );
 
 			return( -1 );
 		}

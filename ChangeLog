@@ -1,4 +1,6 @@
 TODO
+* improve implicit long value page key handling
+* fix memory leak regarding long values
 * configure.ac update libfguid detection
 * update msvscpp files, ese specific
 * update macosx files
@@ -11,11 +13,14 @@ TODO
 Windows search:
 * change libuna utf16 functions to libsystem utf16 functions
 * create libsystem utf16 functions
+* support index based compressed data
+* support uncompressed data
 
 Library:
 * ECC32 check non 4 byte modulus buffer support
 * long value support
 * template table support
+* multi value 0x18 support
 * read catalog data type defintions and convert them into column definitions
 * use column definitions to read data definitions
 * compare primary and secondary file header
@@ -48,6 +53,7 @@ File format
 * (revision 0x11) extended page header
 * long value support
 * template table support
+* multi value 0x18 support
 
 Deployment:
 * update manuals
@@ -70,6 +76,7 @@ Notes
 * renamed libfwintype to libfguid
 * changed amount of in number of
 * moved bfio handle from io handle to file
+* worked on long value support
 
 20100407
 * worked on refactoring file io handle out of io handle

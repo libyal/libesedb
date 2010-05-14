@@ -61,10 +61,6 @@ struct libesedb_page_tree
 	/* The value definition list
 	 */
 	libesedb_list_t *value_definition_list;
-
-	/* The value definition root node
-	 */
-	libesedb_tree_node_t *value_definition_root_node;
 };
 
 int libesedb_page_tree_initialize(
@@ -93,7 +89,6 @@ int libesedb_page_tree_read(
 int libesedb_page_tree_read_father_data_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
-     libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint8_t flags,
@@ -102,7 +97,6 @@ int libesedb_page_tree_read_father_data_page_values(
 int libesedb_page_tree_read_parent_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
-     libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint8_t flags,
@@ -111,7 +105,6 @@ int libesedb_page_tree_read_parent_page_values(
 int libesedb_page_tree_read_child_pages(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
-     libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint8_t flags,
@@ -125,12 +118,11 @@ int libesedb_page_tree_read_space_tree_page_values(
 int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,
-     libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_get_data_definition_by_key(
+int libesedb_page_tree_get_long_value_data_definition_by_key(
      libesedb_page_tree_t *page_tree,
      uint8_t *key,
      size_t key_size,

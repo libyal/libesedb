@@ -1,6 +1,7 @@
 /* 
  * Windows Search database export functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *
@@ -662,12 +663,20 @@ int windows_search_export_compressed_string_value(
 		memory_free(
 		 value_string );
 	}
+	/* TODO add support for Byte index-based compressed data 0x03 */
+	/* TODO add support for Uncompressed data 0x04 */
 	else
 	{
-		fprintf(
-		 table_file_stream,
-		 "COMPRESSION TYPE: 0x%02" PRIx8 "",
+		libsystem_notify_printf(
+		 "UNKNOWN COMPRESSION TYPE: 0x%02" PRIx8 "\n",
 		 decoded_value_data[ 0 ] );
+
+		libsystem_notify_print_data(
+		 decoded_value_data,
+		 decoded_value_data_size );
+
+		memory_free(
+		 decoded_value_data );
 	}
 	return( 1 );
 }
@@ -736,7 +745,7 @@ int windows_search_export_record_value_32bit(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -766,7 +775,7 @@ int windows_search_export_record_value_32bit(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -887,7 +896,7 @@ int windows_search_export_record_value_64bit(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -917,7 +926,7 @@ int windows_search_export_record_value_64bit(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1027,7 +1036,7 @@ int windows_search_export_record_value_filetime(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1057,7 +1066,7 @@ int windows_search_export_record_value_filetime(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1225,7 +1234,7 @@ int windows_search_export_record_value_compressed_string(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1256,7 +1265,7 @@ int windows_search_export_record_value_compressed_string(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value of record entry: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1276,7 +1285,7 @@ int windows_search_export_record_value_compressed_string(
 				 LIBERROR_RUNTIME_ERROR_GENERIC,
 				 "%s: unable to export compressed string value of record entry: %d.",
 				 function,
-				 record_value_entry + 1 );
+				 record_value_entry );
 
 				return( -1 );
 			}
@@ -1296,7 +1305,7 @@ int windows_search_export_record_value_compressed_string(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve long value of record entry: %d.",
 			 function,
-			 record_value_entry + 1 );
+			 record_value_entry );
 
 			return( -1 );
 		}
@@ -1316,8 +1325,12 @@ int windows_search_export_record_value_compressed_string(
 			return( -1 );
 		}
 	}
-	else if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	/* TODO handle 0x10 flag */
+	else if( ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	      && ( ( value_flags & 0x10 ) == 0 ) )
 	{
+		/* TODO what about non string multi values ?
+		 */
 		if( libesedb_record_get_multi_value(
 		     record,
 		     record_value_entry,
@@ -1330,7 +1343,7 @@ int windows_search_export_record_value_compressed_string(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve multi value of record entry: %d.",
 			 function,
-			 record_value_entry + 1 );
+			 record_value_entry );
 
 			return( -1 );
 		}
@@ -1368,10 +1381,10 @@ int windows_search_export_record_value_compressed_string(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve mulit value: %d of record entry: %d.",
+				 "%s: unable to retrieve multi value: %d of record entry: %d.",
 				 function,
-				 multi_value_iterator + 1,
-				 record_value_entry + 1 );
+				 multi_value_iterator,
+				 record_value_entry );
 
 				return( -1 );
 			}
@@ -1387,9 +1400,10 @@ int windows_search_export_record_value_compressed_string(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBERROR_RUNTIME_ERROR_GENERIC,
-					 "%s: unable to export compressed string value of record entry: %d.",
+					 "%s: unable to export compressed string of multi value: %d of record entry: %d.",
 					 function,
-					 record_value_entry + 1 );
+					 multi_value_iterator,
+					 record_value_entry );
 
 					return( -1 );
 				}
@@ -1409,8 +1423,9 @@ int windows_search_export_record_value_compressed_string(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free multi value.",
-			 function );
+			 "%s: unable to free multi value: %d.",
+			 function,
+			 multi_value_iterator );
 
 			return( -1 );
 		}
@@ -1486,7 +1501,7 @@ int windows_search_export_record_value_utf16_string(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1517,7 +1532,7 @@ int windows_search_export_record_value_utf16_string(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
-		 record_value_entry + 1 );
+		 record_value_entry );
 
 		return( -1 );
 	}
@@ -1538,7 +1553,7 @@ int windows_search_export_record_value_utf16_string(
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to determine size of value string: %d.",
 				 function,
-				 record_value_entry + 1 );
+				 record_value_entry );
 
 				return( -1 );
 			}
@@ -1570,7 +1585,7 @@ int windows_search_export_record_value_utf16_string(
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve value string: %d.",
 				 function,
-				 record_value_entry + 1 );
+				 record_value_entry );
 
 				memory_free(
 				 value_string );
@@ -1676,7 +1691,7 @@ int windows_search_export_record_systemindex_0a(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -1707,7 +1722,7 @@ int windows_search_export_record_systemindex_0a(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -1723,7 +1738,7 @@ int windows_search_export_record_systemindex_0a(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -2406,7 +2421,7 @@ int windows_search_export_record_systemindex_0a(
 			 LIBERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -2497,7 +2512,7 @@ int windows_search_export_record_systemindex_gthr(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -2528,7 +2543,7 @@ int windows_search_export_record_systemindex_gthr(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -2544,7 +2559,7 @@ int windows_search_export_record_systemindex_gthr(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}
@@ -2628,7 +2643,7 @@ int windows_search_export_record_systemindex_gthr(
 			 LIBERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator + 1 );
+			 value_iterator );
 
 			return( -1 );
 		}

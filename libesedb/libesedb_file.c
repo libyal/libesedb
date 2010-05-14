@@ -529,7 +529,9 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
-	if( internal_file->file_io_handle != 0 )
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->file_io_handle != NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -574,8 +576,6 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
-	internal_file = (libesedb_internal_file_t *) file;
-
 	if( ( flags & LIBESEDB_FLAG_READ ) == LIBESEDB_FLAG_READ )
 	{
 		file_io_flags = LIBBFIO_FLAG_READ;
@@ -793,6 +793,10 @@ int libesedb_file_open_read(
 		 LIBERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read page tree.",
 		 function );
+
+		libesedb_page_tree_free(
+		 &( internal_file->catalog_page_tree ),
+		 NULL );
 
 		return( -1 );
 	}

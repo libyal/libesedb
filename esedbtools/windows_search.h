@@ -1,6 +1,7 @@
 /* 
  * Windows Search database export functions
  *
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
  * Hoffmann Investigations.
  *

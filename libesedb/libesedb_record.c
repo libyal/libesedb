@@ -26,6 +26,7 @@
 #include <types.h>
 
 #include <liberror.h>
+#include <libnotify.h>
 
 #include "libesedb_data_definition.h"
 #include "libesedb_data_type_definition.h"
@@ -2340,7 +2341,7 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != LIBESEDB_VALUE_FLAG_LONG_VALUE )
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -2352,7 +2353,7 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -2392,9 +2393,9 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+	internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 
-	if( libesedb_page_tree_get_data_definition_by_key(
+	if( libesedb_page_tree_get_long_value_data_definition_by_key(
 	     internal_record->internal_table->long_value_page_tree,
 	     data_type_definition->data,
 	     data_type_definition->data_size,
@@ -2408,6 +2409,11 @@ int libesedb_record_get_long_value(
 		 "%s: unable to retrieve long value data definition.",
 		 function );
 
+#if defined( HAVE_DEBUG_OUTPUT )
+		libnotify_print_data(
+		 data_type_definition->data,
+		 data_type_definition->data_size );
+#endif
 		libesedb_long_value_free(
 		 long_value,
 		 NULL );
@@ -2510,7 +2516,7 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != LIBESEDB_VALUE_FLAG_MULTI_VALUE )
+	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -2522,8 +2528,8 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( ( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == LIBESEDB_VALUE_FLAG_LONG_VALUE )
-	 || ( ( data_type_definition->flags & 0x10 ) == 0x10 ) )
+	if( ( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
+	 || ( ( data_type_definition->flags & 0x10 ) != 0 ) )
 	{
 		liberror_error_set(
 		 error,

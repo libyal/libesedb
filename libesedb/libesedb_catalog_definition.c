@@ -402,9 +402,10 @@ int libesedb_catalog_definition_read(
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
 				libnotify_printf(
-				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: ",
+				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
-				 data_type_number++ );
+				 data_type_number++,
+				 value_32bit );
 				libesedb_debug_print_column_group_of_bits(
 				 value_32bit );
 				libnotify_printf(
@@ -413,9 +414,10 @@ int libesedb_catalog_definition_read(
 			else if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
 			{
 				libnotify_printf(
-				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: ",
+				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
-				 data_type_number++ );
+				 data_type_number++,
+				 value_32bit );
 				libesedb_debug_print_index_group_of_bits(
 				 value_32bit );
 				libnotify_printf(

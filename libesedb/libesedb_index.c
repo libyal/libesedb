@@ -320,6 +320,10 @@ int libesedb_index_read_page_tree(
 		 "%s: unable to read index page tree.",
 		 function );
 
+		libesedb_page_tree_free(
+		 &( internal_index->index_page_tree ),
+		 NULL );
+
 		return( -1 );
 	}
 	return( 1 );

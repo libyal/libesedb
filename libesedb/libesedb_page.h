@@ -95,6 +95,14 @@ struct libesedb_page
 	 */
 	uint32_t flags;
 
+	/* The key data
+	 */
+	uint8_t *key;
+
+	/* The key data size
+	 */
+	size_t key_size;
+
 	/* The page data
 	 */
 	uint8_t *data;
@@ -156,6 +164,12 @@ int libesedb_page_get_value(
      libesedb_page_t *page,
      uint16_t value_index,
      libesedb_page_value_t **page_value,
+     liberror_error_t **error );
+
+int libesedb_page_set_key(
+     libesedb_page_t *page,
+     uint8_t *key,
+     size_t key_size,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

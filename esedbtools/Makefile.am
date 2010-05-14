@@ -17,7 +17,6 @@ bin_PROGRAMS = \
 	esedbinfo
 
 esedbexport_SOURCES = \
-	ascii7.c ascii7.h \
 	guid.c guid.h \
 	esedbcommon.h \
 	esedbexport.c \

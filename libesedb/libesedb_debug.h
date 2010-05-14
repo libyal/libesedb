@@ -49,6 +49,9 @@ void libesedb_debug_print_page_value_definition_type(
 void libesedb_debug_print_page_tag_flags(
       uint8_t page_tag_flags );
 
+void libesedb_debug_print_tagged_data_type_flags(
+      uint8_t tagged_data_type_flags );
+
 void libesedb_debug_print_column_group_of_bits(
       uint32_t column_group_of_bits );
 

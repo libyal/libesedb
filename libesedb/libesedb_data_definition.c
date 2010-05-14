@@ -703,6 +703,10 @@ int libesedb_data_definition_read_record(
 							 function,
 							 column_catalog_definition->identifier,
 							 *tagged_data_type_value_data );
+							libesedb_debug_print_tagged_data_type_flags(
+							 *tagged_data_type_value_data );
+							libnotify_printf(
+							 "\n" );
 						}
 #endif
 
@@ -952,6 +956,10 @@ int libesedb_data_definition_read_record(
 								 function,
 								 column_catalog_definition->identifier,
 								 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
+								libesedb_debug_print_tagged_data_type_flags(
+								 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
+								libnotify_printf(
+								 "\n" );
 							}
 #endif
 
@@ -1165,8 +1173,10 @@ int libesedb_data_definition_read_long_value(
 		 "\n" );
 	}
 #endif
-	number_of_data_segments += 1;
-
+	if( number_of_data_segments == 0 )
+	{
+		number_of_data_segments = 1;
+	}
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
 	     (int) number_of_data_segments,
@@ -1196,7 +1206,6 @@ int libesedb_data_definition_read_long_value_segment(
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	static char *function                                 = "libesedb_data_definition_read_long_value_segment";
-	int number_of_data_segments                           = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1239,34 +1248,6 @@ int libesedb_data_definition_read_long_value_segment(
 		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid definition data size value exceeds maximum.",
 		 function );
-
-		return( -1 );
-	}
-	if( libesedb_array_get_number_of_entries(
-	     data_definition->values_array,
-	     &number_of_data_segments,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of entries in values array.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( number_of_data_segments != 0 )
-	 && ( data_segment_number > (uint32_t) number_of_data_segments ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid data segment number: %" PRIu32 " value exceeds number of data segments: %d.",
-		 function,
-		 data_segment_number,
-		 number_of_data_segments );
 
 		return( -1 );
 	}

@@ -140,33 +140,37 @@ int libesedb_table_free(
 
 			return( -1 );
 		}
-		if( ( internal_table->table_page_tree != NULL )
-		 && ( libesedb_page_tree_free(
-		       &( internal_table->table_page_tree ),
-		       error ) != 1 ) )
+		if( internal_table->table_page_tree != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table page tree.",
-			 function );
+			if( libesedb_page_tree_free(
+			     &( internal_table->table_page_tree ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free table page tree.",
+				 function );
 
-			result = -1;
+				result = -1;
+			}
 		}
-		if( ( internal_table->long_value_page_tree != NULL )
-		 && ( libesedb_page_tree_free(
-		       &( internal_table->long_value_page_tree ),
-		       error ) != 1 ) )
+		if( internal_table->long_value_page_tree != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value page tree.",
-			 function );
+			if( libesedb_page_tree_free(
+			     &( internal_table->long_value_page_tree ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long value page tree.",
+				 function );
 
-			result = -1;
+				result = -1;
+			}
 		}
 		memory_free(
 		 internal_table );
@@ -347,6 +351,10 @@ int libesedb_table_read_page_tree(
 			 "%s: unable to read long value page tree.",
 			 function );
 
+			libesedb_page_tree_free(
+			 &( internal_table->long_value_page_tree ),
+			 NULL );
+
 			return( -1 );
 		}
 	}
@@ -378,6 +386,10 @@ int libesedb_table_read_page_tree(
 		 LIBERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read table page tree.",
 		 function );
+
+		libesedb_page_tree_free(
+		 &( internal_table->table_page_tree ),
+		 NULL );
 
 		return( -1 );
 	}
