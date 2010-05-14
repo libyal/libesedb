@@ -137,16 +137,16 @@ int libesedb_multi_value_free(
 	return( 1 );
 }
 
-/* Retrieves the amount of values of the multi value
+/* Retrieves the number of values of the multi value
  * Returns 1 if successful or -1 on error
  */
-int libesedb_multi_value_get_amount_of_values(
+int libesedb_multi_value_get_number_of_values(
      libesedb_multi_value_t *multi_value,
-     int *amount_of_values,
+     int *number_of_values,
      liberror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
-	static char *function                                 = "libesedb_multi_value_get_amount_of_entries";
+	static char *function                                 = "libesedb_multi_value_get_number_of_entries";
 
 	if( multi_value == NULL )
 	{
@@ -161,18 +161,18 @@ int libesedb_multi_value_get_amount_of_values(
 	}
 	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
 
-	if( amount_of_values == NULL )
+	if( number_of_values == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of values.",
+		 "%s: invalid number of values.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_values = (int) internal_multi_value->amount_of_values;
+	*number_of_values = (int) internal_multi_value->number_of_values;
 
 	return( 1 );
 }
@@ -217,7 +217,7 @@ int libesedb_multi_value_get_value(
 		return( -1 );
 	}
 	if( ( value_index < 0 )
-	 || ( value_index >= (int) internal_multi_value->amount_of_values ) )
+	 || ( value_index >= (int) internal_multi_value->number_of_values ) )
 	{
 		liberror_error_set(
 		 error,

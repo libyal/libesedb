@@ -60,14 +60,6 @@ struct libesedb_io_handle
 	/* The page size
 	 */
 	uint32_t page_size;
-
-	/* The file io handle
-	 */
-	libbfio_handle_t *file_io_handle;
-
-	/* Value to indicate if the file io handle was created inside the library
-	 */
-	uint8_t handle_created_in_library;
 };
 
 int libesedb_io_handle_initialize(
@@ -78,18 +70,9 @@ int libesedb_io_handle_free(
      libesedb_io_handle_t **io_handle,
      liberror_error_t **error );
 
-int libesedb_io_handle_open(
-     libesedb_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     int flags,
-     liberror_error_t **error );
-
-int libesedb_io_handle_close(
-     libesedb_io_handle_t *io_handle,
-     liberror_error_t **error );
-
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

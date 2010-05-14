@@ -122,21 +122,6 @@ int libesedb_io_handle_free(
 	}
 	if( *io_handle != NULL )
 	{
-		if( ( ( *io_handle )->handle_created_in_library != 0 )
-		 && ( ( *io_handle )->file_io_handle != NULL )
-		 && ( libbfio_handle_free(
-		       &( ( *io_handle )->file_io_handle ),
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free file io handle.",
-			 function );
-
-			result = -1;
-		}
 		memory_free(
 		 *io_handle );
 
@@ -145,123 +130,12 @@ int libesedb_io_handle_free(
 	return( result );
 }
 
-/* Opens an io handle
- * Returns 1 if successful or -1 on error
- */
-int libesedb_io_handle_open(
-     libesedb_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     int flags,
-     liberror_error_t **error )
-{
-        static char *function = "libesedb_io_handle_open";
-
-        if( io_handle == NULL )
-        {
-                liberror_error_set(
-                 error,
-                 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-                 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-                 "%s: invalid io handle.",
-                 function );
-
-                return( -1 );
-        }
-	if( io_handle->file_io_handle != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid io handle - file io handle already set.",
-		 function );
-
-		return( -1 );
-	}
-        if( file_io_handle == NULL )
-        {
-                liberror_error_set(
-                 error,
-                 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-                 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-                 "%s: invalid file io handle.",
-                 function );
-
-                return( -1 );
-        }
-	io_handle->file_io_handle = file_io_handle;
-
-	if( libbfio_handle_open(
-	     io_handle->file_io_handle,
-	     flags,
-	     error ) != 1 )
-	{
-                liberror_error_set(
-                 error,
-                 LIBERROR_ERROR_DOMAIN_IO,
-                 LIBERROR_IO_ERROR_OPEN_FAILED,
-                 "%s: unable to open file io handle.",
-                 function );
-
-                return( -1 );
-	}
-	return( 1 );
-}
-
-/* Closes an io handle
- * Returns 0 if successful or -1 on error
- */
-int libesedb_io_handle_close(
-     libesedb_io_handle_t *io_handle,
-     liberror_error_t **error )
-{
-        static char *function = "libesedb_io_handle_close";
-
-        if( io_handle == NULL )
-        {
-                liberror_error_set(
-                 error,
-                 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-                 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-                 "%s: invalid io handle.",
-                 function );
-
-                return( -1 );
-        }
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libesedb_debug_print_read_offsets(
-	     io_handle->file_io_handle,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
-		 "%s: unable to print the read offsets.",
-		 function );
-	}
-#endif
-	if( libbfio_handle_close(
-	     io_handle->file_io_handle,
-	     error ) != 0 )
-	{
-                liberror_error_set(
-                 error,
-                 LIBERROR_ERROR_DOMAIN_IO,
-                 LIBERROR_IO_ERROR_CLOSE_FAILED,
-                 "%s: unable to close file io handle.",
-                 function );
-
-                return( -1 );
-	}
-	return( 0 );
-}
-
 /* Reads the file header
  * Returns 1 if successful or -1 on error
  */
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      liberror_error_t **error )
 {
 	uint8_t *file_header_data          = NULL;
@@ -286,17 +160,6 @@ int libesedb_io_handle_read_file_header(
 
 		return( -1 );
 	}
-	if( io_handle->file_io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid io handle - missing file io handle.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -307,7 +170,7 @@ int libesedb_io_handle_read_file_header(
 #endif
 
 	if( libbfio_handle_seek_offset(
-	     io_handle->file_io_handle,
+	     file_io_handle,
 	     0,
 	     SEEK_SET,
 	     error ) == -1 )
@@ -336,7 +199,7 @@ int libesedb_io_handle_read_file_header(
 		return( -1 );
 	}
 	read_count = libbfio_handle_read(
-	              io_handle->file_io_handle,
+	              file_io_handle,
 	              file_header_data,
 	              read_size,
 	              error );

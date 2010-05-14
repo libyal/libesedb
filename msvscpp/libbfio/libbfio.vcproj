@@ -98,6 +98,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libbfio\libbfio_legacy.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libbfio\libbfio_list_type.c"
 				>
 			</File>
@@ -145,6 +149,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libbfio\libbfio_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libbfio\libbfio_legacy.h"
 				>
 			</File>
 			<File

@@ -7,7 +7,7 @@ AM_CPPFLAGS = \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
-	@LIBFWINTYPE_CPPFLAGS@ \
+	@LIBFGUID_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
 
 lib_LTLIBRARIES = libesedb.la
@@ -34,9 +34,10 @@ libesedb_la_SOURCES = \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \
+	libesedb_legacy.c libesedb_legacy.h \
 	libesedb_libbfio.h \
 	libesedb_libfdatetime.h \
-	libesedb_libfwintype.h \
+	libesedb_libfguid.h \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \
 	libesedb_long_value.c libesedb_long_value.h \
@@ -59,12 +60,15 @@ libesedb_la_LIBADD = \
 	@LIBUNA_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
-	@LIBFWINTYPE_LIBADD@
+	@LIBFGUID_LIBADD@
 
 libesedb_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
 EXTRA_DIST = \
 	libesedb_definitions.h.in
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 distclean: clean
 	/bin/rm -f Makefile

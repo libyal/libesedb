@@ -101,7 +101,7 @@ int libesedb_tree_node_free(
 {
 	libesedb_tree_node_t *tree_node = NULL;
 	static char *function           = "libesedb_tree_node_free";
-	int amount_of_child_nodes       = 0;
+	int number_of_child_nodes       = 0;
 	int iterator                    = 0;
 	int result                      = 1;
 
@@ -131,10 +131,10 @@ int libesedb_tree_node_free(
 
 			return( -1 );
 		}
-		amount_of_child_nodes = ( *node )->amount_of_child_nodes;
+		number_of_child_nodes = ( *node )->number_of_child_nodes;
 
 		for( iterator = 0;
-		     iterator < amount_of_child_nodes;
+		     iterator < number_of_child_nodes;
 		     iterator++ )
 		{
 			tree_node = ( *node )->first_child;
@@ -156,7 +156,7 @@ int libesedb_tree_node_free(
 			{
 				( *node )->last_child = tree_node->next;
 			}
-			( *node )->amount_of_child_nodes -= 1;
+			( *node )->number_of_child_nodes -= 1;
 
 			if( tree_node->next != NULL )
 			{
@@ -302,7 +302,7 @@ int libesedb_tree_node_clone(
 		source_child_node = source_tree_node->first_child;
 
 		for( iterator = 0;
-		     iterator < source_tree_node->amount_of_child_nodes;
+		     iterator < source_tree_node->number_of_child_nodes;
 		     iterator++ )
 		{
 			if( source_child_node == NULL )
@@ -465,7 +465,7 @@ int libesedb_tree_node_append_node(
 	}
 	node->parent = parent_node;
 
-	if( parent_node->amount_of_child_nodes == 0 )
+	if( parent_node->number_of_child_nodes == 0 )
 	{
 		if( parent_node->first_child != NULL )
 		{
@@ -520,7 +520,7 @@ int libesedb_tree_node_append_node(
 		parent_node->last_child->next = node;
 		parent_node->last_child       = node;
 	}
-	parent_node->amount_of_child_nodes += 1;
+	parent_node->number_of_child_nodes += 1;
 
 	return( 1 );
 }
@@ -667,7 +667,7 @@ int libesedb_tree_node_insert_node(
 	}
 	node->parent = parent_node;
 
-	if( parent_node->amount_of_child_nodes == 0 )
+	if( parent_node->number_of_child_nodes == 0 )
 	{
 		if( parent_node->first_child != NULL )
 		{
@@ -721,7 +721,7 @@ int libesedb_tree_node_insert_node(
 		child_node = parent_node->first_child;
 
 		for( iterator = 0;
-		     iterator < parent_node->amount_of_child_nodes;
+		     iterator < parent_node->number_of_child_nodes;
 		     iterator++ )
 		{
 			result = value_compare_function(
@@ -783,7 +783,7 @@ int libesedb_tree_node_insert_node(
 			parent_node->last_child       = node;
 		}
 	}
-	parent_node->amount_of_child_nodes += 1;
+	parent_node->number_of_child_nodes += 1;
 
 	return( 1 );
 }
@@ -916,13 +916,13 @@ int libesedb_tree_node_remove_node(
 
 		return( -1 );
 	}
-	if( parent_node->amount_of_child_nodes == 0 )
+	if( parent_node->number_of_child_nodes == 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: corruption detected - invalid amount of child nodes.",
+		 "%s: corruption detected - invalid number of child nodes.",
 		 function );
 
 		return( -1 );
@@ -969,7 +969,7 @@ int libesedb_tree_node_remove_node(
 	node->previous = NULL;
 	node->next     = NULL;
 
-	parent_node->amount_of_child_nodes -= 1;
+	parent_node->number_of_child_nodes -= 1;
 
 	return( 1 );
 }
@@ -1046,12 +1046,12 @@ int libesedb_tree_node_get_leaf_node_list(
 	}
 	/* Traverse the child nodes
 	 */
-	if( node->amount_of_child_nodes > 0 )
+	if( node->number_of_child_nodes > 0 )
 	{
 		child_node = node->first_child;
 
 		for( iterator = 0;
-		     iterator < node->amount_of_child_nodes;
+		     iterator < node->number_of_child_nodes;
 		     iterator++ )
 		{
 			if( child_node == NULL )
@@ -1112,15 +1112,15 @@ int libesedb_tree_node_get_leaf_node_list(
 	return( 1 );
 }
 
-/* Retrieves the amount of child nodes in the tree node
+/* Retrieves the number of child nodes in the tree node
  * Returns 1 if successful or -1 on error
  */
-int libesedb_tree_node_get_amount_of_child_nodes(
+int libesedb_tree_node_get_number_of_child_nodes(
      libesedb_tree_node_t *node,
-     int *amount_of_child_nodes,
+     int *number_of_child_nodes,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_tree_node_get_amount_of_child_nodes";
+	static char *function = "libesedb_tree_node_get_number_of_child_nodes";
 
 	if( node == NULL )
 	{
@@ -1133,18 +1133,18 @@ int libesedb_tree_node_get_amount_of_child_nodes(
 
 		return( -1 );
 	}
-	if( amount_of_child_nodes == NULL )
+	if( number_of_child_nodes == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of child nodes.",
+		 "%s: invalid number of child nodes.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_child_nodes = node->amount_of_child_nodes;
+	*number_of_child_nodes = node->number_of_child_nodes;
 
 	return( 1 );
 }
@@ -1174,7 +1174,7 @@ int libesedb_tree_node_get_child_node(
 		return( -1 );
 	}
 	if( ( child_node_index < 0 )
-	 || ( child_node_index >= node->amount_of_child_nodes ) )
+	 || ( child_node_index >= node->number_of_child_nodes ) )
 	{
 		liberror_error_set(
 		 error,
@@ -1199,12 +1199,12 @@ int libesedb_tree_node_get_child_node(
 	/* Check if the child nodes should be searched front to back
 	 * or back to front
 	 */
-	if( child_node_index < ( node->amount_of_child_nodes / 2 ) )
+	if( child_node_index < ( node->number_of_child_nodes / 2 ) )
 	{
 		*child_node = node->first_child;
 
 		for( iterator = 0;
-		     iterator < node->amount_of_child_nodes;
+		     iterator < node->number_of_child_nodes;
 		     iterator++ )
 		{
 			if( *child_node == NULL )
@@ -1232,7 +1232,7 @@ int libesedb_tree_node_get_child_node(
 	{
 		*child_node = node->last_child;
 
-		for( iterator = ( node->amount_of_child_nodes - 1 );
+		for( iterator = ( node->number_of_child_nodes - 1 );
 		     iterator >= 0;
 		     iterator-- )
 		{

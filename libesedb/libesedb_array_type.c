@@ -34,7 +34,7 @@
  */
 int libesedb_array_initialize(
      libesedb_array_t **array,
-     int amount_of_entries,
+     int number_of_entries,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_array_initialize";
@@ -86,9 +86,9 @@ int libesedb_array_initialize(
 
 			return( -1 );
 		}
-		if( amount_of_entries > 0 )
+		if( number_of_entries > 0 )
 		{
-			entries_size = sizeof( intptr_t * ) * amount_of_entries;
+			entries_size = sizeof( intptr_t * ) * number_of_entries;
 
 			if( entries_size > (size_t) SSIZE_MAX )
 			{
@@ -141,7 +141,7 @@ int libesedb_array_initialize(
 
 				return( -1 );
 			}
-			( *array )->amount_of_entries = amount_of_entries;
+			( *array )->number_of_entries = number_of_entries;
 		}
 	}
 	return( 1 );
@@ -178,7 +178,7 @@ int libesedb_array_free(
 		if( ( *array )->entry != NULL )
 		{
 			for( entry_iterator = 0;
-			     entry_iterator < ( *array )->amount_of_entries;
+			     entry_iterator < ( *array )->number_of_entries;
 			     entry_iterator++ )
 			{
 				if( ( *array )->entry[ entry_iterator ] != NULL )
@@ -216,7 +216,7 @@ int libesedb_array_free(
  */
 int libesedb_array_resize(
      libesedb_array_t *array,
-     int amount_of_entries,
+     int number_of_entries,
      liberror_error_t **error )
 {
 	void *reallocation    = NULL;
@@ -234,20 +234,20 @@ int libesedb_array_resize(
 
 		return( -1 );
 	}
-	if( amount_of_entries == 0 )
+	if( number_of_entries == 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of entries.",
+		 "%s: invalid number of entries.",
 		 function );
 
 		return( -1 );
 	}
-	if( amount_of_entries > array->amount_of_entries )
+	if( number_of_entries > array->number_of_entries )
 	{
-		entries_size = sizeof( intptr_t * ) * amount_of_entries;
+		entries_size = sizeof( intptr_t * ) * number_of_entries;
 
 		if( entries_size > (size_t) SSIZE_MAX )
 		{
@@ -278,9 +278,9 @@ int libesedb_array_resize(
 		array->entry = (intptr_t **) reallocation;
 
 		if( memory_set(
-		     &( array->entry[ array->amount_of_entries ] ),
+		     &( array->entry[ array->number_of_entries ] ),
 		     0,
-		     sizeof( intptr_t ) * ( amount_of_entries - array->amount_of_entries ) ) == NULL )
+		     sizeof( intptr_t ) * ( number_of_entries - array->number_of_entries ) ) == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -291,20 +291,20 @@ int libesedb_array_resize(
 
 			return( -1 );
 		}
-		array->amount_of_entries = amount_of_entries;
+		array->number_of_entries = number_of_entries;
 	}
 	return( 1 );
 }
 
-/* Retrieves the amount of entries in the array
+/* Retrieves the number of entries in the array
  * Returns 1 if successful or -1 on error
  */
-int libesedb_array_get_amount_of_entries(
+int libesedb_array_get_number_of_entries(
      libesedb_array_t *array,
-     int *amount_of_entries,
+     int *number_of_entries,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_array_get_amount_of_entries";
+	static char *function = "libesedb_array_get_number_of_entries";
 
 	if( array == NULL )
 	{
@@ -317,18 +317,18 @@ int libesedb_array_get_amount_of_entries(
 
 		return( -1 );
 	}
-	if( amount_of_entries == NULL )
+	if( number_of_entries == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of entries.",
+		 "%s: invalid number of entries.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_entries = array->amount_of_entries;
+	*number_of_entries = array->number_of_entries;
 
 	return( 1 );
 }
@@ -356,7 +356,7 @@ int libesedb_array_get_entry(
 		return( -1 );
 	}
 	if( ( entry_index < 0 )
-	 || ( entry_index >= array->amount_of_entries ) )
+	 || ( entry_index >= array->number_of_entries ) )
 	{
 		liberror_error_set(
 		 error,
@@ -406,7 +406,7 @@ int libesedb_array_set_entry(
 		return( -1 );
 	}
 	if( ( entry_index < 0 )
-	 || ( entry_index >= array->amount_of_entries ) )
+	 || ( entry_index >= array->number_of_entries ) )
 	{
 		liberror_error_set(
 		 error,
@@ -456,11 +456,11 @@ int libesedb_array_append_entry(
 
 		return( -1 );
 	}
-	*entry_index = array->amount_of_entries;
+	*entry_index = array->number_of_entries;
 
 	if( libesedb_array_resize(
 	     array,
-	     array->amount_of_entries + 1,
+	     array->number_of_entries + 1,
 	     error ) != 1 )
 	{
 		liberror_error_set(

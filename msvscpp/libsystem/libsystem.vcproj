@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="libsystem"
 	ProjectGUID="{A2B861D5-6751-43A9-B085-8D48F8754AC5}"
 	RootNamespace="libsystem"
@@ -91,7 +91,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error.c"
+				RelativePath="..\..\libsystem\libsystem_error_string.c"
 				>
 			</File>
 			<File
@@ -149,7 +149,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error.h"
+				RelativePath="..\..\libsystem\libsystem_error_string.h"
 				>
 			</File>
 			<File

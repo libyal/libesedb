@@ -37,9 +37,9 @@ typedef struct libesedb_array libesedb_array_t;
 
 struct libesedb_array
 {
-	/* The amount of entries
+	/* The number of entries
 	 */
-	int amount_of_entries;
+	int number_of_entries;
 
 	/* The entries
 	 */
@@ -48,7 +48,7 @@ struct libesedb_array
 
 int libesedb_array_initialize(
      libesedb_array_t **array,
-     int amount_of_entries,
+     int number_of_entries,
      liberror_error_t **error );
 
 int libesedb_array_free(
@@ -60,12 +60,12 @@ int libesedb_array_free(
 
 int libesedb_array_resize(
      libesedb_array_t *array,
-     int amount_of_entries,
+     int number_of_entries,
      liberror_error_t **error );
 
-int libesedb_array_get_amount_of_entries(
+int libesedb_array_get_number_of_entries(
      libesedb_array_t *array,
-     int *amount_of_entries,
+     int *number_of_entries,
      liberror_error_t **error );
 
 int libesedb_array_get_entry(

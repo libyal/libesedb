@@ -35,10 +35,10 @@ typedef struct esedb_father_data_page_header esedb_father_data_page_header_t;
 
 struct esedb_father_data_page_header
 {
-	/* The initial amount of pages
+	/* The initial number of pages
 	 * Consists of 4 bytes
 	 */
-	uint8_t initial_amount_of_pages[ 4 ];
+	uint8_t initial_number_of_pages[ 4 ];
 
 	/* The parent father page (FDP) number
 	 * Consists of 4 bytes
@@ -74,7 +74,7 @@ struct esedb_space_tree_page_entry
 	/* Amount of pages
 	 * Consists of 4 bytes
 	 */
-	uint8_t amount_of_pages[ 4 ];
+	uint8_t number_of_pages[ 4 ];
 };
 
 typedef struct esedb_data_definition_header esedb_data_definition_header_t;
@@ -150,10 +150,10 @@ struct esedb_data_definition
 	 */
 	union
 	{
-		/* The (initial) amount of pages
+		/* The (initial) number of pages
 		 * Consists of 4 bytes
 		 */
-		uint8_t amount_of_pages[ 4 ];
+		uint8_t number_of_pages[ 4 ];
 
 		/* The codepage
 		 * Consists of 4 bytes

@@ -148,9 +148,9 @@ int libesedb_catalog_definition_read(
 	uint16_t previous_variable_size_data_type_size      = 0;
 	uint16_t variable_size_data_type_size               = 0;
 	uint16_t variable_size_data_types_offset            = 0;
-	uint8_t amount_of_variable_size_data_types          = 0;
 	uint8_t last_fixed_size_data_type                   = 0;
 	uint8_t last_variable_size_data_type                = 0;
+	uint8_t number_of_variable_size_data_types          = 0;
 	uint8_t variable_size_data_type_iterator            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -258,7 +258,7 @@ int libesedb_catalog_definition_read(
 	}
 	if( last_variable_size_data_type > 127 )
 	{
-		amount_of_variable_size_data_types = last_variable_size_data_type - 127;
+		number_of_variable_size_data_types = last_variable_size_data_type - 127;
 	}
 	calculated_variable_size_data_types_offset += sizeof( esedb_data_definition_header_t );
 
@@ -275,7 +275,7 @@ int libesedb_catalog_definition_read(
 		case 8:
 			if( last_variable_size_data_type > 127 )
 			{
-				calculated_variable_size_data_types_offset += 1 * amount_of_variable_size_data_types;
+				calculated_variable_size_data_types_offset += 1 * number_of_variable_size_data_types;
 			}
 		case 7:
 			calculated_variable_size_data_types_offset += 4;
@@ -471,11 +471,11 @@ int libesedb_catalog_definition_read(
 			else
 			{
 				byte_stream_copy_to_uint32_little_endian(
-				 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->amount_of_pages,
+				 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->number_of_pages,
 				 value_32bit );
 
 				libnotify_printf(
-				 "%s: (%03" PRIu16 ") amount of pages\t\t\t\t\t: %" PRIu32 "\n",
+				 "%s: (%03" PRIu16 ") number of pages\t\t\t\t\t: %" PRIu32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
@@ -543,15 +543,15 @@ int libesedb_catalog_definition_read(
 	}
 #endif
 
-	if( amount_of_variable_size_data_types > 0 )
+	if( number_of_variable_size_data_types > 0 )
 	{
 		variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
-		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
+		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ number_of_variable_size_data_types * 2 ] );
 
 		data_type_number = 128;
 
 		for( variable_size_data_type_iterator = 0;
-		     variable_size_data_type_iterator < amount_of_variable_size_data_types;
+		     variable_size_data_type_iterator < number_of_variable_size_data_types;
 		     variable_size_data_type_iterator++ )
 		{
 			byte_stream_copy_to_uint16_little_endian(

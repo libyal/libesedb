@@ -3,7 +3,7 @@ EXTRA_DIST = \
 	libcstring/libcstring.vcproj \
 	liberror/liberror.vcproj \
 	libfdatetime/libfdatetime.vcproj \
-	libfwintype/libfwintype.vcproj \
+	libfguid/libfguid.vcproj \
 	libnotify/libnotify.vcproj \
 	libesedb_dll/libesedb_dll.vcproj \
 	libsystem/libsystem.vcproj \
@@ -11,6 +11,9 @@ EXTRA_DIST = \
 	esedbexport/esedbexport.vcproj \
 	esedbinfo/esedbinfo.vcproj \
 	libesedb.sln
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 distclean: clean
 	/bin/rm -f Makefile

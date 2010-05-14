@@ -34,6 +34,7 @@
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_debug.h"
+#include "libesedb_libbfio.h"
 #include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
@@ -269,7 +270,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 	list_element = page_tree->table_definition_list->first;
 
 	for( list_element_iterator = 0;
-	     list_element_iterator < page_tree->table_definition_list->amount_of_elements;
+	     list_element_iterator < page_tree->table_definition_list->number_of_elements;
 	     list_element_iterator++ )
 	{
 		if( list_element == NULL )
@@ -327,6 +328,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint32_t father_data_page_number,
      uint8_t flags,
      liberror_error_t **error )
@@ -382,7 +384,7 @@ int libesedb_page_tree_read(
 	if( libesedb_page_read(
 	     page,
 	     io_handle,
-	     io_handle->file_io_handle,
+	     file_io_handle,
 	     father_data_page_number,
 	     error ) != 1 )
 	{
@@ -444,6 +446,7 @@ int libesedb_page_tree_read(
 		     page,
 		     page_tree->value_definition_root_node,
 		     io_handle,
+		     file_io_handle,
 		     flags,
 		     error ) != 1 )
 		{
@@ -485,6 +488,7 @@ int libesedb_page_tree_read_father_data_page_values(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -497,7 +501,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	uint32_t supported_flags          = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t initial_amount_of_pages  = 0;
+	uint32_t initial_number_of_pages  = 0;
 	uint32_t test                     = 0;
 #endif
 
@@ -628,12 +632,12 @@ int libesedb_page_tree_read_father_data_page_values(
 	if( libnotify_verbose != 0 )
 	{
 		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_father_data_page_header_t *) page_value->data )->initial_amount_of_pages,
-		 initial_amount_of_pages );
+		 ( (esedb_father_data_page_header_t *) page_value->data )->initial_number_of_pages,
+		 initial_number_of_pages );
 		libnotify_printf(
-		 "%s: header initial amount of pages\t: %" PRIu32 "\n",
+		 "%s: header initial number of pages\t: %" PRIu32 "\n",
 		 function,
-		 initial_amount_of_pages );
+		 initial_number_of_pages );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_father_data_page_header_t *) page_value->data )->parent_father_data_page_number,
@@ -660,7 +664,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		libnotify_printf(
 		 "%s: header primary extent\t\t: %" PRIu32 "-%c\n",
 		 function,
-		 initial_amount_of_pages,
+		 initial_number_of_pages,
 		 ( extent_space == 0 ? 's' : 'm' ) );
 
 		libnotify_printf(
@@ -707,7 +711,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		if( libesedb_page_read(
 		     space_tree_page,
 		     io_handle,
-		     io_handle->file_io_handle,
+		     file_io_handle,
 		     space_tree_page_number,
 		     error ) != 1 )
 		{
@@ -794,7 +798,7 @@ int libesedb_page_tree_read_father_data_page_values(
 		if( libesedb_page_read(
 		     space_tree_page,
 		     io_handle,
-		     io_handle->file_io_handle,
+		     file_io_handle,
 		     space_tree_page_number,
 		     error ) != 1 )
 		{
@@ -868,6 +872,7 @@ int libesedb_page_tree_read_father_data_page_values(
 	     page,
 	     parent_tree_node,
 	     io_handle,
+	     file_io_handle,
 	     flags,
 	     error ) != 1 )
 	{
@@ -891,6 +896,7 @@ int libesedb_page_tree_read_parent_page_values(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -1035,6 +1041,7 @@ int libesedb_page_tree_read_parent_page_values(
 	     page,
 	     parent_tree_node,
 	     io_handle,
+	     file_io_handle,
 	     flags,
 	     error ) != 1 )
 	{
@@ -1058,6 +1065,7 @@ int libesedb_page_tree_read_child_pages(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -1068,7 +1076,7 @@ int libesedb_page_tree_read_child_pages(
 	uint32_t child_page_number               = 0;
 	uint32_t previous_child_page_number      = 0;
 	uint32_t previous_next_child_page_number = 0;
-	uint16_t amount_of_page_values           = 0;
+	uint16_t number_of_page_values           = 0;
 	uint16_t key_size                        = 0;
 	uint16_t key_type                        = 0;
 	uint16_t page_value_iterator             = 0;
@@ -1107,16 +1115,16 @@ int libesedb_page_tree_read_child_pages(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_amount_of_values(
+	if( libesedb_page_get_number_of_values(
 	     page,
-	     &amount_of_page_values,
+	     &number_of_page_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of page values.",
+		 "%s: unable to retrieve number of page values.",
 		 function );
 
 		return( -1 );
@@ -1124,7 +1132,7 @@ int libesedb_page_tree_read_child_pages(
 	/* Read the page values
 	 */
 	for( page_value_iterator = 1;
-	     page_value_iterator < amount_of_page_values;
+	     page_value_iterator < number_of_page_values;
 	     page_value_iterator++ )
 	{
 		if( libesedb_page_get_value(
@@ -1290,7 +1298,7 @@ int libesedb_page_tree_read_child_pages(
 		if( libesedb_page_read(
 		     child_page,
 		     io_handle,
-		     io_handle->file_io_handle,
+		     file_io_handle,
 		     child_page_number,
 		     error ) != 1 )
 		{
@@ -1360,7 +1368,7 @@ int libesedb_page_tree_read_child_pages(
 						 child_page->previous_page_number );
 					}
 				}
-				if( page_value_iterator == ( amount_of_page_values - 1 ) )
+				if( page_value_iterator == ( number_of_page_values - 1 ) )
 				{
 					if( child_page->next_page_number != 0 )
 					{
@@ -1405,6 +1413,7 @@ int libesedb_page_tree_read_child_pages(
 			     child_page,
 			     parent_tree_node,
 			     io_handle,
+			     file_io_handle,
 			     flags,
 			     error ) != 1 )
 			{
@@ -1459,13 +1468,13 @@ int libesedb_page_tree_read_space_tree_page_values(
 	static char *function             = "libesedb_page_tree_read_space_tree_page_values";
 	uint32_t required_flags           = 0;
 	uint32_t supported_flags          = 0;
-	uint16_t amount_of_page_values    = 0;
+	uint16_t number_of_page_values    = 0;
 	uint16_t key_size                 = 0;
 	uint16_t page_value_iterator      = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t test                     = 0;
-	uint32_t total_amount_of_pages    = 0;
+	uint32_t total_number_of_pages    = 0;
 #endif
 
 	if( page_tree == NULL )
@@ -1539,16 +1548,16 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_amount_of_values(
+	if( libesedb_page_get_number_of_values(
 	     page,
-	     &amount_of_page_values,
+	     &number_of_page_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of page values.",
+		 "%s: unable to retrieve number of page values.",
 		 function );
 
 		return( -1 );
@@ -1638,7 +1647,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 	/* TODO handle the space tree page header */
 
 	for( page_value_iterator = 1;
-	     page_value_iterator < amount_of_page_values;
+	     page_value_iterator < number_of_page_values;
 	     page_value_iterator++ )
 	{
 		if( libesedb_page_get_value(
@@ -1721,10 +1730,10 @@ int libesedb_page_tree_read_space_tree_page_values(
 				 test );
 
 				byte_stream_copy_to_uint32_little_endian(
-				 ( (esedb_space_tree_page_entry_t *) page_value->data )->amount_of_pages,
+				 ( (esedb_space_tree_page_entry_t *) page_value->data )->number_of_pages,
 				 test );
 				libnotify_printf(
-				 "%s: value: %03d amount of pages\t: %" PRIu32 "\n",
+				 "%s: value: %03d number of pages\t: %" PRIu32 "\n",
 				 function,
 				 page_value_iterator,
 				 test );
@@ -1734,7 +1743,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
 				{
-					total_amount_of_pages += test;
+					total_number_of_pages += test;
 				}
 			}
 #endif
@@ -1769,7 +1778,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 			if( libesedb_page_read(
 			     space_tree_page,
 			     io_handle,
-			     io_handle->file_io_handle,
+			     file_io_handle,
 			     space_tree_page_number,
 			     error ) != 1 )
 			{
@@ -1843,9 +1852,9 @@ int libesedb_page_tree_read_space_tree_page_values(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: total amount of pages\t\t: %" PRIu32 "\n",
+		 "%s: total number of pages\t\t: %" PRIu32 "\n",
 		 function,
-		 total_amount_of_pages );
+		 total_number_of_pages );
 
 		libnotify_printf(
 		 "\n" );
@@ -1876,7 +1885,7 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint32_t long_value_data_segment_number                = 0;
 	uint32_t required_flags                                = 0;
 	uint32_t supported_flags                               = 0;
-	uint16_t amount_of_page_values                         = 0;
+	uint16_t number_of_page_values                         = 0;
 	uint16_t key_size                                      = 0;
 	uint16_t key_type                                      = 0;
 	uint16_t page_value_iterator                           = 0;
@@ -1961,16 +1970,16 @@ int libesedb_page_tree_read_leaf_page_values(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_amount_of_values(
+	if( libesedb_page_get_number_of_values(
 	     page,
-	     &amount_of_page_values,
+	     &number_of_page_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of page values.",
+		 "%s: unable to retrieve number of page values.",
 		 function );
 
 		return( -1 );
@@ -2040,7 +2049,7 @@ int libesedb_page_tree_read_leaf_page_values(
 	/* TODO handle the leaf page header */
 
 	for( page_value_iterator = 1;
-	     page_value_iterator < amount_of_page_values;
+	     page_value_iterator < number_of_page_values;
 	     page_value_iterator++ )
 	{
 		if( libesedb_page_get_value(
@@ -2821,7 +2830,7 @@ int libesedb_page_tree_get_data_definition_by_key(
 	list_element = page_tree->value_definition_list->first;
 
 	for( list_element_iterator = 0;
-	     list_element_iterator < page_tree->value_definition_list->amount_of_elements;
+	     list_element_iterator < page_tree->value_definition_list->number_of_elements;
 	     list_element_iterator++ )
 	{
 		if( list_element == NULL )

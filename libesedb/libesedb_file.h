@@ -34,6 +34,14 @@
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 
+#if defined( _MSC_VER ) || defined( __BORLANDC__ )
+
+/* This inclusion is needed otherwise some linkers
+ * mess up exporting the legacy functions
+ */
+#include "libesedb_legacy.h"
+#endif
+
 #if defined( __cplusplus )
 extern "C" {
 #endif
@@ -49,6 +57,14 @@ struct libesedb_internal_file
 	/* The io handle
 	 */
 	libesedb_io_handle_t *io_handle;
+
+	/* The file io handle
+	 */
+	libbfio_handle_t *file_io_handle;
+
+	/* Value to indicate if the file io handle was created inside the library
+	 */
+	uint8_t file_io_handle_created_in_library;
 
 	/* The codepage of the extended ASCII strings
 	 */
@@ -126,9 +142,9 @@ LIBESEDB_EXTERN int libesedb_file_get_page_size(
                      uint32_t *page_size,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
+LIBESEDB_EXTERN int libesedb_file_get_number_of_tables(
                      libesedb_file_t *file,
-                     int *amount_of_tables,
+                     int *number_of_tables,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_file_get_table(

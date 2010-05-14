@@ -277,13 +277,13 @@ int libesedb_data_definition_read_record(
 	uint16_t tagged_data_type_size                           = 0;
 	uint16_t variable_size_data_type_size                    = 0;
 	uint16_t variable_size_data_types_offset                 = 0;
-	uint8_t amount_of_variable_size_data_types               = 0;
 	uint8_t current_variable_size_data_type                  = 0;
 	uint8_t last_fixed_size_data_type                        = 0;
 	uint8_t last_variable_size_data_type                     = 0;
+	uint8_t number_of_variable_size_data_types               = 0;
 	uint8_t tagged_data_types_format                         = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
-	int amount_of_column_catalog_definitions                 = 0;
 	int column_catalog_definition_iterator                   = 0;
+	int number_of_column_catalog_definitions                 = 0;
 
 	if( data_definition == NULL )
 	{
@@ -394,23 +394,23 @@ int libesedb_data_definition_read_record(
 	}
 #endif
 
-	if( libesedb_list_get_amount_of_elements(
+	if( libesedb_list_get_number_of_elements(
 	     column_catalog_definition_list,
-	     &amount_of_column_catalog_definitions,
+	     &number_of_column_catalog_definitions,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of column catalog definitions.",
+		 "%s: unable to retrieve number of column catalog definitions.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
-	     amount_of_column_catalog_definitions,
+	     number_of_column_catalog_definitions,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -424,16 +424,16 @@ int libesedb_data_definition_read_record(
 	}
 	if( last_variable_size_data_type > 127 )
 	{
-		amount_of_variable_size_data_types = last_variable_size_data_type - 127;
+		number_of_variable_size_data_types = last_variable_size_data_type - 127;
 	}
 	list_element                       = column_catalog_definition_list->first;
 	fixed_size_data_type_value_data    = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
 	current_variable_size_data_type    = 127;
 	variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
-	variable_size_data_type_value_data = &( variable_size_data_type_size_data[ amount_of_variable_size_data_types * 2 ] );
+	variable_size_data_type_value_data = &( variable_size_data_type_size_data[ number_of_variable_size_data_types * 2 ] );
 
 	for( column_catalog_definition_iterator = 0;
-	     column_catalog_definition_iterator < amount_of_column_catalog_definitions;
+	     column_catalog_definition_iterator < number_of_column_catalog_definitions;
 	     column_catalog_definition_iterator++ )
 	{
 		if( list_element == NULL )
@@ -1080,7 +1080,7 @@ int libesedb_data_definition_read_long_value(
      liberror_error_t **error )
 {
 	static char *function            = "libesedb_data_definition_read_long_value";
-	uint32_t amount_of_data_segments = 0;
+	uint32_t number_of_data_segments = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1140,7 +1140,7 @@ int libesedb_data_definition_read_long_value(
 	}
 	byte_stream_copy_to_uint16_little_endian(
 	 definition_data,
-	 amount_of_data_segments );
+	 number_of_data_segments );
 
 	definition_data += 4;
 
@@ -1156,20 +1156,20 @@ int libesedb_data_definition_read_long_value(
 		libnotify_printf(
 		 "%s: long value last data segment\t\t\t: %" PRIu32 "\n",
 		 function,
-		 amount_of_data_segments );
+		 number_of_data_segments );
 		libnotify_printf(
-		 "%s: long value amount total data size\t\t: %" PRIu32 "\n",
+		 "%s: long value number total data size\t\t: %" PRIu32 "\n",
 		 function,
 		 data_definition->size );
 		libnotify_printf(
 		 "\n" );
 	}
 #endif
-	amount_of_data_segments += 1;
+	number_of_data_segments += 1;
 
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
-	     (int) amount_of_data_segments,
+	     (int) number_of_data_segments,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1196,7 +1196,7 @@ int libesedb_data_definition_read_long_value_segment(
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	static char *function                                 = "libesedb_data_definition_read_long_value_segment";
-	int amount_of_data_segments                           = 0;
+	int number_of_data_segments                           = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1242,31 +1242,31 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_amount_of_entries(
+	if( libesedb_array_get_number_of_entries(
 	     data_definition->values_array,
-	     &amount_of_data_segments,
+	     &number_of_data_segments,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of entries in values array.",
+		 "%s: unable to retrieve number of entries in values array.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( amount_of_data_segments != 0 )
-	 && ( data_segment_number > (uint32_t) amount_of_data_segments ) )
+	if( ( number_of_data_segments != 0 )
+	 && ( data_segment_number > (uint32_t) number_of_data_segments ) )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid data segment number: %" PRIu32 " value exceeds amount of data segments: %d.",
+		 "%s: invalid data segment number: %" PRIu32 " value exceeds number of data segments: %d.",
 		 function,
 		 data_segment_number,
-		 amount_of_data_segments );
+		 number_of_data_segments );
 
 		return( -1 );
 	}

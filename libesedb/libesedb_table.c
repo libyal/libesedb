@@ -335,6 +335,7 @@ int libesedb_table_read_page_tree(
 		if( libesedb_page_tree_read(
 		     internal_table->long_value_page_tree,
 		     internal_table->internal_file->io_handle,
+		     internal_table->internal_file->file_io_handle,
 		     internal_table->table_definition->long_value_catalog_definition->father_data_page_number,
 		     0,
 		     error ) != 1 )
@@ -366,6 +367,7 @@ int libesedb_table_read_page_tree(
 	if( libesedb_page_tree_read(
 	     internal_table->table_page_tree,
 	     internal_table->internal_file->io_handle,
+	     internal_table->internal_file->file_io_handle,
 	     internal_table->table_definition->table_catalog_definition->father_data_page_number,
 	     0,
 	     error ) != 1 )
@@ -606,16 +608,16 @@ int libesedb_table_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the amount of columns in the table
+/* Retrieves the number of columns in the table
  * Returns 1 if successful or -1 on error
  */
-int libesedb_table_get_amount_of_columns(
+int libesedb_table_get_number_of_columns(
      libesedb_table_t *table,
-     int *amount_of_columns,
+     int *number_of_columns,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_amount_of_columns";
+	static char *function                     = "libesedb_table_get_number_of_columns";
 
 	if( table == NULL )
 	{
@@ -652,16 +654,16 @@ int libesedb_table_get_amount_of_columns(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_amount_of_elements(
+	if( libesedb_list_get_number_of_elements(
 	     internal_table->table_definition->column_catalog_definition_list,
-	     amount_of_columns,
+	     number_of_columns,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of columns.",
+		 "%s: unable to retrieve number of columns.",
 		 function );
 
 		return( -1 );
@@ -778,16 +780,16 @@ int libesedb_table_get_column(
 	return( 1 );
 }
 
-/* Retrieves the amount of indexes
+/* Retrieves the number of indexes
  * Returns 1 if successful or -1 on error
  */
-int libesedb_table_get_amount_of_indexes(
+int libesedb_table_get_number_of_indexes(
      libesedb_table_t *table,
-     int *amount_of_indexes,
+     int *number_of_indexes,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_amount_of_indexes";
+	static char *function                     = "libesedb_table_get_number_of_indexes";
 
 	if( table == NULL )
 	{
@@ -813,16 +815,16 @@ int libesedb_table_get_amount_of_indexes(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_amount_of_elements(
+	if( libesedb_list_get_number_of_elements(
 	     internal_table->table_definition->index_catalog_definition_list,
-	     amount_of_indexes,
+	     number_of_indexes,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of indexes.",
+		 "%s: unable to retrieve number of indexes.",
 		 function );
 
 		return( -1 );
@@ -940,16 +942,16 @@ int libesedb_table_get_index(
 	return( 1 );
 }
 
-/* Retrieves the amount of records in the table
+/* Retrieves the number of records in the table
  * Returns 1 if successful or -1 on error
  */
-int libesedb_table_get_amount_of_records(
+int libesedb_table_get_number_of_records(
      libesedb_table_t *table,
-     int *amount_of_records,
+     int *number_of_records,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_amount_of_records";
+	static char *function                     = "libesedb_table_get_number_of_records";
 
 	if( table == NULL )
 	{
@@ -991,16 +993,16 @@ int libesedb_table_get_amount_of_records(
 			return( -1 );
 		}
 	}
-	if( libesedb_list_get_amount_of_elements(
+	if( libesedb_list_get_number_of_elements(
 	     internal_table->table_page_tree->value_definition_list,
-	     amount_of_records,
+	     number_of_records,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of records.",
+		 "%s: unable to retrieve number of records.",
 		 function );
 
 		return( -1 );

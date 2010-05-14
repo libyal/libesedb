@@ -157,11 +157,11 @@ int esedbinfo_file_info_fprint(
 	uint32_t index_identifier  = 0;
 	uint32_t table_identifier  = 0;
 	uint32_t page_size         = 0;
-	int amount_of_columns      = 0;
-	int amount_of_indexes      = 0;
-	int amount_of_tables       = 0;
 	int column_iterator        = 0;
 	int index_iterator         = 0;
+	int number_of_columns      = 0;
+	int number_of_indexes      = 0;
+	int number_of_tables       = 0;
 	int table_iterator         = 0;
 
 	if( stream == NULL )
@@ -259,31 +259,31 @@ int esedbinfo_file_info_fprint(
 	 stream,
 	 "Catalog content:\n" );
 
-	if( libesedb_file_get_amount_of_tables(
+	if( libesedb_file_get_number_of_tables(
 	     file,
-	     &amount_of_tables,
+	     &number_of_tables,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of tables.",
+		 "%s: unable to retrieve number of tables.",
 		 function );
 
 		return( -1 );
 	}
 	fprintf(
 	 stream,
-	 "\tAmount of tables:\t%d\n",
-	 amount_of_tables );
+	 "\tNumber of tables:\t%d\n",
+	 number_of_tables );
 
 	fprintf(
 	 stream,
 	 "\n" );
 
 	for( table_iterator = 0;
-	     table_iterator < amount_of_tables;
+	     table_iterator < number_of_tables;
 	     table_iterator++ )
 	{
 		if( libesedb_file_get_table(
@@ -389,16 +389,16 @@ int esedbinfo_file_info_fprint(
 
 		/* Print the columns of the table
 		 */
-		if( libesedb_table_get_amount_of_columns(
+		if( libesedb_table_get_number_of_columns(
 		     table,
-		     &amount_of_columns,
+		     &number_of_columns,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve amount of columns.",
+			 "%s: unable to retrieve number of columns.",
 			 function );
 
 			libesedb_table_free(
@@ -409,14 +409,14 @@ int esedbinfo_file_info_fprint(
 		}
 		fprintf(
 		 stream,
-		 "\tAmount of columns:\t%d\n",
-		 amount_of_columns );
+		 "\tNumber of columns:\t%d\n",
+		 number_of_columns );
 		fprintf(
 		 stream,
 		 "\tColumn\tIdentifier\tName\tType\n" );
 
 		for( column_iterator = 0;
-		     column_iterator < amount_of_columns;
+		     column_iterator < number_of_columns;
 		     column_iterator++ )
 		{
 			if( libesedb_table_get_column(
@@ -579,16 +579,16 @@ int esedbinfo_file_info_fprint(
 		}
 		/* Print the indexes of the table
 		 */
-		if( libesedb_table_get_amount_of_indexes(
+		if( libesedb_table_get_number_of_indexes(
 		     table,
-		     &amount_of_indexes,
+		     &number_of_indexes,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve amount of indexes.",
+			 "%s: unable to retrieve number of indexes.",
 			 function );
 
 			libesedb_table_free(
@@ -602,11 +602,11 @@ int esedbinfo_file_info_fprint(
 		 "\n" );
 		fprintf(
 		 stream,
-		 "\tAmount of indexes:\t%d\n",
-		 amount_of_indexes );
+		 "\tNumber of indexes:\t%d\n",
+		 number_of_indexes );
 
 		for( index_iterator = 0;
-		     index_iterator < amount_of_indexes;
+		     index_iterator < number_of_indexes;
 		     index_iterator++ )
 		{
 			if( libesedb_table_get_index(
@@ -749,7 +749,7 @@ int esedbinfo_file_info_fprint(
 		 "\n" );
 
 		for( index_iterator = 0;
-		     index_iterator < amount_of_indexes;
+		     index_iterator < number_of_indexes;
 		     index_iterator++ )
 		{
 			if( libesedb_table_get_index(

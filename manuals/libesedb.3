@@ -1,4 +1,4 @@
-.Dd February 22, 2010
+.Dd May 14, 2010
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -65,7 +65,7 @@ File functions
 .Ft int
 .Fn libesedb_file_get_page_size "libesedb_file_t *file, uint32_t *page_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_amount_of_tables "libesedb_file_t *file, int *amount_of_tables, libesedb_error_t **error"
+.Fn libesedb_file_get_number_of_tables "libesedb_file_t *file, int *number_of_tables, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_file_get_table "libesedb_file_t *file, int table_entry, libesedb_table_t **table, libesedb_error_t **error"
 .Pp
@@ -87,15 +87,15 @@ Table functions
 .Ft int
 .Fn libesedb_table_get_utf8_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_amount_of_columns "libesedb_table_t *table, int *amount_of_columns, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_columns "libesedb_table_t *table, int *number_of_columns, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_column "libesedb_table_t *table, int column_entry, libesedb_column_t **column, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_amount_of_indexes "libesedb_table_t *table, int *amount_of_indexes, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_indexes "libesedb_table_t *table, int *number_of_indexes, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_index "libesedb_table_t *table, int index_entry, libesedb_index_t **index, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_amount_of_records "libesedb_table_t *table, int *amount_of_records, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_records "libesedb_table_t *table, int *number_of_records, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_record "libesedb_table_t *table, int record_entry, libesedb_record_t **record, libesedb_error_t **error"
 .Pp
@@ -125,7 +125,7 @@ Record functions
 .Ft int
 .Fn libesedb_record_free "libesedb_record_t **record, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_amount_of_values "libesedb_record_t *record, int *amount_of_values, libesedb_error_t **error"
+.Fn libesedb_record_get_number_of_values "libesedb_record_t *record, int *number_of_values, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_column_identifier "libesedb_record_t *record, int value_entry, uint32_t *column_identifier, libesedb_error_t **error"
 .Ft int
@@ -175,7 +175,7 @@ Multi value functions
 .Ft int
 .Fn libesedb_multi_value_free "libesedb_multi_value_t **multi_value, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_amount_of_values "libesedb_multi_value_t *multi_value, int *amount_of_values, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_number_of_values "libesedb_multi_value_t *multi_value, int *number_of_values, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_multi_value_get_entry_value "libesedb_multi_value_t *multi_value, int value_index, uint32_t *value_type, uint8_t **value_data, size_t *value_data_size, libesedb_error_t **error"
 .Ft int
@@ -232,7 +232,7 @@ To have other code to determine if libesedb was compiled with libbfio support it
  in libesedb/features.h.
 
 .Sh BUGS
-Please report bugs of any kind to <forensics@hoffmannbv.nl> or on the project website:
+Please report bugs of any kind to <jbmetz@users.sourceforge.net> or on the project website:
 http://libesedb.sourceforge.net/
 .Sh AUTHOR
 These man pages were written by Joachim Metz.

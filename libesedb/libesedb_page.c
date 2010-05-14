@@ -733,7 +733,7 @@ int libesedb_page_read(
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
-     uint16_t amount_of_page_entries,
+     uint16_t number_of_page_entries,
      uint8_t *page_data,
      size_t page_data_size,
      liberror_error_t **error )
@@ -797,7 +797,7 @@ int libesedb_page_read_tags(
 	 */
 	if( libesedb_array_resize(
 	     page_tags_array,
-	     amount_of_page_entries,
+	     number_of_page_entries,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -812,7 +812,7 @@ int libesedb_page_read_tags(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
-		page_tags_data_size = 4 * amount_of_page_entries;
+		page_tags_data_size = 4 * number_of_page_entries;
 
 		libnotify_printf(
 		 "%s: page tags:\n",
@@ -828,7 +828,7 @@ int libesedb_page_read_tags(
 	page_tags_data = &( page_data[ page_data_size - 2 ] );
 
 	for( page_tag_iterator = 0;
-	     page_tag_iterator < amount_of_page_entries;
+	     page_tag_iterator < number_of_page_entries;
 	     page_tag_iterator++ )
 	{
 		page_tags_value = (libesedb_page_tags_value_t *) memory_allocate(
@@ -1005,7 +1005,7 @@ int libesedb_page_read_values(
 	 */
 	if( libesedb_array_resize(
 	     page_values_array,
-	     page_tags_array->amount_of_entries,
+	     page_tags_array->number_of_entries,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1018,7 +1018,7 @@ int libesedb_page_read_values(
 		return( -1 );
 	}
 	for( page_tag_iterator = 0;
-	     page_tag_iterator < page_tags_array->amount_of_entries;
+	     page_tag_iterator < page_tags_array->number_of_entries;
 	     page_tag_iterator++ )
 	{
 		if( libesedb_array_get_entry(
@@ -1125,15 +1125,15 @@ int libesedb_page_read_values(
 	return( 1 );
 }
 
-/* Retrieves the amount of page values
+/* Retrieves the number of page values
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_get_amount_of_values(
+int libesedb_page_get_number_of_values(
      libesedb_page_t *page,
-     uint16_t *amount_of_values,
+     uint16_t *number_of_values,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_page_get_amount_of_values";
+	static char *function = "libesedb_page_get_number_of_values";
 
 	if( page == NULL )
 	{
@@ -1157,29 +1157,29 @@ int libesedb_page_get_amount_of_values(
 
 		return( -1 );
 	}
-	if( amount_of_values == NULL )
+	if( number_of_values == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of values.",
+		 "%s: invalid number of values.",
 		 function );
 
 		return( -1 );
 	}
-	if( page->values_array->amount_of_entries > (int) UINT16_MAX )
+	if( page->values_array->number_of_entries > (int) UINT16_MAX )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid amount of page values value exceeds maximum.",
+		 "%s: invalid number of page values value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_values = (uint16_t) page->values_array->amount_of_entries;
+	*number_of_values = (uint16_t) page->values_array->number_of_entries;
 
 	return( 1 );
 }

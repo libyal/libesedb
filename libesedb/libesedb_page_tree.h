@@ -31,6 +31,7 @@
 
 #include "libesedb_data_definition.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libbfio.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
@@ -84,6 +85,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint32_t father_data_page_number,
      uint8_t flags,
      liberror_error_t **error );
@@ -93,6 +95,7 @@ int libesedb_page_tree_read_father_data_page_values(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error );
 
@@ -101,6 +104,7 @@ int libesedb_page_tree_read_parent_page_values(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error );
 
@@ -109,6 +113,7 @@ int libesedb_page_tree_read_child_pages(
      libesedb_page_t *page,
      libesedb_tree_node_t *parent_tree_node,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error );
 

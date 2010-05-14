@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="libfwintype"
+	Name="libfguid"
 	ProjectGUID="{CDB03E65-C81B-47E0-B70F-C880D841DD61}"
-	RootNamespace="libfwintype"
+	RootNamespace="libfguid"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -39,7 +39,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFWINTYPE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFGUID"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -55,7 +55,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfwintype.lib"
+				OutputFile="$(OutDir)\libfguid.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -85,15 +85,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_error.c"
+				RelativePath="..\..\libfguid\libfguid_error.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_guid.c"
+				RelativePath="..\..\libfguid\libfguid_guid.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_support.c"
+				RelativePath="..\..\libfguid\libfguid_support.c"
 				>
 			</File>
 		</Filter>
@@ -103,27 +103,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_definitions.h"
+				RelativePath="..\..\libfguid\libfguid_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_error.h"
+				RelativePath="..\..\libfguid\libfguid_error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_extern.h"
+				RelativePath="..\..\libfguid\libfguid_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_guid.h"
+				RelativePath="..\..\libfguid\libfguid_guid.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_support.h"
+				RelativePath="..\..\libfguid\libfguid_support.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwintype\libfwintype_types.h"
+				RelativePath="..\..\libfguid\libfguid_types.h"
 				>
 			</File>
 		</Filter>

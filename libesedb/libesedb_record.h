@@ -69,9 +69,9 @@ int libesedb_record_detach(
      libesedb_internal_record_t *internal_record,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
+LIBESEDB_EXTERN int libesedb_record_get_number_of_values(
                      libesedb_record_t *record,
-                     int *amount_of_values,
+                     int *number_of_values,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_column_identifier(

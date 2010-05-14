@@ -15,6 +15,9 @@ EXTRA_DIST = \
 	libesedb/features.h.in \
 	libesedb/types.h.in
 
+MAINTAINERCLEANFILES = \
+	Makefile.in
+
 distclean: clean
 	/bin/rm -f libesedb.h
 	/bin/rm -f libesedb/definitions.h

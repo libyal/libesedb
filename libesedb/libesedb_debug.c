@@ -33,7 +33,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdatetime.h"
-#include "libesedb_libfwintype.h"
+#include "libesedb_libfguid.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
@@ -591,8 +591,8 @@ int libesedb_debug_print_column_value(
      int ascii_codepage,
      liberror_error_t **error )
 {
-	uint8_t filetime_string[ 22 ];
-	uint8_t guid_string[ LIBFWINTYPE_GUID_STRING_SIZE ];
+	uint8_t filetime_string[ 24 ];
+	uint8_t guid_string[ LIBFGUID_GUID_STRING_SIZE ];
 
         byte_stream_float64_t value_double;
         byte_stream_float32_t value_float;
@@ -739,7 +739,7 @@ int libesedb_debug_print_column_value(
 			if( libfdatetime_filetime_copy_to_utf8_string(
 			     filetime,
 			     filetime_string,
-			     22,
+			     24,
 			     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
 			     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
 			     error ) != 1 )
@@ -817,11 +817,11 @@ int libesedb_debug_print_column_value(
 			}
 			else  if( value_data_size == 16 )
 			{
-				if( libfwintype_guid_to_string(
-				     (libfwintype_guid_t *) value_data,
-				     LIBFWINTYPE_ENDIAN_LITTLE,
+				if( libfguid_guid_to_string(
+				     (libfguid_guid_t *) value_data,
+				     LIBFGUID_ENDIAN_LITTLE,
 				     guid_string,
-				     LIBFWINTYPE_GUID_STRING_SIZE,
+				     LIBFGUID_GUID_STRING_SIZE,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -880,7 +880,7 @@ int libesedb_debug_print_read_offsets(
 	static char *function = "libesedb_debug_print_read_offsets";
 	off64_t offset        = 0;
 	size64_t size         = 0;
-	int amount_of_offsets = 0;
+	int number_of_offsets = 0;
 	int offset_iterator   = 0;
 
 	if( file_io_handle == NULL )
@@ -894,16 +894,16 @@ int libesedb_debug_print_read_offsets(
 
 		return( -1 );
 	}
-	if( libbfio_handle_get_amount_of_offsets_read(
+	if( libbfio_handle_get_number_of_offsets_read(
 	     file_io_handle,
-	     &amount_of_offsets,
+	     &number_of_offsets,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of offsets read.",
+		 "%s: unable to retrieve number of offsets read.",
 		 function );
 
 		return( -1 );
@@ -912,7 +912,7 @@ int libesedb_debug_print_read_offsets(
 	 "Offsets read:\n" );
 
 	for( offset_iterator = 0;
-	     offset_iterator < amount_of_offsets;
+	     offset_iterator < number_of_offsets;
 	     offset_iterator++ )
 	{
 		if( libbfio_handle_get_offset_read(

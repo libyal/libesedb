@@ -1,7 +1,6 @@
 TODO
-* ECC32 check non 4 byte modulus buffer support
-* update msvscpp files
-* update codegear files
+* configure.ac update libfguid detection
+* update msvscpp files, ese specific
 * update macosx files
 
 * parse variable types even when they are not part of the table catalog definition
@@ -9,31 +8,27 @@ TODO
 * move bfio handle to item layer
 * implement cloning of items for improved asynchronous and multi threaded usage
 
-* windows search
-  - change libuna utf16 functions to libsystem utf16 functions
-  - create libsystm utf16 functions
+Windows search:
+* change libuna utf16 functions to libsystem utf16 functions
+* create libsystem utf16 functions
 
+Library:
+* ECC32 check non 4 byte modulus buffer support
+* long value support
+* template table support
 * read catalog data type defintions and convert them into column definitions
 * use column definitions to read data definitions
-
-Error:
-* error in libbfio offset tracking ?
-  20987904 ( 0x01404000 ) - 20996096 ( 0x01406000 ) size: 8192
-  4290912256 ( 0xffc22000 ) - 4290912256 ( 0xffc22000 ) size: 0
-
-Debug
-* is function libesedb_debug_print_table_group_of_bits needed?
-* print value flags
-
-Library
 * compare primary and secondary file header
   - report any differences
 * compare primary and secondary catalog
 * provide UTF-16 name string functions
 * limit the amount of active data type definitions for large tables?
-
-* libfwintype
+* libfguid
   - change GUID function to match libfdatetime like structure
+
+Debug
+* is function libesedb_debug_print_table_group_of_bits needed?
+* print value flags
 
 Tools
 * esedbinfo
@@ -51,11 +46,14 @@ File format
 * page flags
 * page keys
 * (revision 0x11) extended page header
+* long value support
+* template table support
 
 Deployment:
 * update manuals
   - add esedbexport.1
 * create debian package files
+* add codegear files
 
 Performance
 * create data definition tree in page tree for faster lookup of keys
@@ -66,35 +64,42 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
-20200407
+20100514
+* updated common, libcstring, liberror, libnotify, libsystem, libuna
+  libbfio, libfdatetime
+* renamed libfwintype to libfguid
+* changed amount of in number of
+* moved bfio handle from io handle to file
+
+20100407
 * worked on refactoring file io handle out of io handle
 
-20200402
+20100402
 * fixed non 4 byte modulus sized buffers issue in XOR32
 
-20200328
+20100328
 * added libcstring
 * updated liberror, libnotify, libsystem, libfdatetime, libuna, libbfio
 * removed common/narrow_string.h common/wide_string.h
 * worked on libcstring support
 
-20200302
+20100302
 * worked on windows 7 engine support
 
-20200301
+20100301
 * worked on windows 7 engine support
 
-20200227
+20100227
 * worked on windows 7 engine support
 * enlarged filetime string to 24
 
-20200224
+20100224
 * worked on windows 7 engine support
 
-20200223
+20100223
 * worked on windows 7 engine support
 
-20200222
+20100222
 * 2010 update and email change
 * updated common, liberror, libnotify, libuna, libbfio, libsystem
 * updated array, list and tree type

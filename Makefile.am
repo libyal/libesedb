@@ -9,7 +9,7 @@ SUBDIRS = \
 	libuna \
 	libbfio \
 	libfdatetime \
-	libfwintype \
+	libfguid \
 	libesedb \
 	libsystem \
 	esedbtools \
@@ -24,6 +24,9 @@ REDHAT_FILES = \
 EXTRA_DIST = \
         $(REDHAT_FILES) \
 	libesedb.pc.in
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 pkgconfigdir = $(libdir)/pkgconfig
 
@@ -43,7 +46,7 @@ library:
 	(cd $(srcdir)/libuna && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libbfio && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfwintype && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfguid && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
@@ -65,7 +68,7 @@ splint:
 	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libbfio && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfwintype && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))

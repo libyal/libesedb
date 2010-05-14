@@ -26,7 +26,7 @@
 
 /* Define to the address where bug reports for this package should be sent.
  */
-#define PACKAGE_BUGREPORT "forensics@hoffmannbv.nl"
+#define PACKAGE_BUGREPORT "jbmetz@users.sourceforge.net"
 
 /* Use the safe size and offset types
  */

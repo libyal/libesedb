@@ -212,16 +212,16 @@ int libesedb_record_detach(
 	return( 1 );
 }
 
-/* Retrieves the amount of values in the record of the referenced record
+/* Retrieves the number of values in the record of the referenced record
  * Returns 1 if successful or -1 on error
  */
-int libesedb_record_get_amount_of_values(
+int libesedb_record_get_number_of_values(
      libesedb_record_t *record,
-     int *amount_of_values,
+     int *number_of_values,
      liberror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
-	static char *function                       = "libesedb_record_get_amount_of_values";
+	static char *function                       = "libesedb_record_get_number_of_values";
 
 	if( record == NULL )
 	{
@@ -247,16 +247,16 @@ int libesedb_record_get_amount_of_values(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_amount_of_entries(
+	if( libesedb_array_get_number_of_entries(
 	     internal_record->data_definition->values_array,
-	     amount_of_values,
+	     number_of_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of data type definitions.",
+		 "%s: unable to retrieve number of data type definitions.",
 		 function );
 
 		return( -1 );
@@ -2608,18 +2608,18 @@ int libesedb_record_get_multi_value(
 
 	/* The first 2 byte contain the offset to the first value
 	 * there is an offset for every value
-	 * therefore first offset / 2 = the amount of values
+	 * therefore first offset / 2 = the number of values
 	 */
 	byte_stream_copy_to_uint16_little_endian(
 	 value_data,
-	 internal_multi_value->amount_of_values );
+	 internal_multi_value->number_of_values );
 
-	internal_multi_value->amount_of_values /= 2;
+	internal_multi_value->number_of_values /= 2;
 
-	if( internal_multi_value->amount_of_values > 0 )
+	if( internal_multi_value->number_of_values > 0 )
 	{
 		internal_multi_value->value_offset = (uint16_t *) memory_allocate(
-								   sizeof( uint16_t ) * internal_multi_value->amount_of_values );
+								   sizeof( uint16_t ) * internal_multi_value->number_of_values );
 
 		if( internal_multi_value->value_offset == NULL )
 		{
@@ -2637,7 +2637,7 @@ int libesedb_record_get_multi_value(
 			return( -1 );
 		}
 		internal_multi_value->value_size = (size_t *) memory_allocate(
-							       sizeof( size_t ) * internal_multi_value->amount_of_values );
+							       sizeof( size_t ) * internal_multi_value->number_of_values );
 
 		if( internal_multi_value->value_offset == NULL )
 		{
@@ -2655,7 +2655,7 @@ int libesedb_record_get_multi_value(
 			return( -1 );
 		}
 		for( value_offset_iterator = 0;
-		     value_offset_iterator < internal_multi_value->amount_of_values;
+		     value_offset_iterator < internal_multi_value->number_of_values;
 		     value_offset_iterator++ )
 		{
 			byte_stream_copy_to_uint16_little_endian(

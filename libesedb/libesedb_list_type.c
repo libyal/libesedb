@@ -270,7 +270,7 @@ int libesedb_list_empty(
 {
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_list_empty";
-	int amount_of_elements                = 0;
+	int number_of_elements                = 0;
 	int iterator                          = 0;
 	int result                            = 1;
 
@@ -285,12 +285,12 @@ int libesedb_list_empty(
 
 		return( -1 );
 	}
-	if( list->amount_of_elements > 0 )
+	if( list->number_of_elements > 0 )
 	{
-		amount_of_elements = list->amount_of_elements;
+		number_of_elements = list->number_of_elements;
 
 		for( iterator = 0;
-		     iterator < amount_of_elements;
+		     iterator < number_of_elements;
 		     iterator++ )
 		{
 			list_element = list->first;
@@ -313,7 +313,7 @@ int libesedb_list_empty(
 			{
 				list->last = list_element->next;
 			}
-			list->amount_of_elements -= 1;
+			list->number_of_elements -= 1;
 
 			if( list_element->next != NULL )
 			{
@@ -434,7 +434,7 @@ int libesedb_list_clone(
 		source_list_element = source->first;
 
 		for( iterator = 0;
-		     iterator < source->amount_of_elements;
+		     iterator < source->number_of_elements;
 		     iterator++ )
 		{
 			if( source_list_element == NULL )
@@ -487,15 +487,15 @@ int libesedb_list_clone(
 	return( 1 );
 }
 
-/* Retrieves the amount of elements in the list
+/* Retrieves the number of elements in the list
  * Returns 1 if successful or -1 on error
  */
-int libesedb_list_get_amount_of_elements(
+int libesedb_list_get_number_of_elements(
      libesedb_list_t *list,
-     int *amount_of_elements,
+     int *number_of_elements,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_list_get_amount_of_elements";
+	static char *function = "libesedb_list_get_number_of_elements";
 
 	if( list == NULL )
 	{
@@ -508,18 +508,18 @@ int libesedb_list_get_amount_of_elements(
 
 		return( -1 );
 	}
-	if( amount_of_elements == NULL )
+	if( number_of_elements == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid amount of elements.",
+		 "%s: invalid number of elements.",
 		 function );
 
 		return( -1 );
 	}
-	*amount_of_elements = list->amount_of_elements;
+	*number_of_elements = list->number_of_elements;
 
 	return( 1 );
 }
@@ -549,7 +549,7 @@ int libesedb_list_get_element(
 		return( -1 );
 	}
 	if( ( element_index < 0 )
-	 || ( element_index >= list->amount_of_elements ) )
+	 || ( element_index >= list->number_of_elements ) )
 	{
 		liberror_error_set(
 		 error,
@@ -571,7 +571,7 @@ int libesedb_list_get_element(
 
 		return( -1 );
 	}
-	if( element_index < ( list->amount_of_elements / 2 ) )
+	if( element_index < ( list->number_of_elements / 2 ) )
 	{
 		list_element = list->first;
 
@@ -598,7 +598,7 @@ int libesedb_list_get_element(
 	{
 		list_element = list->last;
 
-		for( iterator = ( list->amount_of_elements - 1 );
+		for( iterator = ( list->number_of_elements - 1 );
 		     iterator > element_index;
 		     iterator-- )
 		{
@@ -717,7 +717,7 @@ int libesedb_list_prepend_element(
 		list->last = element;
 	}
 	list->first               = element;
-	list->amount_of_elements += 1;
+	list->number_of_elements += 1;
 
 	return( 1 );
 }
@@ -840,7 +840,7 @@ int libesedb_list_append_element(
 		element->previous = list->last;
 	}
 	list->last                = element;
-	list->amount_of_elements += 1;
+	list->number_of_elements += 1;
 
 	return( 1 );
 }
@@ -984,7 +984,7 @@ int libesedb_list_insert_element(
 
 		return( -1 );
 	}
-	if( list->amount_of_elements == 0 )
+	if( list->number_of_elements == 0 )
 	{
 		if( list->first != NULL )
 		{
@@ -1038,7 +1038,7 @@ int libesedb_list_insert_element(
 		list_element = list->first;
 
 		for( iterator = 0;
-		     iterator < list->amount_of_elements;
+		     iterator < list->number_of_elements;
 		     iterator++ )
 		{
 			result = value_compare_function(
@@ -1100,7 +1100,7 @@ int libesedb_list_insert_element(
 			list->last        = element;
 		}
 	}
-	list->amount_of_elements += 1;
+	list->number_of_elements += 1;
 
 	return( 1 );
 }
@@ -1242,7 +1242,7 @@ int libesedb_list_remove_element(
 	}
 	element->next             = NULL;
 	element->previous         = NULL;
-	list->amount_of_elements -= 1;
+	list->number_of_elements -= 1;
 
 	return( 1 );
 }

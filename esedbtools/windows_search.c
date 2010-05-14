@@ -1188,8 +1188,8 @@ int windows_search_export_record_value_compressed_string(
 	uint32_t column_identifier          = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_flags                 = 0;
-	int amount_of_multi_values          = 0;
 	int multi_value_iterator            = 0;
+	int number_of_multi_values          = 0;
 
 	if( record == NULL )
 	{
@@ -1334,16 +1334,16 @@ int windows_search_export_record_value_compressed_string(
 
 			return( -1 );
 		}
-		if( libesedb_multi_value_get_amount_of_values(
+		if( libesedb_multi_value_get_number_of_values(
 		     multi_value,
-		     &amount_of_multi_values,
+		     &number_of_multi_values,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve amount of multi values.",
+			 "%s: unable to retrieve number of multi values.",
 			 function );
 
 			libesedb_multi_value_free(
@@ -1353,7 +1353,7 @@ int windows_search_export_record_value_compressed_string(
 			return( -1 );
 		}
 		for( multi_value_iterator = 0;
-	 	     multi_value_iterator < amount_of_multi_values;
+	 	     multi_value_iterator < number_of_multi_values;
 		     multi_value_iterator++ )
 		{
 			if( libesedb_multi_value_get_value(
@@ -1393,7 +1393,7 @@ int windows_search_export_record_value_compressed_string(
 
 					return( -1 );
 				}
-				if( multi_value_iterator < ( amount_of_multi_values - 1 ) )
+				if( multi_value_iterator < ( number_of_multi_values - 1 ) )
 				{
 					fprintf(
 					 table_file_stream,
@@ -1618,8 +1618,8 @@ int windows_search_export_record_systemindex_0a(
 	static char *function   = "windows_search_export_record_systemindex_0a";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
-	int amount_of_values    = 0;
 	int known_column_type   = 0;
+	int number_of_values    = 0;
 	int result              = 0;
 	int value_iterator      = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -1646,22 +1646,22 @@ int windows_search_export_record_systemindex_0a(
 
 		return( -1 );
 	}
-	if( libesedb_record_get_amount_of_values(
+	if( libesedb_record_get_number_of_values(
 	     record,
-	     &amount_of_values,
+	     &number_of_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of values.",
+		 "%s: unable to retrieve number of values.",
 		 function );
 
 		return( -1 );
 	}
 	for( value_iterator = 0;
-	     value_iterator < amount_of_values;
+	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
 		if( libesedb_record_get_utf8_column_name_size(
@@ -2410,7 +2410,7 @@ int windows_search_export_record_systemindex_0a(
 
 			return( -1 );
 		}
-		if( value_iterator == ( amount_of_values - 1 ) )
+		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 table_file_stream,
@@ -2439,8 +2439,8 @@ int windows_search_export_record_systemindex_gthr(
 	static char *function   = "windows_search_export_record_systemindex_gthr";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
-	int amount_of_values    = 0;
 	int known_column_type   = 0;
+	int number_of_values    = 0;
 	int result              = 0;
 	int value_iterator      = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2467,22 +2467,22 @@ int windows_search_export_record_systemindex_gthr(
 
 		return( -1 );
 	}
-	if( libesedb_record_get_amount_of_values(
+	if( libesedb_record_get_number_of_values(
 	     record,
-	     &amount_of_values,
+	     &number_of_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of values.",
+		 "%s: unable to retrieve number of values.",
 		 function );
 
 		return( -1 );
 	}
 	for( value_iterator = 0;
-	     value_iterator < amount_of_values;
+	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
 		if( libesedb_record_get_utf8_column_name_size(
@@ -2632,7 +2632,7 @@ int windows_search_export_record_systemindex_gthr(
 
 			return( -1 );
 		}
-		if( value_iterator == ( amount_of_values - 1 ) )
+		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 table_file_stream,

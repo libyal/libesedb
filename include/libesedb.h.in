@@ -79,12 +79,12 @@ LIBESEDB_EXTERN int libesedb_check_file_signature_file_io_handle(
  * Notify functions
  * ------------------------------------------------------------------------- */
 
-/* Set the verbose notification
+/* Sets the verbose notification
  */
 LIBESEDB_EXTERN void libesedb_notify_set_verbose(
                       int verbose );
 
-/* Set the notification stream
+/* Sets the notification stream
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_notify_set_stream(
@@ -115,14 +115,14 @@ LIBESEDB_EXTERN void libesedb_error_free(
                       libesedb_error_t **error );
 
 /* Prints a descriptive string of the error to the stream
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_error_fprint(
                      libesedb_error_t *error,
                      FILE *stream );
 
 /* Prints a descriptive string of the error to the string
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_error_sprint(
                      libesedb_error_t *error,
@@ -130,14 +130,14 @@ LIBESEDB_EXTERN int libesedb_error_sprint(
                      size_t size );
 
 /* Prints a backtrace of the error to the stream
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_error_backtrace_fprint(
                      libesedb_error_t *error,
                      FILE *stream );
 
 /* Prints a backtrace of the error to the string
- * Returns the amount of printed characters if successful or -1 on error
+ * Returns the number of printed characters if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_error_backtrace_sprint(
                      libesedb_error_t *error,
@@ -250,9 +250,20 @@ LIBESEDB_EXTERN int libesedb_file_get_page_size(
                      uint32_t *page_size,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of tables
+/* Retrieves the number of tables
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_file_get_number_of_tables(
+                     libesedb_file_t *file,
+                     int *number_of_tables,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of tables
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_file_get_number_of_tables instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
                      libesedb_file_t *file,
                      int *amount_of_tables,
@@ -307,9 +318,20 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of columns in the table
+/* Retrieves the number of columns in the table
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_table_get_number_of_columns(
+                     libesedb_table_t *table,
+                     int *number_of_columns,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of columns in the table
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_table_get_number_of_columns instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
                      libesedb_table_t *table,
                      int *amount_of_columns,
@@ -324,9 +346,20 @@ LIBESEDB_EXTERN int libesedb_table_get_column(
                      libesedb_column_t **column,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of indexes
+/* Retrieves the number of indexes
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_table_get_number_of_indexes(
+                     libesedb_table_t *table,
+                     int *number_of_indexes,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_table_get_number_of_indexes instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
                      libesedb_table_t *table,
                      int *amount_of_indexes,
@@ -341,9 +374,20 @@ LIBESEDB_EXTERN int libesedb_table_get_index(
                      libesedb_index_t **index,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of records in the table
+/* Retrieves the number of records in the table
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_table_get_number_of_records(
+                     libesedb_table_t *table,
+                     int *number_of_records,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of records in the table
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_table_get_number_of_records instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_records(
                      libesedb_table_t *table,
                      int *amount_of_records,
@@ -458,9 +502,20 @@ LIBESEDB_EXTERN int libesedb_record_free(
                      libesedb_record_t **record,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of values in the record of the referenced record
+/* Retrieves the number of values in the record of the referenced record
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_record_get_number_of_values(
+                     libesedb_record_t *record,
+                     int *number_of_values,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of values in the record of the referenced record
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_record_get_number_of_values instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      libesedb_record_t *record,
                      int *amount_of_values,
@@ -699,9 +754,20 @@ LIBESEDB_EXTERN int libesedb_multi_value_free(
                      libesedb_multi_value_t **multi_value,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of values in a multi value
+/* Retrieves the number of values in a multi value
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN int libesedb_multi_value_get_number_of_values(
+                     libesedb_multi_value_t *multi_value,
+                     int *number_of_values,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of values in a multi value
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_multi_value_get_number_of_values instead
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_multi_value_get_amount_of_values(
                      libesedb_multi_value_t *multi_value,
                      int *amount_of_values,

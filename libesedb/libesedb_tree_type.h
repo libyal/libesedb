@@ -66,9 +66,9 @@ struct libesedb_tree_node
 	 */
 	libesedb_tree_node_t *last_child;
 
-	/* The amount of child nodes
+	/* The number of child nodes
 	 */
-	int amount_of_child_nodes;
+	int number_of_child_nodes;
 
 	/* The node value
 	 */
@@ -143,9 +143,9 @@ int libesedb_tree_node_get_leaf_node_list(
      libesedb_list_t **leaf_node_list,
      liberror_error_t **error );
 
-int libesedb_tree_node_get_amount_of_child_nodes(
+int libesedb_tree_node_get_number_of_child_nodes(
      libesedb_tree_node_t *node,
-     int *amount_of_child_nodes,
+     int *number_of_child_nodes,
      liberror_error_t **error );
 
 int libesedb_tree_node_get_child_node(

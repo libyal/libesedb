@@ -35,5 +35,15 @@
 #define LIBESEDB_HAVE_BFIO			1
 #endif
 
+#if !defined( LIBESEDB_DEPRECATED )
+#if defined( __GNUC__ ) && __GNUC__ >= 3
+#define LIBESEDB_DEPRECATED	__attribute__ ((__deprecated__))
+#elif defined( _MSC_VER )
+#define LIBESEDB_DEPRECATED	__declspec(deprecated)
+#else
+#define LIBESEDB_DEPRECATED
+#endif
+#endif
+
 #endif
 

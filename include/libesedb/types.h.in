@@ -130,7 +130,7 @@ typedef unsigned __int32	intptr_t;
 
 #if defined( LIBESEDB_WIDE_CHARACTER_TYPE )
 
-#if defined( _MSC_VER )
+#if defined( _MSC_VER ) || defined( __MINGW32_VERSION )
 #include <wchar.h>
 
 #elif defined( __BORLANDC__ )

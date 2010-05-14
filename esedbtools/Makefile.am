@@ -12,7 +12,9 @@ AM_CPPFLAGS = \
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
 
-bin_PROGRAMS = esedbexport esedbinfo
+bin_PROGRAMS = \
+	esedbexport \
+	esedbinfo
 
 esedbexport_SOURCES = \
 	ascii7.c ascii7.h \
@@ -46,6 +48,9 @@ esedbinfo_LDADD  = \
 	../libesedb/libesedb.la \
 	../libsystem/libsystem.la \
 	@MEMWATCH_LIBADD@
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 
 distclean: clean
 	/bin/rm -f Makefile

@@ -52,9 +52,13 @@ extern "C" {
 #define memory_allocate( size ) \
 	g_malloc( (gsize) size )
 
-#elif defined( HAVE_MALLOC ) || defined( WINAPI )
+#elif defined( HAVE_MALLOC ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
 #define memory_allocate( size ) \
 	malloc( size )
+
+#elif defined( WINAPI )
+#define memory_allocate( size ) \
+	HeapAlloc( GetProcessHeap(), 0, (SIZE_T) size )
 #endif
 
 /* Memory reallocation
@@ -63,9 +67,17 @@ extern "C" {
 #define memory_reallocate( buffer, size ) \
 	g_realloc( (gpointer) buffer, (gsize) size )
 
-#elif defined( HAVE_REALLOC ) || defined( WINAPI )
+#elif defined( HAVE_REALLOC ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
 #define memory_reallocate( buffer, size ) \
 	realloc( (void *) buffer, size )
+
+#elif defined( WINAPI )
+/* HeapReAlloc does not allocate empty (NULL) buffers as realloc does
+ */
+#define memory_reallocate( buffer, size ) \
+	( buffer == NULL ) ? \
+	HeapAlloc( GetProcessHeap(), 0, (SIZE_T) size ) : \
+	HeapReAlloc( GetProcessHeap(), 0, (LPVOID) buffer, (SIZE_T) size )
 #endif
 
 /* Memory free
@@ -74,9 +86,13 @@ extern "C" {
 #define memory_free( buffer ) \
 	g_free( (gpointer) buffer )
 
-#elif defined( HAVE_FREE ) || defined( WINAPI )
+#elif defined( HAVE_FREE ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
 #define memory_free( buffer ) \
 	free( (void *) buffer )
+
+#elif defined( WINAPI )
+#define memory_free( buffer ) \
+	HeapFree( GetProcessHeap(), 0, (LPVOID) buffer )
 #endif
 
 /* Memory compare

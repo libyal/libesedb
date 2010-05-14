@@ -31,6 +31,7 @@
 
 #include "libesedb_array_type.h"
 #include "libesedb_codepage.h"
+#include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
@@ -160,10 +161,9 @@ int libesedb_file_free(
 
 			result = -1;
 		}
-		if( ( internal_file->io_handle != NULL )
-		 && ( libesedb_io_handle_free(
-		       &( internal_file->io_handle ),
-		       error ) != 1 ) )
+		if( libesedb_io_handle_free(
+		     &( internal_file->io_handle ),
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -173,6 +173,23 @@ int libesedb_file_free(
 			 function );
 
 			result = -1;
+		}
+		if( ( internal_file->file_io_handle_created_in_library != 0 )
+		 && ( internal_file->file_io_handle != NULL ) )
+		{
+			if( libbfio_handle_free(
+			     &( internal_file->file_io_handle ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free file io handle.",
+				 function );
+
+				result = -1;
+			}
 		}
 		memory_free(
 		 internal_file );
@@ -340,7 +357,7 @@ int libesedb_file_open(
 
 		return( -1 );
 	}
-	internal_file->io_handle->handle_created_in_library = 1;
+	internal_file->file_io_handle_created_in_library = 1;
 
 	return( 1 );
 }
@@ -480,7 +497,7 @@ int libesedb_file_open_wide(
 
 		return( -1 );
 	}
-	internal_file->io_handle->handle_created_in_library = 1;
+	internal_file->file_io_handle_created_in_library = 1;
 
 	return( 1 );
 }
@@ -499,6 +516,7 @@ int libesedb_file_open_file_io_handle(
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_open_file_io_handle";
 	int file_io_flags                       = 0;
+	int file_io_handle_is_open              = 0;
 
 	if( file == NULL )
 	{
@@ -507,6 +525,17 @@ int libesedb_file_open_file_io_handle(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->file_io_handle != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid internal file - file io handle already set.",
 		 function );
 
 		return( -1 );
@@ -551,20 +580,39 @@ int libesedb_file_open_file_io_handle(
 	{
 		file_io_flags = LIBBFIO_FLAG_READ;
 	}
-	if( libesedb_io_handle_open(
-	     internal_file->io_handle,
-	     file_io_handle,
-	     file_io_flags,
-	     error ) != 1 )
+	internal_file->file_io_handle = file_io_handle;
+
+	file_io_handle_is_open = libbfio_handle_is_open(
+	                          internal_file->file_io_handle,
+	                          error );
+
+	if( file_io_handle_is_open == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file handle.",
+		 "%s: unable to open file.",
 		 function );
 
 		return( -1 );
+	}
+	else if( file_io_handle_is_open == 0 )
+	{
+		if( libbfio_handle_open(
+		     internal_file->file_io_handle,
+		     flags,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_OPEN_FAILED,
+			 "%s: unable to open file io handle.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	if( libesedb_file_open_read(
 	     internal_file,
@@ -606,29 +654,50 @@ int libesedb_file_close(
 	}
 	internal_file = (libesedb_internal_file_t *) file;
 
-	if( internal_file->io_handle == NULL )
+	if( internal_file->file_io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid file - missing io handle.",
+		 "%s: invalid file - missing file IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	result = libesedb_io_handle_close(
-	          internal_file->io_handle,
-	          error );
-
-	if( result != 0 )
+	if( internal_file->file_io_handle_created_in_library != 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close io handle.",
-		 function );
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			if( libesedb_debug_print_read_offsets(
+			     internal_file->file_io_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 "%s: unable to print the read offsets.",
+				 function );
+
+				result = -1;
+			}
+		}
+#endif
+		if( libbfio_handle_close(
+		     internal_file->file_io_handle,
+		     error ) != 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_CLOSE_FAILED,
+			 "%s: unable to close file io handle.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }
@@ -674,6 +743,7 @@ int libesedb_file_open_read(
 
 	if( libesedb_io_handle_read_file_header(
 	     internal_file->io_handle,
+	     internal_file->file_io_handle,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -712,6 +782,7 @@ int libesedb_file_open_read(
 	if( libesedb_page_tree_read(
 	     internal_file->catalog_page_tree,
 	     internal_file->io_handle,
+	     internal_file->file_io_handle,
 	     LIBESEDB_PAGE_NUMBER_CATALOG,
 	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION,
 	     error ) != 1 )
@@ -733,7 +804,7 @@ int libesedb_file_open_read(
 	size64_t file_size    = 0;
 
 	if( libbfio_handle_get_size(
-	     internal_file->io_handle->file_io_handle,
+	     internal_file->file_io_handle,
 	     &file_size,
 	     error ) != 1 )
 	{
@@ -767,7 +838,7 @@ int libesedb_file_open_read(
 		if( libesedb_page_read(
 		     page,
 		     internal_file->io_handle,
-		     internal_file->io_handle->file_io_handle,
+		     internal_file->file_io_handle,
 		     page_number,
 		     error ) != 1 )
 		{
@@ -1073,16 +1144,16 @@ int libesedb_file_get_page_size(
 	return( 1 );
 }
 
-/* Retrieves the amount of tables
+/* Retrieves the number of tables
  * Returns 1 if successful or -1 on error
  */
-int libesedb_file_get_amount_of_tables(
+int libesedb_file_get_number_of_tables(
      libesedb_file_t *file,
-     int *amount_of_tables,
+     int *number_of_tables,
      liberror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
-	static char *function                   = "libesedb_file_get_amount_of_tables";
+	static char *function                   = "libesedb_file_get_number_of_tables";
 
 	if( file == NULL )
 	{
@@ -1119,16 +1190,16 @@ int libesedb_file_get_amount_of_tables(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_amount_of_elements(
+	if( libesedb_list_get_number_of_elements(
 	     internal_file->catalog_page_tree->table_definition_list,
-	     amount_of_tables,
+	     number_of_tables,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of tables.",
+		 "%s: unable to retrieve number of tables.",
 		 function );
 
 		return( -1 );

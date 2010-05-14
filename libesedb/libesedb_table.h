@@ -99,9 +99,9 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
+LIBESEDB_EXTERN int libesedb_table_get_number_of_columns(
                      libesedb_table_t *table,
-                     int *amount_of_columns,
+                     int *number_of_columns,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_column(
@@ -110,9 +110,9 @@ LIBESEDB_EXTERN int libesedb_table_get_column(
                      libesedb_column_t **column,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
+LIBESEDB_EXTERN int libesedb_table_get_number_of_indexes(
                      libesedb_table_t *table,
-                     int *amount_of_indexes,
+                     int *number_of_indexes,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_index(
@@ -121,9 +121,9 @@ LIBESEDB_EXTERN int libesedb_table_get_index(
                      libesedb_index_t **index,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_amount_of_records(
+LIBESEDB_EXTERN int libesedb_table_get_number_of_records(
                      libesedb_table_t *table,
-                     int *amount_of_records,
+                     int *number_of_records,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_record(

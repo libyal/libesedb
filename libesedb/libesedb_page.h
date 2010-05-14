@@ -134,7 +134,7 @@ int libesedb_page_read(
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
-     uint16_t amount_of_page_entries,
+     uint16_t number_of_page_entries,
      uint8_t *page_data,
      size_t page_data_size,
      liberror_error_t **error );
@@ -147,9 +147,9 @@ int libesedb_page_read_values(
      size_t page_values_data_size,
      liberror_error_t **error );
 
-int libesedb_page_get_amount_of_values(
+int libesedb_page_get_number_of_values(
      libesedb_page_t *page,
-     uint16_t *amount_of_values,
+     uint16_t *number_of_values,
      liberror_error_t **error );
 
 int libesedb_page_get_value(

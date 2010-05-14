@@ -53,9 +53,9 @@ struct libesedb_internal_multi_value
 	 */
 	size_t value_data_size;
 
-	/* The amount of values
+	/* The number of values
 	 */
-	uint16_t amount_of_values;
+	uint16_t number_of_values;
 
 	/* The value byte offsets
 	 */
@@ -78,9 +78,9 @@ LIBESEDB_EXTERN int libesedb_multi_value_free(
                      libesedb_multi_value_t **multi_value,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_amount_of_values(
+LIBESEDB_EXTERN int libesedb_multi_value_get_number_of_values(
                      libesedb_multi_value_t *multi_value,
-                     int *amount_of_values,
+                     int *number_of_values,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_get_value(

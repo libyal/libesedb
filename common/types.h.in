@@ -26,7 +26,7 @@
 
 #include "common.h"
 
-#if defined( HAVE_LIMITS_H )
+#if defined( HAVE_LIMITS_H ) || defined( WINAPI )
 #include <limits.h>
 #endif
 
@@ -253,7 +253,11 @@
 /* The maximum signed 64-bit integer is 9223372036854775807 (0x7fffffffffffffff)
  */
 #if !defined( INT64_MAX )
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define INT64_MAX (0x7fffffffffffffffUL)
+#else
 #define INT64_MAX (0x7fffffffffffffffULL)
+#endif
 #endif
 
 /* The maximum signed integer

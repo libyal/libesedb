@@ -101,6 +101,10 @@ extern "C" {
 #elif defined( HAVE_FSEEKO )
 #define file_stream_seek_offset( stream, offset, whence ) \
 	fseeko( stream, offset, whence )
+
+#elif defined( HAVE_FSEEKO64 )
+#define file_stream_seek_offset( stream, offset, whence ) \
+	fseeko64( stream, offset, whence )
 #endif
 
 /* End of FILE stream

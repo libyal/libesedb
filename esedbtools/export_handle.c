@@ -627,10 +627,10 @@ int export_handle_export_table(
 	size_t table_name_size             = 0;
 	size_t value_string_size           = 0;
 	uint32_t table_identifier          = 0;
-	int amount_of_columns              = 0;
-	int amount_of_records              = 0;
 	int column_iterator                = 0;
 	int known_table                    = 0;
+	int number_of_columns              = 0;
+	int number_of_records              = 0;
 	int record_iterator                = 0;
 	int result                         = 0;
 
@@ -813,16 +813,16 @@ int export_handle_export_table(
 
 	/* Write the column names to the table file
 	 */
-	if( libesedb_table_get_amount_of_columns(
+	if( libesedb_table_get_number_of_columns(
 	     table,
-	     &amount_of_columns,
+	     &number_of_columns,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of columns.",
+		 "%s: unable to retrieve number of columns.",
 		 function );
 
 		libsystem_file_stream_close(
@@ -833,7 +833,7 @@ int export_handle_export_table(
 		return( -1 );
 	}
 	for( column_iterator = 0;
-	     column_iterator < amount_of_columns;
+	     column_iterator < number_of_columns;
 	     column_iterator++ )
 	{
 		if( libesedb_table_get_column(
@@ -952,7 +952,7 @@ int export_handle_export_table(
 
 			return( -1 );
 		}
-		if( column_iterator == ( amount_of_columns - 1 ) )
+		if( column_iterator == ( number_of_columns - 1 ) )
 		{
 			fprintf(
 			 table_file_stream,
@@ -967,16 +967,16 @@ int export_handle_export_table(
 	}
 	/* Write the record (row) values to the table file
 	 */
-	if( libesedb_table_get_amount_of_records(
+	if( libesedb_table_get_number_of_records(
 	     table,
-	     &amount_of_records,
+	     &number_of_records,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of records.",
+		 "%s: unable to retrieve number of records.",
 		 function );
 
 		libsystem_file_stream_close(
@@ -987,7 +987,7 @@ int export_handle_export_table(
 		return( -1 );
 	}
 	for( record_iterator = 0;
-	     record_iterator < amount_of_records;
+	     record_iterator < number_of_records;
 	     record_iterator++ )
 	{
 		if( libesedb_table_get_record(
@@ -1118,7 +1118,7 @@ int export_handle_export_record(
      liberror_error_t **error )
 {
 	static char *function = "export_handle_export_record";
-	int amount_of_values  = 0;
+	int number_of_values  = 0;
 	int value_iterator    = 0;
 
 	if( record == NULL )
@@ -1143,22 +1143,22 @@ int export_handle_export_record(
 
 		return( -1 );
 	}
-	if( libesedb_record_get_amount_of_values(
+	if( libesedb_record_get_number_of_values(
 	     record,
-	     &amount_of_values,
+	     &number_of_values,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of values.",
+		 "%s: unable to retrieve number of values.",
 		 function );
 
 		return( -1 );
 	}
 	for( value_iterator = 0;
-	     value_iterator < amount_of_values;
+	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
 		if( export_handle_export_record_value(
@@ -1177,7 +1177,7 @@ int export_handle_export_record(
 
 			return( -1 );
 		}
-		if( value_iterator == ( amount_of_values - 1 ) )
+		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 table_file_stream,
@@ -1803,7 +1803,7 @@ int export_handle_export_file(
 {
 	libesedb_table_t *table = NULL;
 	static char *function   = "export_handle_export_file";
-	int amount_of_tables    = 0;
+	int number_of_tables    = 0;
 	int table_iterator      = 0;
 
 	if( export_handle == NULL )
@@ -1841,29 +1841,29 @@ int export_handle_export_file(
 
 		return( -1 );
 	}
-	if( libesedb_file_get_amount_of_tables(
+	if( libesedb_file_get_number_of_tables(
 	     export_handle->input_handle,
-	     &amount_of_tables,
+	     &number_of_tables,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve amount of tables.",
+		 "%s: unable to retrieve number of tables.",
 		 function );
 
 		return( -1 );
 	}
 	for( table_iterator = 0;
-	     table_iterator < amount_of_tables;
+	     table_iterator < number_of_tables;
 	     table_iterator++ )
 	{
 		fprintf(
 		 stdout,
 		 "Exporting table %d out of %d.\n",
 		 table_iterator + 1,
-		 amount_of_tables );
+		 number_of_tables );
 
 		if( libesedb_file_get_table(
 		     export_handle->input_handle,

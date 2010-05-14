@@ -1,5 +1,5 @@
 /*
- * The libfwintype header wrapper
+ * The libfguid header wrapper
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
@@ -21,33 +21,33 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LIBFWINTYPE_H )
-#define _LIBESEDB_LIBFWINTYPE_H
+#if !defined( _LIBESEDB_LIBFGUID_H )
+#define _LIBESEDB_LIBFGUID_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBFWINTYPE for local use of libfwintype
+/* Define HAVE_LOCAL_LIBFGUID for local use of libfguid
  */
-#if defined( HAVE_LOCAL_LIBFWINTYPE )
+#if defined( HAVE_LOCAL_LIBFGUID )
 
-#include <libfwintype_definitions.h>
-#include <libfwintype_error.h>
-#include <libfwintype_guid.h>
-#include <libfwintype_types.h>
+#include <libfguid_definitions.h>
+#include <libfguid_error.h>
+#include <libfguid_guid.h>
+#include <libfguid_types.h>
 
-#elif defined( HAVE_LIBFWINTYPE_H )
+#elif defined( HAVE_LIBFGUID_H )
 
-/* If libtool DLL support is enabled set LIBFWINTYPE_DLL_IMPORT
- * before including libfwintype.h
+/* If libtool DLL support is enabled set LIBFGUID_DLL_IMPORT
+ * before including libfguid.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFWINTYPE_DLL_IMPORT
+#define LIBFGUID_DLL_IMPORT
 #endif
 
-#include <libfwintype.h>
+#include <libfguid.h>
 
 #else
-#error Missing libfwintype.h
+#error Missing libfguid.h
 #endif
 
 #endif
