@@ -1221,7 +1221,9 @@ int export_handle_export_record_value(
 	uint16_t value_16bit                = 0;
 	uint8_t value_8bit                  = 0;
 	uint8_t value_flags                 = 0;
+	int long_value_segment_iterator     = 0;
 	int multi_value_iterator            = 0;
+	int number_of_long_value_segments   = 0;
 	int number_of_multi_values          = 0;
 	int result                          = 0;
 
@@ -1795,7 +1797,75 @@ int export_handle_export_record_value(
 
 			return( -1 );
 		}
-		/* TODO */
+		if( libesedb_long_value_get_number_of_segments(
+		     long_value,
+		     &number_of_long_value_segments,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of long value segments.",
+			 function );
+
+			libesedb_long_value_free(
+			 &long_value,
+			 NULL );
+
+			return( -1 );
+		}
+		for( long_value_segment_iterator = 0;
+	 	     long_value_segment_iterator < number_of_long_value_segments;
+		     long_value_segment_iterator++ )
+		{
+			if( libesedb_long_value_get_segment_data(
+			     long_value,
+			     long_value_segment_iterator,
+			     &value_data,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve long value segment: %d of record entry: %d.",
+				 function,
+				 long_value_segment_iterator,
+				 record_value_entry );
+
+				libesedb_long_value_free(
+				 &long_value,
+				 NULL );
+
+				return( -1 );
+			}
+			if( value_data != NULL )
+			{
+#if defined( HAVE_DEBUG_OUTPUT )
+libsystem_notify_printf(
+ "LONG VALUE DATA: %d\n",
+ long_value_segment_iterator );
+libsystem_notify_print_data(
+ value_data,
+ value_data_size );
+#endif
+			}
+		}
+		if( libesedb_long_value_free(
+		     &long_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free long value.",
+			 function );
+
+			return( -1 );
+		}
 
 		if( libesedb_long_value_free(
 		     &long_value,

@@ -214,36 +214,38 @@ int libesedb_data_definition_set_key(
 
 		return( -1 );
 	}
-	data_definition->key = (uint8_t *) memory_allocate(
-	                                    sizeof( uint8_t ) * key_size );
-
-	if( data_definition->key == NULL )
+	if( key_size > 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create key.",
-		 function );
+		data_definition->key = (uint8_t *) memory_allocate(
+						    sizeof( uint8_t ) * key_size );
 
-		return( -1 );
+		if( data_definition->key == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create key.",
+			 function );
+
+			return( -1 );
+		}
+		if( memory_copy(
+		     data_definition->key,
+		     key,
+		     sizeof( uint8_t ) * key_size ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy key.",
+			 function );
+
+			return( -1 );
+		}
+		data_definition->key_size = key_size;
 	}
-	if( memory_copy(
-	     data_definition->key,
-	     key,
-	     sizeof( uint8_t ) * key_size ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy key.",
-		 function );
-
-		return( -1 );
-	}
-	data_definition->key_size = key_size;
-
 	return( 1 );
 }
 

@@ -122,6 +122,69 @@ int libesedb_long_value_free(
 	return( 1 );
 }
 
+/* Retrieve the number of data segments
+ * Return 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_number_of_segments(
+     libesedb_long_value_t *long_value,
+     int *number_of_segments,
+     liberror_error_t **error )
+{
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_number_of_segments";
+
+	if( long_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( internal_long_value->data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid long value - missing data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( number_of_segments == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of segments.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_number_of_entries(
+	     internal_long_value->data_definition->values_array,
+	     number_of_segments,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of data segments.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieve the segment data
  * Return 1 if successful or -1 on error
  */
@@ -134,7 +197,7 @@ int libesedb_long_value_get_segment_data(
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	libesedb_internal_long_value_t *internal_long_value   = NULL;
-	static char *function                                 = "libesedb_long_value_free";
+	static char *function                                 = "libesedb_long_value_get_segment_data";
 
 	if( long_value == NULL )
 	{

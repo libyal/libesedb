@@ -1,4 +1,5 @@
 TODO
+* windows search: work on index-based compression
 * improve implicit long value page key handling
 * fix memory leak regarding long values
 * configure.ac update libfguid detection
@@ -12,9 +13,8 @@ TODO
 
 Windows search:
 * change libuna utf16 functions to libsystem utf16 functions
-* create libsystem utf16 functions
-* support index based compressed data
-* support uncompressed data
+  - create libsystem utf16 functions
+* improve windows_search_decompress_byte_indexed_compressed_data
 
 Library:
 * ECC32 check non 4 byte modulus buffer support
@@ -65,10 +65,15 @@ Performance
 * create data definition tree in page tree for faster lookup of keys
   keep list for sequential access (B+-tree)
 * XOR32 add memory alignment support
+* create a UTF-8 version of run-length compressed UTF-16 string decompression
 
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100515
+* worked on Windows Search index-based compression
+* worked on long value support
 
 20100514
 * updated common, libcstring, liberror, libnotify, libsystem, libuna

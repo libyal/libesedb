@@ -2011,8 +2011,6 @@ int libesedb_page_tree_read_leaf_page_values(
 
 		return( -1 );
 	}
-	/* TODO handle the leaf page header */
-
 	for( page_value_iterator = 1;
 	     page_value_iterator < number_of_page_values;
 	     page_value_iterator++ )
@@ -2123,72 +2121,10 @@ int libesedb_page_tree_read_leaf_page_values(
 
 				return( -1 );
 			}
-			page_key_data = page_value_data;
-			page_key_size = key_size;
-
-			if( non_empty_page_key_found == 0 )
-			{
-				if( key_size == 0 )
-				{
-#if defined( HAVE_DEBUG_OUTPUT )
-					page_key_data = page->key;
-					page_key_size = page->key_size;
-
-					while( page_key_size > 0 )
-					{
-						if( *page_key_data != 0 )
-						{
-							break;
-						}
-						page_key_data++;
-						page_key_size--;
-					}
-					if( libnotify_verbose != 0 )
-					{
-						libnotify_printf(
-						 "%s: value: %03d implicit key value\t\t\t: ",
-						 function,
-						 page_value_iterator );
-					}
-					while( page_key_size > 0 )
-					{
-						if( libnotify_verbose != 0 )
-						{
-							libnotify_printf(
-							 "%02" PRIx8 " ",
-							 *page_key_data );
-						}
-						page_key_data++;
-						page_key_size--;
-					}
-					if( libnotify_verbose != 0 )
-					{
-						libnotify_printf(
-						 "\n" );
-					}
-#endif
-					page_key_data = page->key;
-					page_key_size = page->key_size;
-
-					while( page_key_size > 0 )
-					{
-						if( *page_key_data != 0 )
-						{
-							break;
-						}
-						page_key_data++;
-						page_key_size--;
-					}
-				}
-				else
-				{
-					non_empty_page_key_found = 1;
-				}
-			}
 			if( libesedb_data_definition_set_key(
 			     data_definition,
-			     page_key_data,
-			     page_key_size,
+			     page_value_data,
+			     key_size,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -2215,7 +2151,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 function,
 			 page_value_iterator );
 		}
-		while( key_size > 0 )
+		page_key_size = key_size;
+
+		while( page_key_size > 0 )
 		{
 			if( libnotify_verbose != 0 )
 			{
@@ -2225,7 +2163,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 			page_value_data++;
 			page_value_size--;
-			key_size--;
+			page_key_size--;
 		}
 		if( libnotify_verbose != 0 )
 		{
@@ -2543,6 +2481,86 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_IS_LONG_VALUE )
 			{
+				if( key_size == 0 )
+				{
+					if( non_empty_page_key_found == 0 )
+					{
+#if defined( HAVE_DEBUG_OUTPUT )
+						page_key_data = page->key;
+						page_key_size = page->key_size;
+
+						while( page_key_size > 0 )
+						{
+							if( *page_key_data != 0 )
+							{
+								break;
+							}
+							page_key_data++;
+							page_key_size--;
+						}
+						if( libnotify_verbose != 0 )
+						{
+							libnotify_printf(
+							 "%s: value: %03d implicit key value\t\t\t: ",
+							 function,
+							 page_value_iterator );
+						}
+						while( page_key_size > 0 )
+						{
+							if( libnotify_verbose != 0 )
+							{
+								libnotify_printf(
+								 "%02" PRIx8 " ",
+								 *page_key_data );
+							}
+							page_key_data++;
+							page_key_size--;
+						}
+						if( libnotify_verbose != 0 )
+						{
+							libnotify_printf(
+							 "\n" );
+						}
+#endif
+						page_key_data = page->key;
+						page_key_size = page->key_size;
+
+						while( page_key_size > 0 )
+						{
+							if( *page_key_data != 0 )
+							{
+								break;
+							}
+							page_key_data++;
+							page_key_size--;
+						}
+						if( libesedb_data_definition_set_key(
+						     data_definition,
+						     page_key_data,
+						     page_key_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 "%s: unable to set key in data definition.",
+							 function );
+
+							libesedb_data_definition_free(
+							 (intptr_t *) data_definition,
+							 NULL );
+
+							data_definition = NULL;
+
+							return( -1 );
+						}
+					}
+					else
+					{
+						non_empty_page_key_found = 1;
+					}
+				}
 				if( page_value_size == 8 )
 				{
 					if( libesedb_data_definition_read_long_value(

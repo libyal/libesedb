@@ -50,13 +50,26 @@ int windows_search_decode(
      size_t encoded_data_size,
      liberror_error_t **error );
 
-int windows_search_get_utf16_string_uncompressed_data_size(
+int windows_search_get_run_length_uncompressed_utf16_string_size(
      uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
      liberror_error_t **error );
 
-int windows_search_decompress_utf16_string(
+int windows_search_decompress_run_length_compressed_utf16_string(
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     uint8_t *compressed_data,
+     size_t compressed_data_size,
+     liberror_error_t **error );
+
+int windows_search_get_byte_index_uncompressed_data_size(
+     uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *uncompressed_data_size,
+     liberror_error_t **error );
+
+int windows_search_decompress_byte_indexed_compressed_data(
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
      uint8_t *compressed_data,

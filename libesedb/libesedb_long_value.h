@@ -62,8 +62,9 @@ LIBESEDB_EXTERN int libesedb_long_value_free(
                      libesedb_long_value_t **long_value,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_long_value_free(
-                     libesedb_long_value_t **long_value,
+LIBESEDB_EXTERN int libesedb_long_value_get_number_of_segments(
+                     libesedb_long_value_t *long_value,
+                     int *number_of_segments,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_long_value_get_segment_data(
