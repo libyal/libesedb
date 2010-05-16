@@ -261,6 +261,17 @@ int libesedb_long_value_get_segment_data(
 
 		return( -1 );
 	}
+	if( data_type_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing data type definition.",
+		 function );
+
+		return( -1 );
+	}
 	*segment_data      = data_type_definition->data;
 	*segment_data_size = data_type_definition->data_size;
 

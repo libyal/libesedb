@@ -1845,8 +1845,9 @@ int export_handle_export_record_value(
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
 libsystem_notify_printf(
- "LONG VALUE DATA: %d\n",
- long_value_segment_iterator );
+ "LONG VALUE DATA: %d out of %d\n",
+ long_value_segment_iterator + 1,
+ number_of_long_value_segments );
 libsystem_notify_print_data(
  value_data,
  value_data_size );

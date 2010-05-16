@@ -445,7 +445,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
      size_t compressed_data_size,
      liberror_error_t **error )
 {
-	uint16_t compression_value_table[ 1024 ];
+	uint16_t compression_value_table[ 2048 ];
 
 	uint32_t nibble_count_table[ 16 ]       = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	uint32_t total_nibble_count_table[ 16 ] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -458,14 +458,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	uint32_t compressed_data_bit_stream     = 0;
 	uint32_t compression_offset             = 0;
 	uint32_t nibble_count                   = 0;
+	uint32_t total_nibble_count             = 0;
 	uint32_t value_32bit                    = 0;
 	int32_t compression_value_table_index   = 0;
-	int32_t compression_value_table_index2  = 0;
 	uint16_t compression_size               = 0;
 	uint16_t compression_value              = 0;
 	uint16_t stored_uncompressed_data_size  = 0;
-	uint16_t value_0x400                    = 0;
-	uint16_t value_0x800                    = 0;
+	uint16_t value_0x0400                   = 0;
+	uint16_t value_0x0800                   = 0;
+	uint16_t value_0x2000                   = 0;
 	uint8_t nibble_count_table_index        = 0;
 	int8_t number_of_bits_available         = 0;
 	int8_t number_of_bits_used              = 0;
@@ -525,6 +526,20 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 		return( -1 );
 	}
+	if( memset(
+	     compression_value_table,
+	     0,
+	     2048 * 2 ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear compression value table.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	libsystem_notify_printf(
 	 "%s: compressed data header:\n",
@@ -577,7 +592,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	     nibble_count_table_index++ )
 	{
 		libsystem_notify_printf(
-		 "%s: nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: nibble count table index: %02d value:\t\t0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 nibble_count_table_index,
 		 nibble_count_table[ nibble_count_table_index ],
@@ -636,6 +651,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	 */
 	nibble_count = 0;
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	libsystem_notify_printf(
+	 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+	 function,
+	 0,
+	 total_nibble_count_table[ 0 ],
+	 total_nibble_count_table[ 0 ] );
+#endif
+
 	for( nibble_count_table_index = 1;
 	     nibble_count_table_index < 16;
 	     nibble_count_table_index++ )
@@ -645,7 +669,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		libsystem_notify_printf(
-		 "%s: nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 nibble_count_table_index,
 		 total_nibble_count_table[ nibble_count_table_index ],
@@ -657,14 +681,18 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	 "\n" );
 #endif
 
-	/* Fill the compression value table from back to front
-	 * starting with a compression tuple value of 0x1ff0 and decrement by 0x10
-	 */
-	compression_value        = 0x1ff0;
-	compressed_data_iterator = 255;
+	total_nibble_count = nibble_count;
 
-	do
+	/* Fill the compression value table
+	 */
+	value_0x2000 = 0x2000;
+
+	while( value_0x2000 > 0 )
 	{
+		value_0x2000 -= 0x10;
+
+		compressed_data_iterator = value_0x2000 >> 5;
+
 		nibble_count_table_index = compressed_data[ 2 + compressed_data_iterator ] >> 4;
 
 		if( nibble_count_table_index > 0 )
@@ -672,7 +700,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			total_nibble_count_table[ nibble_count_table_index ] -= 1;
 			compression_value_table_index                         = total_nibble_count_table[ nibble_count_table_index ];
 
-			if( compression_value_table_index > 1024 )
+			if( compression_value_table_index > 2048 )
 			{
 				liberror_error_set(
 				 error,
@@ -683,9 +711,11 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 				return( -1 );
 			}
-			compression_value_table[ compression_value_table_index ] = compression_value | nibble_count_table_index;
+			compression_value_table[ compression_value_table_index ] = value_0x2000 | nibble_count_table_index;
 		}
-		compression_value -= 0x10;
+		value_0x2000 -= 0x10;
+
+		compressed_data_iterator = value_0x2000 >> 5;
 
 		nibble_count_table_index = compressed_data[ 2 + compressed_data_iterator ] & 0x0f;
 
@@ -694,7 +724,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			total_nibble_count_table[ nibble_count_table_index ] -= 1;
 			compression_value_table_index                         = total_nibble_count_table[ nibble_count_table_index ];
 
-			if( compression_value_table_index > 1024 )
+			if( compression_value_table_index > 2048 )
 			{
 				liberror_error_set(
 				 error,
@@ -705,26 +735,20 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 				return( -1 );
 			}
-			compression_value_table[ compression_value_table_index ] = compression_value | nibble_count_table_index;
+			compression_value_table[ compression_value_table_index ] = value_0x2000 | nibble_count_table_index;
 		}
-		compression_value -= 0x10;
-
-		compressed_data_iterator--;
 	}
-	while( compressed_data_iterator > 0 );
+	compression_value_table_index = 0x0800;
+	value_0x0800                  = 0x0800;
+	value_0x0400                  = 0x0400;
 
-	compression_value_table_index  = total_nibble_count_table[ 15 ];
-	compression_value_table_index2 = 0x800;
-	value_0x800                    = 0x800;
-	value_0x400                    = 0x400;
-
-	if( compression_value_table_index > 1024 )
+	if( total_nibble_count > 2048 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: compression value table index value exceeds maximum.",
+		 "%s: total nibble count value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -733,62 +757,47 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	     nibble_count_table_index > 10;
 	     nibble_count_table_index-- )
 	{
-		if( value_0x800 > compression_value_table_index2 )
+		if( value_0x0800 > compression_value_table_index )
 		{
-			value_0x800                    -= 2;
-			compression_value_table_index2 -= 1;
+			value_0x0800                  -= 2;
+			compression_value_table_index -= 1;
 
-			compression_value_table[ compression_value_table_index2 ] = value_0x800 | 0x8000;
+			compression_value_table[ compression_value_table_index ] = value_0x0800 | 0x8000;
 		}
 		for( nibble_count = nibble_count_table[ nibble_count_table_index ];
 		     nibble_count > 0;
 		     nibble_count-- )
 		{
-			compression_value = compression_value_table[ compression_value_table_index ];
+			total_nibble_count -= 1;
 
-			compression_value_table_index  -= 1;
-			compression_value_table_index2 -= 1;
+			compression_value              = compression_value_table[ total_nibble_count ];
+			compression_value_table_index -= 1;
 
-			compression_value_table[ compression_value_table_index2 ] = compression_value;
+			compression_value_table[ compression_value_table_index ] = compression_value;
 		}
 	}
-	while( value_0x800 > compression_value_table_index2 )
+	while( value_0x0800 > compression_value_table_index )
 	{
-		value_0x800 -= 2;
-		value_0x400 -= 1;
+		value_0x0800 -= 2;
+		value_0x0400 -= 1;
 
-		compression_value_table[ value_0x400 ] = value_0x800 | 0x8000;
+		compression_value_table[ value_0x0400 ] = value_0x0800 | 0x8000;
 	}
-	compression_value_table_index  = total_nibble_count_table[ 15 ] - 1;
-	compression_value_table_index2 = 0x400;
-
-	if( compression_value_table_index > 1024 )
+	while( total_nibble_count > 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: compression value table index value exceeds maximum.",
-		 function );
+		total_nibble_count -= 1;
 
-		return( -1 );
-	}
-	do
-	{
-		compression_value = compression_value_table[ compression_value_table_index ];
-		value_32bit       = compression_value_table_index2 - ( 0x400 >> ( compression_value & 0x0f ) );
+		compression_value             = compression_value_table[ total_nibble_count ];
+		compression_value_table_index = value_0x0400 - ( 0x0400 >> ( compression_value & 0x0f ) );
 
 		do
 		{
-			compression_value_table_index2 -= 1;
+			value_0x0400 -= 1;
 
-			compression_value_table[ compression_value_table_index2 ] = compression_value;
+			compression_value_table[ value_0x0400 ] = compression_value;
 		}
-		while( compression_value_table_index2 > value_32bit );
-
-		compression_value_table_index -= 1;
+		while( value_0x0400 > compression_value_table_index );
 	}
-	while( compression_value_table_index >= 0 );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libsystem_notify_printf(
@@ -796,12 +805,23 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	 function );
 	libsystem_notify_print_data(
 	 (uint8_t *) compression_value_table,
-	 2 * 1024 );
+	 2 * 2048 );
 #endif
 	/* Byte 258 - end contain the compression data bit stream
 	 */
 	compressed_data_iterator = 2 + 0x100;
 
+	if( ( compressed_data_iterator + 3 ) >= compressed_data_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: compressed data size value too small.",
+		 function );
+
+		return( -1 );
+	}
 	/* Read the data as 16-bit little endian values
 	 */
 	compressed_data_bit_stream   = compressed_data[ compressed_data_iterator + 1 ];
@@ -821,34 +841,86 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	 * starting with the first bit in the stream
 	 * 0 - 9 compression value table index (where 0 is the MSB of the value)
 	 */
-	do
+	while( compressed_data_iterator < compressed_data_size )
 	{
 		/* Read a 10-bit table index from the decoded data
 		 * maximum index of 1023
 		 */
 		compression_value_table_index = compressed_data_bit_stream >> 0x16;
 
-		if( compression_value_table[ compression_value_table_index ] < 0 )
+		/* Check if the table entry contains an ignore index flag (bit 15)
+		 */
+		if( ( compression_value_table[ compression_value_table_index ] & 0x8000 ) != 0 )
 		{
-			/* TODO */
-fprintf( stderr, "CP3\n" );
-			return( -1 );
+			/* Ignore the 10-bit index
+			 */
+			compressed_data_bit_stream <<= 10;
+
+			do
+			{
+				compression_value_table_index = compression_value_table[ compression_value_table_index ] & 0x7fff;
+
+				/* Add the MSB of the compressed data bit stream to the
+				 * compression value table index
+				 */
+				compression_value_table_index += compressed_data_bit_stream >> 31;
+
+				/* Ignore 1 bit for empty compression values
+				 */
+				compressed_data_bit_stream <<= 1;
+
+				if( compression_value_table_index > 2048 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+					 "%s: compression value table index value exceeds maximum.",
+					 function );
+
+					return( -1 );
+				}
+			}
+			while( compression_value_table[ compression_value_table_index ] == 0 );
+
+			/* Retrieve the number of bits used (lower 4-bit) of from the table entry
+			 */
+			number_of_bits_used = (int8_t) ( compression_value_table[ compression_value_table_index ] & 0x0f );
+
+			/* Retrieve the compression value from the table entry
+			 */
+			compression_value = compression_value_table[ compression_value_table_index ] >> 4;
+
+			number_of_bits_available -= number_of_bits_used;
 		}
-		/* Retrieve the number of bits used (lower 4-bit) of from the table entry
-		 */
-		number_of_bits_used = (int8_t) ( compression_value_table[ compression_value_table_index ] & 0x0f );
+		else
+		{
+			/* Retrieve the number of bits used (lower 4-bit) of from the table entry
+			 */
+			number_of_bits_used = (int8_t) ( compression_value_table[ compression_value_table_index ] & 0x0f );
 
-		/* Retrieve the compression value from the table entry
-		 */
-		compression_value = compression_value_table[ compression_value_table_index ] >> 4;
+			/* Retrieve the compression value from the table entry
+			 */
+			compression_value = compression_value_table[ compression_value_table_index ] >> 4;
 
-		compressed_data_bit_stream <<= number_of_bits_used;
-		number_of_bits_available    -= number_of_bits_used;
-
+			number_of_bits_available    -= number_of_bits_used;
+			compressed_data_bit_stream <<= number_of_bits_used;
+		}
 		if( number_of_bits_available < 0 )
 		{
 			number_of_bits_used = -1 * number_of_bits_available;
 
+			if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: compressed data size value too small.",
+				 function );
+
+				return( -1 );
+			}
 			/* Read the data as 16-bit little endian values
 			 */
 			value_32bit   = compressed_data[ compressed_data_iterator + 1 ];
@@ -862,20 +934,27 @@ fprintf( stderr, "CP3\n" );
 
 			number_of_bits_available += 0x10;
 		}
-
-		/* Check if the table entry contains a compression tuple flag
-		 * (bit 12)
+		/* Check if the table entry contains a compression tuple flag (bit 12)
 		 */
 		if( ( compression_value_table[ compression_value_table_index ] & 0x1000 ) != 0 )
 		{
-			/* Retrieve the size of the compression (bit 7-4) from the table entry
+			/* Retrieve the size of the compression (bit 4-7) from the table entry
 			 */
 			compression_size = (uint16_t) ( ( compression_value_table[ compression_value_table_index ] >> 4 ) & 0x0f );
 
-			/* Retrieve the size of the compression (bit 11-8) from the table entry
+			/* Retrieve the size of the compression (bit 8-11) from the table entry
 			 */
 			number_of_bits_used = (int8_t) ( ( compression_value_table[ compression_value_table_index ] >> 8 ) & 0x0f );
 
+			/* Break if the end of the compressed data is reached
+			 * and both the compression size and number of bits used for the compression offset are 0
+			 */
+			if( ( compressed_data_iterator == compressed_data_size )
+			 && ( compression_size == 0 )
+			 && ( number_of_bits_used == 0 ) )
+			{
+				break;
+			}
 			/* Retrieve the compression offset from the decoded data
 			 */
 			compression_offset = ( compressed_data_bit_stream >> 1 ) | 0x80000000;
@@ -887,12 +966,34 @@ fprintf( stderr, "CP3\n" );
 
 			if( compression_size == 0x0f )
 			{
+				if( compressed_data_iterator >= compressed_data_size )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 "%s: compressed data size value too small.",
+					 function );
+
+					return( -1 );
+				}
 				compression_size += compressed_data[ compressed_data_iterator ];
 
 				compressed_data_iterator += 1;
 			}
 			if( compression_size == ( 0xff + 0x0f ) )
 			{
+				if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 "%s: compressed data size value too small.",
+					 function );
+
+					return( -1 );
+				}
 				byte_stream_copy_to_uint16_little_endian(
 				 &( compressed_data[ compressed_data_iterator ] ),
 				 compression_size );
@@ -901,66 +1002,75 @@ fprintf( stderr, "CP3\n" );
 
 				if( compression_size < ( 0xff + 0x0f ) )
 				{
-fprintf( stderr, "CP4\n" );
 					/* TODO error */
 					return( -1 );
 				}
 			}
-			if( compression_size > 0 )
+			compression_size += 3;
+
+			if( number_of_bits_available < 0 )
 			{
-				compression_size += 3;
+				number_of_bits_used = -1 * number_of_bits_available;
 
-				if( number_of_bits_available < 0 )
+				if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 				{
-					number_of_bits_used = -1 * number_of_bits_available;
-
-					/* Read the data as 16-bit little endian values
-					 */
-					value_32bit   = compressed_data[ compressed_data_iterator + 1 ];
-					value_32bit <<= 8;
-					value_32bit  += compressed_data[ compressed_data_iterator ];
-
-					compressed_data_iterator += 2;
-
-					value_32bit               <<= number_of_bits_used;
-					compressed_data_bit_stream += value_32bit;
-
-					number_of_bits_available += 0x10;
-				}
-				if( ( uncompressed_data_iterator + compression_size ) >= uncompressed_data_size )
-				{
-fprintf( stderr, "CP5: %zd, %d, %zd\n",
- uncompressed_data_iterator,
- compression_size,
- uncompressed_data_size );
-
-libsystem_notify_print_data(
- uncompressed_data,
- uncompressed_data_size );
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-					 "%s: uncompressed data size value too small.",
+					 "%s: compressed data size value too small.",
 					 function );
 
 					return( -1 );
 				}
-				compression_iterator = uncompressed_data_iterator - compression_offset;
+				/* Read the data as 16-bit little endian values
+				 */
+				value_32bit   = compressed_data[ compressed_data_iterator + 1 ];
+				value_32bit <<= 8;
+				value_32bit  += compressed_data[ compressed_data_iterator ];
 
-				while( compression_size > 0 )
-				{
-					uncompressed_data[ uncompressed_data_iterator++ ] = uncompressed_data[ compression_iterator++ ];
+				compressed_data_iterator += 2;
 
-					compression_size--;
-				}
+				value_32bit               <<= number_of_bits_used;
+				compressed_data_bit_stream += value_32bit;
+
+				number_of_bits_available += 0x10;
+			}
+			if( ( uncompressed_data_iterator + compression_size ) > uncompressed_data_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 "%s: uncompressed data size value too small.",
+				 function );
+
+				return( -1 );
+			}
+			if( compression_offset > uncompressed_data_iterator )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: compression offset value exceeds uncompressed data iterator.",
+				 function );
+
+				return( -1 );
+			}
+			compression_iterator = uncompressed_data_iterator - compression_offset;
+
+			while( compression_size > 0 )
+			{
+				uncompressed_data[ uncompressed_data_iterator++ ] = uncompressed_data[ compression_iterator++ ];
+
+				compression_size--;
 			}
 		}
 		else
 		{
 			if( uncompressed_data_iterator >= uncompressed_data_size )
 			{
-fprintf( stderr, "CP6\n" );
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
@@ -973,7 +1083,6 @@ fprintf( stderr, "CP6\n" );
 			uncompressed_data[ uncompressed_data_iterator++ ] = (uint8_t) ( compression_value & 0xff );
 		}
 	}
-	while( compressed_data_iterator < compressed_data_size );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libsystem_notify_printf(
@@ -1300,7 +1409,7 @@ int windows_search_export_compressed_string_value(
 			return( -1 );
 		}
 		value_string = (uint8_t *) memory_allocate(
-					    sizeof( uint8_t ) * value_string_size );
+					    sizeof( uint8_t ) * ( value_string_size + 1 ) );
 
 		if( value_string == NULL )
 		{
@@ -1337,6 +1446,8 @@ int windows_search_export_compressed_string_value(
 
 			return( -1 );
 		}
+		value_string[ value_string_size ] = 0;
+
 		memory_free(
 		 decoded_value_data );
 
@@ -2051,8 +2162,9 @@ int windows_search_export_record_value_compressed_string(
 				return( -1 );
 			}
 libsystem_notify_printf(
- "LONG VALUE DATA: %d\n",
- long_value_segment_iterator );
+ "LONG VALUE DATA: %d out of %d\n",
+ long_value_segment_iterator + 1,
+ number_of_long_value_segments );
 			if( value_data != NULL )
 			{
 				/* TODO assume data is compressed per segment */

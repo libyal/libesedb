@@ -46,6 +46,11 @@ enum LIBESEDB_PAGE_TREE_FLAGS
 	LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION		= 0x01
 };
 
+enum LIBESEDB_PAGE_KEY_FLAGS
+{
+	LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY			= 0x01
+};
+
 typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
@@ -126,6 +131,7 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
      libesedb_page_tree_t *page_tree,
      uint8_t *key,
      size_t key_size,
+     uint8_t flags,
      libesedb_data_definition_t **data_definition,
      liberror_error_t **error );
 

@@ -1,6 +1,8 @@
 TODO
-* windows search: work on index-based compression
 * improve implicit long value page key handling
+  - add implicit key, ignore zeros in look-up
+* windows search: work on index-based compression
+  (create test program to validate output)
 * fix memory leak regarding long values
 * configure.ac update libfguid detection
 * update msvscpp files, ese specific
@@ -70,6 +72,9 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100516
+* worked on Windows Search index-based compression
 
 20100515
 * worked on Windows Search index-based compression

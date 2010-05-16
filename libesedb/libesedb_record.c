@@ -2399,6 +2399,7 @@ int libesedb_record_get_long_value(
 	     internal_record->internal_table->long_value_page_tree,
 	     data_type_definition->data,
 	     data_type_definition->data_size,
+	     LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY,
 	     &( internal_long_value->data_definition ),
 	     error ) != 1 )
 	{
@@ -2410,6 +2411,9 @@ int libesedb_record_get_long_value(
 		 function );
 
 #if defined( HAVE_DEBUG_OUTPUT )
+		libnotify_printf(
+		 "%s: long value data key:\n",
+		 function );
 		libnotify_print_data(
 		 data_type_definition->data,
 		 data_type_definition->data_size );
