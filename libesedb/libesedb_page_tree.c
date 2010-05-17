@@ -2490,40 +2490,36 @@ int libesedb_page_tree_read_leaf_page_values(
 					if( non_empty_page_key_found == 0 )
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
-						page_key_data = page->key;
-						page_key_size = page->key_size;
-
-#ifdef X
-						while( page_key_size > 0 )
-						{
-							if( *page_key_data != 0 )
-							{
-								break;
-							}
-							page_key_data++;
-							page_key_size--;
-						}
-#endif
 						if( libnotify_verbose != 0 )
 						{
+							page_key_data = page->key;
+							page_key_size = page->key_size;
+
+#ifdef X
+							while( page_key_size > 0 )
+							{
+								if( *page_key_data != 0 )
+								{
+									break;
+								}
+								page_key_data++;
+								page_key_size--;
+							}
+#endif
 							libnotify_printf(
 							 "%s: value: %03d implicit key value\t\t\t: ",
 							 function,
 							 page_value_iterator );
-						}
-						while( page_key_size > 0 )
-						{
-							if( libnotify_verbose != 0 )
+
+							while( page_key_size > 0 )
 							{
 								libnotify_printf(
 								 "%02" PRIx8 " ",
 								 *page_key_data );
+
+								page_key_data++;
+								page_key_size--;
 							}
-							page_key_data++;
-							page_key_size--;
-						}
-						if( libnotify_verbose != 0 )
-						{
 							libnotify_printf(
 							 "\n" );
 						}
@@ -2819,9 +2815,15 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 {
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_page_tree_get_long_value_data_definition_by_key";
+	size_t compare_size                   = 0;
 	size_t data_definition_key_index      = 0;
 	size_t key_index                      = 0;
 	int list_element_iterator             = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint8_t *page_key_data                = NULL;
+	size_t page_key_size                  = 0;
+#endif
 
 	if( page_tree == NULL )
 	{
@@ -2891,6 +2893,29 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 	}
 	list_element = page_tree->value_definition_list->first;
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		page_key_data = key;
+		page_key_size = key_size;
+
+		libnotify_printf(
+		 "%s: requested key\t\t\t: ",
+		 function );
+
+		while( page_key_size > 0 )
+		{
+			libnotify_printf(
+			 "%02" PRIx8 " ",
+			 *page_key_data );
+
+			page_key_data++;
+			page_key_size--;
+		}
+		libnotify_printf(
+		 "\n" );
+	}
+#endif
 	for( list_element_iterator = 0;
 	     list_element_iterator < page_tree->value_definition_list->number_of_elements;
 	     list_element_iterator++ )
@@ -2935,21 +2960,60 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 
 			return( -1 );
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			page_key_data = ( *data_definition )->key;
+			page_key_size = ( *data_definition )->key_size;
+
+			libnotify_printf(
+			 "%s: data definition: %d key\t: ",
+			 function,
+			 list_element_iterator );
+
+			while( page_key_size > 0 )
+			{
+				libnotify_printf(
+				 "%02" PRIx8 " ",
+				 *page_key_data );
+
+				page_key_data++;
+				page_key_size--;
+			}
+			libnotify_printf(
+			 "\n" );
+		}
+#endif
+		if( ( *data_definition )->key_size < key_size )
+		{
+			compare_size = ( *data_definition )->key_size;
+		}
+		else
+		{
+			compare_size = key_size;
+		}
 		if( ( flags & LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY ) != 0 )
 		{
-			data_definition_key_index = ( *data_definition )->key_size - 1;
+			if( ( *data_definition )->key_size > compare_size )
+			{
+				data_definition_key_index = compare_size - 1;
+			}
+			else
+			{
+				data_definition_key_index = ( *data_definition )->key_size - 1;
+			}
 		}
 		else
 		{
 			data_definition_key_index = 0;
 		}
-fprintf( stderr, "A: %zd: %zd\n",
- data_definition_key_index, ( *data_definition )->key_size );
 		for( key_index = 0;
-		     key_index < key_size;
+		     key_index < compare_size;
 		     key_index++ )
 		{
-fprintf( stderr, "%zd: %02x =? %zd: %02x\n",
+fprintf(
+ stderr,
+ "%zd: %02x =? %zd: %02x\n",
  key_index, key[ key_index ],
  data_definition_key_index, ( *data_definition )->key[ data_definition_key_index ] );
 
@@ -2961,11 +3025,9 @@ fprintf( stderr, "%zd: %02x =? %zd: %02x\n",
 			{
 				if( data_definition_key_index == 0 )
 				{
-					if( key_index == ( key_size - 1 ) )
+					if( key_index == ( compare_size - 1 ) )
 					{
-fprintf( stderr, "%zd: %zd, %zd: 0\n",
- key_index, ( key_size - 1 ),
- data_definition_key_index );
+fprintf( stderr, "Match\n" );
 						return( 1 );
 					}
 					break;
@@ -2976,11 +3038,9 @@ fprintf( stderr, "%zd: %zd, %zd: 0\n",
 			{
 				if( data_definition_key_index == ( ( *data_definition )->key_size - 1 ) )
 				{
-					if( key_index == ( key_size - 1 ) )
+					if( key_index == ( compare_size - 1 ) )
 					{
-fprintf( stderr, "%zd: %zd, %zd: %zd\n",
- key_index, ( key_size - 1 ),
- data_definition_key_index, ( ( *data_definition )->key_size - 1 ) );
+fprintf( stderr, "Match\n" );
 						return( 1 );
 					}
 					break;

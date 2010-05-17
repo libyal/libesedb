@@ -73,8 +73,12 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100517
+* worked on long value support
+
 20100516
 * worked on Windows Search index-based compression
+* worked on long value support
 
 20100515
 * worked on Windows Search index-based compression
