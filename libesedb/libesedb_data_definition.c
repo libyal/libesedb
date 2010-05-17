@@ -1172,8 +1172,8 @@ int libesedb_data_definition_read_long_value(
      size_t definition_data_size,
      liberror_error_t **error )
 {
-	static char *function            = "libesedb_data_definition_read_long_value";
-	uint32_t number_of_data_segments = 0;
+	static char *function = "libesedb_data_definition_read_long_value";
+	uint32_t value_32bit  = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1233,7 +1233,7 @@ int libesedb_data_definition_read_long_value(
 	}
 	byte_stream_copy_to_uint16_little_endian(
 	 definition_data,
-	 number_of_data_segments );
+	 value_32bit );
 
 	definition_data += 4;
 
@@ -1247,9 +1247,9 @@ int libesedb_data_definition_read_long_value(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: long value last data segment\t\t\t: %" PRIu32 "\n",
+		 "%s: unknown\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 number_of_data_segments );
+		 value_32bit );
 		libnotify_printf(
 		 "%s: long value number total data size\t\t: %" PRIu32 "\n",
 		 function,
@@ -1258,13 +1258,10 @@ int libesedb_data_definition_read_long_value(
 		 "\n" );
 	}
 #endif
-	if( number_of_data_segments == 0 )
-	{
-		number_of_data_segments = 1;
-	}
+
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
-	     (int) number_of_data_segments,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1284,13 +1281,14 @@ int libesedb_data_definition_read_long_value(
  */
 int libesedb_data_definition_read_long_value_segment(
      libesedb_data_definition_t *data_definition,
-     uint32_t data_segment_number,
+     uint32_t data_segment_offset,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
 	static char *function                                 = "libesedb_data_definition_read_long_value_segment";
+	int data_segment_number                               = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1340,14 +1338,35 @@ int libesedb_data_definition_read_long_value_segment(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: long value data segment\t\t: %" PRIu32 "\n",
+		 "%s: long value data offset\t\t: %" PRIu32 "\n",
 		 function,
-		 data_segment_number );
+		 data_segment_offset );
 		libnotify_printf(
 		 "\n" );
 	}
 #endif
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( data_segment_offset > data_definition->size )
+	{
+		libnotify_printf(
+		 "%s: data segment at offset: %" PRIu32 " exceeds data definition size: %zd.",
+		 function,
+		 data_segment_offset,
+		 data_definition->size );
+
+		return( -1 );
+	}
+	if( ( data_segment_offset + definition_data_size ) > data_definition->size )
+	{
+		libnotify_printf(
+		 "%s: data segment at offset: %" PRIu32 " with size: %zd exceeds data definition size: %zd.\n",
+		 function,
+		 data_segment_offset,
+		 definition_data_size,
+		 data_definition->size );
+	}
+#endif
 	if( libesedb_data_type_definition_initialize(
 	     &data_type_definition,
 	     NULL,
@@ -1372,9 +1391,9 @@ int libesedb_data_definition_read_long_value_segment(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set data in long value segment data type definition: %" PRIu32 ".",
+		 "%s: unable to set data in long value segment data type definition for offset: %" PRIu32 ".",
 		 function,
-		 data_segment_number );
+		 data_segment_offset );
 
 		libesedb_data_type_definition_free(
 		 (intptr_t *) data_type_definition,
@@ -1382,19 +1401,19 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libesedb_array_set_entry(
+	if( libesedb_array_append_entry(
 	     data_definition->values_array,
-	     (int) data_segment_number,
+	     &data_segment_number,
 	     (intptr_t *) data_type_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to set long value segment data type definition: %" PRIu32 ".",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append long value segment data type definition for offset: %" PRIu32 ".",
 		 function,
-		 data_segment_number );
+		 data_segment_offset );
 
 		libesedb_data_type_definition_free(
 		 (intptr_t *) data_type_definition,

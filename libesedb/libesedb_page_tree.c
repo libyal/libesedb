@@ -1843,7 +1843,7 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint8_t *page_key_data                                 = NULL;
 	uint8_t *page_value_data                               = NULL;
 	static char *function                                  = "libesedb_page_tree_read_leaf_page_values";
-	uint32_t long_value_data_segment_number                = 0;
+	uint32_t long_value_data_segment_offset                = 0;
 	uint32_t required_flags                                = 0;
 	uint32_t supported_flags                               = 0;
 	uint16_t common_key_size                               = 0;
@@ -2665,13 +2665,13 @@ int libesedb_page_tree_read_leaf_page_values(
 						 && ( long_value_data_definition->values_array != NULL )
 						 && ( long_value_data_definition->values_array->number_of_entries == 1 ) )
 						{
-							long_value_data_segment_number = 0;
+							long_value_data_segment_offset = 0;
 						}
 						else if( data_definition->key_size >= 4 )
 						{
 							byte_stream_copy_to_uint32_big_endian(
 							 &( data_definition->key[ data_definition->key_size - 4 ] ),
-							 long_value_data_segment_number );
+							 long_value_data_segment_offset );
 						}
 						else
 						{
@@ -2692,7 +2692,7 @@ int libesedb_page_tree_read_leaf_page_values(
 						}
 						if( libesedb_data_definition_read_long_value_segment(
 						     long_value_data_definition,
-						     long_value_data_segment_number,
+						     long_value_data_segment_offset,
 						     page_value_data,
 						     page_value_size,
 						     error ) != 1 )

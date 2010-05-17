@@ -1,6 +1,5 @@
 TODO
-* improve implicit long value page key handling
-  - add implicit key, ignore zeros in look-up
+* support for non-linear stored long value segments
 * windows search: work on index-based compression
   (create test program to validate output)
 * fix memory leak regarding long values
