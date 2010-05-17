@@ -384,7 +384,7 @@ int libesedb_page_tree_read(
 
 		return( -1 );
 	}
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 		if( libesedb_page_tree_read_leaf_page_values(
 		     page_tree,
@@ -407,7 +407,7 @@ int libesedb_page_tree_read(
 			return( -1 );
 		}
 	}
-	else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == LIBESEDB_PAGE_FLAG_IS_ROOT )
+	else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 	{
 		if( libesedb_page_tree_read_father_data_page_values(
 		     page_tree,
@@ -1039,8 +1039,8 @@ int libesedb_page_tree_read_child_pages(
 	uint32_t previous_child_page_number      = 0;
 	uint32_t previous_next_child_page_number = 0;
 	uint16_t number_of_page_values           = 0;
-	uint16_t key_size                        = 0;
-	uint16_t key_type                        = 0;
+	uint16_t common_key_size                 = 0;
+	uint16_t local_key_size                  = 0;
 	uint16_t page_value_iterator             = 0;
 	uint16_t page_value_size                 = 0;
 
@@ -1118,11 +1118,11 @@ int libesedb_page_tree_read_child_pages(
 		page_value_data = page_value->data;
 		page_value_size = (uint16_t) page_value->size;
 
-		if( ( page_value->flags & 0x04 ) == 0x04 )
+		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 page_value_data,
-			 key_type );
+			 common_key_size );
 
 			page_value_data += 2;
 			page_value_size -= 2;
@@ -1131,11 +1131,10 @@ int libesedb_page_tree_read_child_pages(
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: value: %03d key type\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
+				 "%s: value: %03d common key size\t\t: %" PRIu32 "\n",
 				 function,
 				 page_value_iterator,
-				 key_type,
-				 key_type );
+				 common_key_size );
 			}
 #endif
 		}
@@ -1154,7 +1153,7 @@ int libesedb_page_tree_read_child_pages(
 #endif
 		byte_stream_copy_to_uint16_little_endian(
 		 page_value_data,
-		 key_size );
+		 local_key_size );
 
 		page_value_data += 2;
 		page_value_size -= 2;
@@ -1163,20 +1162,20 @@ int libesedb_page_tree_read_child_pages(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: value: %03d highest key size\t: %" PRIu16 "\n",
+			 "%s: value: %03d local key size\t\t: %" PRIu16 "\n",
 			 function,
 			 page_value_iterator,
-			 key_size );
+			 local_key_size );
 		}
 #endif
 
-		if( key_size > page_value_size )
+		if( local_key_size > page_value_size )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-			 "%s: key size exceeds page value size.",
+			 "%s: local key size exceeds page value size.",
 			 function );
 
 			return( -1 );
@@ -1185,12 +1184,14 @@ int libesedb_page_tree_read_child_pages(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: value: %03d highest key value\t: ",
+			 "%s: value: %03d local key value\t\t: ",
 			 function,
 			 page_value_iterator );
 		}
 #endif
-		while( key_size > 0 )
+
+		/* TODO combine common and local key */
+		while( local_key_size > 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -1202,7 +1203,7 @@ int libesedb_page_tree_read_child_pages(
 #endif
 			page_value_data++;
 			page_value_size--;
-			key_size--;
+			local_key_size--;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -1295,7 +1296,7 @@ int libesedb_page_tree_read_child_pages(
 
 			return( -1 );
 		}
-		if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
+		if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 		{
 			if( libnotify_verbose != 0 )
 			{
@@ -1367,7 +1368,7 @@ int libesedb_page_tree_read_child_pages(
 				return( -1 );
 			}
 		}
-		else if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
+		else if( ( child_page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) != 0 )
 		{
 			if( libesedb_page_tree_read_parent_page_values(
 			     page_tree,
@@ -1561,7 +1562,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 	}
 #endif
 
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 		if( page_value->size == 16 )
 		{
@@ -1626,7 +1627,7 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 			return( -1 );
 		}
-		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == LIBESEDB_PAGE_FLAG_IS_LEAF )
+		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 		{
 			if( ( page_value->flags & 0x05 ) != 0 )
 			{
@@ -1701,14 +1702,14 @@ int libesedb_page_tree_read_space_tree_page_values(
 				libnotify_printf(
 				 "\n" );
 
-				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 				{
 					total_number_of_pages += test;
 				}
 			}
 #endif
 		}
-		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) == LIBESEDB_PAGE_FLAG_IS_PARENT )
+		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) != 0 )
 		{
 #if defined( HAVE_VERBOSE_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -1845,13 +1846,12 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint32_t long_value_data_segment_number                = 0;
 	uint32_t required_flags                                = 0;
 	uint32_t supported_flags                               = 0;
-	uint16_t key_size                                      = 0;
-	uint16_t key_type                                      = 0;
+	uint16_t common_key_size                               = 0;
+	uint16_t local_key_size                                = 0;
 	uint16_t number_of_page_values                         = 0;
 	uint16_t page_key_size                                 = 0;
 	uint16_t page_value_iterator                           = 0;
 	uint16_t page_value_size                               = 0;
-	uint8_t non_empty_page_key_found                       = 0;
 	int result                                             = 0;
 
 	if( page_tree == NULL )
@@ -2057,55 +2057,6 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 #endif
 
-		if( ( page_value->flags & 0x04 ) == 0x04 )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 page_value_data,
-			 key_type );
-
-			page_value_data += 2;
-			page_value_size -= 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_printf(
-				 "%s: value: %03d key type\t\t\t\t: 0x%04" PRIx32 " (%" PRIu32 ")\n",
-				 function,
-				 page_value_iterator,
-				 key_type,
-				 key_type );
-			}
-#endif
-		}
-		byte_stream_copy_to_uint16_little_endian(
-		 page_value_data,
-		 key_size );
-
-		page_value_data += 2;
-		page_value_size -= 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
-		{
-			libnotify_printf(
-			 "%s: value: %03d key size\t\t\t\t: %" PRIu16 "\n",
-			 function,
-			 page_value_iterator,
-			 key_size );
-		}
-#endif
-		if( key_size > page_value_size )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-			 "%s: key size exceeds page value size.",
-			 function );
-
-			return( -1 );
-		}
 		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) == 0 )
 		{
 			if( libesedb_data_definition_initialize(
@@ -2121,17 +2072,117 @@ int libesedb_page_tree_read_leaf_page_values(
 
 				return( -1 );
 			}
-			if( libesedb_data_definition_set_key(
+		}
+		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 page_value_data,
+			 common_key_size );
+
+			page_value_data += 2;
+			page_value_size -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d common key size\t\t\t: %" PRIu32 "\n",
+				 function,
+				 page_value_iterator,
+				 common_key_size );
+			}
+#endif
+			if( common_key_size > page->key_size )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: common key size exceeds maximum value.",
+				 function );
+
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
+
+				data_definition = NULL;
+
+				return( -1 );
+			}
+			if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) == 0 )
+			{
+				if( libesedb_data_definition_set_common_key(
+				     data_definition,
+				     page->key,
+				     common_key_size,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+					 "%s: unable to set common key in data definition.",
+					 function );
+
+					libesedb_data_definition_free(
+					 (intptr_t *) data_definition,
+					 NULL );
+
+					data_definition = NULL;
+
+					return( -1 );
+				}
+			}
+		}
+		byte_stream_copy_to_uint16_little_endian(
+		 page_value_data,
+		 local_key_size );
+
+		page_value_data += 2;
+		page_value_size -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d local key size\t\t\t: %" PRIu16 "\n",
+			 function,
+			 page_value_iterator,
+			 local_key_size );
+		}
+#endif
+		if( local_key_size > page_value_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: local key size exceeds page value size.",
+			 function );
+
+			if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) == 0 )
+			{
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
+
+				data_definition = NULL;
+			}
+			return( -1 );
+		}
+		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) == 0 )
+		{
+			if( libesedb_data_definition_set_local_key(
 			     data_definition,
 			     page_value_data,
-			     key_size,
+			     local_key_size,
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set key in data definition.",
+				 "%s: unable to set local key in data definition.",
 				 function );
 
 				libesedb_data_definition_free(
@@ -2147,11 +2198,11 @@ int libesedb_page_tree_read_leaf_page_values(
 		if( libnotify_verbose != 0 )
 		{
 			libnotify_printf(
-			 "%s: value: %03d key value\t\t\t\t: ",
+			 "%s: value: %03d local key value\t\t\t: ",
 			 function,
 			 page_value_iterator );
 		}
-		page_key_size = key_size;
+		page_key_size = local_key_size;
 
 		while( page_key_size > 0 )
 		{
@@ -2171,13 +2222,13 @@ int libesedb_page_tree_read_leaf_page_values(
 			 "\n" );
 		}
 #else
-		page_value_data += key_size;
-		page_value_size -= key_size;
+		page_value_data += local_key_size;
+		page_value_size -= local_key_size;
 #endif
 
 		/* The catalog is read using build-in catalog definition types
 		 */
-		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) == LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION )
+		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION ) != 0 )
 		{
 			if( libesedb_catalog_definition_initialize(
 			     &catalog_definition,
@@ -2432,6 +2483,30 @@ int libesedb_page_tree_read_leaf_page_values(
 		}
 		else
 		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d key value\t\t\t\t: ",
+				 function,
+				 page_value_iterator );
+
+				page_key_data = data_definition->key;
+				page_key_size = data_definition->key_size;
+
+				while( page_key_size > 0 )
+				{
+					libnotify_printf(
+					 "%02" PRIx8 " ",
+					 *page_key_data );
+
+					page_key_data++;
+					page_key_size--;
+				}
+				libnotify_printf(
+				 "\n" );
+			}
+#endif
 			if( page_tree->table_definition == NULL )
 			{
 				liberror_error_set(
@@ -2449,7 +2524,7 @@ int libesedb_page_tree_read_leaf_page_values(
 
 				return( -1 );
 			}
-			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) == LIBESEDB_PAGE_FLAG_IS_INDEX )
+			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) != 0 )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libnotify_verbose != 0 )
@@ -2479,92 +2554,8 @@ int libesedb_page_tree_read_leaf_page_values(
 				}
 #endif
 			}
-			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) == LIBESEDB_PAGE_FLAG_IS_LONG_VALUE )
+			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) != 0 )
 			{
-				/* TODO ignore defunct value if not in debug mode
-				 */
-
-		 		if( ( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
-				 && ( key_size == 0 ) )
-				{
-					if( non_empty_page_key_found == 0 )
-					{
-#if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
-						{
-							page_key_data = page->key;
-							page_key_size = page->key_size;
-
-#ifdef X
-							while( page_key_size > 0 )
-							{
-								if( *page_key_data != 0 )
-								{
-									break;
-								}
-								page_key_data++;
-								page_key_size--;
-							}
-#endif
-							libnotify_printf(
-							 "%s: value: %03d implicit key value\t\t\t: ",
-							 function,
-							 page_value_iterator );
-
-							while( page_key_size > 0 )
-							{
-								libnotify_printf(
-								 "%02" PRIx8 " ",
-								 *page_key_data );
-
-								page_key_data++;
-								page_key_size--;
-							}
-							libnotify_printf(
-							 "\n" );
-						}
-#endif
-						page_key_data = page->key;
-						page_key_size = page->key_size;
-
-#ifdef X
-						while( page_key_size > 0 )
-						{
-							if( *page_key_data != 0 )
-							{
-								break;
-							}
-							page_key_data++;
-							page_key_size--;
-						}
-#endif
-						if( libesedb_data_definition_set_key(
-						     data_definition,
-						     page_key_data,
-						     page_key_size,
-						     error ) != 1 )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-							 "%s: unable to set key in data definition.",
-							 function );
-
-							libesedb_data_definition_free(
-							 (intptr_t *) data_definition,
-							 NULL );
-
-							data_definition = NULL;
-
-							return( -1 );
-						}
-					}
-					else
-					{
-						non_empty_page_key_found = 1;
-					}
-				}
 				if( page_value_size == 8 )
 				{
 					if( libesedb_data_definition_read_long_value(
@@ -2591,7 +2582,7 @@ int libesedb_page_tree_read_leaf_page_values(
 					}
 					long_value_data_definition = data_definition;
 
-					if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+					if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 					{
 						if( libesedb_list_append_value(
 						     page_tree->value_definition_list,
@@ -2620,7 +2611,7 @@ int libesedb_page_tree_read_leaf_page_values(
 				}
 				else
 				{
-		 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+		 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 					{
 						if( ( long_value_data_definition == NULL )
 						 || ( long_value_data_definition->key_size == ( data_definition->key_size - 4 ) )
@@ -2752,7 +2743,7 @@ int libesedb_page_tree_read_leaf_page_values(
 
 					return( -1 );
 				}
-				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_DEFUNCT ) == 0 )
+				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 				{
 					if( libesedb_list_append_value(
 					     page_tree->value_definition_list,
@@ -2815,7 +2806,6 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 {
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_page_tree_get_long_value_data_definition_by_key";
-	size_t compare_size                   = 0;
 	size_t data_definition_key_index      = 0;
 	size_t key_index                      = 0;
 	int list_element_iterator             = 0;
@@ -2984,31 +2974,16 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 			 "\n" );
 		}
 #endif
-		if( ( *data_definition )->key_size < key_size )
-		{
-			compare_size = ( *data_definition )->key_size;
-		}
-		else
-		{
-			compare_size = key_size;
-		}
 		if( ( flags & LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY ) != 0 )
 		{
-			if( ( *data_definition )->key_size > compare_size )
-			{
-				data_definition_key_index = compare_size - 1;
-			}
-			else
-			{
-				data_definition_key_index = ( *data_definition )->key_size - 1;
-			}
+			data_definition_key_index = ( *data_definition )->key_size - 1;
 		}
 		else
 		{
 			data_definition_key_index = 0;
 		}
 		for( key_index = 0;
-		     key_index < compare_size;
+		     key_index < key_size;
 		     key_index++ )
 		{
 fprintf(
@@ -3025,12 +3000,8 @@ fprintf(
 			{
 				if( data_definition_key_index == 0 )
 				{
-					if( key_index == ( compare_size - 1 ) )
-					{
 fprintf( stderr, "Match\n" );
-						return( 1 );
-					}
-					break;
+					return( 1 );
 				}
 				data_definition_key_index--;
 			}
@@ -3038,12 +3009,8 @@ fprintf( stderr, "Match\n" );
 			{
 				if( data_definition_key_index == ( ( *data_definition )->key_size - 1 ) )
 				{
-					if( key_index == ( compare_size - 1 ) )
-					{
 fprintf( stderr, "Match\n" );
-						return( 1 );
-					}
-					break;
+					return( 1 );
 				}
 				data_definition_key_index++;
 			}

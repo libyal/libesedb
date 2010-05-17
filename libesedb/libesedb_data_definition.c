@@ -159,16 +159,16 @@ int libesedb_data_definition_free(
 	return( result );
 }
 
-/* Sets the key in the data definition
+/* Sets the common key in the data definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_data_definition_set_key(
+int libesedb_data_definition_set_common_key(
      libesedb_data_definition_t *data_definition,
-     uint8_t *key,
-     size_t key_size,
+     uint8_t *common_key,
+     size_t common_key_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_data_definition_set_key";
+	static char *function = "libesedb_data_definition_set_common_key";
 
 	if( data_definition == NULL )
 	{
@@ -192,32 +192,32 @@ int libesedb_data_definition_set_key(
 
 		return( -1 );
 	}
-	if( key == NULL )
+	if( common_key == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid key.",
+		 "%s: invalid common key.",
 		 function );
 
 		return( -1 );
 	}
-	if( key_size > (size_t) SSIZE_MAX )
+	if( common_key_size > (size_t) SSIZE_MAX )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid key size value exceeds maximum.",
+		 "%s: invalid common key size value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
-	if( key_size > 0 )
+	if( common_key_size > 0 )
 	{
 		data_definition->key = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * key_size );
+						    sizeof( uint8_t ) * common_key_size );
 
 		if( data_definition->key == NULL )
 		{
@@ -232,19 +232,102 @@ int libesedb_data_definition_set_key(
 		}
 		if( memory_copy(
 		     data_definition->key,
-		     key,
-		     sizeof( uint8_t ) * key_size ) == NULL )
+		     common_key,
+		     sizeof( uint8_t ) * common_key_size ) == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy key.",
+			 "%s: unable to copy common key.",
 			 function );
 
 			return( -1 );
 		}
-		data_definition->key_size = key_size;
+		data_definition->key_size = common_key_size;
+	}
+	return( 1 );
+}
+
+/* Sets the local key in the data definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_data_definition_set_local_key(
+     libesedb_data_definition_t *data_definition,
+     uint8_t *local_key,
+     size_t local_key_size,
+     liberror_error_t **error )
+{
+	void *reallocation    = NULL;
+	static char *function = "libesedb_data_definition_set_local_key";
+
+	if( data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( local_key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid local key.",
+		 function );
+
+		return( -1 );
+	}
+	if( local_key_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid local key size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( local_key_size > 0 )
+	{
+		reallocation = memory_reallocate(
+		                data_definition->key,
+		                sizeof( uint8_t ) * ( data_definition->key_size + local_key_size ) );
+
+		if( reallocation == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to resize key.",
+			 function );
+
+			return( -1 );
+		}
+		data_definition->key = (uint8_t *) reallocation;
+
+		if( memory_copy(
+		     &( data_definition->key[ data_definition->key_size ] ),
+		     local_key,
+		     sizeof( uint8_t ) * local_key_size ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy local key.",
+			 function );
+
+			return( -1 );
+		}
+		data_definition->key_size += local_key_size;
 	}
 	return( 1 );
 }
