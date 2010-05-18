@@ -1977,7 +1977,7 @@ int libesedb_page_tree_read_leaf_page_values(
 		 page_value->size );
 
 		libnotify_printf(
-		 "%s: (header) page key\t\t\t\t: ",
+		 "%s: (header) common page key\t\t\t: ",
 		 function,
 		 page_value_iterator );
 

@@ -1181,6 +1181,15 @@ int windows_search_export_compressed_string_value(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	libsystem_notify_printf(
+	 "%s: decoded data:\n",
+	 function );
+	libsystem_notify_print_data(
+	 decoded_value_data,
+	 decoded_value_data_size );
+#endif
+
 	/* Run-length compressed UTF-16 little-endian string
 	 */
 	if( decoded_value_data[ 0 ] == 0 )

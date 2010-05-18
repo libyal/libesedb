@@ -33,6 +33,7 @@ Library:
   - change GUID function to match libfdatetime like structure
 
 Debug
+* print file type string
 * is function libesedb_debug_print_table_group_of_bits needed?
 * print value flags
 
