@@ -100,8 +100,6 @@ int libesedb_compression_7bit_ascii_decompress(
 	}
 	uncompressed_data[ uncompressed_data_iterator++ ] = compressed_data[ 0 ];
 
-	compressed_data_iterator = 1;
-
 	for( compressed_data_iterator = 1;
 	     compressed_data_iterator < compressed_data_size;
 	     compressed_data_iterator++ )

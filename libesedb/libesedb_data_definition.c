@@ -1237,9 +1237,19 @@ int libesedb_data_definition_read_long_value(
 
 	definition_data += 4;
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: unknown1\t\t\t\t\t: %" PRIu32 "\n",
+		 function,
+		 value_32bit );
+	}
+#endif
+
 	byte_stream_copy_to_uint16_little_endian(
 	 definition_data,
-	 data_definition->size );
+	 value_32bit );
 
 	definition_data += 4;
 
@@ -1247,13 +1257,9 @@ int libesedb_data_definition_read_long_value(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: unknown\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: unknown2\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
-		libnotify_printf(
-		 "%s: long value number total data size\t\t: %" PRIu32 "\n",
-		 function,
-		 data_definition->size );
 		libnotify_printf(
 		 "\n" );
 	}
@@ -1347,23 +1353,12 @@ int libesedb_data_definition_read_long_value_segment(
 #endif
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( data_segment_offset > data_definition->size )
+	if( data_segment_offset != data_definition->size )
 	{
 		libnotify_printf(
-		 "%s: data segment at offset: %" PRIu32 " exceeds data definition size: %zd.",
+		 "%s: mismatch of data segment offset: %" PRIu32 " and data definition size: %zd.\n",
 		 function,
 		 data_segment_offset,
-		 data_definition->size );
-
-		return( -1 );
-	}
-	if( ( data_segment_offset + definition_data_size ) > data_definition->size )
-	{
-		libnotify_printf(
-		 "%s: data segment at offset: %" PRIu32 " with size: %zd exceeds data definition size: %zd.\n",
-		 function,
-		 data_segment_offset,
-		 definition_data_size,
 		 data_definition->size );
 	}
 #endif
@@ -1421,6 +1416,8 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
+	data_definition->size += definition_data_size;
+
 	return( 1 );
 }
 

@@ -56,6 +56,7 @@ File format
 * long value support
 * template table support
 * multi value 0x18 support
+* what about the first byte in 7-bit ascii compressed data
 
 Deployment:
 * update manuals
@@ -72,6 +73,13 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100519
+* worked on Windows Vista Search support
+* worked on long value support
+
+20100518
+* worked on long value support
 
 20100517
 * worked on long value support

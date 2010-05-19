@@ -1761,22 +1761,34 @@ int windows_search_export_record_value_64bit(
 
 				return( -1 );
 			}
-			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+			if( memory_compare(
+			     value_data,
+			     "********",
+			     8 ) == 0 )
 			{
-				byte_stream_copy_to_uint64_big_endian(
-				 value_data,
-				 value_64bit );
+				fprintf(
+				 table_file_stream,
+				 "********" );
 			}
 			else
 			{
-				byte_stream_copy_to_uint64_little_endian(
-				 value_data,
+				if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+				{
+					byte_stream_copy_to_uint64_big_endian(
+					 value_data,
+					 value_64bit );
+				}
+				else
+				{
+					byte_stream_copy_to_uint64_little_endian(
+					 value_data,
+					 value_64bit );
+				}
+				fprintf(
+				 table_file_stream,
+				 "%" PRIu64 "",
 				 value_64bit );
 			}
-			fprintf(
-			 table_file_stream,
-			 "%" PRIu64 "",
-			 value_64bit );
 		}
 	}
 	else
@@ -2534,7 +2546,7 @@ int windows_search_export_record_systemindex_0a(
 	int number_of_values    = 0;
 	int result              = 0;
 	int value_iterator      = 0;
-	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_BIG;
 
 	if( record == NULL )
 	{
@@ -2641,6 +2653,22 @@ int windows_search_export_record_systemindex_0a(
 		}
 		known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED;
 
+		if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
+		{
+			if( libcstring_narrow_string_compare(
+			     (char *) column_name,
+			     "__SDID",
+			     6 ) == 0 )
+			{
+				/* The byte order is set because the SystemIndex_0A table in the
+				 * Windows Search XP and 7 database contains binary values in big-endian
+				 * In the Windows Search XP database the __SDID column is of type binary data.
+				 * In the Windows Search Vista data base the __SDID column is of type integer 32-bit signed.
+				 * Int Windows Search 7 the __SDID column is no longer present
+				 */
+				byte_order = _BYTE_STREAM_ENDIAN_LITTLE;
+			}
+		}
 		/* Only check for known columns of the binary data type
 		 * some columns get their type reassigned over time
 		 */
@@ -2655,14 +2683,6 @@ int windows_search_export_record_systemindex_0a(
 				     6 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
-
-					/* The byte order is set because the SystemIndex_0A table in the
-					 * Windows Search XP database contains binary values in big-endian
-					 * In the Windows Search XP database the __SDID value is of type binary data.
-					 * In the Windows Search Vista data base the __SDID value is of type
-					 * signed integer 32-bit.
-					 */
-					byte_order = _BYTE_STREAM_ENDIAN_BIG;
 				}
 			}
 			else if( column_name_size == 12 )
@@ -2937,6 +2957,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
+				          "System_ImportanceText",
+				          21 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
+				}
+				else if( libcstring_narrow_string_compare(
+				          (char *) column_name,
 				          "System_Media_SubTitle",
 				          21 ) == 0 )
 				{
@@ -3038,6 +3065,13 @@ int windows_search_export_record_systemindex_0a(
 				          23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
+				}
+				else if( libcstring_narrow_string_compare(
+				          (char *) column_name,
+				          "System_ThumbnailCacheId",
+				          23 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 			else if( column_name_size == 25 )

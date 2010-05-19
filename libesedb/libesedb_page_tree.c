@@ -2292,8 +2292,9 @@ int libesedb_page_tree_read_leaf_page_values(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_RUNTIME,
 						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-						 "%s: missing table definition: %" PRIu32 ".",
+						 "%s: missing table definition: %" PRIu32 " (0x%08" PRIx32 ").",
 						 function,
+						 catalog_definition->father_data_page_object_identifier,
 						 catalog_definition->father_data_page_object_identifier );
 
 						/* TODO build-in table 1 support */
@@ -2950,30 +2951,6 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 
 			return( -1 );
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
-		{
-			page_key_data = ( *data_definition )->key;
-			page_key_size = ( *data_definition )->key_size;
-
-			libnotify_printf(
-			 "%s: data definition: %d key\t: ",
-			 function,
-			 list_element_iterator );
-
-			while( page_key_size > 0 )
-			{
-				libnotify_printf(
-				 "%02" PRIx8 " ",
-				 *page_key_data );
-
-				page_key_data++;
-				page_key_size--;
-			}
-			libnotify_printf(
-			 "\n" );
-		}
-#endif
 		if( ( flags & LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY ) != 0 )
 		{
 			data_definition_key_index = ( *data_definition )->key_size - 1;
@@ -2986,12 +2963,6 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 		     key_index < key_size;
 		     key_index++ )
 		{
-fprintf(
- stderr,
- "%zd: %02x =? %zd: %02x\n",
- key_index, key[ key_index ],
- data_definition_key_index, ( *data_definition )->key[ data_definition_key_index ] );
-
 			if( key[ key_index ] != ( *data_definition )->key[ data_definition_key_index ] )
 			{
 				break;
@@ -3000,7 +2971,30 @@ fprintf(
 			{
 				if( data_definition_key_index == 0 )
 				{
-fprintf( stderr, "Match\n" );
+#if defined( HAVE_DEBUG_OUTPUT )
+					if( libnotify_verbose != 0 )
+					{
+						page_key_data = ( *data_definition )->key;
+						page_key_size = ( *data_definition )->key_size;
+
+						libnotify_printf(
+						 "%s: data definition: %d key\t: ",
+						 function,
+						 list_element_iterator );
+
+						while( page_key_size > 0 )
+						{
+							libnotify_printf(
+							 "%02" PRIx8 " ",
+							 *page_key_data );
+
+							page_key_data++;
+							page_key_size--;
+						}
+						libnotify_printf(
+						 "\n" );
+					}
+#endif
 					return( 1 );
 				}
 				data_definition_key_index--;
@@ -3009,7 +3003,30 @@ fprintf( stderr, "Match\n" );
 			{
 				if( data_definition_key_index == ( ( *data_definition )->key_size - 1 ) )
 				{
-fprintf( stderr, "Match\n" );
+#if defined( HAVE_DEBUG_OUTPUT )
+					if( libnotify_verbose != 0 )
+					{
+						page_key_data = ( *data_definition )->key;
+						page_key_size = ( *data_definition )->key_size;
+
+						libnotify_printf(
+						 "%s: data definition: %d key\t: ",
+						 function,
+						 list_element_iterator );
+
+						while( page_key_size > 0 )
+						{
+							libnotify_printf(
+							 "%02" PRIx8 " ",
+							 *page_key_data );
+
+							page_key_data++;
+							page_key_size--;
+						}
+						libnotify_printf(
+						 "\n" );
+					}
+#endif
 					return( 1 );
 				}
 				data_definition_key_index++;

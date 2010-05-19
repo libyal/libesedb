@@ -1751,10 +1751,15 @@ int export_handle_export_record_value(
 					}
 					value_string[ value_string_size - 1 ] = 0;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 					fprintf(
 					 table_file_stream,
-					 "0x%02x:%s",
-					 value_string[ 0 ],
+					 "(0x%02x) ",
+					 value_string[ 0 ] );
+#endif
+					fprintf(
+					 table_file_stream,
+					 "%s",
 					 &( value_string[ 1 ] ) );
 
 					memory_free(
@@ -2284,8 +2289,6 @@ int decompress_7bit_ascii(
 		return( -1 );
 	}
 	uncompressed_data[ uncompressed_data_iterator++ ] = compressed_data[ 0 ];
-
-	compressed_data_iterator = 1;
 
 	for( compressed_data_iterator = 1;
 	     compressed_data_iterator < compressed_data_size;
