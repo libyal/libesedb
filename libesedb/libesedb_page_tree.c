@@ -1113,6 +1113,9 @@ int libesedb_page_tree_read_child_pages(
 
 			return( -1 );
 		}
+		page_value_data = page_value->data;
+		page_value_size = (uint16_t) page_value->size;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
@@ -1122,13 +1125,10 @@ int libesedb_page_tree_read_child_pages(
 			 page_value_iterator );
 			libnotify_print_data(
 			 page_value_data,
-			 page_value->size );
+			 page_value_size );
 		}
 #endif
 		/* TODO handle leaf page values */
-
-		page_value_data = page_value->data;
-		page_value_size = (uint16_t) page_value->size;
 
 		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
 		{
@@ -1228,6 +1228,9 @@ int libesedb_page_tree_read_child_pages(
 		 page_value_data,
 		 child_page_number );
 
+		page_value_data += 4;
+		page_value_size -= 4;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
@@ -1238,6 +1241,21 @@ int libesedb_page_tree_read_child_pages(
 			 child_page_number );
 			libnotify_printf(
 			 "\n" );
+		}
+#endif
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			if( page_value_size > 0 )
+			{
+				libnotify_printf(
+				 "%s: value: %03d trailing data:\n",
+				 function,
+				 page_value_iterator );
+				libnotify_print_data(
+				 page_value_data,
+				 page_value_size );
+			}
 		}
 #endif
 
@@ -2055,7 +2073,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			 page_value_iterator );
 			libnotify_print_data(
 			 page_value_data,
-			 page_value->size );
+			 page_value_size );
 
 			libnotify_printf(
 			 "%s: value: %03d page tag flags\t\t\t: 0x%02" PRIx8 "",

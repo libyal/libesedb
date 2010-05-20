@@ -1,10 +1,9 @@
 TODO
-* support for non-linear stored long value segments
+* support for non-linear stored long value segments (current solution has sanity check)
 * windows search: work on index-based compression
   (create test program to validate output)
-* fix memory leak regarding long values
+* fix memory leaks
 * configure.ac update libfguid detection
-* update msvscpp files, ese specific
 * update macosx files
 
 * parse variable types even when they are not part of the table catalog definition
@@ -79,6 +78,8 @@ Notes
 * worked on large database support
   - changed page number to 64-bit value
 * fixed checksum calculation for new format, old page
+* updated msvscpp files
+* worked on temporary table support
 
 20100519
 * worked on Windows Vista Search support

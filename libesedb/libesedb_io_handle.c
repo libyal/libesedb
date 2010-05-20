@@ -740,7 +740,7 @@ int libesedb_io_handle_read_file_header(
 	}
 	/* TODO check if page size is correct for version */
 
-	io_handle->last_page_number = ( file_size / io_handle->page_size ) - 1;
+	io_handle->last_page_number = ( file_size / io_handle->page_size ) - 2;
 
 	return( 1 );
 }

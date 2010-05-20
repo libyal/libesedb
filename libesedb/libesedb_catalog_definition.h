@@ -75,6 +75,14 @@ struct libesedb_catalog_definition
 	/* The size of the name string
 	 */
 	size_t name_size;
+
+	/* The template name string
+	 */
+	uint8_t *template_name;
+
+	/* The size of the template name string
+	 */
+	size_t template_name_size;
 };
 
 int libesedb_catalog_definition_initialize(

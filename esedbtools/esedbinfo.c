@@ -388,6 +388,73 @@ int esedbinfo_file_info_fprint(
 		memory_free(
 		 value_string );
 
+		if( libesedb_table_get_utf8_template_name_size(
+		     table,
+		     &value_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the size of the table template name.",
+			 function );
+
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		if( value_string_size > 0 )
+		{
+			value_string = (uint8_t *) memory_allocate(
+			                            sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create template name string.",
+				 function );
+
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libesedb_table_get_utf8_template_name(
+			     table,
+			     value_string,
+			     value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the template name.",
+				 function );
+
+				memory_free(
+				 value_string );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+			fprintf(
+			 stream,
+			 "\tTemplate:\t\t%s\n",
+			 value_string );
+
+			memory_free(
+			 value_string );
+		}
 		/* Print the columns of the table
 		 */
 		if( libesedb_table_get_number_of_columns(

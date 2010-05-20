@@ -804,26 +804,11 @@ int libesedb_file_open_read(
 	uint64_t page_number  = 0;
 	libesedb_page_t *page = NULL;
 	off64_t file_offset   = 0;
-	size64_t file_size    = 0;
 
-	if( libbfio_handle_get_size(
-	     internal_file->file_io_handle,
-	     &file_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve file size.",
-		 function );
-
-		return( -1 );
-	}
 	file_offset = 2 * internal_file->io_handle->page_size;
 	page_number = 1;
 
-	while( file_offset < (off64_t) file_size )
+	while( page_number <= io_handle->last_page_number )
 	{
 		if( libesedb_page_initialize(
 		     &page,

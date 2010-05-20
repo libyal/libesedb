@@ -124,6 +124,11 @@ int libesedb_catalog_definition_free(
 		memory_free(
 		 ( (libesedb_catalog_definition_t *) catalog_definition )->name );
 	}
+	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->template_name != NULL )
+	{
+		memory_free(
+		 ( (libesedb_catalog_definition_t *) catalog_definition )->template_name );
+	}
 	memory_free(
 	 catalog_definition );
 
@@ -684,32 +689,92 @@ int libesedb_catalog_definition_read(
 						}
 					}
 					break;
+#endif
 
 				case 130:
-					if( libnotify_verbose != 0 )
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( libesedb_value_type_get_utf8_string_size(
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
+						     LIBUNA_CODEPAGE_WINDOWS_1252,
+						     &( catalog_definition->template_name_size ),
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to determine size of template name string.",
+							 function );
+
+							return( -1 );
+						}
+						catalog_definition->template_name = (uint8_t *) memory_allocate(
+												 sizeof( uint8_t ) * catalog_definition->template_name_size );
+
+						if( catalog_definition->template_name == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 "%s: unable to create template name string.",
+							 function );
+
+							catalog_definition->template_name_size = 0;
+
+							return( -1 );
+						}
+						if( libesedb_value_type_copy_to_utf8_string(
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
+						     LIBUNA_CODEPAGE_WINDOWS_1252,
+						     catalog_definition->template_name,
+						     catalog_definition->template_name_size,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_CONVERSION,
+							 LIBERROR_CONVERSION_ERROR_GENERIC,
+							 "%s: unable to set template name string.",
+							 function );
+
+							memory_free(
+							 catalog_definition->template_name );
+
+							catalog_definition->template_name      = NULL;
+							catalog_definition->template_name_size = 0;
+
+							return( -1 );
+						}
+
+#if defined( HAVE_DEBUG_OUTPUT )
+						if( libnotify_verbose != 0 )
 						{
 							libnotify_printf(
-							 "%s: (%03" PRIu8 ") temporary table:\n",
+							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %s\n",
 							 function,
-							 data_type_number );
-							libnotify_print_data(
-							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 data_type_number,
+							 catalog_definition->template_name );
 						}
-						else
-						{
-							libnotify_printf(
-							 "%s: (%03" PRIu8 ") temporary table\t\t\t\t\t: <NULL>\n",
-							 function,
-							 data_type_number );
-						}
+#endif
 					}
+#if defined( HAVE_DEBUG_OUTPUT )
+					else if( libnotify_verbose != 0 )
+					{
+						libnotify_printf(
+						 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+#endif
 					break;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 				case 131:
 					if( libnotify_verbose != 0 )
 					{
@@ -853,7 +918,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libnotify_printf(
-							 "%s: (%03" PRIu8 ") TupleLimits\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") Version\t\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}

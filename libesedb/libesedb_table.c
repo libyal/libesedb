@@ -468,7 +468,7 @@ int libesedb_table_get_utf8_name_size(
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_utf8_string_size";
+	static char *function                     = "libesedb_table_get_utf8_name_size";
 
 	if( table == NULL )
 	{
@@ -533,7 +533,7 @@ int libesedb_table_get_utf8_name(
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_utf8_string";
+	static char *function                     = "libesedb_table_get_utf8_name";
 
 	if( table == NULL )
 	{
@@ -607,6 +607,168 @@ int libesedb_table_get_utf8_name(
 	     utf8_string,
 	     internal_table->table_definition->table_catalog_definition->name,
 	     internal_table->table_definition->table_catalog_definition->name_size ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+		 "%s: unable to set UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string size of the template name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_utf8_template_name_size(
+     libesedb_table_t *table,
+     size_t *utf8_string_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	static char *function                     = "libesedb_table_get_utf8_template_name_size";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->table_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	*utf8_string_size = internal_table->table_definition->table_catalog_definition->template_name_size;
+
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string of the template name
+ * The string is formatted in UTF-8
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_get_utf8_template_name(
+     libesedb_table_t *table,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_table_t *internal_table = NULL;
+	static char *function                     = "libesedb_table_get_utf8_template_name";
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	internal_table = (libesedb_internal_table_t *) table;
+
+	if( internal_table->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_table->table_definition->table_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal table - invalid table definition - missing table catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size < internal_table->table_definition->table_catalog_definition->name_size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: UTF-8 string is too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( memory_copy(
+	     utf8_string,
+	     internal_table->table_definition->table_catalog_definition->template_name,
+	     internal_table->table_definition->table_catalog_definition->template_name_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,
