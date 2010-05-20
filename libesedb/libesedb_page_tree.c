@@ -1035,8 +1035,8 @@ int libesedb_page_tree_read_child_pages(
 	libesedb_page_value_t *page_value        = NULL;
 	uint8_t *page_value_data                 = NULL;
 	static char *function                    = "libesedb_page_tree_read_child_pages";
+	uint64_t previous_child_page_number      = 0;
 	uint32_t child_page_number               = 0;
-	uint32_t previous_child_page_number      = 0;
 	uint32_t previous_next_child_page_number = 0;
 	uint16_t number_of_page_values           = 0;
 	uint16_t common_key_size                 = 0;
@@ -1113,6 +1113,18 @@ int libesedb_page_tree_read_child_pages(
 
 			return( -1 );
 		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: value: %03d value:\n",
+			 function,
+			 page_value_iterator );
+			libnotify_print_data(
+			 page_value_data,
+			 page_value->size );
+		}
+#endif
 		/* TODO handle leaf page values */
 
 		page_value_data = page_value->data;
@@ -1229,17 +1241,17 @@ int libesedb_page_tree_read_child_pages(
 		}
 #endif
 
-		/* TODO can an upper bound be determined ?
-		 */
-		if( child_page_number >= 0x117f02 )
+		if( (uint64_t) child_page_number > io_handle->last_page_number )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: value: %03d ignoring child page\n",
+				 "%s: value: %03d ignoring child page: %" PRIu32 " exceeds last page number: %" PRIu64 "\n",
 				 function,
-				 page_value_iterator );
+				 page_value_iterator,
+				 child_page_number,
+				 io_handle->last_page_number );
 			}
 #endif
 
@@ -1302,18 +1314,18 @@ int libesedb_page_tree_read_child_pages(
 			{
 				if( page_value_iterator > 1 )
 				{
-					if( child_page->page_number != previous_next_child_page_number )
+					if( child_page->page_number != (uint64_t) previous_next_child_page_number )
 					{
 						libnotify_printf(
-						 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu32 ").\n",
+						 "%s: mismatch in child page number (%" PRIu32 " != %" PRIu64 ").\n",
 						 function,
 						 previous_next_child_page_number,
 						 child_page->page_number );
 					}
-					if( child_page->previous_page_number != previous_child_page_number )
+					if( (uint64_t) child_page->previous_page_number != previous_child_page_number )
 					{
 						libnotify_printf(
-						 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").\n",
+						 "%s: mismatch in previous child page number (%" PRIu64 " != %" PRIu32 ").\n",
 						 function,
 						 previous_child_page_number,
 						 child_page->previous_page_number );

@@ -57,6 +57,7 @@ File format
 * template table support
 * multi value 0x18 support
 * what about the first byte in 7-bit ascii compressed data
+* codepage 1200 string in Exchange EDB starts with 0xff 0xff
 
 Deployment:
 * update manuals
@@ -73,6 +74,11 @@ Performance
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100520
+* worked on large database support
+  - changed page number to 64-bit value
+* fixed checksum calculation for new format, old page
 
 20100519
 * worked on Windows Vista Search support

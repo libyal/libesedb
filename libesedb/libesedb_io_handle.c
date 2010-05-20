@@ -140,6 +140,7 @@ int libesedb_io_handle_read_file_header(
 {
 	uint8_t *file_header_data          = NULL;
 	static char *function              = "libesedb_io_handle_read_file_header";
+	size64_t file_size                 = 0;
 	size_t read_size                   = 4096;
 	ssize_t read_count                 = 0;
 	uint32_t calculated_xor32_checksum = 0;
@@ -169,6 +170,20 @@ int libesedb_io_handle_read_file_header(
 	}
 #endif
 
+	if( libbfio_handle_get_size(
+	     file_io_handle,
+	     &file_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file size.",
+		 function );
+
+		return( -1 );
+	}
 	if( libbfio_handle_seek_offset(
 	     file_io_handle,
 	     0,
@@ -712,7 +727,20 @@ int libesedb_io_handle_read_file_header(
 	memory_free(
 	 file_header_data );
 
+	if( io_handle->page_size == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page size.",
+		 function );
+
+		return( -1 );
+	}
 	/* TODO check if page size is correct for version */
+
+	io_handle->last_page_number = ( file_size / io_handle->page_size ) - 1;
 
 	return( 1 );
 }

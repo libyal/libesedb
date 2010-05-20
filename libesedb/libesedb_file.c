@@ -740,7 +740,6 @@ int libesedb_file_open_read(
 		 "Reading file header:\n" );
 	}
 #endif
-
 	if( libesedb_io_handle_read_file_header(
 	     internal_file->io_handle,
 	     internal_file->file_io_handle,
@@ -802,7 +801,7 @@ int libesedb_file_open_read(
 	}
 #ifdef TEST
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t page_number  = 0;
+	uint64_t page_number  = 0;
 	libesedb_page_t *page = NULL;
 	off64_t file_offset   = 0;
 	size64_t file_size    = 0;

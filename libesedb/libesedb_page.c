@@ -205,7 +205,7 @@ int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint32_t page_number,
+     uint64_t page_number,
      liberror_error_t **error )
 {
 	libesedb_array_t *page_tags_array  = NULL;
@@ -266,7 +266,7 @@ int libesedb_page_read(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: reading page: %" PRIu32 " at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 "%s: reading page: %" PRIu64 " at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
 		 function,
 		 page_number,
 		 page_offset,
@@ -375,7 +375,7 @@ int libesedb_page_read(
 		 stored_xor32_checksum );
 
 		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
-		 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
+		 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) != 0 ) )
 		{
 			byte_stream_copy_to_uint32_little_endian(
 			 ( (esedb_page_header_t *) page_values_data )->ecc_checksum,
@@ -392,7 +392,7 @@ int libesedb_page_read(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: current page number\t\t\t\t\t: %" PRIu64 "\n",
 		 function,
 		 page_number );
 
@@ -416,7 +416,7 @@ int libesedb_page_read(
 			 stored_xor32_checksum );
 
 			if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
-			 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) == LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) )
+			 && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) != 0 ) )
 			{
 				libnotify_printf(
 				 "%s: ECC checksum\t\t\t\t\t: 0x%08" PRIx32 "\n",
@@ -499,7 +499,8 @@ int libesedb_page_read(
 		{
 			/* TODO handle checksum */
 		}
-		else if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
+		else if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_NEW_RECORD_FORMAT )
+		      && ( ( page->flags & LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT ) != 0 ) )
 		{
 			if( libesedb_checksum_calculate_little_endian_ecc32(
 			     &calculated_ecc32_checksum,
@@ -507,7 +508,7 @@ int libesedb_page_read(
 			     page_values_data,
 			     page_values_data_size,
 			     8,
-			     page_number,
+			     (uint32_t) page_number,
 			     error ) != 1 )
 			{
 				liberror_error_set(

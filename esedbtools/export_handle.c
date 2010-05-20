@@ -1612,6 +1612,7 @@ int export_handle_export_record_value(
 					  &value_string_size,
 					  error );
 
+#define TEST
 				if( result == -1 )
 				{
 #ifndef TEST

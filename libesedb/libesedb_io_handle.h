@@ -60,6 +60,10 @@ struct libesedb_io_handle
 	/* The page size
 	 */
 	uint32_t page_size;
+
+	/* The last page number
+	 */
+	uint64_t last_page_number;
 };
 
 int libesedb_io_handle_initialize(

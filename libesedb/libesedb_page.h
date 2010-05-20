@@ -77,7 +77,7 @@ struct libesedb_page
 {
 	/* The page number
 	 */
-	uint32_t page_number;
+	uint64_t page_number;
 
 	/* The previous page number
 	 */
@@ -136,7 +136,7 @@ int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint32_t page_number,
+     uint64_t page_number,
      liberror_error_t **error );
 
 int libesedb_page_read_tags(
