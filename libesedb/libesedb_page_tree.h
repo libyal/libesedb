@@ -141,6 +141,14 @@ int libesedb_page_tree_read_parent_page_values(
      uint8_t flags,
      liberror_error_t **error );
 
+int libesedb_page_tree_read_branch_page_values(
+     libesedb_page_tree_t *page_tree,
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     uint8_t flags,
+     liberror_error_t **error );
+
 int libesedb_page_tree_read_child_pages(
      libesedb_page_tree_t *page_tree,
      libesedb_page_t *page,

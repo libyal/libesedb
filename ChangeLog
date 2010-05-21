@@ -77,6 +77,8 @@ Notes
 20100521
 * worked on template table support
 * fixed memory leak in libesedb_page_tree_read_leaf_page_values
+* worked on large database support
+  - branch pages
 
 20100520
 * worked on large database support

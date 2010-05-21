@@ -1325,7 +1325,158 @@ int libesedb_page_tree_read_parent_page_values(
 	return( 1 );
 }
 
-/* Reads the child pages values from a parent page
+/* Reads the child page values from a branch page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_read_branch_page_values(
+     libesedb_page_tree_t *page_tree,
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     uint8_t flags,
+     liberror_error_t **error )
+{
+	libesedb_page_value_t *page_value = NULL;
+	static char *function             = "libesedb_page_tree_read_branch_page_values";
+	uint32_t supported_flags          = 0;
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid io handle.",
+		 function );
+
+		return( -1 );
+	}
+	supported_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
+	                | LIBESEDB_PAGE_FLAG_IS_INDEX
+	                | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
+	                | LIBESEDB_PAGE_FLAG_0x0400
+	                | LIBESEDB_PAGE_FLAG_0x0800
+	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT;
+
+	if( ( page->flags & ~supported_flags ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page->flags );
+
+		return( -1 );
+	}
+	if( page->previous_page_number != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported previous page number: %" PRIu32 ".",
+		 function,
+		 page->previous_page_number );
+
+		return( -1 );
+	}
+	if( page->next_page_number != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported next page number: %" PRIu32 ".",
+		 function,
+		 page->next_page_number );
+
+		return( -1 );
+	}
+	if( libesedb_page_get_value(
+	     page,
+	     0,
+	     &page_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: 0.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page value.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: header:\n",
+		 function );
+		libnotify_print_data(
+		 page_value->data,
+		 page_value->size );
+	}
+#endif
+
+	/* Read the page values
+	 */
+	if( libesedb_page_tree_read_child_pages(
+	     page_tree,
+	     page,
+	     io_handle,
+	     file_io_handle,
+	     flags,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read leaf page values.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Reads the child pages values from a parent or branch page
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_child_pages(
@@ -1718,6 +1869,31 @@ int libesedb_page_tree_read_child_pages(
 				 LIBERROR_ERROR_DOMAIN_IO,
 				 LIBERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read parent page values.",
+				 function );
+
+				libesedb_page_free(
+				 &child_page,
+				 NULL );
+
+				return( -1 );
+			}
+		}
+		else
+		{
+fprintf( stderr, "BRANCH\n" );
+			if( libesedb_page_tree_read_branch_page_values(
+			     page_tree,
+			     child_page,
+			     io_handle,
+			     file_io_handle,
+			     flags,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read branch page values.",
 				 function );
 
 				libesedb_page_free(
