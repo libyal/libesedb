@@ -24,6 +24,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_definitions.h"
 #include "libesedb_file.h"
 #include "libesedb_legacy.h"
 #include "libesedb_multi_value.h"
@@ -86,6 +87,7 @@ int libesedb_table_get_amount_of_columns(
 	return( libesedb_table_get_number_of_columns(
 	         table,
 	         amount_of_columns,
+	         LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE,
 	         error ) );
 }
 

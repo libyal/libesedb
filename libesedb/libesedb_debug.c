@@ -220,6 +220,11 @@ void libesedb_debug_print_page_value_definition_type(
 			 "(Long Value)" );
 			break;
 
+		case 5:
+			libnotify_printf(
+			 "(Callback)" );
+			break;
+
 		default:
 			libnotify_printf(
 			 "(Unknown)" );

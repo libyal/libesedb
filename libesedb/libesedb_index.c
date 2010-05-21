@@ -294,6 +294,7 @@ int libesedb_index_read_page_tree(
 	if( libesedb_page_tree_initialize(
 	     &( internal_index->index_page_tree ),
 	     NULL,
+	     NULL,
 	     error ) != 1 )
 	{
 		liberror_error_set(

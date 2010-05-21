@@ -52,6 +52,10 @@ struct libesedb_internal_table
 	 */
 	libesedb_table_definition_t *table_definition;
 
+	/* The template table definition
+	 */
+	libesedb_table_definition_t *template_table_definition;
+
 	/* The table page tree
 	 */
 	libesedb_page_tree_t *table_page_tree;
@@ -73,6 +77,7 @@ int libesedb_table_attach(
      libesedb_internal_table_t *internal_table,
      libesedb_internal_file_t *internal_file,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error );
 
 int libesedb_table_detach(
@@ -113,12 +118,14 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_template_name(
 LIBESEDB_EXTERN int libesedb_table_get_number_of_columns(
                      libesedb_table_t *table,
                      int *number_of_columns,
+                     uint8_t flags,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_column(
                      libesedb_table_t *table,
                      int column_entry,
                      libesedb_column_t **column,
+                     uint8_t flags,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_number_of_indexes(

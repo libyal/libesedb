@@ -59,6 +59,10 @@ struct libesedb_page_tree
 	 */
 	libesedb_table_definition_t *table_definition;
 
+	/* The template table definition
+	 */
+	libesedb_table_definition_t *template_table_definition;
+
 	/* The table definition list
 	 */
 	libesedb_list_t *table_definition_list;
@@ -71,16 +75,46 @@ struct libesedb_page_tree
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error );
 
 int libesedb_page_tree_free(
      libesedb_page_tree_t **page_tree,
      liberror_error_t **error );
 
+int libesedb_page_tree_get_number_of_table_definitions(
+     libesedb_page_tree_t *page_tree,
+     int *number_of_table_definitions,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_table_definition(
+     libesedb_page_tree_t *page_tree,
+     uint32_t table_definition_index,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error );
+
 int libesedb_page_tree_get_table_definition_by_identifier(
      libesedb_page_tree_t *page_tree,
      uint32_t identifier,
      libesedb_table_definition_t **table_definition,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_table_definition_by_utf8_name(
+     libesedb_page_tree_t *page_tree,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_number_of_value_definitions(
+     libesedb_page_tree_t *page_tree,
+     int *number_of_value_definitions,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_value_definition(
+     libesedb_page_tree_t *page_tree,
+     uint32_t value_definition_index,
+     intptr_t **value_definition,
      liberror_error_t **error );
 
 int libesedb_page_tree_read(

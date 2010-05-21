@@ -91,9 +91,9 @@ Table functions
 .Ft int
 .Fn libesedb_table_get_utf8_template_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_number_of_columns "libesedb_table_t *table, int *number_of_columns, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_columns "libesedb_table_t *table, int *number_of_columns, uint8_t flags, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_column "libesedb_table_t *table, int column_entry, libesedb_column_t **column, libesedb_error_t **error"
+.Fn libesedb_table_get_column "libesedb_table_t *table, int column_entry, libesedb_column_t **column, uint8_t flags, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_number_of_indexes "libesedb_table_t *table, int *number_of_indexes, libesedb_error_t **error"
 .Ft int

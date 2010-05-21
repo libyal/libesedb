@@ -766,6 +766,7 @@ int libesedb_file_open_read(
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->catalog_page_tree ),
 	     NULL,
+	     NULL,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1156,30 +1157,8 @@ int libesedb_file_get_number_of_tables(
 	}
 	internal_file = (libesedb_internal_file_t *) file;
 
-	if( internal_file->catalog_page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing catalog page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_file->catalog_page_tree->table_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - invalid catalog page tree - missing table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_list_get_number_of_elements(
-	     internal_file->catalog_page_tree->table_definition_list,
+	if( libesedb_page_tree_get_number_of_table_definitions(
+	     internal_file->catalog_page_tree,
 	     number_of_tables,
 	     error ) != 1 )
 	{
@@ -1204,9 +1183,10 @@ int libesedb_file_get_table(
      libesedb_table_t **table,
      liberror_error_t **error )
 {
-	libesedb_internal_file_t *internal_file       = NULL;
-	libesedb_table_definition_t *table_definition = NULL;
-	static char *function                         = "libesedb_file_get_table";
+	libesedb_internal_file_t *internal_file                = NULL;
+	libesedb_table_definition_t *table_definition          = NULL;
+	libesedb_table_definition_t *template_table_definition = NULL;
+	static char *function                                  = "libesedb_file_get_table";
 
 	if( file == NULL )
 	{
@@ -1221,28 +1201,6 @@ int libesedb_file_get_table(
 	}
 	internal_file = (libesedb_internal_file_t *) file;
 
-	if( internal_file->catalog_page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing catalog page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_file->catalog_page_tree->table_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - invalid catalog page tree - missing table definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( table == NULL )
 	{
 		liberror_error_set(
@@ -1254,20 +1212,63 @@ int libesedb_file_get_table(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value(
-	     internal_file->catalog_page_tree->table_definition_list,
+	if( libesedb_page_tree_get_table_definition(
+	     internal_file->catalog_page_tree,
 	     table_entry,
-	     (intptr_t **) &table_definition,
+	     &table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table definition.",
+		 "%s: unable to retrieve table definition: %d.",
+		 function,
+		 table_entry );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing table definition.",
 		 function );
 
 		return( -1 );
+	}
+	if( table_definition->table_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table definition - missing table catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition->table_catalog_definition->template_name != NULL )
+	{
+		if( libesedb_page_tree_get_table_definition_by_utf8_name(
+		     internal_file->catalog_page_tree,
+		     table_definition->table_catalog_definition->template_name,
+		     table_definition->table_catalog_definition->template_name_size,
+		     &template_table_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve template table definition: %s.",
+			 function,
+			 table_definition->table_catalog_definition->template_name );
+
+			return( -1 );
+		}
 	}
 	if( libesedb_table_initialize(
 	     table,
@@ -1286,6 +1287,7 @@ int libesedb_file_get_table(
 	     (libesedb_internal_table_t *) *table,
 	     internal_file,
 	     table_definition,
+	     template_table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(

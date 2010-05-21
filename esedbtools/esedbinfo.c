@@ -460,6 +460,7 @@ int esedbinfo_file_info_fprint(
 		if( libesedb_table_get_number_of_columns(
 		     table,
 		     &number_of_columns,
+		     LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -491,6 +492,7 @@ int esedbinfo_file_info_fprint(
 			     table,
 			     column_iterator,
 			     &column,
+			     LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE,
 			     error ) != 1 )
 			{
 				liberror_error_set(

@@ -80,7 +80,8 @@ int libesedb_data_definition_set_local_key(
 
 int libesedb_data_definition_read_record(
      libesedb_data_definition_t *data_definition,
-     libesedb_list_t *column_catalog_definition_list,
+     libesedb_list_t *table_column_catalog_definition_list,
+     libesedb_list_t *template_table_column_catalog_definition_list,
      libesedb_io_handle_t *io_handle,
      uint8_t *definition_data,
      size_t definition_data_size,

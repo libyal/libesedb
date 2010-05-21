@@ -2410,14 +2410,6 @@ int libesedb_record_get_long_value(
 		 "%s: unable to retrieve long value data definition.",
 		 function );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-		libnotify_printf(
-		 "%s: long value data key:\n",
-		 function );
-		libnotify_print_data(
-		 data_type_definition->data,
-		 data_type_definition->data_size );
-#endif
 		libesedb_long_value_free(
 		 long_value,
 		 NULL );

@@ -185,6 +185,7 @@ int libesedb_table_attach(
      libesedb_internal_table_t *internal_table,
      libesedb_internal_file_t *internal_file,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_table_attach";
@@ -211,8 +212,9 @@ int libesedb_table_attach(
 
 		return( -1 );
 	}
-	internal_table->internal_file    = internal_file;
-	internal_table->table_definition = table_definition;
+	internal_table->internal_file             = internal_file;
+	internal_table->table_definition          = table_definition;
+	internal_table->template_table_definition = template_table_definition;
 
 	return( 1 );
 }
@@ -325,6 +327,7 @@ int libesedb_table_read_page_tree(
 		if( libesedb_page_tree_initialize(
 		     &( internal_table->long_value_page_tree ),
 		     internal_table->table_definition,
+		     internal_table->template_table_definition,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -361,6 +364,7 @@ int libesedb_table_read_page_tree(
 	if( libesedb_page_tree_initialize(
 	     &( internal_table->table_page_tree ),
 	     internal_table->table_definition,
+	     internal_table->template_table_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -783,15 +787,21 @@ int libesedb_table_get_utf8_template_name(
 }
 
 /* Retrieves the number of columns in the table
+ *
+ * Use the flag LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE to retrieve the number of columns
+ * ignoring the template table
+ *
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_get_number_of_columns(
      libesedb_table_t *table,
      int *number_of_columns,
+     uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_number_of_columns";
+	int template_table_number_of_columns      = 0;
 
 	if( table == NULL )
 	{
@@ -828,6 +838,46 @@ int libesedb_table_get_number_of_columns(
 
 		return( -1 );
 	}
+	if( number_of_columns == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid number of columns.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
+	 && ( internal_table->template_table_definition != NULL ) )
+	{
+		if( libesedb_list_get_number_of_elements(
+		     internal_table->template_table_definition->column_catalog_definition_list,
+		     &template_table_number_of_columns,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of columns from template table.",
+			 function );
+
+			return( -1 );
+		}
+	}
 	if( libesedb_list_get_number_of_elements(
 	     internal_table->table_definition->column_catalog_definition_list,
 	     number_of_columns,
@@ -837,26 +887,34 @@ int libesedb_table_get_number_of_columns(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of columns.",
+		 "%s: unable to retrieve number of columns from table.",
 		 function );
 
 		return( -1 );
 	}
+	*number_of_columns += template_table_number_of_columns;
+
 	return( 1 );
 }
 
 /* Retrieves a specific column
+ *
+ * Use the flag LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE to retrieve the column
+ * ignoring the template table
+ *
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_get_column(
      libesedb_table_t *table,
      int column_entry,
      libesedb_column_t **column,
+     uint8_t flags,
      liberror_error_t **error )
 {
-	libesedb_internal_table_t *internal_table                = NULL;
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_table_t *internal_table                = NULL;
 	static char *function                                    = "libesedb_table_get_column";
+	int template_table_number_of_columns                     = 0;
 
 	if( table == NULL )
 	{
@@ -904,17 +962,78 @@ int libesedb_table_get_column(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value(
-	     internal_table->table_definition->column_catalog_definition_list,
-	     column_entry,
-	     (intptr_t **) &column_catalog_definition,
-	     error ) != 1 )
+	if( ( flags & ~( LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) ) != 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve column catalog definition.",
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
+	 && ( internal_table->template_table_definition != NULL ) )
+	{
+		if( libesedb_list_get_number_of_elements(
+		     internal_table->template_table_definition->column_catalog_definition_list,
+		     &template_table_number_of_columns,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of columns from template table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( column_entry < template_table_number_of_columns )
+	{
+		if( libesedb_list_get_value(
+		     internal_table->template_table_definition->column_catalog_definition_list,
+		     column_entry,
+		     (intptr_t **) &column_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column catalog definition from template table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( libesedb_list_get_value(
+		     internal_table->table_definition->column_catalog_definition_list,
+		     column_entry - template_table_number_of_columns,
+		     (intptr_t **) &column_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column catalog definition from table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -1167,8 +1286,8 @@ int libesedb_table_get_number_of_records(
 			return( -1 );
 		}
 	}
-	if( libesedb_list_get_number_of_elements(
-	     internal_table->table_page_tree->value_definition_list,
+	if( libesedb_page_tree_get_number_of_value_definitions(
+	     internal_table->table_page_tree,
 	     number_of_records,
 	     error ) != 1 )
 	{
@@ -1237,17 +1356,6 @@ int libesedb_table_get_record(
 			return( -1 );
 		}
 	}
-	if( internal_table->table_page_tree->value_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid page tree - missing value definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( record == NULL )
 	{
 		liberror_error_set(
@@ -1259,8 +1367,8 @@ int libesedb_table_get_record(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value(
-	     internal_table->table_page_tree->value_definition_list,
+	if( libesedb_page_tree_get_value_definition(
+	     internal_table->table_page_tree,
 	     record_entry,
 	     (intptr_t **) &record_data_definition,
 	     error ) != 1 )
@@ -1269,8 +1377,9 @@ int libesedb_table_get_record(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record data definition.",
-		 function );
+		 "%s: unable to retrieve record data definition: %d.",
+		 function,
+		 record_entry );
 
 		return( -1 );
 	}

@@ -817,6 +817,7 @@ int export_handle_export_table(
 	if( libesedb_table_get_number_of_columns(
 	     table,
 	     &number_of_columns,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -841,6 +842,7 @@ int export_handle_export_table(
 		     table,
 		     column_iterator,
 		     &column,
+		     0,
 		     error ) != 1 )
 		{
 			liberror_error_set(

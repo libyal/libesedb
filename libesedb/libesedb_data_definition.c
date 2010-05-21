@@ -338,37 +338,40 @@ int libesedb_data_definition_set_local_key(
  */
 int libesedb_data_definition_read_record(
      libesedb_data_definition_t *data_definition,
-     libesedb_list_t *column_catalog_definition_list,
+     libesedb_list_t *table_column_catalog_definition_list,
+     libesedb_list_t *template_table_column_catalog_definition_list,
      libesedb_io_handle_t *io_handle,
      uint8_t *definition_data,
      size_t definition_data_size,
      liberror_error_t **error )
 {
-	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
-	libesedb_list_element_t *list_element                    = NULL;
-	uint8_t *fixed_size_data_type_value_data                 = NULL;
-	uint8_t *tagged_data_type_offset_data                    = NULL;
-	uint8_t *tagged_data_type_value_data                     = NULL;
-	uint8_t *variable_size_data_type_size_data               = NULL;
-	uint8_t *variable_size_data_type_value_data              = NULL;
-	static char *function                                    = "libesedb_data_definition_read_record";
-	size_t remaining_definition_data_size                    = 0;
-	uint16_t previous_tagged_data_type_offset                = 0;
-	uint16_t previous_variable_size_data_type_size           = 0;
-	uint16_t tagged_data_type_offset_data_size               = 0;
-	uint16_t tagged_data_type_identifier                     = 0;
-	uint16_t tagged_data_type_offset                         = 0;
-	uint16_t tagged_data_type_size                           = 0;
-	uint16_t variable_size_data_type_size                    = 0;
-	uint16_t variable_size_data_types_offset                 = 0;
-	uint8_t current_variable_size_data_type                  = 0;
-	uint8_t last_fixed_size_data_type                        = 0;
-	uint8_t last_variable_size_data_type                     = 0;
-	uint8_t number_of_variable_size_data_types               = 0;
-	uint8_t tagged_data_types_format                         = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
-	int column_catalog_definition_iterator                   = 0;
-	int number_of_column_catalog_definitions                 = 0;
+	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
+	libesedb_data_type_definition_t *data_type_definition           = NULL;
+	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
+	uint8_t *fixed_size_data_type_value_data                        = NULL;
+	uint8_t *tagged_data_type_offset_data                           = NULL;
+	uint8_t *tagged_data_type_value_data                            = NULL;
+	uint8_t *variable_size_data_type_size_data                      = NULL;
+	uint8_t *variable_size_data_type_value_data                     = NULL;
+	static char *function                                           = "libesedb_data_definition_read_record";
+	size_t remaining_definition_data_size                           = 0;
+	uint16_t previous_tagged_data_type_offset                       = 0;
+	uint16_t previous_variable_size_data_type_size                  = 0;
+	uint16_t tagged_data_type_offset_data_size                      = 0;
+	uint16_t tagged_data_type_identifier                            = 0;
+	uint16_t tagged_data_type_offset                                = 0;
+	uint16_t tagged_data_type_size                                  = 0;
+	uint16_t variable_size_data_type_size                           = 0;
+	uint16_t variable_size_data_types_offset                        = 0;
+	uint8_t current_variable_size_data_type                         = 0;
+	uint8_t last_fixed_size_data_type                               = 0;
+	uint8_t last_variable_size_data_type                            = 0;
+	uint8_t number_of_variable_size_data_types                      = 0;
+	uint8_t tagged_data_types_format                                = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
+	int column_catalog_definition_iterator                          = 0;
+	int number_of_column_catalog_definitions                        = 0;
+	int number_of_table_column_catalog_definitions                  = 0;
+	int number_of_template_table_column_catalog_definitions         = 0;
 
 	if( data_definition == NULL )
 	{
@@ -392,13 +395,13 @@ int libesedb_data_definition_read_record(
 
 		return( -1 );
 	}
-	if( column_catalog_definition_list == NULL )
+	if( table_column_catalog_definition_list == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid colum data definition list.",
+		 "%s: invalid table colum data definition list.",
 		 function );
 
 		return( -1 );
@@ -479,19 +482,53 @@ int libesedb_data_definition_read_record(
 	}
 #endif
 
+	if( template_table_column_catalog_definition_list != NULL )
+	{
+		if( libesedb_list_get_number_of_elements(
+		     template_table_column_catalog_definition_list,
+		     &number_of_template_table_column_catalog_definitions,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of template table column catalog definitions.",
+			 function );
+
+			return( -1 );
+		}
+	}
 	if( libesedb_list_get_number_of_elements(
-	     column_catalog_definition_list,
-	     &number_of_column_catalog_definitions,
+	     table_column_catalog_definition_list,
+	     &number_of_table_column_catalog_definitions,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of column catalog definitions.",
+		 "%s: unable to retrieve number of table column catalog definitions.",
 		 function );
 
 		return( -1 );
+	}
+	number_of_column_catalog_definitions = number_of_table_column_catalog_definitions;
+
+	if( template_table_column_catalog_definition_list != NULL )
+	{
+		if( number_of_table_column_catalog_definitions > number_of_template_table_column_catalog_definitions )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+			 "%s: invalid number of table column catalog definitions value exceeds number in template table.",
+			 function );
+
+			return( -1 );
+		}
+		number_of_column_catalog_definitions += number_of_template_table_column_catalog_definitions;
 	}
 	if( libesedb_array_initialize(
 	     &( data_definition->values_array ),
@@ -511,7 +548,14 @@ int libesedb_data_definition_read_record(
 	{
 		number_of_variable_size_data_types = last_variable_size_data_type - 127;
 	}
-	list_element                       = column_catalog_definition_list->first;
+	if( template_table_column_catalog_definition_list != NULL )
+	{
+		column_catalog_definition_list_element = template_table_column_catalog_definition_list->first;
+	}
+	else
+	{
+		column_catalog_definition_list_element = table_column_catalog_definition_list->first;
+	}
 	fixed_size_data_type_value_data    = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
 	current_variable_size_data_type    = 127;
 	variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
@@ -521,31 +565,31 @@ int libesedb_data_definition_read_record(
 	     column_catalog_definition_iterator < number_of_column_catalog_definitions;
 	     column_catalog_definition_iterator++ )
 	{
-		if( list_element == NULL )
+		if( column_catalog_definition_list_element == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
+			 "%s: corruption detected for column catalog definition list element: %d.",
 			 function,
 			 column_catalog_definition_iterator );
 
 			return( -1 );
 		}
-		if( list_element->value == NULL )
+		if( column_catalog_definition_list_element->value == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing column catalog definition for list element: %d.",
+			 "%s: missing column catalog definition list element: %d.",
 			 function,
 			 column_catalog_definition_iterator );
 
 			return( -1 );
 		}
-		column_catalog_definition = (libesedb_catalog_definition_t *) list_element->value;
+		column_catalog_definition = (libesedb_catalog_definition_t *) column_catalog_definition_list_element->value;
 
 		if( column_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 		{
@@ -559,6 +603,21 @@ int libesedb_data_definition_read_record(
 			 column_catalog_definition_iterator );
 
 			return( -1 );
+		}
+		if( ( template_table_column_catalog_definition_list != NULL )
+		 && ( column_catalog_definition_iterator == number_of_template_table_column_catalog_definitions ) )
+		{
+			if( column_catalog_definition->identifier != 256 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: only tagged data types supported in tables using a template table.",
+				 function );
+
+				return( -1 );
+			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -1141,7 +1200,15 @@ int libesedb_data_definition_read_record(
 		}
 		data_type_definition = NULL;
 
-		list_element = list_element->next;
+		if( ( column_catalog_definition_list_element->next == NULL )
+		 && ( template_table_column_catalog_definition_list != NULL ) )
+		{
+			column_catalog_definition_list_element = table_column_catalog_definition_list->first;
+		}
+		else
+		{
+			column_catalog_definition_list_element = column_catalog_definition_list_element->next;
+		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )

@@ -49,6 +49,7 @@
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_page_tree_initialize";
@@ -139,7 +140,8 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
-		( *page_tree )->table_definition = table_definition;
+		( *page_tree )->table_definition          = table_definition;
+		( *page_tree )->template_table_definition = template_table_definition;
 	}
 	return( 1 );
 }
@@ -203,6 +205,87 @@ int libesedb_page_tree_free(
 	return( result );
 }
 
+/* Retrieves the number of table definitions
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_get_number_of_table_definitions(
+     libesedb_page_tree_t *page_tree,
+     int *number_of_table_definitions,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_page_tree_get_number_of_table_definitions";
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_number_of_elements(
+	     page_tree->table_definition_list,
+	     number_of_table_definitions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of table definitions.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the table definition for the specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_get_table_definition(
+     libesedb_page_tree_t *page_tree,
+     uint32_t table_definition_index,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_page_tree_get_table_definition";
+	int list_element_iterator             = 0;
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_value(
+	     page_tree->table_definition_list,
+	     table_definition_index,
+	     (intptr_t **) table_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve table definition: %d.",
+		 function,
+		 table_definition_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the table definition with the specified identifier
  * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
  */
@@ -263,7 +346,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: corruption detected for element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
@@ -275,7 +358,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition for list element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
@@ -289,7 +372,7 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table catalog definition for list element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
@@ -302,6 +385,228 @@ int libesedb_page_tree_get_table_definition_by_identifier(
 	*table_definition = NULL;
 
 	return( 0 );
+}
+
+/* Retrieves the table definition for the specific UTF-8 formatted name
+ * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
+ */
+int libesedb_page_tree_get_table_definition_by_utf8_name(
+     libesedb_page_tree_t *page_tree,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_page_tree_get_table_definition_by_utf8_name";
+	int list_element_iterator             = 0;
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_tree->table_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page tree - missing table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	list_element = page_tree->table_definition_list->first;
+
+	for( list_element_iterator = 0;
+	     list_element_iterator < page_tree->table_definition_list->number_of_elements;
+	     list_element_iterator++ )
+	{
+		if( list_element == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: corruption detected for element: %d.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( list_element->value == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing table definition for list element: %d.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		*table_definition = (libesedb_table_definition_t *) list_element->value;
+
+		if( ( *table_definition )->table_catalog_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing table catalog definition for list element: %d.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( ( *table_definition )->table_catalog_definition->name_size == utf8_string_size )
+		{
+			if( libcstring_narrow_string_compare(
+			     ( *table_definition )->table_catalog_definition->name,
+			     utf8_string,
+			     utf8_string_size ) == 0 )
+			{
+				return( 1 );
+			}
+		}
+		list_element = list_element->next;
+	}
+	*table_definition = NULL;
+
+	return( 0 );
+}
+
+/* Retrieves the number of value definitions
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_get_number_of_value_definitions(
+     libesedb_page_tree_t *page_tree,
+     int *number_of_value_definitions,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_page_tree_get_number_of_value_definitions";
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_tree->value_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page tree - missing value definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_number_of_elements(
+	     page_tree->value_definition_list,
+	     number_of_value_definitions,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of value definitions.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the value definition for the specific index
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_get_value_definition(
+     libesedb_page_tree_t *page_tree,
+     uint32_t value_definition_index,
+     intptr_t **value_definition,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_page_tree_get_value_definition";
+	int list_element_iterator             = 0;
+
+	if( page_tree == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_list_get_value(
+	     page_tree->value_definition_list,
+	     value_definition_index,
+	     (intptr_t **) value_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value definition: %d.",
+		 function,
+		 value_definition_index );
+
+		return( -1 );
+	}
+	return( 1 );
 }
 
 /* Reads a page tree and its values
@@ -1865,24 +2170,25 @@ int libesedb_page_tree_read_leaf_page_values(
      uint8_t flags,
      liberror_error_t **error )
 {
-	libesedb_catalog_definition_t *catalog_definition      = NULL;
-	libesedb_data_definition_t *data_definition            = NULL;
-	libesedb_data_definition_t *long_value_data_definition = NULL;
-	libesedb_page_value_t *page_value                      = NULL;
-	libesedb_table_definition_t *table_definition          = NULL;
-	uint8_t *page_key_data                                 = NULL;
-	uint8_t *page_value_data                               = NULL;
-	static char *function                                  = "libesedb_page_tree_read_leaf_page_values";
-	uint32_t long_value_data_segment_offset                = 0;
-	uint32_t required_flags                                = 0;
-	uint32_t supported_flags                               = 0;
-	uint16_t common_key_size                               = 0;
-	uint16_t local_key_size                                = 0;
-	uint16_t number_of_page_values                         = 0;
-	uint16_t page_key_size                                 = 0;
-	uint16_t page_value_iterator                           = 0;
-	uint16_t page_value_size                               = 0;
-	int result                                             = 0;
+	libesedb_catalog_definition_t *catalog_definition              = NULL;
+	libesedb_data_definition_t *data_definition                    = NULL;
+	libesedb_data_definition_t *long_value_data_definition         = NULL;
+	libesedb_list_t *template_table_column_catalog_definition_list = NULL;
+	libesedb_page_value_t *page_value                              = NULL;
+	libesedb_table_definition_t *table_definition                  = NULL;
+	uint8_t *page_key_data                                         = NULL;
+	uint8_t *page_value_data                                       = NULL;
+	static char *function                                          = "libesedb_page_tree_read_leaf_page_values";
+	uint32_t long_value_data_segment_offset                        = 0;
+	uint32_t required_flags                                        = 0;
+	uint32_t supported_flags                                       = 0;
+	uint16_t common_key_size                                       = 0;
+	uint16_t local_key_size                                        = 0;
+	uint16_t number_of_page_values                                 = 0;
+	uint16_t page_key_size                                         = 0;
+	uint16_t page_value_iterator                                   = 0;
+	uint16_t page_value_size                                       = 0;
+	int result                                                     = 0;
 
 	if( page_tree == NULL )
 	{
@@ -2328,6 +2634,25 @@ int libesedb_page_tree_read_leaf_page_values(
 						 catalog_definition->father_data_page_object_identifier );
 
 						/* TODO build-in table 1 support */
+#if defined( HAVE_DEBUG_OUTPUT )
+						if( ( libnotify_verbose != 0 )
+						 && ( error != NULL )
+						 && ( *error != NULL ) )
+						{
+							libnotify_print_error_backtrace(
+							 *error );
+						}
+#endif
+
+						liberror_error_free(
+						 error );
+
+						libesedb_catalog_definition_free(
+						 (intptr_t *) catalog_definition,
+						 NULL );
+
+						catalog_definition = NULL;
+
 						continue;
 					}
 					if( result != 1 )
@@ -2750,9 +3075,14 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 			else
 			{
+				if( page_tree->template_table_definition != NULL )
+				{
+					template_table_column_catalog_definition_list = page_tree->template_table_definition->column_catalog_definition_list;
+				}
 				if( libesedb_data_definition_read_record(
 				     data_definition,
 				     page_tree->table_definition->column_catalog_definition_list,
+				     template_table_column_catalog_definition_list,
 				     io_handle,
 				     page_value_data,
 				     page_value_size,
@@ -2949,7 +3279,7 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: corruption detected for element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
@@ -2961,7 +3291,7 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing data definition for list element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
@@ -2977,7 +3307,7 @@ int libesedb_page_tree_get_long_value_data_definition_by_key(
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing key for list element: %d.",
 			 function,
-			 list_element_iterator + 1 );
+			 list_element_iterator );
 
 			return( -1 );
 		}
