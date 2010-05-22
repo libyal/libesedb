@@ -129,6 +129,11 @@ int libesedb_catalog_definition_free(
 		memory_free(
 		 ( (libesedb_catalog_definition_t *) catalog_definition )->template_name );
 	}
+	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->default_value != NULL )
+	{
+		memory_free(
+		 ( (libesedb_catalog_definition_t *) catalog_definition )->default_value );
+	}
 	memory_free(
 	 catalog_definition );
 
@@ -774,32 +779,75 @@ int libesedb_catalog_definition_read(
 #endif
 					break;
 
-#if defined( HAVE_DEBUG_OUTPUT )
 				case 131:
-					if( libnotify_verbose != 0 )
+					/* The MSB signifies that the variable size data type is empty
+					 */
+					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						catalog_definition->default_value_size = (size_t) variable_size_data_type_size - previous_variable_size_data_type_size;
+
+						catalog_definition->default_value = (uint8_t *) memory_allocate(
+												 sizeof( uint8_t ) * catalog_definition->default_value_size );
+
+						if( catalog_definition->default_value == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 "%s: unable to create default value.",
+							 function );
+
+							catalog_definition->default_value_size = 0;
+
+							return( -1 );
+						}
+						if( memory_copy(
+						     catalog_definition->default_value,
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     catalog_definition->default_value_size ) == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 "%s: unable to set default value.",
+							 function );
+
+							memory_free(
+							 catalog_definition->default_value );
+
+							catalog_definition->default_value      = NULL;
+							catalog_definition->default_value_size = 0;
+
+							return( -1 );
+						}
+
+#if defined( HAVE_DEBUG_OUTPUT )
+						if( libnotify_verbose != 0 )
 						{
 							libnotify_printf(
 							 "%s: (%03" PRIu8 ") default value:\n",
 							 function,
 							 data_type_number );
 							libnotify_print_data(
-							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 catalog_definition->default_value,
+							 catalog_definition->default_value_size );
 						}
-						else
-						{
-							libnotify_printf(
-							 "%s: (%03" PRIu8 ") default value\t\t\t\t\t: <NULL>\n",
-							 function,
-							 data_type_number );
-						}
+#endif
 					}
+#if defined( HAVE_DEBUG_OUTPUT )
+					else if( libnotify_verbose != 0 )
+					{
+						libnotify_printf(
+						 "%s: (%03" PRIu8 ") default value\t\t\t\t\t: <NULL>\n",
+						 function,
+						 data_type_number );
+					}
+#endif
 					break;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 				case 132:
 					if( libnotify_verbose != 0 )
 					{

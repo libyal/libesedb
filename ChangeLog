@@ -1,25 +1,20 @@
 TODO
-* support for non-linear stored long value segments (current solution has sanity check)
-* windows search: work on index-based compression
-  (create test program to validate output)
 * fix memory leaks
 * configure.ac update libfguid detection
 * update macosx files
-
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
 * move bfio handle to item layer
 * implement cloning of items for improved asynchronous and multi threaded usage
-
-Windows search:
-* change libuna utf16 functions to libsystem utf16 functions
-  - create libsystem utf16 functions
-* improve windows_search_decompress_byte_indexed_compressed_data
+* long values optimization
+  - read page tree as hierarchy
+  - throttle pages to reduce memory finger print
+  - read long values on demand, do not store data ?
 
 Library:
 * ECC32 check non 4 byte modulus buffer support
 * long value support
-* template table support
+* template table support (what about non-tagged data types)
 * multi value 0x18 support
 * read catalog data type defintions and convert them into column definitions
 * use column definitions to read data definitions
@@ -30,6 +25,10 @@ Library:
 * limit the amount of active data type definitions for large tables?
 * libfguid
   - change GUID function to match libfdatetime like structure
+* support for non-linear stored long value segments
+  - current solution has sanity check
+* default values
+   - apply to data definition
 
 Debug
 * print file type string
@@ -46,14 +45,15 @@ Tools
 * esedbexport
   - move libesedb file handle from export handle to esedbexport
 
+Windows search:
+* improve windows_search_decompress_byte_indexed_compressed_data
+
 File format
 * where is the root object defined? or is it implied to be object 1?
 * flag 0x4000 in tagged values
 * page flags
 * page keys
 * (revision 0x11) extended page header
-* long value support
-* template table support
 * multi value 0x18 support
 * what about the first byte in 7-bit ascii compressed data
 * codepage 1200 string in Exchange EDB starts with 0xff 0xff
@@ -68,11 +68,20 @@ Performance
 * create data definition tree in page tree for faster lookup of keys
   keep list for sequential access (B+-tree)
 * XOR32 add memory alignment support
-* create a UTF-8 version of run-length compressed UTF-16 string decompression
+* create a UTF-8 version of run-length compressed UTF-16 string decompression function
+
+Test suite:
+* windows search: work on index-based compression
+  - create test program to validate output
 
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100522
+* added support for default value
+  - read from catalog
+* clean up of long value page tree code
 
 20100521
 * worked on template table support

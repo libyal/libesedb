@@ -1880,7 +1880,6 @@ int libesedb_page_tree_read_child_pages(
 		}
 		else
 		{
-fprintf( stderr, "BRANCH\n" );
 			if( libesedb_page_tree_read_branch_page_values(
 			     page_tree,
 			     child_page,
@@ -3088,7 +3087,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) != 0 )
 			{
-				if( page_value_size == 8 )
+				if( data_definition->key_size == 4 )
 				{
 					if( libesedb_data_definition_read_long_value(
 					     data_definition,
@@ -3141,16 +3140,25 @@ int libesedb_page_tree_read_leaf_page_values(
 					/* TODO are defunct data definition of any value recovering
 					 */
 				}
-				else
+				else if( data_definition->key_size == 8 )
 				{
 		 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 					{
-						if( ( long_value_data_definition == NULL )
-						 || ( long_value_data_definition->key_size == ( data_definition->key_size - 4 ) )
-						 || ( memory_compare(
-						       long_value_data_definition->key,
-						       data_definition->key,
-						       long_value_data_definition->key_size ) != 0 ) )
+						if( long_value_data_definition != NULL )
+						{
+							if( long_value_data_definition->key_size != 4 )
+							{
+								long_value_data_definition = NULL;
+							}
+							else if( memory_compare(
+							          long_value_data_definition->key,
+							          data_definition->key,
+							          4 ) != 0 )
+							{
+								long_value_data_definition = NULL;
+							}
+						}
+						if( long_value_data_definition == NULL )
 						{
 							if( libesedb_page_tree_get_long_value_data_definition_by_key(
 							     page_tree,
@@ -3175,53 +3183,28 @@ int libesedb_page_tree_read_leaf_page_values(
 
 								return( -1 );
 							}
+							if( long_value_data_definition == NULL )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+								 "%s: missing long value data definition.",
+								 function );
+
+								libesedb_data_definition_free(
+								 (intptr_t *) data_definition,
+								 NULL );
+
+								data_definition = NULL;
+
+								return( -1 );
+							}
 						}
-						if( long_value_data_definition == NULL )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-							 "%s: invalid long value data definition.",
-							 function );
+						byte_stream_copy_to_uint32_big_endian(
+						 &( data_definition->key[ 4 ] ),
+						 long_value_data_segment_offset );
 
-							libesedb_data_definition_free(
-							 (intptr_t *) data_definition,
-							 NULL );
-
-							data_definition = NULL;
-
-							return( -1 );
-						}
-						if( ( data_definition->key_size == 0 )
-						 && ( long_value_data_definition->values_array != NULL )
-						 && ( long_value_data_definition->values_array->number_of_entries == 1 ) )
-						{
-							long_value_data_segment_offset = 0;
-						}
-						else if( data_definition->key_size >= 4 )
-						{
-							byte_stream_copy_to_uint32_big_endian(
-							 &( data_definition->key[ data_definition->key_size - 4 ] ),
-							 long_value_data_segment_offset );
-						}
-						else
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-							 "%s: unsupported data definition key.",
-							 function );
-
-							libesedb_data_definition_free(
-							 (intptr_t *) data_definition,
-							 NULL );
-
-							data_definition = NULL;
-
-							return( -1 );
-						}
 						if( libesedb_data_definition_read_long_value_segment(
 						     long_value_data_definition,
 						     long_value_data_segment_offset,
@@ -3247,6 +3230,23 @@ int libesedb_page_tree_read_leaf_page_values(
 						}
 					}
 
+				}
+				else
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+					 "%s: unsupported long value page key size.",
+					 function );
+
+					libesedb_data_definition_free(
+					 (intptr_t *) data_definition,
+					 NULL );
+
+					data_definition = NULL;
+
+					return( -1 );
 				}
 			}
 			else
