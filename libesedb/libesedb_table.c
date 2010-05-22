@@ -1370,7 +1370,7 @@ int libesedb_table_get_record(
 	if( libesedb_page_tree_get_value_definition(
 	     internal_table->table_page_tree,
 	     record_entry,
-	     (intptr_t **) &record_data_definition,
+	     &record_data_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(

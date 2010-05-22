@@ -63,7 +63,7 @@ struct libesedb_io_handle
 
 	/* The last page number
 	 */
-	uint64_t last_page_number;
+	uint32_t last_page_number;
 };
 
 int libesedb_io_handle_initialize(

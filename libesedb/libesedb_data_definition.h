@@ -66,13 +66,13 @@ int libesedb_data_definition_free(
      intptr_t *data_definition,
      liberror_error_t **error );
 
-int libesedb_data_definition_set_common_key(
+int libesedb_data_definition_set_key_common(
      libesedb_data_definition_t *data_definition,
      uint8_t *common_key,
      size_t common_key_size,
      liberror_error_t **error );
 
-int libesedb_data_definition_set_local_key(
+int libesedb_data_definition_set_key_local(
      libesedb_data_definition_t *data_definition,
      uint8_t *local_key,
      size_t local_key_size,

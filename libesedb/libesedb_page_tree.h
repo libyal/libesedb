@@ -1,5 +1,5 @@
 /*
- * Page (B+) tree functions
+ * Page tree functions
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
@@ -34,6 +34,7 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
+#include "libesedb_page_tree_values.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_tree_type.h"
 
@@ -44,11 +45,6 @@ extern "C" {
 enum LIBESEDB_PAGE_TREE_FLAGS
 {
 	LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION		= 0x01
-};
-
-enum LIBESEDB_PAGE_KEY_FLAGS
-{
-	LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY			= 0x01
 };
 
 typedef struct libesedb_page_tree libesedb_page_tree_t;
@@ -67,9 +63,16 @@ struct libesedb_page_tree
 	 */
 	libesedb_list_t *table_definition_list;
 
-	/* The value definition list
+	/* TODO remove
 	 */
 	libesedb_list_t *value_definition_list;
+
+	/* TODO add value definition page tree branch node cache ? */
+	/* TODO add value definition page tree leaf node cache ? */
+
+	/* The value definition page tree root node
+	 */
+	libesedb_tree_node_t *value_definition_tree_root_node;
 };
 
 int libesedb_page_tree_initialize(
@@ -111,10 +114,32 @@ int libesedb_page_tree_get_number_of_value_definitions(
      int *number_of_value_definitions,
      liberror_error_t **error );
 
+int libesedb_page_tree_node_get_value_definition_by_index(
+     libesedb_tree_node_t *value_definition_tree_node,
+     uint32_t value_definition_index,
+     libesedb_data_definition_t **value_definition,
+     liberror_error_t **error );
+
 int libesedb_page_tree_get_value_definition(
      libesedb_page_tree_t *page_tree,
      uint32_t value_definition_index,
-     intptr_t **value_definition,
+     libesedb_data_definition_t **value_definition,
+     liberror_error_t **error );
+
+int libesedb_page_tree_node_get_value_definition_by_key(
+     libesedb_tree_node_t *value_definition_tree_node,
+     uint8_t *key,
+     size_t key_size,
+     libesedb_data_definition_t **value_definition,
+     uint8_t flags,
+     liberror_error_t **error );
+
+int libesedb_page_tree_get_value_definition_by_key(
+     libesedb_page_tree_t *page_tree,
+     uint8_t *key,
+     size_t key_size,
+     libesedb_data_definition_t **value_definition,
+     uint8_t flags,
      liberror_error_t **error );
 
 int libesedb_page_tree_read(
@@ -125,16 +150,9 @@ int libesedb_page_tree_read(
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_father_data_page_values(
+int libesedb_page_tree_read_root_page_values(
      libesedb_page_tree_t *page_tree,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     uint8_t flags,
-     liberror_error_t **error );
-
-int libesedb_page_tree_read_parent_page_values(
-     libesedb_page_tree_t *page_tree,
+     libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
@@ -143,6 +161,7 @@ int libesedb_page_tree_read_parent_page_values(
 
 int libesedb_page_tree_read_branch_page_values(
      libesedb_page_tree_t *page_tree,
+     libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
@@ -151,6 +170,7 @@ int libesedb_page_tree_read_branch_page_values(
 
 int libesedb_page_tree_read_child_pages(
      libesedb_page_tree_t *page_tree,
+     libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
@@ -159,22 +179,16 @@ int libesedb_page_tree_read_child_pages(
 
 int libesedb_page_tree_read_space_tree_page_values(
      libesedb_page_tree_t *page_tree,
+     libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      liberror_error_t **error );
 
 int libesedb_page_tree_read_leaf_page_values(
      libesedb_page_tree_t *page_tree,
+     libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      uint8_t flags,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_long_value_data_definition_by_key(
-     libesedb_page_tree_t *page_tree,
-     uint8_t *key,
-     size_t key_size,
-     uint8_t flags,
-     libesedb_data_definition_t **data_definition,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

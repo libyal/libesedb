@@ -159,16 +159,16 @@ int libesedb_data_definition_free(
 	return( result );
 }
 
-/* Sets the common key in the data definition
+/* Sets the common part of the key in the data definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_data_definition_set_common_key(
+int libesedb_data_definition_set_key_common(
      libesedb_data_definition_t *data_definition,
      uint8_t *common_key,
      size_t common_key_size,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_data_definition_set_common_key";
+	static char *function = "libesedb_data_definition_set_key_common";
 
 	if( data_definition == NULL )
 	{
@@ -249,17 +249,17 @@ int libesedb_data_definition_set_common_key(
 	return( 1 );
 }
 
-/* Sets the local key in the data definition
+/* Sets the local part of the key in the data definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_data_definition_set_local_key(
+int libesedb_data_definition_set_key_local(
      libesedb_data_definition_t *data_definition,
      uint8_t *local_key,
      size_t local_key_size,
      liberror_error_t **error )
 {
 	void *reallocation    = NULL;
-	static char *function = "libesedb_data_definition_set_local_key";
+	static char *function = "libesedb_data_definition_set_key_local";
 
 	if( data_definition == NULL )
 	{

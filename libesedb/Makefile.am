@@ -45,6 +45,7 @@ libesedb_la_SOURCES = \
 	libesedb_notify.c libesedb_notify.h \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
+	libesedb_page_tree_values.c libesedb_page_tree_values.h \
 	libesedb_record.c libesedb_record.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \

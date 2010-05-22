@@ -77,7 +77,7 @@ struct libesedb_page
 {
 	/* The page number
 	 */
-	uint64_t page_number;
+	uint32_t page_number;
 
 	/* The previous page number
 	 */
@@ -94,14 +94,6 @@ struct libesedb_page
 	/* The page flags
 	 */
 	uint32_t flags;
-
-	/* The key data
-	 */
-	uint8_t *key;
-
-	/* The key data size
-	 */
-	size_t key_size;
 
 	/* The page data
 	 */
@@ -136,7 +128,7 @@ int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint64_t page_number,
+     uint32_t page_number,
      liberror_error_t **error );
 
 int libesedb_page_read_tags(
@@ -164,12 +156,6 @@ int libesedb_page_get_value(
      libesedb_page_t *page,
      uint16_t value_index,
      libesedb_page_value_t **page_value,
-     liberror_error_t **error );
-
-int libesedb_page_set_key(
-     libesedb_page_t *page,
-     uint8_t *key,
-     size_t key_size,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

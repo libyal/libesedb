@@ -69,6 +69,7 @@ Performance
   keep list for sequential access (B+-tree)
 * XOR32 add memory alignment support
 * create a UTF-8 version of run-length compressed UTF-16 string decompression function
+* use registry alignmen for key comparison
 
 Test suite:
 * windows search: work on index-based compression

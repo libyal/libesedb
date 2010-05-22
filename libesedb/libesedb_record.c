@@ -2395,12 +2395,12 @@ int libesedb_record_get_long_value(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 
-	if( libesedb_page_tree_get_long_value_data_definition_by_key(
+	if( libesedb_page_tree_get_value_definition_by_key(
 	     internal_record->internal_table->long_value_page_tree,
 	     data_type_definition->data,
 	     data_type_definition->data_size,
-	     LIBESEDB_PAGE_KEY_FLAGS_REVERSED_KEY,
 	     &( internal_long_value->data_definition ),
+	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
 	     error ) != 1 )
 	{
 		liberror_error_set(
