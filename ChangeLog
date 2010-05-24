@@ -4,7 +4,6 @@ TODO
 * update macosx files
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
-* move bfio handle to item layer
 * implement cloning of items for improved asynchronous and multi threaded usage
 * long values optimization
   - read page tree as hierarchy
@@ -81,6 +80,7 @@ Notes
 
 20100524
 * worked on storing page tree values as a hierarchy
+* moved bfio handle to item layer
 
 20100522
 * added support for default value

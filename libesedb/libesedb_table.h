@@ -31,6 +31,7 @@
 
 #include "libesedb_extern.h"
 #include "libesedb_file.h"
+#include "libesedb_libbfio.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
@@ -44,6 +45,10 @@ typedef struct libesedb_internal_table libesedb_internal_table_t;
 
 struct libesedb_internal_table
 {
+	/* The file io handle
+	 */
+	libbfio_handle_t *file_io_handle;
+
 	/* The internal file
 	 */
 	libesedb_internal_file_t *internal_file;
@@ -55,6 +60,10 @@ struct libesedb_internal_table
 	/* The template table definition
 	 */
 	libesedb_table_definition_t *template_table_definition;
+
+	/* The item flags
+	 */
+	uint8_t flags;
 
 	/* The table page tree
 	 */
@@ -75,9 +84,11 @@ LIBESEDB_EXTERN int libesedb_table_free(
 
 int libesedb_table_attach(
      libesedb_internal_table_t *internal_table,
+     libbfio_handle_t *file_io_handle,
      libesedb_internal_file_t *internal_file,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
+     uint8_t flags,
      liberror_error_t **error );
 
 int libesedb_table_detach(

@@ -175,6 +175,13 @@ enum LIBESEDB_PAGE_KEY_FLAGS
 	LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY				= 0x01
 };
 
+/* Definitions of item flags
+ */
+enum LIBESEDB_ITEM_FLAGS
+{
+	LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE			= 0x01
+};
+
 /* The file attribute flags
  */
 enum LIBESEDB_FILE_ATTRIBUTE_FLAGS

@@ -800,69 +800,8 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-#ifdef TEST
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint64_t page_number  = 0;
-	libesedb_page_t *page = NULL;
-	off64_t file_offset   = 0;
+	/* TODO what about the backup of the catalog */
 
-	file_offset = 2 * internal_file->io_handle->page_size;
-	page_number = 1;
-
-	while( page_number <= io_handle->last_page_number )
-	{
-		if( libesedb_page_initialize(
-		     &page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create page.",
-			 function );
-
-			return( -1 );
-		}
-		if( libesedb_page_read(
-		     page,
-		     internal_file->io_handle,
-		     internal_file->file_io_handle,
-		     page_number,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read page.",
-			 function );
-
-			libesedb_page_free(
-			 &page,
-			 NULL );
-
-			return( -1 );
-		}
-		file_offset += internal_file->io_handle->page_size;
-
-		if( libesedb_page_free(
-		     &page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free page.",
-			 function );
-
-			return( -1 );
-		}
-		page_number += 1;
-	}
-#endif
-#endif
 	return( 1 );
 }
 
@@ -1285,9 +1224,11 @@ int libesedb_file_get_table(
 	}
 	if( libesedb_table_attach(
 	     (libesedb_internal_table_t *) *table,
+	     internal_file->file_io_handle,
 	     internal_file,
 	     table_definition,
 	     template_table_definition,
+	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(

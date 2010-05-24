@@ -63,10 +63,6 @@ struct libesedb_page_tree
 	 */
 	libesedb_list_t *table_definition_list;
 
-	/* TODO remove
-	 */
-	libesedb_list_t *value_definition_list;
-
 	/* TODO add value definition page tree branch node cache ? */
 	/* TODO add value definition page tree leaf node cache ? */
 
