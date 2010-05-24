@@ -3005,6 +3005,7 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint8_t *page_key_data                                         = NULL;
 	uint8_t *page_value_data                                       = NULL;
 	static char *function                                          = "libesedb_page_tree_read_leaf_page_values";
+	off64_t page_value_offset                                      = 0;
 	uint32_t long_value_data_segment_offset                        = 0;
 	uint32_t required_flags                                        = 0;
 	uint32_t supported_flags                                       = 0;
@@ -3216,8 +3217,9 @@ int libesedb_page_tree_read_leaf_page_values(
 
 			return( -1 );
 		}
-		page_value_data = page_value->data;
-		page_value_size = (uint16_t) page_value->size;
+		page_value_data   = page_value->data;
+		page_value_size   = (uint16_t) page_value->size;
+		page_value_offset = page_value->offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -3264,8 +3266,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 page_value_data,
 			 common_key_size );
 
-			page_value_data += 2;
-			page_value_size -= 2;
+			page_value_data   += 2;
+			page_value_size   -= 2;
+			page_value_offset += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -3319,8 +3322,9 @@ int libesedb_page_tree_read_leaf_page_values(
 		 page_value_data,
 		 local_key_size );
 
-		page_value_data += 2;
-		page_value_size -= 2;
+		page_value_data   += 2;
+		page_value_size   -= 2;
+		page_value_offset += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -3391,6 +3395,7 @@ int libesedb_page_tree_read_leaf_page_values(
 			}
 			page_value_data++;
 			page_value_size--;
+			page_value_offset++;
 			page_key_size--;
 		}
 		if( libnotify_verbose != 0 )
@@ -3399,8 +3404,9 @@ int libesedb_page_tree_read_leaf_page_values(
 			 "\n" );
 		}
 #else
-		page_value_data += local_key_size;
-		page_value_size -= local_key_size;
+		page_value_data   += local_key_size;
+		page_value_size   -= local_key_size;
+		page_value_offset += local_key_size;
 #endif
 
 		/* The catalog is read using build-in catalog definition types
@@ -3718,6 +3724,7 @@ int libesedb_page_tree_read_leaf_page_values(
 					}
 					page_value_data++;
 					page_value_size--;
+					page_value_offset++;
 				}
 				if( libnotify_verbose != 0 )
 				{
@@ -3845,6 +3852,7 @@ int libesedb_page_tree_read_leaf_page_values(
 						     long_value_data_segment_offset,
 						     page_value_data,
 						     page_value_size,
+						     page_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -3893,6 +3901,7 @@ int libesedb_page_tree_read_leaf_page_values(
 				     io_handle,
 				     page_value_data,
 				     page_value_size,
+				     page_value_offset,
 				     error ) != 1 )
 				{
 					liberror_error_set(

@@ -66,6 +66,10 @@ struct libesedb_page_value
 	 */
 	size_t size;
 
+	/* The file offset of the page value
+	 */
+	off64_t offset;
+
 	/* The flags of the value
 	 */
 	uint8_t flags;
@@ -102,6 +106,10 @@ struct libesedb_page
 	/* The page data size
 	 */
 	size_t data_size;
+
+	/* The file offset of the page
+	 */
+	off64_t offset;
 
 	/* The page values array
 	 */
@@ -140,11 +148,12 @@ int libesedb_page_read_tags(
      liberror_error_t **error );
 
 int libesedb_page_read_values(
-     libesedb_array_t *page_values_array,
+     libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libesedb_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
+     size_t page_values_data_offset,
      liberror_error_t **error );
 
 int libesedb_page_get_number_of_values(

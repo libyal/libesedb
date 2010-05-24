@@ -10,6 +10,11 @@ TODO
   - throttle pages to reduce memory finger print
   - read long values on demand, do not store data ?
 
+libdatablock
+* memory range
+* on demand file range
+* long value
+
 Library:
 * ECC32 check non 4 byte modulus buffer support
 * long value support

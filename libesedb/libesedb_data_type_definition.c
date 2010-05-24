@@ -131,6 +131,7 @@ int libesedb_data_type_definition_set_data(
      libesedb_data_type_definition_t *data_type_definition,
      uint8_t *data,
      size_t data_size,
+     off64_t data_offset,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_data_type_definition_set_data";
@@ -168,35 +169,39 @@ int libesedb_data_type_definition_set_data(
 
 		return( -1 );
 	}
-	data_type_definition->data = (uint8_t *) memory_allocate(
-	                                          sizeof( uint8_t ) * data_size );
-
-	if( data_type_definition->data == NULL )
+	if( data_size > 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create data type definition data.",
-		 function );
+		data_type_definition->data = (uint8_t *) memory_allocate(
+							  sizeof( uint8_t ) * data_size );
 
-		return( -1 );
-	}
-	if( memory_copy(
-	     data_type_definition->data,
-	     data,
-	     sizeof( uint8_t ) * data_size ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to copy data.",
-		 function );
+		if( data_type_definition->data == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create data type definition data.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( memory_copy(
+		     data_type_definition->data,
+		     data,
+		     sizeof( uint8_t ) * data_size ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy data.",
+			 function );
+
+			return( -1 );
+		}
 	}
-	data_type_definition->data_size = data_size;
+	data_type_definition->data_size   = data_size;
+	data_type_definition->data_offset = data_offset;
 
 	return( 1 );
 }

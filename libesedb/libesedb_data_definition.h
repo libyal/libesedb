@@ -85,6 +85,7 @@ int libesedb_data_definition_read_record(
      libesedb_io_handle_t *io_handle,
      uint8_t *definition_data,
      size_t definition_data_size,
+     off64_t definition_data_offset,
      liberror_error_t **error );
 
 int libesedb_data_definition_read_long_value(
@@ -98,6 +99,7 @@ int libesedb_data_definition_read_long_value_segment(
      uint32_t data_segment_number,
      uint8_t *definition_data,
      size_t definition_data_size,
+     off64_t definition_data_offset,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

@@ -86,6 +86,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\libbfio\libbfio_error.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libbfio\libbfio_error_string.c"
 				>
 			</File>

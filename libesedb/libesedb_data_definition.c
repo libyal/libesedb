@@ -343,25 +343,27 @@ int libesedb_data_definition_read_record(
      libesedb_io_handle_t *io_handle,
      uint8_t *definition_data,
      size_t definition_data_size,
+     off64_t definition_data_offset,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
 	libesedb_data_type_definition_t *data_type_definition           = NULL;
 	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
-	uint8_t *fixed_size_data_type_value_data                        = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
-	uint8_t *tagged_data_type_value_data                            = NULL;
-	uint8_t *variable_size_data_type_size_data                      = NULL;
-	uint8_t *variable_size_data_type_value_data                     = NULL;
 	static char *function                                           = "libesedb_data_definition_read_record";
 	size_t remaining_definition_data_size                           = 0;
+	uint16_t fixed_size_data_type_value_offset                      = 0;
 	uint16_t previous_tagged_data_type_offset                       = 0;
 	uint16_t previous_variable_size_data_type_size                  = 0;
 	uint16_t tagged_data_type_offset_data_size                      = 0;
 	uint16_t tagged_data_type_identifier                            = 0;
 	uint16_t tagged_data_type_offset                                = 0;
 	uint16_t tagged_data_type_size                                  = 0;
+	uint16_t tagged_data_types_offset                               = 0;
+	uint16_t tagged_data_type_value_offset                          = 0;
+	uint16_t variable_size_data_type_offset                         = 0;
 	uint16_t variable_size_data_type_size                           = 0;
+	uint16_t variable_size_data_type_value_offset                   = 0;
 	uint16_t variable_size_data_types_offset                        = 0;
 	uint8_t current_variable_size_data_type                         = 0;
 	uint8_t last_fixed_size_data_type                               = 0;
@@ -556,10 +558,10 @@ int libesedb_data_definition_read_record(
 	{
 		column_catalog_definition_list_element = table_column_catalog_definition_list->first;
 	}
-	fixed_size_data_type_value_data    = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
-	current_variable_size_data_type    = 127;
-	variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
-	variable_size_data_type_value_data = &( variable_size_data_type_size_data[ number_of_variable_size_data_types * 2 ] );
+	fixed_size_data_type_value_offset    = (uint16_t) sizeof( esedb_data_definition_header_t );
+	current_variable_size_data_type      = 127;
+	variable_size_data_type_offset       = variable_size_data_types_offset;
+	variable_size_data_type_value_offset = variable_size_data_types_offset + ( number_of_variable_size_data_types * 2 );
 
 	for( column_catalog_definition_iterator = 0;
 	     column_catalog_definition_iterator < number_of_column_catalog_definitions;
@@ -669,7 +671,7 @@ int libesedb_data_definition_read_record(
 
 					if( libesedb_debug_print_column_value(
 					     column_catalog_definition->column_type,
-					     fixed_size_data_type_value_data,
+					     &( definition_data[ fixed_size_data_type_value_offset ] ),
 					     column_catalog_definition->size,
 					     LIBUNA_CODEPAGE_ASCII,
 					     error ) != 1 )
@@ -692,8 +694,9 @@ int libesedb_data_definition_read_record(
 
 				if( libesedb_data_type_definition_set_data(
 				     data_type_definition,
-				     fixed_size_data_type_value_data,
+				     &( definition_data[ fixed_size_data_type_value_offset ] ),
 				     column_catalog_definition->size,
+				     definition_data_offset + fixed_size_data_type_value_offset,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -709,7 +712,7 @@ int libesedb_data_definition_read_record(
 
 					return( -1 );
 				}
-				fixed_size_data_type_value_data += column_catalog_definition->size;
+				fixed_size_data_type_value_offset += column_catalog_definition->size;
 			}
 		}
 		else if( current_variable_size_data_type < last_variable_size_data_type )
@@ -717,10 +720,10 @@ int libesedb_data_definition_read_record(
 			while( current_variable_size_data_type < column_catalog_definition->identifier )
 			{
 				byte_stream_copy_to_uint16_little_endian(
-				 variable_size_data_type_size_data,
+				 &( definition_data[ variable_size_data_type_offset ] ),
 				 variable_size_data_type_size );
 
-				variable_size_data_type_size_data += 2;
+				variable_size_data_type_offset += 2;
 
 				current_variable_size_data_type++;
 
@@ -750,15 +753,16 @@ int libesedb_data_definition_read_record(
 							 function,
 							 column_catalog_definition->identifier );
 							libnotify_print_data(
-							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+							 &( definition_data[ variable_size_data_type_value_offset ] ),
 							 variable_size_data_type_size - previous_variable_size_data_type_size );
 						}
 #endif
 
 						if( libesedb_data_type_definition_set_data(
 						     data_type_definition,
-						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     &( definition_data[ variable_size_data_type_value_offset ] ),
 						     variable_size_data_type_size - previous_variable_size_data_type_size,
+						     definition_data_offset + variable_size_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -774,6 +778,7 @@ int libesedb_data_definition_read_record(
 
 							return( -1 );
 						}
+						variable_size_data_type_value_offset += variable_size_data_type_size - previous_variable_size_data_type_size;
 						previous_variable_size_data_type_size = variable_size_data_type_size;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -794,26 +799,25 @@ int libesedb_data_definition_read_record(
 		}
 		else
 		{
-			variable_size_data_type_size &= 0x7fff;
-
 			if( tagged_data_types_format == LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR )
 			{
-				if( tagged_data_type_value_data == NULL )
+				if( tagged_data_types_offset == 0 )
 				{
-					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
-					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
+					tagged_data_types_offset       = variable_size_data_type_value_offset;
+					tagged_data_type_value_offset  = variable_size_data_type_value_offset;
+					remaining_definition_data_size = definition_data_size - (size_t) tagged_data_types_offset;
 
 					byte_stream_copy_to_uint16_little_endian(
-					 tagged_data_type_value_data,
+					 &( definition_data[ tagged_data_type_value_offset ] ),
 					 tagged_data_type_identifier );
 
-					tagged_data_type_value_data += 2;
+					tagged_data_type_value_offset += 2;
 
 					byte_stream_copy_to_uint16_little_endian(
-					 tagged_data_type_value_data,
+					 &( definition_data[ tagged_data_type_value_offset ] ),
 					 tagged_data_type_size );
 
-					tagged_data_type_value_data += 2;
+					tagged_data_type_value_offset += 2;
 
 					remaining_definition_data_size -= 4;
 				}
@@ -846,9 +850,9 @@ int libesedb_data_definition_read_record(
 							 "%s: (%03" PRIu16 ") tagged data type flags\t\t\t\t: 0x%02" PRIx8 "\n",
 							 function,
 							 column_catalog_definition->identifier,
-							 *tagged_data_type_value_data );
+							 definition_data[ tagged_data_type_value_offset ] );
 							libesedb_debug_print_tagged_data_type_flags(
-							 *tagged_data_type_value_data );
+							 definition_data[ tagged_data_type_value_offset ] );
 							libnotify_printf(
 							 "\n" );
 						}
@@ -856,7 +860,7 @@ int libesedb_data_definition_read_record(
 
 						if( libesedb_data_type_definition_set_flags(
 						     data_type_definition,
-						     *tagged_data_type_value_data,
+						     definition_data[ tagged_data_type_value_offset ],
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -872,7 +876,7 @@ int libesedb_data_definition_read_record(
 
 							return( -1 );
 						}
-						tagged_data_type_value_data    += 1;
+						tagged_data_type_value_offset  += 1;
 						tagged_data_type_size           = ( tagged_data_type_size & 0x5fff ) - 1;
 						remaining_definition_data_size -= 1;
 					}
@@ -886,7 +890,7 @@ int libesedb_data_definition_read_record(
 							 function,
 							 column_catalog_definition->identifier );
 							libnotify_print_data(
-							 tagged_data_type_value_data,
+							 &( definition_data[ tagged_data_type_value_offset ] ),
 							 tagged_data_type_size );
 						}
 						else
@@ -913,8 +917,9 @@ int libesedb_data_definition_read_record(
 						}
 						if( libesedb_data_type_definition_set_data(
 						     data_type_definition,
-						     tagged_data_type_value_data,
+						     &( definition_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
+						     definition_data_offset + tagged_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -930,22 +935,21 @@ int libesedb_data_definition_read_record(
 
 							return( -1 );
 						}
-						tagged_data_type_value_data    += tagged_data_type_size;
 						remaining_definition_data_size -= tagged_data_type_size;
 					}
 					if( remaining_definition_data_size > 0 )
 					{
 						byte_stream_copy_to_uint16_little_endian(
-						 tagged_data_type_value_data,
+						 &( definition_data[ tagged_data_type_value_offset ] ),
 						 tagged_data_type_identifier );
 
-						tagged_data_type_value_data += 2;
+						tagged_data_type_value_offset += 2;
 
 						byte_stream_copy_to_uint16_little_endian(
-						 tagged_data_type_value_data,
+						 &( definition_data[ tagged_data_type_value_offset ] ),
 						 tagged_data_type_size );
 
-						tagged_data_type_value_data += 2;
+						tagged_data_type_value_offset += 2;
 
 						remaining_definition_data_size -= 4;
 					}
@@ -953,11 +957,11 @@ int libesedb_data_definition_read_record(
 			}
 			else if( tagged_data_types_format == LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX )
 			{
-				if( tagged_data_type_offset_data == NULL )
+				if( tagged_data_types_offset == 0 )
 				{
-					tagged_data_type_offset_data   = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
-					tagged_data_type_value_data    = &( variable_size_data_type_value_data[ variable_size_data_type_size ] );
-					remaining_definition_data_size = definition_data_size - (size_t) ( tagged_data_type_value_data - definition_data );
+					tagged_data_types_offset       = variable_size_data_type_value_offset;
+					tagged_data_type_offset_data   = &( definition_data[ tagged_data_types_offset ] );
+					remaining_definition_data_size = definition_data_size - (size_t) tagged_data_types_offset;
 
 					if( remaining_definition_data_size > 0 )
 					{
@@ -999,7 +1003,7 @@ int libesedb_data_definition_read_record(
 							 "%s: tagged data type offset data:\n",
 							 function );
 							libnotify_print_data(
-							 tagged_data_type_value_data,
+							 tagged_data_type_offset_data,
 							 tagged_data_type_offset_data_size + 4 );
 						}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
@@ -1073,6 +1077,7 @@ int libesedb_data_definition_read_record(
 						 tagged_data_type_size );
 					}
 #endif
+					tagged_data_type_value_offset = tagged_data_types_offset + ( previous_tagged_data_type_offset & 0x3fff );
 
 					if( tagged_data_type_size > 0 )
 					{
@@ -1099,17 +1104,16 @@ int libesedb_data_definition_read_record(
 								 "%s: (%03" PRIu16 ") tagged data type flags\t\t\t\t: 0x%02" PRIx8 "\n",
 								 function,
 								 column_catalog_definition->identifier,
-								 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
+								 definition_data[ tagged_data_type_value_offset ] );
 								libesedb_debug_print_tagged_data_type_flags(
-								 tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] );
+								 definition_data[ tagged_data_type_value_offset ] );
 								libnotify_printf(
 								 "\n" );
 							}
 #endif
-
 							if( libesedb_data_type_definition_set_flags(
 							     data_type_definition,
-							     tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ],
+							     definition_data[ tagged_data_type_value_offset ],
 							     error ) != 1 )
 							{
 								liberror_error_set(
@@ -1125,8 +1129,8 @@ int libesedb_data_definition_read_record(
 
 								return( -1 );
 							}
-							previous_tagged_data_type_offset += 1;
-							tagged_data_type_size            -= 1;
+							tagged_data_type_value_offset += 1;
+							tagged_data_type_size         -= 1;
 						}
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libnotify_verbose != 0 )
@@ -1136,11 +1140,10 @@ int libesedb_data_definition_read_record(
 							 function,
 							 column_catalog_definition->identifier );
 							libnotify_print_data(
-							 &( tagged_data_type_value_data[ previous_tagged_data_type_offset & 0x3fff ] ),
+							 &( definition_data[ tagged_data_type_value_offset ] ),
 							 tagged_data_type_size );
 						}
 #endif
-						previous_tagged_data_type_offset &= 0x3fff;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					/* TODO are zero size tagged data type values handled correctly?
@@ -1157,8 +1160,9 @@ int libesedb_data_definition_read_record(
 					{
 						if( libesedb_data_type_definition_set_data(
 						     data_type_definition,
-						     &( tagged_data_type_value_data[ previous_tagged_data_type_offset ] ),
+						     &( definition_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
+						     definition_data_offset + tagged_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1213,14 +1217,14 @@ int libesedb_data_definition_read_record(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
-		if( fixed_size_data_type_value_data < &( definition_data[ variable_size_data_types_offset ] ) )
+		if( fixed_size_data_type_value_offset < variable_size_data_types_offset )
 		{
 			libnotify_printf(
 			 "%s: fixed size data types trailing data:\n",
 			 function );
 			libnotify_print_data(
-			 fixed_size_data_type_value_data,
-			 &( definition_data[ variable_size_data_types_offset ] ) - fixed_size_data_type_value_data );
+			 &( definition_data[ fixed_size_data_type_value_offset ] ),
+			 variable_size_data_types_offset - fixed_size_data_type_value_offset );
 		}
 		libnotify_printf(
 		 "\n" );
@@ -1357,6 +1361,7 @@ int libesedb_data_definition_read_long_value_segment(
      uint32_t data_segment_offset,
      uint8_t *definition_data,
      size_t definition_data_size,
+     off64_t definition_data_offset,
      liberror_error_t **error )
 {
 	libesedb_data_type_definition_t *data_type_definition = NULL;
@@ -1447,6 +1452,7 @@ int libesedb_data_definition_read_long_value_segment(
 	     data_type_definition,
 	     definition_data,
 	     definition_data_size,
+	     definition_data_offset,
 	     error ) != 1 )
 	{
 		liberror_error_set(

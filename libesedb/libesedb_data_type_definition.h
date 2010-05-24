@@ -51,6 +51,10 @@ struct libesedb_data_type_definition
 	 */
 	size_t data_size;
 
+	/* The file offset of the data type definition data
+	 */
+	off64_t data_offset;
+
 	/* The flags
 	 */
 	uint8_t flags;
@@ -69,6 +73,7 @@ int libesedb_data_type_definition_set_data(
      libesedb_data_type_definition_t *data_type_definition,
      uint8_t *data,
      size_t data_size,
+     off64_t data_offset,
      liberror_error_t **error );
 
 int libesedb_data_type_definition_set_flags(

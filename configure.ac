@@ -646,6 +646,70 @@ AM_CONDITIONAL(
  [HAVE_LOCAL_LIBBFIO],
  [test "x$ac_libesedb_have_libbfio" = xlocal])
 
+dnl Check for enabling libdatablock for file and memory data block support
+AC_CHECK_HEADERS(
+ [libdatablock.h],
+ [],
+ [ac_libesedb_have_libdatablock=no])
+
+AS_IF(
+	[test "x$ac_libesedb_have_libdatablock" != xno],
+	[ac_libesedb_have_libdatablock=yes
+	AC_CHECK_LIB(
+	 datablock,
+	 libdatablock_get_version,
+	 [],
+	 [ac_libesedb_have_libdatablock=no])
+
+	])
+
+AS_IF(
+[test "x$ac_libesedb_have_libdatablock" = xyes],
+ [dnl libdatablock is available
+ AC_SUBST(
+  [libesedb_pc_libs_private_libdatablock],
+  [-ldatablock])
+ AC_SUBST(
+  [libesedb_spec_requires_libdatablock],
+  [libdatablock])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libdatablock],
+  [libdatablock-devel])
+ AC_SUBST(
+  [LIBDATABLOCK_CPPFLAGS],
+  [])
+ AC_SUBST(
+  [LIBDATABLOCK_LIBADD],
+  []) ],
+ [dnl libdatablock is not available, using the (local) version that came with the source package
+ AC_DEFINE(
+  [HAVE_LOCAL_LIBDATABLOCK],
+  [1],
+  [Define to 1 if the local version of libdatablock is used.])
+ AC_SUBST(
+  [HAVE_LOCAL_LIBDATABLOCK],
+  [1])
+ AC_SUBST(
+  [libesedb_pc_libs_private_libdatablock],
+  [])
+ AC_SUBST(
+  [libesedb_spec_requires_libdatablock],
+  [])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libdatablock],
+  [])
+ AC_SUBST(
+  [LIBDATABLOCK_CPPFLAGS],
+  [-I../libdatablock])
+ AC_SUBST(
+  [LIBDATABLOCK_LIBADD],
+  [../libdatablock/libdatablock.la])
+ ac_libesedb_have_libdatablock=local])
+
+AM_CONDITIONAL(
+ [HAVE_LOCAL_LIBDATABLOCK],
+ [test "x$ac_libesedb_have_libdatablock" = xlocal])
+
 dnl Check for enabling libfdatetime for file date and time support
 LIBESEDB_CHECK_LIBFDATETIME
 
@@ -931,7 +995,7 @@ AS_IF(
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes],
+ [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libdatablock" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes],
  [AC_SUBST(
   [libesedb_spec_requires],
   [Requires:])
@@ -986,6 +1050,7 @@ AC_CONFIG_FILES([liberror/Makefile])
 AC_CONFIG_FILES([libnotify/Makefile])
 AC_CONFIG_FILES([libuna/Makefile])
 AC_CONFIG_FILES([libbfio/Makefile])
+AC_CONFIG_FILES([libdatablock/Makefile])
 AC_CONFIG_FILES([libfdatetime/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
@@ -1015,6 +1080,7 @@ AC_MSG_NOTICE([
 Building:
    libuna support:                             $ac_libesedb_have_libuna
    libbfio support:                            $ac_libesedb_have_libbfio
+   libdatablock support:                       $ac_libesedb_have_libdatablock
    libfdatetime support:                       $ac_libesedb_have_libfdatetime
    libfguid support:                           $ac_libesedb_have_libfguid
 
