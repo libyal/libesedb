@@ -79,10 +79,14 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100524
+* worked on storing page tree values as a hierarchy
+
 20100522
 * added support for default value
   - read from catalog
 * clean up of long value page tree code
+* worked on storing page tree values as a hierarchy
 
 20100521
 * worked on template table support

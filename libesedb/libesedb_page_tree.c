@@ -1019,6 +1019,7 @@ int libesedb_page_tree_node_get_value_definition_by_key(
 		}
 		else if( key_size <= page_tree_values->key_size )
 		{
+
 			data_definition_key_index = 0;
 
 			for( key_index = 0;
@@ -1039,17 +1040,12 @@ int libesedb_page_tree_node_get_value_definition_by_key(
 				}
 				data_definition_key_index++;
 			}
-			/* If the key exactly matches the page tree values key,
-			 * the value definition is in the next page tree values
-			 * otherwise it is in the current
-			 */
-			if( ( compare == 0 )
-			 && ( key_size != page_tree_values->key_size ) )
-			{
-				compare = -1;
-			}
 		}
-		if( compare < 0 )
+		/* If the key exactly matches the page tree values key,
+		 * the value definition is either in the current or the next
+		 * page tree values
+		 */
+		if( compare <= 0 )
 		{
 			result = libesedb_page_tree_node_get_value_definition_by_key(
 				  child_tree_node,
@@ -1951,23 +1947,6 @@ int libesedb_page_tree_read_child_pages(
 
 		return( -1 );
 	}
-	if( number_of_page_values > 1 )
-	{
-		if( libesedb_page_tree_values_resize(
-		     page_tree_values,
-		     number_of_page_values - 1,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
-			 "%s: unable to resize page tree values.",
-			 function );
-
-			return( -1 );
-		}
-	}
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) == 0 )
 	{
 		if( libesedb_page_get_value(
@@ -2020,7 +1999,7 @@ int libesedb_page_tree_read_child_pages(
 			 "\n" );
 
 			libnotify_printf(
-			 "%s: (header) common page key\t\t\t: ",
+			 "%s: (header) common page key\t\t: ",
 			 function,
 			 page_value_iterator );
 
@@ -3131,23 +3110,6 @@ int libesedb_page_tree_read_leaf_page_values(
 		 function );
 
 		return( -1 );
-	}
-	if( number_of_page_values > 1 )
-	{
-		if( libesedb_page_tree_values_resize(
-		     page_tree_values,
-		     number_of_page_values - 1,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
-			 "%s: unable to resize page tree values.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	if( libesedb_page_get_value(
 	     page,

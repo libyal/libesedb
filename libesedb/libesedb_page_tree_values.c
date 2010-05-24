@@ -163,44 +163,6 @@ int libesedb_page_tree_values_free(
 	return( result );
 }
 
-/* Resizes page tree values
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_tree_values_resize(
-     libesedb_page_tree_values_t *page_tree_values,
-     int number_of_value_definitions,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_page_tree_values_resize";
-
-	if( page_tree_values == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree values.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_array_resize(
-	     page_tree_values->value_definition_array,
-	     number_of_value_definitions,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
-		 "%s: unable to resize value definition array.",
-		 function );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
 /* Sets the common key in the page tree values
  * Returns 1 if successful or -1 on error
  */
@@ -498,7 +460,7 @@ int libesedb_page_tree_values_get_value_definition(
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve data definition: %d from value definition array.",
 		 function,
-		 page_tree_values->number_of_value_definitions );
+		 value_definition_index );
 
 		return( -1 );
 	}
@@ -593,8 +555,6 @@ int libesedb_page_tree_values_get_value_definition_by_key(
 			 function,
 			 value_definition_index );
 
-			*data_definition = NULL;
-
 			return( -1 );
 		}
 		if( *data_definition == NULL )
@@ -603,8 +563,9 @@ int libesedb_page_tree_values_get_value_definition_by_key(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing data definition.",
-			 function );
+			 "%s: missing data definition: %d.",
+			 function,
+			 value_definition_index );
 
 			return( -1 );
 		}
@@ -660,6 +621,8 @@ int libesedb_page_tree_values_get_value_definition_by_key(
 			}
 		}
 	}
+	*data_definition = NULL;
+
 	return( 0 );
 }
 
@@ -671,7 +634,8 @@ int libesedb_page_tree_values_append_value_definition(
      libesedb_data_definition_t *data_definition,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_page_tree_values_append_value_definition";
+	static char *function      = "libesedb_page_tree_values_append_value_definition";
+	int value_definition_index = 0;
 
 	if( page_tree_values == NULL )
 	{
@@ -684,9 +648,9 @@ int libesedb_page_tree_values_append_value_definition(
 
 		return( -1 );
 	}
-	if( libesedb_array_set_entry(
+	if( libesedb_array_append_entry(
 	     page_tree_values->value_definition_array,
-	     page_tree_values->number_of_value_definitions,
+	     &value_definition_index,
 	     (intptr_t *) data_definition,
 	     error ) != 1 )
 	{
@@ -694,9 +658,9 @@ int libesedb_page_tree_values_append_value_definition(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to set data definition: %d in value definition array.",
+		 "%s: unable to append data definition: %d to value definition array.",
 		 function,
-		 page_tree_values->number_of_value_definitions );
+		 page_tree_values->number_of_value_definitions - 1 );
 
 		return( -1 );
 	}

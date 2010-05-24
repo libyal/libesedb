@@ -72,11 +72,6 @@ int libesedb_page_tree_values_free(
      intptr_t *page_tree_values,
      liberror_error_t **error );
 
-int libesedb_page_tree_values_resize(
-     libesedb_page_tree_values_t *page_tree_values,
-     int number_of_value_definitions,
-     liberror_error_t **error );
-
 int libesedb_page_tree_values_set_common_key(
      libesedb_page_tree_values_t *page_tree_values,
      uint8_t *common_key,
