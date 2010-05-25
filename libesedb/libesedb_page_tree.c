@@ -3454,7 +3454,8 @@ int libesedb_page_tree_read_leaf_page_values(
 
 				return( -1 );
 			}
-			if( ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
+			if( ( catalog_definition->type <= LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK )
+			 && ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
 			 && ( ( table_definition == NULL )
 			  || ( table_definition->table_catalog_definition == NULL )
 			  || ( table_definition->table_catalog_definition->father_data_page_object_identifier != catalog_definition->father_data_page_object_identifier ) ) )
@@ -3656,19 +3657,31 @@ int libesedb_page_tree_read_leaf_page_values(
 					break;
 
 				default:
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-					 "%s: unsupported catalog definition type: %" PRIu16 ".",
-					 function,
-					 catalog_definition->type );
+#if defined( HAVE_DEBUG_OUTPUT )
+					if( libnotify_verbose != 0 )
+					{
+						libnotify_printf(
+						 "%s: unsupported catalog definition type: %" PRIu16 ".\n",
+						 function,
+						 catalog_definition->type );
+					}
+#endif
+					if( libesedb_catalog_definition_free(
+					     (intptr_t *) catalog_definition,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 "%s: unable to free catalog definition.",
+						 function );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
+						return( -1 );
+					}
+					catalog_definition = NULL;
 
-					return( -1 );
+					break;
 			}
 		}
 		else

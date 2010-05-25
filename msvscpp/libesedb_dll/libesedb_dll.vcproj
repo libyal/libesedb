@@ -186,6 +186,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_page_tree_values.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_record.c"
 				>
 			</File>
@@ -337,6 +341,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_page_tree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_page_tree_values.h"
 				>
 			</File>
 			<File

@@ -130,18 +130,18 @@ int libesedb_io_handle_free(
 	return( result );
 }
 
-/* Reads the file header
+/* Reads the file (or database) header
  * Returns 1 if successful or -1 on error
  */
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     off64_t offset,
      liberror_error_t **error )
 {
 	uint8_t *file_header_data          = NULL;
 	static char *function              = "libesedb_io_handle_read_file_header";
-	size64_t file_size                 = 0;
-	size_t read_size                   = 4096;
+	size_t read_size                   = 2048;
 	ssize_t read_count                 = 0;
 	uint32_t calculated_xor32_checksum = 0;
 	uint32_t stored_xor32_checksum     = 0;
@@ -165,28 +165,15 @@ int libesedb_io_handle_read_file_header(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: reading file header at offset: 0 (0x00000000)\n",
-		 function );
+		 "%s: reading file header at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 offset,
+		 offset );
 	}
 #endif
-
-	if( libbfio_handle_get_size(
-	     file_io_handle,
-	     &file_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve file size.",
-		 function );
-
-		return( -1 );
-	}
 	if( libbfio_handle_seek_offset(
 	     file_io_handle,
-	     0,
+	     offset,
 	     SEEK_SET,
 	     error ) == -1 )
 	{
@@ -194,7 +181,7 @@ int libesedb_io_handle_read_file_header(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek file header offset: 0.",
+		 "%s: unable to seek file header offset: %" PRIu64 ".",
 		 function );
 
 		return( -1 );
@@ -272,7 +259,7 @@ int libesedb_io_handle_read_file_header(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to calculate XOR-32 checksum.",
 		 function );
 
@@ -727,6 +714,18 @@ int libesedb_io_handle_read_file_header(
 	memory_free(
 	 file_header_data );
 
+	if( io_handle->format_version != 0x620 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported format version: 0x%04" PRIx32 ".",
+		 function,
+		 io_handle->format_version );
+
+		return( -1 );
+	}
 	if( io_handle->page_size == 0 )
 	{
 		liberror_error_set(
@@ -738,10 +737,50 @@ int libesedb_io_handle_read_file_header(
 
 		return( -1 );
 	}
-	/* TODO check if page size is correct for version */
+	if( io_handle->format_version == 0x620 )
+	{
+		if( io_handle->format_revision < 0x11 )
+		{
+			if( ( io_handle->page_size != 0x1000 )
+			 && ( io_handle->page_size != 0x2000 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
+				 function,
+				 io_handle->page_size,
+				 io_handle->page_size,
+				 io_handle->format_version,
+				 io_handle->format_revision );
 
-	io_handle->last_page_number = (uint32_t) ( file_size / io_handle->page_size ) - 2;
+				return( -1 );
+			}
+		}
+		else
+		{
+			if( ( io_handle->page_size != 0x0800 )
+			 && ( io_handle->page_size != 0x1000 )
+			 && ( io_handle->page_size != 0x2000 )
+			 && ( io_handle->page_size != 0x4000 )
+			 && ( io_handle->page_size != 0x8000 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
+				 function,
+				 io_handle->page_size,
+				 io_handle->page_size,
+				 io_handle->format_version,
+				 io_handle->format_revision );
 
+				return( -1 );
+			}
+		}
+	}
 	return( 1 );
 }
 
