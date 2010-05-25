@@ -844,11 +844,12 @@ int libesedb_page_tree_node_get_value_definition_by_key(
 	libesedb_page_tree_values_t *page_tree_values = NULL;
 	libesedb_tree_node_t *child_tree_node         = NULL;
 	static char *function                         = "libesedb_page_tree_node_get_value_definition_by_key";
+	size_t compare_size                           = 0;
 	size_t data_definition_key_index              = 0;
 	size_t key_index                              = 0;
 	int child_node_iterator                       = 0;
 	int result                                    = 0;
-	int8_t compare                                = 0;
+	int16_t compare                               = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *page_key_data                        = NULL;
@@ -1017,22 +1018,29 @@ int libesedb_page_tree_node_get_value_definition_by_key(
 		{
 			compare = -1;
 		}
-		else if( key_size <= page_tree_values->key_size )
+		else
 		{
-
+			if( key_size <= page_tree_values->key_size )
+			{
+				compare_size = key_size;
+			}
+			else
+			{
+				compare_size = page_tree_values->key_size;
+			}
 			data_definition_key_index = 0;
 
 			for( key_index = 0;
-			     key_index < key_size;
+			     key_index < compare_size;
 			     key_index++ )
 			{
 				if( ( flags & LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY ) != 0 )
 				{
-					compare = (int8_t) key[ key_size - ( key_index + 1 ) ] - (int8_t) page_tree_values->key[ data_definition_key_index ];
+					compare = (int16_t) key[ compare_size - ( key_index + 1 ) ] - (int16_t) page_tree_values->key[ data_definition_key_index ];
 				}
 				else
 				{
-					compare = (int8_t) key[ key_index ] - (int8_t) page_tree_values->key[ data_definition_key_index ];
+					compare = (int16_t) key[ key_index ] - (int16_t) page_tree_values->key[ data_definition_key_index ];
 				}
 				if( compare != 0 )
 				{
