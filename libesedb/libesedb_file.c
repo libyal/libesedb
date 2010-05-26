@@ -710,7 +710,9 @@ int libesedb_file_open_read(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_file_open_read";
+	off64_t file_offset   = 0;
 	size64_t file_size    = 0;
+	int result            = 0;
 
 	if( internal_file == NULL )
 	{
@@ -752,7 +754,7 @@ int libesedb_file_open_read(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "Reading file header:\n" );
+		 "Reading (database) file header:\n" );
 	}
 #endif
 	if( libesedb_io_handle_read_file_header(
@@ -765,17 +767,69 @@ int libesedb_file_open_read(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read file header.",
+		 "%s: unable to read (database) file header.",
 		 function );
 
 		return( -1 );
 	}
-	/* TODO what about the backup of the database header
-	 * probe for the signature at the page size
-	 * if not found try known page sizes
-	 * if found read and validate the backup of the database header
-	 */
+#if defined( HAVE_VERBOSE_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "Reading backup (database) file header:\n" );
+	}
+#endif
+	if( internal_file->io_handle->page_size != 0 )
+	{
+		result = libesedb_io_handle_read_file_header(
+		          internal_file->io_handle,
+		          internal_file->file_io_handle,
+		          internal_file->io_handle->page_size,
+		          error );
+	}
+	if( result != 1 )
+	{
+		file_offset = 0x0800;
 
+		while( file_offset <= 0x8000 )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( libnotify_verbose != 0 )
+			 && ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libnotify_print_error_backtrace(
+				 *error );
+			}
+#endif
+
+			liberror_error_free(
+			 error );
+
+			result = libesedb_io_handle_read_file_header(
+				  internal_file->io_handle,
+				  internal_file->file_io_handle,
+				  file_offset,
+				  error );
+
+			if( result == 1 )
+			{
+				break;
+			}
+			file_offset <<= 1;
+		}
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read backup (database) file header.",
+		 function );
+
+		return( -1 );
+	}
 	if( internal_file->io_handle->format_version != 0x620 )
 	{
 		liberror_error_set(

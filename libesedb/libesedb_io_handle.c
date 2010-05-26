@@ -136,7 +136,7 @@ int libesedb_io_handle_free(
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     off64_t offset,
+     off64_t file_offset,
      liberror_error_t **error )
 {
 	uint8_t *file_header_data          = NULL;
@@ -172,13 +172,13 @@ int libesedb_io_handle_read_file_header(
 		libnotify_printf(
 		 "%s: reading file header at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 offset,
-		 offset );
+		 file_offset,
+		 file_offset );
 	}
 #endif
 	if( libbfio_handle_seek_offset(
 	     file_io_handle,
-	     offset,
+	     file_offset,
 	     SEEK_SET,
 	     error ) == -1 )
 	{
@@ -187,7 +187,8 @@ int libesedb_io_handle_read_file_header(
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
 		 "%s: unable to seek file header offset: %" PRIu64 ".",
-		 function );
+		 function,
+		 file_offset );
 
 		return( -1 );
 	}
@@ -719,7 +720,7 @@ int libesedb_io_handle_read_file_header(
 
 	/* TODO add more values to internal structures */
 
-	if( offset == 0 )
+	if( file_offset == 0 )
 	{
 		io_handle->format_version           = format_version;
 		io_handle->format_revision          = format_revision;
@@ -782,7 +783,7 @@ int libesedb_io_handle_read_file_header(
 			/* The offset of the backup (database) file header
 			 * is a good indication of the actual page size
 			 */ 
-			io_handle->page_size = (uint32_t) offset;
+			io_handle->page_size = (uint32_t) file_offset;
 		}
 	}
 	return( 1 );
