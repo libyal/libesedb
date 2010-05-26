@@ -107,9 +107,6 @@ int libesedb_file_initialize(
 			 "%s: unable to create io handle.",
 			 function );
 
-			libesedb_page_tree_free(
-			 &( internal_file->catalog_page_tree ),
-			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -149,6 +146,19 @@ int libesedb_file_free(
 		internal_file = (libesedb_internal_file_t *) *file;
 
 		if( libesedb_page_tree_free(
+		     &( internal_file->database_page_tree ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free database page tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_page_tree_free(
 		     &( internal_file->catalog_page_tree ),
 		     error ) != 1 )
 		{
@@ -156,7 +166,7 @@ int libesedb_file_free(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free page table.",
+			 "%s: unable to free catalog page tree.",
 			 function );
 
 			result = -1;
@@ -901,7 +911,50 @@ int libesedb_file_open_read(
 	 */
 	internal_file->io_handle->last_page_number = (uint32_t) ( file_size / internal_file->io_handle->page_size ) - 2;
 
-	/* TODO What about page 1 ? present in empty database */
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "Reading the database page tree:\n" );
+	}
+#endif
+	if( libesedb_page_tree_initialize(
+	     &( internal_file->database_page_tree ),
+	     NULL,
+	     NULL,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create database page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_tree_read(
+	     internal_file->database_page_tree,
+	     internal_file->io_handle,
+	     internal_file->file_io_handle,
+	     LIBESEDB_PAGE_NUMBER_DATABASE,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page tree.",
+		 function );
+
+		libesedb_page_tree_free(
+		 &( internal_file->database_page_tree ),
+		 NULL );
+
+		return( -1 );
+	}
+
 #if defined( HAVE_VERBOSE_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -930,7 +983,7 @@ int libesedb_file_open_read(
 	     internal_file->io_handle,
 	     internal_file->file_io_handle,
 	     LIBESEDB_PAGE_NUMBER_CATALOG,
-	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION,
+	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG,
 	     error ) != 1 )
 	{
 		liberror_error_set(

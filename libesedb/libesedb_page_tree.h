@@ -44,7 +44,7 @@ extern "C" {
 
 enum LIBESEDB_PAGE_TREE_FLAGS
 {
-	LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG_DEFINITION		= 0x01
+	LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG		= 0x01
 };
 
 typedef struct libesedb_page_tree libesedb_page_tree_t;
@@ -146,25 +146,17 @@ int libesedb_page_tree_read(
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_root_page_values(
+int libesedb_page_tree_read_root_page_value(
      libesedb_page_tree_t *page_tree,
      libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
+     libesedb_page_value_t *page_value,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error );
 
 int libesedb_page_tree_read_branch_page_values(
-     libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     uint8_t flags,
-     liberror_error_t **error );
-
-int libesedb_page_tree_read_child_pages(
      libesedb_page_tree_t *page_tree,
      libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
@@ -184,6 +176,7 @@ int libesedb_page_tree_read_leaf_page_values(
      libesedb_tree_node_t *value_definition_tree_node,
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
+     libbfio_handle_t *file_io_handle,
      uint8_t flags,
      liberror_error_t **error );
 

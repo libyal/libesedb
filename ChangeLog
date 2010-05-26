@@ -55,13 +55,6 @@ Tools
 
 Windows search:
 * improve windows_search_decompress_byte_indexed_compressed_data
-* compressed string
-  - System_Message_SenderName
-  - System_Message_ConversationID (GUID ?)
-  - System_ItemNamePrefix
-  - System_ItemUrl (contains binary data?)
-* filetime
-  - System_DueDate
 
 File format
 * where is the root object defined? or is it implied to be object 1?
@@ -98,6 +91,8 @@ Notes
 * worked on reading backup database (file) header
 * fixed issue in page key lookup function
 * support for additional Windows Search compressed values
+* changes for handling root page flag
+* changes for handling database with empty catalog
 
 20100525
 * fixed issues in page key lookup function

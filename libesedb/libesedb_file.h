@@ -50,6 +50,10 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
+	/* The database page tree
+	 */
+	libesedb_page_tree_t *database_page_tree;
+
 	/* The catalog page tree
 	 */
 	libesedb_page_tree_t *catalog_page_tree;
