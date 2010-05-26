@@ -1036,7 +1036,7 @@ int libesedb_page_tree_node_get_value_definition_by_key(
 			{
 				if( ( flags & LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY ) != 0 )
 				{
-					compare = (int16_t) key[ compare_size - ( key_index + 1 ) ] - (int16_t) page_tree_values->key[ data_definition_key_index ];
+					compare = (int16_t) key[ key_size - ( key_index + 1 ) ] - (int16_t) page_tree_values->key[ data_definition_key_index ];
 				}
 				else
 				{

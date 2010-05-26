@@ -776,6 +776,18 @@ int libesedb_file_open_read(
 	 * if found read and validate the backup of the database header
 	 */
 
+	if( internal_file->io_handle->format_version != 0x620 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported format version: 0x%04" PRIx32 ".",
+		 function,
+		 internal_file->io_handle->format_version );
+
+		return( -1 );
+	}
 	if( internal_file->io_handle->page_size == 0 )
 	{
 		liberror_error_set(
@@ -786,6 +798,50 @@ int libesedb_file_open_read(
 		 function );
 
 		return( -1 );
+	}
+	if( internal_file->io_handle->format_version == 0x620 )
+	{
+		if( internal_file->io_handle->format_revision < 0x11 )
+		{
+			if( ( internal_file->io_handle->page_size != 0x1000 )
+			 && ( internal_file->io_handle->page_size != 0x2000 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
+				 function,
+				 internal_file->io_handle->page_size,
+				 internal_file->io_handle->page_size,
+				 internal_file->io_handle->format_version,
+				 internal_file->io_handle->format_revision );
+
+				return( -1 );
+			}
+		}
+		else
+		{
+			if( ( internal_file->io_handle->page_size != 0x0800 )
+			 && ( internal_file->io_handle->page_size != 0x1000 )
+			 && ( internal_file->io_handle->page_size != 0x2000 )
+			 && ( internal_file->io_handle->page_size != 0x4000 )
+			 && ( internal_file->io_handle->page_size != 0x8000 ) )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
+				 function,
+				 internal_file->io_handle->page_size,
+				 internal_file->io_handle->page_size,
+				 internal_file->io_handle->format_version,
+				 internal_file->io_handle->format_revision );
+
+				return( -1 );
+			}
+		}
 	}
 	/* The first 2 pages contain database headers
 	 */

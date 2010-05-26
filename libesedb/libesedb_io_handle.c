@@ -144,6 +144,11 @@ int libesedb_io_handle_read_file_header(
 	size_t read_size                   = 2048;
 	ssize_t read_count                 = 0;
 	uint32_t calculated_xor32_checksum = 0;
+	uint32_t creation_format_revision  = 0;
+	uint32_t creation_format_version   = 0;
+	uint32_t format_revision           = 0;
+	uint32_t format_version            = 0;
+	uint32_t page_size                 = 0;
 	uint32_t stored_xor32_checksum     = 0;
 
 #if defined( HAVE_VERBOSE_OUTPUT )
@@ -288,25 +293,23 @@ int libesedb_io_handle_read_file_header(
 
 		return( -1 );
 	}
-	/* TODO add more values to internal structures */
-
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->format_version,
-	 io_handle->format_version );
+	 format_version );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->format_revision,
-	 io_handle->format_revision );
+	 format_revision );
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->page_size,
-	 io_handle->page_size );
+	 page_size );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->creation_format_version,
-	 io_handle->creation_format_version );
+	 creation_format_version );
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->creation_format_revision,
-	 io_handle->creation_format_revision );
+	 creation_format_revision );
 
 #if defined( HAVE_VERBOSE_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -327,7 +330,7 @@ int libesedb_io_handle_read_file_header(
 		libnotify_printf(
 		 "%s: format version\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 io_handle->format_version );
+		 format_version );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->file_type,
@@ -485,11 +488,11 @@ int libesedb_io_handle_read_file_header(
 		libnotify_printf(
 		 "%s: format revision\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 io_handle->format_revision );
+		 format_revision );
 		libnotify_printf(
 		 "%s: page size\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 io_handle->page_size );
+		 page_size );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->repair_count,
@@ -564,11 +567,11 @@ int libesedb_io_handle_read_file_header(
 		libnotify_printf(
 		 "%s: creation format version\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 io_handle->creation_format_version );
+		 creation_format_version );
 		libnotify_printf(
 		 "%s: creation format revision\t\t: 0x%08" PRIx32 "\n",
 		 function,
-		 io_handle->creation_format_revision );
+		 creation_format_revision );
 
 		libnotify_printf(
 		 "%s: unknown3:\n",
@@ -714,71 +717,72 @@ int libesedb_io_handle_read_file_header(
 	memory_free(
 	 file_header_data );
 
-	if( io_handle->format_version != 0x620 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported format version: 0x%04" PRIx32 ".",
-		 function,
-		 io_handle->format_version );
+	/* TODO add more values to internal structures */
 
-		return( -1 );
-	}
-	if( io_handle->page_size == 0 )
+	if( offset == 0 )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page size.",
-		 function );
-
-		return( -1 );
+		io_handle->format_version           = format_version;
+		io_handle->format_revision          = format_revision;
+		io_handle->page_size                = page_size;
+		io_handle->creation_format_version  = creation_format_version;
+		io_handle->creation_format_revision = creation_format_revision;
 	}
-	if( io_handle->format_version == 0x620 )
+	else
 	{
-		if( io_handle->format_revision < 0x11 )
+		if( io_handle->format_version == 0 )
 		{
-			if( ( io_handle->page_size != 0x1000 )
-			 && ( io_handle->page_size != 0x2000 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
-				 function,
-				 io_handle->page_size,
-				 io_handle->page_size,
-				 io_handle->format_version,
-				 io_handle->format_revision );
-
-				return( -1 );
-			}
+			io_handle->format_version = format_version;
 		}
-		else
+		else if( io_handle->format_version != format_version )
 		{
-			if( ( io_handle->page_size != 0x0800 )
-			 && ( io_handle->page_size != 0x1000 )
-			 && ( io_handle->page_size != 0x2000 )
-			 && ( io_handle->page_size != 0x4000 )
-			 && ( io_handle->page_size != 0x8000 ) )
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libnotify_verbose != 0 )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
+				libnotify_printf(
+				 "%s: mismatch in format version: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
+				 function,
+				 io_handle->format_version,
+				 io_handle->format_version );
+			}
+#endif
+		}
+		if( io_handle->format_revision == 0 )
+		{
+			io_handle->format_revision = format_revision;
+		}
+		else if( io_handle->format_revision != format_revision )
+		{
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: mismatch in format revision: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
+				 function,
+				 io_handle->format_revision,
+				 io_handle->format_revision );
+			}
+#endif
+		}
+		if( io_handle->page_size == 0 )
+		{
+			io_handle->page_size = page_size;
+		}
+		else if( io_handle->page_size != page_size )
+		{
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: mismatch in page size: 0x%04" PRIx32 " and backup: 0x%04" PRIx32 "\n",
 				 function,
 				 io_handle->page_size,
-				 io_handle->page_size,
-				 io_handle->format_version,
-				 io_handle->format_revision );
-
-				return( -1 );
+				 page_size );
 			}
+#endif
+			/* The offset of the backup (database) file header
+			 * is a good indication of the actual page size
+			 */ 
+			io_handle->page_size = (uint32_t) offset;
 		}
 	}
 	return( 1 );

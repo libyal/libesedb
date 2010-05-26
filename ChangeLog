@@ -87,6 +87,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100526
+* worked on reading backup database (file) header
+
 20100525
 * fixes in page key lookup function
 * added error tolerance for non-supported catalog types
