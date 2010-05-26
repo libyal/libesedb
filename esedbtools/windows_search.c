@@ -2733,6 +2733,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
+				          "System_DueDate",
+				          14 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+				else if( libcstring_narrow_string_compare(
+				          (char *) column_name,
 				          "System_EndDate",
 				          14 ) == 0 )
 				{
@@ -2964,6 +2971,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
+				          "System_ItemNamePrefix",
+				          21 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
+				}
+				else if( libcstring_narrow_string_compare(
+				          (char *) column_name,
 				          "System_Media_SubTitle",
 				          21 ) == 0 )
 				{
@@ -3144,6 +3158,13 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
+				          "System_Message_SenderName",
+				          25 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
+				}
+				else if( libcstring_narrow_string_compare(
+				          (char *) column_name,
 				          "System_Search_AutoSummary",
 				          25 ) == 0 )
 				{
@@ -3240,14 +3261,14 @@ int windows_search_export_record_systemindex_0a(
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
-				          "System_RecordedTV_EpisodeName",
+				          "System_Message_ConversationID",
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
 				else if( libcstring_narrow_string_compare(
 				          (char *) column_name,
-				          "System_Message_ConversationID",
+				          "System_RecordedTV_EpisodeName",
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
