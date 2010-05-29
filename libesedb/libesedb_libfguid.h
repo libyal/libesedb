@@ -31,7 +31,6 @@
 #if defined( HAVE_LOCAL_LIBFGUID )
 
 #include <libfguid_definitions.h>
-#include <libfguid_error.h>
 #include <libfguid_guid.h>
 #include <libfguid_types.h>
 

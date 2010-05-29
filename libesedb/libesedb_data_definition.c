@@ -136,21 +136,43 @@ int libesedb_data_definition_free(
 		memory_free(
 		 ( (libesedb_data_definition_t *) data_definition )->key );
 	}
-	if( ( (libesedb_data_definition_t *) data_definition )->values_array != NULL )
+	if( ( (libesedb_data_definition_t *) data_definition )->type == LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE )
 	{
-		if( libesedb_array_free(
-		     &( ( (libesedb_data_definition_t *) data_definition )->values_array ),
-		     &libesedb_data_type_definition_free,
-		     error ) != 1 )
+		if( ( (libesedb_data_definition_t *) data_definition )->data_handle != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free values array.",
-			 function );
+			if( libfdata_handle_free(
+			     &( ( (libesedb_data_definition_t *) data_definition )->data_handle ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free data handle.",
+				 function );
 
-			result = -1;
+				result = -1;
+			}
+		}
+	}
+	else if( ( (libesedb_data_definition_t *) data_definition )->type == LIBESEDB_DATA_DEFINITION_TYPE_RECORD )
+	{
+		if( ( (libesedb_data_definition_t *) data_definition )->values_array != NULL )
+		{
+			if( libesedb_array_free(
+			     &( ( (libesedb_data_definition_t *) data_definition )->values_array ),
+			     &libesedb_data_type_definition_free,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free values array.",
+				 function );
+
+				result = -1;
+			}
 		}
 	}
 	memory_free(
@@ -386,6 +408,17 @@ int libesedb_data_definition_read_record(
 
 		return( -1 );
 	}
+	if( data_definition->type != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid data definition - type already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( data_definition->values_array != NULL )
 	{
 		liberror_error_set(
@@ -452,6 +485,8 @@ int libesedb_data_definition_read_record(
 
 		return( -1 );
 	}
+	data_definition->type = LIBESEDB_DATA_DEFINITION_TYPE_RECORD;
+
 	if( ( io_handle->format_version == 0x620 )
 	 && ( io_handle->format_revision <= 2 ) )
 	{
@@ -1257,13 +1292,24 @@ int libesedb_data_definition_read_long_value(
 
 		return( -1 );
 	}
-	if( data_definition->values_array != NULL )
+	if( data_definition->type != 0 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid data definition - values array already set.",
+		 "%s: invalid data definition - type already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_definition->data_handle != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid data definition - data handle already set.",
 		 function );
 
 		return( -1 );
@@ -1302,6 +1348,8 @@ int libesedb_data_definition_read_long_value(
 
 		return( -1 );
 	}
+	data_definition->type = LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE;
+
 	byte_stream_copy_to_uint16_little_endian(
 	 definition_data,
 	 value_32bit );
@@ -1336,16 +1384,19 @@ int libesedb_data_definition_read_long_value(
 	}
 #endif
 
-	if( libesedb_array_initialize(
-	     &( data_definition->values_array ),
-	     0,
+	if( libfdata_handle_initialize(
+	     &( data_definition->data_handle ),
+	     NULL,
+	     NULL,
+	     NULL,
+	     NULL,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create values array.",
+		 "%s: unable to create data handle.",
 		 function );
 
 		return( -1 );
@@ -1364,9 +1415,8 @@ int libesedb_data_definition_read_long_value_segment(
      off64_t definition_data_offset,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	static char *function                                 = "libesedb_data_definition_read_long_value_segment";
-	int data_segment_number                               = 0;
+	static char *function = "libesedb_data_definition_read_long_value_segment";
+	size64_t data_size    = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1379,13 +1429,24 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( data_definition->values_array == NULL )
+	if( data_definition->type != LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported data definition type.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_definition->data_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data definition - missing values array.",
+		 "%s: invalid data definition - missing data handle.",
 		 function );
 
 		return( -1 );
@@ -1416,81 +1477,59 @@ int libesedb_data_definition_read_long_value_segment(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: long value data offset\t\t: %" PRIu32 "\n",
+		 "%s: long value segment with offset: %" PRIu32 " has data at offset: %" PRIi64 " of size: %" PRIzd "\n",
 		 function,
-		 data_segment_offset );
+		 data_segment_offset,
+		 definition_data_offset,
+		 definition_data_size );
 		libnotify_printf(
 		 "\n" );
 	}
 #endif
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( data_segment_offset != data_definition->size )
-	{
-		libnotify_printf(
-		 "%s: mismatch of data segment offset: %" PRIu32 " and data definition size: %zd.\n",
-		 function,
-		 data_segment_offset,
-		 data_definition->size );
-	}
-#endif
-	if( libesedb_data_type_definition_initialize(
-	     &data_type_definition,
-	     NULL,
+	if( libfdata_handle_get_size(
+	     data_definition->data_handle,
+	     &data_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data type definition.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of data handle size.",
 		 function );
 
 		return( -1 );
 	}
-	if( libesedb_data_type_definition_set_data(
-	     data_type_definition,
-	     definition_data,
-	     definition_data_size,
-	     definition_data_offset,
-	     error ) != 1 )
+	if( data_segment_offset != (off64_t) data_size )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set data in long value segment data type definition for offset: %" PRIu32 ".",
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported long value segment offset: %" PRIi64 " value must match end of previous segment: %" PRIzd ".",
 		 function,
-		 data_segment_offset );
-
-		libesedb_data_type_definition_free(
-		 (intptr_t *) data_type_definition,
-		 NULL );
+		 data_segment_offset,
+		 data_size );
 
 		return( -1 );
 	}
-	if( libesedb_array_append_entry(
-	     data_definition->values_array,
-	     &data_segment_number,
-	     (intptr_t *) data_type_definition,
+	if( libfdata_handle_append_segment(
+	     data_definition->data_handle,
+	     definition_data_offset,
+	     definition_data_size,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value segment data type definition for offset: %" PRIu32 ".",
+		 "%s: unable to append long value segment at offset: %" PRIu32 " to data handle.",
 		 function,
 		 data_segment_offset );
 
-		libesedb_data_type_definition_free(
-		 (intptr_t *) data_type_definition,
-		 NULL );
-
 		return( -1 );
 	}
-	data_definition->size += definition_data_size;
-
 	return( 1 );
 }
 

@@ -6,6 +6,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/libnotify \
 	@LIBUNA_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
+	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
@@ -36,6 +37,7 @@ libesedb_la_SOURCES = \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_legacy.c libesedb_legacy.h \
 	libesedb_libbfio.h \
+	libesedb_libfdata.h \
 	libesedb_libfdatetime.h \
 	libesedb_libfguid.h \
 	libesedb_libuna.h \
@@ -60,6 +62,7 @@ libesedb_la_LIBADD = \
 	../libnotify/libnotify.la \
 	@LIBUNA_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
+	@LIBFDATA_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
 	@LIBFGUID_LIBADD@
 

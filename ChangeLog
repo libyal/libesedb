@@ -1,3 +1,8 @@
+Generic
+* remove libfdatetime_error.h from local inclusion header
+* replace offset print PRIu64 by PRIi64
+* remove attach/detach functions
+
 TODO
 * error tolerance probe test for the page size using the backup database header
 * fix memory leaks
@@ -11,12 +16,11 @@ TODO
   - throttle pages to reduce memory finger print
   - read long values on demand, do not store data ?
 
-* replace offset print PRIu64 by PRIi64
-
-libdtype
+libbtype
 * move array, list and tree type to separate library ?
 
 libfdata
+* allow for non-sequential segments
 * handle segments which have a size > SSIZE_MAX
 * memory range
 * esedb long value
@@ -99,6 +103,7 @@ Notes
 * changed libdatablock into libfdata
 * worked on libfdata
 * fixes for non-debug output
+* remove attach/detach functions
 
 20100528
 * worked on libdatablock

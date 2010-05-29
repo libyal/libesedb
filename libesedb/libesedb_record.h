@@ -31,6 +31,7 @@
 
 #include "libesedb_data_definition.h"
 #include "libesedb_extern.h"
+#include "libesedb_libbfio.h"
 #include "libesedb_table.h"
 #include "libesedb_types.h"
 
@@ -42,6 +43,10 @@ typedef struct libesedb_internal_record libesedb_internal_record_t;
 
 struct libesedb_internal_record
 {
+	/* The file io handle
+	 */
+	libbfio_handle_t *file_io_handle;
+
 	/* The internal table
 	 */
 	libesedb_internal_table_t *internal_table;
@@ -49,25 +54,23 @@ struct libesedb_internal_record
 	/* The data definition
 	 */
 	libesedb_data_definition_t *data_definition;
+
+	/* The item flags
+	 */
+	uint8_t flags;
 };
 
 int libesedb_record_initialize(
      libesedb_record_t **record,
+     libbfio_handle_t *file_io_handle,
+     libesedb_internal_table_t *internal_table,
+     libesedb_data_definition_t *data_definition,
+     uint8_t flags,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_free(
                      libesedb_record_t **record,
                      liberror_error_t **error );
-
-int libesedb_record_attach(
-     libesedb_internal_record_t *internal_record,
-     libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
-     liberror_error_t **error );
-
-int libesedb_record_detach(
-     libesedb_internal_record_t *internal_record,
-     liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_number_of_values(
                      libesedb_record_t *record,

@@ -40,6 +40,9 @@
  */
 int libesedb_index_initialize(
      libesedb_index_t **index,
+     libesedb_internal_table_t *internal_table,
+     libesedb_internal_file_t *internal_file,
+     libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
@@ -89,6 +92,10 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
+		internal_index->internal_file      = internal_file;
+		internal_index->internal_table     = internal_table;
+		internal_index->catalog_definition = catalog_definition;
+
 		*index = (libesedb_index_t *) internal_index;
 	}
 	return( 1 );
@@ -124,118 +131,26 @@ int libesedb_index_free(
 		/* The internal_table and catalog_definition references
 		 * are freed elsewhere
 		 */
-		if( libesedb_index_detach(
-		     internal_index,
-		     error ) != 1 )
+		if( internal_index->index_page_tree != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to detach internal index.",
-			 function );
+			if( libesedb_page_tree_free(
+			     &( internal_index->index_page_tree ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free index page tree.",
+				 function );
 
-			result = -1;
-		}
-		if( ( internal_index->index_page_tree != NULL )
-		 && ( libesedb_page_tree_free(
-		       &( internal_index->index_page_tree ),
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index page tree.",
-			 function );
-
-			result = -1;
+				result = -1;
+			}
 		}
 		memory_free(
 		 internal_index );
 	}
 	return( result );
-}
-
-/* Attaches the index to the table
- * Returns 1 if successful or -1 on error
- */
-int libesedb_index_attach(
-     libesedb_internal_index_t *internal_index,
-     libesedb_internal_table_t *internal_table,
-     libesedb_internal_file_t *internal_file,
-     libesedb_catalog_definition_t *catalog_definition,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_index_attach";
-
-	if( internal_index == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal index.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->internal_table != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal index - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->internal_file != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal index - already attached to file.",
-		 function );
-
-		return( -1 );
-	}
-	internal_index->internal_file      = internal_file;
-	internal_index->internal_table     = internal_table;
-	internal_index->catalog_definition = catalog_definition;
-
-	return( 1 );
-}
-
-/* Detaches the index from its table reference
- * Returns 1 if successful or -1 on error
- */
-int libesedb_index_detach(
-     libesedb_internal_index_t *internal_index,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_index_detach";
-
-	if( internal_index == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal index.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->internal_table != NULL )
-	{
-		internal_index->internal_table     = NULL;
-		internal_index->internal_file      = NULL;
-		internal_index->catalog_definition = NULL;
-	}
-	return( 1 );
 }
 
 /* Reads the page tree

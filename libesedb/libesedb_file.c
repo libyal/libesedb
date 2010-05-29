@@ -1410,19 +1410,6 @@ int libesedb_file_get_table(
 	}
 	if( libesedb_table_initialize(
 	     table,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_table_attach(
-	     (libesedb_internal_table_t *) *table,
 	     internal_file->file_io_handle,
 	     internal_file,
 	     table_definition,
@@ -1433,13 +1420,9 @@ int libesedb_file_get_table(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to attach table.",
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table.",
 		 function );
-
-		libesedb_table_free(
-		 table,
-		 NULL );
 
 		return( -1 );
 	}

@@ -43,6 +43,11 @@
  */
 int libesedb_table_initialize(
      libesedb_table_t **table,
+     libbfio_handle_t *file_io_handle,
+     libesedb_internal_file_t *internal_file,
+     libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
+     uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
@@ -56,6 +61,18 @@ int libesedb_table_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 function,
+		 flags );
 
 		return( -1 );
 	}
@@ -92,6 +109,55 @@ int libesedb_table_initialize(
 
 			return( -1 );
 		}
+		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+		{
+			internal_table->file_io_handle = file_io_handle;
+		}
+		else
+		{
+			if( libbfio_handle_clone(
+			     &( internal_table->file_io_handle ),
+			     file_io_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy file io handle.",
+				 function );
+
+				memory_free(
+				 internal_table );
+
+				return( -1 );
+			}
+			if( libbfio_handle_set_open_on_demand(
+			     internal_table->file_io_handle,
+			     1,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to set open on demand in file io handle.",
+				 function );
+
+				libbfio_handle_free(
+				 &( internal_table->file_io_handle ),
+				 NULL );
+				memory_free(
+				 internal_table );
+
+				return( -1 );
+			}
+		}
+		internal_table->internal_file             = internal_file;
+		internal_table->table_definition          = table_definition;
+		internal_table->template_table_definition = template_table_definition;
+		internal_table->flags                     = flags;
+
 		*table = (libesedb_table_t *) internal_table;
 	}
 	return( 1 );
@@ -127,18 +193,37 @@ int libesedb_table_free(
 		/* The internal_file and table_definition references
 		 * are freed elsewhere
 		 */
-		if( libesedb_table_detach(
-		     internal_table,
-		     error ) != 1 )
+		if( ( internal_table->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to detach internal table.",
-			 function );
+			if( internal_table->file_io_handle != NULL )
+			{
+				if( libbfio_handle_close(
+				     internal_table->file_io_handle,
+				     error ) != 0 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 "%s: unable to close file io handle.",
+					 function );
 
-			return( -1 );
+					return( -1 );
+				}
+				if( libbfio_handle_free(
+				     &( internal_table->file_io_handle ),
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free file io handle.",
+					 function );
+
+					return( -1 );
+				}
+			}
 		}
 		if( internal_table->table_page_tree != NULL )
 		{
@@ -176,157 +261,6 @@ int libesedb_table_free(
 		 internal_table );
 	}
 	return( result );
-}
-
-/* Attaches the table to the file
- * Returns 1 if successful or -1 on error
- */
-int libesedb_table_attach(
-     libesedb_internal_table_t *internal_table,
-     libbfio_handle_t *file_io_handle,
-     libesedb_internal_file_t *internal_file,
-     libesedb_table_definition_t *table_definition,
-     libesedb_table_definition_t *template_table_definition,
-     uint8_t flags,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_table_attach";
-
-	if( internal_table == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal table.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_table->internal_file != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal table - already attached to file.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags: 0x%02" PRIx8 ".",
-		 function,
-		 flags );
-
-		return( -1 );
-	}
-	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-	{
-		internal_table->file_io_handle = file_io_handle;
-	}
-	else
-	{
-		if( libbfio_handle_clone(
-		     &( internal_table->file_io_handle ),
-		     file_io_handle,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy file io handle.",
-			 function );
-
-			return( -1 );
-		}
-		if( libbfio_handle_set_open_on_demand(
-		     internal_table->file_io_handle,
-		     1,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to set open on demand in file io handle.",
-			 function );
-
-			return( -1 );
-		}
-	}
-	internal_table->internal_file             = internal_file;
-	internal_table->table_definition          = table_definition;
-	internal_table->template_table_definition = template_table_definition;
-	internal_table->flags                     = flags;
-
-	return( 1 );
-}
-
-/* Detaches the table from its file reference
- * Returns 1 if successful or -1 on error
- */
-int libesedb_table_detach(
-     libesedb_internal_table_t *internal_table,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_table_detach";
-
-	if( internal_table == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal table.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( internal_table->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-	{
-		if( internal_table->file_io_handle != NULL )
-		{
-			if( libbfio_handle_close(
-			     internal_table->file_io_handle,
-			     error ) != 0 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_CLOSE_FAILED,
-				 "%s: unable to close file io handle.",
-				 function );
-
-				return( -1 );
-			}
-			if( libbfio_handle_free(
-			     &( internal_table->file_io_handle ),
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free file io handle.",
-				 function );
-
-				return( -1 );
-			}
-		}
-	}
-	internal_table->internal_file             = NULL;
-	internal_table->table_definition          = NULL;
-	internal_table->template_table_definition = NULL;
-	internal_table->flags                     = 0;
-
-	return( 1 );
 }
 
 /* Reads the page tree
@@ -1122,6 +1056,8 @@ int libesedb_table_get_column(
 	}
 	if( libesedb_column_initialize(
 	     column,
+	     internal_table,
+	     column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1130,25 +1066,6 @@ int libesedb_table_get_column(
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create column.",
 		 function );
-
-		return( -1 );
-	}
-	if( libesedb_column_attach(
-	     (libesedb_internal_column_t *) *column,
-	     internal_table,
-	     column_catalog_definition,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to attach column.",
-		 function );
-
-		libesedb_column_free(
-		 column,
-		 NULL );
 
 		return( -1 );
 	}
@@ -1283,19 +1200,6 @@ int libesedb_table_get_index(
 	}
 	if( libesedb_index_initialize(
 	     index,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_index_attach(
-	     (libesedb_internal_index_t *) *index,
 	     internal_table,
 	     internal_table->internal_file,
 	     index_catalog_definition,
@@ -1304,13 +1208,9 @@ int libesedb_table_get_index(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to attach index.",
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index.",
 		 function );
-
-		libesedb_index_free(
-		 index,
-		 NULL );
 
 		return( -1 );
 	}
@@ -1467,6 +1367,10 @@ int libesedb_table_get_record(
 	}
 	if( libesedb_record_initialize(
 	     record,
+	     internal_table->file_io_handle,
+	     internal_table,
+	     record_data_definition,
+             LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1475,25 +1379,6 @@ int libesedb_table_get_record(
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create record.",
 		 function );
-
-		return( -1 );
-	}
-	if( libesedb_record_attach(
-	     (libesedb_internal_record_t *) *record,
-	     internal_table,
-	     record_data_definition,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to attach record.",
-		 function );
-
-		libesedb_record_free(
-		 record,
-		 NULL );
 
 		return( -1 );
 	}

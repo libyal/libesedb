@@ -29,6 +29,8 @@
 
 #include "libesedb_array_type.h"
 #include "libesedb_data_type_definition.h"
+#include "libesedb_definitions.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
 
 /* Creates a long value
@@ -36,6 +38,9 @@
  */
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
+     libbfio_handle_t *file_io_handle,
+     libesedb_data_definition_t *data_definition,
+     uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
@@ -49,6 +54,18 @@ int libesedb_long_value_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 function,
+		 flags );
 
 		return( -1 );
 	}
@@ -85,6 +102,53 @@ int libesedb_long_value_initialize(
 
 			return( -1 );
 		}
+		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+		{
+			internal_long_value->file_io_handle = file_io_handle;
+		}
+		else
+		{
+			if( libbfio_handle_clone(
+			     &( internal_long_value->file_io_handle ),
+			     file_io_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy file io handle.",
+				 function );
+
+				memory_free(
+				 internal_long_value );
+
+				return( -1 );
+			}
+			if( libbfio_handle_set_open_on_demand(
+			     internal_long_value->file_io_handle,
+			     1,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to set open on demand in file io handle.",
+				 function );
+
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+				memory_free(
+				 internal_long_value );
+
+				return( -1 );
+			}
+		}
+		internal_long_value->data_definition = data_definition;
+		internal_long_value->flags           = flags;
+
 		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}
 	return( 1 );
@@ -97,7 +161,8 @@ int libesedb_long_value_free(
      libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_long_value_free";
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_free";
 
 	if( long_value == NULL )
 	{
@@ -112,12 +177,45 @@ int libesedb_long_value_free(
 	}
 	if( *long_value != NULL )
 	{
+		internal_long_value = (libesedb_internal_long_value_t *) *long_value;
+		*long_value         = NULL;
+
 		/* The data definition is freed elsewhere
 		 */
-		memory_free(
-		 *long_value );
+		if( ( internal_long_value->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+		{
+			if( internal_long_value->file_io_handle != NULL )
+			{
+				if( libbfio_handle_close(
+				     internal_long_value->file_io_handle,
+				     error ) != 0 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 "%s: unable to close file io handle.",
+					 function );
 
-		*long_value = NULL;
+					return( -1 );
+				}
+				if( libbfio_handle_free(
+				     &( internal_long_value->file_io_handle ),
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free file io handle.",
+					 function );
+
+					return( -1 );
+				}
+			}
+		}
+		memory_free(
+		 internal_long_value );
 	}
 	return( 1 );
 }
@@ -157,19 +255,8 @@ int libesedb_long_value_get_number_of_segments(
 
 		return( -1 );
 	}
-	if( number_of_segments == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid number of segments.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_array_get_number_of_entries(
-	     internal_long_value->data_definition->values_array,
+	if( libfdata_handle_get_number_of_segments(
+	     internal_long_value->data_definition->data_handle,
 	     number_of_segments,
 	     error ) != 1 )
 	{
@@ -177,7 +264,7 @@ int libesedb_long_value_get_number_of_segments(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of data segments.",
+		 "%s: unable to retrieve number of segments.",
 		 function );
 
 		return( -1 );
@@ -195,9 +282,8 @@ int libesedb_long_value_get_segment_data(
      size_t *segment_data_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_long_value_t *internal_long_value   = NULL;
-	static char *function                                 = "libesedb_long_value_get_segment_data";
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_segment_data";
 
 	if( long_value == NULL )
 	{
@@ -223,58 +309,23 @@ int libesedb_long_value_get_segment_data(
 
 		return( -1 );
 	}
-	if( segment_data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid segment data.",
-		 function );
-
-		return( -1 );
-	}
-	if( segment_data_size == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid segment data size.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_array_get_entry(
-	     internal_long_value->data_definition->values_array,
+	if( libfdata_handle_get_segment_data(
+	     internal_long_value->data_definition->data_handle,
+	     internal_long_value->file_io_handle,
 	     data_segment_index,
-	     (intptr_t **) &data_type_definition,
+	     segment_data,
+	     segment_data_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data segments: %d.",
-		 function,
-		 data_segment_index );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve segment data.",
 		 function );
 
 		return( -1 );
 	}
-	*segment_data      = data_type_definition->data;
-	*segment_data_size = data_type_definition->data_size;
-
 	return( 1 );
 }
 

@@ -53,21 +53,13 @@ struct libesedb_internal_column
 
 int libesedb_column_initialize(
      libesedb_column_t **column,
+     libesedb_internal_table_t *internal_table,
+     libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_column_free(
                      libesedb_column_t **column,
                      liberror_error_t **error );
-
-int libesedb_column_attach(
-     libesedb_internal_column_t *internal_column,
-     libesedb_internal_table_t *internal_table,
-     libesedb_catalog_definition_t *catalog_definition,
-     liberror_error_t **error );
-
-int libesedb_column_detach(
-     libesedb_internal_column_t *internal_column,
-     liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_column_get_identifier(
                      libesedb_column_t *column,

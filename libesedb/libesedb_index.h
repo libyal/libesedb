@@ -63,22 +63,14 @@ struct libesedb_internal_index
 
 int libesedb_index_initialize(
      libesedb_index_t **index,
-     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_index_free(
-                     libesedb_index_t **index,
-                     liberror_error_t **error );
-
-int libesedb_index_attach(
-     libesedb_internal_index_t *internal_index,
      libesedb_internal_table_t *internal_table,
      libesedb_internal_file_t *internal_file,
      libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
-int libesedb_index_detach(
-     libesedb_internal_index_t *internal_index,
-     liberror_error_t **error );
+LIBESEDB_EXTERN int libesedb_index_free(
+                     libesedb_index_t **index,
+                     liberror_error_t **error );
 
 int libesedb_index_read_page_tree(
      libesedb_internal_index_t *internal_index,

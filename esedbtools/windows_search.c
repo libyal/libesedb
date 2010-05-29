@@ -1124,6 +1124,17 @@ int windows_search_export_compressed_string_value(
 
 		return( -1 );
 	}
+	if( value_data_size == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 "%s: invalid value data size value zero or less.",
+		 function );
+
+		return( 1 );
+	}
 	if( value_data_size > (size_t) SSIZE_MAX )
 	{
 		liberror_error_set(

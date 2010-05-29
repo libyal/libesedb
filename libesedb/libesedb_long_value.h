@@ -41,13 +41,21 @@ typedef struct libesedb_internal_long_value libesedb_internal_long_value_t;
 
 struct libesedb_internal_long_value
 {
-	/* The multi column type
+	/* The file io handle
 	 */
-	uint32_t column_type;
+	libbfio_handle_t *file_io_handle;
 
 	/* The data definition
 	 */
 	libesedb_data_definition_t *data_definition;
+
+	/* The item flags
+	 */
+	uint8_t flags;
+
+	/* The multi column type
+	 */
+	uint32_t column_type;
 
 	/* A copy of the codepage
 	 */
@@ -56,6 +64,9 @@ struct libesedb_internal_long_value
 
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
+     libbfio_handle_t *file_io_handle,
+     libesedb_data_definition_t *data_definition,
+     uint8_t flags,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_long_value_free(

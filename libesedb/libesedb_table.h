@@ -76,14 +76,6 @@ struct libesedb_internal_table
 
 int libesedb_table_initialize(
      libesedb_table_t **table,
-     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_table_free(
-                     libesedb_table_t **table,
-                     liberror_error_t **error );
-
-int libesedb_table_attach(
-     libesedb_internal_table_t *internal_table,
      libbfio_handle_t *file_io_handle,
      libesedb_internal_file_t *internal_file,
      libesedb_table_definition_t *table_definition,
@@ -91,9 +83,9 @@ int libesedb_table_attach(
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_table_detach(
-     libesedb_internal_table_t *internal_table,
-     liberror_error_t **error );
+LIBESEDB_EXTERN int libesedb_table_free(
+                     libesedb_table_t **table,
+                     liberror_error_t **error );
 
 int libesedb_table_read_page_tree(
      libesedb_internal_table_t *internal_table,

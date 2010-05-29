@@ -43,6 +43,10 @@
  */
 int libesedb_record_initialize(
      libesedb_record_t **record,
+     libbfio_handle_t *file_io_handle,
+     libesedb_internal_table_t *internal_table,
+     libesedb_data_definition_t *data_definition,
+     uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
@@ -56,6 +60,18 @@ int libesedb_record_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 function,
+		 flags );
 
 		return( -1 );
 	}
@@ -92,6 +108,54 @@ int libesedb_record_initialize(
 
 			return( -1 );
 		}
+		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+		{
+			internal_record->file_io_handle = file_io_handle;
+		}
+		else
+		{
+			if( libbfio_handle_clone(
+			     &( internal_record->file_io_handle ),
+			     file_io_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy file io handle.",
+				 function );
+
+				memory_free(
+				 internal_record );
+
+				return( -1 );
+			}
+			if( libbfio_handle_set_open_on_demand(
+			     internal_record->file_io_handle,
+			     1,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to set open on demand in file io handle.",
+				 function );
+
+				libbfio_handle_free(
+				 &( internal_record->file_io_handle ),
+				 NULL );
+				memory_free(
+				 internal_record );
+
+				return( -1 );
+			}
+		}
+		internal_record->internal_table  = internal_table;
+		internal_record->data_definition = data_definition;
+		internal_record->flags           = flags;
+
 		*record = (libesedb_record_t *) internal_record;
 	}
 	return( 1 );
@@ -127,90 +191,42 @@ int libesedb_record_free(
 		/* The internal_table and data_definition references
 		 * are freed elsewhere
 		 */
-		if( libesedb_record_detach(
-		     internal_record,
-		     error ) != 1 )
+		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to detach internal record.",
-			 function );
+			if( internal_record->file_io_handle != NULL )
+			{
+				if( libbfio_handle_close(
+				     internal_record->file_io_handle,
+				     error ) != 0 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 "%s: unable to close file io handle.",
+					 function );
 
-			return( -1 );
+					return( -1 );
+				}
+				if( libbfio_handle_free(
+				     &( internal_record->file_io_handle ),
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free file io handle.",
+					 function );
+
+					return( -1 );
+				}
+			}
 		}
 		memory_free(
 		 internal_record );
 	}
 	return( result );
-}
-
-/* Attaches the record to the table
- * Returns 1 if successful or -1 on error
- */
-int libesedb_record_attach(
-     libesedb_internal_record_t *internal_record,
-     libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_record_attach";
-
-	if( internal_record == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal record.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_record->internal_table != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal record - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record->internal_table  = internal_table;
-	internal_record->data_definition = data_definition;
-
-	return( 1 );
-}
-
-/* Detaches the record from its table reference
- * Returns 1 if successful or -1 on error
- */
-int libesedb_record_detach(
-     libesedb_internal_record_t *internal_record,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_record_detach";
-
-	if( internal_record == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal record.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_record->internal_table != NULL )
-	{
-		internal_record->internal_table  = NULL;
-		internal_record->data_definition = NULL;
-	}
-	return( 1 );
 }
 
 /* Retrieves the number of values in the record of the referenced record
@@ -2241,10 +2257,13 @@ int libesedb_record_get_long_value(
      libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_long_value_t *internal_long_value   = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_long_value";
+	libesedb_data_definition_t *long_value_data_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition  = NULL;
+	libesedb_internal_record_t *internal_record            = NULL;
+	static char *function                                  = "libesedb_record_get_long_value";
+
+	/* TODO remove direct access */
+	libesedb_internal_long_value_t *internal_long_value    = NULL;
 
 	if( record == NULL )
 	{
@@ -2380,8 +2399,39 @@ int libesedb_record_get_long_value(
 	{
 		return( 0 );
 	}
+	if( libesedb_page_tree_get_value_definition_by_key(
+	     internal_record->internal_table->long_value_page_tree,
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     &long_value_data_definition,
+	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value data definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_data_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing long value data definition.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_long_value_initialize(
 	     long_value,
+	     internal_record->file_io_handle,
+	     long_value_data_definition,
+	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2393,29 +2443,9 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
+	/* TODO remove direct access */
 	internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 
-	if( libesedb_page_tree_get_value_definition_by_key(
-	     internal_record->internal_table->long_value_page_tree,
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     &( internal_long_value->data_definition ),
-	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve long value data definition.",
-		 function );
-
-		libesedb_long_value_free(
-		 long_value,
-		 NULL );
-
-		return( -1 );
-	}
 	internal_long_value->column_type = data_type_definition->column_catalog_definition->column_type;
 	internal_long_value->codepage    = data_type_definition->column_catalog_definition->codepage;
 

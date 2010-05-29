@@ -38,6 +38,8 @@
  */
 int libesedb_column_initialize(
      libesedb_column_t **column,
+     libesedb_internal_table_t *internal_table,
+     libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
@@ -87,6 +89,9 @@ int libesedb_column_initialize(
 
 			return( -1 );
 		}
+		internal_column->internal_table     = internal_table;
+		internal_column->catalog_definition = catalog_definition;
+
 		*column = (libesedb_column_t *) internal_column;
 	}
 	return( 1 );
@@ -122,90 +127,10 @@ int libesedb_column_free(
 		/* The internal_table and catalog_definition references
 		 * are freed elsewhere
 		 */
-		if( libesedb_column_detach(
-		     internal_column,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_REMOVE_FAILED,
-			 "%s: unable to detach internal column.",
-			 function );
-
-			return( -1 );
-		}
 		memory_free(
 		 internal_column );
 	}
 	return( result );
-}
-
-/* Attaches the column to the table
- * Returns 1 if successful or -1 on error
- */
-int libesedb_column_attach(
-     libesedb_internal_column_t *internal_column,
-     libesedb_internal_table_t *internal_table,
-     libesedb_catalog_definition_t *catalog_definition,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_column_attach";
-
-	if( internal_column == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal column.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_column->internal_table != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal column - already attached to table.",
-		 function );
-
-		return( -1 );
-	}
-	internal_column->internal_table     = internal_table;
-	internal_column->catalog_definition = catalog_definition;
-
-	return( 1 );
-}
-
-/* Detaches the column from its table reference
- * Returns 1 if successful or -1 on error
- */
-int libesedb_column_detach(
-     libesedb_internal_column_t *internal_column,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_column_detach";
-
-	if( internal_column == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal column.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_column->internal_table != NULL )
-	{
-		internal_column->internal_table     = NULL;
-		internal_column->catalog_definition = NULL;
-	}
-	return( 1 );
 }
 
 /* Retrieves the column identifier

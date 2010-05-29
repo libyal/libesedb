@@ -1,9 +1,7 @@
 /*
- * The libfdatetime header wrapper
+ * The libfdata header wrapper
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -21,34 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LIBFDATETIME_H )
-#define _LIBESEDB_LIBFDATETIME_H
+#if !defined( _LIBESEDB_LIBFDATA_H )
+#define _LIBESEDB_LIBFDATA_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBFDATETIME for local use of libfdatetime
+/* Define HAVE_LOCAL_LIBFDATA for local use of libfdata
  */
-#if defined( HAVE_LOCAL_LIBFDATETIME )
+#if defined( HAVE_LOCAL_LIBFDATA )
 
-#include <libfdatetime_date_time_values.h>
-#include <libfdatetime_definitions.h>
-#include <libfdatetime_fat_date_time.h>
-#include <libfdatetime_filetime.h>
-#include <libfdatetime_types.h>
+#include <libfdata_definitions.h>
+#include <libfdata_handle.h>
+#include <libfdata_types.h>
 
-#elif defined( HAVE_LIBFDATETIME_H )
+#elif defined( HAVE_LIBFDATA_H )
 
-/* If libtool DLL support is enabled set LIBFDATETIME_DLL_IMPORT
- * before including libfdatetime.h
+/* If libtool DLL support is enabled set LIBFDATA_DLL_IMPORT
+ * before including libfdata.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFDATETIME_DLL_IMPORT
+#define LIBFDATA_DLL_IMPORT
 #endif
 
-#include <libfdatetime.h>
+#include <libfdata.h>
 
 #else
-#error Missing libfdatetime.h
+#error Missing libfdata.h
 #endif
 
 #endif

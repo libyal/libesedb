@@ -31,16 +31,27 @@
 
 #include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
+enum LIBESEDB_DATA_DEFINITION_TYPES
+{
+	LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE	= (uint8_t) 'l',
+	LIBESEDB_DATA_DEFINITION_TYPE_RECORD		= (uint8_t) 'r',
+};
+
 typedef struct libesedb_data_definition libesedb_data_definition_t;
 
 struct libesedb_data_definition
 {
+	/* The data definition type
+	 */
+	uint8_t type;
+
 	/* The key data
 	 */
 	uint8_t *key;
@@ -49,13 +60,16 @@ struct libesedb_data_definition
 	 */
 	size_t key_size;
 
-	/* The size
-	 */
-	size_t size;
+	union
+	{
+		/* The data handle for the long value data definition
+		 */
+		libfdata_handle_t *data_handle;
 
-	/* The values array
-	 */
-	libesedb_array_t *values_array;
+		/* The values array for the record data definition
+		 */
+		libesedb_array_t *values_array;
+	};
 };
 
 int libesedb_data_definition_initialize(
