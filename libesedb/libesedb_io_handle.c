@@ -312,7 +312,7 @@ int libesedb_io_handle_read_file_header(
 	 ( (esedb_file_header_t *) file_header_data )->creation_format_revision,
 	 creation_format_revision );
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(

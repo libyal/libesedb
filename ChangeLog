@@ -11,10 +11,18 @@ TODO
   - throttle pages to reduce memory finger print
   - read long values on demand, do not store data ?
 
-libdatablock
+* replace offset print PRIu64 by PRIi64
+
+libdtype
+* move array, list and tree type to separate library ?
+
+libfdata
+* handle segments which have a size > SSIZE_MAX
 * memory range
-* on demand file range
-* long value
+* esedb long value
+* pff array (encrypted/obfuscated)
+* ewf chunk (compressed)
+* libfdata_pool (for segment files: raw, ewf, vmdk)
 
 Library:
 * ECC32 check non 4 byte modulus buffer support
@@ -86,6 +94,11 @@ Test suite:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100529
+* changed libdatablock into libfdata
+* worked on libfdata
+* fixes for non-debug output
 
 20100528
 * worked on libdatablock

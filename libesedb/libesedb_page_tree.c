@@ -2890,7 +2890,6 @@ int libesedb_page_tree_read_leaf_page_values(
 	libesedb_page_value_t *page_value                              = NULL;
 	libesedb_page_tree_values_t *page_tree_values                  = NULL;
 	libesedb_table_definition_t *table_definition                  = NULL;
-	uint8_t *page_key_data                                         = NULL;
 	uint8_t *page_value_data                                       = NULL;
 	static char *function                                          = "libesedb_page_tree_read_leaf_page_values";
 	off64_t page_value_offset                                      = 0;
@@ -2900,10 +2899,14 @@ int libesedb_page_tree_read_leaf_page_values(
 	uint16_t common_key_size                                       = 0;
 	uint16_t local_key_size                                        = 0;
 	uint16_t number_of_page_values                                 = 0;
-	uint16_t page_key_size                                         = 0;
 	uint16_t page_value_iterator                                   = 0;
 	uint16_t page_value_size                                       = 0;
 	int result                                                     = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint8_t *page_key_data                                         = NULL;
+	uint16_t page_key_size                                         = 0;
+#endif
 
 	if( page_tree == NULL )
 	{
