@@ -2,6 +2,8 @@ Generic
 * remove libfdatetime_error.h from local inclusion header
 * replace offset print PRIu64 by PRIi64
 * remove attach/detach functions
+* is the pages vector placed correctly in the IO handle ?
+  or should it be moved into file ? or other location ?
 
 TODO
 * error tolerance probe test for the page size using the backup database header
@@ -102,6 +104,7 @@ Notes
 20100621
 * updated libfdata, libbfio
 * updated array type
+* worked on libfdata fixed list
 
 20100529
 * changed libdatablock into libfdata

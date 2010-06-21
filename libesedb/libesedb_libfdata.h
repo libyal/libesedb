@@ -36,6 +36,7 @@
 #include <libfdata_tree.h>
 #include <libfdata_tree_node.h>
 #include <libfdata_types.h>
+#include <libfdata_vector.h>
 
 #elif defined( HAVE_LIBFDATA_H )
 

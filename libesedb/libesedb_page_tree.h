@@ -1,9 +1,7 @@
 /*
  * Page tree functions
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -32,6 +30,7 @@
 #include "libesedb_data_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree_values.h"
@@ -62,9 +61,6 @@ struct libesedb_page_tree
 	/* The table definition list
 	 */
 	libesedb_list_t *table_definition_list;
-
-	/* TODO add value definition page tree branch node cache ? */
-	/* TODO add value definition page tree leaf node cache ? */
 
 	/* The value definition page tree root node
 	 */

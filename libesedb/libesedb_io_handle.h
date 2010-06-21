@@ -1,9 +1,7 @@
 /*
- * libesedb Input/Output (IO) handle
+ * Input/Output (IO) handle
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,6 +28,7 @@
 #include <liberror.h>
 
 #include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 
 #if defined( __cplusplus )
 extern "C" {
