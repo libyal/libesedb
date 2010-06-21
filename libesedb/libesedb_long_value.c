@@ -255,8 +255,8 @@ int libesedb_long_value_get_number_of_segments(
 
 		return( -1 );
 	}
-	if( libfdata_handle_get_number_of_segments(
-	     internal_long_value->data_definition->data_handle,
+	if( libfdata_block_get_number_of_segments(
+	     internal_long_value->data_definition->data_block,
 	     number_of_segments,
 	     error ) != 1 )
 	{
@@ -309,12 +309,13 @@ int libesedb_long_value_get_segment_data(
 
 		return( -1 );
 	}
-	if( libfdata_handle_get_segment_data(
-	     internal_long_value->data_definition->data_handle,
+	if( libfdata_block_get_segment_data(
+	     internal_long_value->data_definition->data_block,
 	     internal_long_value->file_io_handle,
 	     data_segment_index,
 	     segment_data,
 	     segment_data_size,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(

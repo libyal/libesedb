@@ -138,17 +138,17 @@ int libesedb_data_definition_free(
 	}
 	if( ( (libesedb_data_definition_t *) data_definition )->type == LIBESEDB_DATA_DEFINITION_TYPE_LONG_VALUE )
 	{
-		if( ( (libesedb_data_definition_t *) data_definition )->data_handle != NULL )
+		if( ( (libesedb_data_definition_t *) data_definition )->data_block != NULL )
 		{
-			if( libfdata_handle_free(
-			     &( ( (libesedb_data_definition_t *) data_definition )->data_handle ),
+			if( libfdata_block_free(
+			     &( ( (libesedb_data_definition_t *) data_definition )->data_block ),
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free data handle.",
+				 "%s: unable to free data block.",
 				 function );
 
 				result = -1;
@@ -1303,13 +1303,13 @@ int libesedb_data_definition_read_long_value(
 
 		return( -1 );
 	}
-	if( data_definition->data_handle != NULL )
+	if( data_definition->data_block != NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid data definition - data handle already set.",
+		 "%s: invalid data definition - data block already set.",
 		 function );
 
 		return( -1 );
@@ -1384,19 +1384,21 @@ int libesedb_data_definition_read_long_value(
 	}
 #endif
 
-	if( libfdata_handle_initialize(
-	     &( data_definition->data_handle ),
+	if( libfdata_block_initialize(
+	     &( data_definition->data_block ),
+	     4,
 	     NULL,
 	     NULL,
 	     NULL,
-	     NULL,
+	     &libfdata_block_read_segment_data,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data handle.",
+		 "%s: unable to create data block.",
 		 function );
 
 		return( -1 );
@@ -1440,13 +1442,13 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( data_definition->data_handle == NULL )
+	if( data_definition->data_block == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data definition - missing data handle.",
+		 "%s: invalid data definition - missing data block.",
 		 function );
 
 		return( -1 );
@@ -1486,8 +1488,8 @@ int libesedb_data_definition_read_long_value_segment(
 		 "\n" );
 	}
 #endif
-	if( libfdata_handle_get_size(
-	     data_definition->data_handle,
+	if( libfdata_block_get_size(
+	     data_definition->data_block,
 	     &data_size,
 	     error ) != 1 )
 	{
@@ -1495,7 +1497,7 @@ int libesedb_data_definition_read_long_value_segment(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of data handle size.",
+		 "%s: unable to retrieve number of data block size.",
 		 function );
 
 		return( -1 );
@@ -1513,18 +1515,17 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libfdata_handle_append_segment(
-	     data_definition->data_handle,
+	if( libfdata_block_append_segment(
+	     data_definition->data_block,
 	     definition_data_offset,
 	     definition_data_size,
-	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value segment at offset: %" PRIu32 " to data handle.",
+		 "%s: unable to append long value segment at offset: %" PRIu32 " to data block.",
 		 function,
 		 data_segment_offset );
 

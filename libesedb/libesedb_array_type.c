@@ -2,8 +2,6 @@
  * Array type functions
  *
  * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (C) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -101,10 +99,10 @@ int libesedb_array_initialize(
 
 				return( -1 );
 			}
-			( *array )->entry = (intptr_t **) memory_allocate(
-			                                   entries_size );
+			( *array )->entries = (intptr_t **) memory_allocate(
+			                                     entries_size );
 
-			if( ( *array )->entry == NULL )
+			if( ( *array )->entries == NULL )
 			{
 				liberror_error_set(
 				 error,
@@ -121,7 +119,7 @@ int libesedb_array_initialize(
 				return( -1 );
 			}
 			if( memory_set(
-			     ( *array )->entry,
+			     ( *array )->entries,
 			     0,
 			     entries_size ) == NULL )
 			{
@@ -133,7 +131,7 @@ int libesedb_array_initialize(
 				 function );
 
 				memory_free(
-				 ( *array )->entry );
+				 ( *array )->entries );
 				memory_free(
 				 *array );
 
@@ -159,7 +157,6 @@ int libesedb_array_free(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_array_free";
-	int entry_iterator    = 0;
 	int result            = 1;
 
 	if( array == NULL )
@@ -175,33 +172,24 @@ int libesedb_array_free(
 	}
 	if( *array != NULL )
 	{
-		if( ( *array )->entry != NULL )
+		if( ( *array )->entries != NULL )
 		{
-			for( entry_iterator = 0;
-			     entry_iterator < ( *array )->number_of_entries;
-			     entry_iterator++ )
+			if( libesedb_array_empty(
+			     *array,
+			     entry_free_function,
+			     error ) != 1 )
 			{
-				if( ( *array )->entry[ entry_iterator ] != NULL )
-				{
-					if( ( entry_free_function != NULL )
-					 && ( entry_free_function(
-					       ( *array )->entry[ entry_iterator ],
-					       error ) != 1 ) )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-						 "%s: unable to free array entry: %" PRIu16 ".",
-						 function,
-						 entry_iterator );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to empty array.",
+				 function );
 
-						result = -1;
-					}
-				}
+				result = -1;
 			}
 			memory_free(
-			 ( *array )->entry );
+			 ( *array )->entries );
 		}
 		memory_free(
 		 *array );
@@ -209,6 +197,62 @@ int libesedb_array_free(
 		*array = NULL;
 	}
 	return( 1 );
+}
+
+/* Empties an array and frees its entries
+ * The entries are freed using the entry_free_function
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_array_empty(
+     libesedb_array_t *array,
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_array_empty";
+	int entry_iterator    = 0;
+	int result            = 1;
+
+	if( array == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid array.",
+		 function );
+
+		return( -1 );
+	}
+	if( array->entries != NULL )
+	{
+		for( entry_iterator = 0;
+		     entry_iterator < array->number_of_entries;
+		     entry_iterator++ )
+		{
+			if( array->entries[ entry_iterator ] != NULL )
+			{
+				if( ( entry_free_function != NULL )
+				 && ( entry_free_function(
+				       array->entries[ entry_iterator ],
+				       error ) != 1 ) )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free array entry: %d.",
+					 function,
+					 entry_iterator );
+
+					result = -1;
+				}
+				array->entries[ entry_iterator ] = NULL;
+			}
+		}
+	}
+	return( result );
 }
 
 /* Resizes an array
@@ -261,7 +305,7 @@ int libesedb_array_resize(
 			return( -1 );
 		}
 		reallocation = memory_reallocate(
-		                array->entry,
+		                array->entries,
 		                entries_size );
 
 		if( reallocation == NULL )
@@ -275,10 +319,10 @@ int libesedb_array_resize(
 
 			return( -1 );
 		}
-		array->entry = (intptr_t **) reallocation;
+		array->entries = (intptr_t **) reallocation;
 
 		if( memory_set(
-		     &( array->entry[ array->number_of_entries ] ),
+		     &( array->entries[ array->number_of_entries ] ),
 		     0,
 		     sizeof( intptr_t ) * ( number_of_entries - array->number_of_entries ) ) == NULL )
 		{
@@ -355,6 +399,17 @@ int libesedb_array_get_entry(
 
 		return( -1 );
 	}
+	if( array->entries == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid array - missing entries.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( entry_index < 0 )
 	 || ( entry_index >= array->number_of_entries ) )
 	{
@@ -378,7 +433,7 @@ int libesedb_array_get_entry(
 
 		return( -1 );
 	}
-	*entry = array->entry[ entry_index ];
+	*entry = array->entries[ entry_index ];
 
 	return( 1 );
 }
@@ -405,6 +460,17 @@ int libesedb_array_set_entry(
 
 		return( -1 );
 	}
+	if( array->entries == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid array - missing entries.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( entry_index < 0 )
 	 || ( entry_index >= array->number_of_entries ) )
 	{
@@ -417,7 +483,7 @@ int libesedb_array_set_entry(
 
 		return( -1 );
 	}
-	array->entry[ entry_index ] = entry;
+	array->entries[ entry_index ] = entry;
 
 	return( 1 );
 }
@@ -472,7 +538,18 @@ int libesedb_array_append_entry(
 
 		return( -1 );
 	}
-	array->entry[ *entry_index ] = entry;
+	if( array->entries == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid array - missing entries.",
+		 function );
+
+		return( -1 );
+	}
+	array->entries[ *entry_index ] = entry;
 
 	return( 1 );
 }

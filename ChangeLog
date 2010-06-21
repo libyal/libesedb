@@ -99,6 +99,10 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100621
+* updated libfdata, libbfio
+* updated array type
+
 20100529
 * changed libdatablock into libfdata
 * worked on libfdata

@@ -28,8 +28,13 @@
  */
 #if defined( HAVE_LOCAL_LIBFDATA )
 
+#include <libfdata_block.h>
+#include <libfdata_buffer.h>
 #include <libfdata_definitions.h>
-#include <libfdata_handle.h>
+#include <libfdata_list.h>
+#include <libfdata_list_element.h>
+#include <libfdata_tree.h>
+#include <libfdata_tree_node.h>
 #include <libfdata_types.h>
 
 #elif defined( HAVE_LIBFDATA_H )

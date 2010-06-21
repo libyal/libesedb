@@ -62,9 +62,9 @@ struct libesedb_data_definition
 
 	union
 	{
-		/* The data handle for the long value data definition
+		/* The data block for the long value data definition
 		 */
-		libfdata_handle_t *data_handle;
+		libfdata_block_t *data_block;
 
 		/* The values array for the record data definition
 		 */
