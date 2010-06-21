@@ -6,6 +6,8 @@ Generic
   or should it be moved into file ? or other location ?
 
 TODO
+* page tree on demand
+  - use fdata tree for key values ?
 * error tolerance probe test for the page size using the backup database header
 * fix memory leaks
 * configure.ac update libfguid detection

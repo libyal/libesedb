@@ -31,6 +31,7 @@
 #include "libesedb_data_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
@@ -45,6 +46,7 @@
  */
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
+     libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error )
@@ -59,6 +61,17 @@ int libesedb_page_tree_initialize(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -98,6 +111,34 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
+		/* TODO clone function ? */
+		if( libfdata_vector_initialize(
+		     &( ( *page_tree )->pages_vector ),
+		     (size64_t) io_handle->page_size,
+		     io_handle->pages_data_offset,
+		     io_handle->pages_data_size,
+		     32,
+		     (intptr_t *) io_handle,
+		     NULL,
+		     NULL,
+		     &libesedb_io_handle_read_page,
+		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create pages vector.",
+			 function );
+
+			memory_free(
+			 *page_tree );
+
+			*page_tree = NULL;
+
+			return( -1 );
+		}
 		if( libesedb_list_initialize(
 		     &( ( *page_tree )->table_definition_list ),
 		     error ) != 1 )
@@ -109,6 +150,9 @@ int libesedb_page_tree_initialize(
 			 "%s: unable to create table definition list.",
 			 function );
 
+			libfdata_vector_free(
+			 &( ( *page_tree )->pages_vector ),
+			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -131,7 +175,9 @@ int libesedb_page_tree_initialize(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
-
+			libfdata_vector_free(
+			 &( ( *page_tree )->pages_vector ),
+			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -159,7 +205,9 @@ int libesedb_page_tree_initialize(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
-
+			libfdata_vector_free(
+			 &( ( *page_tree )->pages_vector ),
+			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -190,7 +238,9 @@ int libesedb_page_tree_initialize(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
-
+			libfdata_vector_free(
+			 &( ( *page_tree )->pages_vector ),
+			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -198,6 +248,7 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
+		( *page_tree )->io_handle                 = io_handle;
 		( *page_tree )->table_definition          = table_definition;
 		( *page_tree )->template_table_definition = template_table_definition;
 	}
@@ -227,6 +278,19 @@ int libesedb_page_tree_free(
 	}
 	if( *page_tree != NULL )
 	{
+		if( libfdata_vector_free(
+		     &( ( *page_tree )->pages_vector ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages vector.",
+			 function );
+
+			result = -1;
+		}
 		if( libesedb_list_free(
 		     &( ( *page_tree )->table_definition_list ),
 		     &libesedb_table_definition_free,
@@ -1193,7 +1257,6 @@ int libesedb_page_tree_get_value_definition_by_key(
  */
 int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t father_data_page_number,
      uint8_t flags,
@@ -1234,48 +1297,43 @@ int libesedb_page_tree_read(
 	}
 #endif
 
-	if( libesedb_page_initialize(
-	     &page,
+	if( libfdata_vector_get_element_value_by_index(
+	     page_tree->pages_vector,
+	     file_io_handle,
+	     (int) father_data_page_number - 1,
+	     (intptr_t **) &page,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create page.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_page_read(
-	     page,
-	     io_handle,
-	     file_io_handle,
-	     father_data_page_number,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page: %" PRIu32 ".",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 ".",
 		 function,
 		 father_data_page_number );
 
-		libesedb_page_free(
-		 &page,
-		 NULL );
+		return( -1 );
+	}
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
+		 function );
 
 		return( -1 );
 	}
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
-		if( libesedb_page_tree_read_leaf_page_values(
+		if( libesedb_page_tree_read_leaf_page(
 		     page_tree,
-		     page_tree->value_definition_tree_root_node,
-		     page,
-		     io_handle,
 		     file_io_handle,
+		     father_data_page_number,
+		     page->father_data_page_object_identifier,
+		     page_tree->value_definition_tree_root_node,
 		     flags,
 		     error ) != 1 )
 		{
@@ -1283,24 +1341,21 @@ int libesedb_page_tree_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read leaf page values.",
-			 function );
-
-			libesedb_page_free(
-			 &page,
-			 NULL );
+			 "%s: unable to read leaf page: %" PRIu32 ".",
+			 function,
+			 father_data_page_number );
 
 			return( -1 );
 		}
 	}
 	else
 	{
-		if( libesedb_page_tree_read_branch_page_values(
+		if( libesedb_page_tree_read_branch_page(
 		     page_tree,
-		     page_tree->value_definition_tree_root_node,
-		     page,
-		     io_handle,
 		     file_io_handle,
+		     father_data_page_number,
+		     page->father_data_page_object_identifier,
+		     page_tree->value_definition_tree_root_node,
 		     flags,
 		     error ) != 1 )
 		{
@@ -1308,47 +1363,28 @@ int libesedb_page_tree_read(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read branch page values.",
-			 function );
-
-			libesedb_page_free(
-			 &page,
-			 NULL );
+			 "%s: unable to read branch page: %" PRIu32 ".",
+			 function,
+			 father_data_page_number );
 
 			return( -1 );
 		}
 	}
-	if( libesedb_page_free(
-	     &page,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free page.",
-		 function );
-
-		return( -1 );
-	}
 	return( 1 );
 }
 
-/* Reads the root page value from the page
+/* Reads the root page
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_root_page_value(
+int libesedb_page_tree_read_root_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_page_value_t *page_value,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint8_t flags,
+     uint32_t page_number,
      liberror_error_t **error )
 {
-	libesedb_page_t *space_tree_page  = NULL;
-	static char *function             = "libesedb_page_tree_read_root_page_value";
+	libesedb_page_t *page             = NULL;
+	libesedb_page_value_t *page_value = NULL;
+	static char *function             = "libesedb_page_tree_read_root_page";
 	uint32_t extent_space             = 0;
 	uint32_t space_tree_page_number   = 0;
 
@@ -1368,13 +1404,46 @@ int libesedb_page_tree_read_root_page_value(
 
 		return( -1 );
 	}
+	if( libfdata_vector_get_element_value_by_index(
+	     page_tree->pages_vector,
+	     file_io_handle,
+	     (int) page_number - 1,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 ".",
+		 function,
+		 page_number );
+
+		return( -1 );
+	}
 	if( page == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_get_value(
+	     page,
+	     0,
+	     &page_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: 0.",
 		 function );
 
 		return( -1 );
@@ -1383,9 +1452,9 @@ int libesedb_page_tree_read_root_page_value(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page value.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value.",
 		 function );
 
 		return( -1 );
@@ -1477,32 +1546,15 @@ int libesedb_page_tree_read_root_page_value(
 			 function,
 			 space_tree_page_number );
 
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
 			return( -1 );
 		}
 		/* Read the owned pages space tree page
 		 */
-		if( libesedb_page_initialize(
-		     &space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create space tree page.",
-			 function );
-
-			return( -1 );
-		}
-		if( libesedb_page_read(
-		     space_tree_page,
-		     io_handle,
+		if( libesedb_page_tree_read_space_tree_page(
+		     page_tree,
 		     file_io_handle,
 		     space_tree_page_number,
+		     page->father_data_page_object_identifier,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1513,84 +1565,17 @@ int libesedb_page_tree_read_root_page_value(
 			 function,
 			 space_tree_page_number );
 
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
 			return( -1 );
 		}
-		if( page->father_data_page_object_identifier != space_tree_page->father_data_page_object_identifier )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
-			 function,
-			 page->father_data_page_object_identifier,
-			 space_tree_page->father_data_page_object_identifier );
-
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libesedb_page_tree_read_space_tree_page_values(
-		     page_tree,
-		     value_definition_tree_node,
-		     space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read space tree page values.",
-			 function );
-
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libesedb_page_free(
-		     &space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free space tree page.",
-			 function );
-
-			return( -1 );
-		}
-
 		/* Read the available pages space tree page
 		 */
 		space_tree_page_number += 1;
 
-		if( libesedb_page_initialize(
-		     &space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create space tree page.",
-			 function );
-
-			return( -1 );
-		}
-		if( libesedb_page_read(
-		     space_tree_page,
-		     io_handle,
+		if( libesedb_page_tree_read_space_tree_page(
+		     page_tree,
 		     file_io_handle,
 		     space_tree_page_number,
+		     page->father_data_page_object_identifier,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1600,59 +1585,6 @@ int libesedb_page_tree_read_root_page_value(
 			 "%s: unable to read space tree page: %" PRIu32 ".",
 			 function,
 			 space_tree_page_number );
-
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
-			return( -1 );
-		}
-		if( page->father_data_page_object_identifier != space_tree_page->father_data_page_object_identifier )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
-			 function,
-			 page->father_data_page_object_identifier,
-			 space_tree_page->father_data_page_object_identifier );
-
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libesedb_page_tree_read_space_tree_page_values(
-		     page_tree,
-		     value_definition_tree_node,
-		     space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read space tree page values.",
-			 function );
-
-			libesedb_page_free(
-			 &space_tree_page,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libesedb_page_free(
-		     &space_tree_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free space tree page.",
-			 function );
 
 			return( -1 );
 		}
@@ -1660,25 +1592,26 @@ int libesedb_page_tree_read_root_page_value(
 	return( 1 );
 }
 
-/* Reads the child page values from a branch page
+/* Reads the branch page
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_branch_page_values(
+int libesedb_page_tree_read_branch_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     uint32_t object_identifier,
+     libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_page_t *child_page                            = NULL;
+	libesedb_page_t *page                                  = NULL;
 	libesedb_page_value_t *page_value                      = NULL;
 	libesedb_page_tree_values_t *child_page_tree_values    = NULL;
 	libesedb_page_tree_values_t *page_tree_values          = NULL;
 	libesedb_tree_node_t *child_value_definition_tree_node = NULL;
 	uint8_t *page_value_data                               = NULL;
-	static char *function                                  = "libesedb_page_tree_read_branch_page_values";
+	static char *function                                  = "libesedb_page_tree_read_branch_page";
 	uint32_t child_page_number                             = 0;
 	uint32_t previous_child_page_number                    = 0;
 	uint32_t previous_next_child_page_number               = 0;
@@ -1705,14 +1638,56 @@ int libesedb_page_tree_read_branch_page_values(
 
 		return( -1 );
 	}
+	if( page_tree->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page tree - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_vector_get_element_value_by_index(
+	     page_tree->pages_vector,
+	     file_io_handle,
+	     (int) page_number - 1,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 ".",
+		 function,
+		 page_number );
+
+		return( -1 );
+	}
 	if( page == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
 		 function );
+
+		return( -1 );
+	}
+	if( page->father_data_page_object_identifier != object_identifier )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: mismatch in father data page object identifier (calculated: %" PRIu32 " != stored: %" PRIu32 ").",
+		 function,
+		 object_identifier,
+		 page->father_data_page_object_identifier );
 
 		return( -1 );
 	}
@@ -1760,17 +1735,6 @@ int libesedb_page_tree_read_branch_page_values(
 
 		return( -1 );
 	}
-	if( io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid io handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_page_get_number_of_values(
 	     page,
 	     &number_of_page_values,
@@ -1810,7 +1774,7 @@ int libesedb_page_tree_read_branch_page_values(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page value.",
+		 "%s: missing page value.",
 		 function );
 
 		return( -1 );
@@ -1852,22 +1816,19 @@ int libesedb_page_tree_read_branch_page_values(
 	}
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 	{
-		if( libesedb_page_tree_read_root_page_value(
+		if( libesedb_page_tree_read_root_page(
 		     page_tree,
-		     value_definition_tree_node,
-		     page,
-		     page_value,
-		     io_handle,
 		     file_io_handle,
-		     flags,
+		     page_number,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read root page value.",
-			 function );
+			 "%s: unable to read root page: %" PRIu32 ".",
+			 function,
+			 page_number );
 
 			return( -1 );
 		}
@@ -1920,6 +1881,26 @@ int libesedb_page_tree_read_branch_page_values(
 	     page_value_iterator < number_of_page_values;
 	     page_value_iterator++ )
 	{
+		/* Make sure the page is available
+		 */
+		if( libfdata_vector_get_element_value_by_index(
+		     page_tree->pages_vector,
+		     file_io_handle,
+		     (int) page_number - 1,
+		     (intptr_t **) &page,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page: %" PRIu32 ".",
+			 function,
+			 page_number );
+
+			return( -1 );
+		}
 		if( libesedb_page_get_value(
 		     page,
 		     page_value_iterator,
@@ -2147,7 +2128,7 @@ int libesedb_page_tree_read_branch_page_values(
 		}
 #endif
 
-		if( (uint64_t) child_page_number > io_handle->last_page_number )
+		if( (uint64_t) child_page_number > page_tree->io_handle->last_page_number )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
@@ -2157,7 +2138,7 @@ int libesedb_page_tree_read_branch_page_values(
 				 function,
 				 page_value_iterator,
 				 child_page_number,
-				 io_handle->last_page_number );
+				 page_tree->io_handle->last_page_number );
 			}
 #endif
 
@@ -2169,61 +2150,37 @@ int libesedb_page_tree_read_branch_page_values(
 
 			continue;
 		}
-		if( libesedb_page_initialize(
-		     &child_page,
+		if( libfdata_vector_get_element_value_by_index(
+		     page_tree->pages_vector,
+		     file_io_handle,
+		     (int) child_page_number - 1,
+		     (intptr_t **) &child_page,
+		     0,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create child page.",
-			 function );
-
-			libesedb_page_tree_values_free(
-			 (intptr_t *) child_page_tree_values,
-			 NULL );
-
-			return( -1 );
-		}
-		if( libesedb_page_read(
-		     child_page,
-		     io_handle,
-		     file_io_handle,
-		     child_page_number,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read child page: %" PRIu32 ".",
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve child page: %" PRIu32 ".",
 			 function,
 			 child_page_number );
 
-			libesedb_page_free(
-			 &child_page,
-			 NULL );
 			libesedb_page_tree_values_free(
 			 (intptr_t *) child_page_tree_values,
 			 NULL );
 
 			return( -1 );
 		}
-		if( page->father_data_page_object_identifier != child_page->father_data_page_object_identifier )
+		if( child_page == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
-			 function,
-			 page->father_data_page_object_identifier,
-			 child_page->father_data_page_object_identifier );
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing child page.",
+			 function );
 
-			libesedb_page_free(
-			 &child_page,
-			 NULL );
 			libesedb_page_tree_values_free(
 			 (intptr_t *) child_page_tree_values,
 			 NULL );
@@ -2241,9 +2198,6 @@ int libesedb_page_tree_read_branch_page_values(
 			 "%s: unable to create child value definition tree node.",
 			 function );
 
-			libesedb_page_free(
-			 &child_page,
-			 NULL );
 			libesedb_page_tree_values_free(
 			 (intptr_t *) child_page_tree_values,
 			 NULL );
@@ -2262,9 +2216,6 @@ int libesedb_page_tree_read_branch_page_values(
 			 "%s: unable to set child page tree values in child value definition tree node.",
 			 function );
 
-			libesedb_page_free(
-			 &child_page,
-			 NULL );
 			libesedb_page_tree_values_free(
 			 (intptr_t *) child_page_tree_values,
 			 NULL );
@@ -2285,9 +2236,6 @@ int libesedb_page_tree_read_branch_page_values(
 			 "%s: unable to append child node to value definition tree node.",
 			 function );
 
-			libesedb_page_free(
-			 &child_page,
-			 NULL );
 			libesedb_tree_node_free(
 			 &child_value_definition_tree_node,
 			 &libesedb_page_tree_values_free,
@@ -2346,12 +2294,12 @@ int libesedb_page_tree_read_branch_page_values(
 			previous_child_page_number      = child_page->page_number;
 			previous_next_child_page_number = child_page->next_page_number;
 
-			if( libesedb_page_tree_read_leaf_page_values(
+			if( libesedb_page_tree_read_leaf_page(
 			     page_tree,
-			     child_value_definition_tree_node,
-			     child_page,
-			     io_handle,
 			     file_io_handle,
+			     child_page_number,
+			     page->father_data_page_object_identifier,
+			     child_value_definition_tree_node,
 			     flags,
 			     error ) != 1 )
 			{
@@ -2359,15 +2307,13 @@ int libesedb_page_tree_read_branch_page_values(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_IO,
 				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read leaf page values.",
-				 function );
+				 "%s: unable to read leaf page: %" PRIu32 ".",
+				 function,
+				 child_page_number );
 
 				libesedb_tree_node_free(
 				 &child_value_definition_tree_node,
 				 &libesedb_page_tree_values_free,
-				 NULL );
-				libesedb_page_free(
-				 &child_page,
 				 NULL );
 
 				return( -1 );
@@ -2375,12 +2321,12 @@ int libesedb_page_tree_read_branch_page_values(
 		}
 		else
 		{
-			if( libesedb_page_tree_read_branch_page_values(
+			if( libesedb_page_tree_read_branch_page(
 			     page_tree,
-			     child_value_definition_tree_node,
-			     child_page,
-			     io_handle,
 			     file_io_handle,
+			     child_page_number,
+			     page->father_data_page_object_identifier,
+			     child_value_definition_tree_node,
 			     flags,
 			     error ) != 1 )
 			{
@@ -2388,37 +2334,17 @@ int libesedb_page_tree_read_branch_page_values(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_IO,
 				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read branch page values.",
-				 function );
+				 "%s: unable to read branch page: %" PRIu32 ".",
+				 function,
+				 child_page_number );
 
 				libesedb_tree_node_free(
 				 &child_value_definition_tree_node,
 				 &libesedb_page_tree_values_free,
 				 NULL );
-				libesedb_page_free(
-				 &child_page,
-				 NULL );
 
 				return( -1 );
 			}
-		}
-		if( libesedb_page_free(
-		     &child_page,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free child page.",
-			 function );
-
-			libesedb_tree_node_free(
-			 &child_value_definition_tree_node,
-			 &libesedb_page_tree_values_free,
-			 NULL );
-
-			return( -1 );
 		}
 		if( child_value_definition_tree_node->value == NULL )
 		{
@@ -2445,17 +2371,19 @@ int libesedb_page_tree_read_branch_page_values(
 	return( 1 );
 }
 
-/* Reads the space tree page values from the page
+/* Reads the space tree page
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_space_tree_page_values(
+int libesedb_page_tree_read_space_tree_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
+     libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     uint32_t object_identifier,
      liberror_error_t **error )
 {
+	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_page_tree_read_space_tree_page_values";
+	static char *function             = "libesedb_page_tree_read_space_tree_page";
 	uint32_t required_flags           = 0;
 	uint32_t supported_flags          = 0;
 	uint16_t number_of_page_values    = 0;
@@ -2478,14 +2406,45 @@ int libesedb_page_tree_read_space_tree_page_values(
 
 		return( -1 );
 	}
+	if( libfdata_vector_get_element_value_by_index(
+	     page_tree->pages_vector,
+	     file_io_handle,
+	     (int) page_number - 1,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 ".",
+		 function,
+		 page_number );
+
+		return( -1 );
+	}
 	if( page == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
 		 function );
+
+		return( -1 );
+	}
+	if( page->father_data_page_object_identifier != object_identifier )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: mismatch in father data page object identifier (calculated: %" PRIu32 " != stored: %" PRIu32 ").",
+		 function,
+		 object_identifier,
+		 page->father_data_page_object_identifier );
 
 		return( -1 );
 	}
@@ -2766,25 +2725,13 @@ int libesedb_page_tree_read_space_tree_page_values(
 				 page_value->size );
 			}
 #endif
-#ifdef X
-			if( libesedb_page_initialize(
-			     &space_tree_page,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create space tree page.",
-				 function );
-
-				return( -1 );
-			}
-			if( libesedb_page_read(
-			     space_tree_page,
-			     io_handle,
+#ifdef TODO
+			/* TODO */
+			if( libesedb_page_tree_read_space_tree_page(
+			     page_tree,
 			     file_io_handle,
 			     space_tree_page_number,
+			     object_identifier,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -2794,58 +2741,6 @@ int libesedb_page_tree_read_space_tree_page_values(
 				 "%s: unable to read space tree page: %" PRIu32 ".",
 				 function,
 				 space_tree_page_number );
-
-				libesedb_page_free(
-				 &space_tree_page,
-				 NULL );
-
-				return( -1 );
-			}
-			if( page->father_data_page_object_identifier != space_tree_page->father_data_page_object_identifier )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: mismatch in father data page object identifier (%" PRIu32 " != %" PRIu32 ").",
-				 function,
-				 page->father_data_page_object_identifier,
-				 space_tree_page->father_data_page_object_identifier );
-
-				libesedb_page_free(
-				 &space_tree_page,
-				 NULL );
-
-				return( -1 );
-			}
-			if( libesedb_page_tree_read_space_tree_page_values(
-			     page_tree,
-			     space_tree_page,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read space tree page values.",
-				 function );
-
-				libesedb_page_free(
-				 &space_tree_page,
-				 NULL );
-
-				return( -1 );
-			}
-			if( libesedb_page_free(
-			     &space_tree_page,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free space tree page.",
-				 function );
 
 				return( -1 );
 			}
@@ -2869,15 +2764,15 @@ int libesedb_page_tree_read_space_tree_page_values(
 	return( 1 );
 }
 
-/* Reads the leaf page values from the page
+/* Reads the leaf page
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_leaf_page_values(
+int libesedb_page_tree_read_leaf_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     uint32_t object_identifier,
+     libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -2885,11 +2780,12 @@ int libesedb_page_tree_read_leaf_page_values(
 	libesedb_data_definition_t *data_definition                    = NULL;
 	libesedb_data_definition_t *long_value_data_definition         = NULL;
 	libesedb_list_t *template_table_column_catalog_definition_list = NULL;
+	libesedb_page_t *page                                          = NULL;
 	libesedb_page_value_t *page_value                              = NULL;
 	libesedb_page_tree_values_t *page_tree_values                  = NULL;
 	libesedb_table_definition_t *table_definition                  = NULL;
 	uint8_t *page_value_data                                       = NULL;
-	static char *function                                          = "libesedb_page_tree_read_leaf_page_values";
+	static char *function                                          = "libesedb_page_tree_read_leaf_page";
 	off64_t page_value_offset                                      = 0;
 	uint32_t long_value_data_segment_offset                        = 0;
 	uint32_t required_flags                                        = 0;
@@ -2917,14 +2813,45 @@ int libesedb_page_tree_read_leaf_page_values(
 
 		return( -1 );
 	}
+	if( libfdata_vector_get_element_value_by_index(
+	     page_tree->pages_vector,
+	     file_io_handle,
+	     (int) page_number - 1,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 ".",
+		 function,
+		 page_number );
+
+		return( -1 );
+	}
 	if( page == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
 		 function );
+
+		return( -1 );
+	}
+	if( page->father_data_page_object_identifier != object_identifier )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: mismatch in father data page object identifier (calculated: %" PRIu32 " != stored: %" PRIu32 ").",
+		 function,
+		 object_identifier,
+		 page->father_data_page_object_identifier );
 
 		return( -1 );
 	}
@@ -3044,22 +2971,19 @@ int libesedb_page_tree_read_leaf_page_values(
 	}
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 	{
-		if( libesedb_page_tree_read_root_page_value(
+		if( libesedb_page_tree_read_root_page(
 		     page_tree,
-		     value_definition_tree_node,
-		     page,
-		     page_value,
-		     io_handle,
 		     file_io_handle,
-		     flags,
+		     page_number,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read root page value.",
-			 function );
+			 "%s: unable to read root page: %" PRIu32 ".",
+			 function,
+			 page_number );
 
 			return( -1 );
 		}
@@ -3822,7 +3746,7 @@ int libesedb_page_tree_read_leaf_page_values(
 				     data_definition,
 				     page_tree->table_definition->column_catalog_definition_list,
 				     template_table_column_catalog_definition_list,
-				     io_handle,
+				     page_tree->io_handle,
 				     page_value_data,
 				     page_value_size,
 				     page_value_offset,

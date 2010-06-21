@@ -32,12 +32,14 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
+#include "libesedb_page.h"
 
 #include "esedb_file_header.h"
 
 const uint8_t esedb_file_signature[ 4 ] = { 0xef, 0xcd, 0xab, 0x89 };
 
-/* Initialize an io handle
+/* Initialize an IO handle
  * Make sure the value io_handle is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
@@ -53,7 +55,7 @@ int libesedb_io_handle_initialize(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid io handle.",
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -69,7 +71,7 @@ int libesedb_io_handle_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create io handle.",
+			 "%s: unable to create IO handle.",
 			 function );
 
 			return( -1 );
@@ -97,7 +99,7 @@ int libesedb_io_handle_initialize(
 	return( 1 );
 }
 
-/* Frees an exisisting io handle
+/* Frees an exisisting IO handle
  * Returns 1 if successful or -1 on error
  */
 int libesedb_io_handle_free(
@@ -113,7 +115,7 @@ int libesedb_io_handle_free(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid io handle.",
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -159,7 +161,7 @@ int libesedb_io_handle_read_file_header(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid io handle.",
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -783,6 +785,79 @@ int libesedb_io_handle_read_file_header(
 			 */ 
 			io_handle->page_size = (uint32_t) file_offset;
 		}
+	}
+	return( 1 );
+}
+
+/* Reads a page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_io_handle_read_page(
+     intptr_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *vector,
+     int element_index,
+     off64_t element_data_offset,
+     size64_t element_data_size,
+     uint8_t read_flags,
+     liberror_error_t **error )
+{
+	libesedb_page_t *page = NULL;
+	static char *function = "libesedb_io_handle_read_page";
+
+	if( libesedb_page_initialize(
+	     &page,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_read(
+	     page,
+	     (libesedb_io_handle_t *) io_handle,
+	     file_io_handle,
+	     element_data_offset,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page.",
+		 function );
+
+		libesedb_page_free(
+		 (intptr_t *) page,
+		 NULL );
+
+		return( -1 );
+	}
+	if( libfdata_vector_set_element_value_by_index(
+	     vector,
+	     element_index,
+	     (intptr_t *) page,
+	     &libesedb_page_free,
+	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set page as element value.",
+		 function );
+
+		libesedb_page_free(
+		 (intptr_t *) page,
+		 NULL );
+
+		return( -1 );
 	}
 	return( 1 );
 }

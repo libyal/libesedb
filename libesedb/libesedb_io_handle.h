@@ -56,6 +56,14 @@ struct libesedb_io_handle
 	 */
 	uint32_t creation_format_revision;
 
+	/* The pages data offset
+	 */
+	off64_t pages_data_offset;
+
+	/* The pages data size
+	 */
+	size64_t pages_data_size;
+
 	/* The page size
 	 */
 	uint32_t page_size;
@@ -77,6 +85,16 @@ int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
+     liberror_error_t **error );
+
+int libesedb_io_handle_read_page(
+     intptr_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *vector,
+     int element_index,
+     off64_t element_data_offset,
+     size64_t element_data_size,
+     uint8_t read_flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

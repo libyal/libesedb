@@ -145,7 +145,7 @@ int libesedb_page_initialize(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_free(
-     libesedb_page_t **page,
+     intptr_t *page,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_page_free";
@@ -162,32 +162,28 @@ int libesedb_page_free(
 
 		return( -1 );
 	}
-	if( *page != NULL )
+	if( libesedb_array_free(
+	     &( ( (libesedb_page_t *) page )->values_array ),
+	     &libesedb_page_value_free,
+	     error ) != 1 )
 	{
-		if( libesedb_array_free(
-		     &( ( *page )->values_array ),
-		     &libesedb_page_value_free,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free the page values array.",
-			 function );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free the page values array.",
+		 function );
 
-			result = -1;
-		}
-		if( ( *page )->data != NULL )
-		{
-			memory_free(
-			 ( *page )->data );
-		}
-		memory_free(
-		 *page );
-
-		*page = NULL;
+		result = -1;
 	}
+	if( ( (libesedb_page_t *) page )->data != NULL )
+	{
+		memory_free(
+		 ( (libesedb_page_t *) page )->data );
+	}
+	memory_free(
+	 page );
+
 	return( result );
 }
 
@@ -198,7 +194,7 @@ int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint32_t page_number,
+     off64_t file_offset,
      liberror_error_t **error )
 {
 	libesedb_array_t *page_tags_array  = NULL;
@@ -208,6 +204,7 @@ int libesedb_page_read(
 	size_t page_values_data_size       = 0;
 	ssize_t read_count                 = 0;
 	uint32_t calculated_ecc32_checksum = 0;
+	uint32_t calculated_page_number    = 0;
 	uint32_t calculated_xor32_checksum = 0;
 	uint32_t stored_ecc32_checksum     = 0;
 	uint32_t stored_page_number        = 0;
@@ -253,15 +250,17 @@ int libesedb_page_read(
 
 		return( -1 );
 	}
-	page->offset = ( (off64_t) page_number + 1 ) * (off64_t) io_handle->page_size;
+	calculated_page_number = (uint32_t) ( ( file_offset - io_handle->page_size ) / io_handle->page_size );
+
+	page->offset = file_offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: reading page: %" PRIu32 " at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 "%s: reading page: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 page_number,
+		 calculated_page_number,
 		 page->offset,
 		 page->offset );
 	}
@@ -277,7 +276,7 @@ int libesedb_page_read(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek page offset: %" PRIu64 ".",
+		 "%s: unable to seek page offset: %" PRIi64 ".",
 		 function,
 		 page->offset );
 
@@ -331,7 +330,7 @@ int libesedb_page_read(
 	}
 #endif
 
-	page->page_number = page_number;
+	page->page_number = calculated_page_number;
 
 	byte_stream_copy_to_uint16_little_endian(
 	 ( (esedb_page_header_t *) page_values_data )->available_data_size,
@@ -387,7 +386,7 @@ int libesedb_page_read(
 		libnotify_printf(
 		 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 page_number );
+		 calculated_page_number );
 
 		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		{
@@ -501,7 +500,7 @@ int libesedb_page_read(
 			     page_values_data,
 			     page_values_data_size,
 			     8,
-			     page_number,
+			     calculated_page_number,
 			     error ) != 1 )
 			{
 				liberror_error_set(

@@ -50,6 +50,10 @@ typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
 {
+	/* The IO handle 
+	 */
+	libesedb_io_handle_t *io_handle;
+
 	/* The table definition
 	 */
 	libesedb_table_definition_t *table_definition;
@@ -57,6 +61,10 @@ struct libesedb_page_tree
 	/* The template table definition
 	 */
 	libesedb_table_definition_t *template_table_definition;
+
+	/* The pages vector
+	 */
+	libfdata_vector_t *pages_vector;
 
 	/* The table definition list
 	 */
@@ -69,6 +77,7 @@ struct libesedb_page_tree
 
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
+     libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error );
@@ -136,43 +145,39 @@ int libesedb_page_tree_get_value_definition_by_key(
 
 int libesedb_page_tree_read(
      libesedb_page_tree_t *page_tree,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      uint32_t father_data_page_number,
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_root_page_value(
+int libesedb_page_tree_read_root_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_page_value_t *page_value,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_branch_page(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     uint32_t object_identifier,
+     libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_branch_page_values(
+int libesedb_page_tree_read_space_tree_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
-     uint8_t flags,
+     uint32_t page_number,
+     uint32_t object_identifier,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_space_tree_page_values(
+int libesedb_page_tree_read_leaf_page(
      libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     liberror_error_t **error );
-
-int libesedb_page_tree_read_leaf_page_values(
-     libesedb_page_tree_t *page_tree,
-     libesedb_tree_node_t *value_definition_tree_node,
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
+     uint32_t page_number,
+     uint32_t object_identifier,
+     libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
      liberror_error_t **error );
 

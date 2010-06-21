@@ -905,9 +905,12 @@ int libesedb_file_open_read(
 			}
 		}
 	}
-	/* The first 2 pages contain database headers
+	/* TODO move to function in IO handle
+	 * libesedb_io_handle_set_pages_data_range( offset, size );
 	 */
-	internal_file->io_handle->last_page_number = (uint32_t) ( file_size / internal_file->io_handle->page_size ) - 2;
+	internal_file->io_handle->pages_data_offset = (off64_t) ( internal_file->io_handle->page_size * 2 );
+	internal_file->io_handle->pages_data_size   = file_size - (size64_t) internal_file->io_handle->pages_data_offset;
+	internal_file->io_handle->last_page_number  = (uint32_t) ( internal_file->io_handle->pages_data_size / internal_file->io_handle->page_size );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -918,6 +921,7 @@ int libesedb_file_open_read(
 #endif
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->database_page_tree ),
+	     internal_file->io_handle,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -933,7 +937,6 @@ int libesedb_file_open_read(
 	}
 	if( libesedb_page_tree_read(
 	     internal_file->database_page_tree,
-	     internal_file->io_handle,
 	     internal_file->file_io_handle,
 	     LIBESEDB_PAGE_NUMBER_DATABASE,
 	     0,
@@ -962,6 +965,7 @@ int libesedb_file_open_read(
 #endif
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->catalog_page_tree ),
+	     internal_file->io_handle,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -978,7 +982,6 @@ int libesedb_file_open_read(
 	/* TODO handle missing catalog e.g. empty database*/
 	if( libesedb_page_tree_read(
 	     internal_file->catalog_page_tree,
-	     internal_file->io_handle,
 	     internal_file->file_io_handle,
 	     LIBESEDB_PAGE_NUMBER_CATALOG,
 	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG,

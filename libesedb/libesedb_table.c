@@ -340,6 +340,7 @@ int libesedb_table_read_page_tree(
 		}
 		if( libesedb_page_tree_initialize(
 		     &( internal_table->long_value_page_tree ),
+		     internal_table->internal_file->io_handle,
 		     internal_table->table_definition,
 		     internal_table->template_table_definition,
 		     error ) != 1 )
@@ -355,7 +356,6 @@ int libesedb_table_read_page_tree(
 		}
 		if( libesedb_page_tree_read(
 		     internal_table->long_value_page_tree,
-		     internal_table->internal_file->io_handle,
 		     internal_table->file_io_handle,
 		     internal_table->table_definition->long_value_catalog_definition->father_data_page_number,
 		     0,
@@ -377,6 +377,7 @@ int libesedb_table_read_page_tree(
 	}
 	if( libesedb_page_tree_initialize(
 	     &( internal_table->table_page_tree ),
+	     internal_table->internal_file->io_handle,
 	     internal_table->table_definition,
 	     internal_table->template_table_definition,
 	     error ) != 1 )
@@ -392,7 +393,6 @@ int libesedb_table_read_page_tree(
 	}
 	if( libesedb_page_tree_read(
 	     internal_table->table_page_tree,
-	     internal_table->internal_file->io_handle,
 	     internal_table->file_io_handle,
 	     internal_table->table_definition->table_catalog_definition->father_data_page_number,
 	     0,

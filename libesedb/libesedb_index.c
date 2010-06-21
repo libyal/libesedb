@@ -206,6 +206,7 @@ int libesedb_index_read_page_tree(
 	}
 	if( libesedb_page_tree_initialize(
 	     &( internal_index->index_page_tree ),
+	     internal_index->internal_file->io_handle,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -221,7 +222,6 @@ int libesedb_index_read_page_tree(
 	}
 	if( libesedb_page_tree_read(
 	     internal_index->index_page_tree,
-	     internal_index->internal_file->io_handle,
 	     internal_index->internal_file->file_io_handle,
 	     internal_index->catalog_definition->father_data_page_number,
 	     0,
