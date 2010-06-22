@@ -28,7 +28,7 @@
 #include "libesedb_column.h"
 #include "libesedb_definitions.h"
 #include "libesedb_index.h"
-#include "libesedb_file.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_record.h"
@@ -42,7 +42,7 @@
 int libesedb_table_initialize(
      libesedb_table_t **table,
      libbfio_handle_t *file_io_handle,
-     libesedb_internal_file_t *internal_file,
+     libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      uint8_t flags,
@@ -151,7 +151,7 @@ int libesedb_table_initialize(
 				return( -1 );
 			}
 		}
-		internal_table->internal_file             = internal_file;
+		internal_table->io_handle                 = io_handle;
 		internal_table->table_definition          = table_definition;
 		internal_table->template_table_definition = template_table_definition;
 		internal_table->flags                     = flags;
@@ -188,7 +188,7 @@ int libesedb_table_free(
 		internal_table = (libesedb_internal_table_t *) *table;
 		*table         = NULL;
 
-		/* The internal_file and table_definition references
+		/* The io_handle and table_definition references
 		 * are freed elsewhere
 		 */
 		if( ( internal_table->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -281,17 +281,6 @@ int libesedb_table_read_page_tree(
 
 		return( -1 );
 	}
-	if( internal_table->internal_file == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_table->table_definition == NULL )
 	{
 		liberror_error_set(
@@ -340,7 +329,8 @@ int libesedb_table_read_page_tree(
 		}
 		if( libesedb_page_tree_initialize(
 		     &( internal_table->long_value_page_tree ),
-		     internal_table->internal_file->io_handle,
+		     internal_table->io_handle,
+		     internal_table->table_definition->long_value_catalog_definition->father_data_page_object_identifier,
 		     internal_table->table_definition,
 		     internal_table->template_table_definition,
 		     error ) != 1 )
@@ -377,7 +367,8 @@ int libesedb_table_read_page_tree(
 	}
 	if( libesedb_page_tree_initialize(
 	     &( internal_table->table_page_tree ),
-	     internal_table->internal_file->io_handle,
+	     internal_table->io_handle,
+	     internal_table->table_definition->table_catalog_definition->father_data_page_object_identifier,
 	     internal_table->table_definition,
 	     internal_table->template_table_definition,
 	     error ) != 1 )
@@ -1198,9 +1189,11 @@ int libesedb_table_get_index(
 	}
 	if( libesedb_index_initialize(
 	     index,
+	     internal_table->file_io_handle,
+	     internal_table->io_handle,
 	     internal_table,
-	     internal_table->internal_file,
 	     index_catalog_definition,
+	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(

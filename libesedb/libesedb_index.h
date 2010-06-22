@@ -29,7 +29,9 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
-#include "libesedb_file.h"
+#include "libesedb_io_handle.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table.h"
 #include "libesedb_types.h"
@@ -42,9 +44,13 @@ typedef struct libesedb_internal_index libesedb_internal_index_t;
 
 struct libesedb_internal_index
 {
-	/* The internal file
+	/* The file io handle
 	 */
-	libesedb_internal_file_t *internal_file;
+	libbfio_handle_t *file_io_handle;
+
+	/* The IO handle
+	 */
+	libesedb_io_handle_t *io_handle;
 
 	/* The internal table
 	 */
@@ -54,6 +60,10 @@ struct libesedb_internal_index
 	 */
 	libesedb_catalog_definition_t *catalog_definition;
 
+	/* The item flags
+	 */
+	uint8_t flags;
+
 	/* The index page tree
 	 */
 	libesedb_page_tree_t *index_page_tree;
@@ -61,9 +71,11 @@ struct libesedb_internal_index
 
 int libesedb_index_initialize(
      libesedb_index_t **index,
+     libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libesedb_internal_table_t *internal_table,
-     libesedb_internal_file_t *internal_file,
      libesedb_catalog_definition_t *catalog_definition,
+     uint8_t flags,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_index_free(

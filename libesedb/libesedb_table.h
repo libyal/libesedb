@@ -28,7 +28,7 @@
 #include <liberror.h>
 
 #include "libesedb_extern.h"
-#include "libesedb_file.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
@@ -47,9 +47,9 @@ struct libesedb_internal_table
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The internal file
+	/* The IO handle
 	 */
-	libesedb_internal_file_t *internal_file;
+	libesedb_io_handle_t *io_handle;
 
 	/* The table definition
 	 */
@@ -75,7 +75,7 @@ struct libesedb_internal_table
 int libesedb_table_initialize(
      libesedb_table_t **table,
      libbfio_handle_t *file_io_handle,
-     libesedb_internal_file_t *internal_file,
+     libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      uint8_t flags,

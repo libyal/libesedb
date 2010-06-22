@@ -54,6 +54,10 @@ struct libesedb_page_tree
 	 */
 	libesedb_io_handle_t *io_handle;
 
+	/* The object identifier
+	 */
+	uint32_t object_identifier;
+
 	/* The table definition
 	 */
 	libesedb_table_definition_t *table_definition;
@@ -78,6 +82,7 @@ struct libesedb_page_tree
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
+     uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      liberror_error_t **error );
@@ -179,6 +184,15 @@ int libesedb_page_tree_read_leaf_page(
      uint32_t object_identifier,
      libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_node(
+     intptr_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_tree_node_t *node,
+     off64_t node_data_offset,
+     size64_t node_data_size,
+     uint8_t read_flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

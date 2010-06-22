@@ -919,9 +919,11 @@ int libesedb_file_open_read(
 		 "Reading the database page tree:\n" );
 	}
 #endif
+	/* TODO object identifier */
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->database_page_tree ),
 	     internal_file->io_handle,
+	     0,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -963,9 +965,11 @@ int libesedb_file_open_read(
 		 "Reading the catalog page tree:\n" );
 	}
 #endif
+	/* TODO object identifier */
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->catalog_page_tree ),
 	     internal_file->io_handle,
+	     0,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -1412,7 +1416,7 @@ int libesedb_file_get_table(
 	if( libesedb_table_initialize(
 	     table,
 	     internal_file->file_io_handle,
-	     internal_file,
+	     internal_file->io_handle,
 	     table_definition,
 	     template_table_definition,
 	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,

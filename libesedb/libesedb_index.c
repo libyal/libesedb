@@ -27,7 +27,7 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
-#include "libesedb_file.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_index.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table.h"
@@ -38,9 +38,11 @@
  */
 int libesedb_index_initialize(
      libesedb_index_t **index,
+     libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libesedb_internal_table_t *internal_table,
-     libesedb_internal_file_t *internal_file,
      libesedb_catalog_definition_t *catalog_definition,
+     uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
@@ -54,6 +56,18 @@ int libesedb_index_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
+
+		return( -1 );
+	}
+	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported flags: 0x%02" PRIx8 ".",
+		 function,
+		 flags );
 
 		return( -1 );
 	}
@@ -90,9 +104,54 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
-		internal_index->internal_file      = internal_file;
+		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+		{
+			internal_index->file_io_handle = file_io_handle;
+		}
+		else
+		{
+			if( libbfio_handle_clone(
+			     &( internal_index->file_io_handle ),
+			     file_io_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy file io handle.",
+				 function );
+
+				memory_free(
+				 internal_index );
+
+				return( -1 );
+			}
+			if( libbfio_handle_set_open_on_demand(
+			     internal_index->file_io_handle,
+			     1,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to set open on demand in file io handle.",
+				 function );
+
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+				memory_free(
+				 internal_index );
+
+				return( -1 );
+			}
+		}
+		internal_index->io_handle          = io_handle;
 		internal_index->internal_table     = internal_table;
 		internal_index->catalog_definition = catalog_definition;
+		internal_index->flags              = flags;
 
 		*index = (libesedb_index_t *) internal_index;
 	}
@@ -126,9 +185,41 @@ int libesedb_index_free(
 		internal_index = (libesedb_internal_index_t *) *index;
 		*index         = NULL;
 
-		/* The internal_table and catalog_definition references
+		/* The io_handle, internal_table and catalog_definition references
 		 * are freed elsewhere
 		 */
+		if( ( internal_index->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+		{
+			if( internal_index->file_io_handle != NULL )
+			{
+				if( libbfio_handle_close(
+				     internal_index->file_io_handle,
+				     error ) != 0 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 "%s: unable to close file io handle.",
+					 function );
+
+					return( -1 );
+				}
+				if( libbfio_handle_free(
+				     &( internal_index->file_io_handle ),
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free file io handle.",
+					 function );
+
+					return( -1 );
+				}
+			}
+		}
 		if( internal_index->index_page_tree != NULL )
 		{
 			if( libesedb_page_tree_free(
@@ -171,17 +262,6 @@ int libesedb_index_read_page_tree(
 
 		return( -1 );
 	}
-	if( internal_index->internal_file == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing internal file.",
-		 function );
-
-		return( -1 );
-	}
 	if( internal_index->catalog_definition == NULL )
 	{
 		liberror_error_set(
@@ -206,7 +286,8 @@ int libesedb_index_read_page_tree(
 	}
 	if( libesedb_page_tree_initialize(
 	     &( internal_index->index_page_tree ),
-	     internal_index->internal_file->io_handle,
+	     internal_index->io_handle,
+	     internal_index->catalog_definition->father_data_page_object_identifier,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -222,7 +303,7 @@ int libesedb_index_read_page_tree(
 	}
 	if( libesedb_page_tree_read(
 	     internal_index->index_page_tree,
-	     internal_index->internal_file->file_io_handle,
+	     internal_index->file_io_handle,
 	     internal_index->catalog_definition->father_data_page_number,
 	     0,
 	     error ) != 1 )
