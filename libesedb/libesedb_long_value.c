@@ -39,6 +39,7 @@
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *pages_vector,
      libfdata_tree_t *long_values_tree,
      uint8_t *long_value_key,
      size_t long_value_key_size,
@@ -239,6 +240,8 @@ int libesedb_long_value_initialize(
 		}
 		if( libesedb_values_tree_value_read_long_value(
 		     values_tree_value,
+		     internal_long_value->file_io_handle,
+		     pages_vector,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -313,6 +316,8 @@ int libesedb_long_value_initialize(
 			{
 				if( libesedb_values_tree_value_read_long_value_segment(
 				     values_tree_value,
+				     internal_long_value->file_io_handle,
+				     pages_vector,
 				     long_value_segment_offset,
 				     internal_long_value->data_block,
 				     error ) != 1 )

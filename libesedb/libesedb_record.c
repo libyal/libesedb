@@ -46,6 +46,7 @@ int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
      libfdata_tree_node_t *values_tree_node,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
@@ -212,9 +213,11 @@ int libesedb_record_initialize(
 		}
 		if( libesedb_values_tree_value_read_record(
 		     values_tree_value,
+		     internal_record->file_io_handle,
+		     io_handle,
+		     pages_vector,
 		     table_definition,
 		     template_table_definition,
-		     io_handle,
 		     internal_record->values_array,
 		     error ) != 1 )
 		{
@@ -241,6 +244,7 @@ int libesedb_record_initialize(
 
 			return( -1 );
 		}
+		internal_record->pages_vector     = pages_vector;
 		internal_record->long_values_tree = long_values_tree;
 		internal_record->flags            = flags;
 
@@ -276,7 +280,7 @@ int libesedb_record_free(
 		internal_record = (libesedb_internal_record_t *) *record;
 		*record         = NULL;
 
-		/* The long_values_tree references
+		/* The pages_vector and long_values_tree references
 		 * are freed elsewhere
 		 */
 		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -2261,6 +2265,7 @@ int libesedb_record_get_long_value(
 	if( libesedb_long_value_initialize(
 	     long_value,
 	     internal_record->file_io_handle,
+	     internal_record->pages_vector,
 	     internal_record->long_values_tree,
 	     data_type_definition->data,
 	     data_type_definition->data_size,

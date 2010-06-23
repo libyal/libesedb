@@ -48,43 +48,39 @@ struct libesedb_internal_index
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The IO handle
+	/* The table definition
 	 */
-	libesedb_io_handle_t *io_handle;
+	libesedb_table_definition_t *table_definition;
 
-	/* The internal table
+	/* The index catalog definition 
 	 */
-	libesedb_internal_table_t *internal_table;
-
-	/* The catalog definition
-	 */
-	libesedb_catalog_definition_t *catalog_definition;
+	libesedb_catalog_definition_t *index_catalog_definition;
 
 	/* The item flags
 	 */
 	uint8_t flags;
 
-	/* The index page tree
+	/* The pages vector
 	 */
-	libesedb_page_tree_t *index_page_tree;
+	libfdata_vector_t *pages_vector;
+
+	/* The table values (data) tree
+	 */
+	libfdata_tree_t *index_values_tree;
 };
 
 int libesedb_index_initialize(
      libesedb_index_t **index,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
-     libesedb_internal_table_t *internal_table,
-     libesedb_catalog_definition_t *catalog_definition,
+     libesedb_table_definition_t *table_definition,
+     libesedb_catalog_definition_t *index_catalog_definition,
      uint8_t flags,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_index_free(
                      libesedb_index_t **index,
                      liberror_error_t **error );
-
-int libesedb_index_read_page_tree(
-     libesedb_internal_index_t *internal_index,
-     liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_index_get_identifier(
                      libesedb_index_t *index,

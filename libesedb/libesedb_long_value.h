@@ -68,6 +68,7 @@ struct libesedb_internal_long_value
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *pages_vector,
      libfdata_tree_t *long_values_tree,
      uint8_t *long_value_key,
      size_t long_value_key_size,

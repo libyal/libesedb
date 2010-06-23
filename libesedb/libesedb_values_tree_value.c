@@ -35,6 +35,7 @@
 #include "libesedb_libfdata.h"
 #include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
+#include "libesedb_page.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_values_tree_value.h"
 
@@ -316,18 +317,24 @@ int libesedb_values_tree_value_set_key_local(
  */
 int libesedb_values_tree_value_read_record(
      libesedb_values_tree_value_t *values_tree_value,
+     libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
-     libesedb_io_handle_t *io_handle,
      libesedb_array_t *values_array,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
 	libesedb_data_type_definition_t *data_type_definition           = NULL;
 	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
+	libesedb_page_t *page                                           = NULL;
+	libesedb_page_value_t *page_value                               = NULL;
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
 	static char *function                                           = "libesedb_values_tree_value_read_record";
+	off64_t record_data_offset                                      = 0;
+	size_t record_data_size                                         = 0;
 	size_t remaining_definition_data_size                           = 0;
 	uint16_t fixed_size_data_type_value_offset                      = 0;
 	uint16_t previous_tagged_data_type_offset                       = 0;
@@ -375,46 +382,13 @@ int libesedb_values_tree_value_read_record(
 
 		return( -1 );
 	}
-	if( values_tree_value->data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid values tree values - missing data.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->data_size > (size_t) SSIZE_MAX )
+	if( io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid values tree values - data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->data_size < sizeof( esedb_data_definition_header_t ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: invalid values tree value - data too small.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->data_offset < 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid values tree value - data offset less than zero.",
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid io handle.",
 		 function );
 
 		return( -1 );
@@ -453,17 +427,6 @@ int libesedb_values_tree_value_read_record(
 
 		return( -1 );
 	}
-	if( io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid io handle.",
-		 function );
-
-		return( -1 );
-	}
 	if( values_array == NULL )
 	{
 		liberror_error_set(
@@ -475,13 +438,106 @@ int libesedb_values_tree_value_read_record(
 
 		return( -1 );
 	}
+	if( libfdata_vector_get_element_value_at_offset(
+	     pages_vector,
+	     file_io_handle,
+	     values_tree_value->page_offset,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 function,
+		 values_tree_value->page_number,
+		 values_tree_value->page_offset );
+
+		return( -1 );
+	}
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_get_value(
+	     page,
+	     values_tree_value->page_value_index,
+	     &page_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value->data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( values_tree_value->data_offset > page_value->size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 function );
+
+		return( -1 );
+	}
+	record_data        = &( page_value->data[ values_tree_value->data_offset ] );
+	record_data_size   = page_value->size - values_tree_value->data_offset;
+	record_data_offset = values_tree_value->page_offset + page_value->offset + values_tree_value->data_offset;
+
+	if( record_data_size < sizeof( esedb_data_definition_header_t ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid record data size value out of range.",
+		 function );
+
+		return( -1 );
+	}
 	if( ( io_handle->format_version == 0x620 )
 	 && ( io_handle->format_revision <= 2 ) )
 	{
 		tagged_data_types_format = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR;
 	}
-	record_data = values_tree_value->data;
-
 	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) record_data )->last_fixed_size_data_type;
 	last_variable_size_data_type = ( (esedb_data_definition_header_t *) record_data )->last_variable_size_data_type;
 
@@ -725,7 +781,7 @@ int libesedb_values_tree_value_read_record(
 				     data_type_definition,
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
 				     column_catalog_definition->size,
-				     values_tree_value->data_offset + fixed_size_data_type_value_offset,
+				     record_data_offset + fixed_size_data_type_value_offset,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -791,7 +847,7 @@ int libesedb_values_tree_value_read_record(
 						     data_type_definition,
 						     &( record_data[ variable_size_data_type_value_offset ] ),
 						     variable_size_data_type_size - previous_variable_size_data_type_size,
-						     values_tree_value->data_offset + variable_size_data_type_value_offset,
+						     record_data_offset + variable_size_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -834,7 +890,7 @@ int libesedb_values_tree_value_read_record(
 				{
 					tagged_data_types_offset       = variable_size_data_type_value_offset;
 					tagged_data_type_value_offset  = variable_size_data_type_value_offset;
-					remaining_definition_data_size = values_tree_value->data_size - (size_t) tagged_data_types_offset;
+					remaining_definition_data_size = record_data_size - (size_t) tagged_data_types_offset;
 
 					byte_stream_copy_to_uint16_little_endian(
 					 &( record_data[ tagged_data_type_value_offset ] ),
@@ -948,7 +1004,7 @@ int libesedb_values_tree_value_read_record(
 						     data_type_definition,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     values_tree_value->data_offset + tagged_data_type_value_offset,
+						     record_data_offset + tagged_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -990,7 +1046,7 @@ int libesedb_values_tree_value_read_record(
 				{
 					tagged_data_types_offset       = variable_size_data_type_value_offset;
 					tagged_data_type_offset_data   = &( record_data[ tagged_data_types_offset ] );
-					remaining_definition_data_size = values_tree_value->data_size - (size_t) tagged_data_types_offset;
+					remaining_definition_data_size = record_data_size - (size_t) tagged_data_types_offset;
 
 					if( remaining_definition_data_size > 0 )
 					{
@@ -1191,7 +1247,7 @@ int libesedb_values_tree_value_read_record(
 						     data_type_definition,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     values_tree_value->data_offset + tagged_data_type_value_offset,
+						     record_data_offset + tagged_data_type_value_offset,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1268,11 +1324,16 @@ int libesedb_values_tree_value_read_record(
  */
 int libesedb_values_tree_value_read_long_value(
      libesedb_values_tree_value_t *values_tree_value,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *pages_vector,
      liberror_error_t **error )
 {
-	uint8_t *long_value_data = NULL;
-	static char *function    = "libesedb_values_tree_value_read_long_value";
-	uint32_t value_32bit     = 0;
+	libesedb_page_t *page             = NULL;
+	libesedb_page_value_t *page_value = NULL;
+	uint8_t *long_value_data          = NULL;
+	static char *function             = "libesedb_values_tree_value_read_long_value";
+	size_t long_value_data_size       = 0;
+	uint32_t value_32bit              = 0;
 
 	if( values_tree_value == NULL )
 	{
@@ -1297,42 +1358,101 @@ int libesedb_values_tree_value_read_long_value(
 
 		return( -1 );
 	}
-	if( values_tree_value->data == NULL )
+	if( libfdata_vector_get_element_value_at_offset(
+	     pages_vector,
+	     file_io_handle,
+	     values_tree_value->page_offset,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 function,
+		 values_tree_value->page_number,
+		 values_tree_value->page_offset );
+
+		return( -1 );
+	}
+	if( page == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid values tree values - missing data.",
+		 "%s: missing page.",
 		 function );
 
 		return( -1 );
 	}
-	if( values_tree_value->data_size > (size_t) SSIZE_MAX )
+	if( libesedb_page_get_value(
+	     page,
+	     values_tree_value->page_value_index,
+	     &page_value,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid values tree values - data size value exceeds maximum.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value->data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value data.",
 		 function );
 
 		return( -1 );
 	}
-	if( values_tree_value->data_size != 8 )
+	if( values_tree_value->data_offset > page_value->size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 function );
+
+		return( -1 );
+	}
+	long_value_data      = &( page_value->data[ values_tree_value->data_offset ] );
+	long_value_data_size = page_value->size - values_tree_value->data_offset;
+
+	if( long_value_data_size != 8 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: invalid values tree value - unsupported data size: %" PRIzd ".",
+		 "%s: unsupported long values data size: %" PRIzd ".",
 		 function,
-		 values_tree_value->data_size );
+		 long_value_data_size );
 
 		return( -1 );
 	}
-	long_value_data = values_tree_value->data;
-
 	byte_stream_copy_to_uint16_little_endian(
 	 long_value_data,
 	 value_32bit );
@@ -1374,12 +1494,18 @@ int libesedb_values_tree_value_read_long_value(
  */
 int libesedb_values_tree_value_read_long_value_segment(
      libesedb_values_tree_value_t *values_tree_value,
+     libbfio_handle_t *file_io_handle,
+     libfdata_vector_t *pages_vector,
      uint32_t long_value_segment_offset,
      libfdata_block_t *data_block,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_values_tree_value_read_long_value_segment";
-	size64_t data_size    = 0;
+	libesedb_page_t *page                  = NULL;
+	libesedb_page_value_t *page_value      = NULL;
+	static char *function                  = "libesedb_values_tree_value_read_long_value_segment";
+	off64_t long_value_segment_data_offset = 0;
+	size_t long_value_segment_data_size    = 0;
+	size64_t data_size                     = 0;
 
 	if( values_tree_value == NULL )
 	{
@@ -1404,39 +1530,6 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( values_tree_value->data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid values tree values - missing data.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->data_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid values tree values - data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->data_offset < 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid values tree value - data offset less than zero.",
-		 function );
-
-		return( -1 );
-	}
 	if( data_block == NULL )
 	{
 		liberror_error_set(
@@ -1448,6 +1541,89 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
+	if( libfdata_vector_get_element_value_at_offset(
+	     pages_vector,
+	     file_io_handle,
+	     values_tree_value->page_offset,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 function,
+		 values_tree_value->page_number,
+		 values_tree_value->page_offset );
+
+		return( -1 );
+	}
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_get_value(
+	     page,
+	     values_tree_value->page_value_index,
+	     &page_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value->data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( values_tree_value->data_offset > page_value->size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 function );
+
+		return( -1 );
+	}
+	long_value_segment_data_size   = page_value->size - values_tree_value->data_offset;
+	long_value_segment_data_offset = values_tree_value->page_offset + page_value->offset + values_tree_value->data_offset;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -1455,8 +1631,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 "%s: long value segment with offset: %" PRIu32 " has data at offset: %" PRIi64 " of size: %" PRIzd "\n",
 		 function,
 		 long_value_segment_offset,
-		 values_tree_value->data_offset,
-		 values_tree_value->data_size );
+		 long_value_segment_data_offset,
+		 long_value_segment_data_size );
 		libnotify_printf(
 		 "\n" );
 	}
@@ -1490,8 +1666,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( libfdata_block_append_segment(
 	     data_block,
-	     values_tree_value->data_offset,
-	     (size64_t) values_tree_value->data_size,
+	     long_value_segment_data_offset,
+	     (size64_t) long_value_segment_data_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(

@@ -51,6 +51,7 @@
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
@@ -116,34 +117,6 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
-		/* TODO clone function ? */
-		if( libfdata_vector_initialize(
-		     &( ( *page_tree )->pages_vector ),
-		     (size64_t) io_handle->page_size,
-		     io_handle->pages_data_offset,
-		     io_handle->pages_data_size,
-		     64,
-		     (intptr_t *) io_handle,
-		     NULL,
-		     NULL,
-		     &libesedb_io_handle_read_page,
-		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create pages vector.",
-			 function );
-
-			memory_free(
-			 *page_tree );
-
-			*page_tree = NULL;
-
-			return( -1 );
-		}
 		if( libesedb_list_initialize(
 		     &( ( *page_tree )->table_definition_list ),
 		     error ) != 1 )
@@ -155,9 +128,6 @@ int libesedb_page_tree_initialize(
 			 "%s: unable to create table definition list.",
 			 function );
 
-			libfdata_vector_free(
-			 &( ( *page_tree )->pages_vector ),
-			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -182,9 +152,6 @@ int libesedb_page_tree_initialize(
 			libesedb_list_free(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
-			 NULL );
-			libfdata_vector_free(
-			 &( ( *page_tree )->pages_vector ),
 			 NULL );
 			memory_free(
 			 *page_tree );
@@ -211,9 +178,6 @@ int libesedb_page_tree_initialize(
 			libesedb_list_free(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
-			 NULL );
-			libfdata_vector_free(
-			 &( ( *page_tree )->pages_vector ),
 			 NULL );
 			memory_free(
 			 *page_tree );
@@ -245,9 +209,6 @@ int libesedb_page_tree_initialize(
 			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
-			libfdata_vector_free(
-			 &( ( *page_tree )->pages_vector ),
-			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -256,6 +217,7 @@ int libesedb_page_tree_initialize(
 			return( -1 );
 		}
 		( *page_tree )->io_handle                 = io_handle;
+		( *page_tree )->pages_vector              = pages_vector;
 		( *page_tree )->object_identifier         = object_identifier;
 		( *page_tree )->table_definition          = table_definition;
 		( *page_tree )->template_table_definition = template_table_definition;
@@ -284,19 +246,9 @@ int libesedb_page_tree_free(
 
 		return( -1 );
 	}
-	if( libfdata_vector_free(
-	     &( ( (libesedb_page_tree_t *) page_tree )->pages_vector ),
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free pages vector.",
-		 function );
-
-		result = -1;
-	}
+	/* The pages_vector reference
+	 * is freed elsewhere
+	 */
 	if( libesedb_list_free(
 	     &( ( (libesedb_page_tree_t *) page_tree )->table_definition_list ),
 	     &libesedb_table_definition_free,
@@ -4492,6 +4444,9 @@ int libesedb_page_tree_read_page_value(
 		 "\n" );
 	}
 #endif
+	values_tree_value->data_offset = page_value_offset;
+	values_tree_value->data_size   = page_value_size;
+
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) != 0 )
@@ -4506,10 +4461,19 @@ int libesedb_page_tree_read_page_value(
 		{
 			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD;
 		}
-		values_tree_value->data        = page_value_data;
-		values_tree_value->data_size   = (size_t) page_value_size;
-		values_tree_value->data_offset = page_offset + page_value->offset + page_value_offset;
+		if( libfdata_tree_node_make_leaf(
+		     value_tree_node,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to make value tree node a leaf.",
+			 function );
 
+			return( -1 );
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
 		{
@@ -4524,9 +4488,8 @@ int libesedb_page_tree_read_page_value(
 		 page_value_data,
 		 child_page_number );
 
-		page_value_data   += 4;
-		page_value_offset += 4;
-		page_value_size   -= 4;
+		page_value_data += 4;
+		page_value_size -= 4;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -4696,6 +4659,10 @@ int libesedb_page_tree_read_node_values(
 
 		return( -1 );
 	}
+	values_tree_value->page_offset      = node_data_offset;
+	values_tree_value->page_number      = (uint32_t) page_number;
+	values_tree_value->page_value_index = (uint16_t) node_data_size;
+
 	result = libfdata_tree_node_is_root(
 	          node,
 	          error );

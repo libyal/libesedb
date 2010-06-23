@@ -30,7 +30,6 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
 #include "libesedb_page_tree.h"
-#include "libesedb_table.h"
 #include "libesedb_types.h"
 
 /* Creates a index
@@ -40,13 +39,15 @@ int libesedb_index_initialize(
      libesedb_index_t **index,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
-     libesedb_internal_table_t *internal_table,
-     libesedb_catalog_definition_t *catalog_definition,
+     libesedb_table_definition_t *table_definition,
+     libesedb_catalog_definition_t *index_catalog_definition,
      uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
+	libesedb_page_tree_t *index_page_tree     = NULL;
 	static char *function                     = "libesedb_index_initialize";
+	off64_t node_data_offset                  = 0;
 
 	if( index == NULL )
 	{
@@ -148,10 +149,146 @@ int libesedb_index_initialize(
 				return( -1 );
 			}
 		}
-		internal_index->io_handle          = io_handle;
-		internal_index->internal_table     = internal_table;
-		internal_index->catalog_definition = catalog_definition;
-		internal_index->flags              = flags;
+		/* TODO clone function ? */
+		if( libfdata_vector_initialize(
+		     &( internal_index->pages_vector ),
+		     (size64_t) io_handle->page_size,
+		     io_handle->pages_data_offset,
+		     io_handle->pages_data_size,
+		     64,
+		     (intptr_t *) io_handle,
+		     NULL,
+		     NULL,
+		     &libesedb_io_handle_read_page,
+		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create pages vector.",
+			 function );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
+		/* TODO (template) table definition required ? */
+
+		if( libesedb_page_tree_initialize(
+		     &index_page_tree,
+		     io_handle,
+		     internal_index->pages_vector,
+		     index_catalog_definition->father_data_page_object_identifier,
+		     NULL,
+		     NULL,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index page tree.",
+			 function );
+
+			libfdata_vector_free(
+			 &( internal_index->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
+		/* TODO clone function
+		 */
+		if( libfdata_tree_initialize(
+		     &( internal_index->index_values_tree ),
+		     256,
+		     (intptr_t *) index_page_tree,
+		     &libesedb_page_tree_free,
+		     NULL,
+		     &libesedb_page_tree_read_node_values,
+		     &libesedb_page_tree_read_sub_nodes,
+		     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index values tree.",
+			 function );
+
+			libesedb_page_tree_free(
+			 (intptr_t *) index_page_tree,
+			 NULL );
+			libfdata_vector_free(
+			 &( internal_index->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
+		node_data_offset  = index_catalog_definition->father_data_page_number - 1;
+		node_data_offset *= io_handle->page_size;
+
+		if( libfdata_tree_set_root_node(
+		     internal_index->index_values_tree,
+		     node_data_offset,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set root node in index values tree.",
+			 function );
+
+			libfdata_tree_free(
+			 &( internal_index->index_values_tree ),
+			 NULL );
+			libfdata_vector_free(
+			 &( internal_index->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
+		internal_index->table_definition         = table_definition;
+		internal_index->index_catalog_definition = index_catalog_definition;
+		internal_index->flags                    = flags;
 
 		*index = (libesedb_index_t *) internal_index;
 	}
@@ -185,7 +322,7 @@ int libesedb_index_free(
 		internal_index = (libesedb_internal_index_t *) *index;
 		*index         = NULL;
 
-		/* The io_handle, internal_table and catalog_definition references
+		/* The table_definition and index_catalog_definition references
 		 * are freed elsewhere
 		 */
 		if( ( internal_index->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -220,110 +357,36 @@ int libesedb_index_free(
 				}
 			}
 		}
-		if( internal_index->index_page_tree != NULL )
+		if( libfdata_vector_free(
+		     &( internal_index->pages_vector ),
+		     error ) != 1 )
 		{
-			if( libesedb_page_tree_free(
-			     (intptr_t *) internal_index->index_page_tree,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free index page tree.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages vector.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
+		}
+		if( libfdata_tree_free(
+		     &( internal_index->index_values_tree ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values tree.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 internal_index );
 	}
 	return( result );
-}
-
-/* Reads the page tree
- * Returns 1 if successful or -1 on error
- */
-int libesedb_index_read_page_tree(
-     libesedb_internal_index_t *internal_index,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_index_read_page_tree";
-
-	if( internal_index == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal index.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->index_page_tree != NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal index - index page tree already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_page_tree_initialize(
-	     &( internal_index->index_page_tree ),
-	     internal_index->io_handle,
-	     internal_index->catalog_definition->father_data_page_object_identifier,
-	     NULL,
-	     NULL,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_page_tree_read(
-	     internal_index->index_page_tree,
-	     internal_index->file_io_handle,
-	     internal_index->catalog_definition->father_data_page_number,
-	     0,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read index page tree.",
-		 function );
-
-		libesedb_page_tree_free(
-		 (intptr_t *) internal_index->index_page_tree,
-		 NULL );
-
-		internal_index->index_page_tree = NULL;
-
-		return( -1 );
-	}
-	return( 1 );
 }
 
 /* Retrieves the index identifier or Father Data Page (FDP) object identifier
@@ -350,13 +413,13 @@ int libesedb_index_get_identifier(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->catalog_definition == NULL )
+	if( internal_index->index_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing catalog definition.",
+		 "%s: invalid internal index - missing index catalog definition.",
 		 function );
 
 		return( -1 );
@@ -372,7 +435,7 @@ int libesedb_index_get_identifier(
 
 		return( -1 );
 	}
-	*identifier = internal_index->catalog_definition->identifier;
+	*identifier = internal_index->index_catalog_definition->identifier;
 
 	return( 1 );
 }
@@ -402,13 +465,13 @@ int libesedb_index_get_utf8_name_size(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->catalog_definition == NULL )
+	if( internal_index->index_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing catalog definition.",
+		 "%s: invalid internal index - missing index catalog definition.",
 		 function );
 
 		return( -1 );
@@ -424,7 +487,7 @@ int libesedb_index_get_utf8_name_size(
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_index->catalog_definition->name_size;
+	*utf8_string_size = internal_index->index_catalog_definition->name_size;
 
 	return( 1 );
 }
@@ -456,13 +519,13 @@ int libesedb_index_get_utf8_name(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->catalog_definition == NULL )
+	if( internal_index->index_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing catalog definition.",
+		 "%s: invalid internal index - missing index catalog definition.",
 		 function );
 
 		return( -1 );
@@ -489,7 +552,7 @@ int libesedb_index_get_utf8_name(
 
 		return( -1 );
 	}
-	if( utf8_string_size < internal_index->catalog_definition->name_size )
+	if( utf8_string_size < internal_index->index_catalog_definition->name_size )
 	{
 		liberror_error_set(
 		 error,
@@ -502,8 +565,8 @@ int libesedb_index_get_utf8_name(
 	}
 	if( memory_copy(
 	     utf8_string,
-	     internal_index->catalog_definition->name,
-	     internal_index->catalog_definition->name_size ) == NULL )
+	     internal_index->index_catalog_definition->name,
+	     internal_index->index_catalog_definition->name_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -526,6 +589,7 @@ int libesedb_index_test(
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_test";
+	int number_of_leaf_nodes                  = 0;
 
 	if( index == NULL )
 	{
@@ -540,78 +604,56 @@ int libesedb_index_test(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->internal_table == NULL )
+	if( internal_index->table_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing internal table.",
+		 "%s: invalid internal index - missing table definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_index->internal_table->table_definition == NULL )
+	if( internal_index->table_definition->table_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - invalid internal table - missing table definition.",
+		 "%s: invalid internal index - invalid table definitions - missing table catalog definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_index->internal_table->table_definition->table_catalog_definition == NULL )
+	if( internal_index->index_catalog_definition == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - invalid internal table - invalid table definitions - missing table catalog definition.",
+		 "%s: invalid internal index - missing index catalog definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_index->catalog_definition == NULL )
+	if( internal_index->table_definition->table_catalog_definition->father_data_page_number != internal_index->index_catalog_definition->father_data_page_number )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_index->internal_table->table_definition->table_catalog_definition->father_data_page_number != internal_index->catalog_definition->father_data_page_number )
-	{
-		if( internal_index->index_page_tree == NULL )
+		if( libfdata_tree_get_number_of_leaf_nodes(
+		     internal_index->index_values_tree,
+		     internal_index->file_io_handle,
+		     &number_of_leaf_nodes,
+		     0,
+		     error ) != 1 )
 		{
-			if( libesedb_index_read_page_tree(
-			     internal_index,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read index page tree.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of leaf nodes from index values tree.",
+			 function );
 
-				return( -1 );
-			}
-			if( internal_index->index_page_tree == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: invalid internal index - missing index page tree.",
-				 function );
-
-				return( -1 );
-			}
+			return( -1 );
 		}
 	}
 	return( 1 );

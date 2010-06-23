@@ -48,6 +48,10 @@ struct libesedb_internal_record
 	 */
 	libbfio_handle_t *file_io_handle;
 
+	/* The pages vector
+	 */
+	libfdata_vector_t *pages_vector;
+
 	/* The long values data tree
 	 */
 	libfdata_tree_t *long_values_tree;
@@ -65,6 +69,7 @@ int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
      libfdata_tree_node_t *values_tree_node,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,

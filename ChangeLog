@@ -10,6 +10,7 @@ TODO
   - check sanity of page value 0 
 * clean up
   - libesedb_data_type_definition remove offset
+  - changes due to page tree on demand changes
 * error tolerance probe test for the page size using the backup database header
 * check for memory leaks
 * configure.ac update libfguid detection

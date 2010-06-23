@@ -63,6 +63,10 @@ struct libesedb_internal_table
 	 */
 	uint8_t flags;
 
+	/* The pages vector
+	 */
+	libfdata_vector_t *pages_vector;
+
 	/* The table values (data) tree
 	 */
 	libfdata_tree_t *table_values_tree;

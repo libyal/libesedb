@@ -66,6 +66,17 @@ int libesedb_table_initialize(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( table_definition == NULL )
 	{
 		liberror_error_set(
@@ -177,9 +188,42 @@ int libesedb_table_initialize(
 				return( -1 );
 			}
 		}
+		/* TODO clone function ? */
+		if( libfdata_vector_initialize(
+		     &( internal_table->pages_vector ),
+		     (size64_t) io_handle->page_size,
+		     io_handle->pages_data_offset,
+		     io_handle->pages_data_size,
+		     64,
+		     (intptr_t *) io_handle,
+		     NULL,
+		     NULL,
+		     &libesedb_io_handle_read_page,
+		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create pages vector.",
+			 function );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_table->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
 		if( libesedb_page_tree_initialize(
 		     &table_page_tree,
 		     io_handle,
+		     internal_table->pages_vector,
 		     table_definition->table_catalog_definition->father_data_page_object_identifier,
 		     table_definition,
 		     template_table_definition,
@@ -191,6 +235,10 @@ int libesedb_table_initialize(
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create table page tree.",
 			 function );
+
+			libfdata_vector_free(
+			 &( internal_table->pages_vector ),
+			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -226,6 +274,9 @@ int libesedb_table_initialize(
 			libesedb_page_tree_free(
 			 (intptr_t *) table_page_tree,
 			 NULL );
+			libfdata_vector_free(
+			 &( internal_table->pages_vector ),
+			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -257,6 +308,9 @@ int libesedb_table_initialize(
 			libfdata_tree_free(
 			 &( internal_table->table_values_tree ),
 			 NULL );
+			libfdata_vector_free(
+			 &( internal_table->pages_vector ),
+			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -274,6 +328,7 @@ int libesedb_table_initialize(
 			if( libesedb_page_tree_initialize(
 			     &long_values_page_tree,
 			     io_handle,
+			     internal_table->pages_vector,
 			     table_definition->long_value_catalog_definition->father_data_page_object_identifier,
 			     table_definition,
 			     template_table_definition,
@@ -288,6 +343,9 @@ int libesedb_table_initialize(
 
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_vector_free(
+				 &( internal_table->pages_vector ),
 				 NULL );
 
 				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -327,6 +385,9 @@ int libesedb_table_initialize(
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
 				 NULL );
+				libfdata_vector_free(
+				 &( internal_table->pages_vector ),
+				 NULL );
 
 				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 				{
@@ -360,6 +421,9 @@ int libesedb_table_initialize(
 				 NULL );
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_vector_free(
+				 &( internal_table->pages_vector ),
 				 NULL );
 
 				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -445,6 +509,19 @@ int libesedb_table_free(
 					result = -1;
 				}
 			}
+		}
+		if( libfdata_vector_free(
+		     &( internal_table->pages_vector ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages vector.",
+			 function );
+
+			result = -1;
 		}
 		if( libfdata_tree_free(
 		     &( internal_table->table_values_tree ),
@@ -1289,7 +1366,7 @@ int libesedb_table_get_index(
 	     index,
 	     internal_table->file_io_handle,
 	     internal_table->io_handle,
-	     internal_table,
+	     internal_table->table_definition,
 	     index_catalog_definition,
 	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
@@ -1419,6 +1496,7 @@ int libesedb_table_get_record(
 	     record,
 	     internal_table->file_io_handle,
 	     internal_table->io_handle,
+	     internal_table->pages_vector,
 	     values_tree_node,
 	     internal_table->table_definition,
 	     internal_table->template_table_definition,

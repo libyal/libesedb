@@ -56,10 +56,6 @@ struct libesedb_internal_file
 	 */
 	libesedb_page_tree_t *catalog_page_tree;
 
-	/* The io handle
-	 */
-	libesedb_io_handle_t *io_handle;
-
 	/* The file io handle
 	 */
 	libbfio_handle_t *file_io_handle;
@@ -67,6 +63,14 @@ struct libesedb_internal_file
 	/* Value to indicate if the file io handle was created inside the library
 	 */
 	uint8_t file_io_handle_created_in_library;
+
+	/* The io handle
+	 */
+	libesedb_io_handle_t *io_handle;
+
+	/* The pages vector
+	 */
+	libfdata_vector_t *pages_vector;
 
 	/* The codepage of the extended ASCII strings
 	 */

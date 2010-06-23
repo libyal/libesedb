@@ -169,19 +169,6 @@ int libesedb_file_free(
 
 			result = -1;
 		}
-		if( libesedb_io_handle_free(
-		     &( internal_file->io_handle ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free io handle.",
-			 function );
-
-			result = -1;
-		}
 		if( ( internal_file->file_io_handle_created_in_library != 0 )
 		 && ( internal_file->file_io_handle != NULL ) )
 		{
@@ -198,6 +185,32 @@ int libesedb_file_free(
 
 				result = -1;
 			}
+		}
+		if( libesedb_io_handle_free(
+		     &( internal_file->io_handle ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free io handle.",
+			 function );
+
+			result = -1;
+		}
+		if( libfdata_vector_free(
+		     &( internal_file->pages_vector ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages vector.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 internal_file );
@@ -912,6 +925,29 @@ int libesedb_file_open_read(
 	internal_file->io_handle->pages_data_size   = file_size - (size64_t) internal_file->io_handle->pages_data_offset;
 	internal_file->io_handle->last_page_number  = (uint32_t) ( internal_file->io_handle->pages_data_size / internal_file->io_handle->page_size );
 
+	/* TODO clone function ? */
+	if( libfdata_vector_initialize(
+	     &( internal_file->pages_vector ),
+	     (size64_t) internal_file->io_handle->page_size,
+	     internal_file->io_handle->pages_data_offset,
+	     internal_file->io_handle->pages_data_size,
+	     64,
+	     (intptr_t *) internal_file->io_handle,
+	     NULL,
+	     NULL,
+	     &libesedb_io_handle_read_page,
+	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create pages vector.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -923,6 +959,7 @@ int libesedb_file_open_read(
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->database_page_tree ),
 	     internal_file->io_handle,
+	     internal_file->pages_vector,
 	     0,
 	     NULL,
 	     NULL,
@@ -971,6 +1008,7 @@ int libesedb_file_open_read(
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->catalog_page_tree ),
 	     internal_file->io_handle,
+	     internal_file->pages_vector,
 	     0,
 	     NULL,
 	     NULL,

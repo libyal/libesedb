@@ -87,6 +87,7 @@ struct libesedb_page_tree
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
