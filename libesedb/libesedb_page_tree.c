@@ -4711,18 +4711,7 @@ int libesedb_page_tree_read_node_values(
 
 		return( -1 );
 	}
-	/* TODO improve check for root node curently node_data_size = 0
-	 * is used to indicate the root node, fix libfdata function
-	 */
-	if( node_data_size == 0 )
-	{
-		result = 1;
-	}
-	else
-	{
-		result = 0;
-	}
-	if( result != 0 )
+	else if( result != 0 )
 	{
 		/* The values tree root node is virtual
 		 */

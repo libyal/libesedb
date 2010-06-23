@@ -1011,7 +1011,7 @@ AS_IF(
  ac_libesedb_dummy=yes])
 
 dnl Set memwatch support
-ac_libesedb_have_memwatch=no
+ac_libesedb_have_memwatch=yes
 
 AS_IF(
  [test "x$ac_libesedb_have_memwatch" != xno ],

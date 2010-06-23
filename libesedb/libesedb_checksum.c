@@ -27,6 +27,11 @@
 
 #include "libesedb_checksum.h"
 
+/* The largest primary (or scalar) available
+ * supported by a single load and store instruction
+ */
+typedef unsigned long int libesedb_aligned_t;
+
 /* The ECC-32 mask lookup table
  */
 const uint8_t libesedb_checksum_ecc32_include_lookup_table[ 256 ] = {
@@ -55,7 +60,7 @@ const uint8_t libesedb_checksum_ecc32_include_lookup_table[ 256 ] = {
 int libesedb_checksum_calculate_little_endian_ecc32(
      uint32_t *ecc_checksum_value,
      uint32_t *xor_checksum_value,
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t size,
      size_t offset,
      uint32_t initial_value,
@@ -322,13 +327,19 @@ int libesedb_checksum_calculate_little_endian_ecc32(
  */
 int libesedb_checksum_calculate_little_endian_xor32(
      uint32_t *checksum_value,
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t size,
      uint32_t initial_value,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_checksum_calculate_little_endian_xor32";
-	uint32_t value_32bit  = 0;
+	libesedb_aligned_t *aligned_buffer_iterator = NULL;
+	uint8_t *buffer_iterator                    = NULL;
+	static char *function                       = "libesedb_checksum_calculate_little_endian_xor32";
+	libesedb_aligned_t value_aligned            = 0;
+	uint32_t value_32bit                        = 0;
+	uint8_t aligment_size                       = 0;
+	uint8_t byte_count                          = 0;
+	uint8_t byte_size                           = 0;
 
 	if( checksum_value == NULL )
 	{
@@ -363,36 +374,149 @@ int libesedb_checksum_calculate_little_endian_xor32(
 
 		return( -1 );
 	}
+	buffer_iterator = (uint8_t *) buffer;
 	*checksum_value = initial_value;
 
+	/* Only optimize when there is the alignment is a multitude of 32-bit
+	 * and for buffers larger than the alignment
+	 */
+	if( ( ( sizeof( libesedb_aligned_t ) % 4 ) == 0 )
+	 && ( size > ( 2 * sizeof( libesedb_aligned_t ) ) ) )
+	{
+		/* Align the buffer iterator
+		 */
+		aligment_size = (uint8_t) ( (intptr_t) buffer_iterator % sizeof( libesedb_aligned_t ) );
+
+		byte_size = aligment_size;
+
+		while( byte_size != 0 )
+		{
+			value_32bit = 0;
+			byte_count  = 1;
+
+			if( byte_size >= 4 )
+			{
+				value_32bit |= buffer_iterator[ 3 ];
+				value_32bit <<= 8;
+
+				byte_count++;
+			}
+			if( byte_size >= 3 )
+			{
+				value_32bit |= buffer_iterator[ 2 ];
+				value_32bit <<= 8;
+
+				byte_count++;
+			}
+			if( byte_size >= 2 )
+			{
+				value_32bit |= buffer_iterator[ 1 ];
+				value_32bit <<= 8;
+
+				byte_count++;
+			}
+			value_32bit |= buffer_iterator[ 0 ];
+
+			buffer_iterator += byte_count;
+			byte_size       -= byte_count;
+
+			*checksum_value ^= value_32bit;
+		}
+		aligned_buffer_iterator = (libesedb_aligned_t *) buffer_iterator;
+
+		size -= aligment_size;
+
+		/* Use the aligned buffer
+		 */
+		while( size > sizeof( libesedb_aligned_t ) )
+		{
+			value_aligned ^= *aligned_buffer_iterator;
+
+			aligned_buffer_iterator++;
+
+			size -= sizeof( libesedb_aligned_t );
+		}
+		if( aligment_size > 0 )
+		{
+			value_32bit = (uint32_t) ( value_aligned << ( ( aligment_size % 4 ) * 8 ) );
+
+			value_aligned >>= ( sizeof( libesedb_aligned_t ) - aligment_size ) * 8;
+
+			*checksum_value ^= value_32bit;
+		}
+		byte_size = (uint8_t) sizeof( libesedb_aligned_t );
+
+		while( byte_size != 0 )
+		{
+			value_32bit = (uint32_t) value_aligned;
+
+			value_aligned >>= 32;
+
+			byte_size -= 4;
+
+			*checksum_value ^= value_32bit;
+		}
+		/* Re-align the buffer iterator
+		 */
+		buffer_iterator = (uint8_t *) aligned_buffer_iterator;
+
+		byte_size = 4 - ( aligment_size % 4 );
+
+		if( byte_size != 4 )
+		{
+			value_32bit   = buffer_iterator[ 0 ];
+			value_32bit <<= 8;
+
+			if( byte_size >= 2 )
+			{
+				value_32bit |= buffer_iterator[ 1 ];
+			}
+			value_32bit <<= 8;
+
+			if( byte_size >= 3 )
+			{
+				value_32bit |= buffer_iterator[ 2 ];
+			}
+			value_32bit <<= 8;
+
+			buffer_iterator += byte_size;
+			size            -= byte_size;
+
+			*checksum_value ^= value_32bit;
+		}
+	}
 	while( size > 0 )
 	{
 		value_32bit = 0;
+		byte_count  = 1;
 
 		if( size >= 4 )
 		{
-			value_32bit  |= buffer[ 3 ];
+			value_32bit |= buffer_iterator[ 3 ];
 			value_32bit <<= 8;
-			size         -= 1;
+
+			byte_count++;
 		}
 		if( size >= 3 )
 		{
-			value_32bit  |= buffer[ 2 ];
+			value_32bit |= buffer_iterator[ 2 ];
 			value_32bit <<= 8;
-			size         -= 1;
+
+			byte_count++;
 		}
 		if( size >= 2 )
 		{
-			value_32bit  |= buffer[ 1 ];
+			value_32bit |= buffer_iterator[ 1 ];
 			value_32bit <<= 8;
-			size         -= 1;
+
+			byte_count++;
 		}
-		value_32bit |= buffer[ 0 ];
-		size        -= 1;
+		value_32bit |= buffer_iterator[ 0 ];
+
+		buffer_iterator += byte_count;
+		size            -= byte_count;
 
 		*checksum_value ^= value_32bit;
-
-		buffer += 4;
 	}
 	return( 1 );
 }

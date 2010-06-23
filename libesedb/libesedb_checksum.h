@@ -34,7 +34,7 @@ extern "C" {
 int libesedb_checksum_calculate_little_endian_ecc32(
      uint32_t *ecc_checksum_value,
      uint32_t *xor_checksum_value,
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t size,
      size_t offset,
      uint32_t initial_value,
@@ -42,7 +42,7 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 
 int libesedb_checksum_calculate_little_endian_xor32(
      uint32_t *checksum_value,
-     uint8_t *buffer,
+     const uint8_t *buffer,
      size_t size,
      uint32_t initial_value,
      liberror_error_t **error );

@@ -93,7 +93,6 @@ Deployment:
 Performance
 * create data definition tree in page tree for faster lookup of keys
   keep list for sequential access (B+-tree)
-* XOR32 add memory alignment support
 * create a UTF-8 version of run-length compressed UTF-16 string decompression function
 * use registry alignmen for key comparison
 
@@ -104,6 +103,13 @@ Test suite:
 Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
+
+20100623
+* worked on libfdata tree integration
+* added memory alignment support to XOR32 calculation
+
+20100622
+* worked on libfdata tree integration
 
 20100621
 * updated libfdata, libbfio
