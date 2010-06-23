@@ -7,9 +7,11 @@ Generic
 
 TODO
 * page tree on demand
-  - use fdata tree for key values ?
+  - check sanity of page value 0 
+* clean up
+  - libesedb_data_type_definition remove offset
 * error tolerance probe test for the page size using the backup database header
-* fix memory leaks
+* check for memory leaks
 * configure.ac update libfguid detection
 * update macosx files
 * parse variable types even when they are not part of the table catalog definition

@@ -20,16 +20,18 @@
  */
 
 #include <common.h>
+#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
 #include <liberror.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_data_type_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
+#include "libesedb_values_tree.h"
+#include "libesedb_values_tree_value.h"
 
 /* Creates a long value
  * Returns 1 if successful or -1 on error
@@ -37,12 +39,21 @@
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
-     libesedb_data_definition_t *data_definition,
+     libfdata_tree_t *long_values_tree,
+     uint8_t *long_value_key,
+     size_t long_value_key_size,
      uint8_t flags,
      liberror_error_t **error )
 {
+	uint8_t long_value_segment_key[ 8 ];
+
 	libesedb_internal_long_value_t *internal_long_value = NULL;
+	libesedb_values_tree_value_t *values_tree_value     = NULL;
 	static char *function                               = "libesedb_long_value_initialize";
+	uint32_t long_value_segment_offset                  = 0;
+	uint8_t byte_value                                  = 0;
+	uint8_t byte_shift                                  = 0;
+	int result                                          = 0;
 
 	if( long_value == NULL )
 	{
@@ -52,6 +63,29 @@ int libesedb_long_value_initialize(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
+
+		return( -1 );
+	}
+	if( long_value_key == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value key.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_key_size != 4 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupport long value key size: %" PRIzd ".",
+		 function,
+		 long_value_key_size );
 
 		return( -1 );
 	}
@@ -144,8 +178,173 @@ int libesedb_long_value_initialize(
 				return( -1 );
 			}
 		}
-		internal_long_value->data_definition = data_definition;
-		internal_long_value->flags           = flags;
+		if( libfdata_block_initialize(
+		     &( internal_long_value->data_block ),
+		     4,
+		     NULL,
+		     NULL,
+		     NULL,
+		     &libfdata_block_read_segment_data,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data block.",
+			 function );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_long_value );
+
+			return( -1 );
+		}
+		if( libesedb_values_tree_get_value_by_key(
+		     long_values_tree,
+		     internal_long_value->file_io_handle,
+		     long_value_key,
+		     long_value_key_size,
+		     &values_tree_value,
+		     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve values tree value.",
+			 function );
+
+			libfdata_block_free(
+			 &( internal_long_value->data_block ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_long_value );
+
+			return( -1 );
+		}
+		if( libesedb_values_tree_value_read_long_value(
+		     values_tree_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read values tree value long value.",
+			 function );
+
+			libfdata_block_free(
+			 &( internal_long_value->data_block ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_long_value );
+
+			return( -1 );
+		}
+		/* TODO try to read the next segment based on the size of the previous segment
+		 */
+		long_value_segment_key[ 0 ] = long_value_key[ 3 ];
+		long_value_segment_key[ 1 ] = long_value_key[ 2 ];
+		long_value_segment_key[ 2 ] = long_value_key[ 1 ];
+		long_value_segment_key[ 3 ] = long_value_key[ 0 ];
+
+		do
+		{
+			byte_stream_copy_from_uint32_little_endian(
+			 &( long_value_segment_key[ 4 ] ),
+			 long_value_segment_offset );
+
+			result = libesedb_values_tree_get_value_by_key(
+			          long_values_tree,
+			          internal_long_value->file_io_handle,
+			          long_value_segment_key,
+			          8,
+			          &values_tree_value,
+			          0,
+			          error );
+
+			if( result == -1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve values tree value.",
+				 function );
+
+				libfdata_block_free(
+				 &( internal_long_value->data_block ),
+				 NULL );
+
+				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+				{
+					libbfio_handle_free(
+					 &( internal_long_value->file_io_handle ),
+					 NULL );
+				}
+				memory_free(
+				 internal_long_value );
+
+				return( -1 );
+			}
+			else if( result != 0 )
+			{
+				if( libesedb_values_tree_value_read_long_value_segment(
+				     values_tree_value,
+				     long_value_segment_offset,
+				     internal_long_value->data_block,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_IO,
+					 LIBERROR_IO_ERROR_READ_FAILED,
+					 "%s: unable to read values tree value long value.",
+					 function );
+
+					libfdata_block_free(
+					 &( internal_long_value->data_block ),
+					 NULL );
+
+					if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+					{
+						libbfio_handle_free(
+						 &( internal_long_value->file_io_handle ),
+						 NULL );
+					}
+					memory_free(
+					 internal_long_value );
+
+					return( -1 );
+				}
+				long_value_segment_offset += values_tree_value->data_size;
+			}
+		}
+		while( result == 1 );
+
+		internal_long_value->flags = flags;
 
 		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}
@@ -161,6 +360,7 @@ int libesedb_long_value_free(
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
 	static char *function                               = "libesedb_long_value_free";
+	int result                                          = 1;
 
 	if( long_value == NULL )
 	{
@@ -178,8 +378,6 @@ int libesedb_long_value_free(
 		internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 		*long_value         = NULL;
 
-		/* The data definition is freed elsewhere
-		 */
 		if( ( internal_long_value->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 		{
 			if( internal_long_value->file_io_handle != NULL )
@@ -195,7 +393,7 @@ int libesedb_long_value_free(
 					 "%s: unable to close file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 				if( libbfio_handle_free(
 				     &( internal_long_value->file_io_handle ),
@@ -208,14 +406,27 @@ int libesedb_long_value_free(
 					 "%s: unable to free file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 			}
+		}
+		if( libfdata_block_free(
+		     &( internal_long_value->data_block ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free data block.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 internal_long_value );
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieve the number of data segments
@@ -242,19 +453,8 @@ int libesedb_long_value_get_number_of_segments(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( internal_long_value->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid long value - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libfdata_block_get_number_of_segments(
-	     internal_long_value->data_definition->data_block,
+	     internal_long_value->data_block,
 	     number_of_segments,
 	     error ) != 1 )
 	{
@@ -296,19 +496,8 @@ int libesedb_long_value_get_segment_data(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( internal_long_value->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid long value - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libfdata_block_get_segment_data(
-	     internal_long_value->data_definition->data_block,
+	     internal_long_value->data_block,
 	     internal_long_value->file_io_handle,
 	     data_segment_index,
 	     segment_data,

@@ -62,11 +62,11 @@ struct libesedb_page_value
 
 	/* The page value size
 	 */
-	size_t size;
+	uint16_t size;
 
-	/* The file offset of the page value
+	/* The offset of the page value
 	 */
-	off64_t offset;
+	uint16_t offset;
 
 	/* The flags of the value
 	 */

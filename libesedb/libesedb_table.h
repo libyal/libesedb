@@ -30,8 +30,8 @@
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
-#include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
@@ -63,13 +63,13 @@ struct libesedb_internal_table
 	 */
 	uint8_t flags;
 
-	/* The table page tree
+	/* The table values (data) tree
 	 */
-	libesedb_page_tree_t *table_page_tree;
+	libfdata_tree_t *table_values_tree;
 
-	/* The long value page tree
+	/* The long values (data) tree
 	 */
-	libesedb_page_tree_t *long_value_page_tree;
+	libfdata_tree_t *long_values_tree;
 };
 
 int libesedb_table_initialize(
@@ -84,10 +84,6 @@ int libesedb_table_initialize(
 LIBESEDB_EXTERN int libesedb_table_free(
                      libesedb_table_t **table,
                      liberror_error_t **error );
-
-int libesedb_table_read_page_tree(
-     libesedb_internal_table_t *internal_table,
-     liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_table_get_identifier(
                      libesedb_table_t *table,

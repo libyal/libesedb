@@ -26,15 +26,18 @@
 #include <liberror.h>
 #include <libnotify.h>
 
-#include "libesedb_data_definition.h"
 #include "libesedb_data_type_definition.h"
 #include "libesedb_definitions.h"
+#include "libesedb_io_handle.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_record.h"
-#include "libesedb_table.h"
+#include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 #include "libesedb_value_type.h"
+#include "libesedb_values_tree_value.h"
 
 /* Creates a record
  * Returns 1 if successful or -1 on error
@@ -42,13 +45,17 @@
 int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
-     libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
+     libesedb_io_handle_t *io_handle,
+     libfdata_tree_node_t *values_tree_node,
+     libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
+     libfdata_tree_t *long_values_tree,
      uint8_t flags,
      liberror_error_t **error )
 {
-	libesedb_internal_record_t *internal_record = NULL;
-	static char *function                      = "libesedb_record_initialize";
+	libesedb_internal_record_t *internal_record     = NULL;
+	libesedb_values_tree_value_t *values_tree_value = NULL;
+	static char *function                           = "libesedb_record_initialize";
 
 	if( record == NULL )
 	{
@@ -150,9 +157,92 @@ int libesedb_record_initialize(
 				return( -1 );
 			}
 		}
-		internal_record->internal_table  = internal_table;
-		internal_record->data_definition = data_definition;
-		internal_record->flags           = flags;
+		if( libesedb_array_initialize(
+		     &( internal_record->values_array ),
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create values array.",
+			 function );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_record->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_record );
+
+			return( -1 );
+		}
+		if( libfdata_tree_node_get_node_value(
+		     values_tree_node,
+		     internal_record->file_io_handle,
+		     (intptr_t **) &values_tree_value,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve node value from values tree node.",
+			 function );
+
+			libesedb_array_free(
+			 &( internal_record->values_array ),
+			 NULL,
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_record->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_record );
+
+			return( -1 );
+		}
+		if( libesedb_values_tree_value_read_record(
+		     values_tree_value,
+		     table_definition,
+		     template_table_definition,
+		     io_handle,
+		     internal_record->values_array,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read values tree value record.",
+			 function );
+
+			libesedb_array_free(
+			 &( internal_record->values_array ),
+			 NULL,
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_record->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_record );
+
+			return( -1 );
+		}
+		internal_record->long_values_tree = long_values_tree;
+		internal_record->flags            = flags;
 
 		*record = (libesedb_record_t *) internal_record;
 	}
@@ -186,7 +276,7 @@ int libesedb_record_free(
 		internal_record = (libesedb_internal_record_t *) *record;
 		*record         = NULL;
 
-		/* The internal_table and data_definition references
+		/* The long_values_tree references
 		 * are freed elsewhere
 		 */
 		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -204,7 +294,7 @@ int libesedb_record_free(
 					 "%s: unable to close file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 				if( libbfio_handle_free(
 				     &( internal_record->file_io_handle ),
@@ -217,9 +307,23 @@ int libesedb_record_free(
 					 "%s: unable to free file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 			}
+		}
+		if( libesedb_array_free(
+		     &( internal_record->values_array ),
+		     &libesedb_data_type_definition_free,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free values array.",
+			 function );
+
+			result = -1;
 		}
 		memory_free(
 		 internal_record );
@@ -227,7 +331,7 @@ int libesedb_record_free(
 	return( result );
 }
 
-/* Retrieves the number of values in the record of the referenced record
+/* Retrieves the number of values in the record
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_get_number_of_values(
@@ -251,19 +355,8 @@ int libesedb_record_get_number_of_values(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_number_of_entries(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     number_of_values,
 	     error ) != 1 )
 	{
@@ -271,7 +364,7 @@ int libesedb_record_get_number_of_values(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of data type definitions.",
+		 "%s: unable to retrieve number of entries from values array.",
 		 function );
 
 		return( -1 );
@@ -279,7 +372,7 @@ int libesedb_record_get_number_of_values(
 	return( 1 );
 }
 
-/* Retrieves the column identifier of the specific entry from the referenced record
+/* Retrieves the column identifier of the specific entry
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_get_column_identifier(
@@ -316,19 +409,8 @@ int libesedb_record_get_column_identifier(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -337,7 +419,7 @@ int libesedb_record_get_column_identifier(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -349,7 +431,7 @@ int libesedb_record_get_column_identifier(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -370,7 +452,7 @@ int libesedb_record_get_column_identifier(
 	return( 1 );
 }
 
-/* Retrieves the column type of the specific entry from the referenced record
+/* Retrieves the column type of the specific entry
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_get_column_type(
@@ -407,19 +489,8 @@ int libesedb_record_get_column_type(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -428,7 +499,7 @@ int libesedb_record_get_column_type(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -440,7 +511,7 @@ int libesedb_record_get_column_type(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -461,7 +532,7 @@ int libesedb_record_get_column_type(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the column name of the specific entry from the referenced record
+/* Retrieves the UTF-8 string size of the column name of the specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -499,19 +570,8 @@ int libesedb_record_get_utf8_column_name_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -520,7 +580,7 @@ int libesedb_record_get_utf8_column_name_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -532,7 +592,7 @@ int libesedb_record_get_utf8_column_name_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -553,7 +613,7 @@ int libesedb_record_get_utf8_column_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the column name of the specific entry from the referenced record
+/* Retrieves the UTF-8 string of the column name of the specific entry
  * The string is formatted in UTF-8
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
@@ -604,19 +664,8 @@ int libesedb_record_get_utf8_column_name(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -625,7 +674,7 @@ int libesedb_record_get_utf8_column_name(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -637,7 +686,7 @@ int libesedb_record_get_utf8_column_name(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -681,7 +730,7 @@ int libesedb_record_get_utf8_column_name(
 	return( 1 );
 }
 
-/* Retrieves the value of the specific entry from the referenced record
+/* Retrieves the value of the specific entry
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_get_value(
@@ -742,19 +791,8 @@ int libesedb_record_get_value(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -763,7 +801,7 @@ int libesedb_record_get_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -775,7 +813,7 @@ int libesedb_record_get_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -798,7 +836,7 @@ int libesedb_record_get_value(
 	return( 1 );
 }
 
-/* Retrieves the boolean value of a specific entry from the referenced record
+/* Retrieves the boolean value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_boolean(
@@ -824,19 +862,8 @@ int libesedb_record_get_value_boolean(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -845,7 +872,7 @@ int libesedb_record_get_value_boolean(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -857,7 +884,7 @@ int libesedb_record_get_value_boolean(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -907,7 +934,7 @@ int libesedb_record_get_value_boolean(
 	return( 1 );
 }
 
-/* Retrieves the 8-bit value of a specific entry from the referenced record
+/* Retrieves the 8-bit value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_8bit(
@@ -933,19 +960,8 @@ int libesedb_record_get_value_8bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -954,7 +970,7 @@ int libesedb_record_get_value_8bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -966,7 +982,7 @@ int libesedb_record_get_value_8bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1016,7 +1032,7 @@ int libesedb_record_get_value_8bit(
 	return( 1 );
 }
 
-/* Retrieves the 16-bit value of a specific entry from the referenced record
+/* Retrieves the 16-bit value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_16bit(
@@ -1042,19 +1058,8 @@ int libesedb_record_get_value_16bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1063,7 +1068,7 @@ int libesedb_record_get_value_16bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1075,7 +1080,7 @@ int libesedb_record_get_value_16bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1126,7 +1131,7 @@ int libesedb_record_get_value_16bit(
 	return( 1 );
 }
 
-/* Retrieves the 32-bit value of a specific entry from the referenced record
+/* Retrieves the 32-bit value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_32bit(
@@ -1152,19 +1157,8 @@ int libesedb_record_get_value_32bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1173,7 +1167,7 @@ int libesedb_record_get_value_32bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1185,7 +1179,7 @@ int libesedb_record_get_value_32bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1236,7 +1230,7 @@ int libesedb_record_get_value_32bit(
 	return( 1 );
 }
 
-/* Retrieves the 64-bit value of a specific entry from the referenced record
+/* Retrieves the 64-bit value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_64bit(
@@ -1262,19 +1256,8 @@ int libesedb_record_get_value_64bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1283,7 +1266,7 @@ int libesedb_record_get_value_64bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1295,7 +1278,7 @@ int libesedb_record_get_value_64bit(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1346,7 +1329,7 @@ int libesedb_record_get_value_64bit(
 	return( 1 );
 }
 
-/* Retrieves the 64-bit filetime value of a specific entry from the referenced record
+/* Retrieves the 64-bit filetime value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_filetime(
@@ -1372,19 +1355,8 @@ int libesedb_record_get_value_filetime(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1393,7 +1365,7 @@ int libesedb_record_get_value_filetime(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1405,7 +1377,7 @@ int libesedb_record_get_value_filetime(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1455,7 +1427,7 @@ int libesedb_record_get_value_filetime(
 	return( 1 );
 }
 
-/* Retrieves the floating point value of a specific entry from the referenced record
+/* Retrieves the floating point value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_floating_point(
@@ -1481,19 +1453,8 @@ int libesedb_record_get_value_floating_point(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1502,7 +1463,7 @@ int libesedb_record_get_value_floating_point(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1514,7 +1475,7 @@ int libesedb_record_get_value_floating_point(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1565,7 +1526,7 @@ int libesedb_record_get_value_floating_point(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of a specific entry from the referenced record
+/* Retrieves the UTF-8 string size of a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -1592,19 +1553,8 @@ int libesedb_record_get_value_utf8_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1613,7 +1563,7 @@ int libesedb_record_get_value_utf8_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1625,7 +1575,7 @@ int libesedb_record_get_value_utf8_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1677,7 +1627,7 @@ int libesedb_record_get_value_utf8_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string value of a specific entry from the referenced record
+/* Retrieves the UTF-8 string value of a specific entry
  * The string is formatted in UTF-8
  * The function uses a codepage if necessary, it tries to read the codepage in the column definition
  * if not available it uses the codepage set for the library
@@ -1708,19 +1658,8 @@ int libesedb_record_get_value_utf8_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1729,7 +1668,7 @@ int libesedb_record_get_value_utf8_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1741,7 +1680,7 @@ int libesedb_record_get_value_utf8_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1794,7 +1733,7 @@ int libesedb_record_get_value_utf8_string(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of a specific entry from the referenced record
+/* Retrieves the UTF-16 string size of a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -1821,19 +1760,8 @@ int libesedb_record_get_value_utf16_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1842,7 +1770,7 @@ int libesedb_record_get_value_utf16_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1854,7 +1782,7 @@ int libesedb_record_get_value_utf16_string_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -1906,7 +1834,7 @@ int libesedb_record_get_value_utf16_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string value of a specific entry from the referenced record
+/* Retrieves the UTF-16 string value of a specific entry
  * The string is formatted in UTF-16
  * The function uses a codepage if necessary, it tries to read the codepage in the column definition
  * if not available it uses the codepage set for the library
@@ -1937,19 +1865,8 @@ int libesedb_record_get_value_utf16_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -1958,7 +1875,7 @@ int libesedb_record_get_value_utf16_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -1970,7 +1887,7 @@ int libesedb_record_get_value_utf16_string(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -2023,7 +1940,7 @@ int libesedb_record_get_value_utf16_string(
 	return( 1 );
 }
 
-/* Retrieves the binary data size of a specific entry from the referenced record
+/* Retrieves the binary data size of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_binary_data_size(
@@ -2049,19 +1966,8 @@ int libesedb_record_get_value_binary_data_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2070,7 +1976,7 @@ int libesedb_record_get_value_binary_data_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -2082,7 +1988,7 @@ int libesedb_record_get_value_binary_data_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -2133,7 +2039,7 @@ int libesedb_record_get_value_binary_data_size(
 	return( 1 );
 }
 
-/* Retrieves the binary data value of a specific entry from the referenced record
+/* Retrieves the binary data value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
 int libesedb_record_get_value_binary_data(
@@ -2160,19 +2066,8 @@ int libesedb_record_get_value_binary_data(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2181,7 +2076,7 @@ int libesedb_record_get_value_binary_data(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -2193,7 +2088,7 @@ int libesedb_record_get_value_binary_data(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -2245,7 +2140,7 @@ int libesedb_record_get_value_binary_data(
 	return( 1 );
 }
 
-/* Retrieves the long value of a specific entry from the referenced record
+/* Retrieves the long value of a specific entry
  * Creates a new long value
  * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
  */
@@ -2255,13 +2150,12 @@ int libesedb_record_get_long_value(
      libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
-	libesedb_data_definition_t *long_value_data_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition  = NULL;
-	libesedb_internal_record_t *internal_record            = NULL;
-	static char *function                                  = "libesedb_record_get_long_value";
+	libesedb_data_type_definition_t *data_type_definition = NULL;
+	libesedb_internal_record_t *internal_record           = NULL;
+	static char *function                                 = "libesedb_record_get_long_value";
 
 	/* TODO remove direct access */
-	libesedb_internal_long_value_t *internal_long_value    = NULL;
+	libesedb_internal_long_value_t *internal_long_value   = NULL;
 
 	if( record == NULL )
 	{
@@ -2276,39 +2170,6 @@ int libesedb_record_get_long_value(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->internal_table == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing internal table.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_record->internal_table->long_value_page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - invalid internal table - missing long value page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( long_value == NULL )
 	{
 		liberror_error_set(
@@ -2332,7 +2193,7 @@ int libesedb_record_get_long_value(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2341,7 +2202,7 @@ int libesedb_record_get_long_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -2353,7 +2214,7 @@ int libesedb_record_get_long_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );
@@ -2397,39 +2258,13 @@ int libesedb_record_get_long_value(
 	{
 		return( 0 );
 	}
-	if( libesedb_page_tree_get_value_definition_by_key(
-	     internal_record->internal_table->long_value_page_tree,
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     &long_value_data_definition,
-	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve long value data definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( long_value_data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing long value data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_long_value_initialize(
 	     long_value,
 	     internal_record->file_io_handle,
-	     long_value_data_definition,
-	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
+	     internal_record->long_values_tree,
+	     data_type_definition->data,
+	     data_type_definition->data_size,
+	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2450,7 +2285,7 @@ int libesedb_record_get_long_value(
 	return( 1 );
 }
 
-/* Retrieves the multi value of a specific entry from the referenced record
+/* Retrieves the multi value of a specific entry
  * Creates a new multi value
  * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
  */
@@ -2480,17 +2315,6 @@ int libesedb_record_get_multi_value(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( internal_record->data_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing data definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( multi_value == NULL )
 	{
 		liberror_error_set(
@@ -2514,7 +2338,7 @@ int libesedb_record_get_multi_value(
 		return( -1 );
 	}
 	if( libesedb_array_get_entry(
-	     internal_record->data_definition->values_array,
+	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
 	     error ) != 1 )
@@ -2523,7 +2347,7 @@ int libesedb_record_get_multi_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve data type definition: %d.",
+		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
 
@@ -2535,7 +2359,7 @@ int libesedb_record_get_multi_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition.",
+		 "%s: missing data type definition.",
 		 function );
 
 		return( -1 );

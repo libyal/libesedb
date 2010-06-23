@@ -50,6 +50,8 @@ struct libesedb_data_definition
 	 */
 	uint8_t type;
 
+	/* TODO remove key */
+
 	/* The key data
 	 */
 	uint8_t *key;
@@ -108,7 +110,7 @@ int libesedb_data_definition_read_long_value(
 
 int libesedb_data_definition_read_long_value_segment(
      libesedb_data_definition_t *data_definition,
-     uint32_t data_segment_number,
+     uint32_t data_segment_offset,
      uint8_t *definition_data,
      size_t definition_data_size,
      off64_t definition_data_offset,

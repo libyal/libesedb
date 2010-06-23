@@ -27,8 +27,9 @@
 
 #include <liberror.h>
 
-#include "libesedb_data_definition.h"
 #include "libesedb_extern.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -43,13 +44,17 @@ struct libesedb_internal_long_value
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The data definition
+	/* The long values data tree
 	 */
-	libesedb_data_definition_t *data_definition;
+	libfdata_tree_t *long_values_tree;
 
 	/* The item flags
 	 */
 	uint8_t flags;
+
+	/* The values tree value
+	 */
+	libfdata_block_t *data_block;
 
 	/* The multi column type
 	 */
@@ -63,7 +68,9 @@ struct libesedb_internal_long_value
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
-     libesedb_data_definition_t *data_definition,
+     libfdata_tree_t *long_values_tree,
+     uint8_t *long_value_key,
+     size_t long_value_key_size,
      uint8_t flags,
      liberror_error_t **error );
 

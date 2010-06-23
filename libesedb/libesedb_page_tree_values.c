@@ -38,7 +38,6 @@
  */
 int libesedb_page_tree_values_initialize(
      libesedb_page_tree_values_t **page_tree_values,
-     uint32_t number_of_value_definitions,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_page_tree_values_initialize";
@@ -91,7 +90,7 @@ int libesedb_page_tree_values_initialize(
 		}
 		if( libesedb_array_initialize(
 		     &( ( *page_tree_values )->value_definition_array ),
-		     (int) number_of_value_definitions,
+		     0,
 		     error ) != 1 )
 		{
 			liberror_error_set(

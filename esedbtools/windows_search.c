@@ -1493,6 +1493,7 @@ int windows_search_export_compressed_string_value(
 	}
 	else
 	{
+#if defined( HAVE_DEBUG_OUTPUT )
 		libsystem_notify_printf(
 		 "UNSUPPORTED COMPRESSION TYPE: 0x%02" PRIx8 "\n",
 		 decoded_value_data[ 0 ] );
@@ -1500,6 +1501,7 @@ int windows_search_export_compressed_string_value(
 		libsystem_notify_print_data(
 		 decoded_value_data,
 		 decoded_value_data_size );
+#endif
 
 		memory_free(
 		 decoded_value_data );
@@ -2193,10 +2195,13 @@ int windows_search_export_record_value_compressed_string(
 
 				return( -1 );
 			}
+#if defined( HAVE_DEBUG_OUTPUT )
 libsystem_notify_printf(
  "LONG VALUE DATA: %d out of %d\n",
  long_value_segment_iterator + 1,
  number_of_long_value_segments );
+#endif
+
 			if( value_data != NULL )
 			{
 				/* TODO assume data is compressed per segment */

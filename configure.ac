@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100622],
+  [20100623],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -1011,7 +1011,7 @@ AS_IF(
  ac_libesedb_dummy=yes])
 
 dnl Set memwatch support
-ac_libesedb_have_memwatch=yes
+ac_libesedb_have_memwatch=no
 
 AS_IF(
  [test "x$ac_libesedb_have_memwatch" != xno ],

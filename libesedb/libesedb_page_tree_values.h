@@ -54,6 +54,8 @@ struct libesedb_page_tree_values
 	 */
 	size_t key_size;
 
+	/* TODO remove */
+
 	/* The number of value definitions
 	 */
 	uint32_t number_of_value_definitions;
@@ -65,7 +67,6 @@ struct libesedb_page_tree_values
 
 int libesedb_page_tree_values_initialize(
      libesedb_page_tree_values_t **page_tree_values,
-     uint32_t number_of_value_definitions,
      liberror_error_t **error );
 
 int libesedb_page_tree_values_free(

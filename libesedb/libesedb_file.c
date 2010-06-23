@@ -144,7 +144,7 @@ int libesedb_file_free(
 		internal_file = (libesedb_internal_file_t *) *file;
 
 		if( libesedb_page_tree_free(
-		     &( internal_file->database_page_tree ),
+		     (intptr_t *) internal_file->database_page_tree,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -157,7 +157,7 @@ int libesedb_file_free(
 			result = -1;
 		}
 		if( libesedb_page_tree_free(
-		     &( internal_file->catalog_page_tree ),
+		     (intptr_t *) internal_file->catalog_page_tree,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -952,8 +952,10 @@ int libesedb_file_open_read(
 		 function );
 
 		libesedb_page_tree_free(
-		 &( internal_file->database_page_tree ),
+		 (intptr_t *) internal_file->database_page_tree,
 		 NULL );
+
+		internal_file->database_page_tree = NULL;
 
 		return( -1 );
 	}
@@ -999,8 +1001,10 @@ int libesedb_file_open_read(
 		 function );
 
 		libesedb_page_tree_free(
-		 &( internal_file->catalog_page_tree ),
+		 (intptr_t *) internal_file->catalog_page_tree,
 		 NULL );
+
+		internal_file->catalog_page_tree = NULL;
 
 		return( -1 );
 	}
@@ -1355,6 +1359,17 @@ int libesedb_file_get_table(
 
 		return( -1 );
 	}
+	if( *table != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_get_table_definition(
 	     internal_file->catalog_page_tree,
 	     table_entry,
@@ -1419,7 +1434,7 @@ int libesedb_file_get_table(
 	     internal_file->io_handle,
 	     table_definition,
 	     template_table_definition,
-	     LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE,
+	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{
 		liberror_error_set(

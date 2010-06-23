@@ -19,18 +19,21 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_RECORD_H )
-#define _LIBESEDB_RECORD_H
+#if !defined( _LIBESEDB_INTERNAL_RECORD_H )
+#define _LIBESEDB_INTERNAL_RECORD_H
 
 #include <common.h>
 #include <types.h>
 
 #include <liberror.h>
 
-#include "libesedb_data_definition.h"
+#include "libesedb_array_type.h"
+#include "libesedb_data_type_definition.h"
 #include "libesedb_extern.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
-#include "libesedb_table.h"
+#include "libesedb_libfdata.h"
+#include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -45,24 +48,27 @@ struct libesedb_internal_record
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The internal table
+	/* The long values data tree
 	 */
-	libesedb_internal_table_t *internal_table;
-
-	/* The data definition
-	 */
-	libesedb_data_definition_t *data_definition;
+	libfdata_tree_t *long_values_tree;
 
 	/* The item flags
 	 */
 	uint8_t flags;
+
+	/* The values array
+	*/
+	libesedb_array_t *values_array;
 };
 
 int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
-     libesedb_internal_table_t *internal_table,
-     libesedb_data_definition_t *data_definition,
+     libesedb_io_handle_t *io_handle,
+     libfdata_tree_node_t *values_tree_node,
+     libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
+     libfdata_tree_t *long_values_tree,
      uint8_t flags,
      liberror_error_t **error );
 

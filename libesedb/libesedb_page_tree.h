@@ -33,9 +33,12 @@
 #include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
-#include "libesedb_page_tree_values.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_tree_type.h"
+#include "libesedb_values_tree_value.h"
+
+/* TODO remove */
+#include "libesedb_page_tree_values.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -74,6 +77,8 @@ struct libesedb_page_tree
 	 */
 	libesedb_list_t *table_definition_list;
 
+	/* TODO remove */
+
 	/* The value definition page tree root node
 	 */
 	libesedb_tree_node_t *value_definition_tree_root_node;
@@ -88,7 +93,7 @@ int libesedb_page_tree_initialize(
      liberror_error_t **error );
 
 int libesedb_page_tree_free(
-     libesedb_page_tree_t **page_tree,
+     intptr_t *page_tree,
      liberror_error_t **error );
 
 int libesedb_page_tree_get_number_of_table_definitions(
@@ -161,11 +166,11 @@ int libesedb_page_tree_read_root_page(
      uint32_t page_number,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_branch_page(
+/* TODO remove */
+int libesedb_page_tree_read_branch_page_old(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      uint32_t page_number,
-     uint32_t object_identifier,
      libesedb_tree_node_t *value_definition_tree_node,
      uint8_t flags,
      liberror_error_t **error );
@@ -174,24 +179,51 @@ int libesedb_page_tree_read_space_tree_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      uint32_t page_number,
-     uint32_t object_identifier,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_leaf_page(
+/* TODO remove */
+int libesedb_page_tree_read_leaf_page_old(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      uint32_t page_number,
-     uint32_t object_identifier,
-     libesedb_tree_node_t *value_definition_tree_node,
+     libesedb_page_tree_values_t *page_tree_values,
      uint8_t flags,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_node(
+int libesedb_page_tree_read_page(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     off64_t page_offset,
+     uint32_t page_number,
+     libfdata_tree_node_t *value_tree_node,
+     libesedb_values_tree_value_t *values_tree_value,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_page_value(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     off64_t page_offset,
+     uint32_t page_number,
+     uint16_t page_value_index,
+     libfdata_tree_node_t *value_tree_node,
+     libesedb_values_tree_value_t *values_tree_value,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_node_values(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      off64_t node_data_offset,
      size64_t node_data_size,
+     uint8_t read_flags,
+     liberror_error_t **error );
+
+int libesedb_page_tree_read_sub_nodes(
+     intptr_t *io_handle,
+     libbfio_handle_t *file_io_handle,
+     libfdata_tree_node_t *node,
+     off64_t sub_nodes_offset,
+     size64_t sub_nodes_size,
      uint8_t read_flags,
      liberror_error_t **error );
 

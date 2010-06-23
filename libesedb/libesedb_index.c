@@ -203,7 +203,7 @@ int libesedb_index_free(
 					 "%s: unable to close file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 				if( libbfio_handle_free(
 				     &( internal_index->file_io_handle ),
@@ -216,14 +216,14 @@ int libesedb_index_free(
 					 "%s: unable to free file io handle.",
 					 function );
 
-					return( -1 );
+					result = -1;
 				}
 			}
 		}
 		if( internal_index->index_page_tree != NULL )
 		{
 			if( libesedb_page_tree_free(
-			     &( internal_index->index_page_tree ),
+			     (intptr_t *) internal_index->index_page_tree,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -316,8 +316,10 @@ int libesedb_index_read_page_tree(
 		 function );
 
 		libesedb_page_tree_free(
-		 &( internal_index->index_page_tree ),
+		 (intptr_t *) internal_index->index_page_tree,
 		 NULL );
+
+		internal_index->index_page_tree = NULL;
 
 		return( -1 );
 	}
