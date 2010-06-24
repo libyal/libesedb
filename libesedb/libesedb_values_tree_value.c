@@ -1453,6 +1453,17 @@ int libesedb_values_tree_value_read_long_value(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: long value data:\n",
+		 function );
+		libnotify_print_data(
+		 long_value_data,
+		 long_value_data_size );
+	}
+#endif
 	byte_stream_copy_to_uint16_little_endian(
 	 long_value_data,
 	 value_32bit );

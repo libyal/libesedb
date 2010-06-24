@@ -2305,7 +2305,8 @@ int libesedb_record_get_multi_value(
 	libesedb_internal_record_t *internal_record           = NULL;
 	uint8_t *value_data                                   = NULL;
 	static char *function                                 = "libesedb_record_get_multi_value";
-	uint16_t value_offset_iterator                        = 0;
+	uint16_t value_offset                                 = 0;
+	uint16_t value_offset_index                           = 0;
 
 	if( record == NULL )
 	{
@@ -2463,6 +2464,17 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libnotify_verbose != 0 )
+	{
+		libnotify_printf(
+		 "%s: multi value data:\n",
+		 function );
+		libnotify_print_data(
+		 internal_multi_value->value_data,
+		 internal_multi_value->value_data_size );
+	}
+#endif
 	value_data = internal_multi_value->value_data;
 
 	/* The first 2 byte contain the offset to the first value
@@ -2471,9 +2483,9 @@ int libesedb_record_get_multi_value(
 	 */
 	byte_stream_copy_to_uint16_little_endian(
 	 value_data,
-	 internal_multi_value->number_of_values );
+	 value_offset );
 
-	internal_multi_value->number_of_values /= 2;
+	internal_multi_value->number_of_values = ( value_offset & 0x7fff ) / 2;
 
 	if( internal_multi_value->number_of_values > 0 )
 	{
@@ -2513,17 +2525,30 @@ int libesedb_record_get_multi_value(
 
 			return( -1 );
 		}
-		for( value_offset_iterator = 0;
-		     value_offset_iterator < internal_multi_value->number_of_values;
-		     value_offset_iterator++ )
+		for( value_offset_index = 0;
+		     value_offset_index < internal_multi_value->number_of_values;
+		     value_offset_index++ )
 		{
 			byte_stream_copy_to_uint16_little_endian(
 			 value_data,
-			 internal_multi_value->value_offset[ value_offset_iterator ] );
+			 value_offset );
 
 			value_data += 2;
 
-			if( internal_multi_value->value_offset[ value_offset_iterator ] > internal_multi_value->value_data_size )
+			internal_multi_value->value_offset[ value_offset_index ] = value_offset & 0x7fff;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+				 function,
+				 value_offset_index,
+				 value_offset,
+				 internal_multi_value->value_offset[ value_offset_index ] );
+			}
+#endif
+			if( internal_multi_value->value_offset[ value_offset_index ] > internal_multi_value->value_data_size )
 			{
 				liberror_error_set(
 				 error,
@@ -2531,8 +2556,16 @@ int libesedb_record_get_multi_value(
 				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
 				 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
 				 function,
-				 internal_multi_value->value_offset[ value_offset_iterator ],
+				 internal_multi_value->value_offset[ value_offset_index ],
 				 internal_multi_value->value_data_size );
+
+/* TODO remove */
+libnotify_printf(
+ "%s: multi value data:\n",
+ function );
+libnotify_print_data(
+ internal_multi_value->value_data,
+ internal_multi_value->value_data_size );
 
 				libesedb_multi_value_free(
 				 multi_value,
@@ -2540,14 +2573,21 @@ int libesedb_record_get_multi_value(
 
 				return( -1 );
 			}
-			if( value_offset_iterator > 0 )
+			if( value_offset_index > 0 )
 			{
-				internal_multi_value->value_size[ value_offset_iterator - 1 ] = internal_multi_value->value_offset[ value_offset_iterator ]
-											      - internal_multi_value->value_offset[ value_offset_iterator - 1 ];
+				internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_offset[ value_offset_index ]
+											   - internal_multi_value->value_offset[ value_offset_index - 1 ];
 			}
 		}
-		internal_multi_value->value_size[ value_offset_iterator - 1 ] = internal_multi_value->value_data_size
-									      - internal_multi_value->value_offset[ value_offset_iterator - 1 ];
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "\n" );
+		}
+#endif
+		internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_data_size
+									   - internal_multi_value->value_offset[ value_offset_index - 1 ];
 
 		internal_multi_value->codepage = data_type_definition->column_catalog_definition->codepage;
 	}

@@ -105,6 +105,9 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100624
+* add multi value offset 0x8000 flag support
+
 20100623
 * worked on libfdata tree integration
 * added memory alignment support to XOR32 calculation
