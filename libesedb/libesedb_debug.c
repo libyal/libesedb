@@ -834,7 +834,7 @@ int libesedb_debug_print_column_value(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_CONVERSION,
 					 LIBERROR_CONVERSION_ERROR_GENERIC,
-					 "%s: unable to create guid string.",
+					 "%s: unable to create GUID string.",
 					 function );
 
 					return( -1 );

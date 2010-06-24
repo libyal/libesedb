@@ -1,9 +1,7 @@
 /*
  * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -49,7 +47,6 @@
 
 #include "export_handle.h"
 #include "log_handle.h"
-#include "esedbcommon.h"
 #include "esedbinput.h"
 #include "esedboutput.h"
 
@@ -65,8 +62,8 @@ void usage_fprint(
 	fprintf( stream, "Use esedbexport to export items stored in an Extensible Storage Engine (ESE)\n"
 	                 "Database (EDB) file\n\n" );
 
-	fprintf( stream, "Usage: esedbexport [ -c codepage ] [ -l logfile ] [ -t target ] [ -hvV ]\n"
-	                 "                   source\n\n" );
+	fprintf( stream, "Usage: esedbexport [ -c codepage ] [ -l logfile ] [ -t target ]\n"
+	                 "                   [ -T table_name ] [ -hvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
@@ -78,6 +75,7 @@ void usage_fprint(
 	fprintf( stream, "\t-t:     specify the basename of the target directory to export to\n"
 	                 "\t        (default is the source filename) esedbexport will add the suffix\n"
 	                 "\t        .export to the basename\n" );
+	fprintf( stream, "\t-T:     exports only a specific table\n" );
 	fprintf( stream, "\t-v:     verbose output to stderr\n" );
 	fprintf( stream, "\t-V:     print version\n" );
 }
@@ -95,6 +93,7 @@ int main( int argc, char * const argv[] )
 	log_handle_t *log_handle                          = NULL;
 	libcstring_system_character_t *export_path        = NULL;
 	libcstring_system_character_t *log_filename       = NULL;
+	libcstring_system_character_t *option_table_name  = NULL;
 	libcstring_system_character_t *option_target_path = NULL;
 	libcstring_system_character_t *path_separator     = NULL;
 	libcstring_system_character_t *source             = NULL;
@@ -102,6 +101,7 @@ int main( int argc, char * const argv[] )
 	char *program                                     = "esedbexport";
 	size_t export_path_length                         = 0;
 	size_t source_length                              = 0;
+	size_t table_name_size                            = 0;
 	size_t target_path_length                         = 0;
 	libcstring_system_integer_t option                = 0;
 	int ascii_codepage                                = LIBESEDB_CODEPAGE_WINDOWS_1252;
@@ -135,7 +135,7 @@ int main( int argc, char * const argv[] )
 	while( ( option = libsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "c:hl:t:vV" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _LIBCSTRING_SYSTEM_STRING( "c:hl:t:T:vV" ) ) ) != (libcstring_system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -186,6 +186,11 @@ int main( int argc, char * const argv[] )
 
 				break;
 
+			case (libcstring_system_integer_t) 'T':
+				option_table_name = optarg;
+
+				break;
+
 			case (libcstring_system_integer_t) 'v':
 				verbose = 1;
 
@@ -232,7 +237,7 @@ int main( int argc, char * const argv[] )
 
 		path_separator = libcstring_system_string_search_reverse(
 		                  source,
-		                  (libcstring_system_character_t) ESEDBCOMMON_PATH_SEPARATOR,
+		                  (libcstring_system_character_t) LIBSYSTEM_PATH_SEPARATOR,
 		                  source_length );
 
 		if( path_separator == NULL )
@@ -309,6 +314,11 @@ int main( int argc, char * const argv[] )
 		 export_path );
 
 		return( EXIT_FAILURE );
+	}
+	if( option_table_name != NULL )
+	{
+		table_name_size = 1 + libcstring_system_string_length(
+	        	               option_table_name );
 	}
 	if( log_handle_initialize(
 	     &log_handle,
@@ -409,6 +419,8 @@ int main( int argc, char * const argv[] )
 	     export_handle,
 	     export_path,
 	     export_path_length + 1,
+	     option_table_name,
+	     table_name_size,
 	     log_handle,
 	     &error ) != 1 )
 	{

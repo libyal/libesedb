@@ -1,9 +1,7 @@
 /* 
  * Export handle
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -114,6 +112,8 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
+     const libcstring_system_character_t *table_name,
+     size_t table_name_size,
      log_handle_t *log_handle,
      liberror_error_t **error );
 

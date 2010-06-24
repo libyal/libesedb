@@ -90,6 +90,32 @@ typedef union byte_stream_float64
 	value <<= 8; \
 	value  |= ( byte_stream )[ 0 ];
 
+#define byte_stream_copy_to_uint48_big_endian( byte_stream, value ) \
+	value   = ( byte_stream )[ 0 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 1 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 2 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 3 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 4 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 5 ];
+
+#define byte_stream_copy_to_uint48_little_endian( byte_stream, value ) \
+	value  |= ( byte_stream )[ 5 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 4 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 3 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 2 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 1 ]; \
+	value <<= 8; \
+	value  |= ( byte_stream )[ 0 ];
+
 #define byte_stream_copy_to_uint64_big_endian( byte_stream, value ) \
 	value   = ( byte_stream )[ 0 ]; \
 	value <<= 8; \
@@ -149,6 +175,22 @@ typedef union byte_stream_float64
 	( byte_stream )[ 3 ] = (uint8_t) ( value & 0x0ff )
 
 #define byte_stream_copy_from_uint32_little_endian( byte_stream, value ) \
+	( byte_stream )[ 3 ] = (uint8_t) ( ( value >> 24 ) & 0x0ff ); \
+	( byte_stream )[ 2 ] = (uint8_t) ( ( value >> 16 ) & 0x0ff ); \
+	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
+	( byte_stream )[ 0 ] = (uint8_t) ( value & 0x0ff )
+
+#define byte_stream_copy_from_uint48_big_endian( byte_stream, value ) \
+	( byte_stream )[ 0 ] = (uint8_t) ( ( value >> 40 ) & 0x0ff ); \
+	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 32 ) & 0x0ff ); \
+	( byte_stream )[ 2 ] = (uint8_t) ( ( value >> 24 ) & 0x0ff ); \
+	( byte_stream )[ 3 ] = (uint8_t) ( ( value >> 16 ) & 0x0ff ); \
+	( byte_stream )[ 4 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
+	( byte_stream )[ 5 ] = (uint8_t) ( value & 0x0ff )
+
+#define byte_stream_copy_from_uint48_little_endian( byte_stream, value ) \
+	( byte_stream )[ 5 ] = (uint8_t) ( ( value >> 40 ) & 0x0ff ); \
+	( byte_stream )[ 4 ] = (uint8_t) ( ( value >> 32 ) & 0x0ff ); \
 	( byte_stream )[ 3 ] = (uint8_t) ( ( value >> 24 ) & 0x0ff ); \
 	( byte_stream )[ 2 ] = (uint8_t) ( ( value >> 16 ) & 0x0ff ); \
 	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \

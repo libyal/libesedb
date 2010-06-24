@@ -78,6 +78,7 @@ Windows search:
 File format
 * where is the root object defined? or is it implied to be object 1?
 * flag 0x4000 in tagged values
+* flag 0x8000 in multi value offsets
 * page flags
 * page keys
 * (revision 0x11) extended page header
@@ -106,7 +107,10 @@ Notes
 * create a root page table instead?
 
 20100624
-* add multi value offset 0x8000 flag support
+* added multi value offset 0x8000 flag support
+* esedbexport: added option to export specific table
+* updated libfdatetime
+* worked on libfntsid
 
 20100623
 * worked on libfdata tree integration

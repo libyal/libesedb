@@ -1,9 +1,7 @@
 /* 
  * Export handle
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -67,7 +65,7 @@
 #include <libsystem.h>
 
 #include "export_handle.h"
-#include "esedbcommon.h"
+#include "exchange.h"
 #include "windows_search.h"
 
 /* Initializes the export handle
@@ -559,7 +557,7 @@ int export_handle_create_target_path(
 
 		return( -1 );
 	}
-	( *target_path )[ export_path_size - 1 ] = (libcstring_system_character_t) ESEDBCOMMON_PATH_SEPARATOR;
+	( *target_path )[ export_path_size - 1 ] = (libcstring_system_character_t) LIBSYSTEM_PATH_SEPARATOR;
 
 	if( libsystem_string_copy_from_utf8_string(
 	     &( ( *target_path )[ export_path_size ] ),
@@ -1016,6 +1014,33 @@ int export_handle_export_table(
 		}
 		known_table = 0;
 
+		if( table_name_size == 8 )
+		{
+			if( libcstring_narrow_string_compare(
+			     (char *) table_name,
+			     "Folders",
+			     7 ) == 0 )
+			{
+				known_table = 1;
+
+				result = exchange_export_record_folders(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+			else if( libcstring_narrow_string_compare(
+			          (char *) table_name,
+			          "Mailbox",
+			          7 ) == 0 )
+			{
+				known_table = 1;
+
+				result = exchange_export_record_mailbox(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
 		if( table_name_size == 15 )
 		{
 			if( libcstring_narrow_string_compare(
@@ -2097,13 +2122,17 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
+     const libcstring_system_character_t *table_name,
+     size_t table_name_size,
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libesedb_table_t *table = NULL;
-	static char *function   = "export_handle_export_file";
-	int number_of_tables    = 0;
-	int table_iterator      = 0;
+	libesedb_table_t *table        = NULL;
+	uint8_t *current_table_name    = NULL;
+	static char *function          = "export_handle_export_file";
+	size_t current_table_name_size = 0;
+	int number_of_tables           = 0;
+	int table_iterator             = 0;
 
 	if( export_handle == NULL )
 	{
@@ -2158,12 +2187,6 @@ int export_handle_export_file(
 	     table_iterator < number_of_tables;
 	     table_iterator++ )
 	{
-		fprintf(
-		 stdout,
-		 "Exporting table %d out of %d.\n",
-		 table_iterator + 1,
-		 number_of_tables );
-
 		if( libesedb_file_get_table(
 		     export_handle->input_handle,
 		     table_iterator,
@@ -2180,21 +2203,17 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
-		if( export_handle_export_table(
-		     export_handle,
+		if( libesedb_table_get_utf8_name_size(
 		     table,
-		     export_path,
-		     export_path_size,
-		     log_handle,
+		     &current_table_name_size,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to export table: %d.",
-			 function,
-			 table_iterator );
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the size of the table name.",
+			 function );
 
 			libesedb_table_free(
 			 &table,
@@ -2202,6 +2221,94 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
+		current_table_name = (uint8_t *) memory_allocate(
+		                                  sizeof( uint8_t ) * current_table_name_size );
+
+		if( current_table_name == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create table name string.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_table_get_utf8_name(
+		     table,
+		     current_table_name,
+		     current_table_name_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the table name.",
+			 function );
+
+			memory_free(
+			 current_table_name );
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
+		/* TODO make platform independent */
+		if( ( table_name == NULL )
+		 || ( ( table_name_size == current_table_name_size )
+		  && ( libcstring_system_string_compare(
+		        current_table_name,
+		        table_name,
+		        table_name_size ) == 0 ) ) )
+		{
+			if( table_name == NULL )
+			{
+				fprintf(
+				 stdout,
+				 "Exporting table %d (%s) out of %d.\n",
+				 table_iterator + 1,
+				 (char *) current_table_name,
+				 number_of_tables );
+			}
+			else
+			{
+				fprintf(
+				 stdout,
+				 "Exporting table %d (%s).\n",
+				 table_iterator + 1,
+				 (char *) current_table_name );
+			}
+			if( export_handle_export_table(
+			     export_handle,
+			     table,
+			     export_path,
+			     export_path_size,
+			     log_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to export table: %d.",
+				 function,
+				 table_iterator );
+
+				memory_free(
+				 current_table_name );
+				libesedb_table_free(
+				 &table,
+				 NULL );
+
+				return( -1 );
+			}
+		}
+		memory_free(
+		 current_table_name );
+
 		if( libesedb_table_free(
 		     &table,
 		     error ) != 1 )

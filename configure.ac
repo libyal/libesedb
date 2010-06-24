@@ -824,6 +824,70 @@ AM_CONDITIONAL(
  [HAVE_LOCAL_LIBFGUID],
  [test "x$ac_libesedb_have_libfguid" = xlocal])
 
+dnl Check for enabling libfntsid for file Windows NT SID support
+AC_CHECK_HEADERS(
+ [libfntsid.h],
+ [],
+ [ac_libesedb_have_libfntsid=no])
+
+AS_IF(
+	[test "x$ac_libesedb_have_libfntsid" != xno],
+	[ac_libesedb_have_libfntsid=yes
+	AC_CHECK_LIB(
+	 fntsid,
+	 libfntsid_get_version,
+	 [],
+	 [ac_libesedb_have_libfntsid=no])
+
+	])
+
+AS_IF(
+[test "x$ac_libesedb_have_libfntsid" = xyes],
+ [dnl libfntsid is available
+ AC_SUBST(
+  [libesedb_pc_libs_private_libfntsid],
+  [-lfntsid])
+ AC_SUBST(
+  [libesedb_spec_requires_libfntsid],
+  [libfntsid])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libfntsid],
+  [libfntsid-devel])
+ AC_SUBST(
+  [LIBFNTSID_CPPFLAGS],
+  [])
+ AC_SUBST(
+  [LIBFNTSID_LIBADD],
+  []) ],
+ [dnl libfntsid is not available, using the (local) version that came with the source package
+ AC_DEFINE(
+  [HAVE_LOCAL_LIBFNTSID],
+  [1],
+  [Define to 1 if the local version of libfntsid is used.])
+ AC_SUBST(
+  [HAVE_LOCAL_LIBFNTSID],
+  [1])
+ AC_SUBST(
+  [libesedb_pc_libs_private_libfntsid],
+  [])
+ AC_SUBST(
+  [libesedb_spec_requires_libfntsid],
+  [])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libfntsid],
+  [])
+ AC_SUBST(
+  [LIBFNTSID_CPPFLAGS],
+  [-I../libfntsid])
+ AC_SUBST(
+  [LIBFNTSID_LIBADD],
+  [../libfntsid/libfntsid.la])
+ ac_libesedb_have_libfntsid=local])
+
+AM_CONDITIONAL(
+ [HAVE_LOCAL_LIBFNTSID],
+ [test "x$ac_libesedb_have_libfntsid" = xlocal])
+
 dnl Check if libesedb should be build with wide character type support
 AS_IF(
  [test "x$ac_cv_libesedb_enable_winapi" = xyes],
@@ -995,7 +1059,7 @@ AS_IF(
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdata" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes],
+ [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdata" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes || test "x$ac_libesedb_have_libfntsid" = xyes],
  [AC_SUBST(
   [libesedb_spec_requires],
   [Requires:])
@@ -1054,6 +1118,7 @@ AC_CONFIG_FILES([libfdata/Makefile])
 AC_CONFIG_FILES([libfdatetime/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
+AC_CONFIG_FILES([libfntsid/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -1083,6 +1148,7 @@ Building:
    libfdata support:                           $ac_libesedb_have_libfdata
    libfdatetime support:                       $ac_libesedb_have_libfdatetime
    libfguid support:                           $ac_libesedb_have_libfguid
+   libfntsid support:                          $ac_libesedb_have_libfntsid
 
 Features:
    Wide character type support:                $ac_cv_libesedb_enable_wide_character_type

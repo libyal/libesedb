@@ -1,7 +1,7 @@
 /* 
- * Windows Search database export functions
+ * Exchange database export functions
  *
- * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _WINDOWS_SEARCH_H )
-#define _WINDOWS_SEARCH_H
+#if !defined( _EXCHANGE_H )
+#define _ECHANGE_H
 
 #include <common.h>
 #include <file_stream.h>
@@ -41,85 +41,52 @@
 extern "C" {
 #endif
 
-int windows_search_decode(
-     uint8_t *data,
-     size_t data_size,
-     uint8_t *encoded_data,
-     size_t encoded_data_size,
-     liberror_error_t **error );
-
-int windows_search_get_run_length_uncompressed_utf16_string_size(
-     uint8_t *compressed_data,
-     size_t compressed_data_size,
-     size_t *uncompressed_data_size,
-     liberror_error_t **error );
-
-int windows_search_decompress_run_length_compressed_utf16_string(
-     uint8_t *uncompressed_data,
-     size_t uncompressed_data_size,
-     uint8_t *compressed_data,
-     size_t compressed_data_size,
-     liberror_error_t **error );
-
-int windows_search_get_byte_index_uncompressed_data_size(
-     uint8_t *compressed_data,
-     size_t compressed_data_size,
-     size_t *uncompressed_data_size,
-     liberror_error_t **error );
-
-int windows_search_decompress_byte_indexed_compressed_data(
-     uint8_t *uncompressed_data,
-     size_t uncompressed_data_size,
-     uint8_t *compressed_data,
-     size_t compressed_data_size,
-     liberror_error_t **error );
-
-int windows_search_export_compressed_string_value(
-     uint8_t *value_data,
-     size_t value_data_size,
-     FILE *table_file_stream,
-     liberror_error_t **error );
-
-int windows_search_export_record_value_32bit(
+int exchange_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *table_file_stream,
      liberror_error_t **error );
 
-int windows_search_export_record_value_64bit(
+int exchange_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *table_file_stream,
      liberror_error_t **error );
 
-int windows_search_export_record_value_filetime(
+int exchange_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *table_file_stream,
      liberror_error_t **error );
 
-int windows_search_export_record_value_compressed_string(
-     libesedb_record_t *record,
-     int record_value_entry,
-     FILE *table_file_stream,
-     liberror_error_t **error );
-
-int windows_search_export_record_value_utf16_string(
+int exchange_export_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *table_file_stream,
      liberror_error_t **error );
 
-int windows_search_export_record_systemindex_0a(
+int exchange_export_record_value_sid(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
+int exchange_export_record_value_string(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
+int exchange_export_record_folders(
      libesedb_record_t *record,
      FILE *table_file_stream,
      liberror_error_t **error );
 
-int windows_search_export_record_systemindex_gthr(
+int exchange_export_record_mailbox(
      libesedb_record_t *record,
      FILE *table_file_stream,
      liberror_error_t **error );

@@ -1,9 +1,7 @@
 /* 
  * Windows Search database export functions
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (C) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1996,7 +1994,7 @@ int windows_search_export_record_value_filetime(
 			fprintf(
 			 table_file_stream,
 			 "%s",
-			 filetime_string );
+			 (char *) filetime_string );
 		}
 	}
 	else

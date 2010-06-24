@@ -1,9 +1,7 @@
 /*
  * Common output functions for the esedbtools
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2008-2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -43,6 +41,12 @@
 #include <libfdatetime.h>
 #endif
 
+#if defined( HAVE_LOCAL_LIBFGUID )
+#include <libfguid_definitions.h>
+#elif defined( HAVE_LIBFGUID_H )
+#include <libfguid.h>
+#endif
+
 /* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
  * before including libesedb.h
  */
@@ -51,6 +55,12 @@
 #endif
 
 #include <libesedb.h>
+
+#if defined( HAVE_LOCAL_LIBFNTSID )
+#include <libfntsid_definitions.h>
+#elif defined( HAVE_LIBFNTSID_H )
+#include <libfntsid.h>
+#endif
 
 #include <libsystem.h>
 
@@ -108,6 +118,16 @@ void esedboutput_version_fprint(
 	 stream,
 	 ", libfdatetime %s",
 	 LIBFDATETIME_VERSION_STRING );
+
+	fprintf(
+	 stream,
+	 ", libfdguid%s",
+	 LIBFGUID_VERSION_STRING );
+
+	fprintf(
+	 stream,
+	 ", libfntsid %s",
+	 LIBFNTSID_VERSION_STRING );
 
         fprintf(
 	 stream,
