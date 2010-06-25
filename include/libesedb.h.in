@@ -145,7 +145,7 @@ LIBESEDB_EXTERN int libesedb_error_backtrace_sprint(
  * File functions
  * ------------------------------------------------------------------------- */
 
-/* Initializes the Extensible Storage Engine Database file
+/* Initializes a file
  * Make sure the value file is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
@@ -153,21 +153,21 @@ LIBESEDB_EXTERN int libesedb_file_initialize(
                      libesedb_file_t **file,
                      libesedb_error_t **error );
 
-/* Frees an exisisting Extensible Storage Engine Database file
+/* Frees an exisisting file
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_free(
                      libesedb_file_t **file,
                      libesedb_error_t **error );
 
-/* Signals the libesedb file to abort its current activity
+/* Signals a file to abort its current activity
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_signal_abort(
                      libesedb_file_t *file,
                      libesedb_error_t **error );
 
-/* Opens a Extensible Storage Engine Database file
+/* Opens a file
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_open(
@@ -177,7 +177,7 @@ LIBESEDB_EXTERN int libesedb_file_open(
                      libesedb_error_t **error );
 
 #if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
-/* Opens a Extensible Storage Engine Database file
+/* Opens a file
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_open_wide(
@@ -188,7 +188,7 @@ LIBESEDB_EXTERN int libesedb_file_open_wide(
 #endif
 
 #if defined( LIBESEDB_HAVE_BFIO )
-/* Opens a Extensible Storage Engine Database file using a Basic File IO (bfio) handle
+/* Opens a file using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_open_file_io_handle(
@@ -198,7 +198,7 @@ LIBESEDB_EXTERN int libesedb_file_open_file_io_handle(
                      libesedb_error_t **error );
 #endif
 
-/* Closes a Extensible Storage Engine Database file
+/* Closes a file
  * Returns 0 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_close(

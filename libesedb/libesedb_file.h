@@ -28,9 +28,11 @@
 #include <liberror.h>
 
 #include "libesedb_catalog.h"
+#include "libesedb_database.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
-#include "libesedb_page_tree.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libfdata.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
 
@@ -48,9 +50,9 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
-	/* The database page tree
+	/* The database
 	 */
-	libesedb_page_tree_t *database_page_tree;
+	libesedb_database_t *database;
 
 	/* The catalog
 	 */

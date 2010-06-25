@@ -1054,8 +1054,6 @@ int export_handle_export_table(
 			 NULL );
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
@@ -1072,8 +1070,6 @@ int export_handle_export_table(
 
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
@@ -1088,14 +1084,8 @@ int export_handle_export_table(
 		 "%s: unable to close table file.",
 		 function );
 
-		memory_free(
-		 table_name );
-
 		return( -1 );
 	}
-	memory_free(
-	 table_name );
-
 	return( 1 );
 }
 

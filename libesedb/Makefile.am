@@ -26,7 +26,7 @@ libesedb_la_SOURCES = \
 	libesedb_column.c libesedb_column.h \
 	libesedb_column_type.c libesedb_column_type.h \
 	libesedb_compression.c libesedb_compression.h \
-	libesedb_data_definition.c libesedb_data_definition.h \
+	libesedb_database.c libesedb_database.h \
 	libesedb_data_type_definition.c libesedb_data_type_definition.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
@@ -48,12 +48,10 @@ libesedb_la_SOURCES = \
 	libesedb_notify.c libesedb_notify.h \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
-	libesedb_page_tree_values.c libesedb_page_tree_values.h \
 	libesedb_record.c libesedb_record.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \
 	libesedb_table_definition.c libesedb_table_definition.h \
-	libesedb_tree_type.c libesedb_tree_type.h \
 	libesedb_types.h \
 	libesedb_values_tree.c libesedb_values_tree.h \
 	libesedb_values_tree_value.c libesedb_values_tree_value.h \

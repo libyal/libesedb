@@ -1,63 +1,36 @@
-Generic
-* remove libfdatetime_error.h from local inclusion header
-* replace offset print PRIu64 by PRIi64
-* remove attach/detach functions
-* is the pages vector placed correctly in the IO handle ?
-  or should it be moved into file ? or other location ?
-
 TODO
 * page tree on demand
   - check sanity of page value 0 
 * clean up
   - libesedb_data_type_definition remove offset
-  - changes due to page tree on demand changes
 * handle default value
-* handle compressed values in library
+* handle compressed values inside the library
 * error tolerance probe test for the page size using the backup database header
-* check for memory leaks
-* configure.ac update libfguid detection
-* update macosx files
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
 * implement cloning of items for improved asynchronous and multi threaded usage
-* long values optimization
-  - read page tree as hierarchy
-  - throttle pages to reduce memory finger print
-  - read long values on demand, do not store data ?
 
-libbtype
-* move array, list and tree type to separate library ?
-
-libfdata
-* allow for non-sequential segments
-* handle segments which have a size > SSIZE_MAX
-* memory range
-* esedb long value
-* pff array (encrypted/obfuscated)
-* ewf chunk (compressed)
-* libfdata_pool (for segment files: raw, ewf, vmdk)
-
-Library:
-* ECC32 check non 4 byte modulus buffer support
-* long value support
-* template table support (what about non-tagged data types)
-* multi value 0x18 support
-* read catalog data type defintions and convert them into column definitions
-* use column definitions to read data definitions
-* compare primary and secondary file header
-  - report any differences
-* compare primary and secondary catalog
-* provide UTF-16 name string functions
-* limit the amount of active data type definitions for large tables?
-* libfguid
-  - change GUID function to match libfdatetime like structure
-* support for non-linear stored long value segments
-  - current solution has sanity check
-* default values
-   - apply to data definition
+libesedb:
+* ECC checksum
+  - non 4 byte modulus buffer support
+  - add alignment optimization
+  - error correction
+  - Windows 7 extended checksum ?
+* template table
+  - what about non-tagged data types
+* multi value
+  - what about multi value 0x18
+* database header
+  - compare primary and secondary
 * catalog
+  - compare primary and secondary
+  - limit the size of the catalog ?
   - support for type 0x0006
   - support for type 0x0007 (line 3457 in libesedb_page_tree.c)
+* long values
+  - support for non-linear stored long value segments - current solution does a sanity check
+* default values
+   - apply to data definition
 
 Debug
 * print file type string
@@ -69,8 +42,7 @@ Tools
   - page summary (scan for uninitialized, empty, etc. pages)
   - file header summary (check backup file header)
   - summary of catalog (check backup catalog)
-  - print
-    - database state
+  - print database state
 * esedbexport
   - move libesedb file handle from export handle to esedbexport
 
@@ -79,40 +51,50 @@ Windows search:
 
 File format
 * where is the root object defined? or is it implied to be object 1?
-* flag 0x4000 in tagged values
-* flag 0x8000 in multi value offsets
+* tagged values
+  - flag 0x4000
+* multi value offsets
+  - flag 0x8000
 * page flags
 * page keys
 * (revision 0x11) extended page header
-* multi value 0x18 support
 * what about the first byte in 7-bit ascii compressed data
 * codepage 1200 string in Exchange EDB starts with 0xff 0xff
 
 Deployment:
+* update configure
+  - improve libfdata detection
+  - improve libfguid detection
+  - improve libfwnt detection
 * update manuals
   - add esedbexport.1
 * create debian package files
 * add codegear files
+* update macosx files
 
 Performance
 * create data definition tree in page tree for faster lookup of keys
   keep list for sequential access (B+-tree)
 * create a UTF-8 version of run-length compressed UTF-16 string decompression function
-* use registry alignmen for key comparison
+* use register alignment for key comparison
 
 Test suite:
 * windows search: work on index-based compression
   - create test program to validate output
 
 Notes
-* a full page table will take up too much memory for large databases
 * create a root page table instead?
+  - no
+* read catalog data type defintions and convert them into column definitions?
+  - no
 
 20100625
 * code clean up
   - removed API codepage functions, not needed
   - worked on windows UTF-16 support
   - added several UTF-16 API functions
+  - removed page tree values, data definition and tree type
+  - create catalog object
 
 20100624
 * added multi value offset 0x8000 flag support

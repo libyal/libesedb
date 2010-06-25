@@ -27,19 +27,17 @@
 #include <liberror.h>
 #include <libnotify.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_catalog.h"
+#include "libesedb_database.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
 #include "libesedb_libbfio.h"
-#include "libesedb_page.h"
-#include "libesedb_page_tree.h"
 #include "libesedb_table.h"
 #include "libesedb_table_definition.h"
 
-/* Initialize a file
+/* Initializes a file
  * Make sure the value file is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
@@ -94,6 +92,22 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_database_initialize(
+		     &( internal_file->database ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create database.",
+			 function );
+
+			memory_free(
+			 internal_file );
+
+			return( -1 );
+		}
 		if( libesedb_catalog_initialize(
 		     &( internal_file->catalog ),
 		     error ) != 1 )
@@ -105,6 +119,9 @@ int libesedb_file_initialize(
 			 "%s: unable to create catalog.",
 			 function );
 
+			libesedb_database_free(
+			 &( internal_file->database ),
+			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -123,6 +140,9 @@ int libesedb_file_initialize(
 
 			libesedb_catalog_free(
 			 &( internal_file->catalog ),
+			 NULL );
+			libesedb_database_free(
+			 &( internal_file->database ),
 			 NULL );
 			memory_free(
 			 internal_file );
@@ -160,15 +180,15 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
-		if( libesedb_page_tree_free(
-		     (intptr_t *) internal_file->database_page_tree,
+		if( libesedb_database_free(
+		     &( internal_file->database ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free database page tree.",
+			 "%s: unable to free database.",
 			 function );
 
 			result = -1;
@@ -237,7 +257,7 @@ int libesedb_file_free(
 	return( result );
 }
 
-/* Signals the libesedb file to abort its current activity
+/* Signals a file to abort its current activity
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_signal_abort(
@@ -262,7 +282,7 @@ int libesedb_file_signal_abort(
 	return( 1 );
 }
 
-/* Opens a Extensible Storage Engine Database file
+/* Opens a file
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_open(
@@ -315,7 +335,7 @@ int libesedb_file_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: write access to Extensible Storage Engine Database files currently not supported.",
+		 "%s: write access currently not supported.",
 		 function );
 
 		return( -1 );
@@ -402,7 +422,7 @@ int libesedb_file_open(
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Opens a Extensible Storage Engine Database file
+/* Opens a file
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_open_wide(
@@ -455,7 +475,7 @@ int libesedb_file_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: write access to Extensible Storage Engine Database files currently not supported.",
+		 "%s: write access currently not supported.",
 		 function );
 
 		return( -1 );
@@ -542,7 +562,7 @@ int libesedb_file_open_wide(
 
 #endif
 
-/* Opens a Extensible Storage Engine Database file using a Basic File IO (bfio) handle
+/* Opens a file using a Basic File IO (bfio) handle
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_open_file_io_handle(
@@ -668,7 +688,7 @@ int libesedb_file_open_file_io_handle(
 	return( 1 );
 }
 
-/* Closes a Extensible Storage Engine Database file
+/* Closes a file
  * Returns 0 if successful or -1 on error
  */
 int libesedb_file_close(
@@ -740,7 +760,7 @@ int libesedb_file_close(
 	return( result );
 }
 
-/* Opens a Extensible Storage Engine Database file for reading
+/* Opens a file for reading
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_open_read(
@@ -965,58 +985,29 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-#ifdef TODO
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "Reading the database page tree:\n" );
+		 "Reading the database:\n" );
 	}
 #endif
-	/* TODO implement a similar solution as to the catalog */
-
-	/* TODO object identifier */
-	if( libesedb_page_tree_initialize(
-	     &( internal_file->database_page_tree ),
+	if( libesedb_database_read(
+	     internal_file->database,
+	     internal_file->file_io_handle,
 	     internal_file->io_handle,
 	     internal_file->pages_vector,
-	     LIBESEDB_FDP_OBJECT_IDENTIFIER_DATABASE,
-	     NULL,
-	     NULL,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create database page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_page_tree_read(
-	     internal_file->database_page_tree,
-	     internal_file->file_io_handle,
-	     LIBESEDB_PAGE_NUMBER_DATABASE,
-	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tree.",
+		 "%s: unable to read database.",
 		 function );
-
-		libesedb_page_tree_free(
-		 (intptr_t *) internal_file->database_page_tree,
-		 NULL );
-
-		internal_file->database_page_tree = NULL;
 
 		return( -1 );
 	}
-#endif
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )

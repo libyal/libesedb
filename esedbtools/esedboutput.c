@@ -121,7 +121,7 @@ void esedboutput_version_fprint(
 
 	fprintf(
 	 stream,
-	 ", libfdguid %s",
+	 ", libfguid %s",
 	 LIBFGUID_VERSION_STRING );
 
 	fprintf(

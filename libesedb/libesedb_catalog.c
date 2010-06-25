@@ -1,5 +1,5 @@
 /*
- * Page tree functions
+ * Catalog functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -20,7 +20,6 @@
  */
 
 #include <common.h>
-#include <byte_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -149,7 +148,7 @@ int libesedb_catalog_free(
 			result = -1;
 		}
 		memory_free(
-		 catalog );
+		 *catalog );
 
 		*catalog = NULL;
 	}
@@ -235,107 +234,6 @@ int libesedb_catalog_get_table_definition_by_index(
 	return( 1 );
 }
 
-/* Retrieves the table definition with the specified identifier
- * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
- */
-int libesedb_catalog_get_table_definition_by_identifier(
-     libesedb_catalog_t *catalog,
-     uint32_t identifier,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error )
-{
-	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_catalog_get_table_definition_by_identifier";
-	int list_element_iterator             = 0;
-
-	if( catalog == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid catalog.",
-		 function );
-
-		return( -1 );
-	}
-	if( catalog->table_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - missing table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	if( table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table definition.",
-		 function );
-
-		return( -1 );
-	}
-	list_element = catalog->table_definition_list->first;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < catalog->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
-	{
-		if( list_element == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		if( list_element->value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
-		if( ( *table_definition )->table_catalog_definition == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table catalog definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		if( ( *table_definition )->table_catalog_definition->identifier == identifier )
-		{
-			return( 1 );
-		}
-		list_element = list_element->next;
-	}
-	*table_definition = NULL;
-
-	return( 0 );
-}
-
 /* Retrieves the table definition for the specific name
  * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
  */
@@ -349,7 +247,6 @@ int libesedb_catalog_get_table_definition_by_name(
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_catalog_get_table_definition_by_name";
 	int list_element_iterator             = 0;
-	int result                            = 0;
 
 	if( catalog == NULL )
 	{
@@ -495,8 +392,10 @@ int libesedb_catalog_read(
 	libesedb_values_tree_value_t *values_tree_value   = NULL;
 	libfdata_tree_t *catalog_values_tree              = NULL;
 	libfdata_tree_node_t *values_tree_node            = NULL;
+	uint8_t *catalog_definition_data                  = NULL;
 	static char *function                             = "libesedb_catalog_read";
 	off64_t node_data_offset                          = 0;
+	size_t catalog_definition_data_size               = 0;
 	int number_of_leaf_nodes                          = 0;
 	int leaf_node_index                               = 0;
 
@@ -643,6 +542,28 @@ int libesedb_catalog_read(
 
 			return( -1 );
 		}
+		if( libesedb_values_tree_value_read_data(
+		     values_tree_value,
+		     file_io_handle,
+		     io_handle,
+		     pages_vector,
+		     &catalog_definition_data,
+		     &catalog_definition_data_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read values tree value data.",
+			 function );
+
+			libfdata_tree_free(
+			 &catalog_values_tree,
+			 NULL );
+
+			return( -1 );
+		}
 		if( libesedb_catalog_definition_initialize(
 		     &catalog_definition,
 		     error ) != 1 )
@@ -660,19 +581,17 @@ int libesedb_catalog_read(
 
 			return( -1 );
 		}
-		if( libesedb_values_tree_value_read_catalog_definition(
-		     values_tree_value,
-		     file_io_handle,
-		     io_handle,
-		     pages_vector,
+		if( libesedb_catalog_definition_read(
 		     catalog_definition,
+		     catalog_definition_data,
+		     catalog_definition_data_size,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read values tree value catalog definition.",
+			 "%s: unable to read catalog definition.",
 			 function );
 
 			libesedb_catalog_definition_free(
@@ -684,74 +603,39 @@ int libesedb_catalog_read(
 
 			return( -1 );
 		}
-/* TODO remove
- * libesedb_catalog_get_table_definition_by_identifier
- */
-#ifdef TODO
-		if( ( catalog_definition->type <= LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK )
-		 && ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
-		 && ( ( table_definition == NULL )
-		  || ( table_definition->table_catalog_definition == NULL )
-		  || ( table_definition->table_catalog_definition->father_data_page_object_identifier != catalog_definition->father_data_page_object_identifier ) ) )
+		if( ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
+		 && ( table_definition == NULL ) )
 		{
-				result = libesedb_catalog_get_table_definition_by_identifier(
-					  catalog,
-					  catalog_definition->father_data_page_object_identifier,
-					  &table_definition,
-					  error );
-
-				if( result == 0 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-					 "%s: missing table definition: %" PRIu32 " (0x%08" PRIx32 ").",
-					 function,
-					 catalog_definition->father_data_page_object_identifier,
-					 catalog_definition->father_data_page_object_identifier );
-
-					/* TODO build-in table 1 support */
+			/* TODO add build-in table 1 support */
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( ( libnotify_verbose != 0 )
-					 && ( error != NULL )
-					 && ( *error != NULL ) )
-					{
-						libnotify_print_error_backtrace(
-						 *error );
-					}
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "%s: missing table definition for catalog definition type: %" PRIu16 ".\n",
+				 function,
+				 catalog_definition->type );
+			}
 #endif
+			if( libesedb_catalog_definition_free(
+			     (intptr_t *) catalog_definition,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free catalog definition.",
+				 function );
 
-					liberror_error_free(
-					 error );
+				libfdata_tree_free(
+				 &catalog_values_tree,
+				 NULL );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-
-					catalog_definition = NULL;
-
-					continue;
-				}
-				else if( result == -1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve table definition: %" PRIu32 ".",
-					 function,
-					 catalog_definition->father_data_page_object_identifier );
-
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-
-					return( -1 );
-				}
+				return( -1 );
+			}
+			catalog_definition = NULL;
 		}
-#endif
-		switch( catalog_definition->type )
+		else switch( catalog_definition->type )
 		{
 			case LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE:
 				table_definition = NULL;
@@ -940,6 +824,19 @@ int libesedb_catalog_read(
 
 				break;
 		}
+	}
+	if( libfdata_tree_free(
+	     &catalog_values_tree,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free catalog values tree.",
+		 function );
+
+		return( -1 );
 	}
 	return( 1 );
 }

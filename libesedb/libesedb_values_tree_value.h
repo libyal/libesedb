@@ -28,7 +28,6 @@
 #include <liberror.h>
 
 #include "libesedb_array_type.h"
-#include "libesedb_catalog_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
@@ -104,12 +103,13 @@ int libesedb_values_tree_value_set_key_local(
      size_t local_key_size,
      liberror_error_t **error );
 
-int libesedb_values_tree_value_read_catalog_definition(
+int libesedb_values_tree_value_read_data(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libesedb_catalog_definition_t *catalog_definition,
+     uint8_t **data,
+     size_t *data_size,
      liberror_error_t **error );
 
 int libesedb_values_tree_value_read_record(

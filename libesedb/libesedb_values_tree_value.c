@@ -312,20 +312,21 @@ int libesedb_values_tree_value_set_key_local(
 	return( 1 );
 }
 
-/* Reads the catalog definition
+/* Reads the data
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_read_catalog_definition(
+int libesedb_values_tree_value_read_data(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libesedb_catalog_definition_t *catalog_definition,
+     uint8_t **data,
+     size_t *data_size,
      liberror_error_t **error )
 {
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_values_tree_value_read_catalog_definition";
+	static char *function             = "libesedb_values_tree_value_read_data";
 
 	if( values_tree_value == NULL )
 	{
@@ -361,13 +362,24 @@ int libesedb_values_tree_value_read_catalog_definition(
 
 		return( -1 );
 	}
-	if( catalog_definition == NULL )
+	if( data == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid catalog definition.",
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data size.",
 		 function );
 
 		return( -1 );
@@ -452,21 +464,9 @@ int libesedb_values_tree_value_read_catalog_definition(
 
 		return( -1 );
 	}
-	if( libesedb_catalog_definition_read(
-	     catalog_definition,
-	     &( page_value->data[ values_tree_value->data_offset ] ),
-	     page_value->size - values_tree_value->data_offset,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read catalog definition.",
-		 function );
+	*data      = &( page_value->data[ values_tree_value->data_offset ] );
+	*data_size = (size_t) ( page_value->size - values_tree_value->data_offset );
 
-		return( -1 );
-	}
 	return( 1 );
 }
 

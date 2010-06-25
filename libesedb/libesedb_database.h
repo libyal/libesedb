@@ -1,5 +1,5 @@
 /*
- * Catalog functions
+ * Database functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_CATALOG_H )
-#define _LIBESEDB_CATALOG_H
+#if !defined( _LIBESEDB_DATABASE_H )
+#define _LIBESEDB_DATABASE_H
 
 #include <common.h>
 #include <types.h>
@@ -30,50 +30,29 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
-#include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_catalog libesedb_catalog_t;
+typedef struct libesedb_database libesedb_database_t;
 
-struct libesedb_catalog
+struct libesedb_database
 {
-	/* The table definition list
-	 */
-	libesedb_list_t *table_definition_list;
+	/* TODO implement something useful */
+	int dummy;
 };
 
-int libesedb_catalog_initialize(
-     libesedb_catalog_t **catalog,
+int libesedb_database_initialize(
+     libesedb_database_t **database,
      liberror_error_t **error );
 
-int libesedb_catalog_free(
-     libesedb_catalog_t **catalog,
+int libesedb_database_free(
+     libesedb_database_t **database,
      liberror_error_t **error );
 
-int libesedb_catalog_get_number_of_table_definitions(
-     libesedb_catalog_t *catalog,
-     int *number_of_table_definitions,
-     liberror_error_t **error );
-
-int libesedb_catalog_get_table_definition_by_index(
-     libesedb_catalog_t *catalog,
-     int table_definition_index,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
-
-int libesedb_catalog_get_table_definition_by_name(
-     libesedb_catalog_t *catalog,
-     uint8_t *table_name,
-     size_t table_name_size,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
-
-int libesedb_catalog_read(
-     libesedb_catalog_t *catalog,
+int libesedb_database_read(
+     libesedb_database_t *database,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
