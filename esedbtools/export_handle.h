@@ -81,10 +81,10 @@ int export_handle_sanitize_filename(
      liberror_error_t **error );
 
 int export_handle_create_target_path(
-     libcstring_system_character_t *export_path,
+     const libcstring_system_character_t *export_path,
      size_t export_path_size,
-     uint8_t *utf8_filename,
-     size_t utf8_filename_size,
+     const libcstring_system_character_t *filename,
+     size_t filename_size,
      libcstring_system_character_t **target_path,
      size_t *target_path_size,
      liberror_error_t **error );
@@ -92,7 +92,9 @@ int export_handle_create_target_path(
 int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
-     libcstring_system_character_t *export_path,
+     const libcstring_system_character_t *table_name,
+     size_t table_name_size,
+     const libcstring_system_character_t *export_path,
      size_t export_path_size,
      log_handle_t *log_handle,
      liberror_error_t **error );
@@ -112,8 +114,8 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
-     const libcstring_system_character_t *table_name,
-     size_t table_name_size,
+     const libcstring_system_character_t *export_table_name,
+     size_t export_table_name_size,
      log_handle_t *log_handle,
      liberror_error_t **error );
 

@@ -28,7 +28,7 @@
 
 #include "libesedb_column_type.h"
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 libesedb_column_type_t libesedb_column_types[ ] = {
 	{ 0x0000, "JET_coltypNil",		"Invalid" },

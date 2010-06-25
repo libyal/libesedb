@@ -8,7 +8,7 @@ AM_CPPFLAGS = \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
-	@LIBFNTSID_CPPFLAGS@ \
+	@LIBFWNT_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
@@ -20,7 +20,6 @@ bin_PROGRAMS = \
 
 esedbexport_SOURCES = \
 	esedbexport.c \
-	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h \
 	exchange.c exchange.h \
 	export_handle.c export_handle.h \
@@ -35,12 +34,11 @@ esedbexport_LDADD  = \
 	@LIBUNA_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
 	@LIBFGUID_LIBADD@ \
-	@LIBFNTSID_LIBADD@ \
+	@LIBFWNT_LIBADD@ \
 	@MEMWATCH_LIBADD@
 
 esedbinfo_SOURCES = \
 	esedbinfo.c \
-	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h
 
 esedbinfo_LDADD  = \

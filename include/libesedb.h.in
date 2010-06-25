@@ -1,9 +1,7 @@
 /*
  * Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
- * Copyright (c) 2009, Joachim Metz <forensics@hoffmannbv.nl>,
- * Hoffmann Investigations.
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,7 +22,6 @@
 #if !defined( _LIBESEDB_H )
 #define _LIBESEDB_H
 
-#include <libesedb/codepage.h>
 #include <libesedb/definitions.h>
 #include <libesedb/error.h>
 #include <libesedb/extern.h>
@@ -206,22 +203,6 @@ LIBESEDB_EXTERN int libesedb_file_open_file_io_handle(
  */
 LIBESEDB_EXTERN int libesedb_file_close(
                      libesedb_file_t *file,
-                     libesedb_error_t **error );
-
-/* Retrieves the file ASCII codepage
- * Returns 1 if successful or -1 on error
- */
-LIBESEDB_EXTERN int libesedb_file_get_ascii_codepage(
-                     libesedb_file_t *file,
-                     int *ascii_codepage,
-                     libesedb_error_t **error );
-
-/* Sets the file ASCII codepage
- * Returns 1 if successful or -1 on error
- */
-LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
-                     libesedb_file_t *file,
-                     int ascii_codepage,
                      libesedb_error_t **error );
 
 /* Retrieves the file (current) format version
@@ -665,7 +646,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
                      double *value,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of a specific entry
+/* Retrieves the size of an UTF-8 formatted string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -675,10 +656,8 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string value of a specific entry
- * The string is formatted in UTF-8
- * The function uses a codepage if necessary, it tries to read the codepage in the column definition
- * if not available it uses the codepage set for the library
+/* Retrieves the UTF-8 formatted string of a specific entry
+ * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -689,7 +668,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of a specific entry
+/* Retrieves the size of an UTF-16 formatted string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -699,10 +678,9 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string value of a specific entry
+/* Retrieves the UTF-16 formatted string of a specific entry
  * The string is formatted in UTF-16
- * The function uses a codepage if necessary, it tries to read the codepage in the column definition
- * if not available it uses the codepage set for the library
+ * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */

@@ -56,10 +56,10 @@
 
 #include <libesedb.h>
 
-#if defined( HAVE_LOCAL_LIBFNTSID )
-#include <libfntsid_definitions.h>
-#elif defined( HAVE_LIBFNTSID_H )
-#include <libfntsid.h>
+#if defined( HAVE_LOCAL_LIBFWNT )
+#include <libfwnt_definitions.h>
+#elif defined( HAVE_LIBFWNT_H )
+#include <libfwnt.h>
 #endif
 
 #include <libsystem.h>
@@ -77,7 +77,7 @@ void esedboutput_copyright_fprint(
 	}
 	fprintf(
 	 stream,
-	 "Copyright (c) 2009, Joachim Metz, Hoffmann Investigations <%s> and contributors.\n"
+	 "Copyright (c) 2009-2010, Joachim Metz <%s>.\n"
 	 "This is free software; see the source for copying conditions. There is NO\n"
 	 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n",
 	 PACKAGE_BUGREPORT );
@@ -121,13 +121,13 @@ void esedboutput_version_fprint(
 
 	fprintf(
 	 stream,
-	 ", libfdguid%s",
+	 ", libfdguid %s",
 	 LIBFGUID_VERSION_STRING );
 
 	fprintf(
 	 stream,
-	 ", libfntsid %s",
-	 LIBFNTSID_VERSION_STRING );
+	 ", libfwnt %s",
+	 LIBFWNT_VERSION_STRING );
 
         fprintf(
 	 stream,

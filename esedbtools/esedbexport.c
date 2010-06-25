@@ -46,9 +46,8 @@
 #include <libsystem.h>
 
 #include "export_handle.h"
-#include "log_handle.h"
-#include "esedbinput.h"
 #include "esedboutput.h"
+#include "log_handle.h"
 
 /* Prints the executable usage information
  */
@@ -62,14 +61,11 @@ void usage_fprint(
 	fprintf( stream, "Use esedbexport to export items stored in an Extensible Storage Engine (ESE)\n"
 	                 "Database (EDB) file\n\n" );
 
-	fprintf( stream, "Usage: esedbexport [ -c codepage ] [ -l logfile ] [ -t target ]\n"
-	                 "                   [ -T table_name ] [ -hvV ] source\n\n" );
+	fprintf( stream, "Usage: esedbexport [ -l logfile ] [ -t target ] [ -T table_name ]\n"
+	                 "                   [ -hvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
-	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-1250,\n"
-	                 "\t        windows-1251, windows-1252 (default), windows-1253, windows-1254,\n"
-	                 "\t        windows-1255, windows-1256, windows-1257 or windows-1258\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
 	fprintf( stream, "\t-l:     logs information about the exported items\n" );
 	fprintf( stream, "\t-t:     specify the basename of the target directory to export to\n"
@@ -104,7 +100,6 @@ int main( int argc, char * const argv[] )
 	size_t table_name_size                            = 0;
 	size_t target_path_length                         = 0;
 	libcstring_system_integer_t option                = 0;
-	int ascii_codepage                                = LIBESEDB_CODEPAGE_WINDOWS_1252;
 	int result                                        = 0;
 	int verbose                                       = 0;
 
@@ -150,25 +145,6 @@ int main( int argc, char * const argv[] )
 				 stdout );
 
 				return( EXIT_FAILURE );
-
-			case (libcstring_system_integer_t) 'c':
-				if( esedbinput_determine_ascii_codepage(
-				     optarg,
-				     &ascii_codepage,
-				     &error ) != 1 )
-				{
-					libsystem_notify_print_error_backtrace(
-					 error );
-					liberror_error_free(
-					 &error );
-
-					ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
-
-					fprintf(
-					 stderr,
-					 "Unsupported ASCII codepage defaulting to: windows-1252.\n" );
-				}
-				break;
 
 			case (libcstring_system_integer_t) 'h':
 				usage_fprint(

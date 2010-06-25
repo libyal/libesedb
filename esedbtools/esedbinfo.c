@@ -48,6 +48,10 @@
 
 #include "esedboutput.h"
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && ( SIZEOF_WCHAR_T != 2 )
+#error Unsupported wide system character size
+#endif
+
 /* Prints the executable usage information
  */
 void usage_fprint(
@@ -57,7 +61,8 @@ void usage_fprint(
 	{
 		return;
 	}
-	fprintf( stream, "Use esedbinfo to determine information about an Extensible Storage Engine (ESE) Database File (EDB).\n\n" );
+	fprintf( stream, "Use esedbinfo to determine information about an Extensible Storage Engine (ESE)\n"
+	                 "Database File (EDB).\n\n" );
 
 	fprintf( stream, "Usage: esedbinfo [ -hvV ] source\n\n" );
 
@@ -131,7 +136,6 @@ const char *esedbinfo_get_column_type_description(
 
 		default:
 			return( "Unknown" );
-
 	}
 }
 
@@ -143,25 +147,26 @@ int esedbinfo_file_info_fprint(
      libesedb_file_t *file,
      libesedb_error_t **error )
 {
-	libesedb_column_t *column  = NULL;
-	libesedb_index_t *index    = NULL;
-	libesedb_table_t *table    = NULL;
-	uint8_t *value_string      = NULL;
-	static char *function      = "esedbinfo_file_info_fprint";
-	size_t value_string_size   = 0;
-	uint32_t format_revision   = 0;
-	uint32_t format_version    = 0;
-	uint32_t column_identifier = 0;
-	uint32_t column_type       = 0;
-	uint32_t index_identifier  = 0;
-	uint32_t table_identifier  = 0;
-	uint32_t page_size         = 0;
-	int column_iterator        = 0;
-	int index_iterator         = 0;
-	int number_of_columns      = 0;
-	int number_of_indexes      = 0;
-	int number_of_tables       = 0;
-	int table_iterator         = 0;
+	libesedb_column_t *column                   = NULL;
+	libesedb_index_t *index                     = NULL;
+	libesedb_table_t *table                     = NULL;
+	libcstring_system_character_t *value_string = NULL;
+	static char *function                       = "esedbinfo_file_info_fprint";
+	size_t value_string_size                    = 0;
+	uint32_t format_revision                    = 0;
+	uint32_t format_version                     = 0;
+	uint32_t column_identifier                  = 0;
+	uint32_t column_type                        = 0;
+	uint32_t index_identifier                   = 0;
+	uint32_t table_identifier                   = 0;
+	uint32_t page_size                          = 0;
+	int column_iterator                         = 0;
+	int index_iterator                          = 0;
+	int number_of_columns                       = 0;
+	int number_of_indexes                       = 0;
+	int number_of_tables                        = 0;
+	int result                                  = 0;
+	int table_iterator                          = 0;
 
 	if( stream == NULL )
 	{
@@ -319,10 +324,19 @@ int esedbinfo_file_info_fprint(
 
 			return( -1 );
 		}
-		if( libesedb_table_get_utf8_name_size(
-		     table,
-		     &value_string_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_table_get_utf16_name_size(
+		          table,
+		          &value_string_size,
+		          error );
+#else
+		result = libesedb_table_get_utf8_name_size(
+		          table,
+		          &value_string_size,
+		          error );
+#endif
+
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -337,8 +351,8 @@ int esedbinfo_file_info_fprint(
 
 			return( -1 );
 		}
-		value_string = (uint8_t *) memory_allocate(
-		                            sizeof( uint8_t ) * value_string_size );
+		value_string = (libcstring_system_character_t *) memory_allocate(
+		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 		if( value_string == NULL )
 		{
@@ -355,11 +369,20 @@ int esedbinfo_file_info_fprint(
 
 			return( -1 );
 		}
-		if( libesedb_table_get_utf8_name(
-		     table,
-		     value_string,
-		     value_string_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_table_get_utf16_name(
+		          table,
+		          (uint16_t *) value_string,
+		          value_string_size,
+		          error );
+#else
+		result = libesedb_table_get_utf8_name(
+		          table,
+		          (uint8_t *) value_string,
+		          value_string_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -378,7 +401,7 @@ int esedbinfo_file_info_fprint(
 		}
 		fprintf(
 		 stream,
-		 "Table: %d\t\t\t%s (%d)\n",
+		 "Table: %d\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%d)\n",
 		 table_iterator + 1,
 		 value_string,
 		 table_identifier );
@@ -386,10 +409,18 @@ int esedbinfo_file_info_fprint(
 		memory_free(
 		 value_string );
 
-		if( libesedb_table_get_utf8_template_name_size(
-		     table,
-		     &value_string_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_table_get_utf16_template_name_size(
+		          table,
+		          &value_string_size,
+		          error );
+#else
+		result = libesedb_table_get_utf8_template_name_size(
+		          table,
+		          &value_string_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -406,8 +437,8 @@ int esedbinfo_file_info_fprint(
 		}
 		if( value_string_size > 0 )
 		{
-			value_string = (uint8_t *) memory_allocate(
-			                            sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -424,11 +455,20 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_table_get_utf8_template_name(
-			     table,
-			     value_string,
-			     value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_table_get_utf16_template_name(
+			          table,
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          error );
+#else
+			result = libesedb_table_get_utf8_template_name(
+			          table,
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -549,10 +589,18 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_column_get_utf8_name_size(
-			     column,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_column_get_utf16_name_size(
+			          column,
+			          &value_string_size,
+			          error );
+#else
+			result = libesedb_column_get_utf8_name_size(
+			          column,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -570,8 +618,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -591,11 +639,20 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_column_get_utf8_name(
-			     column,
-			     value_string,
-			     value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_column_get_utf16_name(
+			          column,
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          error );
+#else
+			result = libesedb_column_get_utf8_name(
+			          column,
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -617,7 +674,7 @@ int esedbinfo_file_info_fprint(
 			}
 			fprintf(
 			 stream,
-			 "\t%d\t%" PRIu32 "\t%s\t%s\n",
+			 "\t%d\t%" PRIu32 "\t%" PRIs_LIBCSTRING_SYSTEM "\t%s\n",
 			 column_iterator + 1,
 			 column_identifier,
 			 value_string,
@@ -718,10 +775,18 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_index_get_utf8_name_size(
-			     index,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name_size(
+			          index,
+			          &value_string_size,
+			          error );
+#else
+			result = libesedb_index_get_utf8_name_size(
+			          index,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -739,8 +804,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -760,11 +825,20 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_index_get_utf8_name(
-			     index,
-			     value_string,
-			     value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name(
+			          index,
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          error );
+#else
+			result = libesedb_index_get_utf8_name(
+			          index,
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -786,7 +860,7 @@ int esedbinfo_file_info_fprint(
 			}
 			fprintf(
 			 stream,
-			 "\tIndex: %d\t\t%s (%" PRIu32 ")\n",
+			 "\tIndex: %d\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu32 ")\n",
 			 index_iterator + 1,
 			 value_string,
 			 index_identifier );
@@ -861,10 +935,18 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_index_get_utf8_name_size(
-			     index,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name_size(
+			          index,
+			          &value_string_size,
+			          error );
+#else
+			result = libesedb_index_get_utf8_name_size(
+			          index,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -882,8 +964,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -903,11 +985,20 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			if( libesedb_index_get_utf8_name(
-			     index,
-			     value_string,
-			     value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name(
+			          index,
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          error );
+#else
+			result = libesedb_index_get_utf8_name(
+			          index,
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -929,7 +1020,7 @@ int esedbinfo_file_info_fprint(
 			}
 			fprintf(
 			 stream,
-			 "Index: %d\t\t\t%s (%d)\n",
+			 "Index: %d\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%d)\n",
 			 index_iterator + 1,
 			 value_string,
 			 index_identifier );

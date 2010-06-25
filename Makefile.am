@@ -12,7 +12,7 @@ SUBDIRS = \
 	libfdatetime \
 	libfguid \
 	libesedb \
-	libfntsid \
+	libfwnt \
 	libsystem \
 	esedbtools \
 	manuals \
@@ -74,7 +74,7 @@ splint:
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfntsid && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
 

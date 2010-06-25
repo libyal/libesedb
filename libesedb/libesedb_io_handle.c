@@ -151,7 +151,7 @@ int libesedb_io_handle_read_file_header(
 	uint32_t page_size                 = 0;
 	uint32_t stored_xor32_checksum     = 0;
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t value_32bit               = 0;
 #endif
 

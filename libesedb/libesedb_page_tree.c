@@ -2690,7 +2690,7 @@ int libesedb_page_tree_read_space_tree_page(
 		}
 		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) != 0 )
 		{
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(

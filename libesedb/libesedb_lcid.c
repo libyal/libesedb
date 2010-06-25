@@ -28,7 +28,7 @@
 
 #include "libesedb_lcid.h"
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 libesedb_lcid_language_tag_t libesedb_lcid_language_tags[ ] = {
 	{ 0x0001, "ar",			"Arabic" },

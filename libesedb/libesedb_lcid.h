@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 typedef struct libesedb_lcid_language_tag libesedb_lcid_language_tag_t;
 

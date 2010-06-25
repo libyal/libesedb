@@ -28,7 +28,7 @@
 
 #include "libesedb_codepage.h"
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 libesedb_codepage_t libesedb_codepages[ ] = {
 	{ 874,		"windows-874",		"Thai" },

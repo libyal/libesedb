@@ -118,33 +118,37 @@
 
 #include <libesedb.h>
 
-/* Define HAVE_LOCAL_LIBFNTSID for local use of libfntsid
+/* Define HAVE_LOCAL_LIBFWNT for local use of libfwnt
  */
-#if defined( HAVE_LOCAL_LIBFNTSID )
+#if defined( HAVE_LOCAL_LIBFWNT )
 
-#include <libfntsid_definitions.h>
-#include <libfntsid_security_identifier.h>
-#include <libfntsid_types.h>
+#include <libfwnt_definitions.h>
+#include <libfwnt_security_identifier.h>
+#include <libfwnt_types.h>
 
-#elif defined( HAVE_LIBFNTSID_H )
+#elif defined( HAVE_LIBFWNT_H )
 
-/* If libtool DLL support is enabled set LIBFNTSID_DLL_IMPORT
- * before including libfntsid.h
+/* If libtool DLL support is enabled set LIBFWNT_DLL_IMPORT
+ * before including libfwnt.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFNTSID_DLL_IMPORT
+#define LIBFWNT_DLL_IMPORT
 #endif
 
-#include <libfntsid.h>
+#include <libfwnt.h>
 
 #else
-#error Missing libfntsid.h
+#error Missing libfwnt.h
 #endif
 
 #include <libsystem.h>
 
 #include "export_handle.h"
 #include "exchange.h"
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && ( SIZEOF_WCHAR_T != 2 )
+#error Unsupported wide system character size
+#endif
 
 enum EXCHANGE_KNOWN_COLUMN_TYPES
 {
@@ -471,7 +475,7 @@ int exchange_export_record_value_filetime(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t filetime_string[ 24 ];
+	libcstring_system_character_t filetime_string[ 24 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -479,6 +483,7 @@ int exchange_export_record_value_filetime(
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
 	uint8_t value_flags               = 0;
+	int result                        = 0;
 
 	if( record == NULL )
 	{
@@ -598,13 +603,24 @@ int exchange_export_record_value_filetime(
 
 				return( -1 );
 			}
-			if( libfdatetime_filetime_copy_to_utf8_string(
-			     filetime,
-			     filetime_string,
-			     24,
-			     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-			     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libfdatetime_filetime_copy_to_utf16_string(
+			          filetime,
+			          (uint16_t *) filetime_string,
+			          24,
+			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          error );
+#else
+			result = libfdatetime_filetime_copy_to_utf8_string(
+			          filetime,
+			          (uint8_t *) filetime_string,
+			          24,
+			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -634,8 +650,8 @@ int exchange_export_record_value_filetime(
 			}
 			fprintf(
 			 table_file_stream,
-			 "%s",
-			 (char *) filetime_string );
+			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 filetime_string );
 		}
 	}
 	else
@@ -809,14 +825,16 @@ int exchange_export_record_value_sid(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t sid_string[ 128 ];
+	libcstring_system_character_t sid_string[ 128 ];
 
-	libfntsid_security_identifier_t *sid = NULL;
-	uint8_t *value_data                  = NULL;
-	static char *function                = "exchange_export_record_value_sid";
-	size_t value_data_size               = 0;
-	uint32_t column_type                 = 0;
-	uint8_t value_flags                  = 0;
+	libfwnt_security_identifier_t *sid = NULL;
+	uint8_t *value_data                = NULL;
+	static char *function              = "exchange_export_record_value_sid";
+	size_t sid_string_size             = 0;
+	size_t value_data_size             = 0;
+	uint32_t column_type               = 0;
+	uint8_t value_flags                = 0;
+	int result                         = 0;
 
 	if( record == NULL )
 	{
@@ -890,7 +908,7 @@ int exchange_export_record_value_sid(
 	{
 		if( value_data != NULL )
 		{
-			if( libfntsid_security_identifier_initialize(
+			if( libfwnt_security_identifier_initialize(
 			     &sid,
 			     error ) != 1 )
 			{
@@ -903,7 +921,7 @@ int exchange_export_record_value_sid(
 
 				return( -1 );
 			}
-			if( libfntsid_security_identifier_copy_from_byte_stream(
+			if( libfwnt_security_identifier_copy_from_byte_stream(
 			     sid,
 			     value_data,
 			     value_data_size,
@@ -916,17 +934,56 @@ int exchange_export_record_value_sid(
 				 "%s: unable to create SID.",
 				 function );
 
-				libfntsid_security_identifier_free(
+				libfwnt_security_identifier_free(
 				 &sid,
 				 NULL );
 
 				return( -1 );
 			}
-			if( libfntsid_security_identifier_copy_to_utf8_string(
-			     sid,
-			     sid_string,
-			     128,
-			     error ) != 1 )
+			result = libfwnt_security_identifier_get_string_size(
+				  sid,
+				  &sid_string_size,
+				  error );
+
+			if( result != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve SID string size.",
+				 function );
+
+				return( -1 );
+			}
+			/* It is assumed that the SID string cannot be larger than 127 characters
+			 * otherwise using dynamic allocation is more appropriate
+			 */
+			if( sid_string > 128 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: SID string size value exceeds maximum.",
+				 function );
+
+				return( -1 );
+			}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libfwnt_security_identifier_copy_to_utf16_string(
+			          sid,
+			          (uint16_t *) sid_string,
+			          128,
+			          error );
+#else
+			result = libfwnt_security_identifier_copy_to_utf8_string(
+			          sid,
+			          (uint8_t *) sid_string,
+			          128,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -935,13 +992,13 @@ int exchange_export_record_value_sid(
 				 "%s: unable to create SID string.",
 				 function );
 
-				libfntsid_security_identifier_free(
+				libfwnt_security_identifier_free(
 				 &sid,
 				 NULL );
 
 				return( -1 );
 			}
-			if( libfntsid_security_identifier_free(
+			if( libfwnt_security_identifier_free(
 			     &sid,
 			     error ) != 1 )
 			{
@@ -956,8 +1013,8 @@ int exchange_export_record_value_sid(
 			}
 			fprintf(
 			 table_file_stream,
-			 "%s",
-			 (char *) sid_string );
+			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 sid_string );
 		}
 	}
 	else
@@ -1089,16 +1146,16 @@ int exchange_export_record_folders(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t column_name[ 256 ];
+	libcstring_system_character_t column_name[ 256 ];
 
 	static char *function   = "exchange_export_record_folders";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
 	int value_iterator      = 0;
-	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 
 	if( record == NULL )
 	{
@@ -1140,11 +1197,21 @@ int exchange_export_record_folders(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-		if( libesedb_record_get_utf8_column_name_size(
-		     record,
-		     value_iterator,
-		     &column_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+
+#else
+		result = libesedb_record_get_utf8_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -1170,12 +1237,22 @@ int exchange_export_record_folders(
 
 			return( -1 );
 		}
-		if( libesedb_record_get_utf8_column_name(
-		     record,
-		     value_iterator,
-		     column_name,
-		     column_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name(
+		          record,
+		          value_iterator,
+		          (uint16_t *) column_name,
+		          column_name_size,
+		          error );
+#else
+		result = libesedb_record_get_utf8_column_name(
+		          record,
+		          value_iterator,
+		          (uint8_t *) column_name,
+		          column_name_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -1226,9 +1303,11 @@ int exchange_export_record_folders(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				 if( column_name[ 0 ] == (uint8_t) 'L' )
+				if( column_name[ 0 ] == (uint8_t) 'L' )
 				{
+/* TODO
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+*/
 				}
 				else if( column_name[ 0 ] == (uint8_t) 'S' )
 				{
@@ -1244,15 +1323,15 @@ int exchange_export_record_folders(
 				}
 				else if( column_name_size == 5 )
 				{
-					if( libcstring_narrow_string_compare(
-					     (char *) column_name,
+					if( libcstring_system_string_compare(
+					     column_name,
 					     "Ne58",
 					     4 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
-					else if( libcstring_narrow_string_compare(
-					          (char *) column_name,
+					else if( libcstring_system_string_compare(
+					          column_name,
 					          "Ne59",
 					          4 ) == 0 )
 					{
@@ -1261,8 +1340,8 @@ int exchange_export_record_folders(
 				}
 				else if( column_name_size == 6 )
 				{
-					if( libcstring_narrow_string_compare(
-					     (char *) column_name,
+					if( libcstring_system_string_compare(
+					     column_name,
 					     "N3880",
 					     5 ) == 0 )
 					{
@@ -1273,14 +1352,12 @@ int exchange_export_record_folders(
 		}
 		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-/* TODO
 			result = exchange_export_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  table_file_stream,
 				  error );
-*/
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
@@ -1369,16 +1446,16 @@ int exchange_export_record_mailbox(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t column_name[ 256 ];
+	libcstring_system_character_t column_name[ 256 ];
 
 	static char *function   = "exchange_export_record_mailbox";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
 	int value_iterator      = 0;
-	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
 
 	if( record == NULL )
 	{
@@ -1420,11 +1497,21 @@ int exchange_export_record_mailbox(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-		if( libesedb_record_get_utf8_column_name_size(
-		     record,
-		     value_iterator,
-		     &column_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+
+#else
+		result = libesedb_record_get_utf8_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -1450,12 +1537,22 @@ int exchange_export_record_mailbox(
 
 			return( -1 );
 		}
-		if( libesedb_record_get_utf8_column_name(
-		     record,
-		     value_iterator,
-		     column_name,
-		     column_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name(
+		          record,
+		          value_iterator,
+		          (uint16_t *) column_name,
+		          column_name_size,
+		          error );
+#else
+		result = libesedb_record_get_utf8_column_name(
+		          record,
+		          value_iterator,
+		          (uint8_t *) column_name,
+		          column_name_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -1506,9 +1603,11 @@ int exchange_export_record_mailbox(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				 if( column_name[ 0 ] == (uint8_t) 'L' )
+				if( column_name[ 0 ] == (uint8_t) 'L' )
 				{
+/* TODO
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+*/
 				}
 				else if( column_name[ 0 ] == (uint8_t) 'S' )
 				{
@@ -1524,22 +1623,22 @@ int exchange_export_record_mailbox(
 				}
 				else if( column_name_size == 6 )
 				{
-					if( libcstring_narrow_string_compare(
-					     (char *) column_name,
+					if( libcstring_system_string_compare(
+					     column_name,
 					     "N66a0",
 					     5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
-					else if( libcstring_narrow_string_compare(
-					          (char *) column_name,
+					else if( libcstring_system_string_compare(
+					          column_name,
 					          "N676a",
 					          5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
-					else if( libcstring_narrow_string_compare(
-					          (char *) column_name,
+					else if( libcstring_system_string_compare(
+					          column_name,
 					          "N676c",
 					          5 ) == 0 )
 					{
@@ -1550,14 +1649,12 @@ int exchange_export_record_mailbox(
 		}
 		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-/* TODO
 			result = exchange_export_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  table_file_stream,
 				  error );
-*/
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{

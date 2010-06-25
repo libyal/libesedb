@@ -11,6 +11,8 @@ TODO
 * clean up
   - libesedb_data_type_definition remove offset
   - changes due to page tree on demand changes
+* handle default value
+* handle compressed values in library
 * error tolerance probe test for the page size using the backup database header
 * check for memory leaks
 * configure.ac update libfguid detection
@@ -106,11 +108,15 @@ Notes
 * a full page table will take up too much memory for large databases
 * create a root page table instead?
 
+20100625
+* code clean up
+  - removed API codepage functions, not needed
+
 20100624
 * added multi value offset 0x8000 flag support
 * esedbexport: added option to export specific table
 * updated libfdatetime
-* worked on libfntsid
+* worked on libfwnt
 
 20100623
 * worked on libfdata tree integration

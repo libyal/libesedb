@@ -1530,7 +1530,7 @@ int libesedb_record_get_value_floating_point(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of a specific entry
+/* Retrieves the size of an UTF-8 formatted string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -1631,10 +1631,8 @@ int libesedb_record_get_value_utf8_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string value of a specific entry
- * The string is formatted in UTF-8
- * The function uses a codepage if necessary, it tries to read the codepage in the column definition
- * if not available it uses the codepage set for the library
+/* Retrieves the UTF-8 formatted string of a specific entry
+ * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -1737,7 +1735,7 @@ int libesedb_record_get_value_utf8_string(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of a specific entry
+/* Retrieves the size of an UTF-16 formatted string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -1838,10 +1836,8 @@ int libesedb_record_get_value_utf16_string_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string value of a specific entry
- * The string is formatted in UTF-16
- * The function uses a codepage if necessary, it tries to read the codepage in the column definition
- * if not available it uses the codepage set for the library
+/* Retrieves the UTF-16 formatted string value of a specific entry
+ * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */

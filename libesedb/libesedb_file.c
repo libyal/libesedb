@@ -28,7 +28,6 @@
 #include <libnotify.h>
 
 #include "libesedb_array_type.h"
-#include "libesedb_codepage.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
@@ -110,8 +109,6 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		internal_file->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
-
 		*file = (libesedb_file_t *) internal_file;
 	}
 	return( 1 );
@@ -771,7 +768,7 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
@@ -793,7 +790,7 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
@@ -997,7 +994,7 @@ int libesedb_file_open_read(
 		return( -1 );
 	}
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
@@ -1047,94 +1044,6 @@ int libesedb_file_open_read(
 		return( -1 );
 	}
 	/* TODO what about the backup of the catalog */
-
-	return( 1 );
-}
-
-/* Retrieves the file ASCII codepage
- * Returns 1 if successful or -1 on error
- */
-int libesedb_file_get_ascii_codepage(
-     libesedb_file_t *file,
-     int *ascii_codepage,
-     liberror_error_t **error )
-{
-	libesedb_internal_file_t *internal_file = NULL;
-	static char *function                   = "libesedb_file_get_ascii_codepage";
-
-	if( file == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file.",
-		 function );
-
-		return( -1 );
-	}
-	internal_file = (libesedb_internal_file_t *) file;
-
-	if( ascii_codepage == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid ASCII codepage.",
-		 function );
-
-		return( -1 );
-	}
-	*ascii_codepage = internal_file->ascii_codepage;
-
-	return( 1 );
-}
-
-/* Sets the file ASCII codepage
- * Returns 1 if successful or -1 on error
- */
-int libesedb_file_set_ascii_codepage(
-     libesedb_file_t *file,
-     int ascii_codepage,
-     liberror_error_t **error )
-{
-	libesedb_internal_file_t *internal_file = NULL;
-	static char *function                   = "libesedb_file_set_ascii_codepage";
-
-	if( file == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file.",
-		 function );
-
-		return( -1 );
-	}
-	internal_file = (libesedb_internal_file_t *) file;
-
-	if( ( ascii_codepage != LIBESEDB_CODEPAGE_ASCII )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1250 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1251 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1252 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1253 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1254 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1256 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1257 )
-	 || ( ascii_codepage != LIBESEDB_CODEPAGE_WINDOWS_1258 ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported ASCII codepage.",
-		 function );
-
-		return( -1 );
-	}
-	internal_file->ascii_codepage = ascii_codepage;
 
 	return( 1 );
 }

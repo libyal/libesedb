@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 typedef struct libesedb_column_type libesedb_column_type_t;
 

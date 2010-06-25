@@ -72,10 +72,6 @@ struct libesedb_internal_file
 	 */
 	libfdata_vector_t *pages_vector;
 
-	/* The codepage of the extended ASCII strings
-	 */
-	int ascii_codepage;
-
 	/* Value to indicate if abort was signalled
 	 */
 	int abort;
@@ -120,16 +116,6 @@ LIBESEDB_EXTERN int libesedb_file_close(
 int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
      liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_file_get_ascii_codepage(
-                     libesedb_file_t *file,
-                     int *ascii_codepage,
-                     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_file_set_ascii_codepage(
-                     libesedb_file_t *file,
-                     int ascii_codepage,
-                     liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_file_get_format_version(
                      libesedb_file_t *file,

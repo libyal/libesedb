@@ -29,16 +29,6 @@
 extern "C" {
 #endif
 
-#if !defined( HAVE_LOCAL_LIBESEDB )
-
-#include <libesedb/codepage.h>
-
-/* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
- * The definitions in <libesedb/codepage.h> are copied here
- * for local use of libesedb
- */
-#else
-
 /* The codepage definitions
  */
 enum LIBESEDB_CODEPAGE
@@ -73,9 +63,7 @@ enum LIBESEDB_CODEPAGE
 	LIBESEDB_CODEPAGE_WINDOWS_1258			= 1258
 };
 
-#endif
-
-#if defined( HAVE_VERBOSE_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT )
 
 typedef struct libesedb_codepage libesedb_codepage_t;
 

@@ -52,8 +52,6 @@ int libesedb_long_value_initialize(
 	libesedb_values_tree_value_t *values_tree_value     = NULL;
 	static char *function                               = "libesedb_long_value_initialize";
 	uint32_t long_value_segment_offset                  = 0;
-	uint8_t byte_value                                  = 0;
-	uint8_t byte_shift                                  = 0;
 	int result                                          = 0;
 
 	if( long_value == NULL )
@@ -266,7 +264,7 @@ int libesedb_long_value_initialize(
 
 			return( -1 );
 		}
-		/* TODO try to read the next segment based on the size of the previous segment
+		/* Reverse the reversed-key
 		 */
 		long_value_segment_key[ 0 ] = long_value_key[ 3 ];
 		long_value_segment_key[ 1 ] = long_value_key[ 2 ];

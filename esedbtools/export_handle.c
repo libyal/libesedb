@@ -68,6 +68,10 @@
 #include "exchange.h"
 #include "windows_search.h"
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && ( SIZEOF_WCHAR_T != 2 )
+#error Unsupported wide system character size
+#endif
+
 /* Initializes the export handle
  * Returns 1 if successful or -1 on error
  */
@@ -419,16 +423,16 @@ int export_handle_sanitize_filename(
  * Returns 1 if successful or -1 on error
  */
 int export_handle_create_target_path(
-     libcstring_system_character_t *export_path,
+     const libcstring_system_character_t *export_path,
      size_t export_path_size,
-     uint8_t *utf8_filename,
-     size_t utf8_filename_size,
+     const libcstring_system_character_t *filename,
+     size_t filename_size,
      libcstring_system_character_t **target_path,
      size_t *target_path_size,
      liberror_error_t **error )
 {
-	static char *function = "export_handle_create_target_path";
-	size_t filename_size  = 0;
+	static char *function           = "export_handle_create_target_path";
+	size_t calculated_filename_size = 0;
 
 	if( export_path == NULL )
 	{
@@ -441,24 +445,35 @@ int export_handle_create_target_path(
 
 		return( -1 );
 	}
-	if( utf8_filename == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 filename.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_filename_size > (size_t) SSIZE_MAX )
+	if( export_path_size > (size_t) SSIZE_MAX )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-8 filename size value exceeds maximum.",
+		 "%s: invalid export path size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( filename_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid filename size value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -496,23 +511,20 @@ int export_handle_create_target_path(
 
 		return( -1 );
 	}
-	/* Make sure to check the UTF-8 filename length
+/* TODO is this check still required ? */
+	/* Make sure to check the filename length
 	 * the conversion routines are very strict about the string size
 	 */
-	utf8_filename_size = 1 + libcstring_narrow_string_length(
-	                          (char *) utf8_filename );
+	calculated_filename_size = 1 + libcstring_system_string_length(
+	                                filename );
 
-	if( libsystem_string_size_from_utf8_string(
-	     utf8_filename,
-	     utf8_filename_size,
-	     &filename_size,
-	     error ) != 1 )
+	if( filename_size != calculated_filename_size )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to determine UTF-8 filename size.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid filename size value does not match calculated size.",
 		 function );
 
 		return( -1 );
@@ -559,12 +571,10 @@ int export_handle_create_target_path(
 	}
 	( *target_path )[ export_path_size - 1 ] = (libcstring_system_character_t) LIBSYSTEM_PATH_SEPARATOR;
 
-	if( libsystem_string_copy_from_utf8_string(
+	if( libcstring_system_string_copy(
 	     &( ( *target_path )[ export_path_size ] ),
-	     filename_size,
-	     utf8_filename,
-	     utf8_filename_size,
-	     error ) != 1 )
+	     filename,
+	     filename_size ) == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -610,28 +620,27 @@ int export_handle_create_target_path(
 int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
-     libcstring_system_character_t *export_path,
+     const libcstring_system_character_t *table_name,
+     size_t table_name_size,
+     const libcstring_system_character_t *export_path,
      size_t export_path_size,
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libcstring_system_character_t *target_path = NULL;
-	libesedb_column_t *column                  = NULL;
-	libesedb_record_t *record                  = NULL;
-	FILE *table_file_stream                    = NULL;
-	uint8_t *table_name                        = NULL;
-	uint8_t *value_string                      = NULL;
-	static char *function                      = "export_handle_export_table";
-	size_t target_path_size                    = 0;
-	size_t table_name_size                     = 0;
-	size_t value_string_size                   = 0;
-	uint32_t table_identifier                  = 0;
-	int column_iterator                        = 0;
-	int known_table                            = 0;
-	int number_of_columns                      = 0;
-	int number_of_records                      = 0;
-	int record_iterator                        = 0;
-	int result                                 = 0;
+	libcstring_system_character_t *target_path  = NULL;
+	libcstring_system_character_t *value_string = NULL;
+	libesedb_column_t *column                   = NULL;
+	libesedb_record_t *record                   = NULL;
+	FILE *table_file_stream                     = NULL;
+	static char *function                       = "export_handle_export_table";
+	size_t target_path_size                     = 0;
+	size_t value_string_size                    = 0;
+	int column_iterator                         = 0;
+	int known_table                             = 0;
+	int number_of_columns                       = 0;
+	int number_of_records                       = 0;
+	int record_iterator                         = 0;
+	int result                                  = 0;
 
 	if( table == NULL )
 	{
@@ -644,74 +653,25 @@ int export_handle_export_table(
 
 		return( -1 );
 	}
-	if( export_path == NULL )
+	if( table_name == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export path.",
+		 "%s: invalid table name.",
 		 function );
 
 		return( -1 );
 	}
-	if( libesedb_table_get_identifier(
-	     table,
-	     &table_identifier,
-	     error ) != 1 )
+	if( table_name_size > (size_t) SSIZE_MAX )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve the table identifier.",
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid table name size value exceeds maximum.",
 		 function );
-
-		return( -1 );
-	}
-	if( libesedb_table_get_utf8_name_size(
-	     table,
-	     &table_name_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve the size of the table name.",
-		 function );
-
-		return( -1 );
-	}
-	table_name = (uint8_t *) memory_allocate(
-	                          sizeof( uint8_t ) * table_name_size );
-
-	if( table_name == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create table name string.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_table_get_utf8_name(
-	     table,
-	     table_name,
-	     table_name_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve the table name.",
-		 function );
-
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -733,9 +693,6 @@ int export_handle_export_table(
 		 "%s: unable to create target path.",
 		 function );
 
-		memory_free(
-		 table_name );
-
 		return( -1 );
 	}
 	if( target_path == NULL )
@@ -746,9 +703,6 @@ int export_handle_export_table(
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid target path.",
 		 function );
-
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -768,8 +722,6 @@ int export_handle_export_table(
 
 		memory_free(
 		 target_path );
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -781,8 +733,6 @@ int export_handle_export_table(
 
 		memory_free(
 		 target_path );
-		memory_free(
-		 table_name );
 
 		return( 1 );
 	}
@@ -802,8 +752,6 @@ int export_handle_export_table(
 
 		memory_free(
 		 target_path );
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -827,8 +775,6 @@ int export_handle_export_table(
 
 		libsystem_file_stream_close(
 		 table_file_stream );
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -853,15 +799,21 @@ int export_handle_export_table(
 
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
-		if( libesedb_column_get_utf8_name_size(
-		     column,
-		     &value_string_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_column_get_utf16_name_size(
+		          column,
+		          &value_string_size,
+		          error );
+#else
+		result = libesedb_column_get_utf8_name_size(
+		          column,
+		          &value_string_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -875,13 +827,11 @@ int export_handle_export_table(
 			 NULL );
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
-		value_string = (uint8_t *) memory_allocate(
-		                            sizeof( uint8_t ) * value_string_size );
+		value_string = (libcstring_system_character_t *) memory_allocate(
+		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 		if( value_string == NULL )
 		{
@@ -897,16 +847,23 @@ int export_handle_export_table(
 			 NULL );
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
-		if( libesedb_column_get_utf8_name(
-		     column,
-		     value_string,
-		     value_string_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_column_get_utf16_name(
+		          column,
+		          (uint16_t *) value_string,
+		          value_string_size,
+		          error );
+#else
+		result = libesedb_column_get_utf8_name(
+		          column,
+		          (uint8_t *) value_string,
+		          value_string_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -922,14 +879,12 @@ int export_handle_export_table(
 			 NULL );
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
 		fprintf(
 		 table_file_stream,
-		 "%s",
+		 "%" PRIs_LIBCSTRING_SYSTEM "",
 		 value_string );
 
 		memory_free(
@@ -948,8 +903,6 @@ int export_handle_export_table(
 
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
@@ -982,8 +935,6 @@ int export_handle_export_table(
 
 		libsystem_file_stream_close(
 		 table_file_stream );
-		memory_free(
-		 table_name );
 
 		return( -1 );
 	}
@@ -1007,8 +958,6 @@ int export_handle_export_table(
 
 			libsystem_file_stream_close(
 			 table_file_stream );
-			memory_free(
-			 table_name );
 
 			return( -1 );
 		}
@@ -1016,9 +965,9 @@ int export_handle_export_table(
 
 		if( table_name_size == 8 )
 		{
-			if( libcstring_narrow_string_compare(
-			     (char *) table_name,
-			     "Folders",
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "Folders" ),
 			     7 ) == 0 )
 			{
 				known_table = 1;
@@ -1028,9 +977,9 @@ int export_handle_export_table(
 				          table_file_stream,
 				          error );
 			}
-			else if( libcstring_narrow_string_compare(
-			          (char *) table_name,
-			          "Mailbox",
+			else if( libcstring_system_string_compare(
+			          table_name,
+			          _LIBCSTRING_SYSTEM_STRING( "Mailbox" ),
 			          7 ) == 0 )
 			{
 				known_table = 1;
@@ -1043,9 +992,9 @@ int export_handle_export_table(
 		}
 		if( table_name_size == 15 )
 		{
-			if( libcstring_narrow_string_compare(
-			     (char *) table_name,
-			     "SystemIndex_0A",
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "SystemIndex_0A" ),
 			     14 ) == 0 )
 			{
 				known_table = 1;
@@ -1058,9 +1007,9 @@ int export_handle_export_table(
 		}
 		else if( table_name_size == 17 )
 		{
-			if( libcstring_narrow_string_compare(
-			     (char *) table_name,
-			     "SystemIndex_Gthr",
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "SystemIndex_Gthr" ),
 			     16 ) == 0 )
 			{
 				known_table = 1;
@@ -1230,29 +1179,35 @@ int export_handle_export_record_value(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t filetime_string[ 24 ];
+	libcstring_system_character_t filetime_string[ 24 ];
 
-        libesedb_long_value_t *long_value   = NULL;
-        libesedb_multi_value_t *multi_value = NULL;
-	libfdatetime_filetime_t *filetime   = NULL;
-	uint8_t *value_data                 = NULL;
-	uint8_t *value_string               = NULL;
-	static char *function               = "export_handle_export_record_value";
-	size_t value_data_size              = 0;
-	size_t value_string_size            = 0;
-	double value_floating_point         = 0.0;
-	uint64_t value_64bit                = 0;
-	uint32_t column_identifier          = 0;
-	uint32_t column_type                = 0;
-	uint32_t value_32bit                = 0;
-	uint16_t value_16bit                = 0;
-	uint8_t value_8bit                  = 0;
-	uint8_t value_flags                 = 0;
-	int long_value_segment_iterator     = 0;
-	int multi_value_iterator            = 0;
-	int number_of_long_value_segments   = 0;
-	int number_of_multi_values          = 0;
-	int result                          = 0;
+	libcstring_system_character_t *value_string = NULL;
+        libesedb_long_value_t *long_value           = NULL;
+        libesedb_multi_value_t *multi_value         = NULL;
+	libfdatetime_filetime_t *filetime           = NULL;
+	uint8_t *value_data                         = NULL;
+	static char *function                       = "export_handle_export_record_value";
+	size_t value_data_size                      = 0;
+	size_t value_string_size                    = 0;
+	double value_floating_point                 = 0.0;
+	uint64_t value_64bit                        = 0;
+	uint32_t column_identifier                  = 0;
+	uint32_t column_type                        = 0;
+	uint32_t value_32bit                        = 0;
+	uint16_t value_16bit                        = 0;
+	uint8_t value_8bit                          = 0;
+	uint8_t value_flags                         = 0;
+	int long_value_segment_iterator             = 0;
+	int multi_value_iterator                    = 0;
+	int number_of_long_value_segments           = 0;
+	int number_of_multi_values                  = 0;
+	int result                                  = 0;
+
+	/* TODO remove after integration of compression
+	 * into library
+	 */
+	uint8_t *compressed_value_string            = NULL;
+	size_t compressed_value_string_size         = 0;
 
 	if( record == NULL )
 	{
@@ -1563,13 +1518,24 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					if( libfdatetime_filetime_copy_to_utf8_string(
-					     filetime,
-					     filetime_string,
-					     24,
-					     LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
-					     LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
-					     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+					result = libfdatetime_filetime_copy_to_utf16_string(
+					          filetime,
+					          (uint16_t *) filetime_string,
+					          24,
+					          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+					          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+					          error );
+#else
+					result = libfdatetime_filetime_copy_to_utf8_string(
+					          filetime,
+					          (uint8_t *) filetime_string,
+					          24,
+					          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+					          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+					          error );
+#endif
+					if( result != 1 )
 					{
 						liberror_error_set(
 						 error,
@@ -1599,7 +1565,7 @@ int export_handle_export_record_value(
 					}
 					fprintf(
 					 table_file_stream,
-					 "%s",
+					 "%" PRIs_LIBCSTRING_SYSTEM "",
 					 filetime_string );
 				}
 				break;
@@ -1633,16 +1599,22 @@ int export_handle_export_record_value(
 
 			case LIBESEDB_COLUMN_TYPE_TEXT:
 			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libesedb_record_get_value_utf16_string_size(
+					  record,
+					  record_value_entry,
+					  &value_string_size,
+					  error );
+#else
 				result = libesedb_record_get_value_utf8_string_size(
 					  record,
 					  record_value_entry,
 					  &value_string_size,
 					  error );
+#endif
 
-#define TEST
 				if( result == -1 )
 				{
-#ifndef TEST
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
@@ -1653,7 +1625,8 @@ int export_handle_export_record_value(
 					 column_identifier );
 
 					return( -1 );
-#else
+
+/* TODO this code was intended for testing, remove
 					liberror_error_free(
 					 error );
 
@@ -1670,12 +1643,13 @@ int export_handle_export_record_value(
 							value_data_size -= 1;
 						}
 					}
-#endif /* TEST */
+*/
 				}
-				else if( result != 0 )
+				if( ( result != 0 )
+				 && ( value_string_size > 0 ) )
 				{
-					value_string = (uint8_t *) memory_allocate(
-								    sizeof( uint8_t ) * value_string_size );
+					value_string = (libcstring_system_character_t *) memory_allocate(
+								                          sizeof( libcstring_system_character_t ) * value_string_size );
 
 					if( value_string == NULL )
 					{
@@ -1688,12 +1662,22 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					if( libesedb_record_get_value_utf8_string(
-					     record,
-					     record_value_entry,
-					     value_string,
-					     value_string_size,
-					     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+					result = libesedb_record_get_value_utf16_string(
+					          record,
+					          record_value_entry,
+					          (uint16_t *) value_string,
+					          value_string_size,
+					          error );
+#else
+					result = libesedb_record_get_value_utf8_string(
+					          record,
+					          record_value_entry,
+					          (uint8_t *) value_string,
+					          value_string_size,
+					          error );
+#endif
+					if( result != 1 )
 					{
 						liberror_error_set(
 						 error,
@@ -1710,7 +1694,7 @@ int export_handle_export_record_value(
 					}
 					fprintf(
 					 table_file_stream,
-					 "%s",
+					 "%" PRIs_LIBCSTRING_SYSTEM "",
 					 value_string );
 
 					memory_free(
@@ -1742,25 +1726,28 @@ int export_handle_export_record_value(
 			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
 				if( value_data != NULL )
 				{
-					value_string_size = 1 + ( ( ( value_data_size - 1 ) * 8 ) / 7 ) + 1;
+					/* TODO remove after integration of compression
+					 * into library
+					 */
+					compressed_value_string_size = 1 + ( ( ( value_data_size - 1 ) * 8 ) / 7 ) + 1;
 
-					value_string = (uint8_t *) memory_allocate(
-					                            sizeof( uint8_t ) * value_string_size );
+					compressed_value_string = (uint8_t *) memory_allocate(
+					                                       sizeof( uint8_t ) * compressed_value_string_size );
 
-					if( value_string == NULL )
+					if( compressed_value_string == NULL )
 					{
 						liberror_error_set(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_MEMORY,
 						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to create value string.",
+						 "%s: unable to create compressed value string.",
 						 function );
 
 						return( -1 );
 					}
 					if( decompress_7bit_ascii(
-					     value_string,
-					     value_string_size,
+					     compressed_value_string,
+					     compressed_value_string_size,
 					     value_data,
 					     value_data_size,
 					     error ) != 1 )
@@ -1773,25 +1760,25 @@ int export_handle_export_record_value(
 						 function );
 
 						memory_free(
-						 value_string );
+						 compressed_value_string );
 
 						return( -1 );
 					}
-					value_string[ value_string_size - 1 ] = 0;
+					compressed_value_string[ compressed_value_string_size - 1 ] = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 					fprintf(
 					 table_file_stream,
 					 "(0x%02x) ",
-					 value_string[ 0 ] );
+					 compressed_value_string[ 0 ] );
 #endif
 					fprintf(
 					 table_file_stream,
 					 "%s",
-					 &( value_string[ 1 ] ) );
+					 &( compressed_value_string[ 1 ] ) );
 
 					memory_free(
-					 value_string );
+					 compressed_value_string );
 				}
 				break;
 
@@ -1983,11 +1970,19 @@ libsystem_notify_print_data(
 				if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
 				 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 				{
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+					result = libesedb_multi_value_get_value_utf16_string_size(
+						  multi_value,
+						  multi_value_iterator,
+						  &value_string_size,
+						  error );
+#else
 					result = libesedb_multi_value_get_value_utf8_string_size(
 						  multi_value,
 						  multi_value_iterator,
 						  &value_string_size,
 						  error );
+#endif
 
 					if( result == -1 )
 					{
@@ -2009,8 +2004,8 @@ libsystem_notify_print_data(
 					}
 					else if( result != 0 )
 					{
-						value_string = (uint8_t *) memory_allocate(
-									    sizeof( uint8_t ) * value_string_size );
+						value_string = (libcstring_system_character_t *) memory_allocate(
+									                          sizeof( libcstring_system_character_t ) * value_string_size );
 
 						if( value_string == NULL )
 						{
@@ -2027,12 +2022,22 @@ libsystem_notify_print_data(
 
 							return( -1 );
 						}
-						if( libesedb_multi_value_get_value_utf8_string(
-						     multi_value,
-						     multi_value_iterator,
-						     value_string,
-						     value_string_size,
-						     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+						result = libesedb_multi_value_get_value_utf16_string(
+						          multi_value,
+						          multi_value_iterator,
+						          (uint16_t *) value_string,
+						          value_string_size,
+						          error );
+#else
+						result = libesedb_multi_value_get_value_utf8_string(
+						          multi_value,
+						          multi_value_iterator,
+						          (uint8_t *) value_string,
+						          value_string_size,
+						          error );
+#endif
+						if( result != 1 )
 						{
 							liberror_error_set(
 							 error,
@@ -2053,7 +2058,7 @@ libsystem_notify_print_data(
 						}
 						fprintf(
 						 table_file_stream,
-						 "%s",
+						 "%" PRIs_LIBCSTRING_SYSTEM "",
 						 value_string );
 
 						memory_free(
@@ -2122,17 +2127,18 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
-     const libcstring_system_character_t *table_name,
-     size_t table_name_size,
+     const libcstring_system_character_t *export_table_name,
+     size_t export_table_name_size,
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libesedb_table_t *table        = NULL;
-	uint8_t *current_table_name    = NULL;
-	static char *function          = "export_handle_export_file";
-	size_t current_table_name_size = 0;
-	int number_of_tables           = 0;
-	int table_iterator             = 0;
+	libesedb_table_t *table                   = NULL;
+	libcstring_system_character_t *table_name = NULL;
+	static char *function                     = "export_handle_export_file";
+	size_t table_name_size                    = 0;
+	int number_of_tables                      = 0;
+	int result                                = 0;
+	int table_iterator                        = 0;
 
 	if( export_handle == NULL )
 	{
@@ -2203,10 +2209,19 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
-		if( libesedb_table_get_utf8_name_size(
-		     table,
-		     &current_table_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_table_get_utf16_name_size(
+		          table,
+		          &table_name_size,
+		          error );
+#else
+		result = libesedb_table_get_utf8_name_size(
+		          table,
+		          &table_name_size,
+		          error );
+#endif
+
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -2221,10 +2236,10 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
-		current_table_name = (uint8_t *) memory_allocate(
-		                                  sizeof( uint8_t ) * current_table_name_size );
+		table_name = (libcstring_system_character_t *) memory_allocate(
+		                                                sizeof( libcstring_system_character_t ) * table_name_size );
 
-		if( current_table_name == NULL )
+		if( table_name == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -2235,11 +2250,20 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
-		if( libesedb_table_get_utf8_name(
-		     table,
-		     current_table_name,
-		     current_table_name_size,
-		     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_table_get_utf16_name(
+		          table,
+		          (uint16_t *) table_name,
+		          table_name_size,
+		          error );
+#else
+		result = libesedb_table_get_utf8_name(
+		          table,
+		          (uint8_t *) table_name,
+		          table_name_size,
+		          error );
+#endif
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -2249,41 +2273,42 @@ int export_handle_export_file(
 			 function );
 
 			memory_free(
-			 current_table_name );
+			 table_name );
 			libesedb_table_free(
 			 &table,
 			 NULL );
 
 			return( -1 );
 		}
-		/* TODO make platform independent */
-		if( ( table_name == NULL )
-		 || ( ( table_name_size == current_table_name_size )
-		  && ( libcstring_system_string_compare(
-		        current_table_name,
-		        table_name,
-		        table_name_size ) == 0 ) ) )
+		if( ( export_table_name == NULL )
+		 || ( ( table_name_size == export_table_name_size )
+		   && ( libcstring_system_string_compare(
+		         table_name,
+		         export_table_name,
+		         export_table_name_size ) == 0 ) ) )
 		{
 			if( table_name == NULL )
 			{
 				fprintf(
 				 stdout,
-				 "Exporting table %d (%s) out of %d.\n",
+				 "Exporting table %d (%" PRIs_LIBCSTRING_SYSTEM ") out of %d.\n",
 				 table_iterator + 1,
-				 (char *) current_table_name,
+				 (char *) table_name,
 				 number_of_tables );
 			}
 			else
 			{
 				fprintf(
 				 stdout,
-				 "Exporting table %d (%s).\n",
+				 "Exporting table %d (%" PRIs_LIBCSTRING_SYSTEM ").\n",
 				 table_iterator + 1,
-				 (char *) current_table_name );
+				 (char *) table_name );
 			}
 			if( export_handle_export_table(
 			     export_handle,
 			     table,
+			     table_name,
+			     table_name_size,
 			     export_path,
 			     export_path_size,
 			     log_handle,
@@ -2298,7 +2323,7 @@ int export_handle_export_file(
 				 table_iterator );
 
 				memory_free(
-				 current_table_name );
+				 table_name );
 				libesedb_table_free(
 				 &table,
 				 NULL );
@@ -2307,7 +2332,7 @@ int export_handle_export_file(
 			}
 		}
 		memory_free(
-		 current_table_name );
+		 table_name );
 
 		if( libesedb_table_free(
 		     &table,
