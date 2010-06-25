@@ -1,4 +1,6 @@
 TODO
+* add big-endian support for optimized XOR32 
+
 * page tree on demand
   - check sanity of page value 0 
 * clean up
