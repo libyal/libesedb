@@ -83,9 +83,17 @@ Table functions
 .Ft int
 .Fn libesedb_table_get_utf8_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
 .Ft int
+.Fn libesedb_table_get_utf16_name_size "libesedb_table_t *table, size_t *utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_utf16_name "libesedb_table_t *table, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Ft int
 .Fn libesedb_table_get_utf8_template_name_size "libesedb_table_t *table, size_t *utf8_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_utf8_template_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_utf16_template_name_size "libesedb_table_t *table, size_t *utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_table_get_utf16_template_name "libesedb_table_t *table, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_table_get_number_of_columns "libesedb_table_t *table, int *number_of_columns, uint8_t flags, libesedb_error_t **error"
 .Ft int
@@ -110,6 +118,10 @@ Column functions
 .Fn libesedb_column_get_utf8_name_size "libesedb_column_t *column, size_t *utf8_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_column_get_utf8_name "libesedb_column_t *column, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_column_get_utf16_name_size "libesedb_column_t *column, size_t *utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_column_get_utf16_name "libesedb_column_t *column, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
 .Pp
 Index functions
 .Ft int
@@ -120,6 +132,10 @@ Index functions
 .Fn libesedb_index_get_utf8_name_size "libesedb_index_t *index, size_t *utf8_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_index_get_utf8_name "libesedb_index_t *index, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_utf16_name_size "libesedb_index_t *index, size_t *utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_utf16_name "libesedb_index_t *index, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
 .Pp
 Record functions
 .Ft int
@@ -134,6 +150,10 @@ Record functions
 .Fn libesedb_record_get_utf8_column_name_size "libesedb_record_t *record, int value_entry, size_t *utf8_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_utf8_column_name "libesedb_record_t *record, int value_entry, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_utf16_column_name_size "libesedb_record_t *record, int value_entry, size_t *utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_utf16_column_name "libesedb_record_t *record, int value_entry, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_value "libesedb_record_t *record, int value_entry, uint8_t **value_data, size_t *value_data_size, uint8_t *value_flags, libesedb_error_t **error"
 .Ft int

@@ -26,9 +26,9 @@
 #include <liberror.h>
 
 #include "libesedb_catalog_definition.h"
-#include "libesedb_definitions.h"
 #include "libesedb_column.h"
-#include "libesedb_table.h"
+#include "libesedb_definitions.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_types.h"
 
 /* Creates a column
@@ -36,12 +36,12 @@
  */
 int libesedb_column_initialize(
      libesedb_column_t **column,
-     libesedb_internal_table_t *internal_table,
+     libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
-	static char *function                      = "libesedb_column_initialize";
+	static char *function                       = "libesedb_column_initialize";
 
 	if( column == NULL )
 	{
@@ -87,7 +87,7 @@ int libesedb_column_initialize(
 
 			return( -1 );
 		}
-		internal_column->internal_table     = internal_table;
+		internal_column->io_handle          = io_handle;
 		internal_column->catalog_definition = catalog_definition;
 
 		*column = (libesedb_column_t *) internal_column;
@@ -122,7 +122,7 @@ int libesedb_column_free(
 		internal_column = (libesedb_internal_column_t *) *column;
 		*column         = NULL;
 
-		/* The internal_table and catalog_definition references
+		/* The io_handle and catalog_definition references
 		 * are freed elsewhere
 		 */
 		memory_free(
@@ -155,30 +155,20 @@ int libesedb_column_get_identifier(
 	}
 	internal_column = (libesedb_internal_column_t *) column;
 
-	if( internal_column->catalog_definition == NULL )
+	if( libesedb_catalog_definition_get_identifier(
+	     internal_column->catalog_definition,
+	     identifier,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing catalog definition.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
 		return( -1 );
 	}
-	if( identifier == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid identifier.",
-		 function );
-
-		return( -1 );
-	}
-	*identifier = internal_column->catalog_definition->identifier;
-
 	return( 1 );
 }
 
@@ -206,30 +196,20 @@ int libesedb_column_get_type(
 	}
 	internal_column = (libesedb_internal_column_t *) column;
 
-	if( internal_column->catalog_definition == NULL )
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_column->catalog_definition,
+	     type,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing catalog definition.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
 		return( -1 );
 	}
-	if( type == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid type.",
-		 function );
-
-		return( -1 );
-	}
-	*type = internal_column->catalog_definition->column_type;
-
 	return( 1 );
 }
 
@@ -243,7 +223,7 @@ int libesedb_column_get_utf8_name_size(
      liberror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
-	static char *function                       = "libesedb_column_get_utf8_string_size";
+	static char *function                       = "libesedb_column_get_utf8_name_size";
 
 	if( column == NULL )
 	{
@@ -258,35 +238,36 @@ int libesedb_column_get_utf8_name_size(
 	}
 	internal_column = (libesedb_internal_column_t *) column;
 
-	if( internal_column->catalog_definition == NULL )
+	if( internal_column->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing catalog definition.",
+		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string_size == NULL )
+	if( libesedb_catalog_definition_get_utf8_name_size(
+	     internal_column->catalog_definition,
+	     utf8_string_size,
+	     internal_column->io_handle->ascii_codepage,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string size.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_column->catalog_definition->name_size;
-
 	return( 1 );
 }
 
 /* Retrieves the UTF-8 string of the column name
- * The string is formatted in UTF-8
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -297,7 +278,7 @@ int libesedb_column_get_utf8_name(
      liberror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
-	static char *function                       = "libesedb_column_get_utf8_string";
+	static char *function                       = "libesedb_column_get_utf8_name";
 
 	if( column == NULL )
 	{
@@ -312,60 +293,139 @@ int libesedb_column_get_utf8_name(
 	}
 	internal_column = (libesedb_internal_column_t *) column;
 
-	if( internal_column->catalog_definition == NULL )
+	if( internal_column->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal column - missing catalog definition.",
+		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string == NULL )
+	if( libesedb_catalog_definition_get_utf8_name(
+	     internal_column->catalog_definition,
+	     utf8_string,
+	     utf8_string_size,
+	     internal_column->io_handle->ascii_codepage,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to retrieve UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string size of the column name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_column_get_utf16_name_size(
+     libesedb_column_t *column,
+     size_t *utf16_string_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_column_t *internal_column = NULL;
+	static char *function                       = "libesedb_column_get_utf16_name_size";
+
+	if( column == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string.",
+		 "%s: invalid column.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string_size > (size_t) SSIZE_MAX )
+	internal_column = (libesedb_internal_column_t *) column;
+
+	if( internal_column->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal column - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_utf16_name_size(
+	     internal_column->catalog_definition,
+	     utf16_string_size,
+	     internal_column->io_handle->ascii_codepage,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string of the column name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_column_get_utf16_name(
+     libesedb_column_t *column,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_column_t *internal_column = NULL;
+	static char *function                       = "libesedb_column_get_utf16_name";
+
+	if( column == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-8 string size value exceeds maximum.",
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string_size < internal_column->catalog_definition->name_size )
+	internal_column = (libesedb_internal_column_t *) column;
+
+	if( internal_column->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: UTF-8 string is too small.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( memory_copy(
-	     utf8_string,
-	     internal_column->catalog_definition->name,
-	     internal_column->catalog_definition->name_size ) == NULL )
+	if( libesedb_catalog_definition_get_utf16_name(
+	     internal_column->catalog_definition,
+	     utf16_string,
+	     utf16_string_size,
+	     internal_column->io_handle->ascii_codepage,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to set UTF-8 string.",
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
 		return( -1 );

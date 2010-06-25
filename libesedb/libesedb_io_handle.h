@@ -71,6 +71,10 @@ struct libesedb_io_handle
 	/* The last page number
 	 */
 	uint32_t last_page_number;
+
+	/* The codepage of the extended ASCII strings
+	 */
+	int ascii_codepage;
 };
 
 int libesedb_io_handle_initialize(

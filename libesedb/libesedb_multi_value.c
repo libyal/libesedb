@@ -470,7 +470,6 @@ int libesedb_multi_value_get_value_utf8_string_size(
 }
 
 /* Retrieves the UTF-8 string value of a specific value of the multi value
- * The string is formatted in UTF-8
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -609,7 +608,6 @@ int libesedb_multi_value_get_value_utf16_string_size(
 }
 
 /* Retrieves the UTF-16 string value of a specific value of the multi value
- * The string is formatted in UTF-16
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */

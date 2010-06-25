@@ -479,6 +479,7 @@ int libesedb_page_tree_get_table_definition_by_utf8_name(
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_page_tree_get_table_definition_by_utf8_name";
 	int list_element_iterator             = 0;
+	int result                            = 0;
 
 	if( page_tree == NULL )
 	{
@@ -487,6 +488,17 @@ int libesedb_page_tree_get_table_definition_by_utf8_name(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_tree->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page tree - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -579,15 +591,28 @@ int libesedb_page_tree_get_table_definition_by_utf8_name(
 
 			return( -1 );
 		}
-		if( ( *table_definition )->table_catalog_definition->name_size == utf8_string_size )
+		result = libuna_utf8_string_compare_with_byte_stream(
+			  utf8_string,
+			  utf8_string_size,
+			  ( *table_definition )->table_catalog_definition->name,
+			  ( *table_definition )->table_catalog_definition->name_size,
+			  page_tree->io_handle->ascii_codepage,
+			  error );
+
+		if( result == -1 )
 		{
-			if( libcstring_narrow_string_compare(
-			     ( *table_definition )->table_catalog_definition->name,
-			     utf8_string,
-			     utf8_string_size ) == 0 )
-			{
-				return( 1 );
-			}
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to compare UTF-8 string.",
+			 function );
+
+			return( -1 );
+		}
+		else if( result != 0 )
+		{
+			return( 1 );
 		}
 		list_element = list_element->next;
 	}

@@ -28,6 +28,7 @@
 #include <libnotify.h>
 
 #include "libesedb_checksum.h"
+#include "libesedb_codepage.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
@@ -95,6 +96,7 @@ int libesedb_io_handle_initialize(
 
 			return( -1 );
 		}
+		( *io_handle )->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
 	}
 	return( 1 );
 }

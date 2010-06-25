@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -37,7 +38,6 @@
 #include "libesedb_data_type_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_lcid.h"
-#include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_value_type.h"
 
@@ -662,9 +662,9 @@ int libesedb_data_definition_read_record(
 			 function,
 			 column_catalog_definition->identifier );
 			libnotify_printf(
-			 "%s: column definition name\t\t\t\t\t: %s\n",
+			 "%s: column definition name\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 			 function,
-			 column_catalog_definition->name );
+			 column_catalog_definition->name_string );
 			libnotify_printf(
 			 "%s: column definition type\t\t\t\t\t: %s (%s)\n",
 			 function,
@@ -706,7 +706,7 @@ int libesedb_data_definition_read_record(
 					     column_catalog_definition->column_type,
 					     &( definition_data[ fixed_size_data_type_value_offset ] ),
 					     column_catalog_definition->size,
-					     LIBUNA_CODEPAGE_ASCII,
+					     io_handle->ascii_codepage,
 					     error ) != 1 )
 					{
 						liberror_error_set(

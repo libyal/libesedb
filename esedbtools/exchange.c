@@ -146,10 +146,6 @@
 #include "export_handle.h"
 #include "exchange.h"
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && ( SIZEOF_WCHAR_T != 2 )
-#error Unsupported wide system character size
-#endif
-
 enum EXCHANGE_KNOWN_COLUMN_TYPES
 {
 	EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED,
@@ -959,7 +955,7 @@ int exchange_export_record_value_sid(
 			/* It is assumed that the SID string cannot be larger than 127 characters
 			 * otherwise using dynamic allocation is more appropriate
 			 */
-			if( sid_string > 128 )
+			if( sid_string_size > 128 )
 			{
 				liberror_error_set(
 				 error,

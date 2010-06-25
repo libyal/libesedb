@@ -68,10 +68,6 @@
 #include "exchange.h"
 #include "windows_search.h"
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) && ( SIZEOF_WCHAR_T != 2 )
-#error Unsupported wide system character size
-#endif
-
 /* Initializes the export handle
  * Returns 1 if successful or -1 on error
  */
@@ -830,6 +826,23 @@ int export_handle_export_table(
 
 			return( -1 );
 		}
+		if( value_string_size == 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing column name.",
+			 function );
+
+			libesedb_column_free(
+			 &column,
+			 NULL );
+			libsystem_file_stream_close(
+			 table_file_stream );
+
+			return( -1 );
+		}
 		value_string = (libcstring_system_character_t *) memory_allocate(
 		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
@@ -1572,11 +1585,11 @@ int export_handle_export_record_value(
 
 			case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
 			case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
-				if( libesedb_record_get_value_floating_point(
-				     record,
-				     record_value_entry,
-				     &value_floating_point,
-				     error ) != 1 )
+				result = libesedb_record_get_value_floating_point(
+				          record,
+				          record_value_entry,
+				          &value_floating_point,
+				          error );
 
 				if( result == -1 )
 				{
@@ -1590,11 +1603,13 @@ int export_handle_export_record_value(
 
 					return( -1 );
 				}
-				fprintf(
-				 table_file_stream,
-				 "%f",
-				 value_floating_point );
-
+				else if( result != 0 )
+				{
+					fprintf(
+					 table_file_stream,
+					 "%f",
+					 value_floating_point );
+				}
 				break;
 
 			case LIBESEDB_COLUMN_TYPE_TEXT:
@@ -1645,9 +1660,19 @@ int export_handle_export_record_value(
 					}
 */
 				}
-				if( ( result != 0 )
-				 && ( value_string_size > 0 ) )
+				if( result != 0 )
 				{
+					if( value_string_size == 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+						 "%s: missing value string.",
+						 function );
+
+						return( -1 );
+					}
 					value_string = (libcstring_system_character_t *) memory_allocate(
 								                          sizeof( libcstring_system_character_t ) * value_string_size );
 
@@ -2236,6 +2261,21 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
+		if( table_name_size == 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing table name.",
+			 function );
+
+			libesedb_table_free(
+			 &table,
+			 NULL );
+
+			return( -1 );
+		}
 		table_name = (libcstring_system_character_t *) memory_allocate(
 		                                                sizeof( libcstring_system_character_t ) * table_name_size );
 
@@ -2287,7 +2327,7 @@ int export_handle_export_file(
 		         export_table_name,
 		         export_table_name_size ) == 0 ) ) )
 		{
-			if( table_name == NULL )
+			if( export_table_name == NULL )
 			{
 				fprintf(
 				 stdout,

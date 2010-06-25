@@ -539,12 +539,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: compressed data header:\n",
-	 function );
-	libsystem_notify_print_data(
-	 compressed_data,
-	 258 );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: compressed data header:\n",
+		 function );
+		libsystem_notify_print_data(
+		 compressed_data,
+		 258 );
+	}
 #endif
 
 	/* Byte 0 - 1 contain the uncompressed data size
@@ -580,24 +583,27 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		nibble_count_table[ nibble_count_table_index >> 4 ]   += 1;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: uncompressed data size:\t%" PRIu16 "\n",
-	 function,
-	 stored_uncompressed_data_size );
-
-	for( nibble_count_table_index = 0;
-	     nibble_count_table_index < 16;
-	     nibble_count_table_index++ )
+	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
-		 "%s: nibble count table index: %02d value:\t\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: uncompressed data size:\t%" PRIu16 "\n",
 		 function,
-		 nibble_count_table_index,
-		 nibble_count_table[ nibble_count_table_index ],
-		 nibble_count_table[ nibble_count_table_index ] );
+		 stored_uncompressed_data_size );
+
+		for( nibble_count_table_index = 0;
+		     nibble_count_table_index < 16;
+		     nibble_count_table_index++ )
+		{
+			libsystem_notify_printf(
+			 "%s: nibble count table index: %02d value:\t\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+			 function,
+			 nibble_count_table_index,
+			 nibble_count_table[ nibble_count_table_index ],
+			 nibble_count_table[ nibble_count_table_index ] );
+		}
+		libsystem_notify_printf(
+		 "\n" );
 	}
-	libsystem_notify_printf(
-	 "\n" );
 #endif
 
 	if( nibble_count_table[ 0 ] >= 0x1ff )
@@ -650,12 +656,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	nibble_count = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
-	 function,
-	 0,
-	 total_nibble_count_table[ 0 ],
-	 total_nibble_count_table[ 0 ] );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 function,
+		 0,
+		 total_nibble_count_table[ 0 ],
+		 total_nibble_count_table[ 0 ] );
+	}
 #endif
 
 	for( nibble_count_table_index = 1;
@@ -666,17 +675,23 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		nibble_count                                          = total_nibble_count_table[ nibble_count_table_index ];
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		libsystem_notify_printf(
-		 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
-		 function,
-		 nibble_count_table_index,
-		 total_nibble_count_table[ nibble_count_table_index ],
-		 total_nibble_count_table[ nibble_count_table_index ] );
+		if( libsystem_notify_verbose != 0 )
+		{
+			libsystem_notify_printf(
+			 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
+			 function,
+			 nibble_count_table_index,
+			 total_nibble_count_table[ nibble_count_table_index ],
+			 total_nibble_count_table[ nibble_count_table_index ] );
+		}
 #endif
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "\n" );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "\n" );
+	}
 #endif
 
 	total_nibble_count = nibble_count;
@@ -798,12 +813,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: compression value table:\n",
-	 function );
-	libsystem_notify_print_data(
-	 (uint8_t *) compression_value_table,
-	 2 * 2048 );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: compression value table:\n",
+		 function );
+		libsystem_notify_print_data(
+		 (uint8_t *) compression_value_table,
+		 2 * 2048 );
+	}
 #endif
 	/* Byte 258 - end contain the compression data bit stream
 	 */
@@ -1083,14 +1101,16 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: uncompressed data:\n",
-	 function );
-	libsystem_notify_print_data(
-	 uncompressed_data,
-	 uncompressed_data_iterator );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: uncompressed data:\n",
+		 function );
+		libsystem_notify_print_data(
+		 uncompressed_data,
+		 uncompressed_data_iterator );
+	}
 #endif
-
 	return( 1 );
 }
 
@@ -1191,12 +1211,15 @@ int windows_search_export_compressed_string_value(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	libsystem_notify_printf(
-	 "%s: decoded data:\n",
-	 function );
-	libsystem_notify_print_data(
-	 decoded_value_data,
-	 decoded_value_data_size );
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: decoded data:\n",
+		 function );
+		libsystem_notify_print_data(
+		 decoded_value_data,
+		 decoded_value_data_size );
+	}
 #endif
 
 	/* Run-length compressed UTF-16 little-endian string
@@ -1492,13 +1515,16 @@ int windows_search_export_compressed_string_value(
 	else
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		libsystem_notify_printf(
-		 "UNSUPPORTED COMPRESSION TYPE: 0x%02" PRIx8 "\n",
-		 decoded_value_data[ 0 ] );
+		if( libsystem_notify_verbose != 0 )
+		{
+			libsystem_notify_printf(
+			 "UNSUPPORTED COMPRESSION TYPE: 0x%02" PRIx8 "\n",
+			 decoded_value_data[ 0 ] );
 
-		libsystem_notify_print_data(
-		 decoded_value_data,
-		 decoded_value_data_size );
+			libsystem_notify_print_data(
+			 decoded_value_data,
+			 decoded_value_data_size );
+		}
 #endif
 
 		memory_free(
@@ -2206,10 +2232,13 @@ int windows_search_export_record_value_compressed_string(
 				return( -1 );
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-libsystem_notify_printf(
- "LONG VALUE DATA: %d out of %d\n",
- long_value_segment_iterator + 1,
- number_of_long_value_segments );
+if( libsystem_notify_verbose != 0 )
+{
+	libsystem_notify_printf(
+	 "LONG VALUE DATA: %d out of %d\n",
+	 long_value_segment_iterator + 1,
+	 number_of_long_value_segments );
+}
 #endif
 
 			if( value_data != NULL )

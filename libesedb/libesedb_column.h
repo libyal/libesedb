@@ -29,7 +29,7 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
-#include "libesedb_table.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -40,9 +40,9 @@ typedef struct libesedb_internal_column libesedb_internal_column_t;
 
 struct libesedb_internal_column
 {
-	/* The internal table
+	/* The IO handle
 	 */
-	libesedb_internal_table_t *internal_table;
+	libesedb_io_handle_t *io_handle;
 
 	/* The catalog definition
 	 */
@@ -51,7 +51,7 @@ struct libesedb_internal_column
 
 int libesedb_column_initialize(
      libesedb_column_t **column,
-     libesedb_internal_table_t *internal_table,
+     libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
@@ -78,6 +78,17 @@ LIBESEDB_EXTERN int libesedb_column_get_utf8_name(
                      libesedb_column_t *column,
                      uint8_t *utf8_string,
                      size_t utf8_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_column_get_utf16_name_size(
+                     libesedb_column_t *column,
+                     size_t *utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_column_get_utf16_name(
+                     libesedb_column_t *column,
+                     uint16_t *utf16_string,
+                     size_t utf16_string_size,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

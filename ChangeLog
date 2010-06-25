@@ -111,6 +111,8 @@ Notes
 20100625
 * code clean up
   - removed API codepage functions, not needed
+  - worked on windows UTF-16 support
+  - added several UTF-16 API functions
 
 20100624
 * added multi value offset 0x8000 flag support

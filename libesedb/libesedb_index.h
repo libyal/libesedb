@@ -48,6 +48,10 @@ struct libesedb_internal_index
 	 */
 	libbfio_handle_t *file_io_handle;
 
+	/* The IO handle
+	 */
+	libesedb_io_handle_t *io_handle;
+
 	/* The table definition
 	 */
 	libesedb_table_definition_t *table_definition;
@@ -98,8 +102,15 @@ LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
                      size_t utf8_string_size,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_index_test(
+LIBESEDB_EXTERN int libesedb_index_get_utf16_name_size(
                      libesedb_index_t *index,
+                     size_t *utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_index_get_utf16_name(
+                     libesedb_index_t *index,
+                     uint16_t *utf16_string,
+                     size_t utf16_string_size,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

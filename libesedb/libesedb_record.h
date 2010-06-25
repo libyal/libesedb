@@ -48,6 +48,10 @@ struct libesedb_internal_record
 	 */
 	libbfio_handle_t *file_io_handle;
 
+	/* The IO handle
+	 */
+	libesedb_io_handle_t *io_handle;
+
 	/* The pages vector
 	 */
 	libfdata_vector_t *pages_vector;
@@ -109,6 +113,19 @@ LIBESEDB_EXTERN int libesedb_record_get_utf8_column_name(
                      int value_entry,
                      uint8_t *utf8_string,
                      size_t utf8_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_utf16_column_name_size(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     size_t *utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_utf16_column_name(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     uint16_t *utf16_string,
+                     size_t utf16_string_size,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value(

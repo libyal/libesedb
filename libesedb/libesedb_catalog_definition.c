@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include <libcstring.h>
 #include <liberror.h>
 #include <libnotify.h>
 
@@ -122,6 +123,13 @@ int libesedb_catalog_definition_free(
 		memory_free(
 		 ( (libesedb_catalog_definition_t *) catalog_definition )->name );
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->name_string != NULL )
+	{
+		memory_free(
+		 ( (libesedb_catalog_definition_t *) catalog_definition )->name_string );
+	}
+#endif
 	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->template_name != NULL )
 	{
 		memory_free(
@@ -162,9 +170,15 @@ int libesedb_catalog_definition_read(
 	uint8_t variable_size_data_type_iterator            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
+	libcstring_system_character_t *value_string         = 0;
+	size_t value_string_size                            = 0;
 	uint32_t value_32bit                                = 0;
 	uint16_t record_offset                              = 0;
 	uint16_t value_16bit                                = 0;
+	int result                                          = 0;
+
+	/* TODO replace by one in IO handle */
+	int ascii_codepage                                  = LIBUNA_CODEPAGE_WINDOWS_1252;
 #endif
 
 	if( catalog_definition == NULL )
@@ -589,22 +603,8 @@ int libesedb_catalog_definition_read(
 					 */
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
-						if( libesedb_value_type_get_utf8_string_size(
-						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     LIBUNA_CODEPAGE_WINDOWS_1252,
-						     &( catalog_definition->name_size ),
-						     error ) != 1 )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-							 "%s: unable to determine size of name string.",
-							 function );
+						catalog_definition->name_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
 
-							return( -1 );
-						}
 						catalog_definition->name = (uint8_t *) memory_allocate(
 										        sizeof( uint8_t ) * catalog_definition->name_size );
 
@@ -614,26 +614,23 @@ int libesedb_catalog_definition_read(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_MEMORY,
 							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-							 "%s: unable to create name string.",
+							 "%s: unable to create name.",
 							 function );
 
 							catalog_definition->name_size = 0;
 
 							return( -1 );
 						}
-						if( libesedb_value_type_copy_to_utf8_string(
-						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     LIBUNA_CODEPAGE_WINDOWS_1252,
+						if( memory_copy(
 						     catalog_definition->name,
-						     catalog_definition->name_size,
-						     error ) != 1 )
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     catalog_definition->name_size ) == NULL )
 						{
 							liberror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_CONVERSION,
-							 LIBERROR_CONVERSION_ERROR_GENERIC,
-							 "%s: unable to set name string.",
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 "%s: unable to set name.",
 							 function );
 
 							memory_free(
@@ -644,15 +641,89 @@ int libesedb_catalog_definition_read(
 
 							return( -1 );
 						}
-
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libnotify_verbose != 0 )
 						{
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+							result = libuna_utf16_string_size_from_byte_stream(
+							          catalog_definition->name,
+							          catalog_definition->name_size,
+							          ascii_codepage,
+							          &value_string_size,
+							          error );
+#else
+							result = libuna_utf8_string_size_from_byte_stream(
+							          catalog_definition->name,
+							          catalog_definition->name_size,
+							          ascii_codepage,
+							          &value_string_size,
+							          error );
+#endif
+
+							if( result != 1 )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+								 "%s: unable to determine size of name string.",
+								 function );
+
+								return( -1 );
+							}
+							catalog_definition->name_string = (libcstring_system_character_t *) memory_allocate(
+							                                                                     sizeof( libcstring_system_character_t ) * value_string_size );
+
+							if( catalog_definition->name_string == NULL )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_MEMORY,
+								 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+								 "%s: unable to create name string.",
+								 function );
+
+								return( -1 );
+							}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+							result = libuna_utf16_string_copy_from_byte_stream(
+							          (libuna_utf16_character_t *) catalog_definition->name_string,
+							          value_string_size,
+							          catalog_definition->name,
+							          catalog_definition->name_size,
+							          ascii_codepage,
+							          error );
+#else
+							result = libuna_utf8_string_copy_from_byte_stream(
+							          (libuna_utf8_character_t *) catalog_definition->name_string,
+							          value_string_size,
+							          catalog_definition->name,
+							          catalog_definition->name_size,
+							          ascii_codepage,
+							          error );
+#endif
+
+							if( result != 1 )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_CONVERSION,
+								 LIBERROR_CONVERSION_ERROR_GENERIC,
+								 "%s: unable to set name string.",
+								 function );
+
+								memory_free(
+								 catalog_definition->name_string );
+
+								catalog_definition->name_string = NULL;
+
+								return( -1 );
+							}
 							libnotify_printf(
-							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %s\n",
+							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 data_type_number,
-							 catalog_definition->name );
+							 catalog_definition->name_string );
 						}
 #endif
 					}
@@ -699,24 +770,10 @@ int libesedb_catalog_definition_read(
 					 */
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
-						if( libesedb_value_type_get_utf8_string_size(
-						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     LIBUNA_CODEPAGE_WINDOWS_1252,
-						     &( catalog_definition->template_name_size ),
-						     error ) != 1 )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-							 "%s: unable to determine size of template name string.",
-							 function );
+						catalog_definition->template_name_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
 
-							return( -1 );
-						}
 						catalog_definition->template_name = (uint8_t *) memory_allocate(
-												 sizeof( uint8_t ) * catalog_definition->template_name_size );
+						                                                 sizeof( uint8_t ) * catalog_definition->template_name_size );
 
 						if( catalog_definition->template_name == NULL )
 						{
@@ -724,26 +781,23 @@ int libesedb_catalog_definition_read(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_MEMORY,
 							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-							 "%s: unable to create template name string.",
+							 "%s: unable to create template name.",
 							 function );
 
 							catalog_definition->template_name_size = 0;
 
 							return( -1 );
 						}
-						if( libesedb_value_type_copy_to_utf8_string(
-						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-						     (size_t) variable_size_data_type_size - previous_variable_size_data_type_size,
-						     LIBUNA_CODEPAGE_WINDOWS_1252,
+						if( memory_copy(
 						     catalog_definition->template_name,
-						     catalog_definition->template_name_size,
-						     error ) != 1 )
+						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
+						     catalog_definition->template_name_size ) == NULL )
 						{
 							liberror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_CONVERSION,
-							 LIBERROR_CONVERSION_ERROR_GENERIC,
-							 "%s: unable to set template name string.",
+							 LIBERROR_ERROR_DOMAIN_MEMORY,
+							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 "%s: unable to set template name.",
 							 function );
 
 							memory_free(
@@ -754,15 +808,90 @@ int libesedb_catalog_definition_read(
 
 							return( -1 );
 						}
-
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libnotify_verbose != 0 )
 						{
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+							result = libuna_utf16_string_size_from_byte_stream(
+							          catalog_definition->template_name,
+							          catalog_definition->template_name_size,
+							          ascii_codepage,
+							          &value_string_size,
+							          error );
+#else
+							result = libuna_utf8_string_size_from_byte_stream(
+							          catalog_definition->template_name,
+							          catalog_definition->template_name_size,
+							          ascii_codepage,
+							          &value_string_size,
+							          error );
+#endif
+
+							if( result != 1 )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+								 "%s: unable to determine size of template name string.",
+								 function );
+
+								return( -1 );
+							}
+							value_string = (libcstring_system_character_t *) memory_allocate(
+							                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+
+							if( value_string == NULL )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_MEMORY,
+								 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+								 "%s: unable to create template name string.",
+								 function );
+
+								return( -1 );
+							}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+							result = libuna_utf16_string_copy_from_byte_stream(
+							          (libuna_utf16_character_t *) value_string,
+							          value_string_size,
+							          catalog_definition->template_name,
+							          catalog_definition->template_name_size,
+							          ascii_codepage,
+							          error );
+#else
+							result = libuna_utf8_string_copy_from_byte_stream(
+							          (libuna_utf8_character_t *) value_string,
+							          value_string_size,
+							          catalog_definition->template_name,
+							          catalog_definition->template_name_size,
+							          ascii_codepage,
+							          error );
+#endif
+
+							if( result != 1 )
+							{
+								liberror_error_set(
+								 error,
+								 LIBERROR_ERROR_DOMAIN_CONVERSION,
+								 LIBERROR_CONVERSION_ERROR_GENERIC,
+								 "%s: unable to set template name string.",
+								 function );
+
+								memory_free(
+								 value_string );
+
+								return( -1 );
+							}
 							libnotify_printf(
-							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %s\n",
+							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 data_type_number,
-							 catalog_definition->template_name );
+							 value_string );
+
+							memory_free(
+							 value_string );
 						}
 #endif
 					}
@@ -782,7 +911,7 @@ int libesedb_catalog_definition_read(
 					 */
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
-						catalog_definition->default_value_size = (size_t) variable_size_data_type_size - previous_variable_size_data_type_size;
+						catalog_definition->default_value_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
 
 						catalog_definition->default_value = (uint8_t *) memory_allocate(
 												 sizeof( uint8_t ) * catalog_definition->default_value_size );
@@ -1016,6 +1145,490 @@ int libesedb_catalog_definition_read(
 	}
 #endif
 
+	return( 1 );
+}
+
+/* Retrieves the catalog definition identifier
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_identifier(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint32_t *identifier,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_identifier";
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( identifier == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid identifier.",
+		 function );
+
+		return( -1 );
+	}
+	*identifier = catalog_definition->identifier;
+
+	return( 1 );
+}
+
+/* Retrieves the catalog definition column type
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_column_type(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint32_t *column_type,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_column_type";
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column type.",
+		 function );
+
+		return( -1 );
+	}
+	*column_type = catalog_definition->column_type;
+
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string size of the catalog definition name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf8_name_size(
+     libesedb_catalog_definition_t *catalog_definition,
+     size_t *utf8_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf8_name_size";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf8_string_size_from_byte_stream(
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  ascii_codepage,
+		  utf8_string_size,
+		  error );
+
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string of the catalog definition name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf8_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf8_name";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf8_string_copy_from_byte_stream(
+		  utf8_string,
+		  utf8_string_size,
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  ascii_codepage,
+		  error );
+
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string size of the catalog definition name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf16_name_size(
+     libesedb_catalog_definition_t *catalog_definition,
+     size_t *utf16_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf16_name_size";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf16_string_size_from_byte_stream(
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  ascii_codepage,
+		  utf16_string_size,
+		  error );
+
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string of the catalog definition name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf16_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf16_name";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	result = libuna_utf16_string_copy_from_byte_stream(
+		  utf16_string,
+		  utf16_string_size,
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  ascii_codepage,
+		  error );
+
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string size of the catalog definition template name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf8_template_name_size(
+     libesedb_catalog_definition_t *catalog_definition,
+     size_t *utf8_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf8_template_name_size";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->template_name == NULL )
+	{
+		if( utf8_string_size == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-8 string size.",
+			 function );
+
+			return( -1 );
+		}
+		*utf8_string_size = 0;
+	}
+	else
+	{
+		result = libuna_utf8_string_size_from_byte_stream(
+			  catalog_definition->template_name,
+			  catalog_definition->template_name_size,
+			  ascii_codepage,
+			  utf8_string_size,
+			  error );
+
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-8 string size.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-8 string of the catalog definition template name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf8_template_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf8_template_name";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->template_name != NULL )
+	{
+		result = libuna_utf8_string_copy_from_byte_stream(
+			  utf8_string,
+			  utf8_string_size,
+			  catalog_definition->template_name,
+			  catalog_definition->template_name_size,
+			  ascii_codepage,
+			  error );
+
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set UTF-8 string.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string size of the catalog definition template name
+ * The returned size includes the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf16_template_name_size(
+     libesedb_catalog_definition_t *catalog_definition,
+     size_t *utf16_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf16_template_name_size";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->template_name == NULL )
+	{
+		if( utf16_string_size == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid UTF-16 string size.",
+			 function );
+
+			return( -1 );
+		}
+		*utf16_string_size = 0;
+	}
+	else
+	{
+		result = libuna_utf16_string_size_from_byte_stream(
+			  catalog_definition->template_name,
+			  catalog_definition->template_name_size,
+			  ascii_codepage,
+			  utf16_string_size,
+			  error );
+
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve UTF-16 string size.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string of the catalog definition template name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_catalog_definition_get_utf16_template_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     int ascii_codepage,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_get_utf16_template_name";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->template_name != NULL )
+	{
+		result = libuna_utf16_string_copy_from_byte_stream(
+			  utf16_string,
+			  utf16_string_size,
+			  catalog_definition->template_name,
+			  catalog_definition->template_name_size,
+			  ascii_codepage,
+			  error );
+
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set UTF-16 string.",
+			 function );
+
+			return( -1 );
+		}
+	}
 	return( 1 );
 }
 

@@ -286,6 +286,7 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
+		internal_index->io_handle                = io_handle;
 		internal_index->table_definition         = table_definition;
 		internal_index->index_catalog_definition = index_catalog_definition;
 		internal_index->flags                    = flags;
@@ -322,7 +323,7 @@ int libesedb_index_free(
 		internal_index = (libesedb_internal_index_t *) *index;
 		*index         = NULL;
 
-		/* The table_definition and index_catalog_definition references
+		/* The io_handle, table_definition and index_catalog_definition references
 		 * are freed elsewhere
 		 */
 		if( ( internal_index->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -413,30 +414,20 @@ int libesedb_index_get_identifier(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->index_catalog_definition == NULL )
+	if( libesedb_catalog_definition_get_identifier(
+	     internal_index->index_catalog_definition,
+	     identifier,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing index catalog definition.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
 		return( -1 );
 	}
-	if( identifier == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid identifier.",
-		 function );
-
-		return( -1 );
-	}
-	*identifier = internal_index->index_catalog_definition->identifier;
-
 	return( 1 );
 }
 
@@ -465,35 +456,36 @@ int libesedb_index_get_utf8_name_size(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->index_catalog_definition == NULL )
+	if( internal_index->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing index catalog definition.",
+		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string_size == NULL )
+	if( libesedb_catalog_definition_get_utf8_name_size(
+	     internal_index->index_catalog_definition,
+	     utf8_string_size,
+	     internal_index->io_handle->ascii_codepage,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string size.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
 		return( -1 );
 	}
-	*utf8_string_size = internal_index->index_catalog_definition->name_size;
-
 	return( 1 );
 }
 
 /* Retrieves the UTF-8 string of the index name
- * The string is formatted in UTF-8
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -519,60 +511,29 @@ int libesedb_index_get_utf8_name(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->index_catalog_definition == NULL )
+	if( internal_index->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing index catalog definition.",
+		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( utf8_string == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-8 string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string_size < internal_index->index_catalog_definition->name_size )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: UTF-8 string is too small.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_copy(
+	if( libesedb_catalog_definition_get_utf8_name(
+	     internal_index->index_catalog_definition,
 	     utf8_string,
-	     internal_index->index_catalog_definition->name,
-	     internal_index->index_catalog_definition->name_size ) == NULL )
+	     utf8_string_size,
+	     internal_index->io_handle->ascii_codepage,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to set UTF-8 string.",
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
 		return( -1 );
@@ -580,16 +541,17 @@ int libesedb_index_get_utf8_name(
 	return( 1 );
 }
 
-/* Test reading the index
+/* Retrieves the UTF-16 string size of the index name
+ * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
-int libesedb_index_test(
+int libesedb_index_get_utf16_name_size(
      libesedb_index_t *index,
+     size_t *utf16_string_size,
      liberror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
-	static char *function                     = "libesedb_index_test";
-	int number_of_leaf_nodes                  = 0;
+	static char *function                     = "libesedb_index_get_utf16_string_size";
 
 	if( index == NULL )
 	{
@@ -604,57 +566,87 @@ int libesedb_index_test(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( internal_index->table_definition == NULL )
+	if( internal_index->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing table definition.",
+		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_index->table_definition->table_catalog_definition == NULL )
+	if( libesedb_catalog_definition_get_utf16_name_size(
+	     internal_index->index_catalog_definition,
+	     utf16_string_size,
+	     internal_index->io_handle->ascii_codepage,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve UTF-16 string size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the UTF-16 string of the index name
+ * The size should include the end of string character
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_index_get_utf16_name(
+     libesedb_index_t *index,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error )
+{
+	libesedb_internal_index_t *internal_index = NULL;
+	static char *function                     = "libesedb_index_get_utf16_string";
+
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	internal_index = (libesedb_internal_index_t *) index;
+
+	if( internal_index->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - invalid table definitions - missing table catalog definition.",
+		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( internal_index->index_catalog_definition == NULL )
+	if( libesedb_catalog_definition_get_utf16_name(
+	     internal_index->index_catalog_definition,
+	     utf16_string,
+	     utf16_string_size,
+	     internal_index->io_handle->ascii_codepage,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing index catalog definition.",
+		 LIBERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
 		return( -1 );
-	}
-	if( internal_index->table_definition->table_catalog_definition->father_data_page_number != internal_index->index_catalog_definition->father_data_page_number )
-	{
-		if( libfdata_tree_get_number_of_leaf_nodes(
-		     internal_index->index_values_tree,
-		     internal_index->file_io_handle,
-		     &number_of_leaf_nodes,
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of leaf nodes from index values tree.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	return( 1 );
 }
