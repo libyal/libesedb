@@ -132,7 +132,6 @@ int libesedb_database_read(
      liberror_error_t **error )
 {
 	libesedb_page_tree_t *database_page_tree        = NULL;
-	libesedb_table_definition_t *table_definition   = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
 	libfdata_tree_t *database_values_tree           = NULL;
 	libfdata_tree_node_t *values_tree_node          = NULL;

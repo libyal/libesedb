@@ -95,6 +95,9 @@ Notes
   - added several UTF-16 API functions
   - removed page tree values, data definition and tree type
   - create catalog object
+  - create database object
+* updated msvscpp files
+* updated libfdatetime
 
 20100624
 * added multi value offset 0x8000 flag support

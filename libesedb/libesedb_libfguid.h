@@ -29,7 +29,7 @@
 #if defined( HAVE_LOCAL_LIBFGUID )
 
 #include <libfguid_definitions.h>
-#include <libfguid_guid.h>
+#include <libfguid_identifier.h>
 #include <libfguid_types.h>
 
 #elif defined( HAVE_LIBFGUID_H )

@@ -956,7 +956,18 @@ int libesedb_values_tree_value_read_record(
 
 					return( -1 );
 				}
-				fixed_size_data_type_value_offset += column_catalog_definition->size;
+				if( column_catalog_definition->size > (uint32_t) UINT16_MAX )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+					 "%s: invalid common catalog definition size value exceeds maximum.",
+					 function );
+
+					return( -1 );
+				}
+				fixed_size_data_type_value_offset += (uint16_t) column_catalog_definition->size;
 			}
 		}
 		else if( current_variable_size_data_type < last_variable_size_data_type )

@@ -91,7 +91,7 @@
 #if defined( HAVE_LOCAL_LIBFGUID )
 
 #include <libfguid_definitions.h>
-#include <libfguid_guid.h>
+#include <libfguid_identifier.h>
 #include <libfguid_types.h>
 
 #elif defined( HAVE_LIBFGUID_H )
@@ -679,13 +679,15 @@ int exchange_export_record_value_guid(
      FILE *table_file_stream,
      liberror_error_t **error )
 {
-	uint8_t guid_string[ LIBFGUID_GUID_STRING_SIZE ];
+	libcstring_system_character_t guid_string[ LIBFGUID_IDENTIFIER_STRING_SIZE ];
 
-	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_value_guid";
-	size_t value_data_size = 0;
-	uint32_t column_type   = 0;
-	uint8_t value_flags    = 0;
+	libfguid_identifier_t *guid = NULL;
+	uint8_t *value_data         = NULL;
+	static char *function       = "exchange_export_record_value_guid";
+	size_t value_data_size      = 0;
+	uint32_t column_type        = 0;
+	uint8_t value_flags         = 0;
+	int result                  = 0;
 
 	if( record == NULL )
 	{
@@ -771,26 +773,84 @@ int exchange_export_record_value_guid(
 
 				return( -1 );
 			}
-			if( libfguid_guid_to_string(
-			     (libfguid_guid_t *) value_data,
-			     byte_order,
-			     guid_string,
-			     LIBFGUID_GUID_STRING_SIZE,
+			if( libfguid_identifier_initialize(
+			     &guid,
 			     error ) != 1 )
 			{
-                                        liberror_error_set(
-                                         error,
-                                         LIBERROR_ERROR_DOMAIN_CONVERSION,
-                                         LIBERROR_CONVERSION_ERROR_GENERIC,
-                                         "%s: unable to create GUID string.",
-                                         function );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create GUID.",
+				 function );
 
-                                        return( -1 );
+				return( -1 );
+			}
+			if( libfguid_identifier_copy_from_byte_stream(
+			     guid,
+			     value_data,
+			     value_data_size,
+			     byte_order,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create GUID.",
+				 function );
+
+				libfguid_identifier_free(
+				 &guid,
+				 NULL );
+
+				return( -1 );
+			}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libfguid_identifier_copy_to_utf16_string(
+			          guid,
+			          (uint16_t *) guid_string,
+			          LIBFGUID_IDENTIFIER_STRING_SIZE,
+			          error );
+#else
+			result = libfguid_identifier_copy_to_utf8_string(
+			          guid,
+			          (uint8_t *) guid_string,
+			          LIBFGUID_IDENTIFIER_STRING_SIZE,
+			          error );
+#endif
+			if( result != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_CONVERSION,
+				 LIBERROR_CONVERSION_ERROR_GENERIC,
+				 "%s: unable to create GUID string.",
+				 function );
+
+				libfguid_identifier_free(
+				 &guid,
+				 NULL );
+
+				return( -1 );
+			}
+			if( libfguid_identifier_free(
+			     &guid,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free GUID.",
+				 function );
+
+				return( -1 );
 			}
 			fprintf(
 			 table_file_stream,
-			 "%s",
-			 (char *) guid_string );
+			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 guid_string );
 		}
 	}
 	else
@@ -1283,11 +1343,11 @@ int exchange_export_record_folders(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				if( column_name[ 0 ] == (uint8_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -1299,21 +1359,21 @@ int exchange_export_record_folders(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				if( column_name[ 0 ] == (uint8_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -1321,14 +1381,14 @@ int exchange_export_record_folders(
 				{
 					if( libcstring_system_string_compare(
 					     column_name,
-					     "Ne58",
+					     _LIBCSTRING_SYSTEM_STRING( "Ne58" ),
 					     4 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
-					          "Ne59",
+					          _LIBCSTRING_SYSTEM_STRING( "Ne59" ),
 					          4 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
@@ -1338,7 +1398,7 @@ int exchange_export_record_folders(
 				{
 					if( libcstring_system_string_compare(
 					     column_name,
-					     "N3880",
+					     _LIBCSTRING_SYSTEM_STRING( "N3880" ),
 					     5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
@@ -1583,11 +1643,11 @@ int exchange_export_record_mailbox(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				if( column_name[ 0 ] == (uint8_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -1599,21 +1659,21 @@ int exchange_export_record_mailbox(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size <= 6 ) )
 			{
-				if( column_name[ 0 ] == (uint8_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (uint8_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -1621,21 +1681,21 @@ int exchange_export_record_mailbox(
 				{
 					if( libcstring_system_string_compare(
 					     column_name,
-					     "N66a0",
+					     _LIBCSTRING_SYSTEM_STRING( "N66a0" ),
 					     5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
-					          "N676a",
+					          _LIBCSTRING_SYSTEM_STRING( "N676a" ),
 					          5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
-					          "N676c",
+					          _LIBCSTRING_SYSTEM_STRING( "N676c" ),
 					          5 ) == 0 )
 					{
 						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;

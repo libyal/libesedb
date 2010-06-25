@@ -1107,7 +1107,7 @@ int libesedb_page_read_values(
 		/* TODO check sanity of offset and size */
 
 		page_value->data   = &( page_values_data[ page_tags_value->offset ] );
-		page_value->offset = page_tags_value->offset + page_values_data_offset;
+		page_value->offset = (uint16_t) ( page_values_data_offset + page_tags_value->offset );
 		page_value->size   = page_tags_value->size;
 		page_value->flags  = page_tags_value->flags;
 

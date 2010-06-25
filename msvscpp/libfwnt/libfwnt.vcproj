@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="libfwnt"
-	ProjectGUID="{CDB03E65-C81B-47E0-B70F-C880D841DD61}"
+	ProjectGUID="{9D37639F-1694-47DF-84BF-336D98E0639F}"
 	RootNamespace="libfwnt"
 	TargetFrameworkVersion="131072"
 	>
@@ -90,7 +90,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwnt\libfwnt_guid.c"
+				RelativePath="..\..\libfwnt\libfwnt_security_identifier.c"
 				>
 			</File>
 			<File
@@ -116,7 +116,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfwnt\libfwnt_guid.h"
+				RelativePath="..\..\libfwnt\libfwnt_security_identifier.h"
 				>
 			</File>
 			<File

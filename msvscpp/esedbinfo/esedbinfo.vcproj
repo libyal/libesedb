@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="esedbinfo"
 	ProjectGUID="{A7545354-5D50-49F6-A3D0-1F97F6228955}"
 	RootNamespace="esedbinfo"
@@ -41,8 +41,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfwintype;..\..\libsystem"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;LIBESEDB_DLL_IMPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfguid;..\..\libfwnt;..\..\libsystem"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFWNT;LIBESEDB_DLL_IMPORT"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
@@ -108,15 +108,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbinput.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\esedbtools\esedboutput.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\esedbtools\guid.c"
 				>
 			</File>
 		</Filter>
@@ -126,15 +118,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\esedbtools\esedbinput.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\esedbtools\esedboutput.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\esedbtools\guid.h"
 				>
 			</File>
 		</Filter>

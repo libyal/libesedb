@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="libesedb_dll"
 	ProjectGUID="{B5225323-AC67-411D-8FBA-199E9467FAB5}"
 	RootNamespace="libesedb"
@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfguid;..\..\libesedb"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;LIBESEDB_DLL_EXPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libesedb"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;LIBESEDB_DLL_EXPORT"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -102,6 +102,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_catalog.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_catalog_definition.c"
 				>
 			</File>
@@ -126,11 +130,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_data_definition.c"
+				RelativePath="..\..\libesedb\libesedb_data_type_definition.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_data_type_definition.c"
+				RelativePath="..\..\libesedb\libesedb_database.c"
 				>
 			</File>
 			<File
@@ -186,10 +190,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_page_tree_values.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_record.c"
 				>
 			</File>
@@ -206,11 +206,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_tree_type.c"
+				RelativePath="..\..\libesedb\libesedb_value_type.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_value_type.c"
+				RelativePath="..\..\libesedb\libesedb_values_tree.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_values_tree_value.c"
 				>
 			</File>
 		</Filter>
@@ -233,6 +237,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_array_type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_catalog.h"
 				>
 			</File>
 			<File
@@ -260,11 +268,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_data_definition.h"
+				RelativePath="..\..\libesedb\libesedb_data_type_definition.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_data_type_definition.h"
+				RelativePath="..\..\libesedb\libesedb_database.h"
 				>
 			</File>
 			<File
@@ -308,6 +316,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_libfdata.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_libfdatetime.h"
 				>
 			</File>
@@ -344,10 +356,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_page_tree_values.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_record.h"
 				>
 			</File>
@@ -364,15 +372,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_tree_type.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_types.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_value_type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_values_tree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_values_tree_value.h"
 				>
 			</File>
 		</Filter>

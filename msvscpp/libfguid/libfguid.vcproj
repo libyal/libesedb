@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="libfguid"
 	ProjectGUID="{CDB03E65-C81B-47E0-B70F-C880D841DD61}"
 	RootNamespace="libfguid"
@@ -90,7 +90,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfguid\libfguid_guid.c"
+				RelativePath="..\..\libfguid\libfguid_identifier.c"
 				>
 			</File>
 			<File
@@ -116,7 +116,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfguid\libfguid_guid.h"
+				RelativePath="..\..\libfguid\libfguid_identifier.h"
 				>
 			</File>
 			<File

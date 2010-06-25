@@ -598,12 +598,13 @@ int libesedb_debug_print_column_value(
      liberror_error_t **error )
 {
 	uint8_t filetime_string[ 24 ];
-	uint8_t guid_string[ LIBFGUID_GUID_STRING_SIZE ];
+	uint8_t guid_string[ LIBFGUID_IDENTIFIER_STRING_SIZE ];
 
         byte_stream_float64_t value_double;
         byte_stream_float32_t value_float;
 
 	libfdatetime_filetime_t *filetime = NULL;
+	libfguid_identifier_t *guid       = NULL;
 	uint8_t *value_string             = NULL;
 	static char *function             = "libesedb_debug_print_column_value";
 	size_t value_string_size          = 0;
@@ -742,6 +743,8 @@ int libesedb_debug_print_column_value(
 
 				return( -1 );
 			}
+			/* TODO add system string support */
+
 			if( libfdatetime_filetime_copy_to_utf8_string(
 			     filetime,
 			     filetime_string,
@@ -823,11 +826,45 @@ int libesedb_debug_print_column_value(
 			}
 			else  if( value_data_size == 16 )
 			{
-				if( libfguid_guid_to_string(
-				     (libfguid_guid_t *) value_data,
-				     LIBFGUID_ENDIAN_LITTLE,
+				if( libfguid_identifier_initialize(
+				     &guid,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create GUID.",
+					 function );
+
+					return( -1 );
+				}
+				if( libfguid_identifier_copy_from_byte_stream(
+				     guid,
+				     value_data,
+				     value_data_size,
+				     LIBFDATETIME_ENDIAN_LITTLE,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_CONVERSION,
+					 LIBERROR_CONVERSION_ERROR_GENERIC,
+					 "%s: unable to create GUID.",
+					 function );
+
+					libfguid_identifier_free(
+					 &guid,
+					 NULL );
+
+					return( -1 );
+				}
+				/* TODO add system string support */
+
+				if( libfguid_identifier_copy_to_utf8_string(
+				     guid,
 				     guid_string,
-				     LIBFGUID_GUID_STRING_SIZE,
+				     LIBFGUID_IDENTIFIER_STRING_SIZE,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -835,6 +872,23 @@ int libesedb_debug_print_column_value(
 					 LIBERROR_ERROR_DOMAIN_CONVERSION,
 					 LIBERROR_CONVERSION_ERROR_GENERIC,
 					 "%s: unable to create GUID string.",
+					 function );
+
+					libfguid_identifier_free(
+					 &guid,
+					 NULL );
+
+					return( -1 );
+				}
+				if( libfguid_identifier_free(
+				     &guid,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free GUID.",
 					 function );
 
 					return( -1 );
