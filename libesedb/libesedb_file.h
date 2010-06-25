@@ -27,9 +27,9 @@
 
 #include <liberror.h>
 
+#include "libesedb_catalog.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
-#include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ )
@@ -52,9 +52,9 @@ struct libesedb_internal_file
 	 */
 	libesedb_page_tree_t *database_page_tree;
 
-	/* The catalog page tree
+	/* The catalog
 	 */
-	libesedb_page_tree_t *catalog_page_tree;
+	libesedb_catalog_t *catalog;
 
 	/* The file io handle
 	 */

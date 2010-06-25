@@ -28,6 +28,7 @@
 #include <libnotify.h>
 
 #include "libesedb_array_type.h"
+#include "libesedb_catalog_definition.h"
 #include "libesedb_column_type.h"
 #include "libesedb_data_type_definition.h"
 #include "libesedb_debug.h"
@@ -307,6 +308,164 @@ int libesedb_values_tree_value_set_key_local(
 			return( -1 );
 		}
 		values_tree_value->key_size += local_key_size;
+	}
+	return( 1 );
+}
+
+/* Reads the catalog definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_values_tree_value_read_catalog_definition(
+     libesedb_values_tree_value_t *values_tree_value,
+     libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
+     libfdata_vector_t *pages_vector,
+     libesedb_catalog_definition_t *catalog_definition,
+     liberror_error_t **error )
+{
+	libesedb_page_t *page             = NULL;
+	libesedb_page_value_t *page_value = NULL;
+	static char *function             = "libesedb_values_tree_value_read_catalog_definition";
+
+	if( values_tree_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid values tree value.",
+		 function );
+
+		return( -1 );
+	}
+	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
+		 function,
+		 values_tree_value->type );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid io handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_vector_get_element_value_at_offset(
+	     pages_vector,
+	     file_io_handle,
+	     values_tree_value->page_offset,
+	     (intptr_t **) &page,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 function,
+		 values_tree_value->page_number,
+		 values_tree_value->page_offset );
+
+		return( -1 );
+	}
+	if( page == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_get_value(
+	     page,
+	     values_tree_value->page_value_index,
+	     &page_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value: %" PRIu16 ".",
+		 function,
+		 values_tree_value->page_value_index );
+
+		return( -1 );
+	}
+	if( page_value->data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing page value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( values_tree_value->data_offset > page_value->size )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_read(
+	     catalog_definition,
+	     &( page_value->data[ values_tree_value->data_offset ] ),
+	     page_value->size - values_tree_value->data_offset,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read catalog definition.",
+		 function );
+
+		return( -1 );
 	}
 	return( 1 );
 }

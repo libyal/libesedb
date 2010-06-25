@@ -28,6 +28,7 @@
 #include <libnotify.h>
 
 #include "libesedb_array_type.h"
+#include "libesedb_catalog.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
@@ -93,6 +94,22 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
+		if( libesedb_catalog_initialize(
+		     &( internal_file->catalog ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create catalog.",
+			 function );
+
+			memory_free(
+			 internal_file );
+
+			return( -1 );
+		}
 		if( libesedb_io_handle_initialize(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
@@ -104,6 +121,9 @@ int libesedb_file_initialize(
 			 "%s: unable to create io handle.",
 			 function );
 
+			libesedb_catalog_free(
+			 &( internal_file->catalog ),
+			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -153,15 +173,15 @@ int libesedb_file_free(
 
 			result = -1;
 		}
-		if( libesedb_page_tree_free(
-		     (intptr_t *) internal_file->catalog_page_tree,
+		if( libesedb_catalog_free(
+		     &( internal_file->catalog ),
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free catalog page tree.",
+			 "%s: unable to free catalog.",
 			 function );
 
 			result = -1;
@@ -945,6 +965,7 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+#ifdef TODO
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -952,12 +973,14 @@ int libesedb_file_open_read(
 		 "Reading the database page tree:\n" );
 	}
 #endif
+	/* TODO implement a similar solution as to the catalog */
+
 	/* TODO object identifier */
 	if( libesedb_page_tree_initialize(
 	     &( internal_file->database_page_tree ),
 	     internal_file->io_handle,
 	     internal_file->pages_vector,
-	     0,
+	     LIBESEDB_FDP_OBJECT_IDENTIFIER_DATABASE,
 	     NULL,
 	     NULL,
 	     error ) != 1 )
@@ -993,53 +1016,28 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+#endif
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "Reading the catalog page tree:\n" );
+		 "Reading the catalog:\n" );
 	}
 #endif
-	/* TODO object identifier */
-	if( libesedb_page_tree_initialize(
-	     &( internal_file->catalog_page_tree ),
+	if( libesedb_catalog_read(
+	     internal_file->catalog,
+	     internal_file->file_io_handle,
 	     internal_file->io_handle,
 	     internal_file->pages_vector,
-	     0,
-	     NULL,
-	     NULL,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create catalog page tree.",
-		 function );
-
-		return( -1 );
-	}
-	/* TODO handle missing catalog e.g. empty database*/
-	if( libesedb_page_tree_read(
-	     internal_file->catalog_page_tree,
-	     internal_file->file_io_handle,
-	     LIBESEDB_PAGE_NUMBER_CATALOG,
-	     LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tree.",
+		 "%s: unable to read catalog.",
 		 function );
-
-		libesedb_page_tree_free(
-		 (intptr_t *) internal_file->catalog_page_tree,
-		 NULL );
-
-		internal_file->catalog_page_tree = NULL;
 
 		return( -1 );
 	}
@@ -1251,8 +1249,8 @@ int libesedb_file_get_number_of_tables(
 	}
 	internal_file = (libesedb_internal_file_t *) file;
 
-	if( libesedb_page_tree_get_number_of_table_definitions(
-	     internal_file->catalog_page_tree,
+	if( libesedb_catalog_get_number_of_table_definitions(
+	     internal_file->catalog,
 	     number_of_tables,
 	     error ) != 1 )
 	{
@@ -1317,8 +1315,8 @@ int libesedb_file_get_table(
 
 		return( -1 );
 	}
-	if( libesedb_page_tree_get_table_definition(
-	     internal_file->catalog_page_tree,
+	if( libesedb_catalog_get_table_definition_by_index(
+	     internal_file->catalog,
 	     table_entry,
 	     &table_definition,
 	     error ) != 1 )
@@ -1357,8 +1355,8 @@ int libesedb_file_get_table(
 	}
 	if( table_definition->table_catalog_definition->template_name != NULL )
 	{
-		if( libesedb_page_tree_get_table_definition_by_utf8_name(
-		     internal_file->catalog_page_tree,
+		if( libesedb_catalog_get_table_definition_by_name(
+		     internal_file->catalog,
 		     table_definition->table_catalog_definition->template_name,
 		     table_definition->table_catalog_definition->template_name_size,
 		     &template_table_definition,
@@ -1368,9 +1366,8 @@ int libesedb_file_get_table(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve template table definition: %s.",
-			 function,
-			 table_definition->table_catalog_definition->template_name );
+			 "%s: unable to retrieve template table definition.",
+			 function );
 
 			return( -1 );
 		}

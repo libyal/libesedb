@@ -33,7 +33,6 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
-#include "libesedb_libuna.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
@@ -117,24 +116,6 @@ int libesedb_page_tree_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_list_initialize(
-		     &( ( *page_tree )->table_definition_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create table definition list.",
-			 function );
-
-			memory_free(
-			 *page_tree );
-
-			*page_tree = NULL;
-
-			return( -1 );
-		}
 
 		/* TODO remove */
 
@@ -149,10 +130,6 @@ int libesedb_page_tree_initialize(
 			 "%s: unable to create value definition tree root node.",
 			 function );
 
-			libesedb_list_free(
-			 &( ( *page_tree )->table_definition_list ),
-			 NULL,
-			 NULL );
 			memory_free(
 			 *page_tree );
 
@@ -173,10 +150,6 @@ int libesedb_page_tree_initialize(
 
 			libesedb_tree_node_free(
 			 &( ( *page_tree )->value_definition_tree_root_node ),
-			 NULL,
-			 NULL );
-			libesedb_list_free(
-			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
 			memory_free(
@@ -203,10 +176,6 @@ int libesedb_page_tree_initialize(
 			 NULL );
 			libesedb_tree_node_free(
 			 &( ( *page_tree )->value_definition_tree_root_node ),
-			 NULL,
-			 NULL );
-			libesedb_list_free(
-			 &( ( *page_tree )->table_definition_list ),
 			 NULL,
 			 NULL );
 			memory_free(
@@ -249,20 +218,6 @@ int libesedb_page_tree_free(
 	/* The pages_vector reference
 	 * is freed elsewhere
 	 */
-	if( libesedb_list_free(
-	     &( ( (libesedb_page_tree_t *) page_tree )->table_definition_list ),
-	     &libesedb_table_definition_free,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free table definition list.",
-		 function );
-
-		result = -1;
-	}
 
 	/* TODO remove */
 
@@ -284,400 +239,6 @@ int libesedb_page_tree_free(
 	 page_tree );
 
 	return( result );
-}
-
-/* Retrieves the number of table definitions
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_tree_get_number_of_table_definitions(
-     libesedb_page_tree_t *page_tree,
-     int *number_of_table_definitions,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_page_tree_get_number_of_table_definitions";
-
-	if( page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_list_get_number_of_elements(
-	     page_tree->table_definition_list,
-	     number_of_table_definitions,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of table definitions.",
-		 function );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
-/* Retrieves the table definition for the specific index
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_tree_get_table_definition(
-     libesedb_page_tree_t *page_tree,
-     uint32_t table_definition_index,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_page_tree_get_table_definition";
-
-	if( page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_list_get_value(
-	     page_tree->table_definition_list,
-	     table_definition_index,
-	     (intptr_t **) table_definition,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table definition: %d.",
-		 function,
-		 table_definition_index );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
-/* Retrieves the table definition with the specified identifier
- * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
- */
-int libesedb_page_tree_get_table_definition_by_identifier(
-     libesedb_page_tree_t *page_tree,
-     uint32_t identifier,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error )
-{
-	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_page_tree_get_table_definition_by_identifier";
-	int list_element_iterator             = 0;
-
-	if( page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->table_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - missing table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	if( table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table definition.",
-		 function );
-
-		return( -1 );
-	}
-	list_element = page_tree->table_definition_list->first;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < page_tree->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
-	{
-		if( list_element == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		if( list_element->value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
-		if( ( *table_definition )->table_catalog_definition == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table catalog definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		if( ( *table_definition )->table_catalog_definition->identifier == identifier )
-		{
-			return( 1 );
-		}
-		list_element = list_element->next;
-	}
-	*table_definition = NULL;
-
-	return( 0 );
-}
-
-/* Retrieves the table definition for the specific UTF-8 formatted name
- * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
- */
-int libesedb_page_tree_get_table_definition_by_utf8_name(
-     libesedb_page_tree_t *page_tree,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error )
-{
-	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_page_tree_get_table_definition_by_utf8_name";
-	int list_element_iterator             = 0;
-	int result                            = 0;
-
-	if( page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->io_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->table_definition_list == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - missing table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid UTF-8 string.",
-		 function );
-
-		return( -1 );
-	}
-	if( utf8_string_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid UTF-8 string size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( table_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table definition.",
-		 function );
-
-		return( -1 );
-	}
-	list_element = page_tree->table_definition_list->first;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < page_tree->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
-	{
-		if( list_element == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		if( list_element->value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
-		if( ( *table_definition )->table_catalog_definition == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing table catalog definition for list element: %d.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		result = libuna_utf8_string_compare_with_byte_stream(
-			  utf8_string,
-			  utf8_string_size,
-			  ( *table_definition )->table_catalog_definition->name,
-			  ( *table_definition )->table_catalog_definition->name_size,
-			  page_tree->io_handle->ascii_codepage,
-			  error );
-
-		if( result == -1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to compare UTF-8 string.",
-			 function );
-
-			return( -1 );
-		}
-		else if( result != 0 )
-		{
-			return( 1 );
-		}
-		list_element = list_element->next;
-	}
-	*table_definition = NULL;
-
-	return( 0 );
-}
-
-/* Retrieves the number of value definitions
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_tree_get_number_of_value_definitions(
-     libesedb_page_tree_t *page_tree,
-     int *number_of_value_definitions,
-     liberror_error_t **error )
-{
-	static char *function = "libesedb_page_tree_get_number_of_value_definitions";
-
-	if( page_tree == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->value_definition_tree_root_node == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - missing value definition tree root node.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->value_definition_tree_root_node->value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - invalid value definition tree root node - missing value.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_value_definitions == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid number of value definitions.",
-		 function );
-
-		return( -1 );
-	}
-	*number_of_value_definitions = ( (libesedb_page_tree_values_t *) page_tree->value_definition_tree_root_node->value )->number_of_value_definitions;
-
-	return( 1 );
 }
 
 /* Retrieves the value definition of a value definition tree node for the specific index
@@ -2775,7 +2336,6 @@ int libesedb_page_tree_read_leaf_page_old(
      uint8_t flags,
      liberror_error_t **error )
 {
-	libesedb_catalog_definition_t *catalog_definition              = NULL;
 	libesedb_data_definition_t *data_definition                    = NULL;
 	libesedb_data_definition_t *long_value_data_definition         = NULL;
 	libesedb_list_t *template_table_column_catalog_definition_list = NULL;
@@ -3073,21 +2633,18 @@ int libesedb_page_tree_read_leaf_page_old(
 		page_value_offset = 0;
 		page_value_size   = page_value->size;
 
-		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG ) == 0 )
+		if( libesedb_data_definition_initialize(
+		     &data_definition,
+		     error ) != 1 )
 		{
-			if( libesedb_data_definition_initialize(
-			     &data_definition,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create data definition.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data definition.",
+			 function );
 
-				return( -1 );
-			}
+			return( -1 );
 		}
 		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
 		{
@@ -3109,42 +2666,39 @@ int libesedb_page_tree_read_leaf_page_old(
 				 common_key_size );
 			}
 #endif
-			if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG ) == 0 )
+			if( common_key_size > page_tree_values->common_key_size )
 			{
-				if( common_key_size > page_tree_values->common_key_size )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-					 "%s: common key size exceeds maximum.",
-					 function );
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: common key size exceeds maximum.",
+				 function );
 
-					libesedb_data_definition_free(
-					 (intptr_t *) data_definition,
-					 NULL );
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
 
-					return( -1 );
-				}
-				if( libesedb_data_definition_set_key_common(
-				     data_definition,
-				     page_tree_values->common_key,
-				     common_key_size,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set key common part in data definition.",
-					 function );
+				return( -1 );
+			}
+			if( libesedb_data_definition_set_key_common(
+			     data_definition,
+			     page_tree_values->common_key,
+			     common_key_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set key common part in data definition.",
+				 function );
 
-					libesedb_data_definition_free(
-					 (intptr_t *) data_definition,
-					 NULL );
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
 
-					return( -1 );
-				}
+				return( -1 );
 			}
 		}
 		byte_stream_copy_to_uint16_little_endian(
@@ -3174,35 +2728,30 @@ int libesedb_page_tree_read_leaf_page_old(
 			 "%s: local key size exceeds page value size.",
 			 function );
 
-			if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG ) == 0 )
-			{
-				libesedb_data_definition_free(
-				 (intptr_t *) data_definition,
-				 NULL );
-			}
+			libesedb_data_definition_free(
+			 (intptr_t *) data_definition,
+			 NULL );
+
 			return( -1 );
 		}
-		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG ) == 0 )
+		if( libesedb_data_definition_set_key_local(
+		     data_definition,
+		     page_value_data,
+		     local_key_size,
+		     error ) != 1 )
 		{
-			if( libesedb_data_definition_set_key_local(
-			     data_definition,
-			     page_value_data,
-			     local_key_size,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set key local part in data definition.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set key local part in data definition.",
+			 function );
 
-				libesedb_data_definition_free(
-				 (intptr_t *) data_definition,
-				 NULL );
+			libesedb_data_definition_free(
+			 (intptr_t *) data_definition,
+			 NULL );
 
-				return( -1 );
-			}
+			return( -1 );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -3238,519 +2787,91 @@ int libesedb_page_tree_read_leaf_page_old(
 		page_value_size   -= local_key_size;
 #endif
 
-		/* The catalog is read using build-in catalog definition types
-		 */
-		if( ( flags & LIBESEDB_PAGE_TREE_FLAG_READ_CATALOG ) != 0 )
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
 		{
-			if( libesedb_catalog_definition_initialize(
-			     &catalog_definition,
-			     error ) != 1 )
+			libnotify_printf(
+			 "%s: value: %03" PRIu16 " key value\t\t\t\t: ",
+			 function,
+			 page_value_index );
+
+			page_key_data = data_definition->key;
+			page_key_size = data_definition->key_size;
+
+			while( page_key_size > 0 )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create catalog definition.",
-				 function );
+				libnotify_printf(
+				 "%02" PRIx8 " ",
+				 *page_key_data );
 
-				return( -1 );
+				page_key_data++;
+				page_key_size--;
 			}
-			if( libesedb_catalog_definition_read(
-			     catalog_definition,
-			     page_value_data,
-			     page_value_size,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read catalog page value: %d catalog definition.",
-				 function,
-				 page_value_index );
-
-				libesedb_catalog_definition_free(
-				 (intptr_t *) catalog_definition,
-				 NULL );
-
-				return( -1 );
-			}
-			if( ( catalog_definition->type <= LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK )
-			 && ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
-			 && ( ( table_definition == NULL )
-			  || ( table_definition->table_catalog_definition == NULL )
-			  || ( table_definition->table_catalog_definition->father_data_page_object_identifier != catalog_definition->father_data_page_object_identifier ) ) )
-			{
-					result = libesedb_page_tree_get_table_definition_by_identifier(
-						  page_tree,
-						  catalog_definition->father_data_page_object_identifier,
-						  &table_definition,
-						  error );
-
-					if( result == 0 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-						 "%s: missing table definition: %" PRIu32 " (0x%08" PRIx32 ").",
-						 function,
-						 catalog_definition->father_data_page_object_identifier,
-						 catalog_definition->father_data_page_object_identifier );
-
-						/* TODO build-in table 1 support */
-#if defined( HAVE_DEBUG_OUTPUT )
-						if( ( libnotify_verbose != 0 )
-						 && ( error != NULL )
-						 && ( *error != NULL ) )
-						{
-							libnotify_print_error_backtrace(
-							 *error );
-						}
-#endif
-
-						liberror_error_free(
-						 error );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						catalog_definition = NULL;
-
-						continue;
-					}
-					else if( result == -1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve table definition: %" PRIu32 ".",
-						 function,
-						 catalog_definition->father_data_page_object_identifier );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-			}
-			switch( catalog_definition->type )
-			{
-				case LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE:
-					table_definition = NULL;
-
-					if( libesedb_table_definition_initialize(
-					     &table_definition,
-					     catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-						 "%s: unable to create table definition.",
-						 function );
-
-						libesedb_table_definition_free(
-						 (intptr_t *) table_definition,
-						 NULL );
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					if( libesedb_list_append_value(
-					     page_tree->table_definition_list,
-					     (intptr_t *) table_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-						 "%s: unable to append table definition to table definition list.",
-						 function );
-
-						libesedb_table_definition_free(
-						 (intptr_t *) table_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					break;
-
-				case LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN:
-					if( libesedb_table_definition_append_column_catalog_definition(
-					     table_definition,
-					     catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-						 "%s: unable to append column catalog definition to table definition.",
-						 function );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					break;
-
-				case LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX:
-					if( libesedb_table_definition_append_index_catalog_definition(
-					     table_definition,
-					     catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-						 "%s: unable to append index catalog definition to table definition.",
-						 function );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					break;
-
-				case LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE:
-					if( libesedb_table_definition_set_long_value_catalog_definition(
-					     table_definition,
-					     catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-						 "%s: unable to set long value catalog definition in table definition.",
-						 function );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					break;
-
-				case LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK:
-					if( libesedb_table_definition_set_callback_catalog_definition(
-					     table_definition,
-					     catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-						 "%s: unable to set callback catalog definition in table definition.",
-						 function );
-
-						libesedb_catalog_definition_free(
-						 (intptr_t *) catalog_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					break;
-
-				default:
-#if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
-					{
-						libnotify_printf(
-						 "%s: unsupported catalog definition type: %" PRIu16 ".\n",
-						 function,
-						 catalog_definition->type );
-					}
-#endif
-					if( libesedb_catalog_definition_free(
-					     (intptr_t *) catalog_definition,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-						 "%s: unable to free catalog definition.",
-						 function );
-
-						return( -1 );
-					}
-					catalog_definition = NULL;
-
-					break;
-			}
+			libnotify_printf(
+			 "\n" );
 		}
-		else
+#endif
+		if( page_tree->table_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid page tree - missing table definition.",
+			 function );
+
+			libesedb_data_definition_free(
+			 (intptr_t *) data_definition,
+			 NULL );
+
+			return( -1 );
+		}
+		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) != 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "%s: value: %03" PRIu16 " key value\t\t\t\t: ",
+				 "%s: value: %03" PRIu16 " index value\t\t\t: ",
 				 function,
 				 page_value_index );
-
-				page_key_data = data_definition->key;
-				page_key_size = data_definition->key_size;
-
-				while( page_key_size > 0 )
+			}
+			while( page_value_size > 0 )
+			{
+				if( libnotify_verbose != 0 )
 				{
 					libnotify_printf(
 					 "%02" PRIx8 " ",
-					 *page_key_data );
-
-					page_key_data++;
-					page_key_size--;
+					 *page_value_data );
 				}
+				page_value_data++;
+				page_value_offset++;
+				page_value_size--;
+			}
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "\n" );
 				libnotify_printf(
 				 "\n" );
 			}
 #endif
-			if( page_tree->table_definition == NULL )
+		}
+		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) != 0 )
+		{
+			if( data_definition->key_size == 4 )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: invalid page tree - missing table definition.",
-				 function );
-
-				libesedb_data_definition_free(
-				 (intptr_t *) data_definition,
-				 NULL );
-
-				return( -1 );
-			}
-			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) != 0 )
-			{
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libnotify_verbose != 0 )
-				{
-					libnotify_printf(
-					 "%s: value: %03" PRIu16 " index value\t\t\t: ",
-					 function,
-					 page_value_index );
-				}
-				while( page_value_size > 0 )
-				{
-					if( libnotify_verbose != 0 )
-					{
-						libnotify_printf(
-						 "%02" PRIx8 " ",
-						 *page_value_data );
-					}
-					page_value_data++;
-					page_value_offset++;
-					page_value_size--;
-				}
-				if( libnotify_verbose != 0 )
-				{
-					libnotify_printf(
-					 "\n" );
-					libnotify_printf(
-					 "\n" );
-				}
-#endif
-			}
-			else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) != 0 )
-			{
-				if( data_definition->key_size == 4 )
-				{
-					if( libesedb_data_definition_read_long_value(
-					     data_definition,
-					     page_value_data,
-					     page_value_size,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_IO,
-						 LIBERROR_IO_ERROR_READ_FAILED,
-						 "%s: unable to read page value: %d long value data definition.",
-						 function,
-						 page_value_index );
-
-						libesedb_data_definition_free(
-						 (intptr_t *) data_definition,
-						 NULL );
-
-						return( -1 );
-					}
-					long_value_data_definition = data_definition;
-
-					if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
-					{
-						if( libesedb_page_tree_values_append_value_definition(
-						     page_tree_values,
-						     data_definition,
-						     error ) != 1 )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-							 "%s: unable to append value data definition to page tree values.",
-							 function );
-
-							libesedb_data_definition_free(
-							 (intptr_t *) data_definition,
-							 NULL );
-
-							return( -1 );
-						}
-						data_definition = NULL;
-					}
-					/* TODO are defunct data definition of any value recovering
-					 */
-				}
-				else if( data_definition->key_size == 8 )
-				{
-		 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
-					{
-						if( long_value_data_definition != NULL )
-						{
-							if( long_value_data_definition->key_size != 4 )
-							{
-								long_value_data_definition = NULL;
-							}
-							else if( memory_compare(
-							          long_value_data_definition->key,
-							          data_definition->key,
-							          4 ) != 0 )
-							{
-								long_value_data_definition = NULL;
-							}
-						}
-						if( long_value_data_definition == NULL )
-						{
-							if( libesedb_page_tree_get_value_definition_by_key(
-							     page_tree,
-							     data_definition->key,
-							     data_definition->key_size - 4,
-							     &long_value_data_definition,
-							     0,
-							     error ) != 1 )
-							{
-								liberror_error_set(
-								 error,
-								 LIBERROR_ERROR_DOMAIN_RUNTIME,
-								 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-								 "%s: unable to retrieve long value data definition.",
-								 function );
-
-								libesedb_data_definition_free(
-								 (intptr_t *) data_definition,
-								 NULL );
-
-								return( -1 );
-							}
-							if( long_value_data_definition == NULL )
-							{
-								liberror_error_set(
-								 error,
-								 LIBERROR_ERROR_DOMAIN_RUNTIME,
-								 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-								 "%s: missing long value data definition.",
-								 function );
-
-								libesedb_data_definition_free(
-								 (intptr_t *) data_definition,
-								 NULL );
-
-								return( -1 );
-							}
-						}
-						byte_stream_copy_to_uint32_big_endian(
-						 &( data_definition->key[ 4 ] ),
-						 long_value_data_segment_offset );
-
-						if( libesedb_data_definition_read_long_value_segment(
-						     long_value_data_definition,
-						     long_value_data_segment_offset,
-						     page_value_data,
-						     page_value_size,
-						     page->offset + page_value->offset + page_value_offset,
-						     error ) != 1 )
-						{
-							liberror_error_set(
-							 error,
-							 LIBERROR_ERROR_DOMAIN_IO,
-							 LIBERROR_IO_ERROR_READ_FAILED,
-							 "%s: unable to read page value: %d long value data definition.",
-							 function,
-							 page_value_index );
-
-							libesedb_data_definition_free(
-							 (intptr_t *) data_definition,
-							 NULL );
-
-							return( -1 );
-						}
-					}
-
-				}
-				else
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-					 "%s: unsupported long value page key size.",
-					 function );
-
-					libesedb_data_definition_free(
-					 (intptr_t *) data_definition,
-					 NULL );
-
-					return( -1 );
-				}
-			}
-			else
-			{
-				if( page_tree->template_table_definition != NULL )
-				{
-					template_table_column_catalog_definition_list = page_tree->template_table_definition->column_catalog_definition_list;
-				}
-				if( libesedb_data_definition_read_record(
+				if( libesedb_data_definition_read_long_value(
 				     data_definition,
-				     page_tree->table_definition->column_catalog_definition_list,
-				     template_table_column_catalog_definition_list,
-				     page_tree->io_handle,
 				     page_value_data,
 				     page_value_size,
-				     page->offset + page_value->offset + page_value_offset,
 				     error ) != 1 )
 				{
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_READ_FAILED,
-					 "%s: unable to read page value: %d record data definition.",
+					 "%s: unable to read page value: %d long value data definition.",
 					 function,
 					 page_value_index );
 
@@ -3760,6 +2881,8 @@ int libesedb_page_tree_read_leaf_page_old(
 
 					return( -1 );
 				}
+				long_value_data_definition = data_definition;
+
 				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
 				{
 					if( libesedb_page_tree_values_append_value_definition(
@@ -3785,23 +2908,179 @@ int libesedb_page_tree_read_leaf_page_old(
 				/* TODO are defunct data definition of any value recovering
 				 */
 			}
-			if( data_definition != NULL )
+			else if( data_definition->key_size == 8 )
 			{
-				if( libesedb_data_definition_free(
-				     (intptr_t *) data_definition,
+				if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
+				{
+					if( long_value_data_definition != NULL )
+					{
+						if( long_value_data_definition->key_size != 4 )
+						{
+							long_value_data_definition = NULL;
+						}
+						else if( memory_compare(
+							  long_value_data_definition->key,
+							  data_definition->key,
+							  4 ) != 0 )
+						{
+							long_value_data_definition = NULL;
+						}
+					}
+					if( long_value_data_definition == NULL )
+					{
+						if( libesedb_page_tree_get_value_definition_by_key(
+						     page_tree,
+						     data_definition->key,
+						     data_definition->key_size - 4,
+						     &long_value_data_definition,
+						     0,
+						     error ) != 1 )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to retrieve long value data definition.",
+							 function );
+
+							libesedb_data_definition_free(
+							 (intptr_t *) data_definition,
+							 NULL );
+
+							return( -1 );
+						}
+						if( long_value_data_definition == NULL )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+							 "%s: missing long value data definition.",
+							 function );
+
+							libesedb_data_definition_free(
+							 (intptr_t *) data_definition,
+							 NULL );
+
+							return( -1 );
+						}
+					}
+					byte_stream_copy_to_uint32_big_endian(
+					 &( data_definition->key[ 4 ] ),
+					 long_value_data_segment_offset );
+
+					if( libesedb_data_definition_read_long_value_segment(
+					     long_value_data_definition,
+					     long_value_data_segment_offset,
+					     page_value_data,
+					     page_value_size,
+					     page->offset + page_value->offset + page_value_offset,
+					     error ) != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_IO,
+						 LIBERROR_IO_ERROR_READ_FAILED,
+						 "%s: unable to read page value: %d long value data definition.",
+						 function,
+						 page_value_index );
+
+						libesedb_data_definition_free(
+						 (intptr_t *) data_definition,
+						 NULL );
+
+						return( -1 );
+					}
+				}
+
+			}
+			else
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 "%s: unsupported long value page key size.",
+				 function );
+
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
+
+				return( -1 );
+			}
+		}
+		else
+		{
+			if( page_tree->template_table_definition != NULL )
+			{
+				template_table_column_catalog_definition_list = page_tree->template_table_definition->column_catalog_definition_list;
+			}
+			if( libesedb_data_definition_read_record(
+			     data_definition,
+			     page_tree->table_definition->column_catalog_definition_list,
+			     template_table_column_catalog_definition_list,
+			     page_tree->io_handle,
+			     page_value_data,
+			     page_value_size,
+			     page->offset + page_value->offset + page_value_offset,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read page value: %d record data definition.",
+				 function,
+				 page_value_index );
+
+				libesedb_data_definition_free(
+				 (intptr_t *) data_definition,
+				 NULL );
+
+				return( -1 );
+			}
+			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
+			{
+				if( libesedb_page_tree_values_append_value_definition(
+				     page_tree_values,
+				     data_definition,
 				     error ) != 1 )
 				{
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free data definition.",
+					 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append value data definition to page tree values.",
 					 function );
+
+					libesedb_data_definition_free(
+					 (intptr_t *) data_definition,
+					 NULL );
 
 					return( -1 );
 				}
 				data_definition = NULL;
 			}
+			/* TODO are defunct data definition of any value recovering
+			 */
+		}
+		if( data_definition != NULL )
+		{
+			if( libesedb_data_definition_free(
+			     (intptr_t *) data_definition,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free data definition.",
+				 function );
+
+				return( -1 );
+			}
+			data_definition = NULL;
 		}
 	}
 	return( 1 );

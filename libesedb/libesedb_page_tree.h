@@ -31,7 +31,6 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_tree_type.h"
@@ -73,10 +72,6 @@ struct libesedb_page_tree
 	 */
 	libfdata_vector_t *pages_vector;
 
-	/* The table definition list
-	 */
-	libesedb_list_t *table_definition_list;
-
 	/* TODO remove */
 
 	/* The value definition page tree root node
@@ -95,35 +90,6 @@ int libesedb_page_tree_initialize(
 
 int libesedb_page_tree_free(
      intptr_t *page_tree,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_number_of_table_definitions(
-     libesedb_page_tree_t *page_tree,
-     int *number_of_table_definitions,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_table_definition(
-     libesedb_page_tree_t *page_tree,
-     uint32_t table_definition_index,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_table_definition_by_identifier(
-     libesedb_page_tree_t *page_tree,
-     uint32_t identifier,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_table_definition_by_utf8_name(
-     libesedb_page_tree_t *page_tree,
-     uint8_t *utf8_string,
-     size_t utf8_string_size,
-     libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
-
-int libesedb_page_tree_get_number_of_value_definitions(
-     libesedb_page_tree_t *page_tree,
-     int *number_of_value_definitions,
      liberror_error_t **error );
 
 int libesedb_page_tree_node_get_value_definition_by_index(
