@@ -337,7 +337,8 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	static char *function                       = "libesedb_checksum_calculate_little_endian_xor32";
 	libesedb_aligned_t value_aligned            = 0;
 	uint32_t value_32bit                        = 0;
-	uint8_t aligment_size                       = 0;
+	uint8_t alignment_count                     = 0;
+	uint8_t alignment_size                      = 0;
 	uint8_t byte_count                          = 0;
 	uint8_t byte_order                          = 0;
 	uint8_t byte_size                           = 0;
@@ -386,9 +387,9 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	{
 		/* Align the buffer iterator
 		 */
-		aligment_size = (uint8_t) ( (intptr_t) buffer_iterator % sizeof( libesedb_aligned_t ) );
+		alignment_size = (uint8_t) ( (intptr_t) buffer_iterator % sizeof( libesedb_aligned_t ) );
 
-		byte_size = aligment_size;
+		byte_size = alignment_size;
 
 		while( byte_size != 0 )
 		{
@@ -425,7 +426,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 		}
 		aligned_buffer_iterator = (libesedb_aligned_t *) buffer_iterator;
 
-		size -= aligment_size;
+		size -= alignment_size;
 
 		if( *buffer_iterator != (uint8_t) ( *aligned_buffer_iterator & 0xff ) )
 		{
@@ -435,7 +436,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 		{
 			byte_order = _BYTE_STREAM_ENDIAN_LITTLE;
 		}
-		/* Use the aligned buffer
+		/* Determine the aligned XOR value
 		 */
 		while( size > sizeof( libesedb_aligned_t ) )
 		{
@@ -445,39 +446,69 @@ int libesedb_checksum_calculate_little_endian_xor32(
 
 			size -= sizeof( libesedb_aligned_t );
 		}
-		if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+		/* Align the aligned XOR value with the 32-bit XOR value
+		 */
+		if( alignment_size > 0 )
 		{
-			/* TODO */
-		}
-		else if( byte_order == _BYTE_STREAM_ENDIAN_LITTLE )
-		{
-			if( aligment_size > 0 )
+			byte_count     = ( alignment_size % 4 ) * 8;
+			alignment_count = ( sizeof( libesedb_aligned_t ) - alignment_size ) * 8;
+
+			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 			{
-				value_32bit = (uint32_t) ( value_aligned << ( ( aligment_size % 4 ) * 8 ) );
+				/* Shift twice to set unused bytes to 0
+				 */
+				value_32bit = (uint32_t) ( ( value_aligned >> alignment_count ) << byte_count );
 
-				value_aligned >>= ( sizeof( libesedb_aligned_t ) - aligment_size ) * 8;
-
-				*checksum_value ^= value_32bit;
+				/* Strip-off the used part of the aligned value
+				 */
+				value_aligned <<= byte_count;
 			}
-			byte_size = (uint8_t) sizeof( libesedb_aligned_t );
+			else if( byte_order == _BYTE_STREAM_ENDIAN_LITTLE )
+			{
+				value_32bit = (uint32_t) ( value_aligned << byte_count );
 
-			while( byte_size != 0 )
+				/* Strip-off the used part of the aligned value
+				 */
+				value_aligned >>= alignment_count;
+			}
+			*checksum_value ^= value_32bit;
+		}
+		/* Update the 32-bit XOR value with the aligned XOR value
+		 */
+		byte_size = (uint8_t) sizeof( libesedb_aligned_t );
+
+		while( byte_size != 0 )
+		{
+			byte_count = ( ( byte_size / 4 ) - 1 ) * 32;
+
+			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
+			{
+				value_32bit = (uint32_t) ( value_aligned >> byte_count );
+
+				/* Change big-endian into little-endian
+				 */
+				value_32bit = ( ( value_32bit & 0x00ff ) << 24 )
+				            | ( ( value_32bit & 0xff00 ) << 8 )
+				            | ( ( value_32bit >> 8 ) & 0xff00 )
+				            | ( ( value_32bit >> 24 ) & 0x00ff );
+
+				value_aligned <<= byte_count;
+			}
+			else if( byte_order == _BYTE_STREAM_ENDIAN_LITTLE )
 			{
 				value_32bit = (uint32_t) value_aligned;
 
-				/* TODO */
-				value_aligned >>= 32;
-
-				byte_size -= 4;
-
-				*checksum_value ^= value_32bit;
+				value_aligned >>= byte_count;
 			}
+			byte_size -= 4;
+
+			*checksum_value ^= value_32bit;
 		}
 		/* Re-align the buffer iterator
 		 */
 		buffer_iterator = (uint8_t *) aligned_buffer_iterator;
 
-		byte_size = 4 - ( aligment_size % 4 );
+		byte_size = 4 - ( alignment_size % 4 );
 
 		if( byte_size != 4 )
 		{

@@ -1,6 +1,4 @@
 TODO
-* add big-endian support for optimized XOR32 
-
 * page tree on demand
   - check sanity of page value 0 
 * clean up
@@ -72,7 +70,6 @@ Deployment:
   - add esedbexport.1
 * create debian package files
 * add codegear files
-* update macosx files
 
 Performance
 * create data definition tree in page tree for faster lookup of keys
@@ -89,6 +86,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20100626
+* worked on big-endian support for aligned XOR-32
+* updated macosx files
 
 20100625
 * code clean up
