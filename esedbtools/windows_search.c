@@ -1973,9 +1973,9 @@ int windows_search_export_record_value_filetime(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create filetime.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
 				libfdatetime_filetime_free(
@@ -2005,9 +2005,9 @@ int windows_search_export_record_value_filetime(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create filetime string.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy filetime to string.",
 				 function );
 
 				libfdatetime_filetime_free(

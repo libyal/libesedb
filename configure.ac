@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100626],
+  [20100627],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -1059,7 +1059,7 @@ AS_IF(
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdata" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes || test "x$ac_libesedb_have_libfwnt" = xyes],
+ [test "x$ac_libesedb_have_libuna" = xyes || test "x$ac_libesedb_have_libbfio" = xyes || test "x$ac_libesedb_have_libfdata" = xyes || test "x$ac_libesedb_have_libfdatetime" = xyes || test "x$ac_libesedb_have_libfguid" = xyes],
  [AC_SUBST(
   [libesedb_spec_requires],
   [Requires:])
@@ -1071,6 +1071,16 @@ AS_IF(
   [])
  AC_SUBST(
   [libesedb_spec_build_requires],
+  [])
+ ac_libesedb_dummy=yes])
+
+AS_IF(
+ [test "x$ac_libesedb_have_libfwnt" = xyes],
+ [AC_SUBST(
+  [libesedb_spec_tools_build_requires],
+  [BuildRequires:]) ],
+ [AC_SUBST(
+  [libesedb_spec_tools_build_requires],
   [])
  ac_libesedb_dummy=yes])
 

@@ -574,9 +574,9 @@ int export_handle_create_target_path(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set filename in target path.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy filename in target path.",
 		 function );
 
 		memory_free(
@@ -1510,9 +1510,9 @@ int export_handle_export_record_value(
 					{
 						liberror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_CONVERSION,
-						 LIBERROR_CONVERSION_ERROR_GENERIC,
-						 "%s: unable to create filetime.",
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+						 "%s: unable to copy byte stream to filetime.",
 						 function );
 
 						libfdatetime_filetime_free(
@@ -1542,9 +1542,9 @@ int export_handle_export_record_value(
 					{
 						liberror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_CONVERSION,
-						 LIBERROR_CONVERSION_ERROR_GENERIC,
-						 "%s: unable to create filetime string.",
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+						 "%s: unable to copy filetime to string.",
 						 function );
 
 						libfdatetime_filetime_free(

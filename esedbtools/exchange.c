@@ -588,9 +588,9 @@ int exchange_export_record_value_filetime(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create filetime.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
 				libfdatetime_filetime_free(
@@ -620,9 +620,9 @@ int exchange_export_record_value_filetime(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create filetime string.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy filetime to string.",
 				 function );
 
 				libfdatetime_filetime_free(
@@ -795,9 +795,9 @@ int exchange_export_record_value_guid(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create GUID.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy byte stream to GUID.",
 				 function );
 
 				libfguid_identifier_free(
@@ -823,9 +823,9 @@ int exchange_export_record_value_guid(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create GUID string.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy GUID to string.",
 				 function );
 
 				libfguid_identifier_free(
@@ -985,9 +985,9 @@ int exchange_export_record_value_sid(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create SID.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy byte stream to SID.",
 				 function );
 
 				libfwnt_security_identifier_free(
@@ -1010,6 +1010,10 @@ int exchange_export_record_value_sid(
 				 "%s: unable to retrieve SID string size.",
 				 function );
 
+				libfwnt_security_identifier_free(
+				 &sid,
+				 NULL );
+
 				return( -1 );
 			}
 			/* It is assumed that the SID string cannot be larger than 127 characters
@@ -1023,6 +1027,10 @@ int exchange_export_record_value_sid(
 				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
 				 "%s: SID string size value exceeds maximum.",
 				 function );
+
+				libfwnt_security_identifier_free(
+				 &sid,
+				 NULL );
 
 				return( -1 );
 			}
@@ -1043,9 +1051,9 @@ int exchange_export_record_value_sid(
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_CONVERSION,
-				 LIBERROR_CONVERSION_ERROR_GENERIC,
-				 "%s: unable to create SID string.",
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy SID to string.",
 				 function );
 
 				libfwnt_security_identifier_free(
