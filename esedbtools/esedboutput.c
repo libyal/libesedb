@@ -62,6 +62,12 @@
 #include <libfwnt.h>
 #endif
 
+#if defined( HAVE_LOCAL_LIBFMAPI )
+#include <libfmapi_definitions.h>
+#elif defined( HAVE_LIBFMAPI_H )
+#include <libfmapi.h>
+#endif
+
 #include <libsystem.h>
 
 #include "esedboutput.h"
@@ -128,6 +134,11 @@ void esedboutput_version_fprint(
 	 stream,
 	 ", libfwnt %s",
 	 LIBFWNT_VERSION_STRING );
+
+	fprintf(
+	 stream,
+	 ", libfmapi %s",
+	 LIBFMAPI_VERSION_STRING );
 
         fprintf(
 	 stream,

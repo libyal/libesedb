@@ -888,6 +888,56 @@ AM_CONDITIONAL(
  [HAVE_LOCAL_LIBFWNT],
  [test "x$ac_libesedb_have_libfwnt" = xlocal])
 
+dnl Check for enabling libfmapi for file MAPI types support
+LIBESEDB_CHECK_LIBFMAPI
+
+AS_IF(
+ [test "x$ac_libesedb_have_libfmapi" = xyes],
+ [dnl libfdatetime is available
+ AC_SUBST(
+  [libesedb_pc_libs_private_libfmapi],
+  [-lfmapi])
+ AC_SUBST(
+  [libesedb_spec_requires_libfmapi],
+  [libfmapi])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libfmapi],
+  [libfmapi-devel])
+ AC_SUBST(
+  [LIBFMAPI_CPPFLAGS],
+  [])
+ AC_SUBST(
+  [LIBFMAPI_LIBADD],
+  []) ],
+ [dnl libfdatetime is not available, using the (local) version that came with the source package
+ AC_DEFINE(
+  [HAVE_LOCAL_LIBFMAPI],
+  [1],
+  [Define to 1 if the local version of libfmapi is used.])
+ AC_SUBST(
+  [HAVE_LOCAL_LIBFMAPI],
+  [1])
+ AC_SUBST(
+  [libesedb_pc_libs_private_libfmapi],
+  [])
+ AC_SUBST(
+  [libesedb_spec_requires_libfmapi],
+  [])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libfmapi],
+  [])
+ AC_SUBST(
+  [LIBFMAPI_CPPFLAGS],
+  [-I../libfmapi])
+ AC_SUBST(
+  [LIBFMAPI_LIBADD],
+  [../libfmapi/libfmapi.la])
+ ac_libesedb_have_libfmapi=local])
+
+AM_CONDITIONAL(
+ [HAVE_LOCAL_LIBFMAPI],
+ [test "x$ac_libesedb_have_libfmapi" = xlocal])
+
 dnl Check if libesedb should be build with wide character type support
 AS_IF(
  [test "x$ac_cv_libesedb_enable_winapi" = xyes],
@@ -1075,7 +1125,7 @@ AS_IF(
  ac_libesedb_dummy=yes])
 
 AS_IF(
- [test "x$ac_libesedb_have_libfwnt" = xyes],
+ [test "x$ac_libesedb_have_libfwnt" = xyes || test "x$ac_libesedb_have_libfmapi" = xyes],
  [AC_SUBST(
   [libesedb_spec_tools_build_requires],
   [BuildRequires:]) ],
@@ -1129,6 +1179,7 @@ AC_CONFIG_FILES([libfdatetime/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
+AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([manuals/Makefile])
@@ -1159,6 +1210,7 @@ Building:
    libfdatetime support:                       $ac_libesedb_have_libfdatetime
    libfguid support:                           $ac_libesedb_have_libfguid
    libfwnt support:                            $ac_libesedb_have_libfwnt
+   libfmapi support:                           $ac_libesedb_have_libfmapi
 
 Features:
    Wide character type support:                $ac_cv_libesedb_enable_wide_character_type

@@ -976,7 +976,22 @@ int export_handle_export_table(
 		}
 		known_table = 0;
 
-		if( table_name_size == 8 )
+		if( table_name_size == 7 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "Global" ),
+			     6 ) == 0 )
+			{
+				known_table = 1;
+
+				result = exchange_export_record_global(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
+		else if( table_name_size == 8 )
 		{
 			if( libcstring_system_string_compare(
 			     table_name,
@@ -1003,7 +1018,7 @@ int export_handle_export_table(
 				          error );
 			}
 		}
-		if( table_name_size == 15 )
+		else if( table_name_size == 15 )
 		{
 			if( libcstring_system_string_compare(
 			     table_name,
@@ -1878,7 +1893,7 @@ int export_handle_export_record_value(
 			}
 			if( value_data != NULL )
 			{
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( LONG_VALUE_TEST )
 libsystem_notify_printf(
  "LONG VALUE DATA: %d out of %d\n",
  long_value_segment_iterator + 1,

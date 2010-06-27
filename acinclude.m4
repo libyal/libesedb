@@ -624,3 +624,20 @@ AC_DEFUN([LIBESEDB_CHECK_LIBFDATETIME],
   ])
  ])
 
+dnl Function to detect if libfmapi available
+AC_DEFUN([LIBESEDB_CHECK_LIBFMAPI],
+ [AC_CHECK_HEADERS([libfmapi.h])
+
+ AS_IF(
+  [test "x$ac_cv_header_libfmapi_h" = xno],
+  [ac_libesedb_have_libfmapi=no],
+  [ac_libesedb_have_libfmapi=yes
+  AC_CHECK_LIB(
+   fmapi,
+   libfmapi_get_version,
+   [],
+   [ac_libesedb_have_libfmapi=no])
+ 
+  ])
+ ])
+

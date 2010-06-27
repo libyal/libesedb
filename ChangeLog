@@ -90,6 +90,7 @@ Notes
 20100627
 * updated libuna, libbfio
 * code clean up
+* added libfmapi
 
 20100626
 * worked on big-endian support for aligned XOR-32

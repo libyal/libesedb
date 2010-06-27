@@ -41,6 +41,12 @@
 extern "C" {
 #endif
 
+int exchange_export_record_binary_data(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
 int exchange_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
@@ -69,6 +75,18 @@ int exchange_export_record_value_guid(
      FILE *table_file_stream,
      liberror_error_t **error );
 
+int exchange_export_record_value_mapi_entryid(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
+int exchange_export_record_value_mapi_multi_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
 int exchange_export_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
@@ -82,6 +100,11 @@ int exchange_export_record_value_string(
      liberror_error_t **error );
 
 int exchange_export_record_folders(
+     libesedb_record_t *record,
+     FILE *table_file_stream,
+     liberror_error_t **error );
+
+int exchange_export_record_global(
      libesedb_record_t *record,
      FILE *table_file_stream,
      liberror_error_t **error );
