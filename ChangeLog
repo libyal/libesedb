@@ -87,6 +87,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100628
+* update for libfmapi
+
 20100627
 * updated libuna, libbfio
 * code clean up
