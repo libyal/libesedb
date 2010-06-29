@@ -179,7 +179,7 @@ int libesedb_database_read(
 	     (intptr_t *) database_page_tree,
 	     &libesedb_page_tree_free,
 	     NULL,
-	     &libesedb_page_tree_read_node_values,
+	     &libesedb_page_tree_read_node_value,
 	     &libesedb_page_tree_read_sub_nodes,
 	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
 	     error ) != 1 )

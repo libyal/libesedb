@@ -74,21 +74,29 @@ int libesedb_values_tree_get_value_by_key(
 
 		return( -1 );
 	}
-	if( libfdata_tree_get_root_node(
-	     values_tree,
-	     &values_tree_root_node,
-	     error ) != 1 )
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( key == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve root node from values tree.",
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid key.",
 		 function );
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
+	if( key_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid key size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
 	if( libnotify_verbose != 0 )
 	{
 		page_key_data = key;
@@ -111,6 +119,20 @@ int libesedb_values_tree_get_value_by_key(
 		 "\n" );
 	}
 #endif
+	if( libfdata_tree_get_root_node(
+	     values_tree,
+	     &values_tree_root_node,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve root node from values tree.",
+		 function );
+
+		return( -1 );
+	}
 	*values_tree_value = NULL;
 
 	result = libesedb_values_tree_node_get_value_by_key(

@@ -1771,10 +1771,10 @@ int libesedb_page_tree_read_page_value(
 	return( 1 );
 }
 
-/* Reads a page tree node values
+/* Reads a page tree node value
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_node_values(
+int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
@@ -1785,7 +1785,7 @@ int libesedb_page_tree_read_node_values(
 {
 	libesedb_page_tree_t *page_tree                 = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
-	static char *function                           = "libesedb_page_tree_read_node_values";
+	static char *function                           = "libesedb_page_tree_read_node_value";
 	uint64_t page_number                            = 0;
 	int result                                      = 0;
 

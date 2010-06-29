@@ -107,7 +107,7 @@ int libesedb_page_tree_read_page_value(
      libesedb_values_tree_value_t *values_tree_value,
      liberror_error_t **error );
 
-int libesedb_page_tree_read_node_values(
+int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
