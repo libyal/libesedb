@@ -376,8 +376,9 @@ int libesedb_checksum_calculate_little_endian_xor32(
 
 		return( -1 );
 	}
-	buffer_iterator = (uint8_t *) buffer;
 	*checksum_value = initial_value;
+
+	buffer_iterator = (uint8_t *) buffer;
 
 	/* Only optimize when there is the alignment is a multitude of 32-bit
 	 * and for buffers larger than the alignment
