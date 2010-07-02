@@ -1,5 +1,6 @@
 TODO
 * combine libesedb_io_handle_read_page with libesedb_page_read
+  - no so that libesedb_page_read can be used for recovery
 
 * page tree on demand
   - check sanity of page value 0 

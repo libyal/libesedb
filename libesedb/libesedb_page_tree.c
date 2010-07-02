@@ -1889,6 +1889,10 @@ int libesedb_page_tree_read_node_value(
 		 "%s: unable to determine if node is the root.",
 		 function );
 
+		libesedb_values_tree_value_free(
+		 (intptr_t *) values_tree_value,
+		NULL );
+
 		return( -1 );
 	}
 	else if( result != 0 )
@@ -1908,6 +1912,10 @@ int libesedb_page_tree_read_node_value(
 			 "%s: unable to set page: %" PRIu64 " as sub node range.",
 			 function,
 			 page_number );
+
+			libesedb_values_tree_value_free(
+			 (intptr_t *) values_tree_value,
+			NULL );
 
 			return( -1 );
 		}
