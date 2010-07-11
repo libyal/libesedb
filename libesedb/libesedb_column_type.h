@@ -1,5 +1,5 @@
 /*
- * Column_type functions
+ * Column type functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *

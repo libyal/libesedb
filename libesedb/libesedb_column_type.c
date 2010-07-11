@@ -1,5 +1,5 @@
 /*
- * Column_type functions
+ * Column type functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -52,7 +52,7 @@ libesedb_column_type_t libesedb_column_types[ ] = {
 
 	{ (uint32_t) -1, "_UNKNOWN_", "Unknown" } };
 
-/* Retrieves a string containing the column_type identifier
+/* Retrieves a string containing the column type identifier
  */
 const char *libesedb_column_type_get_identifier(
              uint32_t column_type )
@@ -71,7 +71,7 @@ const char *libesedb_column_type_get_identifier(
 	 ( libesedb_column_types[ iterator ] ).identifier );
 }
 
-/* Retrieves a string containing the column_type description
+/* Retrieves a string containing the column type description
  */
 const char *libesedb_column_type_get_description(
              uint32_t column_type )
