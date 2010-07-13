@@ -60,12 +60,17 @@ struct libesedb_page_tree
 	/* The pages vector
 	 */
 	libfdata_vector_t *pages_vector;
+
+	/* The pages cache
+	 */
+	libfdata_cache_t *pages_cache;
 };
 
 int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
@@ -111,6 +116,7 @@ int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
+     libfdata_cache_t *cache,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags,
@@ -120,6 +126,7 @@ int libesedb_page_tree_read_sub_nodes(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
+     libfdata_cache_t *cache,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size,
      uint8_t read_flags,

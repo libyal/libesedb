@@ -1621,7 +1621,7 @@ int exchange_export_record_value_sid(
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: SID string size value exceeds maximum.",
 				 function );
 
@@ -1892,7 +1892,7 @@ int exchange_export_record_folders(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2264,7 +2264,7 @@ int exchange_export_record_global(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2587,7 +2587,7 @@ int exchange_export_record_mailbox(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 

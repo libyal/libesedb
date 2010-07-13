@@ -44,17 +44,25 @@ struct libesedb_internal_long_value
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* The long values data tree
+	/* The long values tree
 	 */
 	libfdata_tree_t *long_values_tree;
+
+	/* The long values cache
+	 */
+	libfdata_cache_t *long_values_cache;
 
 	/* The item flags
 	 */
 	uint8_t flags;
 
-	/* The values tree value
+	/* The data block 
 	 */
 	libfdata_block_t *data_block;
+
+	/* The data cache 
+	 */
+	libfdata_cache_t *data_cache;
 
 	/* The multi column type
 	 */
@@ -69,7 +77,9 @@ int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,

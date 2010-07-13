@@ -320,6 +320,7 @@ int libesedb_values_tree_value_read_data(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      uint8_t **data,
      size_t *data_size,
      liberror_error_t **error )
@@ -387,6 +388,7 @@ int libesedb_values_tree_value_read_data(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     file_io_handle,
+	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -458,7 +460,7 @@ int libesedb_values_tree_value_read_data(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -479,6 +481,7 @@ int libesedb_values_tree_value_read_record(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libesedb_array_t *values_array,
@@ -600,6 +603,7 @@ int libesedb_values_tree_value_read_record(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     file_io_handle,
+	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -671,7 +675,7 @@ int libesedb_values_tree_value_read_record(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -686,8 +690,8 @@ int libesedb_values_tree_value_read_record(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid record data size value out of range.",
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid record data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -766,7 +770,7 @@ int libesedb_values_tree_value_read_record(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid number of table column catalog definitions value exceeds number in template table.",
 			 function );
 
@@ -795,11 +799,11 @@ int libesedb_values_tree_value_read_record(
 	if( ( template_table_definition != NULL )
 	 && ( template_table_definition->column_catalog_definition_list != NULL ) )
 	{
-		column_catalog_definition_list_element = template_table_definition->column_catalog_definition_list->first;
+		column_catalog_definition_list_element = template_table_definition->column_catalog_definition_list->first_element;
 	}
 	else
 	{
-		column_catalog_definition_list_element = table_definition->column_catalog_definition_list->first;
+		column_catalog_definition_list_element = table_definition->column_catalog_definition_list->first_element;
 	}
 	fixed_size_data_type_value_offset    = (uint16_t) sizeof( esedb_data_definition_header_t );
 	current_variable_size_data_type      = 127;
@@ -1164,7 +1168,7 @@ int libesedb_values_tree_value_read_record(
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
@@ -1237,8 +1241,8 @@ int libesedb_values_tree_value_read_record(
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-							 "%s: invalid tagged data type offset value out of range.",
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value out of bounds.",
 							 function );
 
 							return( -1 );
@@ -1308,7 +1312,7 @@ int libesedb_values_tree_value_read_record(
 						liberror_error_set(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 						 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
 						 function );
 
@@ -1341,7 +1345,7 @@ int libesedb_values_tree_value_read_record(
 							liberror_error_set(
 							 error,
 							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
@@ -1437,7 +1441,7 @@ int libesedb_values_tree_value_read_record(
 				}
 			}
 		}
-		if( libesedb_array_set_entry(
+		if( libesedb_array_set_entry_by_index(
 		     values_array,
 		     column_catalog_definition_iterator,
 		     (intptr_t *) data_type_definition,
@@ -1459,15 +1463,15 @@ int libesedb_values_tree_value_read_record(
 		}
 		data_type_definition = NULL;
 
-		if( ( column_catalog_definition_list_element->next == NULL )
+		if( ( column_catalog_definition_list_element->next_element == NULL )
 		 && ( template_table_definition != NULL )
 		 && ( template_table_definition->column_catalog_definition_list != NULL ) )
 		{
-			column_catalog_definition_list_element = table_definition->column_catalog_definition_list->first;
+			column_catalog_definition_list_element = table_definition->column_catalog_definition_list->first_element;
 		}
 		else
 		{
-			column_catalog_definition_list_element = column_catalog_definition_list_element->next;
+			column_catalog_definition_list_element = column_catalog_definition_list_element->next_element;
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1496,6 +1500,7 @@ int libesedb_values_tree_value_read_long_value(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      liberror_error_t **error )
 {
 	libesedb_page_t *page             = NULL;
@@ -1531,6 +1536,7 @@ int libesedb_values_tree_value_read_long_value(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     file_io_handle,
+	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1602,7 +1608,7 @@ int libesedb_values_tree_value_read_long_value(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -1677,6 +1683,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_block_t *data_block,
      liberror_error_t **error )
@@ -1725,6 +1732,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     file_io_handle,
+	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1796,7 +1804,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 

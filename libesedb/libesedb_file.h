@@ -74,6 +74,10 @@ struct libesedb_internal_file
 	 */
 	libfdata_vector_t *pages_vector;
 
+	/* The pages cache
+	 */
+	libfdata_cache_t *pages_cache;
+
 	/* Value to indicate if abort was signalled
 	 */
 	int abort;

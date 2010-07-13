@@ -1,4 +1,6 @@
 TODO
+* move pages vector to IO handle ?
+
 * combine libesedb_io_handle_read_page with libesedb_page_read
   - no so that libesedb_page_read can be used for recovery
 
@@ -89,6 +91,14 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20100713
+* configure.ac added stat check
+* updated common, libsystem, libuna, libbfio, libfdata, libfdatetime,
+  libfmapi, libfwnt
+* updated array and list type
+* changes for updates
+* fixed FDP mismatch issue
 
 20100628
 * update for libfmapi

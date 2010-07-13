@@ -37,6 +37,7 @@
 int libesedb_values_tree_get_value_by_key(
      libfdata_tree_t *values_tree,
      libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,
@@ -138,6 +139,7 @@ int libesedb_values_tree_get_value_by_key(
 	result = libesedb_values_tree_node_get_value_by_key(
 		  values_tree_root_node,
 		  file_io_handle,
+		  values_cache,
 		  key,
 		  key_size,
 		  values_tree_value,
@@ -164,6 +166,7 @@ int libesedb_values_tree_get_value_by_key(
 int libesedb_values_tree_node_get_value_by_key(
      libfdata_tree_node_t *values_tree_node,
      libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,
@@ -234,6 +237,7 @@ int libesedb_values_tree_node_get_value_by_key(
 	if( libfdata_tree_node_get_number_of_sub_nodes(
 	     values_tree_node,
 	     file_io_handle,
+	     values_cache,
 	     &number_of_sub_nodes,
 	     0,
 	     error ) != 1 )
@@ -254,6 +258,7 @@ int libesedb_values_tree_node_get_value_by_key(
 		if( libfdata_tree_node_get_sub_node_by_index(
 		     values_tree_node,
 		     file_io_handle,
+		     values_cache,
 		     sub_node_index,
 		     &values_tree_sub_node,
 		     0,
@@ -272,6 +277,7 @@ int libesedb_values_tree_node_get_value_by_key(
 		if( libfdata_tree_node_get_node_value(
 		     values_tree_sub_node,
 		     file_io_handle,
+		     values_cache,
 		     (intptr_t **) &values_tree_sub_node_value,
 		     0,
 		     error ) != 1 )
@@ -362,6 +368,7 @@ int libesedb_values_tree_node_get_value_by_key(
 		is_leaf_node = libfdata_tree_node_is_leaf(
 				values_tree_sub_node,
 				file_io_handle,
+				values_cache,
 				0,
 				error );
 
@@ -407,6 +414,7 @@ int libesedb_values_tree_node_get_value_by_key(
 				if( libfdata_tree_node_get_node_value(
 				     values_tree_sub_node,
 				     file_io_handle,
+				     values_cache,
 				     (intptr_t **) values_tree_value,
 				     0,
 				     error ) != 1 )
@@ -437,6 +445,7 @@ int libesedb_values_tree_node_get_value_by_key(
 				result = libesedb_values_tree_node_get_value_by_key(
 					  values_tree_sub_node,
 					  file_io_handle,
+					  values_cache,
 					  key,
 					  key_size,
 					  values_tree_value,

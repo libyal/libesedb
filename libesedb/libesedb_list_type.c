@@ -31,12 +31,12 @@
  * Returns 1 if successful or -1 on error
  */
 int libesedb_list_element_initialize(
-     libesedb_list_element_t **list_element,
+     libesedb_list_element_t **element,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_list_element_initialize";
 
-	if( list_element == NULL )
+	if( element == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -47,12 +47,12 @@ int libesedb_list_element_initialize(
 
 		return( -1 );
 	}
-	if( *list_element == NULL )
+	if( *element == NULL )
 	{
-		*list_element = (libesedb_list_element_t *) memory_allocate(
-		                                             sizeof( libesedb_list_element_t ) );
+		*element = (libesedb_list_element_t *) memory_allocate(
+		                                        sizeof( libesedb_list_element_t ) );
 
-		if( *list_element == NULL )
+		if( *element == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -64,7 +64,7 @@ int libesedb_list_element_initialize(
 			return( -1 );
 		}
 		if( memory_set(
-		     *list_element,
+		     *element,
 		     0,
 		     sizeof( libesedb_list_element_t ) ) == NULL )
 		{
@@ -76,9 +76,9 @@ int libesedb_list_element_initialize(
 			 function );
 
 			memory_free(
-			 *list_element );
+			 *element );
 
-			*list_element = NULL;
+			*element = NULL;
 
 			return( -1 );
 		}
@@ -91,7 +91,7 @@ int libesedb_list_element_initialize(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_list_element_free(
-     libesedb_list_element_t **list_element,
+     libesedb_list_element_t **element,
      int (*value_free_function)(
             intptr_t *value,
             liberror_error_t **error ),
@@ -100,7 +100,7 @@ int libesedb_list_element_free(
 	static char *function = "libesedb_list_element_free";
 	int result            = 1;
 
-	if( list_element == NULL )
+	if( element == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -111,10 +111,10 @@ int libesedb_list_element_free(
 
 		return( -1 );
 	}
-	if( *list_element != NULL )
+	if( *element != NULL )
 	{
-		if( ( ( *list_element )->previous != NULL )
-		 || ( ( *list_element )->next != NULL ) )
+		if( ( ( *element )->previous_element != NULL )
+		 || ( ( *element )->next_element != NULL ) )
 		{
 			liberror_error_set(
 			 error,
@@ -125,26 +125,91 @@ int libesedb_list_element_free(
 
 			return( -1 );
 		}
-		if( ( value_free_function != NULL )
-		 && ( value_free_function(
-		       ( *list_element )->value,
-		       error ) != 1 ) )
+		if( value_free_function != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free value in element.",
-			 function );
+			if( value_free_function(
+			     ( *element )->value,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free value.",
+				 function );
 
-			result = -1;
+				result = -1;
+			}
 		}
 		memory_free(
-		 *list_element );
+		 *element );
 
-		*list_element = NULL;
+		*element = NULL;
 	}
 	return( result );
+}
+
+/* Retrieves the value from the list element
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_list_element_get_value(
+     libesedb_list_element_t *element,
+     intptr_t **value,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_list_element_get_value";
+
+	if( element == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid list element.",
+		 function );
+
+		return( -1 );
+	}
+	if( value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value.",
+		 function );
+
+		return( -1 );
+	}
+	*value = element->value;
+
+	return( 1 );
+}
+
+/* Sets the value in the list element
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_list_element_set_value(
+     libesedb_list_element_t *element,
+     intptr_t *value,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_list_element_set_value";
+
+	if( element == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid list element.",
+		 function );
+
+		return( -1 );
+	}
+	element->value = value;
+
+	return( 1 );
 }
 
 /* Creates a list
@@ -268,8 +333,8 @@ int libesedb_list_empty(
 {
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_list_empty";
+	int element_index                     = 0;
 	int number_of_elements                = 0;
-	int iterator                          = 0;
 	int result                            = 1;
 
 	if( list == NULL )
@@ -287,11 +352,11 @@ int libesedb_list_empty(
 	{
 		number_of_elements = list->number_of_elements;
 
-		for( iterator = 0;
-		     iterator < number_of_elements;
-		     iterator++ )
+		for( element_index = 0;
+		     element_index < number_of_elements;
+		     element_index++ )
 		{
-			list_element = list->first;
+			list_element = list->first_element;
 
 			if( list_element == NULL )
 			{
@@ -301,26 +366,26 @@ int libesedb_list_empty(
 				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 				 "%s: corruption detected in element: %d.",
 				 function,
-				 iterator + 1 );
+				 element_index );
 
 				return( -1 );
 			}
-			list->first = list_element->next;
+			list->first_element = list_element->next_element;
 
-			if( list->last == list_element )
+			if( list->last_element == list_element )
 			{
-				list->last = list_element->next;
+				list->last_element = list_element->next_element;
 			}
 			list->number_of_elements -= 1;
 
-			if( list_element->next != NULL )
+			if( list_element->next_element != NULL )
 			{
-				list_element->next->previous = NULL;
+				list_element->next_element->previous_element = NULL;
 			}
-			list_element->next = NULL;
+			list_element->next_element = NULL;
 
 			if( libesedb_list_element_free(
-			     &( list_element ),
+			     &list_element,
 			     value_free_function,
 			     error ) != 1 )
 			{
@@ -330,7 +395,7 @@ int libesedb_list_empty(
 				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free element: %d.",
 				 function,
-				 iterator + 1 );
+				 element_index );
 
 				result = -1;
 			}
@@ -340,12 +405,18 @@ int libesedb_list_empty(
 }
 
 /* Clones the existing list and its elements
- * This function can return a partially cloned list on error
+ *
+ * The values are cloned using the value_clone_function
+ * On error the values are freed using the value_free_function
+ *
  * Returns 1 if successful or -1 on error
  */
 int libesedb_list_clone(
-     libesedb_list_t **destination,
-     libesedb_list_t *source,
+     libesedb_list_t **destination_list,
+     libesedb_list_t *source_list,
+     int (*value_free_function)(
+            intptr_t *value,
+            liberror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,
             intptr_t *source,
@@ -355,9 +426,10 @@ int libesedb_list_clone(
 	libesedb_list_element_t *source_list_element = NULL;
 	intptr_t *destination_value                  = NULL;
 	static char *function                        = "libesedb_list_clone";
-	int iterator                                 = 0;
+	int element_index                            = 0;
+	int result                                   = 1;
 
-	if( destination == NULL )
+	if( destination_list == NULL )
 	{
 		liberror_error_set(
 		 error,
@@ -368,13 +440,24 @@ int libesedb_list_clone(
 
 		return( -1 );
 	}
-	if( *destination != NULL )
+	if( *destination_list != NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid destination list already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( value_free_function == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid value free function.",
 		 function );
 
 		return( -1 );
@@ -390,99 +473,112 @@ int libesedb_list_clone(
 
 		return( -1 );
 	}
-	if( source == NULL )
+	if( source_list == NULL )
 	{
-		*destination = NULL;
-	}
-	else
-	{
-		*destination = (libesedb_list_t *) memory_allocate(
-		                                    sizeof( libesedb_list_t ) );
+		*destination_list = NULL;
 
-		if( *destination == NULL )
+		return( 1 );
+	}
+	if( libesedb_list_initialize(
+	     destination_list,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create destination list.",
+		 function );
+
+		return( -1 );
+	}
+	if( *destination_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing destination list.",
+		 function );
+
+		return( -1 );
+	}
+	source_list_element = source_list->first_element;
+
+	for( element_index = 0;
+	     element_index < source_list->number_of_elements;
+	     element_index++ )
+	{
+		if( source_list_element == NULL )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create list.",
-			 function );
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: corruption detected in source list element: %d.",
+			 function,
+			 element_index );
 
-			return( -1 );
+			result -= 1;
+
+			break;
 		}
-		if( memory_set(
-		     *destination,
-		     0,
-		     sizeof( libesedb_list_t ) ) == NULL )
+		destination_value = NULL;
+
+		result = value_clone_function(
+		          &destination_value,
+		          source_list_element->value,
+		          error );
+
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear list.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to clone value of list element: %d.",
+			 function,
+			 element_index );
+
+			break;
+		}
+		if( libesedb_list_append_value(
+		     *destination_list,
+		     destination_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append value of list element: %d.",
+			 function,
+			 element_index );
+
+			result -= 1;
+
+			break;
+		}
+		source_list_element = source_list_element->next_element;
+	}
+	if( result != 1 )
+	{
+		if( libesedb_list_free(
+		     destination_list,
+		     value_free_function,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free destination list.",
 			 function );
 
-			memory_free(
-			 *destination );
-
-			*destination = NULL;
-
-			return( -1 );
-		}
-		source_list_element = source->first;
-
-		for( iterator = 0;
-		     iterator < source->number_of_elements;
-		     iterator++ )
-		{
-			if( source_list_element == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-				 "%s: corruption detected in source list element: %d.",
-				 function,
-				 iterator + 1 );
-
-				return( -1 );
-			}
-			destination_value = NULL;
-
-			if( value_clone_function(
-			     &destination_value,
-			     source_list_element->value,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to clone value of list element: %d.",
-				 function,
-				 iterator + 1 );
-
-				return( -1 );
-			}
-			if( libesedb_list_append_value(
-			     *destination,
-			     destination_value,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append value of list element: %d.",
-				 function,
-				 iterator + 1 );
-
-				return( -1 );
-			}
-			source_list_element = source_list_element->next;
+			result = -1;
 		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the number of elements in the list
@@ -523,17 +619,17 @@ int libesedb_list_get_number_of_elements(
 }
 
 /* Retrieves a specific element from the list
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
-int libesedb_list_get_element(
+int libesedb_list_get_element_by_index(
      libesedb_list_t *list,
      int element_index,
      libesedb_list_element_t **element,
      liberror_error_t **error )
 {
 	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_list_get_element";
-	int iterator                          = 0;
+	static char *function                 = "libesedb_list_get_element_by_index";
+	int element_iterator                  = 0;
 
 	if( list == NULL )
 	{
@@ -552,8 +648,8 @@ int libesedb_list_get_element(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE,
-		 "%s: invalid element index out of range.",
+		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid element index value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -564,18 +660,18 @@ int libesedb_list_get_element(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
+		 "%s: invalid list element.",
 		 function );
 
 		return( -1 );
 	}
 	if( element_index < ( list->number_of_elements / 2 ) )
 	{
-		list_element = list->first;
+		list_element = list->first_element;
 
-		for( iterator = 0;
-		     iterator < element_index;
-		     iterator++ )
+		for( element_iterator = 0;
+		     element_iterator < element_index;
+		     element_iterator++ )
 		{
 			if( list_element == NULL )
 			{
@@ -585,20 +681,20 @@ int libesedb_list_get_element(
 				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 				 "%s: corruption detected in element: %d.",
 				 function,
-				 iterator + 1 );
+				 element_iterator );
 
 				return( -1 );
 			}
-			list_element = list_element->next;
+			list_element = list_element->next_element;
 		}
 	}
 	else
 	{
-		list_element = list->last;
+		list_element = list->last_element;
 
-		for( iterator = ( list->number_of_elements - 1 );
-		     iterator > element_index;
-		     iterator-- )
+		for( element_iterator = ( list->number_of_elements - 1 );
+		     element_iterator > element_index;
+		     element_iterator-- )
 		{
 			if( list_element == NULL )
 			{
@@ -608,47 +704,43 @@ int libesedb_list_get_element(
 				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 				 "%s: corruption detected in element: %d.",
 				 function,
-				 iterator + 1 );
+				 element_iterator );
 
 				return( -1 );
 			}
-			list_element = list_element->previous;
+			list_element = list_element->previous_element;
 		}
+	}
+	if( list_element == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: corruption detected - missing list element.",
+		 function );
+
+		return( -1 );
 	}
 	*element = list_element;
 
-	if( list_element == NULL )
-	{
-		return( 0 );
-	}
 	return( 1 );
 }
 
 /* Retrieves a specific value from the list
- * Returns 1 if successful, 0 if not available or -1 on error
+ * Returns 1 if successful or -1 on error
  */
-int libesedb_list_get_value(
+int libesedb_list_get_value_by_index(
      libesedb_list_t *list,
      int element_index,
      intptr_t **value,
      liberror_error_t **error )
 {
 	libesedb_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_list_get_value";
+	static char *function                 = "libesedb_list_get_value_by_index";
 	int result                            = 0;
 
-	if( value == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value.",
-		 function );
-
-		return( -1 );
-	}
-	result = libesedb_list_get_element(
+	result = libesedb_list_get_element_by_index(
 	          list,
 	          element_index,
 	          &list_element,
@@ -660,15 +752,26 @@ int libesedb_list_get_value(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve list element for index: %d.",
+		 "%s: unable to retrieve list element: %d from list.",
 		 function,
 		 element_index );
 
 		return( -1 );
 	}
-	else if( result != 0 )
+	if( libesedb_list_element_get_value(
+	     list_element,
+	     value,
+	     error ) != 1 )
 	{
-		*value = list_element->value;
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value of list element: %d.",
+		 function,
+		 element_index );
+
+		return( -1 );
 	}
 	return( 1 );
 }
@@ -700,21 +803,21 @@ int libesedb_list_prepend_element(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
+		 "%s: invalid list element.",
 		 function );
 
 		return( -1 );
 	}
-	if( list->first != NULL )
+	if( list->first_element != NULL )
 	{
-		list->first->previous = element;
-		element->next         = list->first;
+		list->first_element->previous_element = element;
+		element->next_element                 = list->first_element;
 	}
-	if( list->last == NULL )
+	if( list->last_element == NULL )
 	{
-		list->last = element;
+		list->last_element = element;
 	}
-	list->first               = element;
+	list->first_element       = element;
 	list->number_of_elements += 1;
 
 	return( 1 );
@@ -729,56 +832,25 @@ int libesedb_list_prepend_value(
      intptr_t *value,
      liberror_error_t **error )
 {
-	libesedb_list_element_t *element = NULL;
-	static char *function            = "libesedb_list_prepend_value";
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_list_prepend_value";
 
-	if( value == NULL )
+	if( libesedb_list_element_initialize(
+	     &list_element,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create list element.",
 		 function );
 
 		return( -1 );
 	}
-	element = (libesedb_list_element_t *) memory_allocate(
-	                                       sizeof( libesedb_list_element_t ) );
-
-	if( element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create element.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_set(
-	     element,
-	     0,
-	     sizeof( libesedb_list_element_t ) ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear element.",
-		 function );
-
-		memory_free(
-		 element );
-
-		return( -1 );
-	}
-	element->value = value;
-
 	if( libesedb_list_prepend_element(
 	     list,
-	     element,
+	     list_element,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -788,8 +860,29 @@ int libesedb_list_prepend_value(
 		 "%s: unable to prepend element to list.",
 		 function );
 
-		memory_free(
-		 element );
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
+
+		return( -1 );
+	}
+	if( libesedb_list_element_set_value(
+	     list_element,
+	     value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to set value of list element.",
+		 function );
+
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
 
 		return( -1 );
 	}
@@ -823,21 +916,21 @@ int libesedb_list_append_element(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
+		 "%s: invalid list element.",
 		 function );
 
 		return( -1 );
 	}
-	if( list->first == NULL )
+	if( list->first_element == NULL )
 	{
-		list->first = element;
+		list->first_element = element;
 	}
-	if( list->last != NULL )
+	if( list->last_element != NULL )
 	{
-		list->last->next  = element;
-		element->previous = list->last;
+		list->last_element->next_element = element;
+		element->previous_element        = list->last_element;
 	}
-	list->last                = element;
+	list->last_element        = element;
 	list->number_of_elements += 1;
 
 	return( 1 );
@@ -852,56 +945,25 @@ int libesedb_list_append_value(
      intptr_t *value,
      liberror_error_t **error )
 {
-	libesedb_list_element_t *element = NULL;
-	static char *function            = "libesedb_list_append_value";
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_list_append_value";
 
-	if( value == NULL )
+	if( libesedb_list_element_initialize(
+	     &list_element,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create list element.",
 		 function );
 
 		return( -1 );
 	}
-	element = (libesedb_list_element_t *) memory_allocate(
-	                                       sizeof( libesedb_list_element_t ) );
-
-	if( element == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create element.",
-		 function );
-
-		return( -1 );
-	}
-	if( memory_set(
-	     element,
-	     0,
-	     sizeof( libesedb_list_element_t ) ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear element.",
-		 function );
-
-		memory_free(
-		 element );
-
-		return( -1 );
-	}
-	element->value = value;
-
 	if( libesedb_list_append_element(
 	     list,
-	     element,
+	     list_element,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -911,8 +973,29 @@ int libesedb_list_append_value(
 		 "%s: unable to append element to list.",
 		 function );
 
-		memory_free(
-		 element );
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
+
+		return( -1 );
+	}
+	if( libesedb_list_element_set_value(
+	     list_element,
+	     value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to set value of list element.",
+		 function );
+
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
 
 		return( -1 );
 	}
@@ -920,7 +1003,14 @@ int libesedb_list_append_value(
 }
 
 /* Inserts a list element into the list
- * Uses the value_compare_function to determine the order of the list elements
+ *
+ * Uses the value_compare_function to determine the order of the entries
+ * The value_compare_function should return LIBESEDB_LIST_COMPARE_LESS,
+ * LIBESEDB_LIST_COMPARE_EQUAL, LIBESEDB_LIST_COMPARE_GREATER if successful or -1 on error
+ *
+ * Duplicate entries are allowed by default and inserted after the last duplicate value.
+ * Only allowing unique entries can be enforced by setting the flag LIBESEDB_LIST_INSERT_FLAG_UNIQUE_ENTRIES
+ *
  * Returns 1 if successful, 0 if the list element already exists or -1 on error
  */
 int libesedb_list_insert_element(
@@ -930,12 +1020,13 @@ int libesedb_list_insert_element(
             intptr_t *first_value,
             intptr_t *second_value,
             liberror_error_t **error ),
+     uint8_t insert_flags,
      liberror_error_t **error )
 {
 	libesedb_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_list_insert_element";
-	int result                            = 0;
-	int iterator                          = 0;
+	int element_index                     = 0;
+	int result                            = -1;
 
 	if( list == NULL )
 	{
@@ -954,19 +1045,19 @@ int libesedb_list_insert_element(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
+		 "%s: invalid list element.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( element->previous != NULL )
-	 || ( element->next != NULL ) )
+	if( ( element->previous_element != NULL )
+	 || ( element->next_element != NULL ) )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: element already part of a list.",
+		 "%s: list element already part of a list.",
 		 function );
 
 		return( -1 );
@@ -982,36 +1073,48 @@ int libesedb_list_insert_element(
 
 		return( -1 );
 	}
+	if( ( insert_flags & ~( LIBESEDB_LIST_INSERT_FLAG_UNIQUE_ENTRIES ) ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported insert flags: 0x%02" PRIx8 ".",
+		 function,
+		 insert_flags );
+
+		return( -1 );
+	}
 	if( list->number_of_elements == 0 )
 	{
-		if( list->first != NULL )
+		if( list->first_element != NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected - first already set.",
+			 "%s: corruption detected - first element already set.",
 			 function );
 
 			return( -1 );
 		}
-		if( list->last != NULL )
+		if( list->last_element != NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected - last already set.",
+			 "%s: corruption detected - last element already set.",
 			 function );
 
 			return( -1 );
 		}
-		list->first = element;
-		list->last  = element;
+		list->first_element = element;
+		list->last_element  = element;
 	}
 	else
 	{
-		if( list->first == NULL )
+		if( list->first_element == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -1022,7 +1125,7 @@ int libesedb_list_insert_element(
 
 			return( -1 );
 		}
-		if( list->last == NULL )
+		if( list->last_element == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -1033,11 +1136,11 @@ int libesedb_list_insert_element(
 
 			return( -1 );
 		}
-		list_element = list->first;
+		list_element = list->first_element;
 
-		for( iterator = 0;
-		     iterator < list->number_of_elements;
-		     iterator++ )
+		for( element_index = 0;
+		     element_index < list->number_of_elements;
+		     element_index++ )
 		{
 			result = value_compare_function(
 			          element->value,
@@ -1052,50 +1155,67 @@ int libesedb_list_insert_element(
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to compare list element: %d.",
 				 function,
-				 iterator + 1 );
+				 element_index );
 
 				return( -1 );
 			}
 			else if( result == LIBESEDB_LIST_COMPARE_EQUAL )
 			{
-				return( 0 );
+				if( ( insert_flags & LIBESEDB_LIST_INSERT_FLAG_UNIQUE_ENTRIES ) != 0 )
+				{
+					return( 0 );
+				}
 			}
 			else if( result == LIBESEDB_LIST_COMPARE_LESS )
 			{
-				element->previous = list_element->previous;
-				element->next     = list_element;
-
-				if( list_element == list->first )
-				{
-					list->first = element;
-				}
-				else if( list_element->previous == NULL )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-					 "%s: corruption detected - missing previous in list element: %d.",
-					 function,
-					 iterator + 1 );
-
-					return( -1 );
-				}
-				else
-				{
-					list_element->previous->next = element;
-				}
-				list_element->previous = element;
-
 				break;
 			}
-			list_element = list_element->next;
+			else if( result != LIBESEDB_LIST_COMPARE_GREATER )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value compare function return value: %d.",
+				 function,
+				 result );
+
+				return( -1 );
+			}
+			list_element = list_element->next_element;
 		}
-		if( result >= 1 )
+		if( result == LIBESEDB_LIST_COMPARE_LESS )
 		{
-			element->previous = list->last;
-			list->last->next  = element;
-			list->last        = element;
+			element->previous_element = list_element->previous_element;
+			element->next_element     = list_element;
+
+			if( list_element == list->first_element )
+			{
+				list->first_element = element;
+			}
+			else if( list_element->previous_element == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: corruption detected - missing previous in list element: %d.",
+				 function,
+				 element_index );
+
+				return( -1 );
+			}
+			else
+			{
+				list_element->previous_element->next_element = element;
+			}
+			list_element->previous_element = element;
+		}
+		else
+		{
+			element->previous_element        = list->last_element;
+			list->last_element->next_element = element;
+			list->last_element               = element;
 		}
 	}
 	list->number_of_elements += 1;
@@ -1104,8 +1224,16 @@ int libesedb_list_insert_element(
 }
 
 /* Inserts a value to the list
+ *
  * Creates a new list element
- * Uses the value_compare_function to determine the order of the list elements
+ *
+ * Uses the value_compare_function to determine the order of the entries
+ * The value_compare_function should return LIBESEDB_LIST_COMPARE_LESS,
+ * LIBESEDB_LIST_COMPARE_EQUAL, LIBESEDB_LIST_COMPARE_GREATER if successful or -1 on error
+ *
+ * Duplicate entries are allowed by default and inserted after the last duplicate value.
+ * Only allowing unique entries can be enforced by setting the flag LIBESEDB_LIST_INSERT_FLAG_UNIQUE_ENTRIES
+ *
  * Returns 1 if successful, 0 if the list element already exists or -1 on error
  */
 int libesedb_list_insert_value(
@@ -1115,66 +1243,58 @@ int libesedb_list_insert_value(
             intptr_t *first_value,
             intptr_t *second_value,
             liberror_error_t **error ),
+     uint8_t insert_flags,
      liberror_error_t **error )
 {
-	libesedb_list_element_t *element = NULL;
-	static char *function            = "libesedb_list_insert_value";
-	int result                       = 0;
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_list_insert_value";
+	int result                            = 0;
 
-	if( value == NULL )
+	if( libesedb_list_element_initialize(
+	     &list_element,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create list element.",
 		 function );
 
 		return( -1 );
 	}
-	element = (libesedb_list_element_t *) memory_allocate(
-	                                       sizeof( libesedb_list_element_t ) );
-
-	if( element == NULL )
+	if( libesedb_list_element_set_value(
+	     list_element,
+	     value,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create element.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to set value of list element.",
 		 function );
+
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
 
 		return( -1 );
 	}
-	if( memory_set(
-	     element,
-	     0,
-	     sizeof( libesedb_list_element_t ) ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear element.",
-		 function );
-
-		memory_free(
-		 element );
-
-		return( -1 );
-	}
-	element->value = value;
-
 	result = libesedb_list_insert_element(
 	          list,
-	          element,
+	          list_element,
 	          value_compare_function,
+	          insert_flags,
 	          error );
 
 	if( result != 1 )
 	{
-		memory_free(
-		 element );
+		libesedb_list_element_free(
+		 &list_element,
+		 NULL,
+		 NULL );
 	}
 	if( result == -1 )
 	{
@@ -1217,29 +1337,29 @@ int libesedb_list_remove_element(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid element.",
+		 "%s: invalid list element.",
 		 function );
 
 		return( -1 );
 	}
-	if( element == list->first )
+	if( element == list->first_element )
 	{
-		list->first = element->next;
+		list->first_element = element->next_element;
 	}
-	if( element == list->last )
+	if( element == list->last_element )
 	{
-		list->last = element->previous;
+		list->last_element = element->previous_element;
 	}
-	if( element->next != NULL )
+	if( element->next_element != NULL )
 	{
-		element->next->previous = element->previous;
+		element->next_element->previous_element = element->previous_element;
 	}
-	if( element->previous != NULL )
+	if( element->previous_element != NULL )
 	{
-		element->previous->next = element->next;
+		element->previous_element->next_element = element->next_element;
 	}
-	element->next             = NULL;
-	element->previous         = NULL;
+	element->next_element     = NULL;
+	element->previous_element = NULL;
 	list->number_of_elements -= 1;
 
 	return( 1 );

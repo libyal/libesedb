@@ -45,6 +45,7 @@ int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
@@ -111,6 +112,7 @@ int libesedb_page_tree_initialize(
 		}
 		( *page_tree )->io_handle                 = io_handle;
 		( *page_tree )->pages_vector              = pages_vector;
+		( *page_tree )->pages_cache               = pages_cache;
 		( *page_tree )->object_identifier         = object_identifier;
 		( *page_tree )->table_definition          = table_definition;
 		( *page_tree )->template_table_definition = template_table_definition;
@@ -139,7 +141,7 @@ int libesedb_page_tree_free(
 
 		return( -1 );
 	}
-	/* The io_handle, pages_vector, table_definition and template_table_definition references
+	/* The io_handle, pages_vector, pages_cache, table_definition and template_table_definition references
 	 * are freed elsewhere
 	 */
 	memory_free(
@@ -186,6 +188,7 @@ int libesedb_page_tree_read_root_page(
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     file_io_handle,
+	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -465,6 +468,7 @@ int libesedb_page_tree_read_space_tree_page(
 	if( libfdata_vector_get_element_value_by_index(
 	     page_tree->pages_vector,
 	     file_io_handle,
+	     page_tree->pages_cache,
 	     (int) page_number - 1,
 	     (intptr_t **) &page,
 	     0,
@@ -947,6 +951,7 @@ int libesedb_page_tree_read_page(
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     file_io_handle,
+	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1298,6 +1303,7 @@ int libesedb_page_tree_read_page_value(
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     file_io_handle,
+	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1348,6 +1354,7 @@ int libesedb_page_tree_read_page_value(
 		if( libfdata_vector_get_element_value_at_offset(
 		     page_tree->pages_vector,
 		     file_io_handle,
+		     page_tree->pages_cache,
 		     page_offset,
 		     (intptr_t **) &page,
 		     0,
@@ -1511,7 +1518,7 @@ int libesedb_page_tree_read_page_value(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: common key size exceeds header page value size.",
 			 function );
 
@@ -1582,7 +1589,7 @@ int libesedb_page_tree_read_page_value(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: local key size exceeds page value size.",
 		 function );
 
@@ -1674,7 +1681,7 @@ int libesedb_page_tree_read_page_value(
 		{
 			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD;
 		}
-		if( libfdata_tree_node_make_leaf(
+		if( libfdata_tree_node_set_leaf(
 		     value_tree_node,
 		     error ) != 1 )
 		{
@@ -1778,6 +1785,7 @@ int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
+     libfdata_cache_t *cache,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags,
@@ -1953,6 +1961,7 @@ int libesedb_page_tree_read_node_value(
 	}
 	if( libfdata_tree_node_set_node_value(
 	     node,
+	     cache,
 	     (intptr_t *) values_tree_value,
 	     &libesedb_values_tree_value_free,
 	     LIBFDATA_TREE_NODE_VALUE_FLAG_MANAGED,
@@ -1981,6 +1990,7 @@ int libesedb_page_tree_read_sub_nodes(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
+     libfdata_cache_t *cache,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size,
      uint8_t read_flags,
@@ -2053,6 +2063,7 @@ int libesedb_page_tree_read_sub_nodes(
 	if( libfdata_tree_node_get_node_value(
 	     node,
 	     file_io_handle,
+	     cache,
 	     (intptr_t **) &values_tree_value,
 	     0,
 	     error ) != 1 )

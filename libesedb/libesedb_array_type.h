@@ -1,7 +1,7 @@
 /* 
  * Array type functions
  *
- * Copyright (c) 2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,6 +30,36 @@
 #if defined( __cplusplus )
 extern "C" {
 #endif
+
+/* The array comparison definitions
+ */
+enum LIBESEDB_ARRAY_COMPARE_DEFINITIONS
+{
+	/* The first value is less than the second value
+	 */
+        LIBESEDB_ARRAY_COMPARE_LESS,
+
+	/* The first and second values are equal
+	 */
+        LIBESEDB_ARRAY_COMPARE_EQUAL,
+
+	/* The first value is greater than the second value
+	 */
+        LIBESEDB_ARRAY_COMPARE_GREATER
+};
+
+/* The array insert flag definitions
+ */
+enum LIBESEDB_ARRAY_INSERT_FLAGS
+{
+	/* Allow duplicate entries
+	 */
+	LIBESEDB_ARRAY_INSERT_FLAG_NON_UNIQUE_ENTRIES	= 0x00,
+
+	/* Only allow unique entries, no duplicates
+	 */
+	LIBESEDB_ARRAY_INSERT_FLAG_UNIQUE_ENTRIES	= 0x01,
+};
 
 typedef struct libesedb_array libesedb_array_t;
 
@@ -63,6 +93,18 @@ int libesedb_array_empty(
             liberror_error_t **error ),
      liberror_error_t **error );
 
+int libesedb_array_clone(
+     libesedb_array_t **destination_array,
+     libesedb_array_t *source_array,
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
+     int (*entry_clone_function)(
+            intptr_t **destination,
+            intptr_t *source,
+            liberror_error_t **error ),
+     liberror_error_t **error );
+
 int libesedb_array_resize(
      libesedb_array_t *array,
      int number_of_entries,
@@ -73,13 +115,13 @@ int libesedb_array_get_number_of_entries(
      int *number_of_entries,
      liberror_error_t **error );
 
-int libesedb_array_get_entry(
+int libesedb_array_get_entry_by_index(
      libesedb_array_t *array,
      int entry_index,
      intptr_t **entry,
      liberror_error_t **error );
 
-int libesedb_array_set_entry(
+int libesedb_array_set_entry_by_index(
      libesedb_array_t *array,
      int entry_index,
      intptr_t *entry,
@@ -89,6 +131,17 @@ int libesedb_array_append_entry(
      libesedb_array_t *array,
      int *entry_index,
      intptr_t *entry,
+     liberror_error_t **error );
+
+int libesedb_array_insert_entry(
+     libesedb_array_t *array,
+     int *entry_index,
+     intptr_t *entry,
+     int (*entry_compare_function)(
+            intptr_t *first_entry,
+            intptr_t *second_entry,
+            liberror_error_t **error ),
+     uint8_t insert_flags,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

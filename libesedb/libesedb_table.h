@@ -67,13 +67,25 @@ struct libesedb_internal_table
 	 */
 	libfdata_vector_t *pages_vector;
 
-	/* The table values (data) tree
+	/* The pages cache
+	 */
+	libfdata_cache_t *pages_cache;
+
+	/* The table values tree
 	 */
 	libfdata_tree_t *table_values_tree;
 
-	/* The long values (data) tree
+	/* The table values cache
+	 */
+	libfdata_cache_t *table_values_cache;
+
+	/* The long values tree
 	 */
 	libfdata_tree_t *long_values_tree;
+
+	/* The long values cache
+	 */
+	libfdata_cache_t *long_values_cache;
 };
 
 int libesedb_table_initialize(

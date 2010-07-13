@@ -249,6 +249,19 @@ int libesedb_file_free(
 
 			result = -1;
 		}
+		if( libfdata_cache_free(
+		     &( internal_file->pages_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages cache.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 internal_file );
 
@@ -968,7 +981,6 @@ int libesedb_file_open_read(
 	     (size64_t) internal_file->io_handle->page_size,
 	     internal_file->io_handle->pages_data_offset,
 	     internal_file->io_handle->pages_data_size,
-	     64,
 	     (intptr_t *) internal_file->io_handle,
 	     NULL,
 	     NULL,
@@ -985,6 +997,20 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+	if( libfdata_cache_initialize(
+	     &( internal_file->pages_cache ),
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create pages cache.",
+		 function );
+
+		return( -1 );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
@@ -997,6 +1023,7 @@ int libesedb_file_open_read(
 	     internal_file->file_io_handle,
 	     internal_file->io_handle,
 	     internal_file->pages_vector,
+	     internal_file->pages_cache,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1021,6 +1048,7 @@ int libesedb_file_open_read(
 	     internal_file->file_io_handle,
 	     internal_file->io_handle,
 	     internal_file->pages_vector,
+	     internal_file->pages_cache,
 	     error ) != 1 )
 	{
 		liberror_error_set(

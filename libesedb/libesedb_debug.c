@@ -993,11 +993,11 @@ int libesedb_debug_print_read_offsets(
 			return( -1 );
 		}
 		libnotify_printf(
-		 "%08" PRIu64 " ( 0x%08" PRIx64 " ) - %08" PRIu64 " ( 0x%08" PRIx64 " ) size: %" PRIu64 "\n",
+		 "%08" PRIi64 " ( 0x%08" PRIx64 " ) - %08" PRIi64 " ( 0x%08" PRIx64 " ) size: %" PRIi64 "\n",
 		 offset,
 		 offset,
-		 offset + size,
-		 offset + size,
+		 offset + (off64_t) size,
+		 offset + (off64_t) size,
 		 size );
 	}
 	libnotify_printf(

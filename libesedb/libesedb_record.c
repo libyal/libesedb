@@ -47,10 +47,13 @@ int libesedb_record_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      libfdata_tree_node_t *values_tree_node,
+     libfdata_cache_t *values_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -184,6 +187,7 @@ int libesedb_record_initialize(
 		if( libfdata_tree_node_get_node_value(
 		     values_tree_node,
 		     internal_record->file_io_handle,
+		     values_cache,
 		     (intptr_t **) &values_tree_value,
 		     0,
 		     error ) != 1 )
@@ -216,6 +220,7 @@ int libesedb_record_initialize(
 		     internal_record->file_io_handle,
 		     io_handle,
 		     pages_vector,
+		     pages_cache,
 		     table_definition,
 		     template_table_definition,
 		     internal_record->values_array,
@@ -244,10 +249,12 @@ int libesedb_record_initialize(
 
 			return( -1 );
 		}
-		internal_record->io_handle        = io_handle;
-		internal_record->pages_vector     = pages_vector;
-		internal_record->long_values_tree = long_values_tree;
-		internal_record->flags            = flags;
+		internal_record->io_handle         = io_handle;
+		internal_record->pages_vector      = pages_vector;
+		internal_record->pages_cache       = pages_cache;
+		internal_record->long_values_tree  = long_values_tree;
+		internal_record->long_values_cache = long_values_cache;
+		internal_record->flags             = flags;
 
 		*record = (libesedb_record_t *) internal_record;
 	}
@@ -281,7 +288,7 @@ int libesedb_record_free(
 		internal_record = (libesedb_internal_record_t *) *record;
 		*record         = NULL;
 
-		/* The pages_vector and long_values_tree references
+		/* The pages_vector, pages_cache, long_values_tree and long_values_cache references
 		 * are freed elsewhere
 		 */
 		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -414,7 +421,7 @@ int libesedb_record_get_column_identifier(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -495,7 +502,7 @@ int libesedb_record_get_column_type(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -577,7 +584,7 @@ int libesedb_record_get_utf8_column_name_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -661,7 +668,7 @@ int libesedb_record_get_utf8_column_name(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -745,7 +752,7 @@ int libesedb_record_get_utf16_column_name_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -829,7 +836,7 @@ int libesedb_record_get_utf16_column_name(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -936,7 +943,7 @@ int libesedb_record_get_value(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1007,7 +1014,7 @@ int libesedb_record_get_value_boolean(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1105,7 +1112,7 @@ int libesedb_record_get_value_8bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1203,7 +1210,7 @@ int libesedb_record_get_value_16bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1302,7 +1309,7 @@ int libesedb_record_get_value_32bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1401,7 +1408,7 @@ int libesedb_record_get_value_64bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1500,7 +1507,7 @@ int libesedb_record_get_value_filetime(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1598,7 +1605,7 @@ int libesedb_record_get_value_floating_point(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1698,7 +1705,7 @@ int libesedb_record_get_value_utf8_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1801,7 +1808,7 @@ int libesedb_record_get_value_utf8_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -1903,7 +1910,7 @@ int libesedb_record_get_value_utf16_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2006,7 +2013,7 @@ int libesedb_record_get_value_utf16_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2107,7 +2114,7 @@ int libesedb_record_get_value_binary_data_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2207,7 +2214,7 @@ int libesedb_record_get_value_binary_data(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2333,7 +2340,7 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2403,7 +2410,9 @@ int libesedb_record_get_long_value(
 	     long_value,
 	     internal_record->file_io_handle,
 	     internal_record->pages_vector,
+	     internal_record->pages_cache,
 	     internal_record->long_values_tree,
+	     internal_record->long_values_cache,
 	     data_type_definition->data,
 	     data_type_definition->data_size,
 	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
@@ -2480,7 +2489,7 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &data_type_definition,
@@ -2690,7 +2699,7 @@ int libesedb_record_get_multi_value(
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
 				 function,
 				 internal_multi_value->value_offset[ value_offset_index ],

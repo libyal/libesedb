@@ -30,14 +30,14 @@ typedef intptr_t libesedb_error_t;
  */
 enum LIBESEDB_ERROR_DOMAINS
 {
-	LIBESEDB_ERROR_DOMAIN_ARGUMENTS                = (int) 'a',
-	LIBESEDB_ERROR_DOMAIN_CONVERSION               = (int) 'c',
-	LIBESEDB_ERROR_DOMAIN_COMPRESSION              = (int) 'C',
-	LIBESEDB_ERROR_DOMAIN_IO                       = (int) 'I',
-	LIBESEDB_ERROR_DOMAIN_INPUT                    = (int) 'i',
-	LIBESEDB_ERROR_DOMAIN_MEMORY                   = (int) 'm',
-	LIBESEDB_ERROR_DOMAIN_OUTPUT                   = (int) 'o',
-	LIBESEDB_ERROR_DOMAIN_RUNTIME                  = (int) 'r',
+	LIBESEDB_ERROR_DOMAIN_ARGUMENTS			= (int) 'a',
+	LIBESEDB_ERROR_DOMAIN_CONVERSION		= (int) 'c',
+	LIBESEDB_ERROR_DOMAIN_COMPRESSION		= (int) 'C',
+	LIBESEDB_ERROR_DOMAIN_IO			= (int) 'I',
+	LIBESEDB_ERROR_DOMAIN_INPUT			= (int) 'i',
+	LIBESEDB_ERROR_DOMAIN_MEMORY			= (int) 'm',
+	LIBESEDB_ERROR_DOMAIN_OUTPUT			= (int) 'o',
+	LIBESEDB_ERROR_DOMAIN_RUNTIME			= (int) 'r',
 };
 
 /* The argument error codes
@@ -45,60 +45,63 @@ enum LIBESEDB_ERROR_DOMAINS
  */
 enum LIBESEDB_ARGUMENT_ERROR
 {
-	LIBESEDB_ARGUMENT_ERROR_GENERIC                = 0,
+	LIBESEDB_ARGUMENT_ERROR_GENERIC			= 0,
 
 	/* The argument contains an invalid value
 	 */
-	LIBESEDB_ARGUMENT_ERROR_INVALID_VALUE          = 1,
+	LIBESEDB_ARGUMENT_ERROR_INVALID_VALUE		= 1,
 
 	/* The argument contains a value less than zero
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO   = 2,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO	= 2,
 
 	/* The argument contains a value zero or less
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS     = 3,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS	= 3,
 
 	/* The argument contains a value that exceeds the maximum
 	 * for the specific type
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM   = 4,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM	= 4,
 
 	/* The argument contains a value that is too small
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_TOO_SMALL        = 5,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_TOO_SMALL		= 5,
 
 	/* The argument contains a value that is too large
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_TOO_LARGE        = 6,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_TOO_LARGE		= 6,
 
-	/* The argument contains a value that is out of range
+	/* The argument contains a value that is out of bounds
 	 */
-	LIBESEDB_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE     = 7,
+	LIBESEDB_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS	= 7,
 
 	/* The argument contains a value that is not supported
 	 */
-	LIBESEDB_ARGUMENT_ERROR_UNSUPPORTED_VALUE      = 8,
+	LIBESEDB_ARGUMENT_ERROR_UNSUPPORTED_VALUE	= 8,
 
 	/* The argument contains a value that conficts with another argument
 	 */
-	LIBESEDB_ARGUMENT_ERROR_CONFLICTING_VALUE      = 9
+	LIBESEDB_ARGUMENT_ERROR_CONFLICTING_VALUE	= 9
 };
+
+/* TODO deprecated remove after a while */
+#define LIBESEDB_ARGUMENT_ERROR_VALUE_OUT_OF_RANGE	LIBESEDB_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS
 
 /* The conversion error codes
  * to signify errors regarding conversions
  */
 enum LIBESEDB_CONVERSION_ERROR
 {
-	LIBESEDB_CONVERSION_ERROR_GENERIC              = 0,
+	LIBESEDB_CONVERSION_ERROR_GENERIC		= 0,
 
 	/* The conversion failed on the input
 	 */
-	LIBESEDB_CONVERSION_ERROR_INPUT_FAILED         = 1,
+	LIBESEDB_CONVERSION_ERROR_INPUT_FAILED		= 1,
 
 	/* The conversion failed on the output
 	 */
-	LIBESEDB_CONVERSION_ERROR_OUTPUT_FAILED        = 2
+	LIBESEDB_CONVERSION_ERROR_OUTPUT_FAILED		= 2
 };
 
 /* The compression error codes
@@ -106,61 +109,62 @@ enum LIBESEDB_CONVERSION_ERROR
  */
 enum LIBESEDB_COMPRESSION_ERROR
 {
-	LIBESEDB_COMPRESSION_ERROR_GENERIC             = 0,
+	LIBESEDB_COMPRESSION_ERROR_GENERIC		= 0,
 
 	/* The compression failed
 	 */
-	LIBESEDB_COMPRESSION_ERROR_COMPRESS_FAILED     = 1,
+	LIBESEDB_COMPRESSION_ERROR_COMPRESS_FAILED	= 1,
 
 	/* The decompression failed
 	 */
-	LIBESEDB_COMPRESSION_ERROR_DECOMPRESS_FAILED   = 2
+	LIBESEDB_COMPRESSION_ERROR_DECOMPRESS_FAILED	= 2
 };
 
-#define LIBESEDB_COMPRESSION_ERROR_UNCOMPRESS_FAILED	LIBESEDB_COMPRESSION_ERROR_DECOMPRESS_FAILED
+/* TODO deprecated remove after a while */
+#define LIBERROR_COMPRESSION_ERROR_UNCOMPRESS_FAILED	LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED
 
 /* The input/output error codes
  * to signify errors regarding input/output
  */
 enum LIBESEDB_IO_ERROR
 {
-	LIBESEDB_IO_ERROR_GENERIC                      = 0,
+	LIBESEDB_IO_ERROR_GENERIC			= 0,
 
 	/* The open failed
 	 */
-	LIBESEDB_IO_ERROR_OPEN_FAILED                  = 1,
+	LIBESEDB_IO_ERROR_OPEN_FAILED			= 1,
 
 	/* The close failed
 	 */
-	LIBESEDB_IO_ERROR_CLOSE_FAILED                 = 2,
+	LIBESEDB_IO_ERROR_CLOSE_FAILED			= 2,
 
 	/* The seek failed
 	 */
-	LIBESEDB_IO_ERROR_SEEK_FAILED                  = 3,
+	LIBESEDB_IO_ERROR_SEEK_FAILED			= 3,
 
 	/* The read failed
 	 */
-	LIBESEDB_IO_ERROR_READ_FAILED                  = 4,
+	LIBESEDB_IO_ERROR_READ_FAILED			= 4,
 
 	/* The write failed
 	 */
-	LIBESEDB_IO_ERROR_WRITE_FAILED                 = 5,
+	LIBESEDB_IO_ERROR_WRITE_FAILED			= 5,
 
 	/* Access denied
 	 */
-	LIBESEDB_IO_ERROR_ACCESS_DENIED                = 6,
+	LIBESEDB_IO_ERROR_ACCESS_DENIED			= 6,
 
 	/* The resource is invalid i.e. a missing file
 	 */
-	LIBESEDB_IO_ERROR_INVALID_RESOURCE             = 7,
+	LIBESEDB_IO_ERROR_INVALID_RESOURCE		= 7,
 
 	/* The ioctl failed
 	 */
-	LIBESEDB_IO_ERROR_IOCTL_FAILED                 = 8,
+	LIBESEDB_IO_ERROR_IOCTL_FAILED			= 8,
 
 	/* The unlink failed
 	 */
-	LIBESEDB_IO_ERROR_UNLINK_FAILED                = 9
+	LIBESEDB_IO_ERROR_UNLINK_FAILED			= 9
 };
 
 /* The input error codes
@@ -168,32 +172,24 @@ enum LIBESEDB_IO_ERROR
  */
 enum LIBESEDB_INPUT_ERROR
 {
-	LIBESEDB_INPUT_ERROR_GENERIC                   = 0,
+	LIBESEDB_INPUT_ERROR_GENERIC			= 0,
 
 	/* The input contains invalid data
 	 */
-	LIBESEDB_INPUT_ERROR_INVALID_DATA              = 1,
+	LIBESEDB_INPUT_ERROR_INVALID_DATA		= 1,
 
 	/* The input contains an unsupported signature
 	 */
-	LIBESEDB_INPUT_ERROR_SIGNATURE_MISMATCH        = 2,
+	LIBESEDB_INPUT_ERROR_SIGNATURE_MISMATCH		= 2,
 
 	/* A CRC in the input did not match
 	 */
-	LIBESEDB_INPUT_ERROR_CRC_MISMATCH              = 3,
+	LIBESEDB_INPUT_ERROR_CRC_MISMATCH		= 3,
 
 	/* A value in the input did not match a previously
 	 * read value or calculated value
 	 */
-	LIBESEDB_INPUT_ERROR_VALUE_MISMATCH            = 4,
-
-	/* The last segment file is missing from the input
-	 */
-	LIBESEDB_INPUT_ERROR_MISSING_LAST_SEGMENT_FILE = 5,
-
-	/* The last section is missing from the input
-	 */
-	LIBESEDB_INPUT_ERROR_MISSING_LAST_SECTION      = 6
+	LIBESEDB_INPUT_ERROR_VALUE_MISMATCH		= 4
 };
 
 /* The memory error codes
@@ -201,19 +197,19 @@ enum LIBESEDB_INPUT_ERROR
  */
 enum LIBESEDB_MEMORY_ERROR
 {
-	LIBESEDB_MEMORY_ERROR_GENERIC                  = 0,
+	LIBESEDB_MEMORY_ERROR_GENERIC			= 0,
 
 	/* There is insufficient memory available
 	 */
-	LIBESEDB_MEMORY_ERROR_INSUFFICIENT             = 1,
+	LIBESEDB_MEMORY_ERROR_INSUFFICIENT		= 1,
 
 	/* The memory failed to be copied
 	 */
-	LIBESEDB_MEMORY_ERROR_COPY_FAILED              = 2,
+	LIBESEDB_MEMORY_ERROR_COPY_FAILED		= 2,
 
 	/* The memory failed to be set
 	 */
-	LIBESEDB_MEMORY_ERROR_SET_FAILED               = 3
+	LIBESEDB_MEMORY_ERROR_SET_FAILED		= 3
 };
 
 /* The runtime error codes
@@ -221,70 +217,73 @@ enum LIBESEDB_MEMORY_ERROR
  */
 enum LIBESEDB_RUNTIME_ERROR
 {
-	LIBESEDB_RUNTIME_ERROR_GENERIC                 = 0,
+	LIBESEDB_RUNTIME_ERROR_GENERIC			= 0,
 
 	/* The value is missing
 	 */
-	LIBESEDB_RUNTIME_ERROR_VALUE_MISSING           = 1,
+	LIBESEDB_RUNTIME_ERROR_VALUE_MISSING		= 1,
 
 	/* The value was already set
 	 */
-	LIBESEDB_RUNTIME_ERROR_VALUE_ALREADY_SET       = 2,
+	LIBESEDB_RUNTIME_ERROR_VALUE_ALREADY_SET	= 2,
 
 	/* The creation and/or initialization of an internal structure failed
 	 */
-	LIBESEDB_RUNTIME_ERROR_INITIALIZE_FAILED       = 3,
+	LIBESEDB_RUNTIME_ERROR_INITIALIZE_FAILED	= 3,
 
 	/* The resize of an internal structure failed
 	 */
-	LIBESEDB_RUNTIME_ERROR_RESIZE_FAILED           = 4,
+	LIBESEDB_RUNTIME_ERROR_RESIZE_FAILED		= 4,
 
 	/* The free and/or finalization of an internal structure failed
 	 */
-	LIBESEDB_RUNTIME_ERROR_FINALIZE_FAILED         = 5,
+	LIBESEDB_RUNTIME_ERROR_FINALIZE_FAILED		= 5,
 
 	/* The value could not be determined
 	 */
-	LIBESEDB_RUNTIME_ERROR_GET_FAILED              = 6,
+	LIBESEDB_RUNTIME_ERROR_GET_FAILED		= 6,
 
 	/* The value could not be set
 	 */
-	LIBESEDB_RUNTIME_ERROR_SET_FAILED              = 7,
+	LIBESEDB_RUNTIME_ERROR_SET_FAILED		= 7,
 
 	/* The value could not be appended/prepended
 	 */
-	LIBESEDB_RUNTIME_ERROR_APPEND_FAILED           = 8,
+	LIBESEDB_RUNTIME_ERROR_APPEND_FAILED		= 8,
 
 	/* The value could not be copied
 	 */
-	LIBESEDB_RUNTIME_ERROR_COPY_FAILED             = 9,
+	LIBESEDB_RUNTIME_ERROR_COPY_FAILED		= 9,
 
 	/* The value could not be removed
 	 */
-	LIBESEDB_RUNTIME_ERROR_REMOVE_FAILED           = 10,
+	LIBESEDB_RUNTIME_ERROR_REMOVE_FAILED		= 10,
 
 	/* The value could not be printed
 	 */
-	LIBESEDB_RUNTIME_ERROR_PRINT_FAILED            = 11,
+	LIBESEDB_RUNTIME_ERROR_PRINT_FAILED		= 11,
 
-	/* The value was out of range
+	/* The value was out of bounds
 	 */
-	LIBESEDB_RUNTIME_ERROR_VALUE_OUT_OF_RANGE      = 12,
+	LIBESEDB_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS	= 12,
 
 	/* The value exceeds the maximum for its specific type
 	 */
-	LIBESEDB_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM   = 13,
+	LIBESEDB_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM	= 13,
 
 	/* The value is unsupported
 	 */
-	LIBESEDB_RUNTIME_ERROR_UNSUPPORTED_VALUE       = 14
+	LIBESEDB_RUNTIME_ERROR_UNSUPPORTED_VALUE	= 14
 };
+
+/* TODO deprecated remove after a while */
+#define LIBESEDB_RUNTIME_ERROR_VALUE_OUT_OF_RANGE	LIBESEDB_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS
 
 /* The output error codes
  */
 enum LIBESEDB_OUTPUT_ERROR
 {
-	LIBESEDB_OUTPUT_ERROR_GENERIC                  = 0
+	LIBESEDB_OUTPUT_ERROR_GENERIC			= 0
 };
 
 #endif

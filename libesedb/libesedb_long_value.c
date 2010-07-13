@@ -40,7 +40,9 @@ int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,
@@ -179,7 +181,6 @@ int libesedb_long_value_initialize(
 		}
 		if( libfdata_block_initialize(
 		     &( internal_long_value->data_block ),
-		     4,
 		     NULL,
 		     NULL,
 		     NULL,
@@ -205,9 +206,37 @@ int libesedb_long_value_initialize(
 
 			return( -1 );
 		}
+		if( libfdata_cache_initialize(
+		     &( internal_long_value->data_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create data cache.",
+			 function );
+
+			libfdata_block_free(
+			 &( internal_long_value->data_block ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_long_value );
+
+			return( -1 );
+		}
 		if( libesedb_values_tree_get_value_by_key(
 		     long_values_tree,
 		     internal_long_value->file_io_handle,
+		     long_values_cache,
 		     long_value_key,
 		     long_value_key_size,
 		     &values_tree_value,
@@ -221,6 +250,9 @@ int libesedb_long_value_initialize(
 			 "%s: unable to retrieve values tree value.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_long_value->data_cache ),
+			 NULL );
 			libfdata_block_free(
 			 &( internal_long_value->data_block ),
 			 NULL );
@@ -240,6 +272,7 @@ int libesedb_long_value_initialize(
 		     values_tree_value,
 		     internal_long_value->file_io_handle,
 		     pages_vector,
+		     pages_cache,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -249,6 +282,9 @@ int libesedb_long_value_initialize(
 			 "%s: unable to read values tree value long value.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_long_value->data_cache ),
+			 NULL );
 			libfdata_block_free(
 			 &( internal_long_value->data_block ),
 			 NULL );
@@ -280,6 +316,7 @@ int libesedb_long_value_initialize(
 			result = libesedb_values_tree_get_value_by_key(
 			          long_values_tree,
 			          internal_long_value->file_io_handle,
+			          long_values_cache,
 			          long_value_segment_key,
 			          8,
 			          &values_tree_value,
@@ -295,6 +332,9 @@ int libesedb_long_value_initialize(
 				 "%s: unable to retrieve values tree value.",
 				 function );
 
+				libfdata_cache_free(
+				 &( internal_long_value->data_cache ),
+				 NULL );
 				libfdata_block_free(
 				 &( internal_long_value->data_block ),
 				 NULL );
@@ -316,6 +356,7 @@ int libesedb_long_value_initialize(
 				     values_tree_value,
 				     internal_long_value->file_io_handle,
 				     pages_vector,
+				     pages_cache,
 				     long_value_segment_offset,
 				     internal_long_value->data_block,
 				     error ) != 1 )
@@ -327,6 +368,9 @@ int libesedb_long_value_initialize(
 					 "%s: unable to read values tree value long value.",
 					 function );
 
+					libfdata_cache_free(
+					 &( internal_long_value->data_cache ),
+					 NULL );
 					libfdata_block_free(
 					 &( internal_long_value->data_block ),
 					 NULL );
@@ -426,6 +470,19 @@ int libesedb_long_value_free(
 
 			result = -1;
 		}
+		if( libfdata_cache_free(
+		     &( internal_long_value->data_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free data cache.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 internal_long_value );
 	}
@@ -502,6 +559,7 @@ int libesedb_long_value_get_segment_data(
 	if( libfdata_block_get_segment_data(
 	     internal_long_value->data_block,
 	     internal_long_value->file_io_handle,
+	     internal_long_value->data_cache,
 	     data_segment_index,
 	     segment_data,
 	     segment_data_size,

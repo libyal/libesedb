@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100628],
+  [20100713],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -442,6 +442,13 @@ AC_CHECK_FUNCS(
   [1]) ])
 
 AC_CHECK_FUNCS(
+ [fstat],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: fstat],
+  [1]) ])
+
+AC_CHECK_FUNCS(
  [lseek],
  [],
  [AC_MSG_FAILURE(
@@ -463,17 +470,17 @@ AC_CHECK_FUNCS(
   [1]) ])
 
 AC_CHECK_FUNCS(
+ [stat],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: stat],
+  [1]) ])
+
+AC_CHECK_FUNCS(
  [write],
  [],
  [AC_MSG_FAILURE(
   [Missing function: write],
-  [1]) ])
-
-AC_CHECK_FUNCS(
- [fstat],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: fstat],
   [1]) ])
 
 dnl Check for error string functions used in libbfio/libbfio_error_string.h and libsystem/libsystem_error_string.c

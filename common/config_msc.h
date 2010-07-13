@@ -28,11 +28,11 @@
 
 /* Use the safe size and offset types
  */
-#define HAVE_SIZE32_T   0
-#define HAVE_SSIZE32_T  0
-#define HAVE_SIZE64_T   0
-#define HAVE_SSIZE64_T  0
-#define HAVE_OFF64_T    0
+#define HAVE_SIZE32_T		0
+#define HAVE_SSIZE32_T		0
+#define HAVE_SIZE64_T		0
+#define HAVE_SSIZE64_T		0
+#define HAVE_OFF64_T		0
 
 /* Define the wide character type
  */
@@ -48,16 +48,6 @@
 
 /* Use the C Runtime (CRT) functions instead of the WINAPI functions
 #define USE_CRT_FUNCTIONS	1
- */
-
-/* Disables a Windows 98 safe version of GetFileSizeEx
- * uses a hardcoded version
-#define HAVE_GETFILESIZEEX	1
- */
-
-/* Disables a Windows 98 safe version of SetFilePointerEx
- * uses a hardcoded version
-#define HAVE_SETFILEPOINTEREX	1
  */
 
 /* Enable verbose output

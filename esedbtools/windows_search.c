@@ -611,7 +611,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: first nibble count table entry value exceeds maximum.",
 		 function );
 
@@ -645,7 +645,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: nibble count value exceeds maximum.",
 		 function );
 
@@ -718,7 +718,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression value table index value exceeds maximum.",
 				 function );
 
@@ -742,7 +742,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression value table index value exceeds maximum.",
 				 function );
 
@@ -760,7 +760,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: total nibble count value exceeds maximum.",
 		 function );
 
@@ -890,7 +890,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: compression value table index value exceeds maximum.",
 					 function );
 
@@ -1068,7 +1068,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression offset value exceeds uncompressed data iterator.",
 				 function );
 
@@ -2677,7 +2677,7 @@ int windows_search_export_record_systemindex_0a(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -3561,7 +3561,7 @@ int windows_search_export_record_systemindex_gthr(
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 

@@ -68,9 +68,17 @@ struct libesedb_internal_index
 	 */
 	libfdata_vector_t *pages_vector;
 
+	/* The pages cache
+	 */
+	libfdata_cache_t *pages_cache;
+
 	/* The table values (data) tree
 	 */
 	libfdata_tree_t *index_values_tree;
+
+	/* The index values cache
+	 */
+	libfdata_cache_t *index_values_cache;
 };
 
 int libesedb_index_initialize(

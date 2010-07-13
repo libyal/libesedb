@@ -95,6 +95,7 @@ int libesedb_io_handle_read_page(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
+     libfdata_cache_t *cache,
      int element_index,
      off64_t element_data_offset,
      size64_t element_data_size,

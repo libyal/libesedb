@@ -903,7 +903,7 @@ int libesedb_page_read_tags(
 		}
 #endif
 
-		if( libesedb_array_set_entry(
+		if( libesedb_array_set_entry_by_index(
 		     page_tags_array,
 		     page_tag_iterator,
 		     (intptr_t *) page_tags_value,
@@ -1036,7 +1036,7 @@ int libesedb_page_read_values(
 	     page_tag_iterator < page_tags_array->number_of_entries;
 	     page_tag_iterator++ )
 	{
-		if( libesedb_array_get_entry(
+		if( libesedb_array_get_entry_by_index(
 		     page_tags_array,
 		     page_tag_iterator,
 		     (intptr_t **) &page_tags_value,
@@ -1111,7 +1111,7 @@ int libesedb_page_read_values(
 		page_value->size   = page_tags_value->size;
 		page_value->flags  = page_tags_value->flags;
 
-		if( libesedb_array_set_entry(
+		if( libesedb_array_set_entry_by_index(
 		     page->values_array,
 		     page_tag_iterator,
 		     (intptr_t *) page_value,
@@ -1233,7 +1233,7 @@ int libesedb_page_get_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry(
+	if( libesedb_array_get_entry_by_index(
 	     page->values_array,
 	     value_index,
 	     (intptr_t **) page_value,

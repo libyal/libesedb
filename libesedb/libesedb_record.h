@@ -56,9 +56,17 @@ struct libesedb_internal_record
 	 */
 	libfdata_vector_t *pages_vector;
 
-	/* The long values data tree
+	/* The pages cache
+	 */
+	libfdata_cache_t *pages_cache;
+
+	/* The long values tree
 	 */
 	libfdata_tree_t *long_values_tree;
+
+	/* The long values cache
+	 */
+	libfdata_cache_t *long_values_cache;
 
 	/* The item flags
 	 */
@@ -74,10 +82,13 @@ int libesedb_record_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      libfdata_tree_node_t *values_tree_node,
+     libfdata_cache_t *values_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error );
 

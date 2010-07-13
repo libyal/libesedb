@@ -172,7 +172,7 @@ int libesedb_io_handle_read_file_header(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: reading file header at offset: %" PRIu64 " (0x%08" PRIx64 ")\n",
+		 "%s: reading file header at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
 		 file_offset,
 		 file_offset );
@@ -188,7 +188,7 @@ int libesedb_io_handle_read_file_header(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek file header offset: %" PRIu64 ".",
+		 "%s: unable to seek file header offset: %" PRIi64 ".",
 		 function,
 		 file_offset );
 
@@ -798,6 +798,7 @@ int libesedb_io_handle_read_page(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
+     libfdata_cache_t *cache,
      int element_index,
      off64_t element_data_offset,
      size64_t element_data_size,
@@ -842,6 +843,7 @@ int libesedb_io_handle_read_page(
 	}
 	if( libfdata_vector_set_element_value_by_index(
 	     vector,
+	     cache,
 	     element_index,
 	     (intptr_t *) page,
 	     &libesedb_page_free,

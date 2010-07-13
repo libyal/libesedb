@@ -38,6 +38,7 @@ extern "C" {
 int libesedb_values_tree_get_value_by_key(
      libfdata_tree_t *values_tree,
      libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,
@@ -47,6 +48,7 @@ int libesedb_values_tree_get_value_by_key(
 int libesedb_values_tree_node_get_value_by_key(
      libfdata_tree_node_t *values_tree_node,
      libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,

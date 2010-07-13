@@ -320,7 +320,7 @@ int libesedb_catalog_definition_read(
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
+		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: variable size data types offset exceeds definition data.",
 		 function );
 

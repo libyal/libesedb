@@ -129,12 +129,14 @@ int libesedb_database_read(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
      liberror_error_t **error )
 {
 	libesedb_page_tree_t *database_page_tree        = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
+	libfdata_cache_t *database_values_cache         = NULL;
 	libfdata_tree_t *database_values_tree           = NULL;
-	libfdata_tree_node_t *values_tree_node          = NULL;
+	libfdata_tree_node_t *database_values_tree_node = NULL;
 	uint8_t *data                                   = NULL;
 	static char *function                           = "libesedb_database_read";
 	off64_t node_data_offset                        = 0;
@@ -157,6 +159,7 @@ int libesedb_database_read(
 	     &database_page_tree,
 	     io_handle,
 	     pages_vector,
+	     pages_cache,
 	     LIBESEDB_FDP_OBJECT_IDENTIFIER_DATABASE,
 	     NULL,
 	     NULL,
@@ -175,7 +178,6 @@ int libesedb_database_read(
 	 */
 	if( libfdata_tree_initialize(
 	     &database_values_tree,
-	     64,
 	     (intptr_t *) database_page_tree,
 	     &libesedb_page_tree_free,
 	     NULL,
@@ -197,6 +199,24 @@ int libesedb_database_read(
 
 		return( -1 );
 	}
+	if( libfdata_cache_initialize(
+	     &database_values_cache,
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TREE_VALUES,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create database values cache.",
+		 function );
+
+		libfdata_tree_free(
+		 &database_values_tree,
+		 NULL );
+
+		return( -1 );
+	}
 	node_data_offset  = LIBESEDB_PAGE_NUMBER_DATABASE - 1;
 	node_data_offset *= io_handle->page_size;
 
@@ -213,6 +233,9 @@ int libesedb_database_read(
 		 "%s: unable to set root node in database values tree.",
 		 function );
 
+		libfdata_cache_free(
+		 &database_values_cache,
+		 NULL );
 		libfdata_tree_free(
 		 &database_values_tree,
 		 NULL );
@@ -222,6 +245,7 @@ int libesedb_database_read(
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     database_values_tree,
 	     file_io_handle,
+	     database_values_cache,
 	     &number_of_leaf_nodes,
 	     0,
 	     error ) != 1 )
@@ -233,6 +257,9 @@ int libesedb_database_read(
 		 "%s: unable to retrieve number of leaf nodes from database values tree.",
 		 function );
 
+		libfdata_cache_free(
+		 &database_values_cache,
+		 NULL );
 		libfdata_tree_free(
 		 &database_values_tree,
 		 NULL );
@@ -246,8 +273,9 @@ int libesedb_database_read(
 		if( libfdata_tree_get_leaf_node_by_index(
 		     database_values_tree,
 		     file_io_handle,
+		     database_values_cache,
 		     leaf_node_index,
-		     &values_tree_node,
+		     &database_values_tree_node,
 		     0,
 		     error ) != 1 )
 		{
@@ -259,6 +287,9 @@ int libesedb_database_read(
 			 function,
 			 leaf_node_index );
 
+			libfdata_cache_free(
+			 &database_values_cache,
+			 NULL );
 			libfdata_tree_free(
 			 &database_values_tree,
 			 NULL );
@@ -266,8 +297,9 @@ int libesedb_database_read(
 			return( -1 );
 		}
 		if( libfdata_tree_node_get_node_value(
-		     values_tree_node,
+		     database_values_tree_node,
 		     file_io_handle,
+		     database_values_cache,
 		     (intptr_t **) &values_tree_value,
 		     0,
 		     error ) != 1 )
@@ -279,6 +311,9 @@ int libesedb_database_read(
 			 "%s: unable to retrieve node value from values tree node.",
 			 function );
 
+			libfdata_cache_free(
+			 &database_values_cache,
+			 NULL );
 			libfdata_tree_free(
 			 &database_values_tree,
 			 NULL );
@@ -290,6 +325,7 @@ int libesedb_database_read(
 		     file_io_handle,
 		     io_handle,
 		     pages_vector,
+		     pages_cache,
 		     &data,
 		     &data_size,
 		     error ) != 1 )
@@ -301,6 +337,9 @@ int libesedb_database_read(
 			 "%s: unable to read values tree value data.",
 			 function );
 
+			libfdata_cache_free(
+			 &database_values_cache,
+			 NULL );
 			libfdata_tree_free(
 			 &database_values_tree,
 			 NULL );
@@ -321,6 +360,23 @@ int libesedb_database_read(
 			 data_size );
 		}
 #endif
+	}
+	if( libfdata_cache_free(
+	     &database_values_cache,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free database values cache.",
+		 function );
+
+		libfdata_tree_free(
+		 &database_values_tree,
+		 NULL );
+
+		return( -1 );
 	}
 	if( libfdata_tree_free(
 	     &database_values_tree,

@@ -30,6 +30,7 @@
 
 #include <libfdata_block.h>
 #include <libfdata_buffer.h>
+#include <libfdata_cache.h>
 #include <libfdata_definitions.h>
 #include <libfdata_list.h>
 #include <libfdata_list_element.h>

@@ -194,7 +194,6 @@ int libesedb_table_initialize(
 		     (size64_t) io_handle->page_size,
 		     io_handle->pages_data_offset,
 		     io_handle->pages_data_size,
-		     64,
 		     (intptr_t *) io_handle,
 		     NULL,
 		     NULL,
@@ -220,11 +219,39 @@ int libesedb_table_initialize(
 
 			return( -1 );
 		}
+		if( libfdata_cache_initialize(
+		     &( internal_table->pages_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create pages cache.",
+			 function );
+
+			libfdata_vector_free(
+			 &( internal_table->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_table->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
 		if( libesedb_page_tree_initialize(
 		     &table_page_tree,
 		     io_handle,
 		     internal_table->pages_vector,
-		     table_definition->table_catalog_definition->father_data_page_object_identifier,
+		     internal_table->pages_cache,
+		     table_definition->table_catalog_definition->identifier,
 		     table_definition,
 		     template_table_definition,
 		     error ) != 1 )
@@ -236,6 +263,9 @@ int libesedb_table_initialize(
 			 "%s: unable to create table page tree.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_table->pages_cache ),
+			 NULL );
 			libfdata_vector_free(
 			 &( internal_table->pages_vector ),
 			 NULL );
@@ -255,7 +285,6 @@ int libesedb_table_initialize(
 		 */
 		if( libfdata_tree_initialize(
 		     &( internal_table->table_values_tree ),
-		     256,
 		     (intptr_t *) table_page_tree,
 		     &libesedb_page_tree_free,
 		     NULL,
@@ -273,6 +302,42 @@ int libesedb_table_initialize(
 
 			libesedb_page_tree_free(
 			 (intptr_t *) table_page_tree,
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_table->pages_cache ),
+			 NULL );
+			libfdata_vector_free(
+			 &( internal_table->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_table->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_table );
+
+			return( -1 );
+		}
+		if( libfdata_cache_initialize(
+		     &( internal_table->table_values_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create values cache.",
+			 function );
+
+			libfdata_tree_free(
+			 &( internal_table->table_values_tree ),
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_table->pages_cache ),
 			 NULL );
 			libfdata_vector_free(
 			 &( internal_table->pages_vector ),
@@ -305,8 +370,14 @@ int libesedb_table_initialize(
 			 "%s: unable to set root node in table values tree.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_table->table_values_cache ),
+			 NULL );
 			libfdata_tree_free(
 			 &( internal_table->table_values_tree ),
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_table->pages_cache ),
 			 NULL );
 			libfdata_vector_free(
 			 &( internal_table->pages_vector ),
@@ -329,7 +400,8 @@ int libesedb_table_initialize(
 			     &long_values_page_tree,
 			     io_handle,
 			     internal_table->pages_vector,
-			     table_definition->long_value_catalog_definition->father_data_page_object_identifier,
+			     internal_table->pages_cache,
+			     table_definition->long_value_catalog_definition->identifier,
 			     table_definition,
 			     template_table_definition,
 			     error ) != 1 )
@@ -341,8 +413,14 @@ int libesedb_table_initialize(
 				 "%s: unable to create long value page tree.",
 				 function );
 
+				libfdata_cache_free(
+				 &( internal_table->table_values_cache ),
+				 NULL );
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->pages_cache ),
 				 NULL );
 				libfdata_vector_free(
 				 &( internal_table->pages_vector ),
@@ -363,7 +441,6 @@ int libesedb_table_initialize(
 			 */
 			if( libfdata_tree_initialize(
 			     &( internal_table->long_values_tree ),
-			     256,
 			     (intptr_t *) long_values_page_tree,
 			     &libesedb_page_tree_free,
 			     NULL,
@@ -382,8 +459,53 @@ int libesedb_table_initialize(
 				libesedb_page_tree_free(
 				 (intptr_t *) long_values_page_tree,
 				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->table_values_cache ),
+				 NULL );
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->pages_cache ),
+				 NULL );
+				libfdata_vector_free(
+				 &( internal_table->pages_vector ),
+				 NULL );
+
+				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+				{
+					libbfio_handle_free(
+					 &( internal_table->file_io_handle ),
+					 NULL );
+				}
+				memory_free(
+				 internal_table );
+
+				return( -1 );
+			}
+			if( libfdata_cache_initialize(
+			     &( internal_table->long_values_cache ),
+			     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create long values values.",
+				 function );
+
+				libfdata_tree_free(
+				 &( internal_table->long_values_tree ),
+				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->table_values_cache ),
+				 NULL );
+				libfdata_tree_free(
+				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->pages_cache ),
 				 NULL );
 				libfdata_vector_free(
 				 &( internal_table->pages_vector ),
@@ -416,11 +538,20 @@ int libesedb_table_initialize(
 				 "%s: unable to set root node in table values tree.",
 				 function );
 
+				libfdata_cache_free(
+				 &( internal_table->long_values_cache ),
+				 NULL );
 				libfdata_tree_free(
 				 &( internal_table->long_values_tree ),
 				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->table_values_cache ),
+				 NULL );
 				libfdata_tree_free(
 				 &( internal_table->table_values_tree ),
+				 NULL );
+				libfdata_cache_free(
+				 &( internal_table->pages_cache ),
 				 NULL );
 				libfdata_vector_free(
 				 &( internal_table->pages_vector ),
@@ -523,6 +654,19 @@ int libesedb_table_free(
 
 			result = -1;
 		}
+		if( libfdata_cache_free(
+		     &( internal_table->pages_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages cache.",
+			 function );
+
+			result = -1;
+		}
 		if( libfdata_tree_free(
 		     &( internal_table->table_values_tree ),
 		     error ) != 1 )
@@ -532,6 +676,19 @@ int libesedb_table_free(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table values tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libfdata_cache_free(
+		     &( internal_table->table_values_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table values cache.",
 			 function );
 
 			result = -1;
@@ -547,6 +704,22 @@ int libesedb_table_free(
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long values tree.",
+				 function );
+
+				result = -1;
+			}
+		}
+		if( internal_table->long_values_cache != NULL )
+		{
+			if( libfdata_cache_free(
+			     &( internal_table->long_values_cache ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long values cache.",
 				 function );
 
 				result = -1;
@@ -1356,7 +1529,7 @@ int libesedb_table_get_column(
 	}
 	if( column_entry < template_table_number_of_columns )
 	{
-		if( libesedb_list_get_value(
+		if( libesedb_list_get_value_by_index(
 		     internal_table->template_table_definition->column_catalog_definition_list,
 		     column_entry,
 		     (intptr_t **) &column_catalog_definition,
@@ -1374,7 +1547,7 @@ int libesedb_table_get_column(
 	}
 	else
 	{
-		if( libesedb_list_get_value(
+		if( libesedb_list_get_value_by_index(
 		     internal_table->table_definition->column_catalog_definition_list,
 		     column_entry - template_table_number_of_columns,
 		     (intptr_t **) &column_catalog_definition,
@@ -1541,7 +1714,7 @@ int libesedb_table_get_index(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value(
+	if( libesedb_list_get_value_by_index(
 	     internal_table->table_definition->index_catalog_definition_list,
 	     index_entry,
 	     (intptr_t **) &index_catalog_definition,
@@ -1604,6 +1777,7 @@ int libesedb_table_get_number_of_records(
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     internal_table->table_values_tree,
 	     internal_table->file_io_handle,
+	     internal_table->table_values_cache,
 	     number_of_records,
 	     0,
 	     error ) != 1 )
@@ -1671,6 +1845,7 @@ int libesedb_table_get_record(
 	if( libfdata_tree_get_leaf_node_by_index(
 	     internal_table->table_values_tree,
 	     internal_table->file_io_handle,
+	     internal_table->table_values_cache,
 	     record_entry,
 	     &values_tree_node,
 	     0,
@@ -1691,10 +1866,13 @@ int libesedb_table_get_record(
 	     internal_table->file_io_handle,
 	     internal_table->io_handle,
 	     internal_table->pages_vector,
+	     internal_table->pages_cache,
 	     values_tree_node,
+	     internal_table->table_values_cache,
 	     internal_table->table_definition,
 	     internal_table->template_table_definition,
 	     internal_table->long_values_tree,
+	     internal_table->long_values_cache,
              LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
 	     error ) != 1 )
 	{

@@ -155,7 +155,6 @@ int libesedb_index_initialize(
 		     (size64_t) io_handle->page_size,
 		     io_handle->pages_data_offset,
 		     io_handle->pages_data_size,
-		     64,
 		     (intptr_t *) io_handle,
 		     NULL,
 		     NULL,
@@ -181,13 +180,41 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
+		if( libfdata_cache_initialize(
+		     &( internal_index->pages_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create pages cache.",
+			 function );
+
+			libfdata_vector_free(
+			 &( internal_index->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
 		/* TODO (template) table definition required ? */
 
 		if( libesedb_page_tree_initialize(
 		     &index_page_tree,
 		     io_handle,
 		     internal_index->pages_vector,
-		     index_catalog_definition->father_data_page_object_identifier,
+		     internal_index->pages_cache,
+		     index_catalog_definition->identifier,
 		     NULL,
 		     NULL,
 		     error ) != 1 )
@@ -199,6 +226,9 @@ int libesedb_index_initialize(
 			 "%s: unable to create index page tree.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_index->pages_cache ),
+			 NULL );
 			libfdata_vector_free(
 			 &( internal_index->pages_vector ),
 			 NULL );
@@ -218,7 +248,6 @@ int libesedb_index_initialize(
 		 */
 		if( libfdata_tree_initialize(
 		     &( internal_index->index_values_tree ),
-		     256,
 		     (intptr_t *) index_page_tree,
 		     &libesedb_page_tree_free,
 		     NULL,
@@ -236,6 +265,42 @@ int libesedb_index_initialize(
 
 			libesedb_page_tree_free(
 			 (intptr_t *) index_page_tree,
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_index->pages_cache ),
+			 NULL );
+			libfdata_vector_free(
+			 &( internal_index->pages_vector ),
+			 NULL );
+
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+			memory_free(
+			 internal_index );
+
+			return( -1 );
+		}
+		if( libfdata_cache_initialize(
+		     &( internal_index->index_values_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create index values cache.",
+			 function );
+
+			libfdata_tree_free(
+			 &( internal_index->index_values_tree ),
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_index->pages_cache ),
 			 NULL );
 			libfdata_vector_free(
 			 &( internal_index->pages_vector ),
@@ -268,8 +333,14 @@ int libesedb_index_initialize(
 			 "%s: unable to set root node in index values tree.",
 			 function );
 
+			libfdata_cache_free(
+			 &( internal_index->index_values_cache ),
+			 NULL );
 			libfdata_tree_free(
 			 &( internal_index->index_values_tree ),
+			 NULL );
+			libfdata_cache_free(
+			 &( internal_index->pages_cache ),
 			 NULL );
 			libfdata_vector_free(
 			 &( internal_index->pages_vector ),
@@ -371,6 +442,19 @@ int libesedb_index_free(
 
 			result = -1;
 		}
+		if( libfdata_cache_free(
+		     &( internal_index->pages_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free pages cache.",
+			 function );
+
+			result = -1;
+		}
 		if( libfdata_tree_free(
 		     &( internal_index->index_values_tree ),
 		     error ) != 1 )
@@ -380,6 +464,19 @@ int libesedb_index_free(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free index values tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libfdata_cache_free(
+		     &( internal_index->index_values_cache ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free index values cache.",
 			 function );
 
 			result = -1;
