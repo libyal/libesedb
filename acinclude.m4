@@ -404,6 +404,11 @@ AC_DEFUN([LIBESEDB_CHECK_LIBUNA],
    [ac_libesedb_have_libuna=no])
   AC_CHECK_LIB(
    una,
+   libuna_utf16_string_compare_with_byte_stream,
+   [ac_libesedb_dummy=yes],
+   [ac_libesedb_have_libuna=no])
+  AC_CHECK_LIB(
+   una,
    libuna_utf32_string_size_from_utf8_stream,
    [ac_libesedb_dummy=yes],
    [ac_libesedb_have_libuna=no])
@@ -442,6 +447,11 @@ AC_DEFUN([LIBESEDB_CHECK_LIBUNA],
   AC_CHECK_LIB(
    una,
    libuna_utf8_string_copy_from_byte_stream,
+   [ac_libesedb_dummy=yes],
+   [ac_libesedb_have_libuna=no])
+  AC_CHECK_LIB(
+   una,
+   libuna_utf8_string_compare_with_byte_stream,
    [ac_libesedb_dummy=yes],
    [ac_libesedb_have_libuna=no])
   AC_CHECK_LIB(

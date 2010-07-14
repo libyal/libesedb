@@ -44,7 +44,7 @@ typedef struct libesedb_internal_index libesedb_internal_index_t;
 
 struct libesedb_internal_index
 {
-	/* The file io handle
+	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
 

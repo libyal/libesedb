@@ -44,7 +44,7 @@ typedef struct libesedb_internal_record libesedb_internal_record_t;
 
 struct libesedb_internal_record
 {
-	/* The file io handle
+	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
 

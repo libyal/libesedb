@@ -16,6 +16,7 @@ TODO
 * implement cloning of items for improved asynchronous and multi threaded usage
 
 libesedb:
+* add get_table_by_object_identifier function
 * ECC checksum
   - non 4 byte modulus buffer support
   - add alignment optimization
@@ -92,6 +93,11 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100714
+* added get_table_by_name function
+* updated libuna
+* fix for open/close/open
+
 20100713
 * configure.ac added stat check
 * updated common, libsystem, libuna, libbfio, libfdata, libfdatetime,
@@ -99,6 +105,7 @@ Notes
 * updated array and list type
 * changes for updates
 * fixed FDP mismatch issue
+* updated msvscpp files
 
 20100628
 * update for libfmapi

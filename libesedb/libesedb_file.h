@@ -50,25 +50,17 @@ typedef struct libesedb_internal_file libesedb_internal_file_t;
 
 struct libesedb_internal_file
 {
-	/* The database
+	/* The IO handle
 	 */
-	libesedb_database_t *database;
+	libesedb_io_handle_t *io_handle;
 
-	/* The catalog
-	 */
-	libesedb_catalog_t *catalog;
-
-	/* The file io handle
+	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
 
-	/* Value to indicate if the file io handle was created inside the library
+	/* Value to indicate if the file IO handle was created inside the library
 	 */
 	uint8_t file_io_handle_created_in_library;
-
-	/* The io handle
-	 */
-	libesedb_io_handle_t *io_handle;
 
 	/* The pages vector
 	 */
@@ -77,6 +69,14 @@ struct libesedb_internal_file
 	/* The pages cache
 	 */
 	libfdata_cache_t *pages_cache;
+
+	/* The database
+	 */
+	libesedb_database_t *database;
+
+	/* The catalog
+	 */
+	libesedb_catalog_t *catalog;
 
 	/* Value to indicate if abort was signalled
 	 */
@@ -148,6 +148,20 @@ LIBESEDB_EXTERN int libesedb_file_get_number_of_tables(
 LIBESEDB_EXTERN int libesedb_file_get_table(
                      libesedb_file_t *file,
                      int table_entry,
+                     libesedb_table_t **table,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_table_by_utf8_name(
+                     libesedb_file_t *file,
+                     const uint8_t *utf8_string,
+                     size_t utf8_string_length,
+                     libesedb_table_t **table,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_file_get_table_by_utf16_name(
+                     libesedb_file_t *file,
+                     const uint16_t *utf16_string,
+                     size_t utf16_string_length,
                      libesedb_table_t **table,
                      liberror_error_t **error );
 

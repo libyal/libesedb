@@ -120,7 +120,7 @@ int libesedb_index_initialize(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy file io handle.",
+				 "%s: unable to copy file IO handle.",
 				 function );
 
 				memory_free(
@@ -137,7 +137,7 @@ int libesedb_index_initialize(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to set open on demand in file io handle.",
+				 "%s: unable to set open on demand in file IO handle.",
 				 function );
 
 				libbfio_handle_free(
@@ -409,7 +409,7 @@ int libesedb_index_free(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_IO,
 					 LIBERROR_IO_ERROR_CLOSE_FAILED,
-					 "%s: unable to close file io handle.",
+					 "%s: unable to close file IO handle.",
 					 function );
 
 					result = -1;
@@ -422,7 +422,7 @@ int libesedb_index_free(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free file io handle.",
+					 "%s: unable to free file IO handle.",
 					 function );
 
 					result = -1;

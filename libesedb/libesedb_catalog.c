@@ -29,6 +29,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_catalog.h"
 #include "libesedb_catalog_definition.h"
+#include "libesedb_libuna.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 
@@ -239,7 +240,7 @@ int libesedb_catalog_get_table_definition_by_index(
  */
 int libesedb_catalog_get_table_definition_by_name(
      libesedb_catalog_t *catalog,
-     uint8_t *table_name,
+     const uint8_t *table_name,
      size_t table_name_size,
      libesedb_table_definition_t **table_definition,
      liberror_error_t **error )
@@ -368,6 +369,320 @@ int libesedb_catalog_get_table_definition_by_name(
 			{
 				return( 1 );
 			}
+		}
+		list_element = list_element->next_element;
+	}
+	*table_definition = NULL;
+
+	return( 0 );
+}
+
+/* Retrieves the table definition for the specific UTF-8 formatted name
+ * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
+ */
+int libesedb_catalog_get_table_definition_by_utf8_name(
+     libesedb_catalog_t *catalog,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_catalog_get_table_definition_by_utf8_name";
+	int list_element_iterator             = 0;
+	int result                            = 0;
+
+	if( catalog == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog->table_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog - missing table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-8 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf8_string_length > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-8 string length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	list_element = catalog->table_definition_list->first_element;
+
+	for( list_element_iterator = 0;
+	     list_element_iterator < catalog->table_definition_list->number_of_elements;
+	     list_element_iterator++ )
+	{
+		if( list_element == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: corruption detected for element: %d.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( list_element->value == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid list element: %d - missing value.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		*table_definition = (libesedb_table_definition_t *) list_element->value;
+
+		if( ( *table_definition )->table_catalog_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table definition: %d - missing table catalog definition.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( ( *table_definition )->table_catalog_definition->name == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table catalog definition: %d - missing name.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		result = libuna_utf8_string_compare_with_byte_stream(
+			  utf8_string,
+			  utf8_string_length,
+			  ( *table_definition )->table_catalog_definition->name,
+			  ( *table_definition )->table_catalog_definition->name_size,
+			  LIBUNA_CODEPAGE_WINDOWS_1252,
+			  error );
+
+		if( result == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: unable to compare UTF-8 string with table catalog definition: %d name.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		else if( result != 0 )
+		{
+			return( 1 );
+		}
+		list_element = list_element->next_element;
+	}
+	*table_definition = NULL;
+
+	return( 0 );
+}
+
+/* Retrieves the table definition for the specific UTF-16 formatted name
+ * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
+ */
+int libesedb_catalog_get_table_definition_by_utf16_name(
+     libesedb_catalog_t *catalog,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error )
+{
+	libesedb_list_element_t *list_element = NULL;
+	static char *function                 = "libesedb_catalog_get_table_definition_by_utf16_name";
+	int list_element_iterator             = 0;
+	int result                            = 0;
+
+	if( catalog == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog->table_definition_list == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog - missing table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	if( utf16_string_length > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid UTF-16 string length value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	list_element = catalog->table_definition_list->first_element;
+
+	for( list_element_iterator = 0;
+	     list_element_iterator < catalog->table_definition_list->number_of_elements;
+	     list_element_iterator++ )
+	{
+		if( list_element == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: corruption detected for element: %d.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( list_element->value == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid list element: %d - missing value.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		*table_definition = (libesedb_table_definition_t *) list_element->value;
+
+		if( ( *table_definition )->table_catalog_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table definition: %d - missing table catalog definition.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		if( ( *table_definition )->table_catalog_definition->name == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table catalog definition: %d - missing name.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		result = libuna_utf16_string_compare_with_byte_stream(
+			  utf16_string,
+			  utf16_string_length,
+			  ( *table_definition )->table_catalog_definition->name,
+			  ( *table_definition )->table_catalog_definition->name_size,
+			  LIBUNA_CODEPAGE_WINDOWS_1252,
+			  error );
+
+		if( result == -1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: unable to compare UTF-16 string with table catalog definition: %d name.",
+			 function,
+			 list_element_iterator );
+
+			return( -1 );
+		}
+		else if( result != 0 )
+		{
+			return( 1 );
 		}
 		list_element = list_element->next_element;
 	}

@@ -40,7 +40,7 @@ typedef struct libesedb_internal_long_value libesedb_internal_long_value_t;
 
 struct libesedb_internal_long_value
 {
-	/* The file io handle
+	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
 

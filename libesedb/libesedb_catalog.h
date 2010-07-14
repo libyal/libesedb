@@ -67,8 +67,22 @@ int libesedb_catalog_get_table_definition_by_index(
 
 int libesedb_catalog_get_table_definition_by_name(
      libesedb_catalog_t *catalog,
-     uint8_t *table_name,
+     const uint8_t *table_name,
      size_t table_name_size,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error );
+
+int libesedb_catalog_get_table_definition_by_utf8_name(
+     libesedb_catalog_t *catalog,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libesedb_table_definition_t **table_definition,
+     liberror_error_t **error );
+
+int libesedb_catalog_get_table_definition_by_utf16_name(
+     libesedb_catalog_t *catalog,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
      libesedb_table_definition_t **table_definition,
      liberror_error_t **error );
 

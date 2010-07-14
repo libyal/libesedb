@@ -259,6 +259,26 @@ LIBESEDB_EXTERN int libesedb_file_get_table(
                      libesedb_table_t **table,
                      libesedb_error_t **error );
 
+/* Retrieves the table for the UTF-8 formatted name
+ * Returns 1 if successful, 0 if no table could be found or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_table_by_utf8_name(
+                     libesedb_file_t *file,
+                     const uint8_t *utf8_string,
+                     size_t utf8_string_length,
+                     libesedb_table_t **table,
+                     libesedb_error_t **error );
+
+/* Retrieves the table for the UTF-16 formatted name
+ * Returns 1 if successful, 0 if no table could be found or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_table_by_utf16_name(
+                     libesedb_file_t *file,
+                     const uint16_t *utf16_string,
+                     size_t utf16_string_length,
+                     libesedb_table_t **table,
+                     libesedb_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Table functions
  * ------------------------------------------------------------------------- */

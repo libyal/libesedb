@@ -92,41 +92,6 @@ int libesedb_file_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_database_initialize(
-		     &( internal_file->database ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create database.",
-			 function );
-
-			memory_free(
-			 internal_file );
-
-			return( -1 );
-		}
-		if( libesedb_catalog_initialize(
-		     &( internal_file->catalog ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create catalog.",
-			 function );
-
-			libesedb_database_free(
-			 &( internal_file->database ),
-			 NULL );
-			memory_free(
-			 internal_file );
-
-			return( -1 );
-		}
 		if( libesedb_io_handle_initialize(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
@@ -135,15 +100,9 @@ int libesedb_file_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create io handle.",
+			 "%s: unable to create IO handle.",
 			 function );
 
-			libesedb_catalog_free(
-			 &( internal_file->catalog ),
-			 NULL );
-			libesedb_database_free(
-			 &( internal_file->database ),
-			 NULL );
 			memory_free(
 			 internal_file );
 
@@ -180,49 +139,24 @@ int libesedb_file_free(
 	{
 		internal_file = (libesedb_internal_file_t *) *file;
 
-		if( libesedb_database_free(
-		     &( internal_file->database ),
-		     error ) != 1 )
+		if( internal_file->file_io_handle != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free database.",
-			 function );
-
-			result = -1;
-		}
-		if( libesedb_catalog_free(
-		     &( internal_file->catalog ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free catalog.",
-			 function );
-
-			result = -1;
-		}
-		if( ( internal_file->file_io_handle_created_in_library != 0 )
-		 && ( internal_file->file_io_handle != NULL ) )
-		{
-			if( libbfio_handle_free(
-			     &( internal_file->file_io_handle ),
-			     error ) != 1 )
+			if( libesedb_file_close(
+			     *file,
+			     error ) != 0 )
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free file io handle.",
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_CLOSE_FAILED,
+				 "%s: unable to close file.",
 				 function );
 
 				result = -1;
 			}
 		}
+		*file = NULL;
+
 		if( libesedb_io_handle_free(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
@@ -231,41 +165,13 @@ int libesedb_file_free(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free io handle.",
-			 function );
-
-			result = -1;
-		}
-		if( libfdata_vector_free(
-		     &( internal_file->pages_vector ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free pages vector.",
-			 function );
-
-			result = -1;
-		}
-		if( libfdata_cache_free(
-		     &( internal_file->pages_cache ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free pages cache.",
+			 "%s: unable to free IO handle.",
 			 function );
 
 			result = -1;
 		}
 		memory_free(
 		 internal_file );
-
-		*file = NULL;
 	}
 	return( result );
 }
@@ -363,7 +269,7 @@ int libesedb_file_open(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create file io handle.",
+		 "%s: unable to create file IO handle.",
 		 function );
 
 		return( -1 );
@@ -378,7 +284,7 @@ int libesedb_file_open(
                  error,
                  LIBERROR_ERROR_DOMAIN_RUNTIME,
                  LIBERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file io handle.",
+                 "%s: unable to set track offsets read in file IO handle.",
                  function );
 
 		libbfio_handle_free(
@@ -399,7 +305,7 @@ int libesedb_file_open(
                  error,
                  LIBERROR_ERROR_DOMAIN_RUNTIME,
                  LIBERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file io handle.",
+                 "%s: unable to set filename in file IO handle.",
                  function );
 
 		libbfio_handle_free(
@@ -503,7 +409,7 @@ int libesedb_file_open_wide(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create file io handle.",
+		 "%s: unable to create file IO handle.",
 		 function );
 
 		return( -1 );
@@ -518,7 +424,7 @@ int libesedb_file_open_wide(
                  error,
                  LIBERROR_ERROR_DOMAIN_RUNTIME,
                  LIBERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set track offsets read in file io handle.",
+                 "%s: unable to set track offsets read in file IO handle.",
                  function );
 
 		libbfio_handle_free(
@@ -539,7 +445,7 @@ int libesedb_file_open_wide(
                  error,
                  LIBERROR_ERROR_DOMAIN_RUNTIME,
                  LIBERROR_RUNTIME_ERROR_SET_FAILED,
-                 "%s: unable to set filename in file io handle.",
+                 "%s: unable to set filename in file IO handle.",
                  function );
 
 		libbfio_handle_free(
@@ -608,7 +514,7 @@ int libesedb_file_open_file_io_handle(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - file io handle already set.",
+		 "%s: invalid internal file - file IO handle already set.",
 		 function );
 
 		return( -1 );
@@ -619,7 +525,7 @@ int libesedb_file_open_file_io_handle(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file io handle.",
+		 "%s: invalid file IO handle.",
 		 function );
 
 		return( -1 );
@@ -679,7 +585,7 @@ int libesedb_file_open_file_io_handle(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_OPEN_FAILED,
-			 "%s: unable to open file io handle.",
+			 "%s: unable to open file IO handle.",
 			 function );
 
 			return( -1 );
@@ -764,11 +670,78 @@ int libesedb_file_close(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_IO,
 			 LIBERROR_IO_ERROR_CLOSE_FAILED,
-			 "%s: unable to close file io handle.",
+			 "%s: unable to close file IO handle.",
 			 function );
 
-			return( -1 );
+			result = -1;
 		}
+		if( libbfio_handle_free(
+		     &( internal_file->file_io_handle ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free file IO handle.",
+			 function );
+
+			result = -1;
+		}
+	}
+	internal_file->file_io_handle = NULL;
+
+	if( libfdata_vector_free(
+	     &( internal_file->pages_vector ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free pages vector.",
+		 function );
+
+		result = -1;
+	}
+	if( libfdata_cache_free(
+	     &( internal_file->pages_cache ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free pages cache.",
+		 function );
+
+		result = -1;
+	}
+	if( libesedb_database_free(
+	     &( internal_file->database ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free database.",
+		 function );
+
+		result = -1;
+	}
+	if( libesedb_catalog_free(
+	     &( internal_file->catalog ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free catalog.",
+		 function );
+
+		result = -1;
 	}
 	return( result );
 }
@@ -802,7 +775,51 @@ int libesedb_file_open_read(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing io handle.",
+		 "%s: invalid internal file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->pages_vector != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid internal file - pages vector already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->pages_cache != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid internal file - pages cache already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->database != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid internal file - database already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->catalog != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid internal file - catalog already set.",
 		 function );
 
 		return( -1 );
@@ -1018,6 +1035,19 @@ int libesedb_file_open_read(
 		 "Reading the database:\n" );
 	}
 #endif
+	if( libesedb_database_initialize(
+	     &( internal_file->database ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create database.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_database_read(
 	     internal_file->database,
 	     internal_file->file_io_handle,
@@ -1043,6 +1073,19 @@ int libesedb_file_open_read(
 		 "Reading the catalog:\n" );
 	}
 #endif
+	if( libesedb_catalog_initialize(
+	     &( internal_file->catalog ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create catalog.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_catalog_read(
 	     internal_file->catalog,
 	     internal_file->file_io_handle,
@@ -1096,7 +1139,7 @@ int libesedb_file_get_format_version(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing io handle.",
+		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1160,7 +1203,7 @@ int libesedb_file_get_creation_format_version(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing io handle.",
+		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1223,7 +1266,7 @@ int libesedb_file_get_page_size(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing io handle.",
+		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1268,19 +1311,37 @@ int libesedb_file_get_number_of_tables(
 	}
 	internal_file = (libesedb_internal_file_t *) file;
 
-	if( libesedb_catalog_get_number_of_table_definitions(
-	     internal_file->catalog,
-	     number_of_tables,
-	     error ) != 1 )
+	if( internal_file->catalog == NULL )
 	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of tables.",
-		 function );
+		if( number_of_tables == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid number of tables.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		*number_of_tables = 0;
+	}
+	else
+	{
+		if( libesedb_catalog_get_number_of_table_definitions(
+		     internal_file->catalog,
+		     number_of_tables,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of tables.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( 1 );
 }
@@ -1374,7 +1435,7 @@ int libesedb_file_get_table(
 	}
 	if( table_definition->table_catalog_definition->template_name != NULL )
 	{
-		if( libesedb_catalog_get_table_definition_by_name(
+		if( libesedb_catalog_get_table_definition_by_utf8_name(
 		     internal_file->catalog,
 		     table_definition->table_catalog_definition->template_name,
 		     table_definition->table_catalog_definition->template_name_size,
@@ -1410,5 +1471,273 @@ int libesedb_file_get_table(
 		return( -1 );
 	}
 	return( 1 );
+}
+
+/* Retrieves the table for the UTF-8 formatted name
+ * Returns 1 if successful, 0 if no table could be found or -1 on error
+ */
+int libesedb_file_get_table_by_utf8_name(
+     libesedb_file_t *file,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libesedb_table_t **table,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file                = NULL;
+	libesedb_table_definition_t *table_definition          = NULL;
+	libesedb_table_definition_t *template_table_definition = NULL;
+	static char *function                                  = "libesedb_file_get_table_by_utf8_name";
+	int result                                             = 0;
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( *table != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table value already set.",
+		 function );
+
+		return( -1 );
+	}
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          internal_file->catalog,
+	          utf8_string,
+	          utf8_string_length,
+	          &table_definition,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve table definition.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( table_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing table definition.",
+			 function );
+
+			return( -1 );
+		}
+		if( table_definition->table_catalog_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table definition - missing table catalog definition.",
+			 function );
+
+			return( -1 );
+		}
+		if( table_definition->table_catalog_definition->template_name != NULL )
+		{
+			if( libesedb_catalog_get_table_definition_by_name(
+			     internal_file->catalog,
+			     table_definition->table_catalog_definition->template_name,
+			     table_definition->table_catalog_definition->template_name_size,
+			     &template_table_definition,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve template table definition.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		if( libesedb_table_initialize(
+		     table,
+		     internal_file->file_io_handle,
+		     internal_file->io_handle,
+		     table_definition,
+		     template_table_definition,
+		     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
+}
+
+/* Retrieves the table for the UTF-16 formatted name
+ * Returns 1 if successful, 0 if no table could be found or -1 on error
+ */
+int libesedb_file_get_table_by_utf16_name(
+     libesedb_file_t *file,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libesedb_table_t **table,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file                = NULL;
+	libesedb_table_definition_t *table_definition          = NULL;
+	libesedb_table_definition_t *template_table_definition = NULL;
+	static char *function                                  = "libesedb_file_get_table_by_utf16_name";
+	int result                                             = 0;
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table.",
+		 function );
+
+		return( -1 );
+	}
+	if( *table != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table value already set.",
+		 function );
+
+		return( -1 );
+	}
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          internal_file->catalog,
+	          utf16_string,
+	          utf16_string_length,
+	          &table_definition,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve table definition.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( table_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing table definition.",
+			 function );
+
+			return( -1 );
+		}
+		if( table_definition->table_catalog_definition == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid table definition - missing table catalog definition.",
+			 function );
+
+			return( -1 );
+		}
+		if( table_definition->table_catalog_definition->template_name != NULL )
+		{
+			if( libesedb_catalog_get_table_definition_by_name(
+			     internal_file->catalog,
+			     table_definition->table_catalog_definition->template_name,
+			     table_definition->table_catalog_definition->template_name_size,
+			     &template_table_definition,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve template table definition.",
+				 function );
+
+				return( -1 );
+			}
+		}
+		if( libesedb_table_initialize(
+		     table,
+		     internal_file->file_io_handle,
+		     internal_file->io_handle,
+		     table_definition,
+		     template_table_definition,
+		     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
 }
 
