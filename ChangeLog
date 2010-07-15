@@ -93,6 +93,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100715
+* updated libuna
+
 20100714
 * added get_table_by_name function
 * updated libuna
