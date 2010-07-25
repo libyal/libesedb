@@ -97,6 +97,7 @@ Notes
 * updated common
 * updated include/error.h and liberror
 * updated libuna, libbfio, libfdata, libfdatetime
+* split column definition and record value
 
 20100715
 * updated libuna

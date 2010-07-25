@@ -893,7 +893,6 @@ int libesedb_values_tree_value_read_record(
 
 		if( libesedb_data_type_definition_initialize(
 		     &data_type_definition,
-		     column_catalog_definition,
 		     error ) != 1 )
 		{
 			liberror_error_set(

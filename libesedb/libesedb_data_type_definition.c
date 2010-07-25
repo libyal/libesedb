@@ -25,7 +25,6 @@
 
 #include <liberror.h>
 
-#include "libesedb_catalog_definition.h"
 #include "libesedb_data_type_definition.h"
 
 /* Creates a data type definition
@@ -33,7 +32,6 @@
  */
 int libesedb_data_type_definition_initialize(
      libesedb_data_type_definition_t **data_type_definition,
-     libesedb_catalog_definition_t *column_catalog_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_data_type_definition_initialize";
@@ -84,7 +82,6 @@ int libesedb_data_type_definition_initialize(
 
 			return( -1 );
 		}
-		( *data_type_definition )->column_catalog_definition = column_catalog_definition;
 	}
 	return( 1 );
 }
@@ -109,8 +106,6 @@ int libesedb_data_type_definition_free(
 
 		return( -1 );
 	}
-	/* The column_catalog_definition is only referenced an is freed elsewhere
-	 */
 	if( ( ( libesedb_data_type_definition_t *) data_type_definition )->data != NULL )
 	{
 		memory_free(

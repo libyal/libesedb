@@ -52,6 +52,14 @@ struct libesedb_internal_record
 	 */
 	libesedb_io_handle_t *io_handle;
 
+	/* The table definition
+	 */
+	libesedb_table_definition_t *table_definition;
+
+	/* The template table definition
+	 */
+	libesedb_table_definition_t *template_table_definition;
+
 	/* The pages vector
 	 */
 	libfdata_vector_t *pages_vector;
@@ -81,12 +89,12 @@ int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      libfdata_tree_node_t *values_tree_node,
      libfdata_cache_t *values_cache,
-     libesedb_table_definition_t *table_definition,
-     libesedb_table_definition_t *template_table_definition,
      libfdata_tree_t *long_values_tree,
      libfdata_cache_t *long_values_cache,
      uint8_t flags,
@@ -101,14 +109,20 @@ LIBESEDB_EXTERN int libesedb_record_get_number_of_values(
                      int *number_of_values,
                      liberror_error_t **error );
 
+int libesedb_record_get_column_catalog_definition(
+     libesedb_internal_record_t *internal_record,
+     int value_entry,
+     libesedb_catalog_definition_t **column_catalog_definition,
+     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_record_get_column_identifier(
-                     libesedb_table_t *table,
+                     libesedb_record_t *record,
                      int value_entry,
                      uint32_t *column_identifier,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_column_type(
-                     libesedb_table_t *table,
+                     libesedb_record_t *record,
                      int value_entry,
                      uint32_t *column_type,
                      liberror_error_t **error );
@@ -140,7 +154,7 @@ LIBESEDB_EXTERN int libesedb_record_get_utf16_column_name(
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value(
-                     libesedb_table_t *table,
+                     libesedb_record_t *record,
                      int value_entry,
                      uint8_t **value_data,
                      size_t *value_data_size,

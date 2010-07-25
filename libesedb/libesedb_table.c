@@ -1509,22 +1509,24 @@ int libesedb_table_get_column(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
-	 && ( internal_table->template_table_definition != NULL ) )
+	if( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
 	{
-		if( libesedb_list_get_number_of_elements(
-		     internal_table->template_table_definition->column_catalog_definition_list,
-		     &template_table_number_of_columns,
-		     error ) != 1 )
+		if( internal_table->template_table_definition != NULL )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of columns from template table.",
-			 function );
+			if( libesedb_list_get_number_of_elements(
+			     internal_table->template_table_definition->column_catalog_definition_list,
+			     &template_table_number_of_columns,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve number of columns from template table.",
+				 function );
 
-			return( -1 );
+				return( -1 );
+			}
 		}
 	}
 	if( column_entry < template_table_number_of_columns )
@@ -1865,12 +1867,12 @@ int libesedb_table_get_record(
 	     record,
 	     internal_table->file_io_handle,
 	     internal_table->io_handle,
+	     internal_table->table_definition,
+	     internal_table->template_table_definition,
 	     internal_table->pages_vector,
 	     internal_table->pages_cache,
 	     values_tree_node,
 	     internal_table->table_values_cache,
-	     internal_table->table_definition,
-	     internal_table->template_table_definition,
 	     internal_table->long_values_tree,
 	     internal_table->long_values_cache,
              LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,

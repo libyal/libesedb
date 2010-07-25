@@ -46,12 +46,12 @@ int libesedb_record_initialize(
      libesedb_record_t **record,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      libfdata_tree_node_t *values_tree_node,
      libfdata_cache_t *values_cache,
-     libesedb_table_definition_t *table_definition,
-     libesedb_table_definition_t *template_table_definition,
      libfdata_tree_t *long_values_tree,
      libfdata_cache_t *long_values_cache,
      uint8_t flags,
@@ -68,6 +68,28 @@ int libesedb_record_initialize(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition->table_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid table definition - missing table catalog definition.",
 		 function );
 
 		return( -1 );
@@ -249,12 +271,14 @@ int libesedb_record_initialize(
 
 			return( -1 );
 		}
-		internal_record->io_handle         = io_handle;
-		internal_record->pages_vector      = pages_vector;
-		internal_record->pages_cache       = pages_cache;
-		internal_record->long_values_tree  = long_values_tree;
-		internal_record->long_values_cache = long_values_cache;
-		internal_record->flags             = flags;
+		internal_record->io_handle                 = io_handle;
+		internal_record->table_definition          = table_definition;
+		internal_record->template_table_definition = template_table_definition;
+		internal_record->pages_vector              = pages_vector;
+		internal_record->pages_cache               = pages_cache;
+		internal_record->long_values_tree          = long_values_tree;
+		internal_record->long_values_cache         = long_values_cache;
+		internal_record->flags                     = flags;
 
 		*record = (libesedb_record_t *) internal_record;
 	}
@@ -384,6 +408,96 @@ int libesedb_record_get_number_of_values(
 	return( 1 );
 }
 
+/* Retrieves the column catalog definition of the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_record_get_column_catalog_definition(
+     libesedb_internal_record_t *internal_record,
+     int value_entry,
+     libesedb_catalog_definition_t **column_catalog_definition,
+     liberror_error_t **error )
+{
+	static char *function                = "libesedb_record_get_column_identifier";
+	int template_table_number_of_columns = 0;
+
+	if( internal_record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid internal record.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record->table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal record - missing table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_record->template_table_definition != NULL )
+	{
+		if( libesedb_list_get_number_of_elements(
+		     internal_record->template_table_definition->column_catalog_definition_list,
+		     &template_table_number_of_columns,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of columns from template table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	if( value_entry < template_table_number_of_columns )
+	{
+		if( libesedb_list_get_value_by_index(
+		     internal_record->template_table_definition->column_catalog_definition_list,
+		     value_entry,
+		     (intptr_t **) column_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column catalog definition from template table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	else
+	{
+		if( libesedb_list_get_value_by_index(
+		     internal_record->table_definition->column_catalog_definition_list,
+		     value_entry - template_table_number_of_columns,
+		     (intptr_t **) column_catalog_definition,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column catalog definition from table.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
 /* Retrieves the column identifier of the specific entry
  * Returns 1 if successful or -1 on error
  */
@@ -393,9 +507,9 @@ int libesedb_record_get_column_identifier(
      uint32_t *column_identifier,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_column_identifier";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_column_identifier";
 
 	if( record == NULL )
 	{
@@ -408,48 +522,25 @@ int libesedb_record_get_column_identifier(
 
 		return( -1 );
 	}
-	if( column_identifier == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid column identifier.",
-		 function );
-
-		return( -1 );
-	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_identifier(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     column_identifier,
 	     error ) != 1 )
 	{
@@ -474,9 +565,9 @@ int libesedb_record_get_column_type(
      uint32_t *column_type,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_column_type";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_column_type";
 
 	if( record == NULL )
 	{
@@ -489,48 +580,25 @@ int libesedb_record_get_column_type(
 
 		return( -1 );
 	}
-	if( column_type == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid column type.",
-		 function );
-
-		return( -1 );
-	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_column_type(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     column_type,
 	     error ) != 1 )
 	{
@@ -556,9 +624,9 @@ int libesedb_record_get_utf8_column_name_size(
      size_t *utf8_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_utf8_column_name_size";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_utf8_column_name_size";
 
 	if( record == NULL )
 	{
@@ -584,35 +652,23 @@ int libesedb_record_get_utf8_column_name_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_utf8_name_size(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     utf8_string_size,
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
@@ -640,9 +696,9 @@ int libesedb_record_get_utf8_column_name(
      size_t utf8_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_utf8_column_name";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_utf8_column_name";
 
 	if( record == NULL )
 	{
@@ -668,35 +724,23 @@ int libesedb_record_get_utf8_column_name(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_utf8_name(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     utf8_string,
 	     utf8_string_size,
 	     internal_record->io_handle->ascii_codepage,
@@ -724,9 +768,9 @@ int libesedb_record_get_utf16_column_name_size(
      size_t *utf16_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_utf16_column_name_size";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_utf16_column_name_size";
 
 	if( record == NULL )
 	{
@@ -752,35 +796,23 @@ int libesedb_record_get_utf16_column_name_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_utf16_name_size(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     utf16_string_size,
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
@@ -808,9 +840,9 @@ int libesedb_record_get_utf16_column_name(
      size_t utf16_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_utf16_column_name";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_utf16_column_name";
 
 	if( record == NULL )
 	{
@@ -836,35 +868,23 @@ int libesedb_record_get_utf16_column_name(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
-	     internal_record->values_array,
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
 	if( libesedb_catalog_definition_get_utf16_name(
-	     data_type_definition->column_catalog_definition,
+	     column_catalog_definition,
 	     utf16_string,
 	     utf16_string_size,
 	     internal_record->io_handle->ascii_codepage,
@@ -970,17 +990,6 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
 	*value_data      = data_type_definition->data;
 	*value_data_size = data_type_definition->data_size;
 	*value_flags     = data_type_definition->flags;
@@ -997,9 +1006,11 @@ int libesedb_record_get_value_boolean(
      uint8_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_boolean";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_boolean";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1014,6 +1025,47 @@ int libesedb_record_get_value_boolean(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_BOOLEAN )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1038,29 +1090,6 @@ int libesedb_record_get_value_boolean(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_BOOLEAN )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1095,9 +1124,11 @@ int libesedb_record_get_value_8bit(
      uint8_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_8bit";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_8bit";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1112,6 +1143,47 @@ int libesedb_record_get_value_8bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1136,29 +1208,6 @@ int libesedb_record_get_value_8bit(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1193,9 +1242,11 @@ int libesedb_record_get_value_16bit(
      uint16_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_16bit";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_16bit";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1210,6 +1261,48 @@ int libesedb_record_get_value_16bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1234,30 +1327,6 @@ int libesedb_record_get_value_16bit(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1292,9 +1361,11 @@ int libesedb_record_get_value_32bit(
      uint32_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_32bit";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_32bit";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1309,6 +1380,48 @@ int libesedb_record_get_value_32bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1333,30 +1446,6 @@ int libesedb_record_get_value_32bit(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1391,9 +1480,11 @@ int libesedb_record_get_value_64bit(
      uint64_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_64bit";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_64bit";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1408,6 +1499,48 @@ int libesedb_record_get_value_64bit(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1432,30 +1565,6 @@ int libesedb_record_get_value_64bit(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1490,9 +1599,11 @@ int libesedb_record_get_value_filetime(
      uint64_t *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_filetime";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_filetime";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1507,6 +1618,47 @@ int libesedb_record_get_value_filetime(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1531,29 +1683,6 @@ int libesedb_record_get_value_filetime(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1588,9 +1717,11 @@ int libesedb_record_get_value_floating_point(
      double *value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_floating_point";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_floating_point";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1605,6 +1736,48 @@ int libesedb_record_get_value_floating_point(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1629,30 +1802,6 @@ int libesedb_record_get_value_floating_point(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -1688,9 +1837,11 @@ int libesedb_record_get_value_utf8_string_size(
      size_t *utf8_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_utf8_string_size";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_utf8_string_size";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1705,6 +1856,48 @@ int libesedb_record_get_value_utf8_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1732,38 +1925,16 @@ int libesedb_record_get_value_utf8_string_size(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_TEXT )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
 	}
+/* TODO handle codepage differently */
+
 	if( libesedb_value_type_get_utf8_string_size(
 	     data_type_definition->data,
 	     data_type_definition->data_size,
-	     data_type_definition->column_catalog_definition->codepage,
+	     column_catalog_definition->codepage,
 	     utf8_string_size,
 	     error ) != 1 )
 	{
@@ -1791,9 +1962,11 @@ int libesedb_record_get_value_utf8_string(
      size_t utf8_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_utf8_string";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_utf8_string";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1808,6 +1981,48 @@ int libesedb_record_get_value_utf8_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1835,38 +2050,16 @@ int libesedb_record_get_value_utf8_string(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_TEXT )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
 	}
+/* TODO handle codepage differently */
+
 	if( libesedb_value_type_copy_to_utf8_string(
 	     data_type_definition->data,
 	     data_type_definition->data_size,
-	     data_type_definition->column_catalog_definition->codepage,
+	     column_catalog_definition->codepage,
 	     utf8_string,
 	     utf8_string_size,
 	     error ) != 1 )
@@ -1893,9 +2086,11 @@ int libesedb_record_get_value_utf16_string_size(
      size_t *utf16_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_utf16_string_size";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_utf16_string_size";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -1910,6 +2105,48 @@ int libesedb_record_get_value_utf16_string_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -1937,38 +2174,16 @@ int libesedb_record_get_value_utf16_string_size(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_TEXT )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
 	}
+/* TODO handle codepage differently */
+
 	if( libesedb_value_type_get_utf16_string_size(
 	     data_type_definition->data,
 	     data_type_definition->data_size,
-	     data_type_definition->column_catalog_definition->codepage,
+	     column_catalog_definition->codepage,
 	     utf16_string_size,
 	     error ) != 1 )
 	{
@@ -1996,9 +2211,11 @@ int libesedb_record_get_value_utf16_string(
      size_t utf16_string_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_utf16_string";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_utf16_string";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -2013,6 +2230,48 @@ int libesedb_record_get_value_utf16_string(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -2040,38 +2299,16 @@ int libesedb_record_get_value_utf16_string(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_TEXT )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
 	}
+/* TODO handle codepage differently */
+
 	if( libesedb_value_type_copy_to_utf16_string(
 	     data_type_definition->data,
 	     data_type_definition->data_size,
-	     data_type_definition->column_catalog_definition->codepage,
+	     column_catalog_definition->codepage,
 	     utf16_string,
 	     utf16_string_size,
 	     error ) != 1 )
@@ -2097,9 +2334,11 @@ int libesedb_record_get_value_binary_data_size(
      size_t *binary_data_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_binary_data_size";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_binary_data_size";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -2114,6 +2353,48 @@ int libesedb_record_get_value_binary_data_size(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -2138,30 +2419,6 @@ int libesedb_record_get_value_binary_data_size(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -2197,9 +2454,11 @@ int libesedb_record_get_value_binary_data(
      size_t binary_data_size,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value_binary_data";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_value_binary_data";
+	uint32_t column_type                                     = 0;
 
 	if( record == NULL )
 	{
@@ -2214,6 +2473,48 @@ int libesedb_record_get_value_binary_data(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
@@ -2238,30 +2539,6 @@ int libesedb_record_get_value_binary_data(
 		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing data type definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
-	 && ( data_type_definition->column_catalog_definition->column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition column type: %" PRIu32 ".",
-		 function,
-		 data_type_definition->column_catalog_definition->column_type );
 
 		return( -1 );
 	}
@@ -2298,12 +2575,13 @@ int libesedb_record_get_long_value(
      libesedb_long_value_t **long_value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_long_value";
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	static char *function                                    = "libesedb_record_get_long_value";
 
 	/* TODO remove direct access */
-	libesedb_internal_long_value_t *internal_long_value   = NULL;
+	libesedb_internal_long_value_t *internal_long_value      = NULL;
 
 	if( record == NULL )
 	{
@@ -2336,6 +2614,32 @@ int libesedb_record_get_long_value(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: long value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -2391,17 +2695,6 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
@@ -2430,8 +2723,8 @@ int libesedb_record_get_long_value(
 	/* TODO remove direct access */
 	internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 
-	internal_long_value->column_type = data_type_definition->column_catalog_definition->column_type;
-	internal_long_value->codepage    = data_type_definition->column_catalog_definition->codepage;
+	internal_long_value->column_type = column_catalog_definition->column_type;
+	internal_long_value->codepage    = column_catalog_definition->codepage;
 
 	return( 1 );
 }
@@ -2446,13 +2739,14 @@ int libesedb_record_get_multi_value(
      libesedb_multi_value_t **multi_value,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_multi_value_t *internal_multi_value = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	uint8_t *value_data                                   = NULL;
-	static char *function                                 = "libesedb_record_get_multi_value";
-	uint16_t value_offset                                 = 0;
-	uint16_t value_offset_index                           = 0;
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_data_type_definition_t *data_type_definition    = NULL;
+	libesedb_internal_multi_value_t *internal_multi_value    = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	uint8_t *value_data                                      = NULL;
+	static char *function                                    = "libesedb_record_get_multi_value";
+	uint16_t value_offset                                    = 0;
+	uint16_t value_offset_index                              = 0;
 
 	if( record == NULL )
 	{
@@ -2485,6 +2779,32 @@ int libesedb_record_get_multi_value(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: multi value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -2541,17 +2861,6 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( data_type_definition->column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid data type definition - missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( data_type_definition->data == NULL )
 	{
 		return( 0 );
@@ -2571,7 +2880,8 @@ int libesedb_record_get_multi_value(
 	}
 	internal_multi_value = (libesedb_internal_multi_value_t *) *multi_value;
 
-	internal_multi_value->column_type     = data_type_definition->column_catalog_definition->column_type;
+	internal_multi_value->column_type     = column_catalog_definition->column_type;
+	internal_multi_value->codepage        = column_catalog_definition->codepage;
 	internal_multi_value->value_data_size = data_type_definition->data_size;
 
 	internal_multi_value->value_data = (uint8_t *) memory_allocate(
@@ -2734,8 +3044,6 @@ libnotify_print_data(
 #endif
 		internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_data_size
 									   - internal_multi_value->value_offset[ value_offset_index - 1 ];
-
-		internal_multi_value->codepage = data_type_definition->column_catalog_definition->codepage;
 	}
 	return( 1 );
 }

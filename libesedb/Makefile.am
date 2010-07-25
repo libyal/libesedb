@@ -41,6 +41,7 @@ libesedb_la_SOURCES = \
 	libesedb_libfdata.h \
 	libesedb_libfdatetime.h \
 	libesedb_libfguid.h \
+	libesedb_libfvalue.h \
 	libesedb_libuna.h \
 	libesedb_list_type.c libesedb_list_type.h \
 	libesedb_long_value.c libesedb_long_value.h \
