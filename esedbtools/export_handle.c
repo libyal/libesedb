@@ -314,7 +314,7 @@ int export_handle_close(
 }
 
 /* Create a directory
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int export_handle_make_directory(
      libcstring_system_character_t *directory_name,
@@ -356,7 +356,7 @@ int export_handle_make_directory(
 }
 
 /* Sanitizes the filename
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int export_handle_sanitize_filename(
      libcstring_system_character_t *filename,

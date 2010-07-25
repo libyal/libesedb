@@ -48,7 +48,7 @@
 
 /* Make sure the WINAPI version is build with both the narrow and wide character functions
  */
-#if defined( WINAPI) && !defined( HAVE_WIDE_CHARACTER_TYPE )
+#if defined( WINAPI ) && !defined( HAVE_WIDE_CHARACTER_TYPE )
 #define HAVE_WIDE_CHARACTER_TYPE	1
 #endif
 

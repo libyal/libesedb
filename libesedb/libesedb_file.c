@@ -113,7 +113,7 @@ int libesedb_file_initialize(
 	return( 1 );
 }
 
-/* Frees an exisisting file
+/* Frees a file
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_free(
@@ -207,7 +207,7 @@ int libesedb_file_signal_abort(
 int libesedb_file_open(
      libesedb_file_t *file,
      const char *filename,
-     int flags,
+     int access_flags,
      liberror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle        = NULL;
@@ -236,19 +236,19 @@ int libesedb_file_open(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBESEDB_FLAG_READ ) != LIBESEDB_FLAG_READ )
-	 && ( ( flags & LIBESEDB_FLAG_WRITE ) != LIBESEDB_FLAG_WRITE ) )
+	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
+	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( flags & LIBESEDB_FLAG_WRITE ) == LIBESEDB_FLAG_WRITE )
+	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -317,7 +317,7 @@ int libesedb_file_open(
 	if( libesedb_file_open_file_io_handle(
 	     file,
 	     file_io_handle,
-	     flags,
+	     access_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -347,7 +347,7 @@ int libesedb_file_open(
 int libesedb_file_open_wide(
      libesedb_file_t *file,
      const wchar_t *filename,
-     int flags,
+     int access_flags,
      liberror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle        = NULL;
@@ -376,19 +376,19 @@ int libesedb_file_open_wide(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBESEDB_FLAG_READ ) != LIBESEDB_FLAG_READ )
-	 && ( ( flags & LIBESEDB_FLAG_WRITE ) != LIBESEDB_FLAG_WRITE ) )
+	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
+	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( flags & LIBESEDB_FLAG_WRITE ) == LIBESEDB_FLAG_WRITE )
+	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -457,7 +457,7 @@ int libesedb_file_open_wide(
 	if( libesedb_file_open_file_io_handle(
 	     file,
 	     file_io_handle,
-	     flags,
+	     access_flags,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -487,12 +487,12 @@ int libesedb_file_open_wide(
 int libesedb_file_open_file_io_handle(
      libesedb_file_t *file,
      libbfio_handle_t *file_io_handle,
-     int flags,
+     int access_flags,
      liberror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_open_file_io_handle";
-	int file_io_flags                       = 0;
+	int bfio_access_flags                   = 0;
 	int file_io_handle_is_open              = 0;
 
 	if( file == NULL )
@@ -530,19 +530,19 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( ( flags & LIBESEDB_FLAG_READ ) != LIBESEDB_FLAG_READ )
-	 && ( ( flags & LIBESEDB_FLAG_WRITE ) != LIBESEDB_FLAG_WRITE ) )
+	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
+	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags.",
+		 "%s: unsupported access flags.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( flags & LIBESEDB_FLAG_WRITE ) == LIBESEDB_FLAG_WRITE )
+	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
 		liberror_error_set(
 		 error,
@@ -553,9 +553,9 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
-	if( ( flags & LIBESEDB_FLAG_READ ) == LIBESEDB_FLAG_READ )
+	if( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) != 0 )
 	{
-		file_io_flags = LIBBFIO_FLAG_READ;
+		bfio_access_flags = LIBBFIO_ACCESS_FLAG_READ;
 	}
 	internal_file->file_io_handle = file_io_handle;
 
@@ -578,7 +578,7 @@ int libesedb_file_open_file_io_handle(
 	{
 		if( libbfio_handle_open(
 		     internal_file->file_io_handle,
-		     flags,
+		     bfio_access_flags,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1473,7 +1473,7 @@ int libesedb_file_get_table(
 	return( 1 );
 }
 
-/* Retrieves the table for the UTF-8 formatted name
+/* Retrieves the table for the UTF-8 encoded name
  * Returns 1 if successful, 0 if no table could be found or -1 on error
  */
 int libesedb_file_get_table_by_utf8_name(
@@ -1607,7 +1607,7 @@ int libesedb_file_get_table_by_utf8_name(
 	return( result );
 }
 
-/* Retrieves the table for the UTF-16 formatted name
+/* Retrieves the table for the UTF-16 encoded name
  * Returns 1 if successful, 0 if no table could be found or -1 on error
  */
 int libesedb_file_get_table_by_utf16_name(

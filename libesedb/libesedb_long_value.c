@@ -490,7 +490,7 @@ int libesedb_long_value_free(
 }
 
 /* Retrieve the number of data segments
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_number_of_segments(
      libesedb_long_value_t *long_value,
@@ -531,7 +531,7 @@ int libesedb_long_value_get_number_of_segments(
 }
 
 /* Retrieve the segment data
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_segment_data(
      libesedb_long_value_t *long_value,

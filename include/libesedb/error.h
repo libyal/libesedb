@@ -182,15 +182,18 @@ enum LIBESEDB_INPUT_ERROR
 	 */
 	LIBESEDB_INPUT_ERROR_SIGNATURE_MISMATCH		= 2,
 
-	/* A CRC in the input did not match
+	/* A checksum in the input did not match
 	 */
-	LIBESEDB_INPUT_ERROR_CRC_MISMATCH		= 3,
+	LIBESEDB_INPUT_ERROR_CHECKSUM_MISMATCH		= 3,
 
 	/* A value in the input did not match a previously
 	 * read value or calculated value
 	 */
 	LIBESEDB_INPUT_ERROR_VALUE_MISMATCH		= 4
 };
+
+/* TODO deprecated remove after a while */
+#define LIBESEDB_INPUT_ERROR_CRC_MISMATCH		LIBESEDB_INPUT_ERROR_CHECKSUM_MISMATCH
 
 /* The memory error codes
  * to signify errors regarding memory
@@ -273,7 +276,11 @@ enum LIBESEDB_RUNTIME_ERROR
 
 	/* The value is unsupported
 	 */
-	LIBESEDB_RUNTIME_ERROR_UNSUPPORTED_VALUE	= 14
+	LIBESEDB_RUNTIME_ERROR_UNSUPPORTED_VALUE	= 14,
+
+	/* An abort was requested
+	 */
+	LIBESEDB_RUNTIME_ERROR_ABORT_REQUESTED		= 15
 };
 
 /* TODO deprecated remove after a while */

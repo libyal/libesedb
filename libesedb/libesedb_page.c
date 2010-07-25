@@ -800,6 +800,7 @@ int libesedb_page_read_tags(
 	if( libesedb_array_resize(
 	     page_tags_array,
 	     number_of_page_entries,
+	     &libesedb_page_tags_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1021,6 +1022,7 @@ int libesedb_page_read_values(
 	if( libesedb_array_resize(
 	     page->values_array,
 	     page_tags_array->number_of_entries,
+	     &libesedb_page_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(

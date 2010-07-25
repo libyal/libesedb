@@ -90,7 +90,7 @@ int libesedb_database_initialize(
 	return( 1 );
 }
 
-/* Frees an exisisting database
+/* Frees a database
  * Returns 1 if successful or -1 on error
  */
 int libesedb_database_free(

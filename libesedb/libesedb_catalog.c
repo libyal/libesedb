@@ -111,7 +111,7 @@ int libesedb_catalog_initialize(
 	return( 1 );
 }
 
-/* Frees an exisisting catalog
+/* Frees a catalog
  * Returns 1 if successful or -1 on error
  */
 int libesedb_catalog_free(
@@ -377,7 +377,7 @@ int libesedb_catalog_get_table_definition_by_name(
 	return( 0 );
 }
 
-/* Retrieves the table definition for the specific UTF-8 formatted name
+/* Retrieves the table definition for the specific UTF-8 encoded name
  * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
  */
 int libesedb_catalog_get_table_definition_by_utf8_name(
@@ -534,7 +534,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 	return( 0 );
 }
 
-/* Retrieves the table definition for the specific UTF-16 formatted name
+/* Retrieves the table definition for the specific UTF-16 encoded name
  * Returns 1 if successful, 0 if no corresponding table definition was found or -1 on error
  */
 int libesedb_catalog_get_table_definition_by_utf16_name(

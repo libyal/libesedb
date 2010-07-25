@@ -781,6 +781,7 @@ int libesedb_values_tree_value_read_record(
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
+	     &libesedb_data_type_definition_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(

@@ -43,22 +43,29 @@
  */
 #define LIBESEDB_VERSION_STRING						"@VERSION@"
 
-/* The libesedb file access
+/* The access flags definitions
  * bit 1        set to 1 for read access
  * bit 2        set to 1 for write access
  * bit 3-8      not used
  */
-#define LIBESEDB_FLAG_READ						0x01
+enum LIBESEDB_ACCESS_FLAGS
+{
+	LIBESEDB_ACCESS_FLAG_READ					= 0x01,
 /* Reserved: not supported yet */
-#define LIBESEDB_FLAG_WRITE						0x02
+	LIBESEDB_ACCESS_FLAG_WRITE					= 0x02
+};
 
 /* The libesedb file access macros
  */
-#define LIBESEDB_OPEN_READ						( LIBESEDB_FLAG_READ )
+#define LIBESEDB_OPEN_READ						( LIBESEDB_ACCESS_FLAG_READ )
 /* Reserved: not supported yet */
-#define LIBESEDB_OPEN_WRITE						( LIBESEDB_FLAG_WRITE )
+#define LIBESEDB_OPEN_WRITE						( LIBESEDB_ACCESS_FLAG_WRITE )
 /* Reserved: not supported yet */
-#define LIBESEDB_OPEN_READ_WRITE					( LIBESEDB_FLAG_READ | LIBESEDB_FLAG_WRITE )
+#define LIBESEDB_OPEN_READ_WRITE					( LIBESEDB_ACCESS_FLAG_READ | LIBESEDB_ACCESS_FLAG_WRITE )
+
+/* TODO deprecated remove after a while */
+#define LIBESEDB_FLAG_READ						LIBESEDB_ACCESS_FLAG_READ
+#define LIBESEDB_FLAG_WRITE						LIBESEDB_ACCESS_FLAG_WRITE
 
 /* The file types
  */

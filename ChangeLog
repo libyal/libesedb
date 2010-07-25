@@ -93,6 +93,11 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100725
+* updated common
+* updated include/error.h and liberror
+* updated libuna, libbfio, libfdata, libfdatetime
+
 20100715
 * updated libuna
 

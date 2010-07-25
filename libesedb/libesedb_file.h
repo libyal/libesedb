@@ -98,21 +98,21 @@ LIBESEDB_EXTERN int libesedb_file_signal_abort(
 LIBESEDB_EXTERN int libesedb_file_open(
                      libesedb_file_t *file,
                      const char *filename,
-                     int flags,
+                     int access_flags,
                      liberror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBESEDB_EXTERN int libesedb_file_open_wide(
                      libesedb_file_t *file,
                      const wchar_t *filename,
-                     int flags,
+                     int access_flags,
                      liberror_error_t **error );
 #endif
 
 LIBESEDB_EXTERN int libesedb_file_open_file_io_handle(
                      libesedb_file_t *file,
                      libbfio_handle_t *file_io_handle,
-                     int flags,
+                     int access_flags,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_file_close(

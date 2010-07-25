@@ -1,0 +1,32 @@
+Creating a DLL using MinGW
+
+To compile a libesedb DLL using mingw you'll need:
+* mingw
+
+To build a DLL using mingw use:
+mingw32-configure --enable-winapi=yes
+mingw32-make
+
+It is recommended that you use WINAPI support but it is possible to compile
+libesedb without it (--enable-winapi=no)
+
+If mingw32-configure and mingw32-make are not available you'll need to build
+it by hand. For this you can use a script similar to the following:
+
+#!/bin/sh
+CC=/opt/local/bin/i386-mingw32-gcc
+CXX=/opt/local/bin/i386-mingw32-g++
+AR=/opt/local/bin/i386-mingw32-ar
+OBJDUMP=/opt/local/bin/i386-mingw32-objdump
+RANLIB=/opt/local/bin/i386-mingw32-ranlib
+STRIP=/opt/local/bin/i386-mingw32-strip
+MINGWFLAGS="-mwin32 -mconsole -march=i586 "
+CFLAGS="$MINGWFLAGS"
+CXXFLAGS="$MINGWFLAGS"
+
+CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP ./configure --target=i586-mingw32msvc --host=i586 --enable-winapi=yes
+CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" make
+
+You should end up with the following DLL:
+libesedb-<version>/libesedb/.libs/libesedb-1.dll
+

@@ -11,6 +11,7 @@ SUBDIRS = \
 	libfdata \
 	libfdatetime \
 	libfguid \
+	libfvalue \
 	libesedb \
 	libfwnt \
 	libfmapi \
@@ -26,7 +27,8 @@ REDHAT_FILES = \
 
 EXTRA_DIST = \
         $(REDHAT_FILES) \
-	libesedb.pc.in
+	libesedb.pc.in \
+	README_mingw
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
@@ -51,6 +53,7 @@ library:
 	(cd $(srcdir)/libfdata && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfvalue && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
@@ -74,6 +77,7 @@ splint:
 	(cd $(srcdir)/libfdata && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfvalue && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))

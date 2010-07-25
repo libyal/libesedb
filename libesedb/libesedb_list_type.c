@@ -404,7 +404,7 @@ int libesedb_list_empty(
 	return( result );
 }
 
-/* Clones the existing list and its elements
+/* Clones the list and its elements
  *
  * The values are cloned using the value_clone_function
  * On error the values are freed using the value_free_function

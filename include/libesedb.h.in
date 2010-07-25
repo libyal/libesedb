@@ -259,7 +259,7 @@ LIBESEDB_EXTERN int libesedb_file_get_table(
                      libesedb_table_t **table,
                      libesedb_error_t **error );
 
-/* Retrieves the table for the UTF-8 formatted name
+/* Retrieves the table for the UTF-8 encoded name
  * Returns 1 if successful, 0 if no table could be found or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_get_table_by_utf8_name(
@@ -269,7 +269,7 @@ LIBESEDB_EXTERN int libesedb_file_get_table_by_utf8_name(
                      libesedb_table_t **table,
                      libesedb_error_t **error );
 
-/* Retrieves the table for the UTF-16 formatted name
+/* Retrieves the table for the UTF-16 encoded name
  * Returns 1 if successful, 0 if no table could be found or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_get_table_by_utf16_name(
@@ -846,14 +846,14 @@ LIBESEDB_EXTERN int libesedb_record_get_multi_value(
  * ------------------------------------------------------------------------- */
 
 /* Frees a long value
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_long_value_free(
                      libesedb_long_value_t **long_value,
                      libesedb_error_t **error );
 
 /* Retrieve the number of data segments
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_long_value_get_number_of_segments(
                      libesedb_long_value_t *long_value,
@@ -861,7 +861,7 @@ LIBESEDB_EXTERN int libesedb_long_value_get_number_of_segments(
                      libesedb_error_t **error );
 
 /* Retrieve the segment data
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_long_value_get_segment_data(
                      libesedb_long_value_t *long_value,
@@ -875,7 +875,7 @@ LIBESEDB_EXTERN int libesedb_long_value_get_segment_data(
  * ------------------------------------------------------------------------- */
 
 /* Frees a multi value
- * Return 1 if successful or -1 on error
+ * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_multi_value_free(
                      libesedb_multi_value_t **multi_value,

@@ -65,6 +65,10 @@ typedef struct libesedb_array libesedb_array_t;
 
 struct libesedb_array
 {
+	/* The number of allocated entries
+	 */
+	int number_of_allocated_entries;
+
 	/* The number of entries
 	 */
 	int number_of_entries;
@@ -108,6 +112,9 @@ int libesedb_array_clone(
 int libesedb_array_resize(
      libesedb_array_t *array,
      int number_of_entries,
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_array_get_number_of_entries(
