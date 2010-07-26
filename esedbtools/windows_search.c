@@ -100,6 +100,11 @@
 #include "export_handle.h"
 #include "windows_search.h"
 
+/* Define this if the debug output is not verbose enough
+#define HAVE_EXTRA_DEBUG_OUTPUT
+*/
+#define HAVE_EXTRA_DEBUG_OUTPUT
+
 enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 {
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED,
@@ -247,6 +252,8 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 			 "%s: compressed data size value too small.",
 			 function );
 
+			*uncompressed_data_size = 0;
+
 			return( -1 );
 		}
 		compression_size = compressed_data[ compressed_data_iterator++ ];
@@ -262,6 +269,8 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
+
+		*uncompressed_data_size = 0;
 
 		return( -1 );
 	}
@@ -538,7 +547,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -549,7 +558,6 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		 258 );
 	}
 #endif
-
 	/* Byte 0 - 1 contain the uncompressed data size
 	 */
 	byte_stream_copy_to_uint16_little_endian(
@@ -582,7 +590,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		nibble_count_table[ nibble_count_table_index & 0x0f ] += 1;
 		nibble_count_table[ nibble_count_table_index >> 4 ]   += 1;
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -605,8 +613,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		 "\n" );
 	}
 #endif
-
-	if( nibble_count_table[ 0 ] >= 0x1ff )
+	if( nibble_count_table[ 0 ] >= 0x01ff )
 	{
 		liberror_error_set(
 		 error,
@@ -655,7 +662,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	 */
 	nibble_count = 0;
 
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -674,7 +681,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		total_nibble_count_table[ nibble_count_table_index ] += nibble_count;
 		nibble_count                                          = total_nibble_count_table[ nibble_count_table_index ];
 
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 		if( libsystem_notify_verbose != 0 )
 		{
 			libsystem_notify_printf(
@@ -686,7 +693,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		}
 #endif
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -812,7 +819,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		while( value_0x0400 > compression_value_table_index );
 	}
 
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -1100,7 +1107,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		}
 	}
 
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -1130,6 +1137,7 @@ int windows_search_export_compressed_string_value(
 	size_t decoded_value_data_size = 0;
 	size_t value_string_size       = 0;
 	size_t value_utf16_stream_size = 0;
+	int result                     = 0;
 
 	if( value_data == NULL )
 	{
@@ -1210,7 +1218,7 @@ int windows_search_export_compressed_string_value(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
 		libsystem_notify_printf(
@@ -1221,7 +1229,6 @@ int windows_search_export_compressed_string_value(
 		 decoded_value_data_size );
 	}
 #endif
-
 	/* Run-length compressed UTF-16 little-endian string
 	 */
 	if( decoded_value_data[ 0 ] == 0 )
@@ -1239,120 +1246,130 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to retrieve run-length uncompressed UTF-16 string size.",
 			 function );
 
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
-		}
-		value_utf16_stream = (uint8_t *) memory_allocate(
-						  sizeof( uint8_t ) * value_utf16_stream_size );
-
-		if( value_utf16_stream == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create value UTF-16 stream.",
-			 function );
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libsystem_notify_print_error_backtrace(
+				 *error );
+			}
+			liberror_error_free(
+			 error );
 
 			memory_free(
 			 decoded_value_data );
-
-			return( -1 );
 		}
-		if( windows_search_decompress_run_length_compressed_utf16_string(
-		     value_utf16_stream,
-		     value_utf16_stream_size,
-		     &( decoded_value_data[ 1 ] ),
-		     decoded_value_data_size - 1,
-		     error ) != 1 )
+		if( value_utf16_stream_size > 0 )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to decompress run-length compressed UTF-16 string.",
-			 function );
+			value_utf16_stream = (uint8_t *) memory_allocate(
+							  sizeof( uint8_t ) * value_utf16_stream_size );
 
-			memory_free(
-			 value_utf16_stream );
+			if( value_utf16_stream == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value UTF-16 stream.",
+				 function );
+
+				memory_free(
+				 decoded_value_data );
+
+				return( -1 );
+			}
+			if( windows_search_decompress_run_length_compressed_utf16_string(
+			     value_utf16_stream,
+			     value_utf16_stream_size,
+			     &( decoded_value_data[ 1 ] ),
+			     decoded_value_data_size - 1,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to decompress run-length compressed UTF-16 string.",
+				 function );
+
+				memory_free(
+				 value_utf16_stream );
+				memory_free(
+				 decoded_value_data );
+
+				return( -1 );
+			}
 			memory_free(
 			 decoded_value_data );
 
-			return( -1 );
-		}
-		memory_free(
-		 decoded_value_data );
+			if( libuna_utf8_string_size_from_utf16_stream(
+			     value_utf16_stream,
+			     value_utf16_stream_size,
+			     LIBUNA_ENDIAN_LITTLE,
+			     &value_string_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to determine size of value UTF-16 stream.",
+				 function );
 
-		if( libuna_utf8_string_size_from_utf16_stream(
-		     value_utf16_stream,
-		     value_utf16_stream_size,
-		     LIBUNA_ENDIAN_LITTLE,
-		     &value_string_size,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to determine size of value UTF-16 stream.",
-			 function );
+				memory_free(
+				 value_utf16_stream );
 
+				return( -1 );
+			}
+			value_string = (uint8_t *) memory_allocate(
+						    sizeof( uint8_t ) * value_string_size );
+
+			if( value_string == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create value string.",
+				 function );
+
+				memory_free(
+				 value_utf16_stream );
+
+				return( -1 );
+			}
+			if( libuna_utf8_string_copy_from_utf16_stream(
+			     value_string,
+			     value_string_size,
+			     value_utf16_stream,
+			     value_utf16_stream_size,
+			     LIBUNA_ENDIAN_LITTLE,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value string.",
+				 function );
+
+				memory_free(
+				 value_string );
+				memory_free(
+				 value_utf16_stream );
+
+				return( -1 );
+			}
 			memory_free(
 			 value_utf16_stream );
 
-			return( -1 );
-		}
-		value_string = (uint8_t *) memory_allocate(
-					    sizeof( uint8_t ) * value_string_size );
-
-		if( value_string == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create value string.",
-			 function );
-
-			memory_free(
-			 value_utf16_stream );
-
-			return( -1 );
-		}
-		if( libuna_utf8_string_copy_from_utf16_stream(
-		     value_string,
-		     value_string_size,
-		     value_utf16_stream,
-		     value_utf16_stream_size,
-		     LIBUNA_ENDIAN_LITTLE,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value string.",
-			 function );
+			fprintf(
+			 table_file_stream,
+			 "%s",
+			 value_string );
 
 			memory_free(
 			 value_string );
-			memory_free(
-			 value_utf16_stream );
-
-			return( -1 );
 		}
-		memory_free(
-		 value_utf16_stream );
-
-		fprintf(
-		 table_file_stream,
-		 "%s",
-		 value_string );
-
-		memory_free(
-		 value_string );
 	}
 	/* 8-bit compressed UTF-16 little-endian string
 	 */
@@ -1466,12 +1483,14 @@ int windows_search_export_compressed_string_value(
 
 			return( -1 );
 		}
-		if( windows_search_decompress_byte_indexed_compressed_data(
-		     value_string,
-		     value_string_size,
-		     &( decoded_value_data[ 1 ] ),
-		     decoded_value_data_size - 1,
-		     error ) != 1 )
+		result = windows_search_decompress_byte_indexed_compressed_data(
+		          value_string,
+		          value_string_size,
+		          &( decoded_value_data[ 1 ] ),
+		          decoded_value_data_size - 1,
+		          error );
+
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -1480,25 +1499,35 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to decompress byte-index compressed data.",
 			 function );
 
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libsystem_notify_print_error_backtrace(
+				 *error );
+			}
+			liberror_error_free(
+			 error );
+
 			memory_free(
 			 value_string );
 			memory_free(
 			 decoded_value_data );
-
-			return( -1 );
 		}
-		value_string[ value_string_size ] = 0;
+		else
+		{
+			memory_free(
+			 decoded_value_data );
 
-		memory_free(
-		 decoded_value_data );
+			value_string[ value_string_size ] = 0;
 
-		fprintf(
-		 table_file_stream,
-		 "%s",
-		 value_string );
+			fprintf(
+			 table_file_stream,
+			 "%s",
+			 value_string );
 
-		memory_free(
-		 value_string );
+			memory_free(
+			 value_string );
+		}
 	}
 	/* uncompressed data
 	 */

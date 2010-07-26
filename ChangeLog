@@ -1,14 +1,13 @@
 TODO
-* move pages vector to IO handle ?
-
 * combine libesedb_io_handle_read_page with libesedb_page_read
-  - no so that libesedb_page_read can be used for recovery
+  - need libesedb_page_read for recovery ?
 
 * page tree on demand
   - check sanity of page value 0 
 * clean up
   - libesedb_data_type_definition remove offset
 * handle default value
+  - need database which uses default value
 * handle compressed values inside the library
 * error tolerance probe test for the page size using the backup database header
 * parse variable types even when they are not part of the table catalog definition
@@ -95,6 +94,8 @@ Notes
 
 20100726
 * worked on libfvalue integration
+* small performance increase due to cache tuning
+* updated msvscpp files
 
 20100725
 * updated common

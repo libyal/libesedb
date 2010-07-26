@@ -1782,7 +1782,7 @@ int libesedb_values_tree_value_read_long_value(
 	if( libnotify_verbose != 0 )
 	{
 		libnotify_printf(
-		 "%s: unknown2\t\t\t\t: %" PRIu32 "\n",
+		 "%s: last segment offset\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libnotify_printf(
