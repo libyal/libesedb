@@ -26,17 +26,16 @@
 #include <liberror.h>
 #include <libnotify.h>
 
-#include "libesedb_data_type_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_libfvalue.h"
 #include "libesedb_long_value.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_record.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
-#include "libesedb_value_type.h"
 #include "libesedb_values_tree_value.h"
 
 /* Creates a record
@@ -349,7 +348,7 @@ int libesedb_record_free(
 		}
 		if( libesedb_array_free(
 		     &( internal_record->values_array ),
-		     &libesedb_data_type_definition_free,
+		     &libfvalue_value_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -614,7 +613,7 @@ int libesedb_record_get_column_type(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the column name of the specific entry
+/* Retrieves the size of the UTF-8 encoded string of the column name of the specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -685,7 +684,7 @@ int libesedb_record_get_utf8_column_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the column name of the specific entry
+/* Retrieves the UTF-8 encoded string of the column name of the specific entry
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -758,7 +757,7 @@ int libesedb_record_get_utf8_column_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the column name of the specific entry
+/* Retrieves the size of the UTF-16 encoded string of the column name of the specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -829,7 +828,7 @@ int libesedb_record_get_utf16_column_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the column name of the specific entry
+/* Retrieves the UTF-16 encoded string of the column name of the specific entry
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -913,9 +912,12 @@ int libesedb_record_get_value(
      uint8_t *value_flags,
      liberror_error_t **error )
 {
-	libesedb_data_type_definition_t *data_type_definition = NULL;
-	libesedb_internal_record_t *internal_record           = NULL;
-	static char *function                                 = "libesedb_record_get_value";
+	libesedb_internal_record_t *internal_record = NULL;
+	libfvalue_value_t *record_value             = NULL;
+	uint8_t *value_metadata                     = NULL;
+	static char *function                       = "libesedb_record_get_value";
+	size_t value_metadata_size                  = 0;
+	uint8_t value_byte_order                    = 0;
 
 	if( record == NULL )
 	{
@@ -928,28 +930,8 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	if( value_data == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value data.",
-		 function );
+	internal_record = (libesedb_internal_record_t *) record;
 
-		return( -1 );
-	}
-	if( value_data_size == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid value data size.",
-		 function );
-
-		return( -1 );
-	}
 	if( value_flags == NULL )
 	{
 		liberror_error_set(
@@ -961,12 +943,10 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	internal_record = (libesedb_internal_record_t *) record;
-
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -979,21 +959,49 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	if( libfvalue_value_get_data(
+	     record_value,
+	     value_data,
+	     value_data_size,
+	     &value_byte_order,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value data: %d.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	*value_data      = data_type_definition->data;
-	*value_data_size = data_type_definition->data_size;
-	*value_flags     = data_type_definition->flags;
+	/* The metadata contains the value flags
+	 */
+	if( libfvalue_value_get_metadata(
+	     record_value,
+	     &value_metadata,
+	     &value_metadata_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value metadata: %d.",
+		 function,
+		 value_entry );
 
+		return( -1 );
+	}
+	if( value_metadata != NULL )
+	{
+		*value_flags = *value_metadata;
+	}
+	else
+	{
+		*value_flags = 0;
+	}
 	return( 1 );
 }
 
@@ -1003,14 +1011,15 @@ int libesedb_record_get_value(
 int libesedb_record_get_value_boolean(
      libesedb_record_t *record,
      int value_entry,
-     uint8_t *value,
+     uint8_t *value_boolean,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_boolean";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1069,7 +1078,7 @@ int libesedb_record_get_value_boolean(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1082,37 +1091,40 @@ int libesedb_record_get_value_boolean(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_8bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set boolean value.",
-		 function );
+		if( libfvalue_value_copy_to_boolean(
+		     record_value,
+		     value_boolean,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to boolean value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the 8-bit value of a specific entry
@@ -1121,14 +1133,15 @@ int libesedb_record_get_value_boolean(
 int libesedb_record_get_value_8bit(
      libesedb_record_t *record,
      int value_entry,
-     uint8_t *value,
+     uint8_t *value_8bit,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_8bit";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1187,7 +1200,7 @@ int libesedb_record_get_value_8bit(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1200,37 +1213,40 @@ int libesedb_record_get_value_8bit(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_8bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set 8-bit value.",
-		 function );
+		if( libfvalue_value_copy_to_8bit(
+		     record_value,
+		     value_8bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to 8-bit value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the 16-bit value of a specific entry
@@ -1239,14 +1255,15 @@ int libesedb_record_get_value_8bit(
 int libesedb_record_get_value_16bit(
      libesedb_record_t *record,
      int value_entry,
-     uint16_t *value,
+     uint16_t *value_16bit,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_16bit";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1306,7 +1323,7 @@ int libesedb_record_get_value_16bit(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1319,37 +1336,40 @@ int libesedb_record_get_value_16bit(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_16bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set 16-bit value.",
-		 function );
+		if( libfvalue_value_copy_to_16bit(
+		     record_value,
+		     value_16bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to 16-bit value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the 32-bit value of a specific entry
@@ -1358,14 +1378,15 @@ int libesedb_record_get_value_16bit(
 int libesedb_record_get_value_32bit(
      libesedb_record_t *record,
      int value_entry,
-     uint32_t *value,
+     uint32_t *value_32bit,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_32bit";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1425,7 +1446,7 @@ int libesedb_record_get_value_32bit(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1438,37 +1459,40 @@ int libesedb_record_get_value_32bit(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_32bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set 32-bit value.",
-		 function );
+		if( libfvalue_value_copy_to_32bit(
+		     record_value,
+		     value_32bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to 32-bit value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the 64-bit value of a specific entry
@@ -1477,14 +1501,15 @@ int libesedb_record_get_value_32bit(
 int libesedb_record_get_value_64bit(
      libesedb_record_t *record,
      int value_entry,
-     uint64_t *value,
+     uint64_t *value_64bit,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_64bit";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1544,7 +1569,7 @@ int libesedb_record_get_value_64bit(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1557,37 +1582,40 @@ int libesedb_record_get_value_64bit(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_64bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set 64-bit value.",
-		 function );
+		if( libfvalue_value_copy_to_64bit(
+		     record_value,
+		     value_64bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to 64-bit value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the 64-bit filetime value of a specific entry
@@ -1596,14 +1624,15 @@ int libesedb_record_get_value_64bit(
 int libesedb_record_get_value_filetime(
      libesedb_record_t *record,
      int value_entry,
-     uint64_t *value,
+     uint64_t *value_filetime,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_filetime";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1662,7 +1691,7 @@ int libesedb_record_get_value_filetime(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1675,53 +1704,59 @@ int libesedb_record_get_value_filetime(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_64bit(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set filetime value.",
-		 function );
+		/* Copy the filetime to a 64-bit value
+		 */
+		if( libfvalue_value_copy_to_64bit(
+		     record_value,
+		     value_filetime,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to 64-bit value.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
-/* Retrieves the floating point value of a specific entry
+/* Retrieves the single precision floating point value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
-int libesedb_record_get_value_floating_point(
+int libesedb_record_get_value_floating_point_32bit(
      libesedb_record_t *record,
      int value_entry,
-     double *value,
+     float *value_floating_point_32bit,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
-	static char *function                                    = "libesedb_record_get_value_floating_point";
+	libfvalue_value_t *record_value                          = NULL;
+	static char *function                                    = "libesedb_record_get_value_floating_point_32bit";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1765,8 +1800,7 @@ int libesedb_record_get_value_floating_point(
 
 		return( -1 );
 	}
-	if( ( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
-	 && ( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) )
+	if( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
 	{
 		liberror_error_set(
 		 error,
@@ -1781,7 +1815,7 @@ int libesedb_record_get_value_floating_point(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1794,37 +1828,162 @@ int libesedb_record_get_value_floating_point(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libfvalue_value_copy_to_float(
+		     record_value,
+		     value_floating_point_32bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to single precision floating point value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
+}
+
+/* Retrieves the double precision floating point value of a specific entry
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+int libesedb_record_get_value_floating_point_64bit(
+     libesedb_record_t *record,
+     int value_entry,
+     double *value_floating_point_64bit,
+     liberror_error_t **error )
+{
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
+	static char *function                                    = "libesedb_record_get_value_floating_point_64bit";
+	uint32_t column_type                                     = 0;
+	int result                                               = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
 		 function );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
-	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_floating_point(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     value,
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set floating point value.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
 		return( -1 );
 	}
-	return( 1 );
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry_by_index(
+	     internal_record->values_array,
+	     value_entry,
+	     (intptr_t **) &record_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d from values array.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libfvalue_value_copy_to_double(
+		     record_value,
+		     value_floating_point_64bit,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to double precision floating point value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
 }
 
 /* Retrieves the size of an UTF-8 string a specific entry
@@ -1838,10 +1997,11 @@ int libesedb_record_get_value_utf8_string_size(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf8_string_size";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -1901,7 +2061,7 @@ int libesedb_record_get_value_utf8_string_size(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1914,43 +2074,43 @@ int libesedb_record_get_value_utf8_string_size(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-/* TODO handle codepage differently */
+		if( libfvalue_value_get_utf8_string_size(
+		     record_value,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve UTF-8 string size.",
+			 function );
 
-	if( libesedb_value_type_get_utf8_string_size(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     column_catalog_definition->codepage,
-	     utf8_string_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set UTF-8 string size.",
-		 function );
-
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
-/* Retrieves the UTF-8 string of a specific entry
+/* Retrieves the UTF-8 encoded string of a specific entry
  * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
@@ -1963,10 +2123,11 @@ int libesedb_record_get_value_utf8_string(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf8_string";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2026,7 +2187,7 @@ int libesedb_record_get_value_utf8_string(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2039,41 +2200,41 @@ int libesedb_record_get_value_utf8_string(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-/* TODO handle codepage differently */
+		if( libfvalue_value_copy_to_utf8_string(
+		     record_value,
+		     utf8_string,
+		     utf8_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to UTF-8 string.",
+			 function );
 
-	if( libesedb_value_type_copy_to_utf8_string(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     column_catalog_definition->codepage,
-	     utf8_string,
-	     utf8_string_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set UTF-8 string.",
-		 function );
-
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the size of an UTF-16 string a specific entry
@@ -2087,10 +2248,11 @@ int libesedb_record_get_value_utf16_string_size(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf16_string_size";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2150,7 +2312,7 @@ int libesedb_record_get_value_utf16_string_size(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2163,43 +2325,43 @@ int libesedb_record_get_value_utf16_string_size(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-/* TODO handle codepage differently */
+		if( libfvalue_value_get_utf16_string_size(
+		     record_value,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve UTF-16 string size.",
+			 function );
 
-	if( libesedb_value_type_get_utf16_string_size(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     column_catalog_definition->codepage,
-	     utf16_string_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set UTF-16 string size.",
-		 function );
-
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
-/* Retrieves the UTF-16 string value of a specific entry
+/* Retrieves the UTF-16 encoded string value of a specific entry
  * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
@@ -2212,10 +2374,11 @@ int libesedb_record_get_value_utf16_string(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf16_string";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2275,7 +2438,7 @@ int libesedb_record_get_value_utf16_string(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2288,41 +2451,41 @@ int libesedb_record_get_value_utf16_string(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-/* TODO handle codepage differently */
+		if( libfvalue_value_copy_to_utf16_string(
+		     record_value,
+		     utf16_string,
+		     utf16_string_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to UTF-16 string.",
+			 function );
 
-	if( libesedb_value_type_copy_to_utf16_string(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     column_catalog_definition->codepage,
-	     utf16_string,
-	     utf16_string_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set UTF-16 string.",
-		 function );
-
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the binary data size of a specific entry
@@ -2335,10 +2498,13 @@ int libesedb_record_get_value_binary_data_size(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
+	uint8_t *value_data                                      = NULL;
 	static char *function                                    = "libesedb_record_get_value_binary_data_size";
 	uint32_t column_type                                     = 0;
+	uint8_t value_byte_order                                 = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2398,7 +2564,7 @@ int libesedb_record_get_value_binary_data_size(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2411,37 +2577,42 @@ int libesedb_record_get_value_binary_data_size(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_get_binary_data_size(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     binary_data_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set binary data size.",
-		 function );
+		if( libfvalue_value_get_data(
+		     record_value,
+		     &value_data,
+		     binary_data_size,
+		     &value_byte_order,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve value data.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the binary data value of a specific entry
@@ -2455,10 +2626,11 @@ int libesedb_record_get_value_binary_data(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	static char *function                                    = "libesedb_record_get_value_binary_data";
 	uint32_t column_type                                     = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2518,7 +2690,7 @@ int libesedb_record_get_value_binary_data(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2531,38 +2703,41 @@ int libesedb_record_get_value_binary_data(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	if( data_type_definition->data == NULL )
+	else if( result != 0 )
 	{
-		return( 0 );
-	}
-	if( libesedb_value_type_copy_to_binary_data(
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     binary_data,
-	     binary_data_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
-		 "%s: unable to set binary data.",
-		 function );
+		if( libfvalue_value_copy_data(
+		     record_value,
+		     binary_data,
+		     binary_data_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable copy value data.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Retrieves the long value of a specific entry
@@ -2576,12 +2751,15 @@ int libesedb_record_get_long_value(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
+	uint8_t* value_data                                      = NULL;
+	uint8_t* value_metadata                                  = NULL;
 	static char *function                                    = "libesedb_record_get_long_value";
-
-	/* TODO remove direct access */
-	libesedb_internal_long_value_t *internal_long_value      = NULL;
+	size_t value_data_size                                   = 0;
+	size_t value_metadata_size                               = 0;
+	uint8_t value_byte_order                                 = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2633,21 +2811,10 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( column_catalog_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing column catalog definition.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2660,73 +2827,117 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
-		 function,
-		 data_type_definition->flags );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
-		 function,
-		 data_type_definition->flags );
-
-		return( -1 );
-	}
-	if( data_type_definition->data == NULL )
-	{
-		return( 0 );
-	}
-	if( libesedb_long_value_initialize(
-	     long_value,
-	     internal_record->file_io_handle,
-	     internal_record->pages_vector,
-	     internal_record->pages_cache,
-	     internal_record->long_values_tree,
-	     internal_record->long_values_cache,
-	     data_type_definition->data,
-	     data_type_definition->data_size,
-	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+	if( libfvalue_value_get_metadata(
+	     record_value,
+	     &value_metadata,
+	     &value_metadata_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create long value.",
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value metadata: %d.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( value_metadata == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing value metadata.",
 		 function );
 
 		return( -1 );
 	}
-	/* TODO remove direct access */
-	internal_long_value = (libesedb_internal_long_value_t *) *long_value;
+	/* The metadata contains the value flags
+	 */
+	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
+		 function,
+		 *value_metadata );
 
-	internal_long_value->column_type = column_catalog_definition->column_type;
-	internal_long_value->codepage    = column_catalog_definition->codepage;
+		return( -1 );
+	}
+	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
+		 function,
+		 *value_metadata );
 
-	return( 1 );
+		return( -1 );
+	}
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libfvalue_value_get_data(
+		     record_value,
+		     &value_data,
+		     &value_data_size,
+		     &value_byte_order,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve value data.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_long_value_initialize(
+		     long_value,
+		     internal_record->file_io_handle,
+		     column_catalog_definition,
+		     internal_record->pages_vector,
+		     internal_record->pages_cache,
+		     internal_record->long_values_tree,
+		     internal_record->long_values_cache,
+		     value_data,
+		     value_data_size,
+		     LIBESEDB_ITEM_FLAGS_DEFAULT,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create long value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
 }
 
 /* Retrieves the multi value of a specific entry
@@ -2740,13 +2951,18 @@ int libesedb_record_get_multi_value(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_data_type_definition_t *data_type_definition    = NULL;
 	libesedb_internal_multi_value_t *internal_multi_value    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
 	uint8_t *value_data                                      = NULL;
+	uint8_t* value_metadata                                  = NULL;
 	static char *function                                    = "libesedb_record_get_multi_value";
+	size_t value_data_size                                   = 0;
+	size_t value_metadata_size                               = 0;
 	uint16_t value_offset                                    = 0;
 	uint16_t value_offset_index                              = 0;
+	uint8_t value_byte_order                                 = 0;
+	int result                                               = 0;
 
 	if( record == NULL )
 	{
@@ -2812,7 +3028,7 @@ int libesedb_record_get_multi_value(
 	if( libesedb_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
-	     (intptr_t **) &data_type_definition,
+	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -2825,136 +3041,124 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( data_type_definition == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing data type definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
-		 function,
-		 data_type_definition->flags );
-
-		return( -1 );
-	}
-	if( ( ( data_type_definition->flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
-	 || ( ( data_type_definition->flags & 0x10 ) != 0 ) )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported data type definition flags: 0x%02" PRIx8 ".",
-		 function,
-		 data_type_definition->flags );
-
-		return( -1 );
-	}
-	if( data_type_definition->data == NULL )
-	{
-		return( 0 );
-	}
-	if( libesedb_multi_value_initialize(
-	     multi_value,
+	if( libfvalue_value_get_metadata(
+	     record_value,
+	     &value_metadata,
+	     &value_metadata_size,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create multi value.",
-		 function );
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value metadata: %d.",
+		 function,
+		 value_entry );
 
 		return( -1 );
 	}
-	internal_multi_value = (libesedb_internal_multi_value_t *) *multi_value;
-
-	internal_multi_value->column_type     = column_catalog_definition->column_type;
-	internal_multi_value->codepage        = column_catalog_definition->codepage;
-	internal_multi_value->value_data_size = data_type_definition->data_size;
-
-	internal_multi_value->value_data = (uint8_t *) memory_allocate(
-							internal_multi_value->value_data_size );
-
-	if( internal_multi_value->value_data == NULL )
+	if( value_metadata == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create multi value data.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing value metadata.",
 		 function );
-
-		libesedb_multi_value_free(
-		 multi_value,
-		 NULL );
 
 		return( -1 );
 	}
-	if( memory_copy(
-	     internal_multi_value->value_data,
-	     data_type_definition->data,
-	     internal_multi_value->value_data_size ) == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-		 "%s: unable to set multi value data.",
-		 function );
-
-		libesedb_multi_value_free(
-		 multi_value,
-		 NULL );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
-	{
-		libnotify_printf(
-		 "%s: multi value data:\n",
-		 function );
-		libnotify_print_data(
-		 internal_multi_value->value_data,
-		 internal_multi_value->value_data_size );
-	}
-#endif
-	value_data = internal_multi_value->value_data;
-
-	/* The first 2 byte contain the offset to the first value
-	 * there is an offset for every value
-	 * therefore first offset / 2 = the number of values
+	/* The metadata contains the value flags
 	 */
-	byte_stream_copy_to_uint16_little_endian(
-	 value_data,
-	 value_offset );
-
-	internal_multi_value->number_of_values = ( value_offset & 0x7fff ) / 2;
-
-	if( internal_multi_value->number_of_values > 0 )
+	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 )
 	{
-		internal_multi_value->value_offset = (uint16_t *) memory_allocate(
-								   sizeof( uint16_t ) * internal_multi_value->number_of_values );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
+		 function,
+		 *value_metadata );
 
-		if( internal_multi_value->value_offset == NULL )
+		return( -1 );
+	}
+	if( ( ( *value_metadata & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
+	 || ( ( *value_metadata & 0x10 ) != 0 ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
+		 function,
+		 *value_metadata );
+
+		return( -1 );
+	}
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libfvalue_value_get_data(
+		     record_value,
+		     &value_data,
+		     &value_data_size,
+		     &value_byte_order,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve value data.",
+			 function );
+
+			return( -1 );
+		}
+/* TODO make generic multi value */
+		if( libesedb_multi_value_initialize(
+		     multi_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create multi value.",
+			 function );
+
+			return( -1 );
+		}
+		internal_multi_value = (libesedb_internal_multi_value_t *) *multi_value;
+
+		internal_multi_value->column_type     = column_catalog_definition->column_type;
+		internal_multi_value->codepage        = column_catalog_definition->codepage;
+		internal_multi_value->value_data_size = value_data_size;
+
+		internal_multi_value->value_data = (uint8_t *) memory_allocate(
+								internal_multi_value->value_data_size );
+
+		if( internal_multi_value->value_data == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create multi value offsets.",
+			 "%s: unable to create multi value data.",
 			 function );
 
 			libesedb_multi_value_free(
@@ -2963,16 +3167,16 @@ int libesedb_record_get_multi_value(
 
 			return( -1 );
 		}
-		internal_multi_value->value_size = (size_t *) memory_allocate(
-							       sizeof( size_t ) * internal_multi_value->number_of_values );
-
-		if( internal_multi_value->value_offset == NULL )
+		if( memory_copy(
+		     internal_multi_value->value_data,
+		     value_data,
+		     internal_multi_value->value_data_size ) == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create multi value offsets.",
+			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to set multi value data.",
 			 function );
 
 			libesedb_multi_value_free(
@@ -2981,39 +3185,100 @@ int libesedb_record_get_multi_value(
 
 			return( -1 );
 		}
-		for( value_offset_index = 0;
-		     value_offset_index < internal_multi_value->number_of_values;
-		     value_offset_index++ )
-		{
-			byte_stream_copy_to_uint16_little_endian(
-			 value_data,
-			 value_offset );
-
-			value_data += 2;
-
-			internal_multi_value->value_offset[ value_offset_index ] = value_offset & 0x7fff;
-
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
-			{
-				libnotify_printf(
-				 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-				 function,
-				 value_offset_index,
-				 value_offset,
-				 internal_multi_value->value_offset[ value_offset_index ] );
-			}
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: multi value data:\n",
+			 function );
+			libnotify_print_data(
+			 internal_multi_value->value_data,
+			 internal_multi_value->value_data_size );
+		}
 #endif
-			if( internal_multi_value->value_offset[ value_offset_index ] > internal_multi_value->value_data_size )
+		value_data = internal_multi_value->value_data;
+
+		/* The first 2 byte contain the offset to the first value
+		 * there is an offset for every value
+		 * therefore first offset / 2 = the number of values
+		 */
+		byte_stream_copy_to_uint16_little_endian(
+		 value_data,
+		 value_offset );
+
+		internal_multi_value->number_of_values = ( value_offset & 0x7fff ) / 2;
+
+		if( internal_multi_value->number_of_values > 0 )
+		{
+			internal_multi_value->value_offset = (uint16_t *) memory_allocate(
+									   sizeof( uint16_t ) * internal_multi_value->number_of_values );
+
+			if( internal_multi_value->value_offset == NULL )
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
-				 function,
-				 internal_multi_value->value_offset[ value_offset_index ],
-				 internal_multi_value->value_data_size );
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create multi value offsets.",
+				 function );
+
+				libesedb_multi_value_free(
+				 multi_value,
+				 NULL );
+
+				return( -1 );
+			}
+			internal_multi_value->value_size = (size_t *) memory_allocate(
+								       sizeof( size_t ) * internal_multi_value->number_of_values );
+
+			if( internal_multi_value->value_offset == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create multi value offsets.",
+				 function );
+
+				libesedb_multi_value_free(
+				 multi_value,
+				 NULL );
+
+				return( -1 );
+			}
+			for( value_offset_index = 0;
+			     value_offset_index < internal_multi_value->number_of_values;
+			     value_offset_index++ )
+			{
+				byte_stream_copy_to_uint16_little_endian(
+				 value_data,
+				 value_offset );
+
+				value_data += 2;
+
+				internal_multi_value->value_offset[ value_offset_index ] = value_offset & 0x7fff;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libnotify_verbose != 0 )
+				{
+					libnotify_printf(
+					 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+					 function,
+					 value_offset_index,
+					 value_offset,
+					 internal_multi_value->value_offset[ value_offset_index ] );
+				}
+#endif
+				if( internal_multi_value->value_offset[ value_offset_index ] > internal_multi_value->value_data_size )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
+					 function,
+					 internal_multi_value->value_offset[ value_offset_index ],
+					 internal_multi_value->value_data_size );
 
 /* TODO remove */
 libnotify_printf(
@@ -3023,28 +3288,29 @@ libnotify_print_data(
  internal_multi_value->value_data,
  internal_multi_value->value_data_size );
 
-				libesedb_multi_value_free(
-				 multi_value,
-				 NULL );
+					libesedb_multi_value_free(
+					 multi_value,
+					 NULL );
 
-				return( -1 );
+					return( -1 );
+				}
+				if( value_offset_index > 0 )
+				{
+					internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_offset[ value_offset_index ]
+												   - internal_multi_value->value_offset[ value_offset_index - 1 ];
+				}
 			}
-			if( value_offset_index > 0 )
-			{
-				internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_offset[ value_offset_index ]
-											   - internal_multi_value->value_offset[ value_offset_index - 1 ];
-			}
-		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
-		{
-			libnotify_printf(
-			 "\n" );
-		}
+			if( libnotify_verbose != 0 )
+			{
+				libnotify_printf(
+				 "\n" );
+			}
 #endif
-		internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_data_size
-									   - internal_multi_value->value_offset[ value_offset_index - 1 ];
+			internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_data_size
+										   - internal_multi_value->value_offset[ value_offset_index - 1 ];
+		}
 	}
-	return( 1 );
+	return( result );
 }
 

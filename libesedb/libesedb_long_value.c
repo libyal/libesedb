@@ -26,7 +26,6 @@
 
 #include <liberror.h>
 
-#include "libesedb_data_type_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
@@ -39,6 +38,7 @@
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      libfdata_tree_t *long_values_tree,
@@ -63,6 +63,17 @@ int libesedb_long_value_initialize(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid column catalog definition.",
 		 function );
 
 		return( -1 );
@@ -391,7 +402,8 @@ int libesedb_long_value_initialize(
 		}
 		while( result == 1 );
 
-		internal_long_value->flags = flags;
+		internal_long_value->column_catalog_definition = column_catalog_definition;
+		internal_long_value->flags                     = flags;
 
 		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}

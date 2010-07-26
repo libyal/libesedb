@@ -1458,7 +1458,7 @@ int libesedb_file_get_table(
 	     internal_file->io_handle,
 	     table_definition,
 	     template_table_definition,
-	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1591,7 +1591,7 @@ int libesedb_file_get_table_by_utf8_name(
 		     internal_file->io_handle,
 		     table_definition,
 		     template_table_definition,
-		     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1725,7 +1725,7 @@ int libesedb_file_get_table_by_utf16_name(
 		     internal_file->io_handle,
 		     table_definition,
 		     template_table_definition,
-		     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			liberror_error_set(

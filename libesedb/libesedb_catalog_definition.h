@@ -110,6 +110,7 @@ int libesedb_catalog_definition_read(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
+     int ascii_codepage,
      liberror_error_t **error );
 
 int libesedb_catalog_definition_get_identifier(

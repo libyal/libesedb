@@ -27,6 +27,7 @@
 
 #include <liberror.h>
 
+#include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
@@ -43,6 +44,10 @@ struct libesedb_internal_long_value
 	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
+
+	/* The column catalog definition
+	 */
+	libesedb_catalog_definition_t *column_catalog_definition;
 
 	/* The long values tree
 	 */
@@ -63,19 +68,12 @@ struct libesedb_internal_long_value
 	/* The data cache 
 	 */
 	libfdata_cache_t *data_cache;
-
-	/* The multi column type
-	 */
-	uint32_t column_type;
-
-	/* A copy of the codepage
-	 */
-	int codepage;
 };
 
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      libfdata_tree_t *long_values_tree,

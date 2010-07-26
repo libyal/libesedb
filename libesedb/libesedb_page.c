@@ -43,13 +43,24 @@ int libesedb_page_value_free(
      intptr_t *page_value,
      liberror_error_t **error )
 {
-	if( page_value != NULL )
+	static char *function = "libesedb_page_value_free";
+
+	if( page_value == NULL )
 	{
-		/* The data is referenced and freed elsewhere
-		 */
-		memory_free(
-		 page_value );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page value.",
+		 function );
+
+		return( -1 );
 	}
+	/* The data is referenced and freed elsewhere
+	 */
+	memory_free(
+	 page_value );
+
 	return( 1 );
 }
 
@@ -60,11 +71,22 @@ int libesedb_page_tags_value_free(
      intptr_t *page_tags_value,
      liberror_error_t **error )
 {
-	if( page_tags_value != NULL )
+	static char *function = "libesedb_page_tags_value_free";
+
+	if( page_tags_value == NULL )
 	{
-		memory_free(
-		 page_tags_value );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tags value.",
+		 function );
+
+		return( -1 );
 	}
+	memory_free(
+	 page_tags_value );
+
 	return( 1 );
 }
 

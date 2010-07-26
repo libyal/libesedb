@@ -30,11 +30,11 @@
 #include "libesedb_array_type.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_column_type.h"
-#include "libesedb_data_type_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_libfvalue.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
@@ -488,10 +488,10 @@ int libesedb_values_tree_value_read_record(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
-	libesedb_data_type_definition_t *data_type_definition           = NULL;
 	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
 	libesedb_page_t *page                                           = NULL;
 	libesedb_page_value_t *page_value                               = NULL;
+	libfvalue_value_t *record_value                                 = NULL;
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
 	static char *function                                           = "libesedb_values_tree_value_read_record";
@@ -515,11 +515,13 @@ int libesedb_values_tree_value_read_record(
 	uint8_t last_fixed_size_data_type                               = 0;
 	uint8_t last_variable_size_data_type                            = 0;
 	uint8_t number_of_variable_size_data_types                      = 0;
+	uint8_t record_value_type                                       = 0;
 	uint8_t tagged_data_types_format                                = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
 	int column_catalog_definition_iterator                          = 0;
 	int number_of_column_catalog_definitions                        = 0;
 	int number_of_table_column_catalog_definitions                  = 0;
 	int number_of_template_table_column_catalog_definitions         = 0;
+	int record_value_codepage                                       = 0;
 
 	if( values_tree_value == NULL )
 	{
@@ -727,7 +729,6 @@ int libesedb_values_tree_value_read_record(
 		 variable_size_data_types_offset );
 	}
 #endif
-
 	if( ( template_table_definition != NULL )
 	 && ( template_table_definition->column_catalog_definition_list != NULL ) )
 	{
@@ -781,7 +782,7 @@ int libesedb_values_tree_value_read_record(
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
-	     &libesedb_data_type_definition_free,
+	     &libfvalue_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -891,18 +892,121 @@ int libesedb_values_tree_value_read_record(
 		}
 #endif
 
-		if( libesedb_data_type_definition_initialize(
-		     &data_type_definition,
+		switch( column_catalog_definition->column_type )
+		{
+			case LIBESEDB_COLUMN_TYPE_NULL:
+				/* TODO handle this value type */
+				record_value_type = LIBFVALUE_VALUE_TYPE_UNDEFINED;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_BOOLEAN:
+				record_value_type = LIBFVALUE_VALUE_TYPE_BOOLEAN;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_UNSIGNED_INTEGER_8BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_INTEGER_16BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_UNSIGNED_INTEGER_16BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_INTEGER_32BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_UNSIGNED_INTEGER_32BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_CURRENCY:
+			case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
+				record_value_type = LIBFVALUE_VALUE_TYPE_INTEGER_64BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
+				record_value_type = LIBFVALUE_VALUE_TYPE_FLOATING_POINT_32BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
+				record_value_type = LIBFVALUE_VALUE_TYPE_FLOATING_POINT_64BIT;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+				record_value_type = LIBFVALUE_VALUE_TYPE_FILETIME;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_GUID:
+			case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
+			case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
+				record_value_type = LIBFVALUE_VALUE_TYPE_BINARY_DATA;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_TEXT:
+			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+				record_value_type = LIBFVALUE_VALUE_TYPE_STRING_BYTE_STREAM;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE:
+				/* TODO handle this value type */
+				record_value_type = LIBFVALUE_VALUE_TYPE_UNDEFINED;
+				break;
+
+			default:
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported column type: %" PRIu32 ".",
+				 function,
+				 column_catalog_definition->column_type );
+
+				return( -1 );
+		}
+		if( libfvalue_value_initialize(
+		     &record_value,
+		     record_value_type,
+		     LIBFVALUE_VALUE_FLAG_DATA_MANAGED | LIBFVALUE_VALUE_FLAG_METADATA_MANAGED,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create data type definition.",
+			 "%s: unable to create record value.",
 			 function );
 
 			return( -1 );
+		}
+		if( ( column_catalog_definition->column_type == LIBESEDB_COLUMN_TYPE_TEXT )
+		 || ( column_catalog_definition->column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+		{
+			record_value_codepage = (int) column_catalog_definition->codepage;
+
+			/* If the codepage is not set use the default codepage
+			 */
+			if( record_value_codepage == 0 )
+			{
+				record_value_codepage = io_handle->ascii_codepage;
+			}
+			if( libfvalue_value_set_codepage(
+			     record_value,
+			     record_value_codepage,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set value codepage.",
+				 function );
+
+				return( -1 );
+			}
 		}
 		if( column_catalog_definition->identifier <= 127 )
 		{
@@ -917,6 +1021,8 @@ int libesedb_values_tree_value_read_record(
 					 column_catalog_definition->identifier,
 					 column_catalog_definition->size );
 
+					/* TODO use libfvalue to print value type
+					 */
 					if( libesedb_debug_print_column_value(
 					     column_catalog_definition->column_type,
 					     &( record_data[ fixed_size_data_type_value_offset ] ),
@@ -931,20 +1037,21 @@ int libesedb_values_tree_value_read_record(
 						 "%s: unable to print column value.",
 						 function );
 
-						libesedb_data_type_definition_free(
-						 (intptr_t *) data_type_definition,
+						libfvalue_value_free(
+						 (intptr_t *) record_value,
 						 NULL );
 
 						return( -1 );
 					}
 				}
 #endif
-
-				if( libesedb_data_type_definition_set_data(
-				     data_type_definition,
+				/* record_data_offset + fixed_size_data_type_value_offset, */
+				if( libfvalue_value_set_data(
+				     record_value,
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
 				     column_catalog_definition->size,
-				     record_data_offset + fixed_size_data_type_value_offset,
+				     LIBFVALUE_ENDIAN_LITTLE,
+				     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -954,8 +1061,8 @@ int libesedb_values_tree_value_read_record(
 					 "%s: unable to set data in fixed size data type definition.",
 					 function );
 
-					libesedb_data_type_definition_free(
-					 (intptr_t *) data_type_definition,
+					libfvalue_value_free(
+					 (intptr_t *) record_value,
 					 NULL );
 
 					return( -1 );
@@ -1016,12 +1123,13 @@ int libesedb_values_tree_value_read_record(
 							 variable_size_data_type_size - previous_variable_size_data_type_size );
 						}
 #endif
-
-						if( libesedb_data_type_definition_set_data(
-						     data_type_definition,
+						/* record_data_offset + variable_size_data_type_value_offset, */
+						if( libfvalue_value_set_data(
+						     record_value,
 						     &( record_data[ variable_size_data_type_value_offset ] ),
 						     variable_size_data_type_size - previous_variable_size_data_type_size,
-						     record_data_offset + variable_size_data_type_value_offset,
+						     LIBFVALUE_ENDIAN_LITTLE,
+						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1031,8 +1139,8 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in variable size data type definition.",
 							 function );
 
-							libesedb_data_type_definition_free(
-							 (intptr_t *) data_type_definition,
+							libfvalue_value_free(
+							 (intptr_t *) record_value,
 							 NULL );
 
 							return( -1 );
@@ -1100,7 +1208,7 @@ int libesedb_values_tree_value_read_record(
 					}
 #endif
 
-					if( ( tagged_data_type_size & 0x8000 ) == 0x8000 )
+					if( ( tagged_data_type_size & 0x8000 ) != 0 )
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libnotify_verbose != 0 )
@@ -1117,9 +1225,11 @@ int libesedb_values_tree_value_read_record(
 						}
 #endif
 
-						if( libesedb_data_type_definition_set_flags(
-						     data_type_definition,
-						     record_data[ tagged_data_type_value_offset ],
+						if( libfvalue_value_set_metadata(
+						     record_value,
+						     &( record_data[ tagged_data_type_value_offset ] ),
+						     1,
+						     LIBFVALUE_VALUE_METADATA_FLAG_NON_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1129,8 +1239,8 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set tagged data type flags in tagged data type definition.",
 							 function );
 
-							libesedb_data_type_definition_free(
-							 (intptr_t *) data_type_definition,
+							libfvalue_value_free(
+							 (intptr_t *) record_value,
 							 NULL );
 
 							return( -1 );
@@ -1174,11 +1284,13 @@ int libesedb_values_tree_value_read_record(
 
 							return( -1 );
 						}
-						if( libesedb_data_type_definition_set_data(
-						     data_type_definition,
+						/* record_data_offset + tagged_data_type_value_offset, */
+						if( libfvalue_value_set_data(
+						     record_value,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     record_data_offset + tagged_data_type_value_offset,
+						     LIBFVALUE_ENDIAN_LITTLE,
+						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1188,8 +1300,8 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
-							libesedb_data_type_definition_free(
-							 (intptr_t *) data_type_definition,
+							libfvalue_value_free(
+							 (intptr_t *) record_value,
 							 NULL );
 
 							return( -1 );
@@ -1370,9 +1482,11 @@ int libesedb_values_tree_value_read_record(
 								 "\n" );
 							}
 #endif
-							if( libesedb_data_type_definition_set_flags(
-							     data_type_definition,
-							     record_data[ tagged_data_type_value_offset ],
+							if( libfvalue_value_set_metadata(
+							     record_value,
+							     &( record_data[ tagged_data_type_value_offset ] ),
+							     1,
+							     LIBFVALUE_VALUE_METADATA_FLAG_NON_MANAGED,
 							     error ) != 1 )
 							{
 								liberror_error_set(
@@ -1382,8 +1496,8 @@ int libesedb_values_tree_value_read_record(
 								 "%s: unable to set tagged data type flags in tagged data type definition.",
 								 function );
 
-								libesedb_data_type_definition_free(
-								 (intptr_t *) data_type_definition,
+								libfvalue_value_free(
+								 (intptr_t *) record_value,
 								 NULL );
 
 								return( -1 );
@@ -1417,11 +1531,13 @@ int libesedb_values_tree_value_read_record(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
-						if( libesedb_data_type_definition_set_data(
-						     data_type_definition,
+						/* record_data_offset + tagged_data_type_value_offset, */
+						if( libfvalue_value_set_data(
+						     record_value,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     record_data_offset + tagged_data_type_value_offset,
+						     LIBFVALUE_ENDIAN_LITTLE,
+						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1431,8 +1547,8 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
-							libesedb_data_type_definition_free(
-							 (intptr_t *) data_type_definition,
+							libfvalue_value_free(
+							 (intptr_t *) record_value,
 							 NULL );
 
 							return( -1 );
@@ -1444,7 +1560,7 @@ int libesedb_values_tree_value_read_record(
 		if( libesedb_array_set_entry_by_index(
 		     values_array,
 		     column_catalog_definition_iterator,
-		     (intptr_t *) data_type_definition,
+		     (intptr_t *) record_value,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1455,13 +1571,13 @@ int libesedb_values_tree_value_read_record(
 			 function,
 			 column_catalog_definition_iterator );
 
-			libesedb_data_type_definition_free(
-			 (intptr_t *) data_type_definition,
+			libfvalue_value_free(
+			 (intptr_t *) record_value,
 			 NULL );
 
 			return( -1 );
 		}
-		data_type_definition = NULL;
+		record_value = NULL;
 
 		if( ( column_catalog_definition_list_element->next_element == NULL )
 		 && ( template_table_definition != NULL )

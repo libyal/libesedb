@@ -28,7 +28,6 @@
 #include <liberror.h>
 
 #include "libesedb_array_type.h"
-#include "libesedb_data_type_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
@@ -164,43 +163,49 @@ LIBESEDB_EXTERN int libesedb_record_get_value(
 LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint8_t *value,
+                     uint8_t *value_boolean,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_8bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint8_t *value,
+                     uint8_t *value_8bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_16bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint16_t *value,
+                     uint16_t *value_16bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_32bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint32_t *value,
+                     uint32_t *value_32bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint64_t *value,
+                     uint64_t *value_64bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_filetime(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint64_t *value,
+                     uint64_t *value_filetime,
                      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point_32bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     double *value,
+                     float *value_floating_point_32bit,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point_64bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value_floating_point_64bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string_size(

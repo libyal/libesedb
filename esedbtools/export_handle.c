@@ -1207,7 +1207,8 @@ int export_handle_export_record_value(
 	static char *function                       = "export_handle_export_record_value";
 	size_t value_data_size                      = 0;
 	size_t value_string_size                    = 0;
-	double value_floating_point                 = 0.0;
+	double value_double                         = 0.0;
+	float value_float                           = 0.0;
 	uint64_t value_64bit                        = 0;
 	uint32_t column_identifier                  = 0;
 	uint32_t column_type                        = 0;
@@ -1589,11 +1590,10 @@ int export_handle_export_record_value(
 				break;
 
 			case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
-			case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
-				result = libesedb_record_get_value_floating_point(
+				result = libesedb_record_get_value_floating_point_32bit(
 				          record,
 				          record_value_entry,
-				          &value_floating_point,
+				          &value_float,
 				          error );
 
 				if( result == -1 )
@@ -1602,7 +1602,7 @@ int export_handle_export_record_value(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve floating point value: %d.",
+					 "%s: unable to retrieve single precision floating point value: %d.",
 					 function,
 					 record_value_entry );
 
@@ -1613,7 +1613,35 @@ int export_handle_export_record_value(
 					fprintf(
 					 table_file_stream,
 					 "%f",
-					 value_floating_point );
+					 value_float );
+				}
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
+				result = libesedb_record_get_value_floating_point_64bit(
+				          record,
+				          record_value_entry,
+				          &value_double,
+				          error );
+
+				if( result == -1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve double precision floating point value: %d.",
+					 function,
+					 record_value_entry );
+
+					return( -1 );
+				}
+				else if( result != 0 )
+				{
+					fprintf(
+					 table_file_stream,
+					 "%f",
+					 value_double );
 				}
 				break;
 

@@ -24,9 +24,11 @@
 
 #include <liberror.h>
 
+#include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_file.h"
 #include "libesedb_legacy.h"
+#include "libesedb_libfvalue.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_record.h"
 #include "libesedb_table.h"
@@ -74,6 +76,129 @@ int libesedb_record_get_amount_of_values(
 	         record,
 	         amount_of_values,
 	         error ) );
+}
+
+/* Retrieves the double precision floating point value of a specific entry
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+int libesedb_record_get_value_floating_point(
+     libesedb_record_t *record,
+     int value_entry,
+     double *value_floating_point,
+     liberror_error_t **error )
+{
+	libesedb_catalog_definition_t *column_catalog_definition = NULL;
+	libesedb_internal_record_t *internal_record              = NULL;
+	libfvalue_value_t *record_value                          = NULL;
+	static char *function                                    = "libesedb_record_get_value_floating_point";
+	uint32_t column_type                                     = 0;
+	int result                                               = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( libesedb_record_get_column_catalog_definition(
+	     internal_record,
+	     value_entry,
+	     &column_catalog_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_catalog_definition_get_column_type(
+	     column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libesedb_array_get_entry_by_index(
+	     internal_record->values_array,
+	     value_entry,
+	     (intptr_t **) &record_value,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d from values array.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if value: %d has data.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( libfvalue_value_copy_to_double(
+		     record_value,
+		     value_floating_point,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to floating point value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	return( result );
 }
 
 /* Retrieves the amount of columns in the table

@@ -401,7 +401,7 @@ int libesedb_multi_value_get_value_filetime(
 	return( result );
 }
 
-/* Retrieves the UTF-8 string size of a specific value of the multi value
+/* Retrieves the size of the UTF-8 encoded string of a specific value of the multi value
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -469,7 +469,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	return( result );
 }
 
-/* Retrieves the UTF-8 string value of a specific value of the multi value
+/* Retrieves the UTF-8 encoded string value of a specific value of the multi value
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -539,7 +539,7 @@ int libesedb_multi_value_get_value_utf8_string(
 	return( result );
 }
 
-/* Retrieves the UTF-16 string size of a specific value of the multi value
+/* Retrieves the size of the UTF-16 encoded string of a specific value of the multi value
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -607,7 +607,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	return( result );
 }
 
-/* Retrieves the UTF-16 string value of a specific value of the multi value
+/* Retrieves the UTF-16 encoded string value of a specific value of the multi value
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */

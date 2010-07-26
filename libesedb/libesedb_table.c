@@ -783,7 +783,7 @@ int libesedb_table_get_identifier(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the table name
+/* Retrieves the size of the UTF-8 encoded string of the table name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -848,7 +848,7 @@ int libesedb_table_get_utf8_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the table name
+/* Retrieves the UTF-8 encoded string of the table name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -915,7 +915,7 @@ int libesedb_table_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the table name
+/* Retrieves the size of the UTF-16 encoded string of the table name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -980,7 +980,7 @@ int libesedb_table_get_utf16_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the table name
+/* Retrieves the UTF-16 encoded string of the table name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1047,7 +1047,7 @@ int libesedb_table_get_utf16_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the template name
+/* Retrieves the size of the UTF-8 encoded string of the template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1112,7 +1112,7 @@ int libesedb_table_get_utf8_template_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the template name
+/* Retrieves the UTF-8 encoded string of the template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1179,7 +1179,7 @@ int libesedb_table_get_utf8_template_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the template name
+/* Retrieves the size of the UTF-16 encoded string of the template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1244,7 +1244,7 @@ int libesedb_table_get_utf16_template_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the template name
+/* Retrieves the UTF-16 encoded string of the template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1737,7 +1737,7 @@ int libesedb_table_get_index(
 	     internal_table->io_handle,
 	     internal_table->table_definition,
 	     index_catalog_definition,
-	     LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -1875,7 +1875,7 @@ int libesedb_table_get_record(
 	     internal_table->table_values_cache,
 	     internal_table->long_values_tree,
 	     internal_table->long_values_cache,
-             LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE,
+             LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
 		liberror_error_set(

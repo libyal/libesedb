@@ -213,7 +213,7 @@ int libesedb_column_get_type(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the column name
+/* Retrieves the size of the UTF-8 encoded string of the column name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -267,7 +267,7 @@ int libesedb_column_get_utf8_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the column name
+/* Retrieves the UTF-8 encoded string of the column name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -323,7 +323,7 @@ int libesedb_column_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the column name
+/* Retrieves the size of the UTF-16 encoded string of the column name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -377,7 +377,7 @@ int libesedb_column_get_utf16_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the column name
+/* Retrieves the UTF-16 encoded string of the column name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */

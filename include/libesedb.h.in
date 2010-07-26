@@ -239,17 +239,6 @@ LIBESEDB_EXTERN int libesedb_file_get_number_of_tables(
                      int *number_of_tables,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of tables
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_file_get_number_of_tables instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
-                     libesedb_file_t *file,
-                     int *amount_of_tables,
-                     libesedb_error_t **error );
-
 /* Retrieves the table for the specific entry
  * Returns 1 if successful or -1 on error
  */
@@ -280,6 +269,21 @@ LIBESEDB_EXTERN int libesedb_file_get_table_by_utf16_name(
                      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
+ * File functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the amount of tables
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_file_get_number_of_tables instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
+                     libesedb_file_t *file,
+                     int *amount_of_tables,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
  * Table functions
  * ------------------------------------------------------------------------- */
 
@@ -299,7 +303,7 @@ LIBESEDB_EXTERN int libesedb_table_get_identifier(
                      uint32_t *identifier,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of the table name
+/* Retrieves the size of the UTF-8 encoded string of the table name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -308,7 +312,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of the table name
+/* Retrieves the UTF-8 encoded string of the table name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -318,7 +322,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of the table name
+/* Retrieves the size of the UTF-16 encoded string of the table name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -327,7 +331,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf16_name_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of the table name
+/* Retrieves the UTF-16 encoded string of the table name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -337,7 +341,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf16_name(
                      size_t utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of the template name
+/* Retrieves the size of the UTF-8 encoded string of the template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -346,7 +350,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_template_name_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of the template name
+/* Retrieves the UTF-8 encoded string of the template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -356,7 +360,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf8_template_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of the template name
+/* Retrieves the size of the UTF-16 encoded string of the template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -365,7 +369,7 @@ LIBESEDB_EXTERN int libesedb_table_get_utf16_template_name_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of the template name
+/* Retrieves the UTF-16 encoded string of the template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -386,17 +390,6 @@ LIBESEDB_EXTERN int libesedb_table_get_number_of_columns(
                      libesedb_table_t *table,
                      int *number_of_columns,
                      uint8_t flags,
-                     libesedb_error_t **error );
-
-/* Retrieves the amount of columns in the table
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_table_get_number_of_columns instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
-                     libesedb_table_t *table,
-                     int *amount_of_columns,
                      libesedb_error_t **error );
 
 /* Retrieves the column for the specific entry
@@ -421,17 +414,6 @@ LIBESEDB_EXTERN int libesedb_table_get_number_of_indexes(
                      int *number_of_indexes,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of indexes
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_table_get_number_of_indexes instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
-                     libesedb_table_t *table,
-                     int *amount_of_indexes,
-                     libesedb_error_t **error );
-
 /* Retrieves the index for the specific entry
  * Returns 1 if successful or -1 on error
  */
@@ -449,6 +431,41 @@ LIBESEDB_EXTERN int libesedb_table_get_number_of_records(
                      int *number_of_records,
                      libesedb_error_t **error );
 
+/* Retrieves the record for the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_table_get_record(
+                     libesedb_table_t *table,
+                     int record_entry,
+                     libesedb_record_t **record,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Table functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the amount of columns in the table
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_table_get_number_of_columns instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
+                     libesedb_table_t *table,
+                     int *amount_of_columns,
+                     libesedb_error_t **error );
+
+/* Retrieves the amount of indexes
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_table_get_number_of_indexes instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_table_get_amount_of_indexes(
+                     libesedb_table_t *table,
+                     int *amount_of_indexes,
+                     libesedb_error_t **error );
+
 /* Retrieves the amount of records in the table
  * Returns 1 if successful or -1 on error
  *
@@ -458,15 +475,6 @@ LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_records(
                      libesedb_table_t *table,
                      int *amount_of_records,
-                     libesedb_error_t **error );
-
-/* Retrieves the record for the specific entry
- * Returns 1 if successful or -1 on error
- */
-LIBESEDB_EXTERN int libesedb_table_get_record(
-                     libesedb_table_t *table,
-                     int record_entry,
-                     libesedb_record_t **record,
                      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
@@ -497,7 +505,7 @@ LIBESEDB_EXTERN int libesedb_column_get_type(
                      uint32_t *type,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of the column name
+/* Retrieves the size of the UTF-8 encoded string of the column name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -506,7 +514,7 @@ LIBESEDB_EXTERN int libesedb_column_get_utf8_name_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of the column name
+/* Retrieves the UTF-8 encoded string of the column name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -516,7 +524,7 @@ LIBESEDB_EXTERN int libesedb_column_get_utf8_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of the column name
+/* Retrieves the size of the UTF-16 encoded string of the column name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -525,7 +533,7 @@ LIBESEDB_EXTERN int libesedb_column_get_utf16_name_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of the column name
+/* Retrieves the UTF-16 encoded string of the column name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -555,7 +563,7 @@ LIBESEDB_EXTERN int libesedb_index_get_identifier(
                      uint32_t *identifier,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of the index name
+/* Retrieves the size of the UTF-8 encoded string of the index name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -564,7 +572,7 @@ LIBESEDB_EXTERN int libesedb_index_get_utf8_name_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of the index name
+/* Retrieves the UTF-8 encoded string of the index name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -574,7 +582,7 @@ LIBESEDB_EXTERN int libesedb_index_get_utf8_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of the index name
+/* Retrieves the size of the UTF-16 encoded string of the index name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -583,7 +591,7 @@ LIBESEDB_EXTERN int libesedb_index_get_utf16_name_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of the index name
+/* Retrieves the UTF-16 encoded string of the index name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -613,17 +621,6 @@ LIBESEDB_EXTERN int libesedb_record_get_number_of_values(
                      int *number_of_values,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of values in the record
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_record_get_number_of_values instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
-                     libesedb_record_t *record,
-                     int *amount_of_values,
-                     libesedb_error_t **error );
-
 /* Retrieves the column identifier of the specific entry
  * Returns 1 if successful or -1 on error
  */
@@ -642,7 +639,7 @@ LIBESEDB_EXTERN int libesedb_record_get_column_type(
                      uint32_t *column_type,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of the column name of the specific entry
+/* Retrieves the size of the UTF-8 encoded string of the column name of the specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -652,7 +649,7 @@ LIBESEDB_EXTERN int libesedb_record_get_utf8_column_name_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of the column name of the specific entry
+/* Retrieves the UTF-8 encoded string of the column name of the specific entry
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -663,7 +660,7 @@ LIBESEDB_EXTERN int libesedb_record_get_utf8_column_name(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of the column name of the specific entry
+/* Retrieves the size of the UTF-16 encoded string of the column name of the specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -673,7 +670,7 @@ LIBESEDB_EXTERN int libesedb_record_get_utf16_column_name_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of the column name of the specific entry
+/* Retrieves the UTF-16 encoded string of the column name of the specific entry
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -701,7 +698,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value(
 LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint8_t *value,
+                     uint8_t *value_boolean,
                      libesedb_error_t **error );
 
 /* Retrieves the 8-bit value of a specific entry
@@ -710,7 +707,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_boolean(
 LIBESEDB_EXTERN int libesedb_record_get_value_8bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint8_t *value,
+                     uint8_t *value_8bit,
                      libesedb_error_t **error );
 
 /* Retrieves the 16-bit value of a specific entry
@@ -719,7 +716,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_8bit(
 LIBESEDB_EXTERN int libesedb_record_get_value_16bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint16_t *value,
+                     uint16_t *value_16bit,
                      libesedb_error_t **error );
 
 /* Retrieves the 32-bit value of a specific entry
@@ -728,7 +725,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_16bit(
 LIBESEDB_EXTERN int libesedb_record_get_value_32bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint32_t *value,
+                     uint32_t *value_32bit,
                      libesedb_error_t **error );
 
 /* Retrieves the 64-bit value of a specific entry
@@ -737,7 +734,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_32bit(
 LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint64_t *value,
+                     uint64_t *value_64bit,
                      libesedb_error_t **error );
 
 /* Retrieves the 64-bit filetime value of a specific entry
@@ -746,19 +743,28 @@ LIBESEDB_EXTERN int libesedb_record_get_value_64bit(
 LIBESEDB_EXTERN int libesedb_record_get_value_filetime(
                      libesedb_record_t *record,
                      int value_entry,
-                     uint64_t *value,
+                     uint64_t *value_filetime,
                      libesedb_error_t **error );
 
-/* Retrieves the floating point value of a specific entry
+/* Retrieves the single precision floating point value of a specific entry
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
-LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point_32bit(
                      libesedb_record_t *record,
                      int value_entry,
-                     double *value,
+                     float *value_floating_point_32bit,
                      libesedb_error_t **error );
 
-/* Retrieves the size of an UTF-8 string a specific entry
+/* Retrieves the double precision floating point value of a specific entry
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point_64bit(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value_floating_point_64bit,
+                     libesedb_error_t **error );
+
+/* Retrieves the size of an UTF-8 encoded string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -768,7 +774,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string of a specific entry
+/* Retrieves the UTF-8 encoded string of a specific entry
  * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
@@ -780,7 +786,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf8_string(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the size of an UTF-16 string a specific entry
+/* Retrieves the size of an UTF-16 encoded string a specific entry
  * The returned size includes the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
  */
@@ -790,7 +796,7 @@ LIBESEDB_EXTERN int libesedb_record_get_value_utf16_string_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string of a specific entry
+/* Retrieves the UTF-16 encoded string of a specific entry
  * The function uses the codepage in the column definition if necessary
  * The size should include the end of string character
  * Returns 1 if successful, 0 if value is NULL or -1 on error
@@ -842,6 +848,34 @@ LIBESEDB_EXTERN int libesedb_record_get_multi_value(
                      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
+ * Record (row) functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the amount of values in the record
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_record_get_number_of_values instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
+                     libesedb_record_t *record,
+                     int *amount_of_values,
+                     libesedb_error_t **error );
+
+/* Retrieves the double precision floating point value of a specific entry
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ *
+ * This function is deprecated use libesedb_record_get_value_floating_point_32bit
+ * or libesedb_record_get_value_floating_point_64bit instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value_floating_point,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
  * Long value functions
  * ------------------------------------------------------------------------- */
 
@@ -889,17 +923,6 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_number_of_values(
                      int *number_of_values,
                      libesedb_error_t **error );
 
-/* Retrieves the amount of values in a multi value
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_multi_value_get_number_of_values instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN int libesedb_multi_value_get_amount_of_values(
-                     libesedb_multi_value_t *multi_value,
-                     int *amount_of_values,
-                     libesedb_error_t **error );
-
 /* Retrieves a specific value of the multi value
  * Returns 1 if successful or -1 on error
  */
@@ -938,7 +961,7 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_filetime(
                      uint64_t *filetime,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string size of a specific value of the multi value
+/* Retrieves the size of the UTF-8 encoded string of a specific value of the multi value
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -948,7 +971,7 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf8_string_size(
                      size_t *utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-8 string value of a specific value of the multi value
+/* Retrieves the UTF-8 encoded string value of a specific value of the multi value
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -959,7 +982,7 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf8_string(
                      size_t utf8_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string size of a specific value of the multi value
+/* Retrieves the size of the UTF-16 encoded string of a specific value of the multi value
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -969,7 +992,7 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf16_string_size(
                      size_t *utf16_string_size,
                      libesedb_error_t **error );
 
-/* Retrieves the UTF-16 string value of a specific value of the multi value
+/* Retrieves the UTF-16 encoded string value of a specific value of the multi value
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -997,6 +1020,21 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_binary_data(
                      int value_index,
                      uint8_t *binary_data,
                      size_t size,
+                     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Multi value functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves the amount of values in a multi value
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use libesedb_multi_value_get_number_of_values instead
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN int libesedb_multi_value_get_amount_of_values(
+                     libesedb_multi_value_t *multi_value,
+                     int *amount_of_values,
                      libesedb_error_t **error );
 
 #if defined( __cplusplus )

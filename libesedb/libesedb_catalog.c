@@ -727,6 +727,17 @@ int libesedb_catalog_read(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_initialize(
 	     &catalog_page_tree,
 	     io_handle,
@@ -942,6 +953,7 @@ int libesedb_catalog_read(
 		     catalog_definition,
 		     catalog_definition_data,
 		     catalog_definition_data_size,
+		     io_handle->ascii_codepage,
 		     error ) != 1 )
 		{
 			liberror_error_set(

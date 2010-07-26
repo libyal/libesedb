@@ -528,7 +528,7 @@ int libesedb_index_get_identifier(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the index name
+/* Retrieves the size of the UTF-8 encoded string of the index name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -582,7 +582,7 @@ int libesedb_index_get_utf8_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the index name
+/* Retrieves the UTF-8 encoded string of the index name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -638,7 +638,7 @@ int libesedb_index_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the index name
+/* Retrieves the size of the UTF-16 encoded string of the index name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -692,7 +692,7 @@ int libesedb_index_get_utf16_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the index name
+/* Retrieves the UTF-16 encoded string of the index name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */

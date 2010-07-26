@@ -35,7 +35,6 @@
 #include "libesedb_definitions.h"
 #include "libesedb_lcid.h"
 #include "libesedb_libuna.h"
-#include "libesedb_value_type.h"
 
 #include "esedb_page_values.h"
 
@@ -153,6 +152,7 @@ int libesedb_catalog_definition_read(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
+     int ascii_codepage,
      liberror_error_t **error )
 {
 	uint8_t *fixed_size_data_type_value_data            = NULL;
@@ -176,9 +176,6 @@ int libesedb_catalog_definition_read(
 	uint16_t record_offset                              = 0;
 	uint16_t value_16bit                                = 0;
 	int result                                          = 0;
-
-	/* TODO replace by one in IO handle */
-	int ascii_codepage                                  = LIBUNA_CODEPAGE_WINDOWS_1252;
 #endif
 
 	if( catalog_definition == NULL )
@@ -1222,7 +1219,7 @@ int libesedb_catalog_definition_get_column_type(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the catalog definition name
+/* Retrieves the size of the UTF-8 encoded string string of the catalog definition name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1267,7 +1264,7 @@ int libesedb_catalog_definition_get_utf8_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the catalog definition name
+/* Retrieves the UTF-8 encoded string of the catalog definition name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1314,7 +1311,7 @@ int libesedb_catalog_definition_get_utf8_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the catalog definition name
+/* Retrieves the size of the UTF-16 encoded string of the catalog definition name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1359,7 +1356,7 @@ int libesedb_catalog_definition_get_utf16_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the catalog definition name
+/* Retrieves the UTF-16 encoded string of the catalog definition name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1406,7 +1403,7 @@ int libesedb_catalog_definition_get_utf16_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string size of the catalog definition template name
+/* Retrieves the size of the UTF-8 encoded string string of the catalog definition template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1469,7 +1466,7 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-8 string of the catalog definition template name
+/* Retrieves the UTF-8 encoded string of the catalog definition template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1519,7 +1516,7 @@ int libesedb_catalog_definition_get_utf8_template_name(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string size of the catalog definition template name
+/* Retrieves the size of the UTF-16 encoded string of the catalog definition template name
  * The returned size includes the end of string character
  * Returns 1 if successful or -1 on error
  */
@@ -1582,7 +1579,7 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
 	return( 1 );
 }
 
-/* Retrieves the UTF-16 string of the catalog definition template name
+/* Retrieves the UTF-16 encoded string of the catalog definition template name
  * The size should include the end of string character
  * Returns 1 if successful or -1 on error
  */

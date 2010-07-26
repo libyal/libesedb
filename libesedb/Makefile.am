@@ -9,6 +9,7 @@ AM_CPPFLAGS = \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
+	@LIBFVALUE_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@
 
 lib_LTLIBRARIES = libesedb.la
@@ -27,7 +28,6 @@ libesedb_la_SOURCES = \
 	libesedb_column_type.c libesedb_column_type.h \
 	libesedb_compression.c libesedb_compression.h \
 	libesedb_database.c libesedb_database.h \
-	libesedb_data_type_definition.c libesedb_data_type_definition.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
 	libesedb_error.c libesedb_error.h \
@@ -66,7 +66,8 @@ libesedb_la_LIBADD = \
 	@LIBBFIO_LIBADD@ \
 	@LIBFDATA_LIBADD@ \
 	@LIBFDATETIME_LIBADD@ \
-	@LIBFGUID_LIBADD@
+	@LIBFGUID_LIBADD@ \
+	@LIBFVALUE_LIBADD@
 
 libesedb_la_LDFLAGS = -no-undefined -version-info 1:0:0
 

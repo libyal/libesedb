@@ -72,7 +72,7 @@ struct libesedb_io_handle
 	 */
 	uint32_t last_page_number;
 
-	/* The codepage of the extended ASCII strings
+	/* The codepage of the ASCII strings
 	 */
 	int ascii_codepage;
 };

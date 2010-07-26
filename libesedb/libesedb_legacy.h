@@ -51,6 +51,12 @@ LIBESEDB_EXTERN int libesedb_record_get_amount_of_values(
                      int *amount_of_values,
                      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_record_get_value_floating_point(
+                     libesedb_record_t *record,
+                     int value_entry,
+                     double *value_floating_point,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_table_get_amount_of_columns(
                      libesedb_table_t *table,
                      int *amount_of_columns,
