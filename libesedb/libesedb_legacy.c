@@ -185,6 +185,7 @@ int libesedb_record_get_value_floating_point(
 	{
 		if( libfvalue_value_copy_to_double(
 		     record_value,
+		     0,
 		     value_floating_point,
 		     error ) != 1 )
 		{

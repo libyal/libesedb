@@ -27,8 +27,9 @@
 
 #include <liberror.h>
 
+#include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
-#include "libesedb_list_type.h"
+#include "libesedb_libfvalue.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -39,37 +40,19 @@ typedef struct libesedb_internal_multi_value libesedb_internal_multi_value_t;
 
 struct libesedb_internal_multi_value
 {
-	/* The multi column type
+	/* The column catalog definition
 	 */
-	uint32_t column_type;
+	libesedb_catalog_definition_t *column_catalog_definition;
 
-	/* The value data
+	/* The record value
 	 */
-	uint8_t *value_data;
-
-	/* The value data size
-	 */
-	size_t value_data_size;
-
-	/* The number of values
-	 */
-	uint16_t number_of_values;
-
-	/* The value byte offsets
-	 */
-	uint16_t *value_offset;
-
-	/* The value byte sizes
-	 */
-	size_t *value_size;
-
-	/* A copy of the codepage
-	 */
-	int codepage;
+	libfvalue_value_t *record_value;
 };
 
 int libesedb_multi_value_initialize(
      libesedb_multi_value_t **multi_value,
+     libesedb_catalog_definition_t *column_catalog_definition,
+     libfvalue_value_t *record_value,
      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_free(
@@ -92,19 +75,19 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value(
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_32bit(
                      libesedb_multi_value_t *multi_value,
                      int value_index,
-                     uint32_t *value,
+                     uint32_t *value_32bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_64bit(
                      libesedb_multi_value_t *multi_value,
                      int value_index,
-                     uint64_t *value,
+                     uint64_t *value_64bit,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_filetime(
                      libesedb_multi_value_t *multi_value,
                      int value_index,
-                     uint64_t *filetime,
+                     uint64_t *value_filetime,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf8_string_size(
@@ -136,21 +119,14 @@ LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf16_string(
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_binary_data_size(
                      libesedb_multi_value_t *multi_value,
                      int value_index,
-                     size_t *size,
+                     size_t *binary_data_size,
                      liberror_error_t **error );
 
 LIBESEDB_EXTERN int libesedb_multi_value_get_value_binary_data(
                      libesedb_multi_value_t *multi_value,
                      int value_index,
                      uint8_t *binary_data,
-                     size_t size,
-                     liberror_error_t **error );
-
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_guid(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint8_t *guid,
-                     size_t size,
+                     size_t binary_data_size,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

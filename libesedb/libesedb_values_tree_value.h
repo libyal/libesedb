@@ -31,7 +31,6 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
 #include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )

@@ -1111,6 +1111,7 @@ int libesedb_record_get_value_boolean(
 	{
 		if( libfvalue_value_copy_to_boolean(
 		     record_value,
+		     0,
 		     value_boolean,
 		     error ) != 1 )
 		{
@@ -1233,6 +1234,7 @@ int libesedb_record_get_value_8bit(
 	{
 		if( libfvalue_value_copy_to_8bit(
 		     record_value,
+		     0,
 		     value_8bit,
 		     error ) != 1 )
 		{
@@ -1356,6 +1358,7 @@ int libesedb_record_get_value_16bit(
 	{
 		if( libfvalue_value_copy_to_16bit(
 		     record_value,
+		     0,
 		     value_16bit,
 		     error ) != 1 )
 		{
@@ -1479,6 +1482,7 @@ int libesedb_record_get_value_32bit(
 	{
 		if( libfvalue_value_copy_to_32bit(
 		     record_value,
+		     0,
 		     value_32bit,
 		     error ) != 1 )
 		{
@@ -1602,6 +1606,7 @@ int libesedb_record_get_value_64bit(
 	{
 		if( libfvalue_value_copy_to_64bit(
 		     record_value,
+		     0,
 		     value_64bit,
 		     error ) != 1 )
 		{
@@ -1726,6 +1731,7 @@ int libesedb_record_get_value_filetime(
 		 */
 		if( libfvalue_value_copy_to_64bit(
 		     record_value,
+		     0,
 		     value_filetime,
 		     error ) != 1 )
 		{
@@ -1848,6 +1854,7 @@ int libesedb_record_get_value_floating_point_32bit(
 	{
 		if( libfvalue_value_copy_to_float(
 		     record_value,
+		     0,
 		     value_floating_point_32bit,
 		     error ) != 1 )
 		{
@@ -1970,6 +1977,7 @@ int libesedb_record_get_value_floating_point_64bit(
 	{
 		if( libfvalue_value_copy_to_double(
 		     record_value,
+		     0,
 		     value_floating_point_64bit,
 		     error ) != 1 )
 		{
@@ -2094,6 +2102,7 @@ int libesedb_record_get_value_utf8_string_size(
 	{
 		if( libfvalue_value_get_utf8_string_size(
 		     record_value,
+		     0,
 		     utf8_string_size,
 		     error ) != 1 )
 		{
@@ -2220,6 +2229,7 @@ int libesedb_record_get_value_utf8_string(
 	{
 		if( libfvalue_value_copy_to_utf8_string(
 		     record_value,
+		     0,
 		     utf8_string,
 		     utf8_string_size,
 		     error ) != 1 )
@@ -2345,6 +2355,7 @@ int libesedb_record_get_value_utf16_string_size(
 	{
 		if( libfvalue_value_get_utf16_string_size(
 		     record_value,
+		     0,
 		     utf16_string_size,
 		     error ) != 1 )
 		{
@@ -2471,6 +2482,7 @@ int libesedb_record_get_value_utf16_string(
 	{
 		if( libfvalue_value_copy_to_utf16_string(
 		     record_value,
+		     0,
 		     utf16_string,
 		     utf16_string_size,
 		     error ) != 1 )
@@ -2951,7 +2963,6 @@ int libesedb_record_get_multi_value(
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
-	libesedb_internal_multi_value_t *internal_multi_value    = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
 	uint8_t *value_data                                      = NULL;
@@ -2959,8 +2970,11 @@ int libesedb_record_get_multi_value(
 	static char *function                                    = "libesedb_record_get_multi_value";
 	size_t value_data_size                                   = 0;
 	size_t value_metadata_size                               = 0;
-	uint16_t value_offset                                    = 0;
-	uint16_t value_offset_index                              = 0;
+	uint16_t number_of_value_entries                         = 0;
+	uint16_t value_16bit                                     = 0;
+	uint16_t value_entry_offset                              = 0;
+	uint16_t value_entry_offset_index                        = 0;
+	uint16_t value_entry_size                                = 0;
 	uint8_t value_byte_order                                 = 0;
 	int result                                               = 0;
 
@@ -3129,59 +3143,25 @@ int libesedb_record_get_multi_value(
 
 			return( -1 );
 		}
-/* TODO make generic multi value */
-		if( libesedb_multi_value_initialize(
-		     multi_value,
-		     error ) != 1 )
+		if( value_data == NULL )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create multi value.",
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing value data.",
 			 function );
 
 			return( -1 );
 		}
-		internal_multi_value = (libesedb_internal_multi_value_t *) *multi_value;
-
-		internal_multi_value->column_type     = column_catalog_definition->column_type;
-		internal_multi_value->codepage        = column_catalog_definition->codepage;
-		internal_multi_value->value_data_size = value_data_size;
-
-		internal_multi_value->value_data = (uint8_t *) memory_allocate(
-								internal_multi_value->value_data_size );
-
-		if( internal_multi_value->value_data == NULL )
+		if( value_data_size > (size_t) UINT16_MAX )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create multi value data.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: value data size exceeds maximum.",
 			 function );
-
-			libesedb_multi_value_free(
-			 multi_value,
-			 NULL );
-
-			return( -1 );
-		}
-		if( memory_copy(
-		     internal_multi_value->value_data,
-		     value_data,
-		     internal_multi_value->value_data_size ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to set multi value data.",
-			 function );
-
-			libesedb_multi_value_free(
-			 multi_value,
-			 NULL );
 
 			return( -1 );
 		}
@@ -3192,123 +3172,168 @@ int libesedb_record_get_multi_value(
 			 "%s: multi value data:\n",
 			 function );
 			libnotify_print_data(
-			 internal_multi_value->value_data,
-			 internal_multi_value->value_data_size );
+			 value_data,
+			 value_data_size );
 		}
 #endif
-		value_data = internal_multi_value->value_data;
-
-		/* The first 2 byte contain the offset to the first value
+		/* The first 2 bytes contain the offset to the first value
 		 * there is an offset for every value
-		 * therefore first offset / 2 = the number of values
+		 * therefore first offset / 2 = the number of value entries
 		 */
 		byte_stream_copy_to_uint16_little_endian(
 		 value_data,
-		 value_offset );
+		 value_16bit );
 
-		internal_multi_value->number_of_values = ( value_offset & 0x7fff ) / 2;
-
-		if( internal_multi_value->number_of_values > 0 )
-		{
-			internal_multi_value->value_offset = (uint16_t *) memory_allocate(
-									   sizeof( uint16_t ) * internal_multi_value->number_of_values );
-
-			if( internal_multi_value->value_offset == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create multi value offsets.",
-				 function );
-
-				libesedb_multi_value_free(
-				 multi_value,
-				 NULL );
-
-				return( -1 );
-			}
-			internal_multi_value->value_size = (size_t *) memory_allocate(
-								       sizeof( size_t ) * internal_multi_value->number_of_values );
-
-			if( internal_multi_value->value_offset == NULL )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create multi value offsets.",
-				 function );
-
-				libesedb_multi_value_free(
-				 multi_value,
-				 NULL );
-
-				return( -1 );
-			}
-			for( value_offset_index = 0;
-			     value_offset_index < internal_multi_value->number_of_values;
-			     value_offset_index++ )
-			{
-				byte_stream_copy_to_uint16_little_endian(
-				 value_data,
-				 value_offset );
-
-				value_data += 2;
-
-				internal_multi_value->value_offset[ value_offset_index ] = value_offset & 0x7fff;
+		value_data += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-				if( libnotify_verbose != 0 )
-				{
-					libnotify_printf(
-					 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-					 function,
-					 value_offset_index,
-					 value_offset,
-					 internal_multi_value->value_offset[ value_offset_index ] );
-				}
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+			 function,
+			 value_entry_offset_index,
+			 value_16bit,
+			 value_16bit & 0x7fff );
+		}
 #endif
-				if( internal_multi_value->value_offset[ value_offset_index ] > internal_multi_value->value_data_size )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: value offset: %" PRIu32 " exceeds value data size: %" PRIzd ".",
-					 function,
-					 internal_multi_value->value_offset[ value_offset_index ],
-					 internal_multi_value->value_data_size );
+		value_entry_offset = value_16bit & 0x7fff;
 
-/* TODO remove */
-libnotify_printf(
- "%s: multi value data:\n",
- function );
-libnotify_print_data(
- internal_multi_value->value_data,
- internal_multi_value->value_data_size );
+		number_of_value_entries = value_entry_offset / 2;
 
-					libesedb_multi_value_free(
-					 multi_value,
-					 NULL );
+		if( number_of_value_entries == 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing value entries.",
+			 function );
 
-					return( -1 );
-				}
-				if( value_offset_index > 0 )
-				{
-					internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_offset[ value_offset_index ]
-												   - internal_multi_value->value_offset[ value_offset_index - 1 ];
-				}
-			}
+			return( -1 );
+		}
+		if( libfvalue_value_resize_value_entries(
+		     record_value,
+		     (int) number_of_value_entries,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+			 "%s: unable resize value entries.",
+			 function );
+
+			return( -1 );
+		}
+		for( value_entry_offset_index = 1;
+		     value_entry_offset_index < number_of_value_entries;
+		     value_entry_offset_index++ )
+		{
+			byte_stream_copy_to_uint16_little_endian(
+			 value_data,
+			 value_16bit );
+
+			value_data += 2;
+
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
 				libnotify_printf(
-				 "\n" );
+				 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+				 function,
+				 value_entry_offset_index,
+				 value_16bit,
+				 value_16bit & 0x7fff );
 			}
 #endif
-			internal_multi_value->value_size[ value_offset_index - 1 ] = internal_multi_value->value_data_size
-										   - internal_multi_value->value_offset[ value_offset_index - 1 ];
+			value_16bit &= 0x7fff;
+
+			if( value_16bit < value_entry_offset )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid value offset: %" PRIu16 " value is smaller than previous.",
+				 function,
+				 value_entry_offset_index );
+
+				return( -1 );
+			}
+			value_entry_size = value_16bit - value_entry_offset;
+
+			if( value_entry_size == 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid value size: %" PRIu16 " value is emtpy.",
+				 function,
+				 value_entry_offset_index );
+
+				return( -1 );
+			}
+			if( libfvalue_value_set_value_entry(
+			     record_value,
+			     (int) ( value_entry_offset_index - 1 ),
+			     (size_t) value_entry_offset,
+			     (size_t) value_entry_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable set value entry: %" PRIu16 ".",
+				 function,
+				 value_entry_offset_index - 1 );
+
+				return( -1 );
+			}
+			value_entry_offset = value_16bit;
+		}
+		value_entry_size = (uint16_t) value_data_size - value_entry_offset;
+
+		if( libfvalue_value_set_value_entry(
+		     record_value,
+		     (int) ( value_entry_offset_index - 1 ),
+		     (size_t) value_entry_offset,
+		     (size_t) value_entry_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable set value entry: %" PRIu16 ".",
+			 function,
+			 value_entry_offset_index - 1 );
+
+			return( -1 );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "\n" );
+		}
+#endif
+		if( libesedb_multi_value_initialize(
+		     multi_value,
+		     column_catalog_definition,
+		     record_value,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create multi value.",
+			 function );
+
+			return( -1 );
 		}
 	}
 	return( result );

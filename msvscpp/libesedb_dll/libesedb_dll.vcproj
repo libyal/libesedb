@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libesedb"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;LIBESEDB_DLL_EXPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libesedb"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;LIBESEDB_DLL_EXPORT"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -130,10 +130,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_data_type_definition.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_database.c"
 				>
 			</File>
@@ -206,10 +202,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_value_type.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_values_tree.c"
 				>
 			</File>
@@ -265,10 +257,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_compression.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_data_type_definition.h"
 				>
 			</File>
 			<File
@@ -328,6 +316,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_libfvalue.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_libuna.h"
 				>
 			</File>
@@ -373,10 +365,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_types.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_value_type.h"
 				>
 			</File>
 			<File

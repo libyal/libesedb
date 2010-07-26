@@ -5,6 +5,7 @@ EXTRA_DIST = \
 	libfdata/libfdata.vcproj \
 	libfdatetime/libfdatetime.vcproj \
 	libfguid/libfguid.vcproj \
+	libfvalue/libfvalue.vcproj \
 	libfwnt/libfwnt.vcproj \
 	libnotify/libnotify.vcproj \
 	libesedb_dll/libesedb_dll.vcproj \

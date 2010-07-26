@@ -47,6 +47,12 @@
 #include <libfguid.h>
 #endif
 
+#if defined( HAVE_LOCAL_LIBFVALUE )
+#include <libfvalue_definitions.h>
+#elif defined( HAVE_LIBFVALUE_H )
+#include <libfvalue.h>
+#endif
+
 /* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
  * before including libesedb.h
  */
@@ -129,6 +135,11 @@ void esedboutput_version_fprint(
 	 stream,
 	 ", libfguid %s",
 	 LIBFGUID_VERSION_STRING );
+
+	fprintf(
+	 stream,
+	 ", libfvalue %s",
+	 LIBFVALUE_VERSION_STRING );
 
 	fprintf(
 	 stream,

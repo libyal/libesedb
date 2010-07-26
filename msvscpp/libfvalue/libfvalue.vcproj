@@ -2,10 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedbexport"
-	ProjectGUID="{6B758D1D-FE05-49C6-836B-9B8AC8DC4FCD}"
-	RootNamespace="esedbexport"
-	Keyword="Win32Proj"
+	Name="libfvalue"
+	ProjectGUID="{85005D62-6AA7-4D8A-86CB-4061B23D7C6C}"
+	RootNamespace="libfvalue"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -20,9 +19,8 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,13 +39,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna;..\..\libbfio;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libfwnt;..\..\libfmapi;..\..\libsystem"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBFMAPI;LIBESEDB_DLL_IMPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFVALUE"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="0"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
 			<Tool
@@ -60,23 +55,13 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libfdatetime.lib"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="2"
-				DataExecutionPrevention="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\libfvalue.lib"
+				ModuleDefinitionFile=""
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -86,9 +71,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -104,27 +86,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\esedbtools\esedbexport.c"
+				RelativePath="..\..\libfvalue\libfvalue_array_type.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedboutput.c"
+				RelativePath="..\..\libfvalue\libfvalue_string.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\exchange.c"
+				RelativePath="..\..\libfvalue\libfvalue_table.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_handle.c"
+				RelativePath="..\..\libfvalue\libfvalue_value.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\log_handle.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\esedbtools\windows_search.c"
+				RelativePath="..\..\libfvalue\libfvalue_value_entry.c"
 				>
 			</File>
 		</Filter>
@@ -134,23 +112,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\esedbtools\esedboutput.h"
+				RelativePath="..\..\libfvalue\libfvalue_array_type.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\exchange.h"
+				RelativePath="..\..\libfvalue\libfvalue_codepage.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_handle.h"
+				RelativePath="..\..\libfvalue\libfvalue_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\log_handle.h"
+				RelativePath="..\..\libfvalue\libfvalue_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\windows_search.h"
+				RelativePath="..\..\libfvalue\libfvalue_libuna.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_string.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_value.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_value_entry.h"
 				>
 			</File>
 		</Filter>
