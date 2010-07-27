@@ -308,14 +308,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_libfdatetime.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_libfguid.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_libfvalue.h"
 				>
 			</File>

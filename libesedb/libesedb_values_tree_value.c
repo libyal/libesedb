@@ -340,7 +340,8 @@ int libesedb_values_tree_value_read_data(
 
 		return( -1 );
 	}
-	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD )
+	if( ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_INDEX )
+	 && ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD ) )
 	{
 		liberror_error_set(
 		 error,
@@ -941,6 +942,9 @@ int libesedb_values_tree_value_read_record(
 				break;
 
 			case LIBESEDB_COLUMN_TYPE_GUID:
+				record_value_type = LIBFVALUE_VALUE_TYPE_GUID;
+				break;
+
 			case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
 			case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
 				record_value_type = LIBFVALUE_VALUE_TYPE_BINARY_DATA;
@@ -1020,29 +1024,9 @@ int libesedb_values_tree_value_read_record(
 					 function,
 					 column_catalog_definition->identifier,
 					 column_catalog_definition->size );
-
-					/* TODO use libfvalue to print value type
-					 */
-					if( libesedb_debug_print_column_value(
-					     column_catalog_definition->column_type,
-					     &( record_data[ fixed_size_data_type_value_offset ] ),
-					     column_catalog_definition->size,
-					     io_handle->ascii_codepage,
-					     error ) != 1 )
-					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
-						 "%s: unable to print column value.",
-						 function );
-
-						libfvalue_value_free(
-						 (intptr_t *) record_value,
-						 NULL );
-
-						return( -1 );
-					}
+					libnotify_print_data(
+					 &( record_data[ fixed_size_data_type_value_offset ] ),
+					 column_catalog_definition->size );
 				}
 #endif
 				/* record_data_offset + fixed_size_data_type_value_offset, */

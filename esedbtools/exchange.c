@@ -192,7 +192,7 @@ enum EXCHANGE_KNOWN_COLUMN_TYPES
 int exchange_export_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -217,13 +217,13 @@ int exchange_export_record_binary_data(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -322,7 +322,7 @@ int exchange_export_record_binary_data(
 		while( value_data_size > 0 )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%02" PRIx8 "",
 			 *value_data );
 
@@ -340,7 +340,7 @@ int exchange_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -374,13 +374,13 @@ int exchange_export_record_value_32bit(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -460,7 +460,7 @@ int exchange_export_record_value_32bit(
 				 value_32bit );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIu32 "",
 			 value_32bit );
 		}
@@ -472,7 +472,7 @@ int exchange_export_record_value_32bit(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -491,7 +491,7 @@ int exchange_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -525,13 +525,13 @@ int exchange_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -613,7 +613,7 @@ int exchange_export_record_value_64bit(
 			}
 			/* TODO for now print as hexadecimal */
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "0x%" PRIx64 "",
 			 value_64bit );
 		}
@@ -625,7 +625,7 @@ int exchange_export_record_value_64bit(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -644,7 +644,7 @@ int exchange_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 24 ];
@@ -668,13 +668,13 @@ int exchange_export_record_value_filetime(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -821,7 +821,7 @@ int exchange_export_record_value_filetime(
 				return( -1 );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIs_LIBCSTRING_SYSTEM "",
 			 filetime_string );
 		}
@@ -833,7 +833,7 @@ int exchange_export_record_value_filetime(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -852,7 +852,7 @@ int exchange_export_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t guid_string[ LIBFGUID_IDENTIFIER_STRING_SIZE ];
@@ -876,13 +876,13 @@ int exchange_export_record_value_guid(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1024,7 +1024,7 @@ int exchange_export_record_value_guid(
 				return( -1 );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIs_LIBCSTRING_SYSTEM "",
 			 guid_string );
 		}
@@ -1036,7 +1036,7 @@ int exchange_export_record_value_guid(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1054,7 +1054,7 @@ int exchange_export_record_value_guid(
 int exchange_export_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -1080,13 +1080,13 @@ int exchange_export_record_value_mapi_entryid(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1197,14 +1197,14 @@ int exchange_export_record_value_mapi_entryid(
 #endif
 #if defined( HAVE_DEBUG_OUTPUT )
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "ENTRYID: " );
 #endif
 
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1220,7 +1220,7 @@ int exchange_export_record_value_mapi_entryid(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1238,7 +1238,7 @@ int exchange_export_record_value_mapi_entryid(
 int exchange_export_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libesedb_multi_value_t *multi_value = NULL;
@@ -1267,13 +1267,13 @@ int exchange_export_record_value_mapi_multi_value(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1457,7 +1457,7 @@ int exchange_export_record_value_mapi_multi_value(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1475,7 +1475,7 @@ int exchange_export_record_value_mapi_multi_value(
 int exchange_export_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t sid_string[ 128 ];
@@ -1500,13 +1500,13 @@ int exchange_export_record_value_sid(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1673,7 +1673,7 @@ int exchange_export_record_value_sid(
 				return( -1 );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIs_LIBCSTRING_SYSTEM "",
 			 sid_string );
 		}
@@ -1685,7 +1685,7 @@ int exchange_export_record_value_sid(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1703,7 +1703,7 @@ int exchange_export_record_value_sid(
 int exchange_export_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data      = NULL;
@@ -1725,13 +1725,13 @@ int exchange_export_record_value_string(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1788,7 +1788,7 @@ int exchange_export_record_value_string(
 		while( value_data_size > 0 )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%c",
 			 (char) *value_data );
 
@@ -1804,7 +1804,7 @@ int exchange_export_record_value_string(
  */
 int exchange_export_record_folders(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -1829,13 +1829,13 @@ int exchange_export_record_folders(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2081,7 +2081,7 @@ int exchange_export_record_folders(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
@@ -2090,7 +2090,7 @@ int exchange_export_record_folders(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
@@ -2099,7 +2099,7 @@ int exchange_export_record_folders(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
@@ -2108,7 +2108,7 @@ int exchange_export_record_folders(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID )
@@ -2116,7 +2116,7 @@ int exchange_export_record_folders(
 			result = exchange_export_record_value_mapi_entryid(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_SID )
@@ -2124,7 +2124,7 @@ int exchange_export_record_folders(
 			result = exchange_export_record_value_sid(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
@@ -2132,7 +2132,7 @@ int exchange_export_record_folders(
 			result = exchange_export_record_value_string(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
@@ -2140,7 +2140,7 @@ int exchange_export_record_folders(
 			result = export_handle_export_record_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		if( result != 1 )
@@ -2158,13 +2158,13 @@ int exchange_export_record_folders(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}
@@ -2176,7 +2176,7 @@ int exchange_export_record_folders(
  */
 int exchange_export_record_global(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2201,13 +2201,13 @@ int exchange_export_record_global(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2402,7 +2402,7 @@ int exchange_export_record_global(
 			result = exchange_export_record_binary_data(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
@@ -2411,7 +2411,7 @@ int exchange_export_record_global(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
@@ -2420,7 +2420,7 @@ int exchange_export_record_global(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
@@ -2429,7 +2429,7 @@ int exchange_export_record_global(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
@@ -2438,7 +2438,7 @@ int exchange_export_record_global(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE )
@@ -2446,7 +2446,7 @@ int exchange_export_record_global(
 			result = exchange_export_record_value_mapi_multi_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
@@ -2454,7 +2454,7 @@ int exchange_export_record_global(
 			result = exchange_export_record_value_string(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
@@ -2462,7 +2462,7 @@ int exchange_export_record_global(
 			result = export_handle_export_record_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		if( result != 1 )
@@ -2480,13 +2480,13 @@ int exchange_export_record_global(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}
@@ -2499,7 +2499,7 @@ int exchange_export_record_global(
  */
 int exchange_export_record_mailbox(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2524,13 +2524,13 @@ int exchange_export_record_mailbox(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2709,7 +2709,7 @@ int exchange_export_record_mailbox(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
@@ -2718,7 +2718,7 @@ int exchange_export_record_mailbox(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
@@ -2727,7 +2727,7 @@ int exchange_export_record_mailbox(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
@@ -2736,7 +2736,7 @@ int exchange_export_record_mailbox(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_SID )
@@ -2744,7 +2744,7 @@ int exchange_export_record_mailbox(
 			result = exchange_export_record_value_sid(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
@@ -2752,7 +2752,7 @@ int exchange_export_record_mailbox(
 			result = exchange_export_record_value_string(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
@@ -2760,7 +2760,7 @@ int exchange_export_record_mailbox(
 			result = export_handle_export_record_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		if( result != 1 )
@@ -2778,13 +2778,13 @@ int exchange_export_record_mailbox(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}

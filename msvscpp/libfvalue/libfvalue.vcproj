@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFVALUE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -90,6 +90,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfvalue\libfvalue_debug.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfvalue\libfvalue_string.c"
 				>
 			</File>
@@ -120,11 +124,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfvalue\libfvalue_debug.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfvalue\libfvalue_definitions.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfvalue\libfvalue_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libfdatetime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libfguid.h"
 				>
 			</File>
 			<File

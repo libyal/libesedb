@@ -34,6 +34,10 @@
 #include <libfvalue_types.h>
 #include <libfvalue_value.h>
 
+#if defined( HAVE_DEBUG_OUTPUT )
+#include <libfvalue_debug.h>
+#endif
+
 #elif defined( HAVE_LIBFVALUE_H )
 
 /* If libtool DLL support is enabled set LIBFVALUE_DLL_IMPORT

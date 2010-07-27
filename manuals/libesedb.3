@@ -1,4 +1,4 @@
-.Dd July 26, 2010
+.Dd July 27, 2010
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -140,6 +140,10 @@ Index functions
 .Fn libesedb_index_get_utf16_name_size "libesedb_index_t *index, size_t *utf16_string_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_index_get_utf16_name "libesedb_index_t *index, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_number_of_records "libesedb_index_t *index, int *number_of_records, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_index_get_record "libesedb_index_t *index, int record_entry, libesedb_record_t **record, libesedb_error_t **error"
 .Pp
 Record functions
 .Ft int

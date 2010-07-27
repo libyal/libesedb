@@ -288,7 +288,6 @@ LIBESEDB_EXTERN int libesedb_file_get_amount_of_tables(
  * ------------------------------------------------------------------------- */
 
 /* Frees a table
- * Detaches the reference from the file if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_table_free(
@@ -482,7 +481,6 @@ LIBESEDB_EXTERN int libesedb_table_get_amount_of_records(
  * ------------------------------------------------------------------------- */
 
 /* Frees a column
- * Detaches the reference from the table if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_column_free(
@@ -548,7 +546,6 @@ LIBESEDB_EXTERN int libesedb_column_get_utf16_name(
  * ------------------------------------------------------------------------- */
 
 /* Frees a index
- * Detaches the reference from the table if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_index_free(
@@ -601,12 +598,28 @@ LIBESEDB_EXTERN int libesedb_index_get_utf16_name(
                      size_t utf16_string_size,
                      libesedb_error_t **error );
 
+/* Retrieves the number of records in the index
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_get_number_of_records(
+                     libesedb_index_t *index,
+                     int *number_of_records,
+                     libesedb_error_t **error );
+
+/* Retrieves the record for the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_index_get_record(
+                     libesedb_index_t *index,
+                     int record_entry,
+                     libesedb_record_t **record,
+                     libesedb_error_t **error );
+
 /* -------------------------------------------------------------------------
  * Record (row) functions
  * ------------------------------------------------------------------------- */
 
 /* Frees a record
- * Detaches the reference from the table if necessary
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_record_free(

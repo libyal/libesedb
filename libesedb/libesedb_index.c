@@ -24,13 +24,16 @@
 #include <types.h>
 
 #include <liberror.h>
+#include <libnotify.h>
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_record.h"
 #include "libesedb_types.h"
+#include "libesedb_values_tree.h"
 
 /* Creates a index
  * Returns 1 if successful or -1 on error
@@ -40,7 +43,14 @@ int libesedb_index_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
+     libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
+     libfdata_tree_t *table_values_tree,
+     libfdata_cache_t *table_values_cache,
+     libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -56,6 +66,28 @@ int libesedb_index_initialize(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	if( table_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_catalog_definition == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index catalog definition.",
 		 function );
 
 		return( -1 );
@@ -149,71 +181,13 @@ int libesedb_index_initialize(
 				return( -1 );
 			}
 		}
-		/* TODO clone function ? */
-		if( libfdata_vector_initialize(
-		     &( internal_index->pages_vector ),
-		     (size64_t) io_handle->page_size,
-		     io_handle->pages_data_offset,
-		     io_handle->pages_data_size,
-		     (intptr_t *) io_handle,
-		     NULL,
-		     NULL,
-		     &libesedb_io_handle_read_page,
-		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create pages vector.",
-			 function );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
-		}
-		if( libfdata_cache_initialize(
-		     &( internal_index->pages_cache ),
-		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create pages cache.",
-			 function );
-
-			libfdata_vector_free(
-			 &( internal_index->pages_vector ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
-		}
 		/* TODO (template) table definition required ? */
 
 		if( libesedb_page_tree_initialize(
 		     &index_page_tree,
 		     io_handle,
-		     internal_index->pages_vector,
-		     internal_index->pages_cache,
+		     pages_vector,
+		     pages_cache,
 		     index_catalog_definition->identifier,
 		     NULL,
 		     NULL,
@@ -225,13 +199,6 @@ int libesedb_index_initialize(
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create index page tree.",
 			 function );
-
-			libfdata_cache_free(
-			 &( internal_index->pages_cache ),
-			 NULL );
-			libfdata_vector_free(
-			 &( internal_index->pages_vector ),
-			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -266,12 +233,6 @@ int libesedb_index_initialize(
 			libesedb_page_tree_free(
 			 (intptr_t *) index_page_tree,
 			 NULL );
-			libfdata_cache_free(
-			 &( internal_index->pages_cache ),
-			 NULL );
-			libfdata_vector_free(
-			 &( internal_index->pages_vector ),
-			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -298,12 +259,6 @@ int libesedb_index_initialize(
 
 			libfdata_tree_free(
 			 &( internal_index->index_values_tree ),
-			 NULL );
-			libfdata_cache_free(
-			 &( internal_index->pages_cache ),
-			 NULL );
-			libfdata_vector_free(
-			 &( internal_index->pages_vector ),
 			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
@@ -339,12 +294,6 @@ int libesedb_index_initialize(
 			libfdata_tree_free(
 			 &( internal_index->index_values_tree ),
 			 NULL );
-			libfdata_cache_free(
-			 &( internal_index->pages_cache ),
-			 NULL );
-			libfdata_vector_free(
-			 &( internal_index->pages_vector ),
-			 NULL );
 
 			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 			{
@@ -357,10 +306,17 @@ int libesedb_index_initialize(
 
 			return( -1 );
 		}
-		internal_index->io_handle                = io_handle;
-		internal_index->table_definition         = table_definition;
-		internal_index->index_catalog_definition = index_catalog_definition;
-		internal_index->flags                    = flags;
+		internal_index->io_handle                 = io_handle;
+		internal_index->table_definition          = table_definition;
+		internal_index->template_table_definition = template_table_definition;
+		internal_index->index_catalog_definition  = index_catalog_definition;
+		internal_index->pages_vector              = pages_vector;
+		internal_index->pages_cache               = pages_cache;
+		internal_index->table_values_tree         = table_values_tree;
+		internal_index->table_values_cache        = table_values_cache;
+		internal_index->long_values_tree          = long_values_tree;
+		internal_index->long_values_cache         = long_values_cache;
+		internal_index->flags                     = flags;
 
 		*index = (libesedb_index_t *) internal_index;
 	}
@@ -394,8 +350,9 @@ int libesedb_index_free(
 		internal_index = (libesedb_internal_index_t *) *index;
 		*index         = NULL;
 
-		/* The io_handle, table_definition and index_catalog_definition references
-		 * are freed elsewhere
+		/* The io_handle, table_definition, template_table_definition, index_catalog_definition,
+		 * pages_vector, pages_cache, table_values_tree, table_values_cache, long_values_tree
+		 * and long_values_cache references are freed elsewhere
 		 */
 		if( ( internal_index->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 		{
@@ -428,32 +385,6 @@ int libesedb_index_free(
 					result = -1;
 				}
 			}
-		}
-		if( libfdata_vector_free(
-		     &( internal_index->pages_vector ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free pages vector.",
-			 function );
-
-			result = -1;
-		}
-		if( libfdata_cache_free(
-		     &( internal_index->pages_cache ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free pages cache.",
-			 function );
-
-			result = -1;
 		}
 		if( libfdata_tree_free(
 		     &( internal_index->index_values_tree ),
@@ -741,6 +672,203 @@ int libesedb_index_get_utf16_name(
 		 LIBERROR_ERROR_DOMAIN_CONVERSION,
 		 LIBERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the number of records in the index
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_index_get_number_of_records(
+     libesedb_index_t *index,
+     int *number_of_records,
+     liberror_error_t **error )
+{
+	libesedb_internal_index_t *internal_index = NULL;
+	static char *function                     = "libesedb_index_get_number_of_records";
+
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	internal_index = (libesedb_internal_index_t *) index;
+
+	if( libfdata_tree_get_number_of_leaf_nodes(
+	     internal_index->index_values_tree,
+	     internal_index->file_io_handle,
+	     internal_index->index_values_cache,
+	     number_of_records,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of leaf nodes from index values tree.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific record
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_index_get_record(
+     libesedb_index_t *index,
+     int record_entry,
+     libesedb_record_t **record,
+     liberror_error_t **error )
+{
+	libfdata_tree_node_t *index_values_tree_node          = NULL;
+	libfdata_tree_node_t *record_values_tree_node         = NULL;
+	libesedb_internal_index_t *internal_index             = NULL;
+	libesedb_values_tree_value_t *index_values_tree_value = NULL;
+	uint8_t *index_data                                   = NULL;
+	static char *function                                 = "libesedb_index_get_record";
+	size_t index_data_size                                = 0;
+
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	internal_index = (libesedb_internal_index_t *) index;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( *record != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid record value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_tree_get_leaf_node_by_index(
+	     internal_index->index_values_tree,
+	     internal_index->file_io_handle,
+	     internal_index->index_values_cache,
+	     record_entry,
+	     &index_values_tree_node,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve leaf node: %d from index values tree.",
+		 function,
+		 record_entry );
+
+		return( -1 );
+	}
+	if( libfdata_tree_node_get_node_value(
+	     index_values_tree_node,
+	     internal_index->file_io_handle,
+	     internal_index->index_values_cache,
+	     (intptr_t **) &index_values_tree_value,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve node value from index values tree node.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_values_tree_value_read_data(
+	     index_values_tree_value,
+	     internal_index->file_io_handle,
+	     internal_index->io_handle,
+	     internal_index->pages_vector,
+	     internal_index->pages_cache,
+	     &index_data,
+	     &index_data_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read index values tree value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_values_tree_get_leaf_node_by_key(
+	     internal_index->table_values_tree,
+	     internal_index->file_io_handle,
+	     internal_index->table_values_cache,
+	     index_data,
+	     index_data_size,
+	     &record_values_tree_node,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve record values tree node.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_initialize(
+	     record,
+	     internal_index->file_io_handle,
+	     internal_index->io_handle,
+	     internal_index->table_definition,
+	     internal_index->template_table_definition,
+	     internal_index->pages_vector,
+	     internal_index->pages_cache,
+	     record_values_tree_node,
+	     internal_index->table_values_cache,
+	     internal_index->long_values_tree,
+	     internal_index->long_values_cache,
+             LIBESEDB_ITEM_FLAGS_DEFAULT,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create record.",
 		 function );
 
 		return( -1 );

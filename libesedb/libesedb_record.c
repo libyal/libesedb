@@ -311,8 +311,8 @@ int libesedb_record_free(
 		internal_record = (libesedb_internal_record_t *) *record;
 		*record         = NULL;
 
-		/* The pages_vector, pages_cache, long_values_tree and long_values_cache references
-		 * are freed elsewhere
+		/* The io_handle, table_definition, template_table_definition, pages_vector, pages_cache,
+		 * long_values_tree and long_values_cache references are freed elsewhere
 		 */
 		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
 		{

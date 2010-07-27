@@ -44,74 +44,74 @@ extern "C" {
 int exchange_export_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_folders(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_global(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int exchange_export_record_mailbox(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

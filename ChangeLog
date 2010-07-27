@@ -49,7 +49,7 @@ Tools
   - summary of catalog (check backup catalog)
   - print database state
 * esedbexport
-  - move libesedb file handle from export handle to esedbexport
+  - add export mode
 
 Windows search:
 * improve windows_search_decompress_byte_indexed_compressed_data
@@ -91,6 +91,11 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20100727
+* moved value debug print to libfvalue
+* updated libfdatetime
+* worked on index support
 
 20100726
 * worked on libfvalue integration

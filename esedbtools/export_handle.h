@@ -44,30 +44,36 @@
 extern "C" {
 #endif
 
+enum EXPORT_MODES
+{
+	EXPORT_MODE_ALL				= (int) 'a',
+	EXPORT_MODE_TABLES			= (int) 't'
+};
+
 typedef struct export_handle export_handle_t;
 
 struct export_handle
 {
-	/* The libesedb input handle
+	/* The export mode
 	 */
-	libesedb_file_t *input_handle;
+	uint8_t export_mode;
+
+	/* The nofication output stream
+	 */
+	FILE *notify_stream;
+
+	/* Value to indicate if abort was signalled
+	 */
+	int abort;
 };
 
 int export_handle_initialize(
      export_handle_t **export_handle,
+     uint8_t export_mode,
      liberror_error_t **error );
 
 int export_handle_free(
      export_handle_t **export_handle,
-     liberror_error_t **error );
-
-int export_handle_open(
-     export_handle_t *export_handle,
-     const libcstring_system_character_t *filename,
-     liberror_error_t **error );
-
-int export_handle_close(
-     export_handle_t *export_handle,
      liberror_error_t **error );
 
 int export_handle_make_directory(
@@ -99,19 +105,30 @@ int export_handle_export_table(
      log_handle_t *log_handle,
      liberror_error_t **error );
 
+int export_handle_export_index(
+     export_handle_t *export_handle,
+     libesedb_index_t *index,
+     const libcstring_system_character_t *index_name,
+     size_t index_name_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
+     log_handle_t *log_handle,
+     liberror_error_t **error );
+
 int export_handle_export_record(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int export_handle_export_record_value(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int export_handle_export_file(
      export_handle_t *export_handle,
+     libesedb_file_t *file,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
      const libcstring_system_character_t *export_table_name,

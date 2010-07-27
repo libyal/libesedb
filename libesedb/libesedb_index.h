@@ -32,8 +32,7 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_page_tree.h"
-#include "libesedb_table.h"
+#include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -56,13 +55,13 @@ struct libesedb_internal_index
 	 */
 	libesedb_table_definition_t *table_definition;
 
+	/* The template table definition
+	 */
+	libesedb_table_definition_t *template_table_definition;
+
 	/* The index catalog definition 
 	 */
 	libesedb_catalog_definition_t *index_catalog_definition;
-
-	/* The item flags
-	 */
-	uint8_t flags;
 
 	/* The pages vector
 	 */
@@ -71,6 +70,26 @@ struct libesedb_internal_index
 	/* The pages cache
 	 */
 	libfdata_cache_t *pages_cache;
+
+	/* The table values tree
+	 */
+	libfdata_tree_t *table_values_tree;
+
+	/* The table values cache
+	 */
+	libfdata_cache_t *table_values_cache;
+
+	/* The long values tree
+	 */
+	libfdata_tree_t *long_values_tree;
+
+	/* The long values cache
+	 */
+	libfdata_cache_t *long_values_cache;
+
+	/* The item flags
+	 */
+	uint8_t flags;
 
 	/* The table values (data) tree
 	 */
@@ -86,7 +105,14 @@ int libesedb_index_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
+     libesedb_table_definition_t *template_table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
+     libfdata_vector_t *pages_vector,
+     libfdata_cache_t *pages_cache,
+     libfdata_tree_t *table_values_tree,
+     libfdata_cache_t *table_values_cache,
+     libfdata_tree_t *long_values_tree,
+     libfdata_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error );
 
@@ -119,6 +145,17 @@ LIBESEDB_EXTERN int libesedb_index_get_utf16_name(
                      libesedb_index_t *index,
                      uint16_t *utf16_string,
                      size_t utf16_string_size,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_index_get_number_of_records(
+                     libesedb_index_t *index,
+                     int *number_of_records,
+                     liberror_error_t **error );
+
+LIBESEDB_EXTERN int libesedb_index_get_record(
+                     libesedb_index_t *index,
+                     int record_entry,
+                     libesedb_record_t **record,
                      liberror_error_t **error );
 
 #if defined( __cplusplus )

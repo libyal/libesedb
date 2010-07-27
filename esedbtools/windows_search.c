@@ -1127,7 +1127,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 int windows_search_export_compressed_string_value(
      uint8_t *value_data,
      size_t value_data_size,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *decoded_value_data    = NULL;
@@ -1172,13 +1172,13 @@ int windows_search_export_compressed_string_value(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1363,7 +1363,7 @@ int windows_search_export_compressed_string_value(
 			 value_utf16_stream );
 
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%s",
 			 value_string );
 
@@ -1437,7 +1437,7 @@ int windows_search_export_compressed_string_value(
 		 decoded_value_data );
 
 		fprintf(
-		 table_file_stream,
+		 record_file_stream,
 		 "%s",
 		 value_string );
 
@@ -1521,7 +1521,7 @@ int windows_search_export_compressed_string_value(
 			value_string[ value_string_size ] = 0;
 
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%s",
 			 value_string );
 
@@ -1534,7 +1534,7 @@ int windows_search_export_compressed_string_value(
 	else if( decoded_value_data[ 0 ] == 4 )
 	{
 		fprintf(
-		 table_file_stream,
+		 record_file_stream,
 		 "%s",
 		 &( decoded_value_data[ 1 ] ) );
 
@@ -1569,7 +1569,7 @@ int windows_search_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -1603,13 +1603,13 @@ int windows_search_export_record_value_32bit(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1689,7 +1689,7 @@ int windows_search_export_record_value_32bit(
 				 value_32bit );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIu32 "",
 			 value_32bit );
 		}
@@ -1701,7 +1701,7 @@ int windows_search_export_record_value_32bit(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1720,7 +1720,7 @@ int windows_search_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
@@ -1754,13 +1754,13 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1833,7 +1833,7 @@ int windows_search_export_record_value_64bit(
 			     8 ) == 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "********" );
 			}
 			else
@@ -1851,7 +1851,7 @@ int windows_search_export_record_value_64bit(
 					 value_64bit );
 				}
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%" PRIu64 "",
 				 value_64bit );
 			}
@@ -1864,7 +1864,7 @@ int windows_search_export_record_value_64bit(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -1883,7 +1883,7 @@ int windows_search_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 24 ];
@@ -1907,13 +1907,13 @@ int windows_search_export_record_value_filetime(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2059,7 +2059,7 @@ int windows_search_export_record_value_filetime(
 				return( -1 );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%" PRIs_LIBCSTRING_SYSTEM "",
 			 filetime_string );
 		}
@@ -2071,7 +2071,7 @@ int windows_search_export_record_value_filetime(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -2089,7 +2089,7 @@ int windows_search_export_record_value_filetime(
 int windows_search_export_record_value_compressed_string(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libesedb_long_value_t *long_value   = NULL;
@@ -2118,13 +2118,13 @@ int windows_search_export_record_value_compressed_string(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2183,7 +2183,7 @@ int windows_search_export_record_value_compressed_string(
 			if( windows_search_export_compressed_string_value(
 			     value_data,
 			     value_data_size,
-			     table_file_stream,
+			     record_file_stream,
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -2276,7 +2276,7 @@ if( libsystem_notify_verbose != 0 )
 				if( windows_search_export_compressed_string_value(
 				     value_data,
 				     value_data_size,
-				     table_file_stream,
+				     record_file_stream,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -2382,7 +2382,7 @@ if( libsystem_notify_verbose != 0 )
 				if( windows_search_export_compressed_string_value(
 				     value_data,
 				     value_data_size,
-				     table_file_stream,
+				     record_file_stream,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -2403,7 +2403,7 @@ if( libsystem_notify_verbose != 0 )
 				if( multi_value_iterator < ( number_of_multi_values - 1 ) )
 				{
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "; " );
 				}
 			}
@@ -2430,7 +2430,7 @@ if( libsystem_notify_verbose != 0 )
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -2449,7 +2449,7 @@ int windows_search_export_record_value_utf16_string(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data      = NULL;
@@ -2471,13 +2471,13 @@ int windows_search_export_record_value_utf16_string(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -2586,7 +2586,7 @@ int windows_search_export_record_value_utf16_string(
 				return( -1 );
 			}
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "%s",
 			 value_string );
 
@@ -2601,7 +2601,7 @@ int windows_search_export_record_value_utf16_string(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -2618,7 +2618,7 @@ int windows_search_export_record_value_utf16_string(
  */
 int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2643,13 +2643,13 @@ int windows_search_export_record_systemindex_0a(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -3432,7 +3432,7 @@ int windows_search_export_record_systemindex_0a(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
@@ -3441,7 +3441,7 @@ int windows_search_export_record_systemindex_0a(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME )
@@ -3450,7 +3450,7 @@ int windows_search_export_record_systemindex_0a(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED )
@@ -3458,7 +3458,7 @@ int windows_search_export_record_systemindex_0a(
 			result = windows_search_export_record_value_compressed_string(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
@@ -3466,7 +3466,7 @@ int windows_search_export_record_systemindex_0a(
 			result = export_handle_export_record_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		if( result != 1 )
@@ -3484,13 +3484,13 @@ int windows_search_export_record_systemindex_0a(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}
@@ -3502,7 +3502,7 @@ int windows_search_export_record_systemindex_0a(
  */
 int windows_search_export_record_systemindex_gthr(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -3527,13 +3527,13 @@ int windows_search_export_record_systemindex_gthr(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -3683,7 +3683,7 @@ int windows_search_export_record_systemindex_gthr(
 				  record,
 				  value_iterator,
 				  byte_order,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN )
@@ -3692,7 +3692,7 @@ int windows_search_export_record_systemindex_gthr(
 				  record,
 				  value_iterator,
 				  LIBUNA_ENDIAN_LITTLE,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED )
@@ -3700,7 +3700,7 @@ int windows_search_export_record_systemindex_gthr(
 			result = windows_search_export_record_value_compressed_string(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
@@ -3708,7 +3708,7 @@ int windows_search_export_record_systemindex_gthr(
 			result = export_handle_export_record_value(
 				  record,
 				  value_iterator,
-				  table_file_stream,
+				  record_file_stream,
 				  error );
 		}
 		if( result != 1 )
@@ -3726,13 +3726,13 @@ int windows_search_export_record_systemindex_gthr(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}

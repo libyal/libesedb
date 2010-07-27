@@ -77,51 +77,51 @@ int windows_search_decompress_byte_indexed_compressed_data(
 int windows_search_export_compressed_string_value(
      uint8_t *value_data,
      size_t value_data_size,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_value_compressed_string(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_value_utf16_string(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 int windows_search_export_record_systemindex_gthr(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

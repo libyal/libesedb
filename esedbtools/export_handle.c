@@ -68,11 +68,14 @@
 #include "exchange.h"
 #include "windows_search.h"
 
+#define EXPORT_HANDLE_NOTIFY_STREAM	stdout
+
 /* Initializes the export handle
  * Returns 1 if successful or -1 on error
  */
 int export_handle_initialize(
      export_handle_t **export_handle,
+     uint8_t export_mode,
      liberror_error_t **error )
 {
 	static char *function = "export_handle_initialize";
@@ -123,24 +126,8 @@ int export_handle_initialize(
 
 			return( -1 );
 		}
-		if( libesedb_file_initialize(
-		     &( ( *export_handle )->input_handle ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize input handle.",
-			 function );
-
-			memory_free(
-			 *export_handle );
-
-			*export_handle = NULL;
-
-			return( -1 );
-		}
+		( *export_handle )->export_mode   = export_mode;
+		( *export_handle )->notify_stream = EXPORT_HANDLE_NOTIFY_STREAM;
 	}
 	return( 1 );
 }
@@ -167,150 +154,12 @@ int export_handle_free(
 	}
 	if( *export_handle != NULL )
 	{
-		if( ( ( *export_handle )->input_handle != NULL )
-		 && ( libesedb_file_free(
-		       &( ( *export_handle )->input_handle ),
-		       error ) != 1 ) )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free input handle.",
-			 function );
-		}
 		memory_free(
 		 *export_handle );
 
 		*export_handle = NULL;
 	}
 	return( 1 );
-}
-
-/* Opens the export handle
- * Returns 1 if successful or -1 on error
- */
-int export_handle_open(
-     export_handle_t *export_handle,
-     const libcstring_system_character_t *filename,
-     liberror_error_t **error )
-{
-	static char *function = "export_handle_open";
-
-	if( export_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_handle->input_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid export handle - missing input handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( filename == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid filename.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libesedb_file_open_wide(
-	     export_handle->input_handle,
-	     filename,
-	     LIBESEDB_OPEN_READ,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file.",
-		 function );
-
-		return( -1 );
-	}
-#else
-	if( libesedb_file_open(
-	     export_handle->input_handle,
-	     filename,
-	     LIBESEDB_OPEN_READ,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open file.",
-		 function );
-
-		return( -1 );
-	}
-#endif
-	return( 1 );
-}
-
-/* Closes the export handle
- * Returns the 0 if succesful or -1 on error
- */
-int export_handle_close(
-     export_handle_t *export_handle,
-     liberror_error_t **error )
-{
-	static char *function = "export_handle_close";
-
-	if( export_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_handle->input_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid export handle - missing input handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_file_close(
-	     export_handle->input_handle,
-	     error ) != 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
-		 "%s: unable to close input handle.",
-		 function );
-
-		return( -1 );
-	}
-	return( 0 );
 }
 
 /* Create a directory
@@ -626,14 +475,17 @@ int export_handle_export_table(
 	libcstring_system_character_t *target_path  = NULL;
 	libcstring_system_character_t *value_string = NULL;
 	libesedb_column_t *column                   = NULL;
+	libesedb_index_t *index                     = NULL;
 	libesedb_record_t *record                   = NULL;
 	FILE *table_file_stream                     = NULL;
 	static char *function                       = "export_handle_export_table";
 	size_t target_path_size                     = 0;
 	size_t value_string_size                    = 0;
 	int column_iterator                         = 0;
+	int index_iterator                          = 0;
 	int known_table                             = 0;
 	int number_of_columns                       = 0;
+	int number_of_indexes                       = 0;
 	int number_of_records                       = 0;
 	int record_iterator                         = 0;
 	int result                                  = 0;
@@ -1101,15 +953,625 @@ int export_handle_export_table(
 
 		return( -1 );
 	}
+	if( export_handle->export_mode != EXPORT_MODE_TABLES )
+	{
+		if( libesedb_table_get_number_of_indexes(
+		     table,
+		     &number_of_indexes,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve number of indexes.",
+			 function );
+
+			return( -1 );
+		}
+		/* Ignore index 1 because it is a build-in index that points to the table
+		 */
+		for( index_iterator = 1;
+		     index_iterator < number_of_indexes;
+		     index_iterator++ )
+		{
+			if( libesedb_table_get_index(
+			     table,
+			     index_iterator,
+			     &index,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve index: %d.",
+				 function,
+				 index_iterator + 1 );
+
+				return( -1 );
+			}
+/* TODO
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name_size(
+				  index,
+				  &index_name_size,
+				  error );
+#else
+			result = libesedb_index_get_utf8_name_size(
+				  index,
+				  &index_name_size,
+				  error );
+#endif
+
+			if( result != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the size of the index name.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+
+				return( -1 );
+			}
+			if( index_name_size == 0 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing index name.",
+				 function );
+
+				libesedb_index_free(
+				 &index,
+				 NULL );
+
+				return( -1 );
+			}
+			index_name = (libcstring_system_character_t *) memory_allocate(
+			                                                sizeof( libcstring_system_character_t ) * index_name_size );
+
+			if( index_name == NULL )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_MEMORY,
+				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create index name string.",
+				 function );
+
+				return( -1 );
+			}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_index_get_utf16_name(
+				  index,
+				  (uint16_t *) index_name,
+				  index_name_size,
+				  error );
+#else
+			result = libesedb_index_get_utf8_name(
+				  index,
+				  (uint8_t *) index_name,
+				  index_name_size,
+				  error );
+#endif
+			if( result != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve the index name.",
+				 function );
+
+				memory_free(
+				 index_name );
+				libesedb_index_free(
+				 &index,
+				 NULL );
+
+				return( -1 );
+			}
+			if( export_index_name == NULL )
+			{
+				fprintf(
+				 stdout,
+				 "Exporting index %d (%" PRIs_LIBCSTRING_SYSTEM ") out of %d.\n",
+				 index_iterator + 1,
+				 (char *) index_name,
+				 number_of_indexs );
+			}
+			else
+			{
+				fprintf(
+				 stdout,
+				 "Exporting index %d (%" PRIs_LIBCSTRING_SYSTEM ").\n",
+				 index_iterator + 1,
+				 (char *) index_name );
+			}
+			if( export_handle_export_index(
+			     export_handle,
+			     index,
+			     index_name,
+			     index_name_size,
+			     export_path,
+			     export_path_size,
+			     log_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to export index: %d.",
+				 function,
+				 index_iterator );
+
+				memory_free(
+				 index_name );
+				libesedb_index_free(
+				 &index,
+				 NULL );
+
+				return( -1 );
+			}
+			memory_free(
+			 index_name );
+*/
+			if( libesedb_index_free(
+			     &index,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free index.",
+				 function );
+
+				return( -1 );
+			}
+		}
+	}
 	return( 1 );
 }
 
-/* Exports the values in a table record
+/* Exports the index
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_index(
+     export_handle_t *export_handle,
+     libesedb_index_t *index,
+     const libcstring_system_character_t *index_name,
+     size_t index_name_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
+     log_handle_t *log_handle,
+     liberror_error_t **error )
+{
+	libcstring_system_character_t *target_path  = NULL;
+	libcstring_system_character_t *value_string = NULL;
+	libesedb_column_t *column                   = NULL;
+	libesedb_record_t *record                   = NULL;
+	FILE *index_file_stream                     = NULL;
+	static char *function                       = "export_handle_export_index";
+	size_t target_path_size                     = 0;
+	size_t value_string_size                    = 0;
+	int column_iterator                         = 0;
+	int known_index                             = 0;
+	int number_of_columns                       = 0;
+	int number_of_records                       = 0;
+	int record_iterator                         = 0;
+	int result                                  = 0;
+
+	if( index == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_name == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid index name.",
+		 function );
+
+		return( -1 );
+	}
+	if( index_name_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid index name size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	/* Create the item value file
+	 */
+	if( export_handle_create_target_path(
+	     export_path,
+	     export_path_size,
+	     index_name,
+	     index_name_size,
+	     &target_path,
+	     &target_path_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create target path.",
+		 function );
+
+		return( -1 );
+	}
+	if( target_path == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid target path.",
+		 function );
+
+		return( -1 );
+	}
+	result = libsystem_file_exists(
+	          target_path,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 function,
+		 target_path );
+
+		memory_free(
+		 target_path );
+
+		return( -1 );
+	}
+	else if( result == 1 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Skipping item values it already exists.\n" );
+
+		memory_free(
+		 target_path );
+
+		return( 1 );
+	}
+	index_file_stream = libsystem_file_stream_open(
+	                     target_path,
+	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
+
+	if( index_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 function,
+		 target_path );
+
+		memory_free(
+		 target_path );
+
+		return( -1 );
+	}
+	memory_free(
+	 target_path );
+
+#ifdef TODO
+	/* Write the column names to the index file
+	 */
+	if( libesedb_index_get_number_of_columns(
+	     index,
+	     &number_of_columns,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of columns.",
+		 function );
+
+		libsystem_file_stream_close(
+		 index_file_stream );
+
+		return( -1 );
+	}
+	for( column_iterator = 0;
+	     column_iterator < number_of_columns;
+	     column_iterator++ )
+	{
+		if( libesedb_index_get_column(
+		     index,
+		     column_iterator,
+		     &column,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column: %d.",
+			 function,
+			 column_iterator );
+
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_column_get_utf16_name_size(
+		          column,
+		          &value_string_size,
+		          error );
+#else
+		result = libesedb_column_get_utf8_name_size(
+		          column,
+		          &value_string_size,
+		          error );
+#endif
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the size of the column name.",
+			 function );
+
+			libesedb_column_free(
+			 &column,
+			 NULL );
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		if( value_string_size == 0 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing column name.",
+			 function );
+
+			libesedb_column_free(
+			 &column,
+			 NULL );
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		value_string = (libcstring_system_character_t *) memory_allocate(
+		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+
+		if( value_string == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create column name string.",
+			 function );
+
+			libesedb_column_free(
+			 &column,
+			 NULL );
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_column_get_utf16_name(
+		          column,
+		          (uint16_t *) value_string,
+		          value_string_size,
+		          error );
+#else
+		result = libesedb_column_get_utf8_name(
+		          column,
+		          (uint8_t *) value_string,
+		          value_string_size,
+		          error );
+#endif
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the column name.",
+			 function );
+
+			memory_free(
+			 value_string );
+			libesedb_column_free(
+			 &column,
+			 NULL );
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		fprintf(
+		 index_file_stream,
+		 "%" PRIs_LIBCSTRING_SYSTEM "",
+		 value_string );
+
+		memory_free(
+		 value_string );
+
+		if( libesedb_column_free(
+		     &column,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free column.",
+			 function );
+
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		if( column_iterator == ( number_of_columns - 1 ) )
+		{
+			fprintf(
+			 index_file_stream,
+			 "\n" );
+		}
+		else
+		{
+			fprintf(
+			 index_file_stream,
+			 "\t" );
+		}
+	}
+#endif
+	/* Write the record (row) values to the index file
+	 */
+	if( libesedb_index_get_number_of_records(
+	     index,
+	     &number_of_records,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of records.",
+		 function );
+
+		libsystem_file_stream_close(
+		 index_file_stream );
+
+		return( -1 );
+	}
+	for( record_iterator = 0;
+	     record_iterator < number_of_records;
+	     record_iterator++ )
+	{
+		if( libesedb_index_get_record(
+		     index,
+		     record_iterator,
+		     &record,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve record: %d.",
+			 function,
+			 record_iterator );
+
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		known_index = 0;
+
+		if( known_index == 0 )
+		{
+			result = export_handle_export_record(
+			          record,
+			          index_file_stream,
+			          error );
+		}
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export record.",
+			 function );
+
+			libesedb_record_free(
+			 &record,
+			 NULL );
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+		if( libesedb_record_free(
+		     &record,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free record.",
+			 function );
+
+			libsystem_file_stream_close(
+			 index_file_stream );
+
+			return( -1 );
+		}
+	}
+	if( libsystem_file_stream_close(
+	     index_file_stream ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close index file.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Exports the values in a record
  * Returns 1 if successful or -1 on error
  */
 int export_handle_export_record(
      libesedb_record_t *record,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	static char *function = "export_handle_export_record";
@@ -1127,13 +1589,13 @@ int export_handle_export_record(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1159,7 +1621,7 @@ int export_handle_export_record(
 		if( export_handle_export_record_value(
 		     record,
 		     value_iterator,
-		     table_file_stream,
+		     record_file_stream,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1175,26 +1637,26 @@ int export_handle_export_record(
 		if( value_iterator == ( number_of_values - 1 ) )
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\n" );
 		}
 		else
 		{
 			fprintf(
-			 table_file_stream,
+			 record_file_stream,
 			 "\t" );
 		}
 	}
 	return( 1 );
 }
 
-/* Exports a table record value
+/* Exports a record value
  * Returns 1 if successful or -1 on error
  */
 int export_handle_export_record_value(
      libesedb_record_t *record,
      int record_value_entry,
-     FILE *table_file_stream,
+     FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 24 ];
@@ -1239,13 +1701,13 @@ int export_handle_export_record_value(
 
 		return( -1 );
 	}
-	if( table_file_stream == NULL )
+	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid table file stream.",
+		 "%s: invalid record file stream.",
 		 function );
 
 		return( -1 );
@@ -1328,13 +1790,13 @@ int export_handle_export_record_value(
 					if( value_8bit == 0 )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "false" );
 					}
 					else
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "true" );
 					}
 				}
@@ -1362,7 +1824,7 @@ int export_handle_export_record_value(
 				else if( result != 0 )
 				{
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%" PRIu8 "",
 					 value_8bit );
 				}
@@ -1393,14 +1855,14 @@ int export_handle_export_record_value(
 					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIi16 "",
 						 (int16_t) value_16bit );
 					}
 					else
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIu16 "",
 						 value_16bit );
 					}
@@ -1432,14 +1894,14 @@ int export_handle_export_record_value(
 					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIi32 "",
 						 (int32_t) value_32bit );
 					}
 					else
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIu32 "",
 						 value_32bit );
 					}
@@ -1471,14 +1933,14 @@ int export_handle_export_record_value(
 					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
 					{ 
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIi64 "",
 						 (int64_t) value_64bit );
 					}
 					else
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIu64 "",
 						 value_64bit );
 					}
@@ -1519,7 +1981,7 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					if( libfdatetime_filetime_copy_from_uint64(
+					if( libfdatetime_filetime_copy_from_64bit(
 					     filetime,
 					     value_64bit,
 					     error ) != 1 )
@@ -1528,7 +1990,7 @@ int export_handle_export_record_value(
 						 error,
 						 LIBERROR_ERROR_DOMAIN_RUNTIME,
 						 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-						 "%s: unable to copy byte stream to filetime.",
+						 "%s: unable to copy filetime from 64-bit value.",
 						 function );
 
 						libfdatetime_filetime_free(
@@ -1583,7 +2045,7 @@ int export_handle_export_record_value(
 						return( -1 );
 					}
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%" PRIs_LIBCSTRING_SYSTEM "",
 					 filetime_string );
 				}
@@ -1611,7 +2073,7 @@ int export_handle_export_record_value(
 				else if( result != 0 )
 				{
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%f",
 					 value_float );
 				}
@@ -1639,7 +2101,7 @@ int export_handle_export_record_value(
 				else if( result != 0 )
 				{
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%f",
 					 value_double );
 				}
@@ -1751,7 +2213,7 @@ int export_handle_export_record_value(
 						return( -1 );
 					}
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%" PRIs_LIBCSTRING_SYSTEM "",
 					 value_string );
 
@@ -1766,7 +2228,7 @@ int export_handle_export_record_value(
 					while( value_data_size > 0 )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%02" PRIx8 "",
 						 *value_data );
 
@@ -1826,12 +2288,12 @@ int export_handle_export_record_value(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "(0x%02x) ",
 					 compressed_value_string[ 0 ] );
 #endif
 					fprintf(
-					 table_file_stream,
+					 record_file_stream,
 					 "%s",
 					 &( compressed_value_string[ 1 ] ) );
 
@@ -1846,7 +2308,7 @@ int export_handle_export_record_value(
 					while( value_data_size > 0 )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%02" PRIx8 "",
 						 *value_data );
 
@@ -2115,7 +2577,7 @@ libsystem_notify_print_data(
 							return( -1 );
 						}
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%" PRIs_LIBCSTRING_SYSTEM "",
 						 value_string );
 
@@ -2125,7 +2587,7 @@ libsystem_notify_print_data(
 					if( multi_value_iterator < ( number_of_multi_values - 1 ) )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "; " );
 					}
 				}
@@ -2134,7 +2596,7 @@ libsystem_notify_print_data(
 					while( value_data_size > 0 )
 					{
 						fprintf(
-						 table_file_stream,
+						 record_file_stream,
 						 "%02" PRIx8 "",
 						 *value_data );
 
@@ -2166,7 +2628,7 @@ libsystem_notify_print_data(
 			while( value_data_size > 0 )
 			{
 				fprintf(
-				 table_file_stream,
+				 record_file_stream,
 				 "%02" PRIx8 "",
 				 *value_data );
 
@@ -2183,6 +2645,7 @@ libsystem_notify_print_data(
  */
 int export_handle_export_file(
      export_handle_t *export_handle,
+     libesedb_file_t *file,
      libcstring_system_character_t *export_path,
      size_t export_path_size,
      const libcstring_system_character_t *export_table_name,
@@ -2205,6 +2668,17 @@ int export_handle_export_file(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
 		 function );
 
 		return( -1 );
@@ -2234,7 +2708,7 @@ int export_handle_export_file(
 		return( -1 );
 	}
 	if( libesedb_file_get_number_of_tables(
-	     export_handle->input_handle,
+	     file,
 	     &number_of_tables,
 	     error ) != 1 )
 	{
@@ -2252,7 +2726,7 @@ int export_handle_export_file(
 	     table_iterator++ )
 	{
 		if( libesedb_file_get_table(
-		     export_handle->input_handle,
+		     file,
 		     table_iterator,
 		     &table,
 		     error ) != 1 )

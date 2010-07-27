@@ -49,6 +49,10 @@
 #include "esedboutput.h"
 #include "log_handle.h"
 
+export_handle_t *esedbexport_handle = NULL;
+libesedb_file_t *esedbexport_file   = NULL;
+int esedbexport_abort               = 0;
+
 /* Prints the executable usage information
  */
 void usage_fprint(
@@ -302,34 +306,13 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize log handle.\n" );
+		 "Unable to create log handle.\n" );
 
 		libsystem_notify_print_error_backtrace(
 		 error );
 		liberror_error_free(
 		 &error );
 
-		memory_free(
-		 export_path );
-
-		return( EXIT_FAILURE );
-	}
-	if( export_handle_initialize(
-	     &export_handle,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to initialize export handle.\n" );
-
-		libsystem_notify_print_error_backtrace(
-		 error );
-		liberror_error_free(
-		 &error );
-
-		log_handle_free(
-		 &log_handle,
-		 NULL );
 		memory_free(
 		 export_path );
 
@@ -350,8 +333,30 @@ int main( int argc, char * const argv[] )
 		liberror_error_free(
 		 &error );
 
-		export_handle_free(
-		 &export_handle,
+		log_handle_free(
+		 &log_handle,
+		 NULL );
+		memory_free(
+		 export_path );
+
+		return( EXIT_FAILURE );
+	}
+	if( export_handle_initialize(
+	     &export_handle,
+	     EXPORT_MODE_TABLES,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to create export handle.\n" );
+
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+
+		log_handle_close(
+		 log_handle,
 		 NULL );
 		log_handle_free(
 		 &log_handle,
@@ -361,19 +366,13 @@ int main( int argc, char * const argv[] )
 
 		return( EXIT_FAILURE );
 	}
-	fprintf(
-	 stdout,
-	 "Opening file.\n" );
-
-	if( export_handle_open(
-	     export_handle,
-	     source,
+	if( libesedb_file_initialize(
+	     &esedbexport_file,
 	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Error opening file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-		 argv[ optind ] );
+		 "Unable to create libesedb file.\n" );
 
 		libsystem_notify_print_error_backtrace(
 		 error );
@@ -382,6 +381,54 @@ int main( int argc, char * const argv[] )
 
 		export_handle_free(
 		 &export_handle,
+		 NULL );
+		log_handle_close(
+		 log_handle,
+		 NULL );
+		log_handle_free(
+		 &log_handle,
+		 NULL );
+		memory_free(
+		 export_path );
+
+		return( -1 );
+	}
+	fprintf(
+	 stdout,
+	 "Opening file.\n" );
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libesedb_file_open_wide(
+	     esedbexport_file,
+	     source,
+	     LIBESEDB_OPEN_READ,
+	     &error ) != 1 )
+#else
+	if( libesedb_file_open(
+	     esedbexport_file,
+	     source,
+	     LIBESEDB_OPEN_READ,
+	     &error ) != 1 )
+#endif
+	{
+		fprintf(
+		 stderr,
+		 "Error opening file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 source );
+
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+
+		libesedb_file_free(
+		 &esedbexport_file,
+		 NULL );
+		export_handle_free(
+		 &export_handle,
+		 NULL );
+		log_handle_close(
+		 log_handle,
 		 NULL );
 		log_handle_free(
 		 &log_handle,
@@ -393,6 +440,7 @@ int main( int argc, char * const argv[] )
 	}
 	if( export_handle_export_file(
 	     export_handle,
+	     esedbexport_file,
 	     export_path,
 	     export_path_length + 1,
 	     option_table_name,
@@ -409,8 +457,17 @@ int main( int argc, char * const argv[] )
 		liberror_error_free(
 		 &error );
 
+		libesedb_file_close(
+		 esedbexport_file,
+		 NULL );
+		libesedb_file_free(
+		 &esedbexport_file,
+		 NULL );
 		export_handle_free(
 		 &export_handle,
+		 NULL );
+		log_handle_close(
+		 log_handle,
 		 NULL );
 		log_handle_free(
 		 &log_handle,
@@ -423,14 +480,42 @@ int main( int argc, char * const argv[] )
 	memory_free(
 	 export_path );
 
-	if( export_handle_close(
-	     export_handle,
+	if( libesedb_file_close(
+	     esedbexport_file,
 	     &error ) != 0 )
 	{
 		fprintf(
 		 stderr,
 		 "Error closing file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-		 argv[ optind ] );
+		 source );
+
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+
+		libesedb_file_free(
+		 &esedbexport_file,
+		 NULL );
+		export_handle_free(
+		 &export_handle,
+		 NULL );
+		log_handle_close(
+		 log_handle,
+		 NULL );
+		log_handle_free(
+		 &log_handle,
+		 NULL );
+
+		return( EXIT_FAILURE );
+	}
+	if( libesedb_file_free(
+	     &esedbexport_file,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to free libesedb file.\n" );
 
 		libsystem_notify_print_error_backtrace(
 		 error );
@@ -439,6 +524,9 @@ int main( int argc, char * const argv[] )
 
 		export_handle_free(
 		 &export_handle,
+		 NULL );
+		log_handle_close(
+		 log_handle,
 		 NULL );
 		log_handle_free(
 		 &log_handle,
@@ -459,6 +547,9 @@ int main( int argc, char * const argv[] )
 		liberror_error_free(
 		 &error );
 
+		log_handle_close(
+		 log_handle,
+		 NULL );
 		log_handle_free(
 		 &log_handle,
 		 NULL );

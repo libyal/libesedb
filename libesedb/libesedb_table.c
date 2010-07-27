@@ -1736,7 +1736,14 @@ int libesedb_table_get_index(
 	     internal_table->file_io_handle,
 	     internal_table->io_handle,
 	     internal_table->table_definition,
+	     internal_table->template_table_definition,
 	     index_catalog_definition,
+	     internal_table->pages_vector,
+	     internal_table->pages_cache,
+	     internal_table->table_values_tree,
+	     internal_table->table_values_cache,
+	     internal_table->long_values_tree,
+	     internal_table->long_values_cache,
 	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
@@ -1805,9 +1812,9 @@ int libesedb_table_get_record(
      libesedb_record_t **record,
      liberror_error_t **error )
 {
-	libfdata_tree_node_t *values_tree_node    = NULL;
-	libesedb_internal_table_t *internal_table = NULL;
-	static char *function                     = "libesedb_table_get_record";
+	libfdata_tree_node_t *record_values_tree_node = NULL;
+	libesedb_internal_table_t *internal_table     = NULL;
+	static char *function                         = "libesedb_table_get_record";
 
 	if( table == NULL )
 	{
@@ -1849,7 +1856,7 @@ int libesedb_table_get_record(
 	     internal_table->file_io_handle,
 	     internal_table->table_values_cache,
 	     record_entry,
-	     &values_tree_node,
+	     &record_values_tree_node,
 	     0,
 	     error ) != 1 )
 	{
@@ -1871,7 +1878,7 @@ int libesedb_table_get_record(
 	     internal_table->template_table_definition,
 	     internal_table->pages_vector,
 	     internal_table->pages_cache,
-	     values_tree_node,
+	     record_values_tree_node,
 	     internal_table->table_values_cache,
 	     internal_table->long_values_tree,
 	     internal_table->long_values_cache,

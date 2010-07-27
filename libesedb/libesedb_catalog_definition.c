@@ -563,7 +563,6 @@ int libesedb_catalog_definition_read(
 		 variable_size_data_types_offset - calculated_variable_size_data_types_offset );
 	}
 #endif
-
 	if( number_of_variable_size_data_types > 0 )
 	{
 		variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );

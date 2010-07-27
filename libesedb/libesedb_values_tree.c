@@ -31,21 +31,21 @@
 #include "libesedb_values_tree.h"
 #include "libesedb_values_tree_value.h"
 
-/* Retrieves the values tree value for the specific key
+/* Retrieves the values tree leaf node for the specific key
  * Returns 1 if successful, 0 if no value was found or -1 on error
  */
-int libesedb_values_tree_get_value_by_key(
+int libesedb_values_tree_get_leaf_node_by_key(
      libfdata_tree_t *values_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
-     libesedb_values_tree_value_t **values_tree_value,
+     libfdata_tree_node_t **values_tree_leaf_node,
      uint8_t flags,
      liberror_error_t **error )
 {
 	libfdata_tree_node_t *values_tree_root_node = NULL;
-	static char *function                       = "libesedb_values_tree_get_value_by_key";
+	static char *function                       = "libesedb_values_tree_get_leaf_node_by_key";
 	int result                                  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -64,13 +64,13 @@ int libesedb_values_tree_get_value_by_key(
 
 		return( -1 );
 	}
-	if( values_tree_value == NULL )
+	if( values_tree_leaf_node == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid values tree leaf node.",
 		 function );
 
 		return( -1 );
@@ -134,15 +134,15 @@ int libesedb_values_tree_get_value_by_key(
 
 		return( -1 );
 	}
-	*values_tree_value = NULL;
+	*values_tree_leaf_node = NULL;
 
-	result = libesedb_values_tree_node_get_value_by_key(
+	result = libesedb_values_tree_node_get_leaf_node_by_key(
 		  values_tree_root_node,
 		  file_io_handle,
 		  values_cache,
 		  key,
 		  key_size,
-		  values_tree_value,
+		  values_tree_leaf_node,
 		  flags,
 		  error );
 
@@ -152,7 +152,7 @@ int libesedb_values_tree_get_value_by_key(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value by key in root node.",
+		 "%s: unable to retrieve leaf node by key in root node.",
 		 function );
 
 		return( -1 );
@@ -160,22 +160,22 @@ int libesedb_values_tree_get_value_by_key(
 	return( result );
 }
 
-/* Retrieves the values tree value for the specific key
+/* Retrieves the values tree leaf node for the specific key
  * Returns 1 if successful, 0 if no value was found or -1 on error
  */
-int libesedb_values_tree_node_get_value_by_key(
+int libesedb_values_tree_node_get_leaf_node_by_key(
      libfdata_tree_node_t *values_tree_node,
      libbfio_handle_t *file_io_handle,
      libfdata_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
-     libesedb_values_tree_value_t **values_tree_value,
+     libfdata_tree_node_t **values_tree_leaf_node,
      uint8_t flags,
      liberror_error_t **error )
 {
 	libesedb_values_tree_value_t *values_tree_sub_node_value = NULL;
 	libfdata_tree_node_t *values_tree_sub_node               = NULL;
-	static char *function                                    = "libesedb_values_tree_node_get_value_by_key";
+	static char *function                                    = "libesedb_values_tree_node_get_leaf_node_by_key";
 	size_t compare_size                                      = 0;
 	size_t value_key_index                                   = 0;
 	size_t key_index                                         = 0;
@@ -389,46 +389,29 @@ int libesedb_values_tree_node_get_value_by_key(
 			if( ( compare == 0 )
 			 && ( values_tree_sub_node_value->key_size == key_size ) )
 			{
-				if( values_tree_value == NULL )
+				if( values_tree_leaf_node == NULL )
 				{
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 					 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-					 "%s: invalid values tree value.",
+					 "%s: invalid values tree leaf_node.",
 					 function );
 
 					return( -1 );
 				}
-				if( *values_tree_value != NULL )
+				if( *values_tree_leaf_node != NULL )
 				{
 					liberror_error_set(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-					 "%s: values tree value already set.",
+					 "%s: values tree leaf node already set.",
 					 function );
 
 					return( -1 );
 				}
-				if( libfdata_tree_node_get_node_value(
-				     values_tree_sub_node,
-				     file_io_handle,
-				     values_cache,
-				     (intptr_t **) values_tree_value,
-				     0,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve values tree sub node: %d value.",
-					 function,
-					 sub_node_index );
-
-					return( -1 );
-				}
+				*values_tree_leaf_node = values_tree_sub_node;
 				result = 1;
 
 				break;
@@ -442,13 +425,13 @@ int libesedb_values_tree_node_get_value_by_key(
 			 */
 			if( compare <= 0 )
 			{
-				result = libesedb_values_tree_node_get_value_by_key(
+				result = libesedb_values_tree_node_get_leaf_node_by_key(
 					  values_tree_sub_node,
 					  file_io_handle,
 					  values_cache,
 					  key,
 					  key_size,
-					  values_tree_value,
+					  values_tree_leaf_node,
 					  flags,
 					  error );
 
@@ -458,7 +441,7 @@ int libesedb_values_tree_node_get_value_by_key(
 					 error,
 					 LIBERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value by key in values tree sub node: %d.",
+					 "%s: unable to retrieve leaf node by key in values tree sub node: %d.",
 					 function,
 					 sub_node_index );
 
@@ -469,6 +452,78 @@ int libesedb_values_tree_node_get_value_by_key(
 					break;
 				}
 			}
+		}
+	}
+	return( result );
+}
+
+/* Retrieves the values tree value for the specific key
+ * Returns 1 if successful, 0 if no value was found or -1 on error
+ */
+int libesedb_values_tree_get_value_by_key(
+     libfdata_tree_t *values_tree,
+     libbfio_handle_t *file_io_handle,
+     libfdata_cache_t *values_cache,
+     uint8_t *key,
+     size_t key_size,
+     libesedb_values_tree_value_t **values_tree_value,
+     uint8_t flags,
+     liberror_error_t **error )
+{
+	libfdata_tree_node_t *values_tree_leaf_node = NULL;
+	static char *function                       = "libesedb_values_tree_get_value_by_key";
+	int result                                  = 0;
+
+	result = libesedb_values_tree_get_leaf_node_by_key(
+		  values_tree,
+		  file_io_handle,
+		  values_cache,
+		  key,
+		  key_size,
+		  &values_tree_leaf_node,
+		  flags,
+		  error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve leaf node by key.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		if( values_tree_leaf_node == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: midding values tree leaf node.",
+			 function );
+
+			return( -1 );
+		}
+		if( libfdata_tree_node_get_node_value(
+		     values_tree_leaf_node,
+		     file_io_handle,
+		     values_cache,
+		     (intptr_t **) values_tree_value,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve values leaf sub node value.",
+			 function );
+
+			return( -1 );
 		}
 	}
 	return( result );

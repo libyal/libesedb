@@ -118,7 +118,6 @@ int libesedb_multi_value_initialize(
 }
 
 /* Frees a multi value
- * Detaches the reference from the file if necessary
  * Returns 1 if successful or -1 on error
  */
 int libesedb_multi_value_free(
