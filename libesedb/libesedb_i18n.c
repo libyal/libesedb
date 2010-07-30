@@ -1,5 +1,5 @@
-/*
- * Common output functions for the esedbtools
+/* 
+ * Internationalization (i18n) functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,32 +19,45 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDBOUTPUT_H )
-#define _ESEDBOUTPUT_H
-
 #include <common.h>
 #include <types.h>
 
-#include <libsystem.h>
+#include <liberror.h>
 
-#if defined( __cplusplus )
-extern "C" {
+#if defined( HAVE_LIBINTL_H )
+#include <libintl.h>
 #endif
 
-void esedboutput_copyright_fprint(
-      FILE *stream );
+#include "libesedb_i18n.h"
 
-void esedboutput_version_fprint(
-      FILE *stream,
-      const char *program );
+static int libesedb_i18n_initialized = 0;
 
-void esedboutput_version_detailed_fprint(
-      FILE *stream,
-      const char *program );
+/* Initializes library internationalization functions
+ */
+int libesedb_i18n_initialize(
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_i18n_initialize";
 
-#if defined( __cplusplus )
+	if( libesedb_i18n_initialized == 0 )
+	{
+#if defined( HAVE_BINDTEXTDOMAIN )
+		if( bindtextdomain(
+		     "libesedb",
+		     LOCALEDIR ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to bind text domain.",
+			 function );
+
+			return( -1 );
+		}
+#endif
+		libesedb_i18n_initialized = 1;
+	}
+	return( 1 );
 }
-#endif
-
-#endif
 

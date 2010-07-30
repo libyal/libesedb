@@ -77,16 +77,19 @@ int export_handle_free(
      liberror_error_t **error );
 
 int export_handle_make_directory(
+     export_handle_t *export_handle,
      libcstring_system_character_t *directory_name,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_handle_sanitize_filename(
+     export_handle_t *export_handle,
      libcstring_system_character_t *filename,
      size_t filename_size,
      liberror_error_t **error );
 
 int export_handle_create_target_path(
+     export_handle_t *export_handle,
      const libcstring_system_character_t *export_path,
      size_t export_path_size,
      const libcstring_system_character_t *filename,
@@ -96,6 +99,16 @@ int export_handle_create_target_path(
      liberror_error_t **error );
 
 int export_handle_export_table(
+     export_handle_t *export_handle,
+     libesedb_table_t *table,
+     const libcstring_system_character_t *table_name,
+     size_t table_name_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
+     log_handle_t *log_handle,
+     liberror_error_t **error );
+
+int export_handle_export_indexes(
      export_handle_t *export_handle,
      libesedb_table_t *table,
      const libcstring_system_character_t *table_name,

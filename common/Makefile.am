@@ -7,6 +7,7 @@ EXTRA_DIST = \
 	config_borlandc.h \
 	config_msc.h \
 	file_stream.h \
+	gettext.h \
 	memory.h \
 	types.h \
 	types.h.in

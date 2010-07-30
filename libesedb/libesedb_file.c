@@ -31,6 +31,7 @@
 #include "libesedb_database.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
+#include "libesedb_i18n.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
 #include "libesedb_libbfio.h"
@@ -109,6 +110,21 @@ int libesedb_file_initialize(
 			return( -1 );
 		}
 		*file = (libesedb_file_t *) internal_file;
+	}
+	if( libesedb_i18n_initialize(
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initalize internationalization (i18n).",
+		 function );
+
+		memory_free(
+		 internal_file );
+
+		return( -1 );
 	}
 	return( 1 );
 }

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100727],
+  [20100730],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -55,6 +55,9 @@ AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 AC_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
+
+dnl Support of internationalization (i18n)
+AM_GNU_GETTEXT([external])
 
 dnl Check for compiler language support
 AC_C_CONST
@@ -112,6 +115,8 @@ AS_IF(
    [Missing header: windows.h header is required to compile with winapi support],
    [1]) ])
  ])
+
+AC_CHECK_HEADERS([libintl.h])
 
 dnl Headers included in common/types.h
 AC_CHECK_HEADERS([limits.h])
@@ -483,7 +488,7 @@ AC_CHECK_FUNCS(
   [Missing function: write],
   [1]) ])
 
-dnl Check for error string functions used in libbfio/libbfio_error_string.h and libsystem/libsystem_error_string.c
+dnl Check for error string functions used in libbfio/libbfio_error_string.c and libsystem/libsystem_error_string.c
 AC_FUNC_STRERROR_R()
 
 AS_IF(
@@ -495,7 +500,7 @@ AS_IF(
    [Missing functions: strerror_r and strerror],
    [1]) ]) ])
 
-dnl Date and time functions used in libsystem/libsystem_date_time.h
+dnl Date and time functions used in libsystem/libsystem_date_time.c
 LIBESEDB_CHECK_FUNC_CTIME
 
 AC_CHECK_FUNCS(
@@ -515,7 +520,7 @@ AC_CHECK_FUNCS(
   [Missing function: time],
   [1]) ])
 
-dnl Directory functions used in libsystem/libsystem_directory_io.h
+dnl Directory functions used in libsystem/libsystem_directory_io.c
 AC_CHECK_FUNCS(
  [chdir],
  [],
@@ -528,12 +533,27 @@ LIBESEDB_CHECK_FUNC_MKDIR
 dnl Commandline argument/option parsing functions in libsystem/libsystem_getopt.h
 AC_CHECK_FUNCS([getopt])
 
-dnl Check for locale functions in libsystem/libsystem_support.h
+dnl Check for internationalization and localization functions in <library>/<library>_i18n.c and libsystem/libsystem_support.c
+AC_CHECK_FUNCS(
+ [bindtextdomain],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: bindtextdomain],
+  [1]) ])
+
+dnl Check for internationalization and localization functions in libsystem/libsystem_support.c
 AC_CHECK_FUNCS(
  [setlocale],
  [],
  [AC_MSG_FAILURE(
   [Missing function: setlocale],
+  [1]) ])
+
+AC_CHECK_FUNCS(
+ [textdomain],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: textdomain],
   [1]) ])
 
 LIBESEDB_CHECK_FUNC_LANGINFO_CODESET
@@ -1254,6 +1274,7 @@ AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
+AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([manuals/Makefile])
 AC_CONFIG_FILES([macosx/Makefile])
 AC_CONFIG_FILES([msvscpp/Makefile])

@@ -65,19 +65,84 @@ void usage_fprint(
 	fprintf( stream, "Use esedbexport to export items stored in an Extensible Storage Engine (ESE)\n"
 	                 "Database (EDB) file\n\n" );
 
-	fprintf( stream, "Usage: esedbexport [ -l logfile ] [ -t target ] [ -T table_name ]\n"
+	fprintf( stream, "Usage: esedbexport [ -l logfile ] [ -m mode ] [ -t target ] [ -T table_name ]\n"
 	                 "                   [ -hvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
 	fprintf( stream, "\t-h:     shows this help\n" );
 	fprintf( stream, "\t-l:     logs information about the exported items\n" );
+	fprintf( stream, "\t-m:     export mode, option: all, tables (default)\n"
+	                 "\t        'all' exports all the tables or a single specified table with indexes,\n"
+	                 "\t        'tables' exports all the tables or a single specified table\n" );
 	fprintf( stream, "\t-t:     specify the basename of the target directory to export to\n"
 	                 "\t        (default is the source filename) esedbexport will add the suffix\n"
 	                 "\t        .export to the basename\n" );
 	fprintf( stream, "\t-T:     exports only a specific table\n" );
 	fprintf( stream, "\t-v:     verbose output to stderr\n" );
 	fprintf( stream, "\t-V:     print version\n" );
+}
+
+/* Determines the export mode
+ * Returns 1 if successful or -1 on error
+ */
+int esedbexport_determine_export_mode(
+     const libcstring_system_character_t *argument,
+     int *export_mode,
+     liberror_error_t **error )
+{
+	static char *function  = "esedbexport_determine_export_mode";
+	size_t argument_length = 0;
+	int result             = -1;
+
+	if( argument == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid argument string.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_mode == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export mode.",
+		 function );
+
+		return( -1 );
+	}
+	argument_length = libcstring_system_string_length(
+	                   argument );
+
+	if(  argument_length == 3 )
+	{
+		if( libcstring_system_string_compare(
+		     argument,
+		     _LIBCSTRING_SYSTEM_STRING( "all" ),
+		     3 ) == 0 )
+		{
+			*export_mode = EXPORT_MODE_ALL;
+			result       = 1;
+		}
+	}
+	else if( argument_length == 6 )
+	{
+		if( libcstring_system_string_compare(
+		     argument,
+		     _LIBCSTRING_SYSTEM_STRING( "tables" ),
+		     6 ) == 0 )
+		{
+			*export_mode = EXPORT_MODE_TABLES;
+			result       = 1;
+		}
+	}
+	return( result );
 }
 
 /* The main program
@@ -104,6 +169,7 @@ int main( int argc, char * const argv[] )
 	size_t table_name_size                            = 0;
 	size_t target_path_length                         = 0;
 	libcstring_system_integer_t option                = 0;
+	int export_mode                                   = EXPORT_MODE_TABLES;
 	int result                                        = 0;
 	int verbose                                       = 0;
 
@@ -114,6 +180,7 @@ int main( int argc, char * const argv[] )
 	 1 );
 
 	if( libsystem_initialize(
+             "esedbtools",
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -134,7 +201,7 @@ int main( int argc, char * const argv[] )
 	while( ( option = libsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "c:hl:t:T:vV" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _LIBCSTRING_SYSTEM_STRING( "c:hl:m:t:T:vV" ) ) ) != (libcstring_system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -159,6 +226,25 @@ int main( int argc, char * const argv[] )
 			case (libcstring_system_integer_t) 'l':
 				log_filename = optarg;
 
+				break;
+
+			case (libcstring_system_integer_t) 'm':
+				if( esedbexport_determine_export_mode(
+				     optarg,
+				     &export_mode,
+				     &error ) != 1 )
+				{
+					libsystem_notify_print_error_backtrace(
+					 error );
+					liberror_error_free(
+					 &error );
+
+					export_mode = EXPORT_MODE_TABLES;
+
+					fprintf(
+					 stderr,
+					 "Unsupported export mode defaulting to: tables.\n" );
+				}
 				break;
 
 			case (libcstring_system_integer_t) 't':
@@ -343,7 +429,7 @@ int main( int argc, char * const argv[] )
 	}
 	if( export_handle_initialize(
 	     &export_handle,
-	     EXPORT_MODE_TABLES,
+	     export_mode,
 	     &error ) != 1 )
 	{
 		fprintf(

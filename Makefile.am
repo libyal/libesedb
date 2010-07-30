@@ -17,6 +17,7 @@ SUBDIRS = \
 	libfmapi \
 	libsystem \
 	esedbtools \
+	po \
 	manuals \
 	macosx \
 	msvscpp
@@ -26,8 +27,9 @@ REDHAT_FILES = \
 	libesedb.spec.in
 
 EXTRA_DIST = \
-        $(REDHAT_FILES) \
+	config.rpath  \
 	libesedb.pc.in \
+        $(REDHAT_FILES) \
 	README_mingw
 
 MAINTAINERCLEANFILES = \
@@ -38,7 +40,8 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = \
 	libesedb.pc
 
-libtool: @LIBTOOL_DEPS@
+libtool:
+	@LIBTOOL_DEPS@
 	cd $(srcdir) && $(SHELL) ./config.status --recheck
 
 lib: library
@@ -55,6 +58,7 @@ library:
 	(cd $(srcdir)/libfguid && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfvalue && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
 	/bin/rm -f Makefile
@@ -83,4 +87,5 @@ splint:
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 

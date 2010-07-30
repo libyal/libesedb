@@ -1,4 +1,5 @@
 AM_CPPFLAGS = \
+	-DLOCALEDIR=\"$(datadir)/locale\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
 	-I$(top_srcdir)/libcstring \
@@ -33,6 +34,7 @@ libesedb_la_SOURCES = \
 	libesedb_error.c libesedb_error.h \
 	libesedb_extern.h \
 	libesedb_file.c libesedb_file.h \
+	libesedb_i18n.c libesedb_i18n.h \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \

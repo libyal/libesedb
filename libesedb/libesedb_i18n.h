@@ -1,5 +1,5 @@
-/*
- * Common output functions for the esedbtools
+/* 
+ * Internationalization (i18n) functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,28 +19,29 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDBOUTPUT_H )
-#define _ESEDBOUTPUT_H
+#if !defined( _LIBESEDB_I18N_H )
+#define _LIBESEDB_I18N_H
 
 #include <common.h>
 #include <types.h>
 
-#include <libsystem.h>
+#include <liberror.h>
+
+#if defined( HAVE_LIBINTL_H )
+#include <libintl.h>
+#endif
+
+#include <gettext.h>
+
+#define	_( string ) \
+	dgettext( "libesedb", string )
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-void esedboutput_copyright_fprint(
-      FILE *stream );
-
-void esedboutput_version_fprint(
-      FILE *stream,
-      const char *program );
-
-void esedboutput_version_detailed_fprint(
-      FILE *stream,
-      const char *program );
+int libesedb_i18n_initialize(
+     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -92,6 +92,13 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100730
+* worked on esedbexport export mode
+* worked on gettext support
+
+20100728
+* worked on esedbexport export mode
+
 20100727
 * moved value debug print to libfvalue
 * updated libfdatetime
