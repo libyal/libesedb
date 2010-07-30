@@ -30,7 +30,7 @@ EXTRA_DIST = \
 	config.rpath  \
 	libesedb.pc.in \
         $(REDHAT_FILES) \
-	README_mingw
+	README.mingw
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

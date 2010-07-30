@@ -124,6 +124,9 @@ AC_CHECK_HEADERS([limits.h])
 dnl Headers included in common/memory.h and libcstring/libcstring_narrow_string.h
 AC_CHECK_HEADERS([string.h stdlib.h])
 
+dnl Headers included in libsytem/libsystem_locale.c
+AC_CHECK_HEADERS([langinfo.h locale.h])
+
 dnl Headers included in liberror/liberror_error.c and libnotify/libnotify_print.c
 AC_CHECK_HEADERS([stdarg.h])
 
@@ -152,9 +155,6 @@ AC_CHECK_HEADERS([glob.h])
 AS_IF(
  [test "x$ac_cv_header_glob_h" = xno],
  [AC_CHECK_HEADERS([io.h]) ])
-
-dnl Headers included in libsytem/libsystem_support.c
-AC_CHECK_HEADERS([langinfo.h locale.h])
 
 dnl Headers included in libsystem/libsystem_signal.h
 AC_CHECK_HEADERS([signal.h sys/signal.h])
@@ -318,6 +318,24 @@ AC_CHECK_FUNCS(
  [AC_MSG_FAILURE(
   [Missing function: realloc],
   [1]) ])
+
+dnl Check for environment functions in libsystem/libsystem_locale.c
+AC_CHECK_FUNCS(
+ [getenv],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: getenv],
+  [1]) ])
+
+dnl Check for localization functions in libsystem/libsystem_locale.c
+AC_CHECK_FUNCS(
+ [setlocale],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: setlocale],
+  [1]) ])
+
+LIBESEDB_CHECK_FUNC_LANGINFO_CODESET
 
 dnl Narrow character string functions used in libcstring/libcstring_narrow_string.h
 AC_CHECK_FUNCS(
@@ -533,7 +551,7 @@ LIBESEDB_CHECK_FUNC_MKDIR
 dnl Commandline argument/option parsing functions in libsystem/libsystem_getopt.h
 AC_CHECK_FUNCS([getopt])
 
-dnl Check for internationalization and localization functions in <library>/<library>_i18n.c and libsystem/libsystem_support.c
+dnl Check for internationalization functions in <library>/<library>_i18n.c and libsystem/libsystem_support.c
 AC_CHECK_FUNCS(
  [bindtextdomain],
  [],
@@ -541,22 +559,13 @@ AC_CHECK_FUNCS(
   [Missing function: bindtextdomain],
   [1]) ])
 
-dnl Check for internationalization and localization functions in libsystem/libsystem_support.c
-AC_CHECK_FUNCS(
- [setlocale],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: setlocale],
-  [1]) ])
-
+dnl Check for internationalization functions in libsystem/libsystem_support.c
 AC_CHECK_FUNCS(
  [textdomain],
  [],
  [AC_MSG_FAILURE(
   [Missing function: textdomain],
   [1]) ])
-
-LIBESEDB_CHECK_FUNC_LANGINFO_CODESET
 
 dnl Other functions
 
