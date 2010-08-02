@@ -27,10 +27,11 @@ REDHAT_FILES = \
 	libesedb.spec.in
 
 EXTRA_DIST = \
-	config.rpath  \
+	config.rpath \
+	README.mingw \
+	po/Makevars.in \
 	libesedb.pc.in \
-        $(REDHAT_FILES) \
-	README.mingw
+        $(REDHAT_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

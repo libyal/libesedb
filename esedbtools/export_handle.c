@@ -1140,7 +1140,7 @@ int export_handle_export_indexes(
 	     export_handle,
 	     index_directory_name,
 	     log_handle,
-	     error ) != 0 )
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
@@ -2896,7 +2896,7 @@ int export_handle_export_file(
 	     export_handle,
 	     export_path,
 	     log_handle,
-	     error ) != 0 )
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,

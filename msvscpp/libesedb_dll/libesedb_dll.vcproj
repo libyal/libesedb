@@ -146,6 +146,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_i18n.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_index.c"
 				>
 			</File>
@@ -281,6 +285,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_i18n.h"
 				>
 			</File>
 			<File

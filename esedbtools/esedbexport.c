@@ -88,7 +88,7 @@ void usage_fprint(
  */
 int esedbexport_determine_export_mode(
      const libcstring_system_character_t *argument,
-     int *export_mode,
+     uint8_t *export_mode,
      liberror_error_t **error )
 {
 	static char *function  = "esedbexport_determine_export_mode";
@@ -169,7 +169,7 @@ int main( int argc, char * const argv[] )
 	size_t table_name_size                            = 0;
 	size_t target_path_length                         = 0;
 	libcstring_system_integer_t option                = 0;
-	int export_mode                                   = EXPORT_MODE_TABLES;
+	uint8_t export_mode                               = EXPORT_MODE_TABLES;
 	int result                                        = 0;
 	int verbose                                       = 0;
 

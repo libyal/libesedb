@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
-  [20100730],
+  [20100802],
   [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -116,7 +116,9 @@ AS_IF(
    [1]) ])
  ])
 
-AC_CHECK_HEADERS([libintl.h])
+AS_IF(
+ [test "x$ac_cv_libesedb_enable_winapi" = xno],
+ [AC_CHECK_HEADERS([libintl.h]) ])
 
 dnl Headers included in common/types.h
 AC_CHECK_HEADERS([limits.h])
@@ -124,7 +126,7 @@ AC_CHECK_HEADERS([limits.h])
 dnl Headers included in common/memory.h and libcstring/libcstring_narrow_string.h
 AC_CHECK_HEADERS([string.h stdlib.h])
 
-dnl Headers included in libsytem/libsystem_locale.c
+dnl Headers included in libcstring/libcstring_locale.c
 AC_CHECK_HEADERS([langinfo.h locale.h])
 
 dnl Headers included in liberror/liberror_error.c and libnotify/libnotify_print.c
@@ -319,7 +321,7 @@ AC_CHECK_FUNCS(
   [Missing function: realloc],
   [1]) ])
 
-dnl Check for environment functions in libsystem/libsystem_locale.c
+dnl Check for environment functions in libcstring/libcstring_locale.c
 AC_CHECK_FUNCS(
  [getenv],
  [],
@@ -327,7 +329,7 @@ AC_CHECK_FUNCS(
   [Missing function: getenv],
   [1]) ])
 
-dnl Check for localization functions in libsystem/libsystem_locale.c
+dnl Check for localization functions in libcstring/libcstring_locale.c
 AC_CHECK_FUNCS(
  [setlocale],
  [],
@@ -552,20 +554,10 @@ dnl Commandline argument/option parsing functions in libsystem/libsystem_getopt.
 AC_CHECK_FUNCS([getopt])
 
 dnl Check for internationalization functions in <library>/<library>_i18n.c and libsystem/libsystem_support.c
-AC_CHECK_FUNCS(
- [bindtextdomain],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: bindtextdomain],
-  [1]) ])
+AC_CHECK_FUNCS([bindtextdomain])
 
 dnl Check for internationalization functions in libsystem/libsystem_support.c
-AC_CHECK_FUNCS(
- [textdomain],
- [],
- [AC_MSG_FAILURE(
-  [Missing function: textdomain],
-  [1]) ])
+AC_CHECK_FUNCS([textdomain])
 
 dnl Other functions
 
@@ -1284,6 +1276,7 @@ AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
+AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
 AC_CONFIG_FILES([macosx/Makefile])
 AC_CONFIG_FILES([msvscpp/Makefile])
