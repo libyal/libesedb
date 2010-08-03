@@ -208,7 +208,7 @@ int libesedb_array_free(
 
 		*array = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Empties an array and frees its entries
@@ -489,7 +489,7 @@ int libesedb_array_resize(
 		if( memory_set(
 		     &( array->entries[ array->number_of_allocated_entries ] ),
 		     0,
-		     sizeof( intptr_t ) * ( number_of_entries - array->number_of_allocated_entries ) ) == NULL )
+		     sizeof( intptr_t * ) * ( number_of_entries - array->number_of_allocated_entries ) ) == NULL )
 		{
 			liberror_error_set(
 			 error,

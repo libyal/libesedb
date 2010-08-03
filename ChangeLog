@@ -92,6 +92,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100803
+* updated libfdata
+
 20100802
 * updated libuna, libbfio
 * improved codepage 1200 support
