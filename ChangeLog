@@ -92,6 +92,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100807
+* changed ThumbnailCacheId to hexadecimal representation
+
 20100803
 * updated libfdata
 

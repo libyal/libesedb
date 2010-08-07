@@ -91,6 +91,7 @@ int windows_search_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
+     uint8_t format,
      FILE *record_file_stream,
      liberror_error_t **error );
 

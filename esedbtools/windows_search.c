@@ -115,6 +115,12 @@ enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 	WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN,
 };
 
+enum WINDOWS_SEARCH_FORMATS
+{
+	WINDOWS_SEARCH_FORMAT_DECIMAL,
+	WINDOWS_SEARCH_FORMAT_HEXADECIMAL,
+};
+
 /* Decode data using Windows Search encoding
  * Returns 1 on success or -1 on error
  */
@@ -1720,6 +1726,7 @@ int windows_search_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
+     uint8_t format,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
@@ -1754,6 +1761,19 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
+	if( ( format != WINDOWS_SEARCH_FORMAT_DECIMAL )
+	 && ( format != WINDOWS_SEARCH_FORMAT_HEXADECIMAL ) )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported format: 0x%02" PRIx8 "",
+		 function,
+		 format );
+
+		return( -1 );
+	}
 	if( record_file_stream == NULL )
 	{
 		liberror_error_set(
@@ -1781,7 +1801,9 @@ int windows_search_export_record_value_64bit(
 
 		return( -1 );
 	}
-	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
 		liberror_error_set(
 		 error,
@@ -1850,10 +1872,28 @@ int windows_search_export_record_value_64bit(
 					 value_data,
 					 value_64bit );
 				}
-				fprintf(
-				 record_file_stream,
-				 "%" PRIu64 "",
-				 value_64bit );
+				if( format == WINDOWS_SEARCH_FORMAT_DECIMAL )
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIu64 "",
+					 value_64bit );
+				}
+				else if( format == WINDOWS_SEARCH_FORMAT_HEXADECIMAL )
+				{
+					/* Using a while loop to have all digits printed
+					 */
+					while( value_data_size > 0 )
+					{
+						fprintf(
+						 record_file_stream,
+						 "%02" PRIx8 "",
+						 *value_data );
+
+						value_data      += 1;
+						value_data_size -= 1;
+					}
+				}
 			}
 		}
 	}
@@ -2627,6 +2667,7 @@ int windows_search_export_record_systemindex_0a(
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_BIG;
+	uint8_t format          = 0;
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
@@ -2773,6 +2814,22 @@ int windows_search_export_record_systemindex_0a(
 				byte_order = _BYTE_STREAM_ENDIAN_LITTLE;
 			}
 		}
+		if( ( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
+		 || ( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+		 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+		{
+			if( column_name_size == 24 )
+			{
+				if( libcstring_system_string_compare(
+				     column_name,
+				     _LIBCSTRING_SYSTEM_STRING( "System_ThumbnailCacheId" ),
+				     23 ) == 0 )
+				{
+					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					format            = WINDOWS_SEARCH_FORMAT_HEXADECIMAL;
+				}
+			}
+		}
 		/* Only check for known columns of the binary data type
 		 * some columns get their type reassigned over time
 		 */
@@ -2804,6 +2861,7 @@ int windows_search_export_record_systemindex_0a(
 				          11 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					format            = WINDOWS_SEARCH_FORMAT_DECIMAL;
 				}
 			}
 			else if( column_name_size == 13 )
@@ -3184,13 +3242,6 @@ int windows_search_export_record_systemindex_0a(
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
-				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ThumbnailCacheId" ),
-				          23 ) == 0 )
-				{
-					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
-				}
 			}
 			else if( column_name_size == 25 )
 			{
@@ -3441,6 +3492,7 @@ int windows_search_export_record_systemindex_0a(
 				  record,
 				  value_iterator,
 				  byte_order,
+				  format,
 				  record_file_stream,
 				  error );
 		}
