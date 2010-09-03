@@ -1,4 +1,7 @@
 TODO
+* code clean up
+  - change page value index and number of values into int
+  - rename LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE to LIBESEDB_ITEM_FLAG_FILE_IO_HANDLE_NON_MANAGED etc
 * combine libesedb_io_handle_read_page with libesedb_page_read
   - need libesedb_page_read for recovery ?
 
@@ -91,6 +94,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20100903
+* code clean up
 
 20100807
 * changed ThumbnailCacheId to hexadecimal representation

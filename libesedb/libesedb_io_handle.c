@@ -792,6 +792,7 @@ int libesedb_io_handle_read_file_header(
 }
 
 /* Reads a page
+ * Callback function for the page vector
  * Returns 1 if successful or -1 on error
  */
 int libesedb_io_handle_read_page(

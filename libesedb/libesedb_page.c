@@ -36,6 +36,65 @@
 
 #include "esedb_page.h"
 
+/* Creates a page value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_value_initialize(
+     libesedb_page_value_t **page_value,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_page_value_initialize";
+
+	if( page_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page value.",
+		 function );
+
+		return( -1 );
+	}
+	if( *page_value == NULL )
+	{
+		*page_value = (libesedb_page_value_t *) memory_allocate(
+		                                         sizeof( libesedb_page_value_t ) );
+
+		if( *page_value == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create page value.",
+			 function );
+
+			return( -1 );
+		}
+		if( memory_set(
+		     *page_value,
+		     0,
+		     sizeof( libesedb_page_value_t ) ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear page value.",
+			 function );
+
+			memory_free(
+			 *page_value );
+
+			*page_value = NULL;
+
+			return( -1 );
+		}
+	}
+	return( 1 );
+}
+
 /* Frees the page value
  * Returns 1 if successful or -1 on error
  */
@@ -61,6 +120,65 @@ int libesedb_page_value_free(
 	memory_free(
 	 page_value );
 
+	return( 1 );
+}
+
+/* Creates a page tags value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tags_value_initialize(
+     libesedb_page_tags_value_t **page_tags_value,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_page_tags_value_initialize";
+
+	if( page_tags_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tags value.",
+		 function );
+
+		return( -1 );
+	}
+	if( *page_tags_value == NULL )
+	{
+		*page_tags_value = (libesedb_page_tags_value_t *) memory_allocate(
+		                                                   sizeof( libesedb_page_tags_value_t ) );
+
+		if( *page_tags_value == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create page tags value.",
+			 function );
+
+			return( -1 );
+		}
+		if( memory_set(
+		     *page_tags_value,
+		     0,
+		     sizeof( libesedb_page_tags_value_t ) ) == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear page tags value.",
+			 function );
+
+			memory_free(
+			 *page_tags_value );
+
+			*page_tags_value = NULL;
+
+			return( -1 );
+		}
+	}
 	return( 1 );
 }
 
@@ -287,7 +405,6 @@ int libesedb_page_read(
 		 page->offset );
 	}
 #endif
-
 	if( libbfio_handle_seek_offset(
 	     file_io_handle,
 	     page->offset,
@@ -351,7 +468,6 @@ int libesedb_page_read(
 		 sizeof( esedb_page_header_t ) );
 	}
 #endif
-
 	page->page_number = calculated_page_number;
 
 	byte_stream_copy_to_uint16_little_endian(
@@ -501,7 +617,6 @@ int libesedb_page_read(
 		 "\n" );
 	}
 #endif
-
 	/* TODO for now don't bother calculating a checksum for uninitialized pages */
 
 	if( ( page_values_data[ 0 ] != 0 )
@@ -757,7 +872,7 @@ int libesedb_page_read(
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
-     uint16_t number_of_page_entries,
+     uint16_t number_of_page_tags,
      uint8_t *page_data,
      size_t page_data_size,
      liberror_error_t **error )
@@ -765,9 +880,9 @@ int libesedb_page_read_tags(
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	uint8_t *page_tags_data                     = NULL;
 	static char *function                       = "libesedb_page_read_tags";
-	uint16_t page_tag_iterator                  = 0;
 	uint16_t page_tag_offset                    = 0;
 	uint16_t page_tag_size                      = 0;
+	uint16_t page_tags_index                    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	size_t page_tags_data_size                  = 0;
@@ -817,11 +932,9 @@ int libesedb_page_read_tags(
 
 		return( -1 );
 	}
-	/* Resize the page tags array
-	 */
 	if( libesedb_array_resize(
 	     page_tags_array,
-	     number_of_page_entries,
+	     number_of_page_tags,
 	     &libesedb_page_tags_value_free,
 	     error ) != 1 )
 	{
@@ -837,7 +950,7 @@ int libesedb_page_read_tags(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
 	{
-		page_tags_data_size = 4 * number_of_page_entries;
+		page_tags_data_size = 4 * number_of_page_tags;
 
 		libnotify_printf(
 		 "%s: page tags:\n",
@@ -847,25 +960,23 @@ int libesedb_page_read_tags(
 		 page_tags_data_size );
 	}
 #endif
-
 	/* Read the page tags back to front
 	 */
 	page_tags_data = &( page_data[ page_data_size - 2 ] );
 
-	for( page_tag_iterator = 0;
-	     page_tag_iterator < number_of_page_entries;
-	     page_tag_iterator++ )
+	for( page_tags_index = 0;
+	     page_tags_index < number_of_page_tags;
+	     page_tags_index++ )
 	{
-		page_tags_value = (libesedb_page_tags_value_t *) memory_allocate(
-		                                                  sizeof( libesedb_page_tags_value_t ) );
-
-		if( page_tags_value == NULL )
+		if( libesedb_page_tags_value_initialize(
+		     &page_tags_value,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create page tag value.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create page tags value.",
 			 function );
 
 			return( -1 );
@@ -900,14 +1011,14 @@ int libesedb_page_read_tags(
 			libnotify_printf(
 			 "%s: page tag: %03" PRIu16 " offset\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 			 function,
-			 page_tag_iterator,
+			 page_tags_index,
 			 page_tags_value->offset,
 			 page_tag_offset );
 
 			libnotify_printf(
 			 "%s: page tag: %03" PRIu16 " size\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 			 function,
-			 page_tag_iterator,
+			 page_tags_index,
 			 page_tags_value->size,
 			 page_tag_size );
 
@@ -916,7 +1027,7 @@ int libesedb_page_read_tags(
 				libnotify_printf(
 				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
 				 function,
-				 page_tag_iterator,
+				 page_tags_index,
 				 page_tags_value->flags );
 				libesedb_debug_print_page_tag_flags(
 				 page_tags_value->flags );
@@ -925,10 +1036,9 @@ int libesedb_page_read_tags(
 			}
 		}
 #endif
-
 		if( libesedb_array_set_entry_by_index(
 		     page_tags_array,
-		     page_tag_iterator,
+		     (int) page_tags_index,
 		     (intptr_t *) page_tags_value,
 		     error ) != 1 )
 		{
@@ -938,13 +1048,15 @@ int libesedb_page_read_tags(
 			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set page tag: %" PRIu16 ".",
 			 function,
-			 page_tag_iterator );
+			 page_tags_index );
 
-			memory_free(
-			 page_tags_value );
+			libesedb_page_tags_value_free(
+			 (intptr_t *) page_tags_value,
+			 NULL );
 
 			return( -1 );
 		}
+		page_tags_value = NULL;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -971,7 +1083,7 @@ int libesedb_page_read_values(
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	libesedb_page_value_t *page_value           = NULL;
 	static char *function                       = "libesedb_page_read_values";
-	uint16_t page_tag_iterator                  = 0;
+	uint16_t page_tags_index                    = 0;
 
 	if( page == NULL )
 	{
@@ -1039,8 +1151,6 @@ int libesedb_page_read_values(
 
 		return( -1 );
 	}
-	/* Resize the page values array
-	 */
 	if( libesedb_array_resize(
 	     page->values_array,
 	     page_tags_array->number_of_entries,
@@ -1056,13 +1166,13 @@ int libesedb_page_read_values(
 
 		return( -1 );
 	}
-	for( page_tag_iterator = 0;
-	     page_tag_iterator < page_tags_array->number_of_entries;
-	     page_tag_iterator++ )
+	for( page_tags_index = 0;
+	     page_tags_index < page_tags_array->number_of_entries;
+	     page_tags_index++ )
 	{
 		if( libesedb_array_get_entry_by_index(
 		     page_tags_array,
-		     page_tag_iterator,
+		     page_tags_index,
 		     (intptr_t **) &page_tags_value,
 		     error ) != 1 )
 		{
@@ -1072,7 +1182,7 @@ int libesedb_page_read_values(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve page tag: %" PRIu16 ".",
 			 function,
-			 page_tag_iterator );
+			 page_tags_index );
 
 			return( -1 );
 		}
@@ -1087,24 +1197,21 @@ int libesedb_page_read_values(
 
 			return( -1 );
 		}
-		page_value = (libesedb_page_value_t *) memory_allocate(
-		                                        sizeof( libesedb_page_value_t ) );
-
-		if( page_value == NULL )
+		if( libesedb_page_value_initialize(
+		     &page_value,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create page value.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create tags value.",
 			 function );
 
 			return( -1 );
 		}
 		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		{
-			/* TODO does this also apply to non leaf pages ? */
-
 			/* The page tags flags are stored in the upper byte of the first 16-bit value
 			 */
 			page_tags_value->flags = page_values_data[ page_tags_value->offset + 1 ] >> 5;
@@ -1117,7 +1224,7 @@ int libesedb_page_read_values(
 			libnotify_printf(
 			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: 0x%02" PRIx8 "",
 			 function,
-			 page_tag_iterator,
+			 page_tags_index,
 			 page_tags_value->offset,
 			 page_tags_value->size,
 			 page_tags_value->flags );
@@ -1127,7 +1234,6 @@ int libesedb_page_read_values(
 			 "\n" );
 		}
 #endif
-
 		/* TODO check sanity of offset and size */
 
 		page_value->data   = &( page_values_data[ page_tags_value->offset ] );
@@ -1137,7 +1243,7 @@ int libesedb_page_read_values(
 
 		if( libesedb_array_set_entry_by_index(
 		     page->values_array,
-		     page_tag_iterator,
+		     (int) page_tags_index,
 		     (intptr_t *) page_value,
 		     error ) != 1 )
 		{
@@ -1147,13 +1253,15 @@ int libesedb_page_read_values(
 			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set page value: %" PRIu16 ".",
 			 function,
-			 page_tag_iterator );
+			 page_tags_index );
 
-			memory_free(
-			 page_value );
+			libesedb_page_value_free(
+			 (intptr_t *) page_value,
+			 NULL );
 
 			return( -1 );
 		}
+		page_value = NULL;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -1173,7 +1281,8 @@ int libesedb_page_get_number_of_values(
      uint16_t *number_of_values,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_page_get_number_of_values";
+	static char *function     = "libesedb_page_get_number_of_values";
+	int page_number_of_values = 0;
 
 	if( page == NULL )
 	{
@@ -1182,17 +1291,6 @@ int libesedb_page_get_number_of_values(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page.",
-		 function );
-
-		return( -1 );
-	}
-	if( page->values_array == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing values array.",
 		 function );
 
 		return( -1 );
@@ -1208,7 +1306,21 @@ int libesedb_page_get_number_of_values(
 
 		return( -1 );
 	}
-	if( page->values_array->number_of_entries > (int) UINT16_MAX )
+	if( libesedb_array_get_number_of_entries(
+	     page->values_array,
+	     &page_number_of_values,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of values.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_number_of_values > (int) UINT16_MAX )
 	{
 		liberror_error_set(
 		 error,
@@ -1219,7 +1331,7 @@ int libesedb_page_get_number_of_values(
 
 		return( -1 );
 	}
-	*number_of_values = (uint16_t) page->values_array->number_of_entries;
+	*number_of_values = (uint16_t) page_number_of_values;
 
 	return( 1 );
 }
@@ -1246,20 +1358,9 @@ int libesedb_page_get_value(
 
 		return( -1 );
 	}
-	if( page->values_array == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing values array.",
-		 function );
-
-		return( -1 );
-	}
 	if( libesedb_array_get_entry_by_index(
 	     page->values_array,
-	     value_index,
+	     (int) value_index,
 	     (intptr_t **) page_value,
 	     error ) != 1 )
 	{

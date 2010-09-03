@@ -114,8 +114,16 @@ struct libesedb_page
 	libesedb_array_t *values_array;
 };
 
+int libesedb_page_value_initialize(
+     libesedb_page_value_t **page_value,
+     liberror_error_t **error );
+
 int libesedb_page_value_free(
      intptr_t *page_value,
+     liberror_error_t **error );
+
+int libesedb_page_tags_value_initialize(
+     libesedb_page_tags_value_t **page_tags_value,
      liberror_error_t **error );
 
 int libesedb_page_tags_value_free(
@@ -140,7 +148,7 @@ int libesedb_page_read(
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
-     uint16_t number_of_page_entries,
+     uint16_t number_of_page_tags,
      uint8_t *page_data,
      size_t page_data_size,
      liberror_error_t **error );
