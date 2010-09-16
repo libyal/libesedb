@@ -95,6 +95,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100916
+* added support for handling space tree page: 0
+
 20100903
 * code clean up
 

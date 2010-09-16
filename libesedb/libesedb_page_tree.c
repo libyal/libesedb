@@ -372,8 +372,7 @@ int libesedb_page_tree_read_root_page(
 	 */
 	if( extent_space > 0 )
 	{
-		if( ( space_tree_page_number == 0 )
-		 && ( space_tree_page_number >= 0xff000000UL ) )
+		if( space_tree_page_number >= 0xff000000UL )
 		{
 			liberror_error_set(
 			 error,
@@ -385,43 +384,46 @@ int libesedb_page_tree_read_root_page(
 
 			return( -1 );
 		}
-		/* Read the owned pages space tree page
-		 */
-		if( libesedb_page_tree_read_space_tree_page(
-		     page_tree,
-		     file_io_handle,
-		     space_tree_page_number,
-		     error ) != 1 )
+		if( space_tree_page_number > 0 )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read space tree page: %" PRIu32 ".",
-			 function,
-			 space_tree_page_number );
+			/* Read the owned pages space tree page
+			 */
+			if( libesedb_page_tree_read_space_tree_page(
+			     page_tree,
+			     file_io_handle,
+			     space_tree_page_number,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read space tree page: %" PRIu32 ".",
+				 function,
+				 space_tree_page_number );
 
-			return( -1 );
-		}
-		/* Read the available pages space tree page
-		 */
-		space_tree_page_number += 1;
+				return( -1 );
+			}
+			/* Read the available pages space tree page
+			 */
+			space_tree_page_number += 1;
 
-		if( libesedb_page_tree_read_space_tree_page(
-		     page_tree,
-		     file_io_handle,
-		     space_tree_page_number,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read space tree page: %" PRIu32 ".",
-			 function,
-			 space_tree_page_number );
+			if( libesedb_page_tree_read_space_tree_page(
+			     page_tree,
+			     file_io_handle,
+			     space_tree_page_number,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read space tree page: %" PRIu32 ".",
+				 function,
+				 space_tree_page_number );
 
-			return( -1 );
+				return( -1 );
+			}
 		}
 	}
 	return( 1 );
