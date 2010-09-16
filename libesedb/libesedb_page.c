@@ -494,7 +494,8 @@ int libesedb_page_read(
 
 	/* Make sure to read after the page flags
 	 */
-	if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+	 && ( io_handle->page_size >= 16384 ) )
 	{
 		/* TODO handle checksum */
 	}
@@ -526,7 +527,8 @@ int libesedb_page_read(
 		 function,
 		 calculated_page_number );
 
-		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
 		{
 			/* TODO handle checksum */
 
@@ -624,7 +626,8 @@ int libesedb_page_read(
 	 || ( page_values_data[ 2 ] != 0 )
 	 || ( page_values_data[ 3 ] != 0 ) )
 	{
-		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
 		{
 			/* TODO handle checksum */
 		}
@@ -722,7 +725,8 @@ int libesedb_page_read(
 	page_values_data_size   -= sizeof( esedb_page_header_t );
 	page_values_data_offset += sizeof( esedb_page_header_t );
 
-	if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+	 && ( io_handle->page_size >= 16384 ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -993,7 +997,8 @@ int libesedb_page_read_tags(
 
 		page_tags_data -= 2;
 
-		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
 		{
 			page_tags_value->flags  = 0;
 			page_tags_value->offset = page_tag_offset & 0x7fff;
@@ -1022,7 +1027,8 @@ int libesedb_page_read_tags(
 			 page_tags_value->size,
 			 page_tag_size );
 
-			if( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+			if( ( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+			 && ( io_handle->page_size >= 16384 ) )
 			{
 				libnotify_printf(
 				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
@@ -1210,7 +1216,8 @@ int libesedb_page_read_values(
 
 			return( -1 );
 		}
-		if( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
 		{
 			/* The page tags flags are stored in the upper byte of the first 16-bit value
 			 */

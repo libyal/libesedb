@@ -301,7 +301,7 @@ int main( int argc, char * const argv[] )
 		source_length = libcstring_system_string_length(
 		                 source );
 
-		path_separator = libcstring_system_string_search_reverse(
+		path_separator = libcstring_system_string_search_character_reverse(
 		                  source,
 		                  (libcstring_system_character_t) LIBSYSTEM_PATH_SEPARATOR,
 		                  source_length );

@@ -432,6 +432,13 @@ AC_CHECK_FUNCS(
    [1]) ]) ])
 
 AC_CHECK_FUNCS(
+ [strstr],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: strstr],
+  [1]) ])
+
+AC_CHECK_FUNCS(
  [strtoll],
  [],
  [AC_CHECK_FUNCS(
@@ -1137,6 +1144,13 @@ AS_IF(
     [AC_MSG_FAILURE(
      [Missing functions: wcsncasecmp, wcscasecmp and towlower],
      [1]) ]) ]) ])
+
+ AC_CHECK_FUNCS(
+  [wcsstr],
+  [],
+  [AC_MSG_FAILURE(
+   [Missing function: wcsstr],
+   [1]) ])
 
  AC_CHECK_FUNCS(
   [wcstoll],

@@ -97,6 +97,8 @@ Notes
 
 20100916
 * added support for handling space tree page: 0
+* updated libcstring, libsystem, libuna, libbfio, libfdata, libfdatetime,
+  libfguid, libfmapi, libfvalue, libfwnt
 
 20100903
 * code clean up
