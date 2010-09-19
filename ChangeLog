@@ -95,6 +95,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20100919
+* worked on Windows Security database support
+
 20100916
 * added support for handling space tree page: 0
 * updated libcstring, libsystem, libuna, libbfio, libfdata, libfdatetime,

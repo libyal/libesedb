@@ -127,6 +127,10 @@
 				RelativePath="..\..\esedbtools\windows_search.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\esedbtools\windows_security.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -151,6 +155,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\windows_search.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\windows_security.h"
 				>
 			</File>
 		</Filter>

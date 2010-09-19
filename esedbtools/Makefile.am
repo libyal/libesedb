@@ -26,7 +26,8 @@ esedbexport_SOURCES = \
 	exchange.c exchange.h \
 	export_handle.c export_handle.h \
 	log_handle.c log_handle.h \
-	windows_search.c windows_search.h
+	windows_search.c windows_search.h \
+	windows_security.c windows_security.h
 
 esedbexport_LDADD  = \
 	../libcstring/libcstring.la \

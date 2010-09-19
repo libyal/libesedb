@@ -67,6 +67,7 @@
 #include "export_handle.h"
 #include "exchange.h"
 #include "windows_search.h"
+#include "windows_security.h"
 
 #define EXPORT_HANDLE_NOTIFY_STREAM	stdout
 
@@ -899,6 +900,33 @@ int export_handle_export_table(
 				known_table = 1;
 
 				result = exchange_export_record_mailbox(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
+		else if( table_name_size == 13 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "SmTblSection" ),
+			     12 ) == 0 )
+			{
+				known_table = 1;
+
+				result = windows_security_export_record_smtblsection(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+			else if( libcstring_system_string_compare(
+			          table_name,
+			          _LIBCSTRING_SYSTEM_STRING( "SmTblVersion" ),
+			          12 ) == 0 )
+			{
+				known_table = 1;
+
+				result = windows_security_export_record_smtblversion(
 				          record,
 				          table_file_stream,
 				          error );
