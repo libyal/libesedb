@@ -705,7 +705,8 @@ int libesedb_file_close(
 			result = -1;
 		}
 	}
-	internal_file->file_io_handle = NULL;
+	internal_file->file_io_handle                    = NULL;
+	internal_file->file_io_handle_created_in_library = 0;
 
 	if( libfdata_vector_free(
 	     &( internal_file->pages_vector ),

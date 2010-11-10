@@ -50,16 +50,6 @@
 #define USE_CRT_FUNCTIONS	1
  */
 
-/* Disables a Windows 98 safe version of GetFileSizeEx
- * uses a hardcoded version
-#define HAVE_GETFILESIZEEX	1
- */
-
-/* Disables a Windows 98 safe version of SetFilePointerEx
- * uses a hardcoded version
-#define HAVE_SETFILEPOINTEREX	1
- */
-
 /* Enable verbose output
 #define HAVE_VERBOSE_OUTPUT     1
  */

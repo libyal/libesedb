@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,21 +24,14 @@
 
 #include <libesedb/features.h>
 
-#if @HAVE_SYS_TYPES_H@ || defined( HAVE_SYS_TYPES_H )
-#include <sys/types.h>
-
-#else
-#error Missing system type definitions (sys/types.h)
-#endif
-
-/* Type definitions for the Microsoft Visual Studio C++ compiler
+/* Microsoft C/C++ compiler
  */
 #if defined( _MSC_VER )
 
-/* Define LIBESEDB_DEFINITION_INTEGER_TYPES to avoid conflict
+/* Define _LIBESEDB_TYPES_H_INTEGERS to avoid conflict
  */
-#if !defined( LIBESEDB_DEFINITION_INTEGER_TYPES )
-#define LIBESEDB_DEFINITION_INTEGER_TYPES
+#if !defined( _LIBESEDB_TYPES_H_INTEGERS )
+#define _LIBESEDB_TYPES_H_INTEGERS
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,16 +60,17 @@ typedef __int32			ssize_t;
 }
 #endif
 
-#endif /* LIBESEDB_DEFINITION_INTEGER_TYPES */
+#endif /* !defined( _LIBESEDB_TYPES_H_INTEGERS ) */
 
+/* Borland C/C++ compiler
+ */
 #elif defined( __BORLANDC__ )
-
 #if __BORLANDC__ <= 0x0560
 
-/* Define LIBESEDB_DEFINITION_INTEGER_TYPES to avoid conflict
+/* Define _LIBESEDB_TYPES_H_INTEGERS to avoid conflict
  */
-#if !defined( LIBESEDB_DEFINITION_INTEGER_TYPES )
-#define LIBESEDB_DEFINITION_INTEGER_TYPES
+#if !defined( _LIBESEDB_TYPES_H_INTEGERS )
+#define _LIBESEDB_TYPES_H_INTEGERS
 
 #ifdef __cplusplus
 extern "C" {
@@ -107,16 +101,27 @@ typedef unsigned __int32	intptr_t;
 }
 #endif
 
-#endif /* LIBESEDB_DEFINITION_INTEGER_TYPES */
+#endif /* !defined( _LIBESEDB_TYPES_H_INTEGERS ) */
 
 #else
 #include <stdint.h>
 #endif /* __BORLANDC__ <= 0x0560 */
 
+/* Other compilers
+ */
+#else
+
+#if @HAVE_SYS_TYPES_H@ || defined( HAVE_SYS_TYPES_H )
+#include <sys/types.h>
+
+#else
+#error Missing system type definitions (sys/types.h)
+#endif
+
 /* Type definitions for compilers that have access to
  * <inttypes.h> or <stdint.h>
  */
-#elif @HAVE_INTTYPES_H@ || defined( HAVE_INTTYPES_H )
+#if @HAVE_INTTYPES_H@ || defined( HAVE_INTTYPES_H )
 #include <inttypes.h>
 
 #elif @HAVE_STDINT_H@ || defined( HAVE_STDINT_H )
@@ -126,7 +131,9 @@ typedef unsigned __int32	intptr_t;
 #error Missing integer type definitions (inttypes.h, stdint.h)
 #endif
 
-#if defined( LIBESEDB_WIDE_CHARACTER_TYPE )
+#endif /* Compiler specific integer type definitions */
+
+#if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
 
 #if defined( _MSC_VER ) || defined( __MINGW32_VERSION )
 #include <wchar.h>
@@ -167,8 +174,6 @@ typedef unsigned __int32	intptr_t;
 #undef LIBESEDB_DEFINITION_ISOC99
 #endif
 
-#else
-#error Missing wide character type definition (wchar.h)
 #endif
 
 #endif

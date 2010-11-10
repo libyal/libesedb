@@ -71,13 +71,16 @@ libesedb_la_LIBADD = \
 libesedb_la_LDFLAGS = -no-undefined -version-info 1:0:0
 
 EXTRA_DIST = \
-	libesedb_definitions.h.in
+	libesedb_definitions.h.in \
+	libesedb.rc \
+	libesedb.rc.in
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
 	/bin/rm -f Makefile
+	/bin/rm -f libesedb.rc
 
 splint:
 	@echo "Running splint on libesedb ..." 

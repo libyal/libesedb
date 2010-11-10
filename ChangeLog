@@ -1,4 +1,6 @@
 TODO
+* export error in more test files: nibble count value exceeds maximum
+
 * code clean up
   - change page value index and number of values into int
   - rename LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE to LIBESEDB_ITEM_FLAG_FILE_IO_HANDLE_NON_MANAGED etc
@@ -94,6 +96,16 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20101110
+* updated configure.ac
+* updated include/error.h
+* updated include/types.h
+* updated array type
+* updated common, liberror, libnotify, libsystem, libbfio, libfdata, libfmapi
+  libfvalue
+* worked on support for multi value with emtpy values
+* added libesedb.rc for msvscpp build
 
 20100919
 * worked on Windows Security database support

@@ -22,6 +22,8 @@
 #if !defined( _LIBESEDB_ERROR_H )
 #define _LIBESEDB_ERROR_H
 
+#include <libesedb/types.h>
+
 /* External error type definition hides internal structure
  */
 typedef intptr_t libesedb_error_t;
@@ -290,7 +292,11 @@ enum LIBESEDB_RUNTIME_ERROR
  */
 enum LIBESEDB_OUTPUT_ERROR
 {
-	LIBESEDB_OUTPUT_ERROR_GENERIC			= 0
+	LIBESEDB_OUTPUT_ERROR_GENERIC			= 0,
+
+	/* There is insuficient space to write the output
+	 */
+	LIBESEDB_OUTPUT_ERROR_INSUFFICIENT_SPACE	= 1
 };
 
 #endif

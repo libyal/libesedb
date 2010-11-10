@@ -3263,18 +3263,6 @@ int libesedb_record_get_multi_value(
 			}
 			value_entry_size = value_16bit - value_entry_offset;
 
-			if( value_entry_size == 0 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid value size: %" PRIu16 " value is emtpy.",
-				 function,
-				 value_entry_offset_index );
-
-				return( -1 );
-			}
 			if( libfvalue_value_set_value_entry(
 			     record_value,
 			     (int) ( value_entry_offset_index - 1 ),
