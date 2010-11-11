@@ -1781,6 +1781,7 @@ int libesedb_values_tree_value_read_long_value(
 int libesedb_values_tree_value_read_long_value_segment(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
@@ -1909,8 +1910,13 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	long_value_segment_data_size   = page_value->size - values_tree_value->data_offset;
-	long_value_segment_data_offset = values_tree_value->page_offset + page_value->offset + values_tree_value->data_offset;
+	long_value_segment_data_size = page_value->size - values_tree_value->data_offset;
+
+	/* Note that the data block will point to the file offset
+	 * values_tree_value->page_offset contains the offset relative from the start of the page data
+	 */
+	long_value_segment_data_offset = io_handle->pages_data_offset + values_tree_value->page_offset
+	                               + values_tree_value->data_offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )

@@ -2929,6 +2929,7 @@ int libesedb_record_get_long_value(
 		if( libesedb_long_value_initialize(
 		     long_value,
 		     internal_record->file_io_handle,
+		     internal_record->io_handle,
 		     column_catalog_definition,
 		     internal_record->pages_vector,
 		     internal_record->pages_cache,

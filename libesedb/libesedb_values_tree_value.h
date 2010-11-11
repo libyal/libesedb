@@ -133,6 +133,7 @@ int libesedb_values_tree_value_read_long_value(
 int libesedb_values_tree_value_read_long_value_segment(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
      uint32_t long_value_segment_offset,

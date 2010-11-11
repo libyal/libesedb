@@ -97,6 +97,7 @@
 
 #include <libsystem.h>
 
+#include "export.h"
 #include "export_handle.h"
 #include "windows_search.h"
 
@@ -264,8 +265,20 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 		}
 		compression_size = compressed_data[ compressed_data_iterator++ ];
 
+#ifdef TODO
+		/* Some run-level compressed string seem to be cut-short at the end
+		 */
+		if( ( compressed_data_iterator + compression_size ) > compressed_data_size )
+		{
+			compression_size = compressed_data_size - compressed_data_iterator;
+		}
+		else
+		{
+			compressed_data_iterator += 1;
+		}
+#endif
 		*uncompressed_data_size  += compression_size * 2;
-		compressed_data_iterator += 1 + compression_size;
+		compressed_data_iterator += compression_size + 1;
 	}
 	if( compressed_data_iterator > compressed_data_size )
 	{
@@ -359,6 +372,14 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 		compression_size = compressed_data[ compressed_data_iterator++ ];
 		compression_byte = compressed_data[ compressed_data_iterator++ ];
 
+#ifdef TODO
+		/* Some run-level compressed string seem to be cut-short at the end
+		 */
+		if( ( compressed_data_iterator + compression_size ) > compressed_data_size )
+		{
+			compression_size = compressed_data_size - compressed_data_iterator;
+		}
+#endif
 		while( compression_size > 0 )
 		{
 			if( compressed_data_iterator >= compressed_data_size )
@@ -1112,7 +1133,6 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			uncompressed_data[ uncompressed_data_iterator++ ] = (uint8_t) ( compression_value & 0xff );
 		}
 	}
-
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
@@ -1136,14 +1156,18 @@ int windows_search_export_compressed_string_value(
      FILE *record_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *decoded_value_data    = NULL;
-	uint8_t *value_string          = NULL;
-	uint8_t *value_utf16_stream    = NULL;
-	static char *function          = "windows_search_export_compressed_string_value";
-	size_t decoded_value_data_size = 0;
-	size_t value_string_size       = 0;
-	size_t value_utf16_stream_size = 0;
-	int result                     = 0;
+	libcstring_system_character_t *value_string = NULL;
+	uint8_t *decoded_value_data                 = NULL;
+	uint8_t *decompressed_value_data            = NULL;
+	uint8_t *narrow_value_string                = NULL;
+	uint8_t *value_utf16_stream                 = NULL;
+	static char *function                       = "windows_search_export_compressed_string_value";
+	size_t decoded_value_data_size              = 0;
+	size_t decompressed_value_data_size         = 0;
+	size_t value_string_size                    = 0;
+	size_t value_utf16_stream_size              = 0;
+	uint8_t compression_type                    = 0;
+	int result                                  = 0;
 
 	if( value_data == NULL )
 	{
@@ -1224,6 +1248,19 @@ int windows_search_export_compressed_string_value(
 
 		return( -1 );
 	}
+/* TODO test purposes
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
+	if( libsystem_notify_verbose != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: value data:\n",
+		 function );
+		libsystem_notify_print_data(
+		 value_data,
+		 value_data_size );
+	}
+#endif
+*/
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 	if( libsystem_notify_verbose != 0 )
 	{
@@ -1235,9 +1272,110 @@ int windows_search_export_compressed_string_value(
 		 decoded_value_data_size );
 	}
 #endif
+	compression_type = decoded_value_data[ 0 ];
+
+	/* Byte-index compressed data
+	 */
+	if( ( compression_type == 2 )
+	 || ( compression_type == 3 ) )
+	{
+		if( windows_search_get_byte_index_uncompressed_data_size(
+		     &( decoded_value_data[ 1 ] ),
+		     decoded_value_data_size - 1,
+		     &decompressed_value_data_size,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve byte-index compressed data size.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		decompressed_value_data_size += 1;
+
+		decompressed_value_data = (uint8_t *) memory_allocate(
+		                                       sizeof( uint8_t ) * decompressed_value_data_size );
+
+		if( decompressed_value_data == NULL )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_MEMORY,
+			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create decompressed value data.",
+			 function );
+
+			memory_free(
+			 decoded_value_data );
+
+			return( -1 );
+		}
+		/* Add the first byte of the decoded data - 2 to have the
+		 * decompressed data look like decoded data for chained decompression
+		 */
+		decompressed_value_data[ 0 ] = decoded_value_data[ 0 ] - 2;
+
+		result = windows_search_decompress_byte_indexed_compressed_data(
+		          &( decompressed_value_data[ 1 ] ),
+		          decompressed_value_data_size - 1,
+		          &( decoded_value_data[ 1 ] ),
+		          decoded_value_data_size - 1,
+		          error );
+
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to decompress byte-index compressed data.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libsystem_notify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			liberror_error_free(
+			 error );
+
+			memory_free(
+			 decompressed_value_data );
+		}
+		else
+		{
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
+			if( libsystem_notify_verbose != 0 )
+			{
+				libsystem_notify_printf(
+				 "%s: decompressed data:\n",
+				 function );
+				libsystem_notify_print_data(
+				 decompressed_value_data,
+				 decompressed_value_data_size );
+			}
+#endif
+			memory_free(
+			 decoded_value_data );
+
+			decoded_value_data      = decompressed_value_data;
+			decoded_value_data_size = decompressed_value_data_size;
+
+			compression_type -= 2;
+		}
+	}
 	/* Run-length compressed UTF-16 little-endian string
 	 */
-	if( decoded_value_data[ 0 ] == 0 )
+	if( compression_type == 0 )
 	{
 		if( windows_search_get_run_length_uncompressed_utf16_string_size(
 		     &( decoded_value_data[ 1 ] ),
@@ -1307,12 +1445,22 @@ int windows_search_export_compressed_string_value(
 			memory_free(
 			 decoded_value_data );
 
-			if( libuna_utf8_string_size_from_utf16_stream(
-			     value_utf16_stream,
-			     value_utf16_stream_size,
-			     LIBUNA_ENDIAN_LITTLE,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_size_from_utf16_stream(
+			          value_utf16_stream,
+			          value_utf16_stream_size,
+			          LIBUNA_ENDIAN_LITTLE,
+			          &value_string_size,
+			          error );
+#else
+			result = libuna_utf8_string_size_from_utf16_stream(
+			          value_utf16_stream,
+			          value_utf16_stream_size,
+			          LIBUNA_ENDIAN_LITTLE,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -1326,8 +1474,8 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -1343,13 +1491,24 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
-			if( libuna_utf8_string_copy_from_utf16_stream(
-			     value_string,
-			     value_string_size,
-			     value_utf16_stream,
-			     value_utf16_stream_size,
-			     LIBUNA_ENDIAN_LITTLE,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_copy_from_utf16_stream(
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          value_utf16_stream,
+			          value_utf16_stream_size,
+			          LIBUNA_ENDIAN_LITTLE,
+			          error );
+#else
+			result = libuna_utf8_string_copy_from_utf16_stream(
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          value_utf16_stream,
+			          value_utf16_stream_size,
+			          LIBUNA_ENDIAN_LITTLE,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -1368,10 +1527,10 @@ int windows_search_export_compressed_string_value(
 			memory_free(
 			 value_utf16_stream );
 
-			fprintf(
-			 record_file_stream,
-			 "%s",
-			 value_string );
+			export_text(
+			 value_string,
+			 value_string_size,
+			 record_file_stream );
 
 			memory_free(
 			 value_string );
@@ -1379,7 +1538,7 @@ int windows_search_export_compressed_string_value(
 	}
 	/* 8-bit compressed UTF-16 little-endian string
 	 */
-	else if( decoded_value_data[ 0 ] == 1 )
+	else if( compression_type == 1 )
 	{
 		if( libuna_utf8_string_size_from_byte_stream(
 		     &( decoded_value_data[ 1 ] ),
@@ -1400,10 +1559,10 @@ int windows_search_export_compressed_string_value(
 
 			return( -1 );
 		}
-		value_string = (uint8_t *) memory_allocate(
-					    sizeof( uint8_t ) * value_string_size );
+		narrow_value_string = (uint8_t *) memory_allocate(
+		                                   sizeof( uint8_t ) * value_string_size );
 
-		if( value_string == NULL )
+		if( narrow_value_string == NULL )
 		{
 			liberror_error_set(
 			 error,
@@ -1418,7 +1577,7 @@ int windows_search_export_compressed_string_value(
 			return( -1 );
 		}
 		if( libuna_utf8_string_copy_from_byte_stream(
-		     value_string,
+		     narrow_value_string,
 		     value_string_size,
 		     &( decoded_value_data[ 1 ] ),
 		     decoded_value_data_size - 1,
@@ -1433,7 +1592,7 @@ int windows_search_export_compressed_string_value(
 			 function );
 
 			memory_free(
-			 value_string );
+			 narrow_value_string );
 			memory_free(
 			 decoded_value_data );
 
@@ -1442,126 +1601,40 @@ int windows_search_export_compressed_string_value(
 		memory_free(
 		 decoded_value_data );
 
-		fprintf(
-		 record_file_stream,
-		 "%s",
-		 value_string );
+		export_narrow_text(
+		 (char *) narrow_value_string,
+		 value_string_size,
+		 record_file_stream );
 
 		memory_free(
-		 value_string );
-	}
-	/* byte-index compressed data
-	 */
-	else if( decoded_value_data[ 0 ] == 3 )
-	{
-		if( windows_search_get_byte_index_uncompressed_data_size(
-		     &( decoded_value_data[ 1 ] ),
-		     decoded_value_data_size - 1,
-		     &value_string_size,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve byte-index compressed data size.",
-			 function );
-
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
-		}
-		value_string = (uint8_t *) memory_allocate(
-					    sizeof( uint8_t ) * ( value_string_size + 1 ) );
-
-		if( value_string == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create value string.",
-			 function );
-
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
-		}
-		result = windows_search_decompress_byte_indexed_compressed_data(
-		          value_string,
-		          value_string_size,
-		          &( decoded_value_data[ 1 ] ),
-		          decoded_value_data_size - 1,
-		          error );
-
-		if( result != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to decompress byte-index compressed data.",
-			 function );
-
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libsystem_notify_print_error_backtrace(
-				 *error );
-			}
-			liberror_error_free(
-			 error );
-
-			memory_free(
-			 value_string );
-			memory_free(
-			 decoded_value_data );
-		}
-		else
-		{
-			memory_free(
-			 decoded_value_data );
-
-			value_string[ value_string_size ] = 0;
-
-			fprintf(
-			 record_file_stream,
-			 "%s",
-			 value_string );
-
-			memory_free(
-			 value_string );
-		}
+		 narrow_value_string );
 	}
 	/* uncompressed data
 	 */
-	else if( decoded_value_data[ 0 ] == 4 )
+	else if( compression_type == 4 )
 	{
-		fprintf(
-		 record_file_stream,
-		 "%s",
-		 &( decoded_value_data[ 1 ] ) );
+		export_narrow_text(
+		 (char *) &( decoded_value_data[ 1 ] ),
+		 decoded_value_data_size - 1,
+		 record_file_stream );
 
 		memory_free(
 		 decoded_value_data );
 	}
 	else
 	{
-#if defined( HAVE_DEBUG_OUTPUT )
 		if( libsystem_notify_verbose != 0 )
 		{
 			libsystem_notify_printf(
-			 "UNSUPPORTED COMPRESSION TYPE: 0x%02" PRIx8 "\n",
-			 decoded_value_data[ 0 ] );
+			 "unsupported compression type: 0x%02" PRIx8 "\n",
+			 compression_type );
 
+#if defined( HAVE_DEBUG_OUTPUT )
 			libsystem_notify_print_data(
 			 decoded_value_data,
 			 decoded_value_data_size );
-		}
 #endif
-
+		}
 		memory_free(
 		 decoded_value_data );
 	}
@@ -1702,19 +1775,10 @@ int windows_search_export_record_value_32bit(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }
@@ -1881,37 +1945,20 @@ int windows_search_export_record_value_64bit(
 				}
 				else if( format == WINDOWS_SEARCH_FORMAT_HEXADECIMAL )
 				{
-					/* Using a while loop to have all digits printed
-					 */
-					while( value_data_size > 0 )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%02" PRIx8 "",
-						 *value_data );
-
-						value_data      += 1;
-						value_data_size -= 1;
-					}
+					export_binary_data(
+					 value_data,
+					 value_data_size,
+					 record_file_stream );
 				}
 			}
 		}
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }
@@ -2106,19 +2153,10 @@ int windows_search_export_record_value_filetime(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }
@@ -2134,12 +2172,9 @@ int windows_search_export_record_value_compressed_string(
 {
 	libesedb_long_value_t *long_value   = NULL;
 	libesedb_multi_value_t *multi_value = NULL;
-	uint8_t *decoded_value_data         = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
-	size_t decoded_value_data_size      = 0;
 	size_t value_data_size              = 0;
-	uint32_t column_identifier          = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_flags                 = 0;
 	int long_value_segment_iterator     = 0;
@@ -2465,19 +2500,10 @@ if( libsystem_notify_verbose != 0 )
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }
@@ -2492,13 +2518,14 @@ int windows_search_export_record_value_utf16_string(
      FILE *record_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *value_data      = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "windows_search_export_record_value_utf16_string";
-	size_t value_data_size   = 0;
-	size_t value_string_size = 0;
-	uint32_t column_type     = 0;
-	uint8_t value_flags      = 0;
+	libcstring_system_character_t *value_string = NULL;
+	uint8_t *value_data                         = NULL;
+	static char *function                       = "windows_search_export_record_value_utf16_string";
+	size_t value_data_size                      = 0;
+	size_t value_string_size                    = 0;
+	uint32_t column_type                        = 0;
+	uint8_t value_flags                         = 0;
+	int result                                  = 0;
 
 	if( record == NULL )
 	{
@@ -2573,12 +2600,22 @@ int windows_search_export_record_value_utf16_string(
 	{
 		if( value_data != NULL )
 		{
-			if( libuna_utf8_string_size_from_utf16_stream(
-			     value_data,
-			     value_data_size,
-			     byte_order,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_size_from_utf16_stream(
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          &value_string_size,
+			          error );
+#else
+			result = libuna_utf8_string_size_from_utf16_stream(
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -2590,8 +2627,8 @@ int windows_search_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+						                          sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -2604,13 +2641,24 @@ int windows_search_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			if( libuna_utf8_string_copy_from_utf16_stream(
-			     value_string,
-			     value_string_size,
-			     value_data,
-			     value_data_size,
-			     byte_order,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_copy_from_utf16_stream(
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          error );
+#else
+			result = libuna_utf8_string_copy_from_utf16_stream(
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -2625,10 +2673,10 @@ int windows_search_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			fprintf(
-			 record_file_stream,
-			 "%s",
-			 value_string );
+			export_text(
+			 value_string,
+			 value_string_size,
+			 record_file_stream );
 
 			memory_free(
 			 value_string );
@@ -2636,19 +2684,10 @@ int windows_search_export_record_value_utf16_string(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }

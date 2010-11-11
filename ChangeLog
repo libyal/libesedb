@@ -1,4 +1,9 @@
 TODO
+* windows search
+  - multi long value segment decryption/compression support
+* vista search:
+  - compression type: 0x02 cut-short run-length string ?
+  - unsupported compression type: 0x06
 * export error in more test files: nibble count value exceeds maximum
 
 * code clean up
@@ -97,9 +102,16 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20101112
+* updated libfvalue: optimization for codepage 1200 handling
+* added support for windows search compression type 2
+
 20101111
 * improved multi value support
 * updated libfvalue
+* esedbexport: worked on support for exchange
+* fixed issue regarding incorrect long value segment offset
+* esedbexport: reformats text with some escaped special characters
 
 20101110
 * updated configure.ac

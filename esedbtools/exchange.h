@@ -20,7 +20,7 @@
  */
 
 #if !defined( _EXCHANGE_H )
-#define _ECHANGE_H
+#define _EXCHANGE_H
 
 #include <common.h>
 #include <file_stream.h>
@@ -110,6 +110,11 @@ int exchange_export_record_global(
      liberror_error_t **error );
 
 int exchange_export_record_mailbox(
+     libesedb_record_t *record,
+     FILE *record_file_stream,
+     liberror_error_t **error );
+
+int exchange_export_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error );

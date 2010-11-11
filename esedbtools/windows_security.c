@@ -97,6 +97,7 @@
 
 #include <libsystem.h>
 
+#include "export.h"
 #include "export_handle.h"
 #include "windows_security.h"
 
@@ -297,19 +298,10 @@ int windows_security_export_record_value_filetime(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }
@@ -324,13 +316,14 @@ int windows_security_export_record_value_utf16_string(
      FILE *record_file_stream,
      liberror_error_t **error )
 {
-	uint8_t *value_data      = NULL;
-	uint8_t *value_string    = NULL;
-	static char *function    = "windows_security_export_record_value_utf16_string";
-	size_t value_data_size   = 0;
-	size_t value_string_size = 0;
-	uint32_t column_type     = 0;
-	uint8_t value_flags      = 0;
+	libcstring_system_character_t *value_string = NULL;
+	uint8_t *value_data                         = NULL;
+	static char *function                       = "windows_security_export_record_value_utf16_string";
+	size_t value_data_size                      = 0;
+	size_t value_string_size                    = 0;
+	uint32_t column_type                        = 0;
+	uint8_t value_flags                         = 0;
+	int result                                  = 0;
 
 	if( record == NULL )
 	{
@@ -405,12 +398,22 @@ int windows_security_export_record_value_utf16_string(
 	{
 		if( value_data != NULL )
 		{
-			if( libuna_utf8_string_size_from_utf16_stream(
-			     value_data,
-			     value_data_size,
-			     byte_order,
-			     &value_string_size,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_size_from_utf16_stream(
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          &value_string_size,
+			          error );
+#else
+			result = libuna_utf8_string_size_from_utf16_stream(
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          &value_string_size,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -422,8 +425,8 @@ int windows_security_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			value_string = (uint8_t *) memory_allocate(
-						    sizeof( uint8_t ) * value_string_size );
+			value_string = (libcstring_system_character_t *) memory_allocate(
+						                          sizeof( libcstring_system_character_t ) * value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -436,13 +439,24 @@ int windows_security_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			if( libuna_utf8_string_copy_from_utf16_stream(
-			     value_string,
-			     value_string_size,
-			     value_data,
-			     value_data_size,
-			     byte_order,
-			     error ) != 1 )
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libuna_utf16_string_copy_from_utf16_stream(
+			          (uint16_t *) value_string,
+			          value_string_size,
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          error );
+#else
+			result = libuna_utf8_string_copy_from_utf16_stream(
+			          (uint8_t *) value_string,
+			          value_string_size,
+			          value_data,
+			          value_data_size,
+			          byte_order,
+			          error );
+#endif
+			if( result != 1 )
 			{
 				liberror_error_set(
 				 error,
@@ -457,10 +471,10 @@ int windows_security_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			fprintf(
-			 record_file_stream,
-			 "%s",
-			 value_string );
+			export_text(
+			 value_string,
+			 value_string_size,
+			 record_file_stream );
 
 			memory_free(
 			 value_string );
@@ -468,19 +482,10 @@ int windows_security_export_record_value_utf16_string(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }

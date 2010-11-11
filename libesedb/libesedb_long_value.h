@@ -29,6 +29,7 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
+#include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_types.h"
@@ -73,6 +74,7 @@ struct libesedb_internal_long_value
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,

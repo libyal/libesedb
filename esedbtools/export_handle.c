@@ -64,6 +64,7 @@
 
 #include <libsystem.h>
 
+#include "export.h"
 #include "export_handle.h"
 #include "exchange.h"
 #include "windows_search.h"
@@ -863,7 +864,22 @@ int export_handle_export_table(
 		}
 		known_table = 0;
 
-		if( table_name_size == 7 )
+		if( table_name_size == 4 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "Msg" ),
+			     3 ) == 0 )
+			{
+				known_table = 1;
+
+				result = exchange_export_record_msg(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
+		else if( table_name_size == 7 )
 		{
 			if( libcstring_system_string_compare(
 			     table_name,
@@ -1055,20 +1071,12 @@ int export_handle_export_indexes(
 {
 	libcstring_system_character_t *index_directory_name = NULL;
 	libcstring_system_character_t *index_name           = NULL;
-	libesedb_column_t *column                           = NULL;
 	libesedb_index_t *index                             = NULL;
-	libesedb_record_t *record                           = NULL;
-	FILE *table_file_stream                             = NULL;
 	static char *function                               = "export_handle_export_indexes";
 	size_t index_directory_name_size                    = 0;
 	size_t index_name_size                              = 0;
-	int column_iterator                                 = 0;
 	int index_iterator                                  = 0;
-	int known_table                                     = 0;
-	int number_of_columns                               = 0;
 	int number_of_indexes                               = 0;
-	int number_of_records                               = 0;
-	int record_iterator                                 = 0;
 	int result                                          = 0;
 
 	if( table == NULL )
@@ -1380,20 +1388,15 @@ int export_handle_export_index(
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libcstring_system_character_t *target_path  = NULL;
-	libcstring_system_character_t *value_string = NULL;
-	libesedb_column_t *column                   = NULL;
-	libesedb_record_t *record                   = NULL;
-	FILE *index_file_stream                     = NULL;
-	static char *function                       = "export_handle_export_index";
-	size_t target_path_size                     = 0;
-	size_t value_string_size                    = 0;
-	int column_iterator                         = 0;
-	int known_index                             = 0;
-	int number_of_columns                       = 0;
-	int number_of_records                       = 0;
-	int record_iterator                         = 0;
-	int result                                  = 0;
+	libcstring_system_character_t *target_path = NULL;
+	libesedb_record_t *record                  = NULL;
+	FILE *index_file_stream                    = NULL;
+	static char *function                      = "export_handle_export_index";
+	size_t target_path_size                    = 0;
+	int known_index                            = 0;
+	int number_of_records                      = 0;
+	int record_iterator                        = 0;
+	int result                                 = 0;
 
 	if( index == NULL )
 	{
@@ -2361,25 +2364,6 @@ int export_handle_export_record_value(
 					 column_identifier );
 
 					return( -1 );
-
-/* TODO this code was intended for testing, remove
-					liberror_error_free(
-					 error );
-
-					if( value_data != NULL )
-					{
-						while( value_data_size > 0 )
-						{
-							fprintf(
-							 stderr,
-							 "%02" PRIx8 "",
-							 *value_data );
-
-							value_data      += 1;
-							value_data_size -= 1;
-						}
-					}
-*/
 				}
 				if( result != 0 )
 				{
@@ -2438,10 +2422,10 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					fprintf(
-					 record_file_stream,
-					 "%" PRIs_LIBCSTRING_SYSTEM "",
-					 value_string );
+					export_text(
+					 value_string,
+					 value_string_size,
+					 record_file_stream );
 
 					memory_free(
 					 value_string );
@@ -2449,19 +2433,11 @@ int export_handle_export_record_value(
 				break;
 
 			default:
-				if( value_data != NULL )
-				{
-					while( value_data_size > 0 )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%02" PRIx8 "",
-						 *value_data );
+				export_binary_data(
+				 value_data,
+				 value_data_size,
+				 record_file_stream );
 
-						value_data      += 1;
-						value_data_size -= 1;
-					}
-				}
 				break;
 		}
 	}
@@ -2529,19 +2505,11 @@ int export_handle_export_record_value(
 				break;
 
 			default:
-				if( value_data != NULL )
-				{
-					while( value_data_size > 0 )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%02" PRIx8 "",
-						 *value_data );
+				export_binary_data(
+				 value_data,
+				 value_data_size,
+				 record_file_stream );
 
-						value_data      += 1;
-						value_data_size -= 1;
-					}
-				}
 				break;
 		}
 	}
@@ -2802,10 +2770,10 @@ libsystem_notify_print_data(
 
 							return( -1 );
 						}
-						fprintf(
-						 record_file_stream,
-						 "%" PRIs_LIBCSTRING_SYSTEM "",
-						 value_string );
+						export_text(
+						 value_string,
+						 value_string_size,
+						 record_file_stream );
 
 						memory_free(
 						 value_string );
@@ -2819,16 +2787,10 @@ libsystem_notify_print_data(
 				}
 				else
 				{
-					while( value_data_size > 0 )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%02" PRIx8 "",
-						 *value_data );
-
-						value_data      += 1;
-						value_data_size -= 1;
-					}
+					export_binary_data(
+					 value_data,
+					 value_data_size,
+					 record_file_stream );
 				}
 			}
 		}
@@ -2849,19 +2811,10 @@ libsystem_notify_print_data(
 	}
 	else
 	{
-		if( value_data != NULL )
-		{
-			while( value_data_size > 0 )
-			{
-				fprintf(
-				 record_file_stream,
-				 "%02" PRIx8 "",
-				 *value_data );
-
-				value_data      += 1;
-				value_data_size -= 1;
-			}
-		}
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
 	}
 	return( 1 );
 }

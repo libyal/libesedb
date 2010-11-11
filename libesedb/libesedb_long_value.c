@@ -38,6 +38,7 @@
 int libesedb_long_value_initialize(
      libesedb_long_value_t **long_value,
      libbfio_handle_t *file_io_handle,
+     libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
@@ -366,6 +367,7 @@ int libesedb_long_value_initialize(
 				if( libesedb_values_tree_value_read_long_value_segment(
 				     values_tree_value,
 				     internal_long_value->file_io_handle,
+				     io_handle,
 				     pages_vector,
 				     pages_cache,
 				     long_value_segment_offset,
