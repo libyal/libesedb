@@ -79,8 +79,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f Makefile
+	/bin/rm -f libesedb_definitions.h
 	/bin/rm -f libesedb.rc
+	/bin/rm -f Makefile
 
 splint:
 	@echo "Running splint on libesedb ..." 

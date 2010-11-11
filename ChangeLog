@@ -97,6 +97,10 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20101111
+* improved multi value support
+* updated libfvalue
+
 20101110
 * updated configure.ac
 * updated include/error.h

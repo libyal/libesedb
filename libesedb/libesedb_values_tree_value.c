@@ -892,7 +892,6 @@ int libesedb_values_tree_value_read_record(
 			  column_catalog_definition->column_type ) );
 		}
 #endif
-
 		switch( column_catalog_definition->column_type )
 		{
 			case LIBESEDB_COLUMN_TYPE_NULL:
