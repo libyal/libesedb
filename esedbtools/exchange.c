@@ -201,7 +201,6 @@ int exchange_export_record_binary_data(
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint8_t value_flags    = 0;
-	int result             = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
@@ -1021,7 +1020,6 @@ int exchange_export_record_value_mapi_entryid(
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint8_t value_flags    = 0;
-	int result             = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
@@ -1192,7 +1190,6 @@ int exchange_export_record_value_mapi_multi_value(
 	uint8_t value_flags                 = 0;
 	int multi_value_iterator            = 0;
 	int number_of_multi_values          = 0;
-	int result                          = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
