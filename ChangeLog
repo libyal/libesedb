@@ -24,6 +24,10 @@ TODO
 * add support for build in table number 1
 * implement cloning of items for improved asynchronous and multi threaded usage
 
+Code clean up:
+* refactor esedbinfo esedbinfo_file_info_fprint into separate functions or
+  info handle
+
 libesedb:
 * add get_table_by_object_identifier function
 * ECC checksum
@@ -104,7 +108,9 @@ Notes
 
 20101112
 * updated libfvalue: optimization for codepage 1200 handling
-* added support for windows search compression type 2
+* worked on support for windows search compression type 2
+* fixed issue in debug output
+* worked on streaming file support
 
 20101111
 * improved multi value support

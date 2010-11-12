@@ -1,4 +1,4 @@
-.Dd July 30, 2010
+.Dd November 12, 2010
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -54,6 +54,8 @@ File functions
 .Fn libesedb_file_open "libesedb_file_t *file, const char *filename, int flags, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_file_close "libesedb_file_t *file, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_get_type "libesedb_file_t *file, uint32_t *type, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_file_get_format_version "libesedb_file_t *file, uint32_t *format_version, uint32_t *format_revision, libesedb_error_t **error"
 .Ft int

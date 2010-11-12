@@ -149,6 +149,7 @@ int esedbinfo_file_info_fprint(
 	libcstring_system_character_t *value_string = NULL;
 	static char *function                       = "esedbinfo_file_info_fprint";
 	size_t value_string_size                    = 0;
+	uint32_t file_type                          = 0;
 	uint32_t format_revision                    = 0;
 	uint32_t format_version                     = 0;
 	uint32_t column_identifier                  = 0;
@@ -189,6 +190,46 @@ int esedbinfo_file_info_fprint(
 	fprintf(
 	 stream,
 	 "Extensible Storage Engine Database information:\n" );
+
+	if( libesedb_file_get_type(
+	     file,
+	     &file_type,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve file type.",
+		 function );
+
+		return( -1 );
+	}
+	fprintf(
+	 stream,
+	 "\tFile type:\t\t" );
+
+	if( file_type == LIBESEDB_FILE_TYPE_DATABASE )
+	{
+		fprintf(
+		 stream,
+		 "Database" );
+	}
+	else if( file_type == LIBESEDB_FILE_TYPE_STREAMING_FILE )
+	{
+		fprintf(
+		 stream,
+		 "Streaming file" );
+	}
+	else
+	{
+		fprintf(
+		 stream,
+		 "Unknown" );
+	}
+	fprintf(
+	 stream,
+	 "\n" );
 
 	if( libesedb_file_get_creation_format_version(
 	     file,
@@ -255,6 +296,10 @@ int esedbinfo_file_info_fprint(
 	 stream,
 	 "\n" );
 
+	if( file_type != LIBESEDB_FILE_TYPE_DATABASE )
+	{
+		return( 1 );
+	}
 	fprintf(
 	 stream,
 	 "Catalog content:\n" );

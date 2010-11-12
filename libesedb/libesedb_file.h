@@ -123,6 +123,11 @@ int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
      liberror_error_t **error );
 
+LIBESEDB_EXTERN int libesedb_file_get_type(
+                     libesedb_file_t *file,
+                     uint32_t *type,
+                     liberror_error_t **error );
+
 LIBESEDB_EXTERN int libesedb_file_get_format_version(
                      libesedb_file_t *file,
                      uint32_t *format_version,

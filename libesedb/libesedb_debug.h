@@ -35,6 +35,9 @@ extern "C" {
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
+void libesedb_debug_print_file_type(
+      uint32_t file_type );
+
 void libesedb_debug_print_database_state(
       uint32_t database_state );
 

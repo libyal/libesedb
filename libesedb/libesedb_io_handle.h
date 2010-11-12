@@ -40,6 +40,10 @@ typedef struct libesedb_io_handle libesedb_io_handle_t;
 
 struct libesedb_io_handle
 {
+	/* The file type
+	 */
+	uint32_t file_type;
+
 	/* The format version
 	 */
 	uint32_t format_version;

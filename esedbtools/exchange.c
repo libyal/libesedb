@@ -204,6 +204,8 @@ int exchange_export_record_binary_data(
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
+
+	int result             = 0;
 #endif
 
 	if( record == NULL )
@@ -1023,6 +1025,8 @@ int exchange_export_record_value_mapi_entryid(
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
+
+	int result             = 0;
 #endif
 
 	if( record == NULL )
@@ -1193,6 +1197,8 @@ int exchange_export_record_value_mapi_multi_value(
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
+
+	int result                          = 0;
 #endif
 
 	if( record == NULL )

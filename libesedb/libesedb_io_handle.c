@@ -301,6 +301,10 @@ int libesedb_io_handle_read_file_header(
 	 format_version );
 
 	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_file_header_t *) file_header_data )->file_type,
+	 io_handle->file_type );
+
+	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->format_revision,
 	 format_revision );
 	byte_stream_copy_to_uint32_little_endian(
@@ -335,13 +339,14 @@ int libesedb_io_handle_read_file_header(
 		 function,
 		 format_version );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_file_header_t *) file_header_data )->file_type,
-		 value_32bit );
 		libnotify_printf(
-		 "%s: file type\t\t\t\t: %" PRIu32 "\n",
+		 "%s: file type\t\t\t\t: %" PRIu32 " (",
 		 function,
-		 value_32bit );
+		 io_handle->file_type );
+		libesedb_debug_print_file_type(
+		 io_handle->file_type );
+		libnotify_printf(
+		 ")\n" );
 
 		libnotify_printf(
 		 "%s: database time:\n",

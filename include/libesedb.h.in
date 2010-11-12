@@ -205,6 +205,14 @@ LIBESEDB_EXTERN int libesedb_file_close(
                      libesedb_file_t *file,
                      libesedb_error_t **error );
 
+/* Retrieves the file type
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN int libesedb_file_get_type(
+                     libesedb_file_t *file,
+                     uint32_t *type,
+                     libesedb_error_t **error );
+
 /* Retrieves the file (current) format version
  * Returns 1 if successful or -1 on error
  */

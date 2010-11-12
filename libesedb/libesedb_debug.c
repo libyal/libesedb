@@ -33,6 +33,29 @@
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
+/* Prints the file type
+ */
+void libesedb_debug_print_file_type(
+      uint32_t file_type )
+{
+	switch( file_type )
+	{
+		case LIBESEDB_FILE_TYPE_DATABASE:
+			libnotify_printf(
+			 "Database" );
+			break;
+
+		case LIBESEDB_FILE_TYPE_STREAMING_FILE:
+			libnotify_printf(
+			 "Streaming file" );
+			break;
+
+		default:
+			libnotify_printf(
+			 "(Unknown)" );
+	}
+}
+
 /* Prints the database state
  */
 void libesedb_debug_print_database_state(

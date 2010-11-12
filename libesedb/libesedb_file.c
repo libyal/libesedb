@@ -1045,82 +1045,134 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( internal_file->io_handle->file_type == LIBESEDB_FILE_TYPE_DATABASE )
 	{
-		libnotify_printf(
-		 "Reading the database:\n" );
-	}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "Reading the database:\n" );
+		}
 #endif
-	if( libesedb_database_initialize(
-	     &( internal_file->database ),
-	     error ) != 1 )
+		if( libesedb_database_initialize(
+		     &( internal_file->database ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create database.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_database_read(
+		     internal_file->database,
+		     internal_file->file_io_handle,
+		     internal_file->io_handle,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read database.",
+			 function );
+
+			return( -1 );
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libnotify_verbose != 0 )
+		{
+			libnotify_printf(
+			 "Reading the catalog:\n" );
+		}
+#endif
+		if( libesedb_catalog_initialize(
+		     &( internal_file->catalog ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create catalog.",
+			 function );
+
+			return( -1 );
+		}
+		if( libesedb_catalog_read(
+		     internal_file->catalog,
+		     internal_file->file_io_handle,
+		     internal_file->io_handle,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_IO,
+			 LIBERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read catalog.",
+			 function );
+
+			return( -1 );
+		}
+		/* TODO what about the backup of the catalog */
+	}
+	return( 1 );
+}
+
+/* Retrieves the file type
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_type(
+     libesedb_file_t *file,
+     uint32_t *type,
+     liberror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_type";
+
+	if( file == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->io_handle == NULL )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create database.",
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
 		return( -1 );
 	}
-	if( libesedb_database_read(
-	     internal_file->database,
-	     internal_file->file_io_handle,
-	     internal_file->io_handle,
-	     internal_file->pages_vector,
-	     internal_file->pages_cache,
-	     error ) != 1 )
+	if( type == NULL )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read database.",
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid type.",
 		 function );
 
 		return( -1 );
 	}
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
-	{
-		libnotify_printf(
-		 "Reading the catalog:\n" );
-	}
-#endif
-	if( libesedb_catalog_initialize(
-	     &( internal_file->catalog ),
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create catalog.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_catalog_read(
-	     internal_file->catalog,
-	     internal_file->file_io_handle,
-	     internal_file->io_handle,
-	     internal_file->pages_vector,
-	     internal_file->pages_cache,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read catalog.",
-		 function );
-
-		return( -1 );
-	}
-	/* TODO what about the backup of the catalog */
+	*type = internal_file->io_handle->file_type;
 
 	return( 1 );
 }
