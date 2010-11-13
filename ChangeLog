@@ -79,6 +79,9 @@ File format
 * (revision 0x11) extended page header
 * what about the first byte in 7-bit ascii compressed data
 * codepage 1200 string in Exchange EDB starts with 0xff 0xff
+* streaming file
+  - only consists of ESEDB header with paged streamed data,
+    how to reconstruct streams ?
 
 Deployment:
 * update configure
@@ -106,11 +109,15 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20101113
+* worked on streaming file support
+* updated libfmapi
+* textual changes
+
 20101112
 * updated libfvalue: optimization for codepage 1200 handling
 * worked on support for windows search compression type 2
 * fixed issue in debug output
-* worked on streaming file support
 
 20101111
 * improved multi value support

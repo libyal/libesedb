@@ -153,7 +153,7 @@ LIBESEDB_EXTERN int libesedb_file_initialize(
                      libesedb_file_t **file,
                      libesedb_error_t **error );
 
-/* Frees an exisisting file
+/* Frees a file
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN int libesedb_file_free(

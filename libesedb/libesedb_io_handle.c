@@ -1,5 +1,5 @@
 /*
- * Input/Output (IO) handle
+ * Input/Output (IO) handle functions
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *

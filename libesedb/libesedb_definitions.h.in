@@ -39,7 +39,7 @@
 #else
 #define LIBESEDB_VERSION						@VERSION@
 
-/* The libesedb version string
+/* The version string
  */
 #define LIBESEDB_VERSION_STRING						"@VERSION@"
 
@@ -55,7 +55,7 @@ enum LIBESEDB_ACCESS_FLAGS
 	LIBESEDB_ACCESS_FLAG_WRITE					= 0x02
 };
 
-/* The libesedb file access macros
+/* The file access macros
  */
 #define LIBESEDB_OPEN_READ						( LIBESEDB_ACCESS_FLAG_READ )
 /* Reserved: not supported yet */
