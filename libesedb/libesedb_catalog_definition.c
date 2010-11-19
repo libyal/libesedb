@@ -485,9 +485,9 @@ int libesedb_catalog_definition_read(
 				 data_type_number++,
 				 value_32bit,
 				 libesedb_lcid_language_tag_get_identifier(
-				  value_32bit ),
+				  (uint16_t) value_32bit ),
 				 libesedb_lcid_language_tag_get_description(
-				  value_32bit ) );
+				  (uint16_t) value_32bit ) );
 			}
 			else
 			{

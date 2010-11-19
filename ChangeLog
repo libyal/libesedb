@@ -109,6 +109,11 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20101119
+* updated configure.ac
+* updated libcstring, liberror, libbfio
+* updated msvscpp - added missing libfmapi
+
 20101113
 * worked on streaming file support
 * updated libfmapi

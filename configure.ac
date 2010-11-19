@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20101113],
+ [20101119],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -353,12 +353,9 @@ AC_CHECK_FUNCS(
  [AC_CHECK_FUNCS(
   [strncmp],
   [],
-  [AC_CHECK_FUNCS(
-   [strcmp],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: memcmp, strncmp and strcmp],
-    [1]) ]) ]) ])
+  [AC_MSG_FAILURE(
+   [Missing functions: memcmp and strncmp],
+   [1]) ]) ])
 
 AC_CHECK_FUNCS(
  [memcpy],
@@ -366,12 +363,9 @@ AC_CHECK_FUNCS(
  [AC_CHECK_FUNCS(
   [strncpy],
   [],
-  [AC_CHECK_FUNCS(
-   [strcpy],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: memcpy, strncpy and strcpy],
-    [1]) ]) ]) ])
+  [AC_MSG_FAILURE(
+   [Missing functions: memcpy and strncpy],
+   [1]) ]) ])
 
 AC_CHECK_FUNCS(
  [memrchr],
@@ -1085,12 +1079,9 @@ AS_IF(
   [AC_CHECK_FUNCS(
    [wcsncmp],
    [],
-   [AC_CHECK_FUNCS(
-    [wcscmp],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemcmp, wcsncmp and wcscmp],
-     [1]) ]) ]) ])
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemcmp and wcsncmp],
+    [1]) ]) ])
 
  AC_CHECK_FUNCS(
   [wmemcpy],
@@ -1098,12 +1089,9 @@ AS_IF(
   [AC_CHECK_FUNCS(
    [wcsncpy],
    [],
-   [AC_CHECK_FUNCS(
-    [wcscpy],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemcpy, wcsncpy and wcscpy],
-     [1]) ]) ]) ])
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemcpy and wcsncpy],
+    [1]) ]) ])
 
  AC_CHECK_FUNCS(
   [wmemrchr],
@@ -1154,6 +1142,14 @@ AS_IF(
   [],
   [AC_MSG_FAILURE(
    [Missing function: wcstoull],
+   [1]) ])
+
+ dnl Wide character string functions used in liberror/liberror_error.h
+ AC_CHECK_FUNCS(
+  [wcstombs],
+  [],
+  [AC_MSG_FAILURE(
+   [Missing function: wcstombs],
    [1]) ])
 
  dnl Make the necessary definitions

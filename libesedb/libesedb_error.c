@@ -52,6 +52,7 @@ int libesedb_error_fprint(
 }
 
 /* Prints a descriptive string of the error to the string
+ * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
 int libesedb_error_sprint(
@@ -78,6 +79,7 @@ int libesedb_error_backtrace_fprint(
 }
 
 /* Prints a backtrace of the error to the string
+ * The end-of-string character is not included in the return value
  * Returns the number of printed characters if successful or -1 on error
  */
 int libesedb_error_backtrace_sprint(
