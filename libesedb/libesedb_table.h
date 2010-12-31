@@ -97,93 +97,109 @@ int libesedb_table_initialize(
      uint8_t flags,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_free(
-                     libesedb_table_t **table,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_free(
+     libesedb_table_t **table,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_identifier(
-                     libesedb_table_t *table,
-                     uint32_t *identifier,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_identifier(
+     libesedb_table_t *table,
+     uint32_t *identifier,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_name_size(
-                     libesedb_table_t *table,
-                     size_t *utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf8_name_size(
+     libesedb_table_t *table,
+     size_t *utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_name(
-                     libesedb_table_t *table,
-                     uint8_t *utf8_string,
-                     size_t utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf8_name(
+     libesedb_table_t *table,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf16_name_size(
-                     libesedb_table_t *table,
-                     size_t *utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf16_name_size(
+     libesedb_table_t *table,
+     size_t *utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf16_name(
-                     libesedb_table_t *table,
-                     uint16_t *utf16_string,
-                     size_t utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf16_name(
+     libesedb_table_t *table,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_template_name_size(
-                     libesedb_table_t *table,
-                     size_t *utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf8_template_name_size(
+     libesedb_table_t *table,
+     size_t *utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf8_template_name(
-                     libesedb_table_t *table,
-                     uint8_t *utf8_string,
-                     size_t utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf8_template_name(
+     libesedb_table_t *table,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf16_template_name_size(
-                     libesedb_table_t *table,
-                     size_t *utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf16_template_name_size(
+     libesedb_table_t *table,
+     size_t *utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_utf16_template_name(
-                     libesedb_table_t *table,
-                     uint16_t *utf16_string,
-                     size_t utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_utf16_template_name(
+     libesedb_table_t *table,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_number_of_columns(
-                     libesedb_table_t *table,
-                     int *number_of_columns,
-                     uint8_t flags,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_number_of_columns(
+     libesedb_table_t *table,
+     int *number_of_columns,
+     uint8_t flags,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_column(
-                     libesedb_table_t *table,
-                     int column_entry,
-                     libesedb_column_t **column,
-                     uint8_t flags,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_column(
+     libesedb_table_t *table,
+     int column_entry,
+     libesedb_column_t **column,
+     uint8_t flags,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_number_of_indexes(
-                     libesedb_table_t *table,
-                     int *number_of_indexes,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_number_of_indexes(
+     libesedb_table_t *table,
+     int *number_of_indexes,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_index(
-                     libesedb_table_t *table,
-                     int index_entry,
-                     libesedb_index_t **index,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_index(
+     libesedb_table_t *table,
+     int index_entry,
+     libesedb_index_t **index,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_number_of_records(
-                     libesedb_table_t *table,
-                     int *number_of_records,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_number_of_records(
+     libesedb_table_t *table,
+     int *number_of_records,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_table_get_record(
-                     libesedb_table_t *table,
-                     int record_entry,
-                     libesedb_record_t **record,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_table_get_record(
+     libesedb_table_t *table,
+     int record_entry,
+     libesedb_record_t **record,
+     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

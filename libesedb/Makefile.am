@@ -54,6 +54,7 @@ libesedb_la_SOURCES = \
 	libesedb_table.c libesedb_table.h \
 	libesedb_table_definition.c libesedb_table_definition.h \
 	libesedb_types.h \
+	libesedb_unused.h \
 	libesedb_values_tree.c libesedb_values_tree.h \
 	libesedb_values_tree_value.c libesedb_values_tree_value.h
 

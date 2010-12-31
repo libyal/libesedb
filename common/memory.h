@@ -59,6 +59,9 @@ extern "C" {
 	HeapAlloc( GetProcessHeap(), 0, (SIZE_T) size )
 #endif
 
+#define memory_allocate_structure( type ) \
+	(type *) memory_allocate( sizeof( type ) )
+
 /* Memory reallocation
  */
 #if defined( HAVE_GLIB_H )

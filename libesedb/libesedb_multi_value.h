@@ -55,79 +55,91 @@ int libesedb_multi_value_initialize(
      libfvalue_value_t *record_value,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_free(
-                     libesedb_multi_value_t **multi_value,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_free(
+     libesedb_multi_value_t **multi_value,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_number_of_values(
-                     libesedb_multi_value_t *multi_value,
-                     int *number_of_values,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_number_of_values(
+     libesedb_multi_value_t *multi_value,
+     int *number_of_values,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint32_t *column_type,
-                     uint8_t **value_data,
-                     size_t *value_data_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint32_t *column_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_32bit(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint32_t *value_32bit,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_32bit(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint32_t *value_32bit,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_64bit(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint64_t *value_64bit,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_64bit(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint64_t *value_64bit,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_filetime(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint64_t *value_filetime,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_filetime(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint64_t *value_filetime,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf8_string_size(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     size_t *utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_utf8_string_size(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     size_t *utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf8_string(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint8_t *utf8_string,
-                     size_t utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_utf8_string(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf16_string_size(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     size_t *utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_utf16_string_size(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     size_t *utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_utf16_string(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint16_t *utf16_string,
-                     size_t utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_utf16_string(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_binary_data_size(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     size_t *binary_data_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_binary_data_size(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     size_t *binary_data_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_multi_value_get_value_binary_data(
-                     libesedb_multi_value_t *multi_value,
-                     int value_index,
-                     uint8_t *binary_data,
-                     size_t binary_data_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_binary_data(
+     libesedb_multi_value_t *multi_value,
+     int value_index,
+     uint8_t *binary_data,
+     size_t binary_data_size,
+     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

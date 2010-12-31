@@ -348,7 +348,7 @@ int libesedb_record_free(
 		}
 		if( libesedb_array_free(
 		     &( internal_record->values_array ),
-		     &libfvalue_value_free,
+		     &libfvalue_value_free_as_value,
 		     error ) != 1 )
 		{
 			liberror_error_set(

@@ -39,7 +39,7 @@ const char *libesedb_get_version(
 	return( (const char *) LIBESEDB_VERSION_STRING );
 }
 
-/* Determines if a file is a PPF file (check for the EDB file signature)
+/* Determines if a file is an EDB file (check for the EDB file signature)
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature(
@@ -145,7 +145,7 @@ int libesedb_check_file_signature(
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Determines if a file is a EDB file (check for the EDB file signature)
+/* Determines if a file is an EDB file (check for the EDB file signature)
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature_wide(
@@ -251,7 +251,7 @@ int libesedb_check_file_signature_wide(
 
 #endif
 
-/* Determines if a file is a EDB file (check for the EDB file signature) using a Basic File IO (bfio) handle
+/* Determines if a file is an EDB file (check for the EDB file signature) using a Basic File IO (bfio) handle
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature_file_io_handle(

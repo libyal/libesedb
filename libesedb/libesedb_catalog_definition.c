@@ -60,8 +60,8 @@ int libesedb_catalog_definition_initialize(
 	}
 	if( *catalog_definition == NULL )
 	{
-		*catalog_definition = (libesedb_catalog_definition_t *) memory_allocate(
-		                                                         sizeof( libesedb_catalog_definition_t ) );
+		*catalog_definition = memory_allocate_structure(
+		                       libesedb_catalog_definition_t );
 
 		if( *catalog_definition == NULL )
 		{
@@ -72,7 +72,7 @@ int libesedb_catalog_definition_initialize(
 			 "%s: unable to create catalog definition.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *catalog_definition,
@@ -86,15 +86,20 @@ int libesedb_catalog_definition_initialize(
 			 "%s: unable to clear catalog definition.",
 			 function );
 
-			memory_free(
-			 *catalog_definition );
-
-			*catalog_definition = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *catalog_definition != NULL )
+	{
+		memory_free(
+		 *catalog_definition );
+
+		*catalog_definition = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the catalog definition
@@ -667,8 +672,8 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							catalog_definition->name_string = (libcstring_system_character_t *) memory_allocate(
-							                                                                     sizeof( libcstring_system_character_t ) * value_string_size );
+							catalog_definition->name_string = libcstring_system_string_allocate(
+							                                   value_string_size );
 
 							if( catalog_definition->name_string == NULL )
 							{
@@ -834,8 +839,8 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							value_string = (libcstring_system_character_t *) memory_allocate(
-							                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+							value_string = libcstring_system_string_allocate(
+							                value_string_size );
 
 							if( value_string == NULL )
 							{

@@ -56,8 +56,8 @@ int libesedb_column_initialize(
 	}
 	if( *column == NULL )
 	{
-		internal_column = (libesedb_internal_column_t *) memory_allocate(
-		                                                  sizeof( libesedb_internal_column_t ) );
+		internal_column = memory_allocate_structure(
+		                   libesedb_internal_column_t );
 
 		if( internal_column == NULL )
 		{
@@ -68,7 +68,7 @@ int libesedb_column_initialize(
 			 "%s: unable to create column.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_column,
@@ -82,10 +82,7 @@ int libesedb_column_initialize(
 			 "%s: unable to clear column.",
 			 function );
 
-			memory_free(
-			 internal_column );
-
-			return( -1 );
+			goto on_error;
 		}
 		internal_column->io_handle          = io_handle;
 		internal_column->catalog_definition = catalog_definition;
@@ -93,6 +90,14 @@ int libesedb_column_initialize(
 		*column = (libesedb_column_t *) internal_column;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_column != NULL )
+	{
+		memory_free(
+		 internal_column );
+	}
+	return( -1 );
 }
 
 /* Frees column

@@ -245,7 +245,7 @@ None
 .Sh NOTES
 libesedb uses mainly UTF-8 encoded strings except for filenames, but provides several UTF-16 functions.
 
-ASCII strings in a EDB file contain an extended ASCII string using the codepage of the system it was created on. The function
+ASCII strings in an EDB file contain an extended ASCII string using the codepage of the system it was created on. The function
 .Ar libesedb_set_ascii_codepage
  allows to set the required codepage for reading and writing. The default codepage is ASCII and replaces all extended characters to the Unicode replacement character (U+fffd) when reading and the ASCII substitude character (0x1a) when writing.
 

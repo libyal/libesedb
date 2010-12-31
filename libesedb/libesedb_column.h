@@ -55,41 +55,48 @@ int libesedb_column_initialize(
      libesedb_catalog_definition_t *catalog_definition,
      liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_free(
-                     libesedb_column_t **column,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_free(
+     libesedb_column_t **column,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_identifier(
-                     libesedb_column_t *column,
-                     uint32_t *identifier,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_identifier(
+     libesedb_column_t *column,
+     uint32_t *identifier,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_type(
-                     libesedb_column_t *column,
-                     uint32_t *type,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_type(
+     libesedb_column_t *column,
+     uint32_t *type,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_utf8_name_size(
-                     libesedb_column_t *column,
-                     size_t *utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_utf8_name_size(
+     libesedb_column_t *column,
+     size_t *utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_utf8_name(
-                     libesedb_column_t *column,
-                     uint8_t *utf8_string,
-                     size_t utf8_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_utf8_name(
+     libesedb_column_t *column,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_utf16_name_size(
-                     libesedb_column_t *column,
-                     size_t *utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_utf16_name_size(
+     libesedb_column_t *column,
+     size_t *utf16_string_size,
+     liberror_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_column_get_utf16_name(
-                     libesedb_column_t *column,
-                     uint16_t *utf16_string,
-                     size_t utf16_string_size,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_column_get_utf16_name(
+     libesedb_column_t *column,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
+     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

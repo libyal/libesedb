@@ -34,22 +34,26 @@
 extern "C" {
 #endif
 
-LIBESEDB_EXTERN const char *libesedb_get_version(
-                             void );
+LIBESEDB_EXTERN \
+const char *libesedb_get_version(
+             void );
 
-LIBESEDB_EXTERN int libesedb_check_file_signature(
-                     const char *filename,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_check_file_signature(
+     const char *filename,
+     liberror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
-LIBESEDB_EXTERN int libesedb_check_file_signature_wide(
-                     const wchar_t *filename,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_check_file_signature_wide(
+     const wchar_t *filename,
+     liberror_error_t **error );
 #endif
 
-LIBESEDB_EXTERN int libesedb_check_file_signature_file_io_handle(
-                     libbfio_handle_t *bfio_handle,
-                     liberror_error_t **error );
+LIBESEDB_EXTERN \
+int libesedb_check_file_signature_file_io_handle(
+     libbfio_handle_t *bfio_handle,
+     liberror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -35,6 +35,7 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
+#include "libesedb_unused.h"
 
 #include "esedb_file_header.h"
 
@@ -63,8 +64,8 @@ int libesedb_io_handle_initialize(
 	}
 	if( *io_handle == NULL )
 	{
-		*io_handle = (libesedb_io_handle_t *) memory_allocate(
-		                                       sizeof( libesedb_io_handle_t ) );
+		*io_handle = memory_allocate_structure(
+		              libesedb_io_handle_t );
 
 		if( *io_handle == NULL )
 		{
@@ -75,7 +76,7 @@ int libesedb_io_handle_initialize(
 			 "%s: unable to create IO handle.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *io_handle,
@@ -86,19 +87,24 @@ int libesedb_io_handle_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_MEMORY,
 			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear file.",
+			 "%s: unable to clear IO handle.",
 			 function );
 
-			memory_free(
-			 *io_handle );
-
-			*io_handle = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		( *io_handle )->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
 	}
 	return( 1 );
+
+on_error:
+	if( *io_handle != NULL )
+	{
+		memory_free(
+		 *io_handle );
+
+		*io_handle = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees an IO handle
@@ -807,12 +813,15 @@ int libesedb_io_handle_read_page(
      libfdata_cache_t *cache,
      int element_index,
      off64_t element_data_offset,
-     size64_t element_data_size,
-     uint8_t read_flags,
+     size64_t element_data_size LIBESEDB_ATTRIBUTE_UNUSED,
+     uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      liberror_error_t **error )
 {
 	libesedb_page_t *page = NULL;
 	static char *function = "libesedb_io_handle_read_page";
+
+	LIBESEDB_UNREFERENCED_PARAMETER( element_data_size );
+	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( libesedb_page_initialize(
 	     &page,

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20101119],
+ [20101231],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -28,7 +28,7 @@ LIBESEDB_TEST_ENABLE(
  [winapi],
  [winapi],
  [enable WINAPI support for cross-compilation],
- [no])
+ [auto-detect])
 LIBESEDB_TEST_ENABLE(
  [static-executables],
  [static_executables],
@@ -62,6 +62,23 @@ AM_GNU_GETTEXT([external])
 dnl Check for compiler language support
 AC_C_CONST
 AC_C_VOLATILE
+
+dnl Automatically enable winapi support for mingw
+AS_IF(
+ [test "x$ac_cv_libesedb_enable_winapi" = xauto-detect],
+ [ac_libesedb_target_string="$target";
+
+ AS_IF(
+  [test "x$ac_libesedb_target_string" = x],
+  [ac_libesedb_target_string="$build"])
+
+ AS_CASE(
+  [$ac_libesedb_target_string],
+  [*mingw*],[AC_MSG_NOTICE(
+             [Detected MinGW enabling WINAPI support for cross-compilation])
+            ac_cv_libesedb_enable_winapi=yes],
+  [*],[ac_cv_libesedb_enable_winapi=no])
+ ])
 
 dnl Check for headers
 dnl Headers included in libesedb/types.h

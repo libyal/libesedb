@@ -1,5 +1,5 @@
 /*
- * Notification function
+ * The internal unused definition
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,46 +19,25 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_NOTIFY_H )
-#define _LIBESEDB_NOTIFY_H
+#if !defined( _LIBESEDB_INTERNAL_UNUSED_H )
+#define _LIBESEDB_INTERNAL_UNUSED_H
 
 #include <common.h>
-#include <types.h>
 
-#include <liberror.h>
-
-#include <stdio.h>
-
-#include "libesedb_extern.h"
-
-#if defined( __cplusplus )
-extern "C" {
+#if !defined( LIBESEDB_ATTRIBUTE_UNUSED )
+#if defined( __GNUC__ ) && __GNUC__ >= 3
+#define LIBESEDB_ATTRIBUTE_UNUSED	__attribute__ ((__unused__))
+#else
+#define LIBESEDB_ATTRIBUTE_UNUSED
+#endif
 #endif
 
-#if !defined( HAVE_LOCAL_LIBESEDB )
-
-LIBESEDB_EXTERN \
-void libesedb_notify_set_verbose(
-      int verbose );
-
-LIBESEDB_EXTERN \
-int libesedb_notify_set_stream(
-     FILE *stream,
-     liberror_error_t **error );
-
-LIBESEDB_EXTERN \
-int libesedb_notify_stream_open(
-     const char *filename,
-     liberror_error_t **error );
-
-LIBESEDB_EXTERN \
-int libesedb_notify_stream_close(
-     liberror_error_t **error );
-
-#endif
-
-#if defined( __cplusplus )
-}
+#if defined( _MSC_VER )
+#define LIBESEDB_UNREFERENCED_PARAMETER( parameter ) \
+	UNREFERENCED_PARAMETER( parameter );
+#else
+#define LIBESEDB_UNREFERENCED_PARAMETER( parameter ) \
+	/* parameter */
 #endif
 
 #endif

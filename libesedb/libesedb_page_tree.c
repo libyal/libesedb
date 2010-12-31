@@ -34,6 +34,7 @@
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
+#include "libesedb_unused.h"
 #include "libesedb_values_tree_value.h"
 
 #include "esedb_page_values.h"
@@ -1790,7 +1791,7 @@ int libesedb_page_tree_read_node_value(
      libfdata_cache_t *cache,
      off64_t node_data_offset,
      size64_t node_data_size,
-     uint8_t read_flags,
+     uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      liberror_error_t **error )
 {
 	libesedb_page_tree_t *page_tree                 = NULL;
@@ -1798,6 +1799,8 @@ int libesedb_page_tree_read_node_value(
 	static char *function                           = "libesedb_page_tree_read_node_value";
 	uint64_t page_number                            = 0;
 	int result                                      = 0;
+
+	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( io_handle == NULL )
 	{
@@ -1994,14 +1997,17 @@ int libesedb_page_tree_read_sub_nodes(
      libfdata_tree_node_t *node,
      libfdata_cache_t *cache,
      off64_t sub_nodes_offset,
-     size64_t sub_nodes_size,
-     uint8_t read_flags,
+     size64_t sub_nodes_size LIBESEDB_ATTRIBUTE_UNUSED,
+     uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      liberror_error_t **error )
 {
 	libesedb_page_tree_t *page_tree                 = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
 	static char *function                           = "libesedb_page_tree_read_sub_nodes";
 	uint64_t page_number                            = 0;
+
+	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_size );
+	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( io_handle == NULL )
 	{

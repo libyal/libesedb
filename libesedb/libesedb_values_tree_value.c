@@ -621,7 +621,7 @@ int libesedb_values_tree_value_read_record(
 		 values_tree_value->page_number,
 		 values_tree_value->page_offset );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( page == NULL )
 	{
@@ -632,7 +632,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: missing page.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_page_get_value(
 	     page,
@@ -648,7 +648,7 @@ int libesedb_values_tree_value_read_record(
 		 function,
 		 values_tree_value->page_value_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( page_value == NULL )
 	{
@@ -660,7 +660,7 @@ int libesedb_values_tree_value_read_record(
 		 function,
 		 values_tree_value->page_value_index );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( page_value->data == NULL )
 	{
@@ -671,7 +671,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: missing page value data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( values_tree_value->data_offset > page_value->size )
 	{
@@ -682,7 +682,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	record_data        = &( page_value->data[ values_tree_value->data_offset ] );
 	record_data_size   = page_value->size - values_tree_value->data_offset;
@@ -697,7 +697,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: invalid record data size value out of bounds.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( io_handle->format_version == 0x620 )
 	 && ( io_handle->format_revision <= 2 ) )
@@ -745,7 +745,7 @@ int libesedb_values_tree_value_read_record(
 			 "%s: unable to retrieve number of template table column catalog definitions.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( libesedb_list_get_number_of_elements(
@@ -760,7 +760,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: unable to retrieve number of table column catalog definitions.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	number_of_column_catalog_definitions = number_of_table_column_catalog_definitions;
 
@@ -776,14 +776,14 @@ int libesedb_values_tree_value_read_record(
 			 "%s: invalid number of table column catalog definitions value exceeds number in template table.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		number_of_column_catalog_definitions += number_of_template_table_column_catalog_definitions;
 	}
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
-	     &libfvalue_value_free,
+	     &libfvalue_value_free_as_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -793,7 +793,7 @@ int libesedb_values_tree_value_read_record(
 		 "%s: unable to resize values array.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( last_variable_size_data_type > 127 )
 	{
@@ -827,7 +827,7 @@ int libesedb_values_tree_value_read_record(
 			 function,
 			 column_catalog_definition_iterator );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( column_catalog_definition_list_element->value == NULL )
 		{
@@ -839,7 +839,7 @@ int libesedb_values_tree_value_read_record(
 			 function,
 			 column_catalog_definition_iterator );
 
-			return( -1 );
+			goto on_error;
 		}
 		column_catalog_definition = (libesedb_catalog_definition_t *) column_catalog_definition_list_element->value;
 
@@ -854,7 +854,7 @@ int libesedb_values_tree_value_read_record(
 			 column_catalog_definition->type,
 			 column_catalog_definition_iterator );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( template_table_definition != NULL )
 		 && ( template_table_definition->column_catalog_definition_list != NULL )
@@ -869,7 +869,7 @@ int libesedb_values_tree_value_read_record(
 				 "%s: only tagged data types supported in tables using a template table.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -968,7 +968,7 @@ int libesedb_values_tree_value_read_record(
 				 function,
 				 column_catalog_definition->column_type );
 
-				return( -1 );
+				goto on_error;
 		}
 		if( libfvalue_value_initialize(
 		     &record_value,
@@ -983,7 +983,7 @@ int libesedb_values_tree_value_read_record(
 			 "%s: unable to create record value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( column_catalog_definition->column_type == LIBESEDB_COLUMN_TYPE_TEXT )
 		 || ( column_catalog_definition->column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
@@ -1008,7 +1008,7 @@ int libesedb_values_tree_value_read_record(
 				 "%s: unable to set value codepage.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		if( column_catalog_definition->identifier <= 127 )
@@ -1044,11 +1044,7 @@ int libesedb_values_tree_value_read_record(
 					 "%s: unable to set data in fixed size data type definition.",
 					 function );
 
-					libfvalue_value_free(
-					 (intptr_t *) record_value,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				if( column_catalog_definition->size > (uint32_t) UINT16_MAX )
 				{
@@ -1059,7 +1055,7 @@ int libesedb_values_tree_value_read_record(
 					 "%s: invalid common catalog definition size value exceeds maximum.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				fixed_size_data_type_value_offset += (uint16_t) column_catalog_definition->size;
 			}
@@ -1122,11 +1118,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in variable size data type definition.",
 							 function );
 
-							libfvalue_value_free(
-							 (intptr_t *) record_value,
-							 NULL );
-
-							return( -1 );
+							goto on_error;
 						}
 						variable_size_data_type_value_offset += variable_size_data_type_size - previous_variable_size_data_type_size;
 						previous_variable_size_data_type_size = variable_size_data_type_size;
@@ -1222,11 +1214,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set tagged data type flags in tagged data type definition.",
 							 function );
 
-							libfvalue_value_free(
-							 (intptr_t *) record_value,
-							 NULL );
-
-							return( -1 );
+							goto on_error;
 						}
 						tagged_data_type_value_offset  += 1;
 						tagged_data_type_size           = ( tagged_data_type_size & 0x5fff ) - 1;
@@ -1265,7 +1253,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
-							return( -1 );
+							goto on_error;
 						}
 						/* record_data_offset + tagged_data_type_value_offset, */
 						if( libfvalue_value_set_data(
@@ -1283,11 +1271,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
-							libfvalue_value_free(
-							 (intptr_t *) record_value,
-							 NULL );
-
-							return( -1 );
+							goto on_error;
 						}
 						remaining_definition_data_size -= tagged_data_type_size;
 					}
@@ -1340,7 +1324,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: invalid tagged data type offset value out of bounds.",
 							 function );
 
-							return( -1 );
+							goto on_error;
 						}
 						tagged_data_type_offset_data_size = ( tagged_data_type_offset & 0x3fff ) - 4;
 
@@ -1411,7 +1395,7 @@ int libesedb_values_tree_value_read_record(
 						 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
 						 function );
 
-						return( -1 );
+						goto on_error;
 					}
 					if( ( tagged_data_type_offset & 0x3fff ) > ( previous_tagged_data_type_offset & 0x3fff ) )
 					{
@@ -1444,7 +1428,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
-							return( -1 );
+							goto on_error;
 						}
 						remaining_definition_data_size -= tagged_data_type_size;
 
@@ -1479,11 +1463,7 @@ int libesedb_values_tree_value_read_record(
 								 "%s: unable to set tagged data type flags in tagged data type definition.",
 								 function );
 
-								libfvalue_value_free(
-								 (intptr_t *) record_value,
-								 NULL );
-
-								return( -1 );
+								goto on_error;
 							}
 							tagged_data_type_value_offset += 1;
 							tagged_data_type_size         -= 1;
@@ -1530,11 +1510,7 @@ int libesedb_values_tree_value_read_record(
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
-							libfvalue_value_free(
-							 (intptr_t *) record_value,
-							 NULL );
-
-							return( -1 );
+							goto on_error;
 						}
 					}
 				}
@@ -1554,11 +1530,7 @@ int libesedb_values_tree_value_read_record(
 			 function,
 			 column_catalog_definition_iterator );
 
-			libfvalue_value_free(
-			 (intptr_t *) record_value,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		record_value = NULL;
 
@@ -1590,6 +1562,15 @@ int libesedb_values_tree_value_read_record(
 	}
 #endif
 	return( 1 );
+
+on_error:
+	if( record_value != NULL )
+	{
+		libfvalue_value_free(
+		 &record_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the long value

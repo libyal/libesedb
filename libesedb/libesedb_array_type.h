@@ -97,6 +97,13 @@ int libesedb_array_empty(
             liberror_error_t **error ),
      liberror_error_t **error );
 
+int libesedb_array_clear(
+     libesedb_array_t *array,
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
+     liberror_error_t **error );
+
 int libesedb_array_clone(
      libesedb_array_t **destination_array,
      libesedb_array_t *source_array,

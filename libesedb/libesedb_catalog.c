@@ -56,8 +56,8 @@ int libesedb_catalog_initialize(
 	}
 	if( *catalog == NULL )
 	{
-		*catalog = (libesedb_catalog_t *) memory_allocate(
-		                                   sizeof( libesedb_catalog_t ) );
+		*catalog = memory_allocate_structure(
+		            libesedb_catalog_t );
 
 		if( *catalog == NULL )
 		{
@@ -68,10 +68,10 @@ int libesedb_catalog_initialize(
 			 "%s: unable to create catalog.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
-		     ( *catalog ),
+		     *catalog,
 		     0,
 		     sizeof( libesedb_catalog_t ) ) == NULL )
 		{
@@ -82,12 +82,7 @@ int libesedb_catalog_initialize(
 			 "%s: unable to clear catalog.",
 			 function );
 
-			memory_free(
-			 *catalog );
-
-			*catalog = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_list_initialize(
 		     &( ( *catalog )->table_definition_list ),
@@ -100,15 +95,20 @@ int libesedb_catalog_initialize(
 			 "%s: unable to create table definition list.",
 			 function );
 
-			memory_free(
-			 *catalog );
-
-			*catalog = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *catalog != NULL )
+	{
+		memory_free(
+		 *catalog );
+
+		*catalog = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees a catalog

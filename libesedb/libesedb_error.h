@@ -39,26 +39,31 @@ extern "C" {
 
 #if !defined( HAVE_LOCAL_LIBESEDB )
 
-LIBESEDB_EXTERN void libesedb_error_free(
-                      libesedb_error_t **error );
+LIBESEDB_EXTERN \
+void libesedb_error_free(
+      libesedb_error_t **error );
 
-LIBESEDB_EXTERN int libesedb_error_fprint(
-                     libesedb_error_t *error,
-                     FILE *stream );
+LIBESEDB_EXTERN \
+int libesedb_error_fprint(
+     libesedb_error_t *error,
+     FILE *stream );
 
-LIBESEDB_EXTERN int libesedb_error_sprint(
-                     libesedb_error_t *error,
-                     char *string,
-                     size_t size );
+LIBESEDB_EXTERN \
+int libesedb_error_sprint(
+     libesedb_error_t *error,
+     char *string,
+     size_t size );
 
-LIBESEDB_EXTERN int libesedb_error_backtrace_fprint(
-                     libesedb_error_t *error,
-                     FILE *stream );
+LIBESEDB_EXTERN \
+int libesedb_error_backtrace_fprint(
+     libesedb_error_t *error,
+     FILE *stream );
 
-LIBESEDB_EXTERN int libesedb_error_backtrace_sprint(
-                     libesedb_error_t *error,
-                     char *string,
-                     size_t size );
+LIBESEDB_EXTERN \
+int libesedb_error_backtrace_sprint(
+     libesedb_error_t *error,
+     char *string,
+     size_t size );
 
 #endif
 

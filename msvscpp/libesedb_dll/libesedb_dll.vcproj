@@ -368,6 +368,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_unused.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_values_tree.h"
 				>
 			</File>

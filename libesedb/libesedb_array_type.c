@@ -62,8 +62,8 @@ int libesedb_array_initialize(
 	}
 	if( *array == NULL )
 	{
-		*array = (libesedb_array_t *) memory_allocate(
-		                               sizeof( libesedb_array_t ) );
+		*array = memory_allocate_structure(
+		          libesedb_array_t );
 
 		if( *array == NULL )
 		{
@@ -74,7 +74,7 @@ int libesedb_array_initialize(
 			 "%s: unable to create array.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *array,
@@ -88,12 +88,7 @@ int libesedb_array_initialize(
 			 "%s: unable to clear array.",
 			 function );
 
-			memory_free(
-			 *array );
-
-			*array = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		if( number_of_entries > 0 )
 		{
@@ -108,7 +103,7 @@ int libesedb_array_initialize(
 				 "%s: invalid entries size value exceeds maximum.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			( *array )->entries = (intptr_t **) memory_allocate(
 			                                     entries_size );
@@ -122,12 +117,7 @@ int libesedb_array_initialize(
 				 "%s: unable to create array entries.",
 				 function );
 
-				memory_free(
-				 *array );
-
-				*array = NULL;
-
-				return( -1 );
+				goto on_error;
 			}
 			if( memory_set(
 			     ( *array )->entries,
@@ -141,20 +131,28 @@ int libesedb_array_initialize(
 				 "%s: unable to clear array entries.",
 				 function );
 
-				memory_free(
-				 ( *array )->entries );
-				memory_free(
-				 *array );
-
-				*array = NULL;
-
-				return( -1 );
+				goto on_error;
 			}
 			( *array )->number_of_allocated_entries = number_of_entries;
 			( *array )->number_of_entries           = number_of_entries;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *array != NULL )
+	{
+		if( ( *array )->entries != NULL )
+		{
+			memory_free(
+			 ( *array )->entries );
+		}
+		memory_free(
+		 *array );
+
+		*array = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees an array
@@ -186,7 +184,7 @@ int libesedb_array_free(
 	{
 		if( ( *array )->entries != NULL )
 		{
-			if( libesedb_array_empty(
+			if( libesedb_array_clear(
 			     *array,
 			     entry_free_function,
 			     error ) != 1 )
@@ -195,7 +193,7 @@ int libesedb_array_free(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to empty array.",
+				 "%s: unable to clear array.",
 				 function );
 
 				result = -1;
@@ -223,6 +221,49 @@ int libesedb_array_empty(
      liberror_error_t **error )
 {
 	static char *function = "libesedb_array_empty";
+
+	if( array == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid array.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_array_clear(
+	     array,
+	     entry_free_function,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to clear array.",
+		 function );
+
+		return( -1 );
+	}
+	array->number_of_entries = 0;
+
+	return( 1 );
+}
+
+/* Clears an array and frees its entries
+ * The entries are freed using the entry_free_function
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_array_clear(
+     libesedb_array_t *array,
+     int (*entry_free_function)(
+            intptr_t *entry,
+            liberror_error_t **error ),
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_array_clear";
 	int entry_iterator    = 0;
 	int result            = 1;
 
@@ -265,7 +306,6 @@ int libesedb_array_empty(
 				array->entries[ entry_iterator ] = NULL;
 			}
 		}
-		array->number_of_entries = 0;
 	}
 	return( result );
 }
@@ -291,7 +331,6 @@ int libesedb_array_clone(
 {
 	static char *function = "libesedb_array_clone";
 	int entry_iterator    = 0;
-	int result            = 1;
 
 	if( destination_array == NULL )
 	{
@@ -355,7 +394,7 @@ int libesedb_array_clone(
 		 "%s: unable to create destination array.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( *destination_array == NULL )
 	{
@@ -366,7 +405,7 @@ int libesedb_array_clone(
 		 "%s: missing destination array.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( source_array->entries != NULL )
 	{
@@ -376,12 +415,10 @@ int libesedb_array_clone(
 		{
 			if( source_array->entries[ entry_iterator ] != NULL )
 			{
-				result = entry_clone_function(
-					  &( ( *destination_array )->entries[ entry_iterator ] ),
-					  source_array->entries[ entry_iterator ],
-					  error );
-
-				if( result != 1 )
+				if( entry_clone_function(
+				     &( ( *destination_array )->entries[ entry_iterator ] ),
+				     source_array->entries[ entry_iterator ],
+				     error ) != 1 )
 				{
 					liberror_error_set(
 					 error,
@@ -391,29 +428,22 @@ int libesedb_array_clone(
 					 function,
 					 entry_iterator );
 
-					break;
+					goto on_error;
 				}
 			}
 		}
-		if( result != 1 )
-		{
-			if( libesedb_array_free(
-			     destination_array,
-			     entry_free_function,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free destination array.",
-				 function );
-
-				result = -1;
-			}
-		}
 	}
-	return( result );
+	return( 1 );
+
+on_error:
+	if( *destination_array != NULL )
+	{
+		libesedb_array_free(
+		 destination_array,
+		 entry_free_function,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Resizes an array

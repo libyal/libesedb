@@ -1,5 +1,5 @@
 /*
- * Library to support the Extensible Storage Engine (ESE) Database File (EDB) fomat
+ * Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
  *
  * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
  *
