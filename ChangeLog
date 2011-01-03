@@ -1,4 +1,6 @@
 TODO
+* export handle: fix creation of indexes directory
+
 * windows search
   - multi long value segment decryption/compression support
 * vista search:
@@ -108,6 +110,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20110103
+* updated libuna, libbfio, libfdatetime, libfguid, libfwnt, libfmapi
+* 2011 update
 
 20101231
 * updated configure.ac

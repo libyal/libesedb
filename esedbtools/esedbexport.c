@@ -1,7 +1,7 @@
 /*
  * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file
  *
- * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2009-2011, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -120,7 +120,7 @@ int esedbexport_determine_export_mode(
 	argument_length = libcstring_system_string_length(
 	                   argument );
 
-	if(  argument_length == 3 )
+	if( argument_length == 3 )
 	{
 		if( libcstring_system_string_compare(
 		     argument,

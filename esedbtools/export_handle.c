@@ -1,7 +1,7 @@
 /* 
  * Export handle
  *
- * Copyright (c) 2009-2010, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2009-2011, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -95,8 +95,8 @@ int export_handle_initialize(
 	}
 	if( *export_handle == NULL )
 	{
-		*export_handle = (export_handle_t *) memory_allocate(
-		                                      sizeof( export_handle_t ) );
+		*export_handle = memory_allocate_structure(
+		                  export_handle_t );
 
 		if( *export_handle == NULL )
 		{
@@ -107,7 +107,7 @@ int export_handle_initialize(
 			 "%s: unable to create export handle.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *export_handle,
@@ -121,17 +121,22 @@ int export_handle_initialize(
 			 "%s: unable to clear export handle.",
 			 function );
 
-			memory_free(
-			 *export_handle );
-
-			*export_handle = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		( *export_handle )->export_mode   = export_mode;
 		( *export_handle )->notify_stream = EXPORT_HANDLE_NOTIFY_STREAM;
 	}
 	return( 1 );
+
+on_error:
+	if( *export_handle != NULL )
+	{
+		memory_free(
+		 *export_handle );
+
+		*export_handle = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the export handle and its elements
@@ -266,7 +271,7 @@ int export_handle_sanitize_filename(
 	for( iterator = 0; iterator < filename_size; iterator++ )
 	{
 		if( ( ( filename[ iterator ] >= 0x01 )
-		  && ( filename[ iterator ] <= 0x1f ) )
+		  &&  ( filename[ iterator ] <= 0x1f ) )
 		 || ( filename[ iterator ] == (libcstring_system_character_t) '!' )
 		 || ( filename[ iterator ] == (libcstring_system_character_t) '$' )
 		 || ( filename[ iterator ] == (libcstring_system_character_t) '%' )
@@ -416,8 +421,8 @@ int export_handle_create_target_path(
 	 */
 	*target_path_size = export_path_size + filename_size;
 
-	*target_path = (libcstring_system_character_t *) memory_allocate(
-	                                                  sizeof( libcstring_system_character_t ) * *target_path_size );
+	*target_path = libcstring_system_string_allocate(
+	                *target_path_size );
 
 	if( *target_path == NULL )
 	{
@@ -428,9 +433,7 @@ int export_handle_create_target_path(
 		 "%s: unable to create target path.",
 		 function );
 
-		*target_path_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( libcstring_system_string_copy(
 	     *target_path,
@@ -444,13 +447,7 @@ int export_handle_create_target_path(
 		 "%s: unable to set export path in target path.",
 		 function );
 
-		memory_free(
-		 target_path );
-
-		*target_path      = NULL;
-		*target_path_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	( *target_path )[ export_path_size - 1 ] = (libcstring_system_character_t) LIBSYSTEM_PATH_SEPARATOR;
 
@@ -466,13 +463,7 @@ int export_handle_create_target_path(
 		 "%s: unable to copy filename in target path.",
 		 function );
 
-		memory_free(
-		 target_path );
-
-		*target_path      = NULL;
-		*target_path_size = 0;
-
-		return( -1 );
+		goto on_error;
 	}
 	if( export_handle_sanitize_filename(
 	     export_handle,
@@ -487,15 +478,21 @@ int export_handle_create_target_path(
 		 "%s: unable sanitize filename in target path.",
 		 function );
 
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( *target_path != NULL )
+	{
 		memory_free(
 		 target_path );
 
-		*target_path      = NULL;
-		*target_path_size = 0;
-
-		return( -1 );
+		*target_path = NULL;
 	}
-	return( 1 );
+	*target_path_size = 0;
+
+	return( -1 );
 }
 
 /* Exports the table
@@ -576,7 +573,7 @@ int export_handle_export_table(
 		 "%s: unable to create table filename.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( table_filename == NULL )
 	{
@@ -587,7 +584,7 @@ int export_handle_export_table(
 		 "%s: missing table filename.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	result = libsystem_file_exists(
 	          table_filename,
@@ -603,10 +600,7 @@ int export_handle_export_table(
 		 function,
 		 table_filename );
 
-		memory_free(
-		 table_filename );
-
-		return( -1 );
+		goto on_error;
 	}
 	else if( result == 1 )
 	{
@@ -634,13 +628,12 @@ int export_handle_export_table(
 		 function,
 		 table_filename );
 
-		memory_free(
-		 table_filename );
-
-		return( -1 );
+		goto on_error;
 	}
 	memory_free(
 	 table_filename );
+
+	table_filename = NULL;
 
 	/* Write the column names to the table file
 	 */
@@ -657,10 +650,7 @@ int export_handle_export_table(
 		 "%s: unable to retrieve number of columns.",
 		 function );
 
-		libsystem_file_stream_close(
-		 table_file_stream );
-
-		return( -1 );
+		goto on_error;
 	}
 	for( column_iterator = 0;
 	     column_iterator < number_of_columns;
@@ -681,10 +671,7 @@ int export_handle_export_table(
 			 function,
 			 column_iterator );
 
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_column_get_utf16_name_size(
@@ -706,13 +693,7 @@ int export_handle_export_table(
 			 "%s: unable to retrieve the size of the column name.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( value_string_size == 0 )
 		{
@@ -723,16 +704,10 @@ int export_handle_export_table(
 			 "%s: missing column name.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
-		value_string = (libcstring_system_character_t *) memory_allocate(
-		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+		value_string = libcstring_system_string_allocate(
+		                value_string_size );
 
 		if( value_string == NULL )
 		{
@@ -743,13 +718,7 @@ int export_handle_export_table(
 			 "%s: unable to create column name string.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_column_get_utf16_name(
@@ -773,15 +742,7 @@ int export_handle_export_table(
 			 "%s: unable to retrieve the column name.",
 			 function );
 
-			memory_free(
-			 value_string );
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		fprintf(
 		 table_file_stream,
@@ -790,6 +751,8 @@ int export_handle_export_table(
 
 		memory_free(
 		 value_string );
+
+		value_string = NULL;
 
 		if( libesedb_column_free(
 		     &column,
@@ -802,10 +765,7 @@ int export_handle_export_table(
 			 "%s: unable to free column.",
 			 function );
 
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( column_iterator == ( number_of_columns - 1 ) )
 		{
@@ -834,10 +794,7 @@ int export_handle_export_table(
 		 "%s: unable to retrieve number of records.",
 		 function );
 
-		libsystem_file_stream_close(
-		 table_file_stream );
-
-		return( -1 );
+		goto on_error;
 	}
 	for( record_iterator = 0;
 	     record_iterator < number_of_records;
@@ -857,10 +814,7 @@ int export_handle_export_table(
 			 function,
 			 record_iterator );
 
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		known_table = 0;
 
@@ -994,13 +948,7 @@ int export_handle_export_table(
 			 "%s: unable to export record.",
 			 function );
 
-			libesedb_record_free(
-			 &record,
-			 NULL );
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_record_free(
 		     &record,
@@ -1013,10 +961,7 @@ int export_handle_export_table(
 			 "%s: unable to free record.",
 			 function );
 
-			libsystem_file_stream_close(
-			 table_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( libsystem_file_stream_close(
@@ -1029,8 +974,10 @@ int export_handle_export_table(
 		 "%s: unable to close table file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
+	table_file_stream = NULL;
+
 	if( export_handle->export_mode != EXPORT_MODE_TABLES )
 	{
 		if( export_handle_export_indexes(
@@ -1050,10 +997,40 @@ int export_handle_export_table(
 			 "%s: unable to export indexes.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( record != NULL )
+	{
+		libesedb_record_free(
+		 &record,
+		 NULL );
+	}
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
+	}
+	if( column != NULL )
+	{
+		libesedb_column_free(
+		 &column,
+		 NULL );
+	}
+	if( table_file_stream != NULL )
+	{
+		libsystem_file_stream_close(
+		 table_file_stream );
+	}
+	if( table_filename != NULL )
+	{
+		memory_free(
+		 table_filename );
+	}
+	return( -1 );
 }
 
 /* Exports the indexes of a specific table
@@ -1129,7 +1106,7 @@ int export_handle_export_indexes(
 		 "%s: unable to create index directory.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( index_directory_name == NULL )
 	{
@@ -1140,7 +1117,7 @@ int export_handle_export_indexes(
 		 "%s: missing index directory name.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	result = libsystem_file_exists(
 	          index_directory_name,
@@ -1156,10 +1133,7 @@ int export_handle_export_indexes(
 		 function,
 		 index_directory_name );
 
-		memory_free(
-		 index_directory_name );
-
-		return( -1 );
+		goto on_error;
 	}
 	else if( result == 1 )
 	{
@@ -1186,10 +1160,12 @@ int export_handle_export_indexes(
 		 function,
 		 export_path );
 
-		return( -1 );
+		goto on_error;
 	}
 	memory_free(
 	 index_directory_name );
+
+	index_directory_name = NULL;
 
 	if( libesedb_table_get_number_of_indexes(
 	     table,
@@ -1203,7 +1179,7 @@ int export_handle_export_indexes(
 		 "%s: unable to retrieve number of indexes.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	/* Ignore index 1 because it is a build-in index that points to the table
 	 */
@@ -1225,7 +1201,7 @@ int export_handle_export_indexes(
 			 function,
 			 index_iterator + 1 );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_index_get_utf16_name_size(
@@ -1247,11 +1223,7 @@ int export_handle_export_indexes(
 			 "%s: unable to retrieve the size of the index name.",
 			 function );
 
-			libesedb_index_free(
-			 &index,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( index_name_size == 0 )
 		{
@@ -1262,14 +1234,10 @@ int export_handle_export_indexes(
 			 "%s: missing index name.",
 			 function );
 
-			libesedb_index_free(
-			 &index,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
-		index_name = (libcstring_system_character_t *) memory_allocate(
-								sizeof( libcstring_system_character_t ) * index_name_size );
+		index_name = libcstring_system_string_allocate(
+		              index_name_size );
 
 		if( index_name == NULL )
 		{
@@ -1280,7 +1248,7 @@ int export_handle_export_indexes(
 			 "%s: unable to create index name string.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_index_get_utf16_name(
@@ -1304,13 +1272,7 @@ int export_handle_export_indexes(
 			 "%s: unable to retrieve the index name.",
 			 function );
 
-			memory_free(
-			 index_name );
-			libesedb_index_free(
-			 &index,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( index_name == NULL )
 		{
@@ -1347,16 +1309,12 @@ int export_handle_export_indexes(
 			 function,
 			 index_iterator );
 
-			memory_free(
-			 index_name );
-			libesedb_index_free(
-			 &index,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		memory_free(
 		 index_name );
+
+		index_name = NULL;
 
 		if( libesedb_index_free(
 		     &index,
@@ -1369,10 +1327,29 @@ int export_handle_export_indexes(
 			 "%s: unable to free index.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( index_name != NULL )
+	{
+		memory_free(
+		 index_name );
+	}
+	if( index != NULL )
+	{
+		libesedb_index_free(
+		 &index,
+		 NULL );
+	}
+	if( index_directory_name != NULL )
+	{
+		memory_free(
+		 index_directory_name );
+	}
+	return( -1 );
 }
 
 /* Exports the index
@@ -1450,7 +1427,7 @@ int export_handle_export_index(
 		 "%s: unable to create target path.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( target_path == NULL )
 	{
@@ -1461,7 +1438,7 @@ int export_handle_export_index(
 		 "%s: invalid target path.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	result = libsystem_file_exists(
 	          target_path,
@@ -1477,10 +1454,7 @@ int export_handle_export_index(
 		 function,
 		 target_path );
 
-		memory_free(
-		 target_path );
-
-		return( -1 );
+		goto on_error;
 	}
 	else if( result == 1 )
 	{
@@ -1507,13 +1481,12 @@ int export_handle_export_index(
 		 function,
 		 target_path );
 
-		memory_free(
-		 target_path );
-
-		return( -1 );
+		goto on_error;
 	}
 	memory_free(
 	 target_path );
+
+	target_path = NULL;
 
 #ifdef TODO
 	/* Write the column names to the index file
@@ -1531,10 +1504,7 @@ int export_handle_export_index(
 		 "%s: unable to retrieve number of columns.",
 		 function );
 
-		libsystem_file_stream_close(
-		 index_file_stream );
-
-		return( -1 );
+		goto on_error;
 	}
 	for( column_iterator = 0;
 	     column_iterator < number_of_columns;
@@ -1555,10 +1525,7 @@ int export_handle_export_index(
 			 function,
 			 column_iterator );
 
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_column_get_utf16_name_size(
@@ -1580,13 +1547,7 @@ int export_handle_export_index(
 			 "%s: unable to retrieve the size of the column name.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( value_string_size == 0 )
 		{
@@ -1597,16 +1558,10 @@ int export_handle_export_index(
 			 "%s: missing column name.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
-		value_string = (libcstring_system_character_t *) memory_allocate(
-		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+		value_string = libcstring_system_string_allocate(
+		                value_string_size );
 
 		if( value_string == NULL )
 		{
@@ -1617,13 +1572,7 @@ int export_handle_export_index(
 			 "%s: unable to create column name string.",
 			 function );
 
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_column_get_utf16_name(
@@ -1647,15 +1596,7 @@ int export_handle_export_index(
 			 "%s: unable to retrieve the column name.",
 			 function );
 
-			memory_free(
-			 value_string );
-			libesedb_column_free(
-			 &column,
-			 NULL );
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		fprintf(
 		 index_file_stream,
@@ -1664,6 +1605,8 @@ int export_handle_export_index(
 
 		memory_free(
 		 value_string );
+
+		value_string = NULL;
 
 		if( libesedb_column_free(
 		     &column,
@@ -1676,10 +1619,7 @@ int export_handle_export_index(
 			 "%s: unable to free column.",
 			 function );
 
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( column_iterator == ( number_of_columns - 1 ) )
 		{
@@ -1709,10 +1649,7 @@ int export_handle_export_index(
 		 "%s: unable to retrieve number of records.",
 		 function );
 
-		libsystem_file_stream_close(
-		 index_file_stream );
-
-		return( -1 );
+		goto on_error;
 	}
 	for( record_iterator = 0;
 	     record_iterator < number_of_records;
@@ -1732,10 +1669,7 @@ int export_handle_export_index(
 			 function,
 			 record_iterator );
 
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		known_index = 0;
 
@@ -1755,13 +1689,7 @@ int export_handle_export_index(
 			 "%s: unable to export record.",
 			 function );
 
-			libesedb_record_free(
-			 &record,
-			 NULL );
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_record_free(
 		     &record,
@@ -1774,10 +1702,7 @@ int export_handle_export_index(
 			 "%s: unable to free record.",
 			 function );
 
-			libsystem_file_stream_close(
-			 index_file_stream );
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( libsystem_file_stream_close(
@@ -1790,9 +1715,43 @@ int export_handle_export_index(
 		 "%s: unable to close index file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
+	index_file_stream = NULL;
+
 	return( 1 );
+
+on_error:
+	if( record != NULL )
+	{
+		libesedb_record_free(
+		 &record,
+		 NULL );
+	}
+#ifdef TODO
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
+	}
+	if( column != NULL )
+	{
+		libesedb_column_free(
+		 &column,
+		 NULL );
+	}
+#endif
+	if( index_file_stream != NULL )
+	{
+		libsystem_file_stream_close(
+		 index_file_stream );
+	}
+	if( target_path != NULL )
+	{
+		memory_free(
+		 target_path );
+	}
+	return( -1 );
 }
 
 /* Exports the values in a record
@@ -2378,8 +2337,8 @@ int export_handle_export_record_value(
 
 						return( -1 );
 					}
-					value_string = (libcstring_system_character_t *) memory_allocate(
-								                          sizeof( libcstring_system_character_t ) * value_string_size );
+					value_string = libcstring_system_string_allocate(
+					                value_string_size );
 
 					if( value_string == NULL )
 					{
@@ -2718,8 +2677,8 @@ libsystem_notify_print_data(
 					}
 					else if( result != 0 )
 					{
-						value_string = (libcstring_system_character_t *) memory_allocate(
-									                          sizeof( libcstring_system_character_t ) * value_string_size );
+						value_string = libcstring_system_string_allocate(
+						                value_string_size );
 
 						if( value_string == NULL )
 						{
@@ -2965,8 +2924,8 @@ int export_handle_export_file(
 
 			return( -1 );
 		}
-		table_name = (libcstring_system_character_t *) memory_allocate(
-		                                                sizeof( libcstring_system_character_t ) * table_name_size );
+		table_name = libcstring_system_string_allocate(
+		              table_name_size );
 
 		if( table_name == NULL )
 		{
