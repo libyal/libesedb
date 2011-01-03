@@ -90,12 +90,21 @@ int export_handle_sanitize_filename(
 
 int export_handle_create_target_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *export_path,
-     size_t export_path_size,
      const libcstring_system_character_t *filename,
      size_t filename_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
      libcstring_system_character_t **target_path,
      size_t *target_path_size,
+     liberror_error_t **error );
+
+int export_handle_create_text_item_file(
+     export_handle_t *export_handle,
+     const char *item_filename,
+     size_t item_filename_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
+     FILE **item_file_stream,
      liberror_error_t **error );
 
 int export_handle_export_table(

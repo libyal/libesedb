@@ -300,10 +300,10 @@ int export_handle_sanitize_filename(
  */
 int export_handle_create_target_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *export_path,
-     size_t export_path_size,
      const libcstring_system_character_t *filename,
      size_t filename_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
      libcstring_system_character_t **target_path,
      size_t *target_path_size,
      liberror_error_t **error )
@@ -318,28 +318,6 @@ int export_handle_create_target_path(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_path == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export path.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_path_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid export path size value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -362,6 +340,28 @@ int export_handle_create_target_path(
 		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid filename size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_path == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export path.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_path_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid export path size value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -495,6 +495,139 @@ on_error:
 	return( -1 );
 }
 
+/* Creates a text item file
+ * Returns 1 if successful, 0 if the file already exists or -1 on error
+ */
+int export_handle_create_text_item_file(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *item_filename,
+     size_t item_filename_size,
+     const libcstring_system_character_t *export_path,
+     size_t export_path_size,
+     FILE **item_file_stream,
+     liberror_error_t **error )
+{
+	libcstring_system_character_t *item_filename_path = NULL;
+	static char *function                             = "export_handle_create_text_item_file";
+	size_t item_filename_path_size                    = 0;
+	int result                                        = 0;
+
+	if( item_filename == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item filename.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_filename_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid item filename size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( item_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_handle_create_target_path(
+	     export_handle,
+	     item_filename,
+	     item_filename_size,
+	     export_path,
+	     export_path_size,
+	     &item_filename_path,
+	     &item_filename_path_size,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create item filename path.",
+		 function );
+
+		goto on_error;
+	}
+	if( item_filename_path == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid item filename path.",
+		 function );
+
+		goto on_error;
+	}
+	result = libsystem_file_exists(
+	          item_filename_path,
+	          error );
+
+	if( result == -1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_GENERIC,
+		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
+		 function,
+		 item_filename_path );
+
+		goto on_error;
+	}
+	else if( result != 0 )
+	{
+		memory_free(
+		 item_filename_path );
+
+		return( 0 );
+	}
+	*item_file_stream = libsystem_file_stream_open(
+	                     item_filename_path,
+	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
+
+	if( *item_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
+		 function,
+		 item_filename_path );
+
+		goto on_error;
+	}
+	memory_free(
+	 item_filename_path );
+
+	return( 1 );
+
+on_error:
+	if( item_filename_path != NULL )
+	{
+		memory_free(
+		 item_filename_path );
+	}
+	return( -1 );
+}
+
 /* Exports the table
  * Returns 1 if successful or -1 on error
  */
@@ -508,20 +641,18 @@ int export_handle_export_table(
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libcstring_system_character_t *table_filename = NULL;
-	libcstring_system_character_t *value_string   = NULL;
-	libesedb_column_t *column                     = NULL;
-	libesedb_record_t *record                     = NULL;
-	FILE *table_file_stream                       = NULL;
-	static char *function                         = "export_handle_export_table";
-	size_t table_filename_size                    = 0;
-	size_t value_string_size                      = 0;
-	int column_iterator                           = 0;
-	int known_table                               = 0;
-	int number_of_columns                         = 0;
-	int number_of_records                         = 0;
-	int record_iterator                           = 0;
-	int result                                    = 0;
+	libcstring_system_character_t *value_string = NULL;
+	libesedb_column_t *column                   = NULL;
+	libesedb_record_t *record                   = NULL;
+	FILE *table_file_stream                     = NULL;
+	static char *function                       = "export_handle_export_table";
+	size_t value_string_size                    = 0;
+	int column_iterator                         = 0;
+	int known_table                             = 0;
+	int number_of_columns                       = 0;
+	int number_of_records                       = 0;
+	int record_iterator                         = 0;
+	int result                                  = 0;
 
 	if( table == NULL )
 	{
@@ -545,96 +676,35 @@ int export_handle_export_table(
 
 		return( -1 );
 	}
-	if( table_name_size > (size_t) SSIZE_MAX )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid table name size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_handle_create_target_path(
-	     export_handle,
-	     export_path,
-	     export_path_size,
-	     table_name,
-	     table_name_size,
-	     &table_filename,
-	     &table_filename_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table filename.",
-		 function );
-
-		goto on_error;
-	}
-	if( table_filename == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing table filename.",
-		 function );
-
-		goto on_error;
-	}
-	result = libsystem_file_exists(
-	          table_filename,
+	result = export_handle_create_text_item_file(
+	          export_handle,
+	          table_name,
+	          table_name_size,
+	          export_path,
+	          export_path_size,
+	          &table_file_stream,
 	          error );
 
 	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
-		 function,
-		 table_filename );
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table file.",
+		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	else if( result == 1 )
+	else if( result == 0 )
 	{
 		log_handle_printf(
 		 log_handle,
 		 "Skipping table: %s it already exists.\n",
 		 table_name );
 
-		memory_free(
-		 table_filename );
-
 		return( 1 );
 	}
-	table_file_stream = libsystem_file_stream_open(
-	                     table_filename,
-	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
-
-	if( table_file_stream == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 table_filename );
-
-		goto on_error;
-	}
-	memory_free(
-	 table_filename );
-
-	table_filename = NULL;
-
 	/* Write the column names to the table file
 	 */
 	if( libesedb_table_get_number_of_columns(
@@ -1025,11 +1095,6 @@ on_error:
 		libsystem_file_stream_close(
 		 table_file_stream );
 	}
-	if( table_filename != NULL )
-	{
-		memory_free(
-		 table_filename );
-	}
 	return( -1 );
 }
 
@@ -1091,10 +1156,10 @@ int export_handle_export_indexes(
 	}
 	if( export_handle_create_target_path(
 	     export_handle,
-	     export_path,
-	     export_path_size,
 	     table_name,
 	     table_name_size,
+	     export_path,
+	     export_path_size,
 	     &index_directory_name,
 	     &index_directory_name_size,
 	     error ) != 1 )
@@ -1365,15 +1430,13 @@ int export_handle_export_index(
      log_handle_t *log_handle,
      liberror_error_t **error )
 {
-	libcstring_system_character_t *target_path = NULL;
-	libesedb_record_t *record                  = NULL;
-	FILE *index_file_stream                    = NULL;
-	static char *function                      = "export_handle_export_index";
-	size_t target_path_size                    = 0;
-	int known_index                            = 0;
-	int number_of_records                      = 0;
-	int record_iterator                        = 0;
-	int result                                 = 0;
+	libesedb_record_t *record = NULL;
+	FILE *index_file_stream   = NULL;
+	static char *function     = "export_handle_export_index";
+	int known_index           = 0;
+	int number_of_records     = 0;
+	int record_iterator       = 0;
+	int result                = 0;
 
 	if( index == NULL )
 	{
@@ -1408,86 +1471,35 @@ int export_handle_export_index(
 
 		return( -1 );
 	}
-	/* Create the item value file
-	 */
-	if( export_handle_create_target_path(
-	     export_handle,
-	     export_path,
-	     export_path_size,
-	     index_name,
-	     index_name_size,
-	     &target_path,
-	     &target_path_size,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create target path.",
-		 function );
-
-		goto on_error;
-	}
-	if( target_path == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid target path.",
-		 function );
-
-		goto on_error;
-	}
-	result = libsystem_file_exists(
-	          target_path,
+	result = export_handle_create_text_item_file(
+	          export_handle,
+	          index_name,
+	          index_name_size,
+	          export_path,
+	          export_path_size,
+	          &index_file_stream,
 	          error );
 
 	if( result == -1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
-		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
-		 function,
-		 target_path );
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index file.",
+		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	else if( result == 1 )
+	else if( result == 0 )
 	{
 		log_handle_printf(
 		 log_handle,
-		 "Skipping item values it already exists.\n" );
-
-		memory_free(
-		 target_path );
+		 "Skipping index: %s it already exists.\n",
+		 index_name );
 
 		return( 1 );
 	}
-	index_file_stream = libsystem_file_stream_open(
-	                     target_path,
-	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
-
-	if( index_file_stream == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
-		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 target_path );
-
-		goto on_error;
-	}
-	memory_free(
-	 target_path );
-
-	target_path = NULL;
-
 #ifdef TODO
 	/* Write the column names to the index file
 	 */
@@ -1745,11 +1757,6 @@ on_error:
 	{
 		libsystem_file_stream_close(
 		 index_file_stream );
-	}
-	if( target_path != NULL )
-	{
-		memory_free(
-		 target_path );
 	}
 	return( -1 );
 }
