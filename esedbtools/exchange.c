@@ -280,9 +280,7 @@ int exchange_export_record_binary_data(
 	if( value_data != NULL )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-/* TODO
 		if( libsystem_notify_verbose != 0 )
-*/
 		{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_record_get_utf16_column_name(
@@ -1708,6 +1706,7 @@ int exchange_export_record_value_string(
 
 		return( -1 );
 	}
+/* TODO UTF-16 string also possible ? */
 	export_narrow_text(
 	 (char *) value_data,
 	 value_data_size,
@@ -1897,6 +1896,7 @@ int exchange_export_record_folders(
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 5 )
@@ -2269,6 +2269,7 @@ int exchange_export_record_global(
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )
@@ -2592,6 +2593,7 @@ int exchange_export_record_mailbox(
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )
@@ -2889,6 +2891,7 @@ int exchange_export_record_msg(
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )

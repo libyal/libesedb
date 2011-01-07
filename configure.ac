@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20110103],
+ [20110107],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
@@ -507,6 +507,13 @@ AC_CHECK_FUNCS(
  [],
  [AC_MSG_FAILURE(
   [Missing function: stat],
+  [1]) ])
+
+AC_CHECK_FUNCS(
+ [ftruncate],
+ [],
+ [AC_MSG_FAILURE(
+  [Missing function: ftruncate],
   [1]) ])
 
 AC_CHECK_FUNCS(
