@@ -834,7 +834,7 @@ int libesedb_io_handle_read_page(
 		 "%s: unable to create page.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_page_read(
 	     page,
@@ -850,11 +850,7 @@ int libesedb_io_handle_read_page(
 		 "%s: unable to read page.",
 		 function );
 
-		libesedb_page_free(
-		 (intptr_t *) page,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( libfdata_vector_set_element_value_by_index(
 	     vector,
@@ -872,12 +868,17 @@ int libesedb_io_handle_read_page(
 		 "%s: unable to set page as element value.",
 		 function );
 
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( page != NULL )
+	{
 		libesedb_page_free(
 		 (intptr_t *) page,
 		 NULL );
-
-		return( -1 );
 	}
-	return( 1 );
+	return( -1 );
 }
 
