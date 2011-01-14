@@ -34,9 +34,27 @@
 extern "C" {
 #endif
 
+#if !defined( HAVE_LOCAL_LIBESEDB )
+
 LIBESEDB_EXTERN \
 const char *libesedb_get_version(
              void );
+
+LIBESEDB_EXTERN \
+int libesedb_get_access_flags_read(
+     void );
+
+LIBESEDB_EXTERN \
+int libesedb_get_codepage(
+     int *codepage,
+     liberror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_set_codepage(
+     int codepage,
+     liberror_error_t **error );
+
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 
 LIBESEDB_EXTERN \
 int libesedb_check_file_signature(

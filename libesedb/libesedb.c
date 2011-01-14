@@ -22,8 +22,16 @@
 #include <common.h>
 
 #if defined( WINAPI )
-
 #include <windows.h>
+#endif
+
+#include "libesedb_unused.h"
+
+/* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
+ */
+#if !defined( HAVE_LOCAL_LIBESEDB )
+
+#if defined( WINAPI )
 
 #if defined( _MANAGED )
 #pragma managed( push, off )
@@ -36,6 +44,8 @@ BOOL WINAPI DllMain(
              DWORD fdwReason,
              LPVOID lpvReserved )
 {
+	LIBESEDB_UNREFERENCED_PARAMETER( lpvReserved )
+
 	switch( fdwReason )
 	{
 		case DLL_PROCESS_ATTACH:
@@ -55,5 +65,16 @@ BOOL WINAPI DllMain(
 	return( TRUE );
 }
 
-#endif
+/* Function that indicates the library is a DLL
+ * Returns 1
+ */
+int libesedb_is_dll(
+     void )
+{
+	return( 1 );
+}
+
+#endif /* defined( WINAPI ) */
+
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

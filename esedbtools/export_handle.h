@@ -82,28 +82,12 @@ int export_handle_make_directory(
      log_handle_t *log_handle,
      liberror_error_t **error );
 
-int export_handle_sanitize_filename(
-     export_handle_t *export_handle,
-     libcstring_system_character_t *filename,
-     size_t filename_size,
-     liberror_error_t **error );
-
-int export_handle_create_target_path(
-     export_handle_t *export_handle,
-     const libcstring_system_character_t *filename,
-     size_t filename_size,
-     const libcstring_system_character_t *export_path,
-     size_t export_path_size,
-     libcstring_system_character_t **target_path,
-     size_t *target_path_size,
-     liberror_error_t **error );
-
 int export_handle_create_text_item_file(
      export_handle_t *export_handle,
-     const char *item_filename,
-     size_t item_filename_size,
+     const libcstring_system_character_t *item_filename,
+     size_t item_filename_length,
      const libcstring_system_character_t *export_path,
-     size_t export_path_size,
+     size_t export_path_length,
      FILE **item_file_stream,
      liberror_error_t **error );
 
@@ -111,9 +95,9 @@ int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
      const libcstring_system_character_t *table_name,
-     size_t table_name_size,
+     size_t table_name_length,
      const libcstring_system_character_t *export_path,
-     size_t export_path_size,
+     size_t export_path_length,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
@@ -121,9 +105,9 @@ int export_handle_export_indexes(
      export_handle_t *export_handle,
      libesedb_table_t *table,
      const libcstring_system_character_t *table_name,
-     size_t table_name_size,
+     size_t table_name_length,
      const libcstring_system_character_t *export_path,
-     size_t export_path_size,
+     size_t export_path_length,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
@@ -131,9 +115,9 @@ int export_handle_export_index(
      export_handle_t *export_handle,
      libesedb_index_t *index,
      const libcstring_system_character_t *index_name,
-     size_t index_name_size,
+     size_t index_name_length,
      const libcstring_system_character_t *export_path,
-     size_t export_path_size,
+     size_t export_path_length,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
@@ -152,9 +136,9 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      libesedb_file_t *file,
      libcstring_system_character_t *export_path,
-     size_t export_path_size,
+     size_t export_path_length,
      const libcstring_system_character_t *export_table_name,
-     size_t export_table_name_size,
+     size_t export_table_name_length,
      log_handle_t *log_handle,
      liberror_error_t **error );
 

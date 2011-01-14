@@ -111,6 +111,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_path.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_signal.c"
 				>
 			</File>
@@ -177,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_i18n.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_libuna.h"
 				>
 			</File>
@@ -202,6 +210,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libsystem\libsystem_support.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libsystem\libsystem_unused.h"
 				>
 			</File>
 		</Filter>

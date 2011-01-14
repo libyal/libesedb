@@ -1,10 +1,13 @@
 TODO
 * export handle: fix creation of indexes directory
+* API: add function to retrieve database signature
+  - can be used to match up EDB/STM pairs
 
 * windows search
   - multi long value segment decryption/compression support
 * vista search:
   - compression type: 0x02 cut-short run-length string ?
+* win7 search:
   - unsupported compression type: 0x06
 * export error in more test files: nibble count value exceeds maximum
 
@@ -110,6 +113,11 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20110114
+* updated common, libcstring, libsystem, libuna, libbfio, libfdata, libfmapi,
+  libfvalue
+* esedbtools: code clean
 
 20110107
 * updated configure.ac

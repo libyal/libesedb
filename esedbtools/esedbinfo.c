@@ -407,8 +407,8 @@ int esedbinfo_file_info_fprint(
 
 			return( -1 );
 		}
-		value_string = (libcstring_system_character_t *) memory_allocate(
-		                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+		value_string = libcstring_system_string_allocate(
+		                value_string_size );
 
 		if( value_string == NULL )
 		{
@@ -493,8 +493,8 @@ int esedbinfo_file_info_fprint(
 		}
 		if( value_string_size > 0 )
 		{
-			value_string = (libcstring_system_character_t *) memory_allocate(
-			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -692,8 +692,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -896,8 +896,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -1074,8 +1074,8 @@ int esedbinfo_file_info_fprint(
 
 				return( -1 );
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -1288,12 +1288,7 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Unable to initialize libesedb file.\n" );
 
-		libsystem_notify_print_error_backtrace(
-		 error );
-		libesedb_error_free(
-		 &error );
-
-		return( EXIT_FAILURE );
+		goto on_error;
 	}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libesedb_file_open_wide(
@@ -1311,19 +1306,10 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error opening file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-		 argv[ optind ] );
+		 "Unable to open file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 source );
 
-		libsystem_notify_print_error_backtrace(
-		 error );
-		libesedb_error_free(
-		 &error );
-
-		libesedb_file_free(
-		 &esedb_file,
-		 NULL );
-
-		return( EXIT_FAILURE );
+		goto on_error;
 	}
 	if( esedbinfo_file_info_fprint(
 	     stdout,
@@ -1334,19 +1320,7 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Unable to print file information.\n" );
 
-		libsystem_notify_print_error_backtrace(
-		 error );
-		libesedb_error_free(
-		 &error );
-
-		libesedb_file_close(
-		 esedb_file,
-		 NULL );
-		libesedb_file_free(
-		 &esedb_file,
-		 NULL );
-
-		return( EXIT_FAILURE );
+		goto on_error;
 	}
 	if( libesedb_file_close(
 	     esedb_file,
@@ -1354,19 +1328,9 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Error closing file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-		 argv[ optind ] );
+		 "Unable to close file.\n" );
 
-		libsystem_notify_print_error_backtrace(
-		 error );
-		libesedb_error_free(
-		 &error );
-
-		libesedb_file_free(
-		 &esedb_file,
-		 NULL );
-
-		return( EXIT_FAILURE );
+		goto on_error;
 	}
 	if( libesedb_file_free(
 	     &esedb_file,
@@ -1374,15 +1338,29 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to free libesedb file.\n" );
+		 "Unable to free file.\n" );
 
-		libsystem_notify_print_error_backtrace(
-		 error );
-		libesedb_error_free(
-		 &error );
-
-		return( EXIT_FAILURE );
+		goto on_error;
 	}
 	return( EXIT_SUCCESS );
+
+on_error:
+	if( error != NULL )
+	{
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+	}
+	if( esedb_file != NULL )
+	{
+		libesedb_file_close(
+		 esedb_file,
+		 NULL );
+		libesedb_file_free(
+		 &esedb_file,
+		 NULL );
+	}
+	return( EXIT_FAILURE );
 }
 

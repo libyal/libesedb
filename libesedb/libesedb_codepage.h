@@ -29,6 +29,16 @@
 extern "C" {
 #endif
 
+#if !defined( HAVE_LOCAL_LIBESEDB )
+
+#include <libesedb/codepage.h>
+
+/* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
+ * The definitions in <libesedb/codepage.h> are copied here
+ * for local use of libesedb
+ */
+#else
+
 /* The codepage definitions
  */
 enum LIBESEDB_CODEPAGE
@@ -51,6 +61,9 @@ enum LIBESEDB_CODEPAGE
 	LIBESEDB_CODEPAGE_ISO_8859_15			= 28605,
 	LIBESEDB_CODEPAGE_ISO_8859_16			= 28606,
 
+	LIBESEDB_CODEPAGE_KOI8_R			= 20866,
+	LIBESEDB_CODEPAGE_KOI8_U			= 21866,
+
 	LIBESEDB_CODEPAGE_WINDOWS_874			= 874,
 	LIBESEDB_CODEPAGE_WINDOWS_1250			= 1250,
 	LIBESEDB_CODEPAGE_WINDOWS_1251			= 1251,
@@ -62,6 +75,8 @@ enum LIBESEDB_CODEPAGE
 	LIBESEDB_CODEPAGE_WINDOWS_1257			= 1257,
 	LIBESEDB_CODEPAGE_WINDOWS_1258			= 1258
 };
+
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 
 #if defined( HAVE_DEBUG_OUTPUT )
 
@@ -87,7 +102,7 @@ const char *libesedb_codepage_get_identifier(
 const char *libesedb_codepage_get_description(
              uint32_t codepage );
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #if defined( __cplusplus )
 }

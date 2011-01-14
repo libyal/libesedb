@@ -2,6 +2,7 @@ include_HEADERS = \
         libesedb.h
 
 pkginclude_HEADERS = \
+        libesedb/codepage.h \
         libesedb/definitions.h \
         libesedb/error.h \
         libesedb/extern.h \
