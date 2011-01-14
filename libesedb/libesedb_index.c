@@ -47,6 +47,8 @@ int libesedb_index_initialize(
      libesedb_catalog_definition_t *index_catalog_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
+     libfdata_vector_t *long_values_pages_vector,
+     libfdata_cache_t *long_values_pages_cache,
      libfdata_tree_t *table_values_tree,
      libfdata_cache_t *table_values_cache,
      libfdata_tree_t *long_values_tree,
@@ -106,8 +108,8 @@ int libesedb_index_initialize(
 	}
 	if( *index == NULL )
 	{
-		internal_index = (libesedb_internal_index_t *) memory_allocate(
-		                                                sizeof( libesedb_internal_index_t ) );
+		internal_index = memory_allocate_structure(
+		                  libesedb_internal_index_t );
 
 		if( internal_index == NULL )
 		{
@@ -118,7 +120,7 @@ int libesedb_index_initialize(
 			 "%s: unable to create index.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_index,
@@ -155,10 +157,7 @@ int libesedb_index_initialize(
 				 "%s: unable to copy file IO handle.",
 				 function );
 
-				memory_free(
-				 internal_index );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libbfio_handle_set_open_on_demand(
 			     internal_index->file_io_handle,
@@ -172,13 +171,7 @@ int libesedb_index_initialize(
 				 "%s: unable to set open on demand in file IO handle.",
 				 function );
 
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-				memory_free(
-				 internal_index );
-
-				return( -1 );
+				goto on_error;
 			}
 		}
 		/* TODO (template) table definition required ? */
@@ -200,16 +193,7 @@ int libesedb_index_initialize(
 			 "%s: unable to create index page tree.",
 			 function );
 
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
+			goto on_error;
 		}
 		/* TODO clone function
 		 */
@@ -234,16 +218,7 @@ int libesedb_index_initialize(
 			 (intptr_t *) index_page_tree,
 			 NULL );
 
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libfdata_cache_initialize(
 		     &( internal_index->index_values_cache ),
@@ -257,20 +232,7 @@ int libesedb_index_initialize(
 			 "%s: unable to create index values cache.",
 			 function );
 
-			libfdata_tree_free(
-			 &( internal_index->index_values_tree ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
+			goto on_error;
 		}
 		node_data_offset  = index_catalog_definition->father_data_page_number - 1;
 		node_data_offset *= io_handle->page_size;
@@ -288,23 +250,7 @@ int libesedb_index_initialize(
 			 "%s: unable to set root node in index values tree.",
 			 function );
 
-			libfdata_cache_free(
-			 &( internal_index->index_values_cache ),
-			 NULL );
-			libfdata_tree_free(
-			 &( internal_index->index_values_tree ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_index->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_index );
-
-			return( -1 );
+			goto on_error;
 		}
 		internal_index->io_handle                 = io_handle;
 		internal_index->table_definition          = table_definition;
@@ -312,6 +258,8 @@ int libesedb_index_initialize(
 		internal_index->index_catalog_definition  = index_catalog_definition;
 		internal_index->pages_vector              = pages_vector;
 		internal_index->pages_cache               = pages_cache;
+		internal_index->long_values_pages_vector  = long_values_pages_vector;
+		internal_index->long_values_pages_cache   = long_values_pages_cache;
 		internal_index->table_values_tree         = table_values_tree;
 		internal_index->table_values_cache        = table_values_cache;
 		internal_index->long_values_tree          = long_values_tree;
@@ -321,6 +269,35 @@ int libesedb_index_initialize(
 		*index = (libesedb_index_t *) internal_index;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_index != NULL )
+	{
+		if( internal_index->index_values_cache != NULL )
+		{
+			libfdata_cache_free(
+			 &( internal_index->index_values_cache ),
+			 NULL );
+		}
+		if( internal_index->index_values_tree != NULL )
+		{
+			libfdata_tree_free(
+			 &( internal_index->index_values_tree ),
+			 NULL );
+		}
+		if( internal_index->file_io_handle != NULL )
+		{
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_index->file_io_handle ),
+				 NULL );
+			}
+		}
+		memory_free(
+		 internal_index );
+	}
+	return( -1 );
 }
 
 /* Frees index
@@ -857,6 +834,8 @@ int libesedb_index_get_record(
 	     internal_index->template_table_definition,
 	     internal_index->pages_vector,
 	     internal_index->pages_cache,
+	     internal_index->long_values_pages_vector,
+	     internal_index->long_values_pages_cache,
 	     record_values_tree_node,
 	     internal_index->table_values_cache,
 	     internal_index->long_values_tree,

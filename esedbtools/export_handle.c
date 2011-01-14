@@ -169,6 +169,31 @@ int export_handle_free(
 	return( 1 );
 }
 
+/* Signals the export handle to abort
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_signal_abort(
+     export_handle_t *export_handle,
+     liberror_error_t **error )
+{
+	static char *function = "export_handle_signal_abort";
+
+	if( export_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	export_handle->abort = 1;
+
+	return( 1 );
+}
+
 /* Create a directory
  * Returns 1 if successful or -1 on error
  */
@@ -738,6 +763,10 @@ int export_handle_export_table(
 
 			goto on_error;
 		}
+		if( export_handle->abort != 0 )
+		{
+			break;
+		}
 	}
 	if( libsystem_file_stream_close(
 	     table_file_stream ) != 0 )
@@ -753,27 +782,29 @@ int export_handle_export_table(
 	}
 	table_file_stream = NULL;
 
-	if( export_handle->export_mode != EXPORT_MODE_TABLES )
+	if( export_handle->abort == 0 )
 	{
-/* TODO refactor */
-		if( export_handle_export_indexes(
-		     export_handle,
-		     table,
-		     table_name,
-		     table_name_length,
-		     export_path,
-		     export_path_length,
-		     log_handle,
-		     error ) != 1 )
+		if( export_handle->export_mode != EXPORT_MODE_TABLES )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
-			 "%s: unable to export indexes.",
-			 function );
+			if( export_handle_export_indexes(
+			     export_handle,
+			     table,
+			     table_name,
+			     table_name_length,
+			     export_path,
+			     export_path_length,
+			     log_handle,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to export indexes.",
+				 function );
 
-			goto on_error;
+				goto on_error;
+			}
 		}
 	}
 	return( 1 );

@@ -76,6 +76,10 @@ int export_handle_free(
      export_handle_t **export_handle,
      liberror_error_t **error );
 
+int export_handle_signal_abort(
+     export_handle_t *export_handle,
+     liberror_error_t **error );
+
 int export_handle_make_directory(
      export_handle_t *export_handle,
      libcstring_system_character_t *directory_name,

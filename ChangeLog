@@ -103,6 +103,7 @@ Performance
   keep list for sequential access (B+-tree)
 * create a UTF-8 version of run-length compressed UTF-16 string decompression function
 * use register alignment for key comparison
+* optimize libesedb_checksum_calculate_little_endian_ecc32
 
 Test suite:
 * windows search: work on index-based compression
@@ -118,6 +119,8 @@ Notes
 * updated common, libcstring, libsystem, libuna, libbfio, libfdata, libfmapi,
   libfvalue
 * esedbtools: code clean
+* optimization for non existent key lookup
+* fix for long value segment key
 
 20110107
 * updated configure.ac

@@ -83,6 +83,61 @@ void usage_fprint(
 	fprintf( stream, "\t-V:     print version\n" );
 }
 
+/* Signal handler for esedbexport
+ */
+void esedbexport_signal_handler(
+      libsystem_signal_t signal LIBSYSTEM_ATTRIBUTE_UNUSED )
+{
+	liberror_error_t *error = NULL;
+	static char *function   = "esedbexport_signal_handler";
+
+	LIBSYSTEM_UNREFERENCED_PARAMETER( signal )
+
+	esedbexport_abort = 1;
+
+	if( esedbexport_export_handle != NULL )
+	{
+		if( export_handle_signal_abort(
+		     esedbexport_export_handle,
+		     &error ) != 1 )
+		{
+			libsystem_notify_printf(
+			 "%s: unable to signal export handle to abort.\n",
+			 function );
+
+			libsystem_notify_print_error_backtrace(
+			 error );
+			liberror_error_free(
+			 &error );
+		}
+	}
+	if( esedbexport_file != NULL )
+	{
+		if( libesedb_file_signal_abort(
+		     esedbexport_file,
+		     &error ) != 1 )
+		{
+			libsystem_notify_printf(
+			 "%s: unable to signal file to abort.\n",
+			 function );
+
+			libsystem_notify_print_error_backtrace(
+			 error );
+			liberror_error_free(
+			 &error );
+		}
+	}
+	/* Force stdin to close otherwise any function reading it will remain blocked
+	 */
+	if( libsystem_file_io_close(
+	     0 ) != 0 )
+	{
+		libsystem_notify_printf(
+		 "%s: unable to close stdin.\n",
+		 function );
+	}
+}
+
 /* Determines the export mode
  * Returns 1 if successful or -1 on error
  */
@@ -472,6 +527,21 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
+#ifdef TODO_SIGNAL_ABORT
+	if( libsystem_signal_attach(
+	     esedbexport_signal_handler,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to attach signal handler.\n" );
+
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+	}
+#endif
 	if( export_handle_export_file(
 	     esedbexport_export_handle,
 	     esedbexport_file,
@@ -496,6 +566,20 @@ int main( int argc, char * const argv[] )
 
 	export_path = NULL;
 
+#ifdef TODO_SIGNAL_ABORT
+	if( libsystem_signal_detach(
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to detach signal handler.\n" );
+
+		libsystem_notify_print_error_backtrace(
+		 error );
+		liberror_error_free(
+		 &error );
+	}
+#endif
 	if( libesedb_file_close(
 	     esedbexport_file,
 	     &error ) != 0 )
@@ -545,6 +629,14 @@ int main( int argc, char * const argv[] )
 		 "Unable to free log handle.\n" );
 
 		goto on_error;
+	}
+	if( esedbexport_abort != 0 )
+	{
+		fprintf(
+		 stdout,
+		 "Export aborted.\n" );
+
+		return( EXIT_FAILURE );
 	}
 	fprintf(
 	 stdout,

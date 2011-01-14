@@ -40,8 +40,8 @@ int libesedb_long_value_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
-     libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfdata_vector_t *long_values_pages_vector,
+     libfdata_cache_t *long_values_pages_cache,
      libfdata_tree_t *long_values_tree,
      libfdata_cache_t *long_values_cache,
      uint8_t *long_value_key,
@@ -116,8 +116,8 @@ int libesedb_long_value_initialize(
 	}
 	if( *long_value == NULL )
 	{
-		internal_long_value = (libesedb_internal_long_value_t *) memory_allocate(
-		                                                          sizeof( libesedb_internal_long_value_t ) );
+		internal_long_value = memory_allocate_structure(
+		                       libesedb_internal_long_value_t );
 
 		if( internal_long_value == NULL )
 		{
@@ -128,7 +128,7 @@ int libesedb_long_value_initialize(
 			 "%s: unable to create long value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_long_value,
@@ -142,10 +142,7 @@ int libesedb_long_value_initialize(
 			 "%s: unable to clear long value.",
 			 function );
 
-			memory_free(
-			 internal_long_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
 		{
@@ -165,10 +162,7 @@ int libesedb_long_value_initialize(
 				 "%s: unable to copy file IO handle.",
 				 function );
 
-				memory_free(
-				 internal_long_value );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libbfio_handle_set_open_on_demand(
 			     internal_long_value->file_io_handle,
@@ -182,13 +176,7 @@ int libesedb_long_value_initialize(
 				 "%s: unable to set open on demand in file IO handle.",
 				 function );
 
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-				memory_free(
-				 internal_long_value );
-
-				return( -1 );
+				goto on_error;
 			}
 		}
 		if( libfdata_block_initialize(
@@ -207,16 +195,7 @@ int libesedb_long_value_initialize(
 			 "%s: unable to create data block.",
 			 function );
 
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_long_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libfdata_cache_initialize(
 		     &( internal_long_value->data_cache ),
@@ -230,20 +209,7 @@ int libesedb_long_value_initialize(
 			 "%s: unable to create data cache.",
 			 function );
 
-			libfdata_block_free(
-			 &( internal_long_value->data_block ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_long_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_values_tree_get_value_by_key(
 		     long_values_tree,
@@ -262,29 +228,13 @@ int libesedb_long_value_initialize(
 			 "%s: unable to retrieve values tree value.",
 			 function );
 
-			libfdata_cache_free(
-			 &( internal_long_value->data_cache ),
-			 NULL );
-			libfdata_block_free(
-			 &( internal_long_value->data_block ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_long_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_values_tree_value_read_long_value(
 		     values_tree_value,
 		     internal_long_value->file_io_handle,
-		     pages_vector,
-		     pages_cache,
+		     long_values_pages_vector,
+		     long_values_pages_cache,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -294,23 +244,7 @@ int libesedb_long_value_initialize(
 			 "%s: unable to read values tree value long value.",
 			 function );
 
-			libfdata_cache_free(
-			 &( internal_long_value->data_cache ),
-			 NULL );
-			libfdata_block_free(
-			 &( internal_long_value->data_block ),
-			 NULL );
-
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-			}
-			memory_free(
-			 internal_long_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		/* Reverse the reversed-key
 		 */
@@ -321,7 +255,7 @@ int libesedb_long_value_initialize(
 
 		do
 		{
-			byte_stream_copy_from_uint32_little_endian(
+			byte_stream_copy_from_uint32_big_endian(
 			 &( long_value_segment_key[ 4 ] ),
 			 long_value_segment_offset );
 
@@ -344,23 +278,7 @@ int libesedb_long_value_initialize(
 				 "%s: unable to retrieve values tree value.",
 				 function );
 
-				libfdata_cache_free(
-				 &( internal_long_value->data_cache ),
-				 NULL );
-				libfdata_block_free(
-				 &( internal_long_value->data_block ),
-				 NULL );
-
-				if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-				{
-					libbfio_handle_free(
-					 &( internal_long_value->file_io_handle ),
-					 NULL );
-				}
-				memory_free(
-				 internal_long_value );
-
-				return( -1 );
+				goto on_error;
 			}
 			else if( result != 0 )
 			{
@@ -368,8 +286,8 @@ int libesedb_long_value_initialize(
 				     values_tree_value,
 				     internal_long_value->file_io_handle,
 				     io_handle,
-				     pages_vector,
-				     pages_cache,
+				     long_values_pages_vector,
+				     long_values_pages_cache,
 				     long_value_segment_offset,
 				     internal_long_value->data_block,
 				     error ) != 1 )
@@ -381,23 +299,7 @@ int libesedb_long_value_initialize(
 					 "%s: unable to read values tree value long value.",
 					 function );
 
-					libfdata_cache_free(
-					 &( internal_long_value->data_cache ),
-					 NULL );
-					libfdata_block_free(
-					 &( internal_long_value->data_block ),
-					 NULL );
-
-					if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-					{
-						libbfio_handle_free(
-						 &( internal_long_value->file_io_handle ),
-						 NULL );
-					}
-					memory_free(
-					 internal_long_value );
-
-					return( -1 );
+					goto on_error;
 				}
 				long_value_segment_offset += values_tree_value->data_size;
 			}
@@ -410,6 +312,35 @@ int libesedb_long_value_initialize(
 		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_long_value != NULL )
+	{
+		if( internal_long_value->data_cache != NULL )
+		{
+			libfdata_cache_free(
+			 &( internal_long_value->data_cache ),
+			 NULL );
+		}
+		if( internal_long_value->data_block != NULL )
+		{
+			libfdata_block_free(
+			 &( internal_long_value->data_block ),
+			 NULL );
+		}
+		if( internal_long_value->file_io_handle != NULL )
+		{
+			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
+			{
+				libbfio_handle_free(
+				 &( internal_long_value->file_io_handle ),
+				 NULL );
+			}
+		}
+		memory_free(
+		 internal_long_value );
+	}
+	return( -1 );
 }
 
 /* Frees the long value

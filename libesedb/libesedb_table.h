@@ -71,6 +71,14 @@ struct libesedb_internal_table
 	 */
 	libfdata_cache_t *pages_cache;
 
+	/* The long values pages vector
+	 */
+	libfdata_vector_t *long_values_pages_vector;
+
+	/* The long values pages cache
+	 */
+	libfdata_cache_t *long_values_pages_cache;
+
 	/* The table values tree
 	 */
 	libfdata_tree_t *table_values_tree;

@@ -67,6 +67,14 @@ struct libesedb_internal_record
 	 */
 	libfdata_cache_t *pages_cache;
 
+	/* The long values pages vector
+	 */
+	libfdata_vector_t *long_values_pages_vector;
+
+	/* The long values pages cache
+	 */
+	libfdata_cache_t *long_values_pages_cache;
+
 	/* The long values tree
 	 */
 	libfdata_tree_t *long_values_tree;
@@ -92,6 +100,8 @@ int libesedb_record_initialize(
      libesedb_table_definition_t *template_table_definition,
      libfdata_vector_t *pages_vector,
      libfdata_cache_t *pages_cache,
+     libfdata_vector_t *long_values_pages_vector,
+     libfdata_cache_t *long_values_pages_cache,
      libfdata_tree_node_t *values_tree_node,
      libfdata_cache_t *values_cache,
      libfdata_tree_t *long_values_tree,

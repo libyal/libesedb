@@ -412,8 +412,16 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 					return( -1 );
 				}
 				*values_tree_leaf_node = values_tree_sub_node;
+
 				result = 1;
 
+				break;
+			}
+			/* If the values tree sub node key is greater than the requested key
+			 * (compare will be negative) stop looking in this branch
+			 */
+			else if( compare < 0 )
+			{
 				break;
 			}
 		}
@@ -448,6 +456,13 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 					return( -1 );
 				}
 				else if( result != 0 )
+				{
+					break;
+				}
+				/* If the values tree sub node key is greater than the requested key
+				 * (compare will be negative) stop looking in this branch
+				 */
+				else if( compare < 0 )
 				{
 					break;
 				}
