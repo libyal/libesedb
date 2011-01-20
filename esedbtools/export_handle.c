@@ -65,8 +65,8 @@
 #include <libsystem.h>
 
 #include "export.h"
+#include "export_exchange.h"
 #include "export_handle.h"
-#include "exchange.h"
 #include "windows_search.h"
 #include "windows_security.h"
 
@@ -627,7 +627,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = exchange_export_record_msg(
+				result = export_exchange_record_msg(
 				          record,
 				          table_file_stream,
 				          error );
@@ -642,7 +642,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = exchange_export_record_global(
+				result = export_exchange_record_global(
 				          record,
 				          table_file_stream,
 				          error );
@@ -657,7 +657,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = exchange_export_record_folders(
+				result = export_exchange_record_folders(
 				          record,
 				          table_file_stream,
 				          error );
@@ -669,7 +669,22 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = exchange_export_record_mailbox(
+				result = export_exchange_record_mailbox(
+				          record,
+				          table_file_stream,
+				          error );
+			}
+		}
+		else if( table_name_length == 11 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "PerUserRead" ),
+			     11 ) == 0 )
+			{
+				known_table = 1;
+
+				result = export_exchange_record_per_user_read(
 				          record,
 				          table_file_stream,
 				          error );

@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _EXCHANGE_H )
-#define _EXCHANGE_H
+#if !defined( _EXPORT_EXCHANGE_H )
+#define _EXPORT_EXCHANGE_H
 
 #include <common.h>
 #include <file_stream.h>
@@ -41,80 +41,85 @@
 extern "C" {
 #endif
 
-int exchange_export_record_binary_data(
+int export_exchange_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_32bit(
-     libesedb_record_t *record,
-     int record_value_entry,
-     uint8_t byte_order,
-     FILE *record_file_stream,
-     liberror_error_t **error );
-
-int exchange_export_record_value_64bit(
+int export_exchange_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_filetime(
+int export_exchange_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_guid(
+int export_exchange_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_mapi_entryid(
+int export_exchange_record_value_guid(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *record_file_stream,
+     liberror_error_t **error );
+
+int export_exchange_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_mapi_multi_value(
+int export_exchange_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_sid(
+int export_exchange_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_value_string(
+int export_exchange_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_folders(
+int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_global(
+int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_mailbox(
+int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error );
 
-int exchange_export_record_msg(
+int export_exchange_record_msg(
+     libesedb_record_t *record,
+     FILE *record_file_stream,
+     liberror_error_t **error );
+
+int export_exchange_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error );

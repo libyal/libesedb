@@ -112,11 +112,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\exchange.c"
+				RelativePath="..\..\esedbtools\export.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.c"
+				RelativePath="..\..\esedbtools\export_exchange.c"
 				>
 			</File>
 			<File
@@ -146,11 +146,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\exchange.h"
+				RelativePath="..\..\esedbtools\export.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.h"
+				RelativePath="..\..\esedbtools\export_exchange.h"
 				>
 			</File>
 			<File

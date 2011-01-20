@@ -115,6 +115,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20110120
+* updated exchange_export_record_value_guid to handle non 16 byte values
+
 20110114
 * updated common, libcstring, libsystem, libuna, libbfio, libfdata, libfmapi,
   libfvalue

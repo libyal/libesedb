@@ -170,34 +170,34 @@
 #include <libsystem.h>
 
 #include "export.h"
+#include "export_exchange.h"
 #include "export_handle.h"
-#include "exchange.h"
 
-enum EXCHANGE_KNOWN_COLUMN_TYPES
+enum EXPORT_EXCHANGE_KNOWN_COLUMN_TYPES
 {
-	EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED,
-	EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA,
-	EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT,
-	EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT,
-	EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME,
-	EXCHANGE_KNOWN_COLUMN_TYPE_GUID,
-	EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID,
-	EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE,
-	EXCHANGE_KNOWN_COLUMN_TYPE_SID,
-	EXCHANGE_KNOWN_COLUMN_TYPE_STRING,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID,
+	EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING,
 };
 
 /* Exports a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_binary_data(
+int export_exchange_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_binary_data";
+	static char *function  = "export_exchange_record_binary_data";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint8_t value_flags    = 0;
@@ -330,7 +330,7 @@ int exchange_export_record_binary_data(
 /* Exports a 32-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_32bit(
+int export_exchange_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -338,7 +338,7 @@ int exchange_export_record_value_32bit(
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_value_32bit";
+	static char *function  = "export_exchange_record_value_32bit";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint32_t value_32bit   = 0;
@@ -472,7 +472,7 @@ int exchange_export_record_value_32bit(
 /* Exports a 64-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_64bit(
+int export_exchange_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -480,7 +480,7 @@ int exchange_export_record_value_64bit(
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_value_64bit";
+	static char *function  = "export_exchange_record_value_64bit";
 	size_t value_data_size = 0;
 	uint64_t value_64bit   = 0;
 	uint32_t column_type   = 0;
@@ -616,7 +616,7 @@ int exchange_export_record_value_64bit(
 /* Exports a filetime value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_filetime(
+int export_exchange_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -627,7 +627,7 @@ int exchange_export_record_value_filetime(
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
-	static char *function             = "exchange_export_record_value_filetime";
+	static char *function             = "export_exchange_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
 	uint8_t value_flags               = 0;
@@ -815,7 +815,7 @@ int exchange_export_record_value_filetime(
 /* Exports a GUID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_guid(
+int export_exchange_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -826,7 +826,7 @@ int exchange_export_record_value_guid(
 
 	libfguid_identifier_t *guid = NULL;
 	uint8_t *value_data         = NULL;
-	static char *function       = "exchange_export_record_value_guid";
+	static char *function       = "export_exchange_record_value_guid";
 	size_t value_data_size      = 0;
 	uint32_t column_type        = 0;
 	uint8_t value_flags         = 0;
@@ -904,96 +904,94 @@ int exchange_export_record_value_guid(
 	{
 		if( value_data != NULL )
 		{
-			if( value_data_size != 16 )
+			if( value_data_size == 16 )
 			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported value data size: %" PRIzd "",
-				 function,
-				 value_data_size );
+				if( libfguid_identifier_initialize(
+				     &guid,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create GUID.",
+					 function );
 
-				return( -1 );
-			}
-			if( libfguid_identifier_initialize(
-			     &guid,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create GUID.",
-				 function );
+					return( -1 );
+				}
+				if( libfguid_identifier_copy_from_byte_stream(
+				     guid,
+				     value_data,
+				     value_data_size,
+				     byte_order,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+					 "%s: unable to copy byte stream to GUID.",
+					 function );
 
-				return( -1 );
-			}
-			if( libfguid_identifier_copy_from_byte_stream(
-			     guid,
-			     value_data,
-			     value_data_size,
-			     byte_order,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy byte stream to GUID.",
-				 function );
+					libfguid_identifier_free(
+					 &guid,
+					 NULL );
 
-				libfguid_identifier_free(
-				 &guid,
-				 NULL );
-
-				return( -1 );
-			}
+					return( -1 );
+				}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-			result = libfguid_identifier_copy_to_utf16_string(
-			          guid,
-			          (uint16_t *) guid_string,
-			          LIBFGUID_IDENTIFIER_STRING_SIZE,
-			          error );
+				result = libfguid_identifier_copy_to_utf16_string(
+					  guid,
+					  (uint16_t *) guid_string,
+					  LIBFGUID_IDENTIFIER_STRING_SIZE,
+					  error );
 #else
-			result = libfguid_identifier_copy_to_utf8_string(
-			          guid,
-			          (uint8_t *) guid_string,
-			          LIBFGUID_IDENTIFIER_STRING_SIZE,
-			          error );
+				result = libfguid_identifier_copy_to_utf8_string(
+					  guid,
+					  (uint8_t *) guid_string,
+					  LIBFGUID_IDENTIFIER_STRING_SIZE,
+					  error );
 #endif
-			if( result != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy GUID to string.",
-				 function );
+				if( result != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+					 "%s: unable to copy GUID to string.",
+					 function );
 
-				libfguid_identifier_free(
-				 &guid,
-				 NULL );
+					libfguid_identifier_free(
+					 &guid,
+					 NULL );
 
-				return( -1 );
+					return( -1 );
+				}
+				if( libfguid_identifier_free(
+				     &guid,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free GUID.",
+					 function );
+
+					return( -1 );
+				}
+				fprintf(
+				 record_file_stream,
+				 "%" PRIs_LIBCSTRING_SYSTEM "",
+				 guid_string );
 			}
-			if( libfguid_identifier_free(
-			     &guid,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free GUID.",
-				 function );
-
-				return( -1 );
-			}
-			fprintf(
-			 record_file_stream,
-			 "%" PRIs_LIBCSTRING_SYSTEM "",
-			 guid_string );
+		}
+		else
+		{
+			export_binary_data(
+			 value_data,
+			 value_data_size,
+			 record_file_stream );
 		}
 	}
 	else
@@ -1009,14 +1007,14 @@ int exchange_export_record_value_guid(
 /* Exports a MAPI ENTRYID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_mapi_entryid(
+int export_exchange_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_value_mapi_entryid";
+	static char *function  = "export_exchange_record_value_mapi_entryid";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint8_t value_flags    = 0;
@@ -1178,7 +1176,7 @@ int exchange_export_record_value_mapi_entryid(
 /* Exports a MAPI multi value value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_mapi_multi_value(
+int export_exchange_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
@@ -1186,7 +1184,7 @@ int exchange_export_record_value_mapi_multi_value(
 {
 	libesedb_multi_value_t *multi_value = NULL;
 	uint8_t *value_data                 = NULL;
-	static char *function               = "exchange_export_record_value_mapi_multi_value";
+	static char *function               = "export_exchange_record_value_mapi_multi_value";
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_flags                 = 0;
@@ -1406,7 +1404,7 @@ int exchange_export_record_value_mapi_multi_value(
 /* Exports a SID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_sid(
+int export_exchange_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
@@ -1416,7 +1414,7 @@ int exchange_export_record_value_sid(
 
 	libfwnt_security_identifier_t *sid = NULL;
 	uint8_t *value_data                = NULL;
-	static char *function              = "exchange_export_record_value_sid";
+	static char *function              = "export_exchange_record_value_sid";
 	size_t sid_string_size             = 0;
 	size_t value_data_size             = 0;
 	uint32_t column_type               = 0;
@@ -1625,14 +1623,14 @@ int exchange_export_record_value_sid(
 /* Exports a string in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_value_string(
+int export_exchange_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "exchange_export_record_value_string";
+	static char *function  = "export_exchange_record_value_string";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 	uint8_t value_flags    = 0;
@@ -1718,14 +1716,14 @@ int exchange_export_record_value_string(
 /* Exports the values in a Folders table record
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_folders(
+int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "exchange_export_record_folders";
+	static char *function   = "export_exchange_record_folders";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -1857,7 +1855,7 @@ int exchange_export_record_folders(
 
 			return( -1 );
 		}
-		known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
+		known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
 
 		if( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
 		{
@@ -1866,11 +1864,11 @@ int exchange_export_record_folders(
 			{
 				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 		}
@@ -1883,21 +1881,21 @@ int exchange_export_record_folders(
 				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 5 )
 				{
@@ -1906,14 +1904,14 @@ int exchange_export_record_folders(
 					     _LIBCSTRING_SYSTEM_STRING( "Ne58" ),
 					     4 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "Ne59" ),
 					          4 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
 				}
 				else if( column_name_size == 6 )
@@ -1923,136 +1921,136 @@ int exchange_export_record_folders(
 					     _LIBCSTRING_SYSTEM_STRING( "N3616" ),
 					     5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d0" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d1" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d2" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d3" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d4" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d5" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36d7" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N36dc" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N3880" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 				}
 				/* TODO add support for multi value entry identifiers MN36d8 and MN36e4 */
 			}
 		}
-		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
+		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = exchange_export_record_value_32bit(
+			result = export_exchange_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = exchange_export_record_value_64bit(
+			result = export_exchange_record_value_64bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = exchange_export_record_value_filetime(
+			result = export_exchange_record_value_filetime(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = exchange_export_record_value_guid(
+			result = export_exchange_record_value_guid(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID )
 		{
-			result = exchange_export_record_value_mapi_entryid(
+			result = export_exchange_record_value_mapi_entryid(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_SID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = exchange_export_record_value_sid(
+			result = export_exchange_record_value_sid(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = exchange_export_record_value_string(
+			result = export_exchange_record_value_string(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
 				  record,
@@ -2091,14 +2089,14 @@ int exchange_export_record_folders(
 /* Exports the values in a Global table record
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_global(
+int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "exchange_export_record_global";
+	static char *function   = "export_exchange_record_global";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2230,7 +2228,7 @@ int exchange_export_record_global(
 
 			return( -1 );
 		}
-		known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
+		known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
 
 		if( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
 		{
@@ -2239,11 +2237,11 @@ int exchange_export_record_global(
 			{
 				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 		}
@@ -2256,21 +2254,21 @@ int exchange_export_record_global(
 				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )
 				{
@@ -2279,28 +2277,28 @@ int exchange_export_record_global(
 					     _LIBCSTRING_SYSTEM_STRING( "N6762" ),
 					     5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N6768" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N676a" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N677f" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA;
 					}
 				}
 				else if( column_name_size == 7 )
@@ -2310,72 +2308,72 @@ int exchange_export_record_global(
 					     _LIBCSTRING_SYSTEM_STRING( "MN667f" ),
 					     6 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE;
 					}
 				}
 			}
 		}
-		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA )
+		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA )
 		{
-			result = exchange_export_record_binary_data(
+			result = export_exchange_record_binary_data(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = exchange_export_record_value_32bit(
-				  record,
-				  value_iterator,
-				  byte_order,
-				  record_file_stream,
-				  error );
-		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
-		{
-			result = exchange_export_record_value_64bit(
+			result = export_exchange_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = exchange_export_record_value_filetime(
+			result = export_exchange_record_value_64bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = exchange_export_record_value_guid(
+			result = export_exchange_record_value_filetime(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = exchange_export_record_value_mapi_multi_value(
+			result = export_exchange_record_value_guid(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  record_file_stream,
+				  error );
+		}
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE )
+		{
+			result = export_exchange_record_value_mapi_multi_value(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = exchange_export_record_value_string(
+			result = export_exchange_record_value_string(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
 				  record,
@@ -2415,14 +2413,14 @@ int exchange_export_record_global(
 /* Exports the values in a Mailbox table record
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_mailbox(
+int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "exchange_export_record_mailbox";
+	static char *function   = "export_exchange_record_mailbox";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2554,7 +2552,7 @@ int exchange_export_record_mailbox(
 
 			return( -1 );
 		}
-		known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
+		known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
 
 		if( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
 		{
@@ -2563,11 +2561,11 @@ int exchange_export_record_mailbox(
 			{
 				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 		}
@@ -2580,21 +2578,21 @@ int exchange_export_record_mailbox(
 				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )
 				{
@@ -2603,78 +2601,78 @@ int exchange_export_record_mailbox(
 					     _LIBCSTRING_SYSTEM_STRING( "N66a0" ),
 					     5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_SID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N676a" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N676c" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 				}
 			}
 		}
-		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
+		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = exchange_export_record_value_32bit(
+			result = export_exchange_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = exchange_export_record_value_64bit(
+			result = export_exchange_record_value_64bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = exchange_export_record_value_filetime(
+			result = export_exchange_record_value_filetime(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = exchange_export_record_value_guid(
+			result = export_exchange_record_value_guid(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_SID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = exchange_export_record_value_sid(
+			result = export_exchange_record_value_sid(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = exchange_export_record_value_string(
+			result = export_exchange_record_value_string(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
 				  record,
@@ -2713,14 +2711,14 @@ int exchange_export_record_mailbox(
 /* Exports the values in a Msg table record
  * Returns 1 if successful or -1 on error
  */
-int exchange_export_record_msg(
+int export_exchange_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "exchange_export_record_msg";
+	static char *function   = "export_exchange_record_msg";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2852,7 +2850,7 @@ int exchange_export_record_msg(
 
 			return( -1 );
 		}
-		known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
+		known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
 
 		if( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
 		{
@@ -2861,11 +2859,11 @@ int exchange_export_record_msg(
 			{
 				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 			}
 		}
@@ -2878,21 +2876,21 @@ int exchange_export_record_msg(
 				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
 				{
 /* TODO
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
 				{
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
-					known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
 				else if( column_name_size == 6 )
 				{
@@ -2901,71 +2899,327 @@ int exchange_export_record_msg(
 					     _LIBCSTRING_SYSTEM_STRING( "N300b" ),
 					     5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
 					}
 					else if( libcstring_system_string_compare(
 					          column_name,
 					          _LIBCSTRING_SYSTEM_STRING( "N6720" ),
 					          5 ) == 0 )
 					{
-						known_column_type = EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 					}
 				}
 			}
 		}
-		if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
+		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = exchange_export_record_value_32bit(
+			result = export_exchange_record_value_32bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = exchange_export_record_value_64bit(
+			result = export_exchange_record_value_64bit(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = exchange_export_record_value_filetime(
+			result = export_exchange_record_value_filetime(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = exchange_export_record_value_guid(
+			result = export_exchange_record_value_guid(
 				  record,
 				  value_iterator,
 				  byte_order,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_SID )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = exchange_export_record_value_sid(
+			result = export_exchange_record_value_sid(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = exchange_export_record_value_string(
+			result = export_exchange_record_value_string(
 				  record,
 				  value_iterator,
 				  record_file_stream,
 				  error );
 		}
-		else if( known_column_type == EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
+		{
+			result = export_handle_export_record_value(
+				  record,
+				  value_iterator,
+				  record_file_stream,
+				  error );
+		}
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export record value: %d.",
+			 function,
+			 value_iterator );
+
+			return( -1 );
+		}
+		if( value_iterator == ( number_of_values - 1 ) )
+		{
+			fprintf(
+			 record_file_stream,
+			 "\n" );
+		}
+		else
+		{
+			fprintf(
+			 record_file_stream,
+			 "\t" );
+		}
+	}
+	return( 1 );
+}
+
+/* Exports the values in a PerUserRead table record
+ * Returns 1 if successful or -1 on error
+ */
+int export_exchange_record_per_user_read(
+     libesedb_record_t *record,
+     FILE *record_file_stream,
+     liberror_error_t **error )
+{
+	libcstring_system_character_t column_name[ 256 ];
+
+	static char *function   = "export_exchange_record_per_user_read";
+	size_t column_name_size = 0;
+	uint32_t column_type    = 0;
+	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
+	int known_column_type   = 0;
+	int number_of_values    = 0;
+	int result              = 0;
+	int value_iterator      = 0;
+
+	if( record == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_file_stream == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_number_of_values(
+	     record,
+	     &number_of_values,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of values.",
+		 function );
+
+		return( -1 );
+	}
+	for( value_iterator = 0;
+	     value_iterator < number_of_values;
+	     value_iterator++ )
+	{
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+
+#else
+		result = libesedb_record_get_utf8_column_name_size(
+		          record,
+		          value_iterator,
+		          &column_name_size,
+		          error );
+#endif
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column name size of value: %d.",
+			 function,
+			 value_iterator );
+
+			return( -1 );
+		}
+		/* It is assumed that the column name cannot be larger than 255 characters
+		 * otherwise using dynamic allocation is more appropriate
+		 */
+		if( column_name_size > 256 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: column name size value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		result = libesedb_record_get_utf16_column_name(
+		          record,
+		          value_iterator,
+		          (uint16_t *) column_name,
+		          column_name_size,
+		          error );
+#else
+		result = libesedb_record_get_utf8_column_name(
+		          record,
+		          value_iterator,
+		          (uint8_t *) column_name,
+		          column_name_size,
+		          error );
+#endif
+		if( result != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column name of value: %d.",
+			 function,
+			 value_iterator );
+
+			return( -1 );
+		}
+		if( libesedb_record_get_column_type(
+		     record,
+		     value_iterator,
+		     &column_type,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve column type of value: %d.",
+			 function,
+			 value_iterator );
+
+			return( -1 );
+		}
+		known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED;
+
+		if( column_type == LIBESEDB_COLUMN_TYPE_CURRENCY )
+		{
+			if( ( column_name_size > 1 )
+			 && ( column_name_size < 8 ) )
+			{
+				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				{
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				{
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+				}
+			}
+		}
+		else if( ( column_type == LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+		      || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
+		{
+			if( ( column_name_size > 1 )
+			 && ( column_name_size < 8 ) )
+			{
+				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				{
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				{
+					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
+					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
+				}
+				else if( column_name_size == 6 )
+				{
+					if( libcstring_system_string_compare(
+					     column_name,
+					     _LIBCSTRING_SYSTEM_STRING( "N676c" ),
+					     5 ) == 0 )
+					{
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+					}
+					else if( libcstring_system_string_compare(
+					          column_name,
+					          _LIBCSTRING_SYSTEM_STRING( "N67d0" ),
+					          5 ) == 0 )
+					{
+						known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID;
+					}
+				}
+			}
+		}
+		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
+		{
+			result = export_exchange_record_value_64bit(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  record_file_stream,
+				  error );
+		}
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
+		{
+			result = export_exchange_record_value_filetime(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  record_file_stream,
+				  error );
+		}
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
+		{
+			result = export_exchange_record_value_guid(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  record_file_stream,
+				  error );
+		}
+		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_UNDEFINED )
 		{
 			result = export_handle_export_record_value(
 				  record,
