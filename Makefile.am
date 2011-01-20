@@ -15,6 +15,7 @@ SUBDIRS = \
 	libesedb \
 	libfwnt \
 	libfmapi \
+	libmapidb \
 	libsystem \
 	esedbtools \
 	po \
@@ -86,6 +87,7 @@ splint:
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libmapidb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))

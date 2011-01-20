@@ -1045,6 +1045,70 @@ AM_CONDITIONAL(
  [HAVE_LOCAL_LIBFMAPI],
  [test "x$ac_libesedb_have_libfmapi" = xlocal])
 
+dnl Check for enabling libmapidb for file Windows NT type support
+AC_CHECK_HEADERS(
+ [libmapidb.h],
+ [],
+ [ac_libesedb_have_libmapidb=no])
+
+AS_IF(
+	[test "x$ac_libesedb_have_libmapidb" != xno],
+	[ac_libesedb_have_libmapidb=yes
+	AC_CHECK_LIB(
+	 mapidb,
+	 libmapidb_get_version,
+	 [],
+	 [ac_libesedb_have_libmapidb=no])
+
+	])
+
+AS_IF(
+[test "x$ac_libesedb_have_libmapidb" = xyes],
+ [dnl libmapidb is available
+ AC_SUBST(
+  [libesedb_pc_libs_private_libmapidb],
+  [-lmapidb])
+ AC_SUBST(
+  [libesedb_spec_requires_libmapidb],
+  [libmapidb])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libmapidb],
+  [libmapidb-devel])
+ AC_SUBST(
+  [LIBMAPIDB_CPPFLAGS],
+  [])
+ AC_SUBST(
+  [LIBMAPIDB_LIBADD],
+  []) ],
+ [dnl libmapidb is not available, using the (local) version that came with the source package
+ AC_DEFINE(
+  [HAVE_LOCAL_LIBMAPIDB],
+  [1],
+  [Define to 1 if the local version of libmapidb is used.])
+ AC_SUBST(
+  [HAVE_LOCAL_LIBMAPIDB],
+  [1])
+ AC_SUBST(
+  [libesedb_pc_libs_private_libmapidb],
+  [])
+ AC_SUBST(
+  [libesedb_spec_requires_libmapidb],
+  [])
+ AC_SUBST(
+  [libesedb_spec_build_requires_libmapidb],
+  [])
+ AC_SUBST(
+  [LIBMAPIDB_CPPFLAGS],
+  [-I../libmapidb])
+ AC_SUBST(
+  [LIBMAPIDB_LIBADD],
+  [../libmapidb/libmapidb.la])
+ ac_libesedb_have_libmapidb=local])
+
+AM_CONDITIONAL(
+ [HAVE_LOCAL_LIBMAPIDB],
+ [test "x$ac_libesedb_have_libmapidb" = xlocal])
+
 dnl Check if libesedb should be build with wide character type support
 AS_IF(
  [test "x$ac_cv_libesedb_enable_winapi" = xyes],
@@ -1241,7 +1305,7 @@ AS_IF(
  ac_libesedb_dummy=yes])
 
 AS_IF(
- [test "x$ac_libesedb_have_libfwnt" = xyes || test "x$ac_libesedb_have_libfmapi" = xyes],
+ [test "x$ac_libesedb_have_libfwnt" = xyes || test "x$ac_libesedb_have_libfmapi" = xyes || test "x$ac_libesedb_have_libmapidb" = xyes],
  [AC_SUBST(
   [libesedb_spec_tools_build_requires],
   [BuildRequires:]) ],
@@ -1297,6 +1361,7 @@ AC_CONFIG_FILES([libfvalue/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
+AC_CONFIG_FILES([libmapidb/Makefile])
 AC_CONFIG_FILES([libsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
