@@ -1,0 +1,76 @@
+Name: libesedb
+Version: @VERSION@
+Release: 1
+Summary: Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
+Group: System Environment/Libraries
+License: LGPL
+Source: %{name}-%{version}.tar.gz
+URL: http://libesedb.sourceforge.net
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+@libesedb_spec_requires@ @libesedb_spec_requires_libbfio@ @libesedb_spec_requires_libfdata@ @libesedb_spec_requires_libfdatetime@ @libesedb_spec_requires_libfguid@ @libesedb_spec_requires_libuna@
+@libesedb_spec_build_requires@ @libesedb_spec_build_requires_libbfio@ @libesedb_spec_build_requires_libfdata@ @libesedb_spec_build_requires_libfdatetime@ @libesedb_spec_build_requires_libfguid@ @libesedb_spec_build_requires_libuna@
+
+%description
+libesedb is a library to support the Extensible Storage Engine (ESE) Database File (EDB) format
+
+%package devel
+Summary: Header files and libraries for developing applications for libesedb
+Group: Development/Libraries
+Requires: libesedb = %{version}-%{release}
+
+%description devel
+Header files and libraries for developing applications for libesedb.
+
+%package tools
+Summary: Several tools for accessing Extensible Storage Engine (ESE) Database File (EDB)
+Group: Applications/System
+Requires: libesedb = %{version}-%{release} @libesedb_spec_requires_libfwnt@ @libesedb_spec_requires_libfmapi@
+@libesedb_spec_tools_build_requires@ @libesedb_spec_build_requires_libfwnt@ @libesedb_spec_build_requires_libfmapi@
+
+%description tools
+Several tools for accessing Extensible Storage Engine (ESE) Database File (EDB)
+
+%prep
+%setup -q
+
+%build
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir}
+make %{?_smp_mflags}
+
+%install
+rm -rf ${RPM_BUILD_ROOT}
+make DESTDIR=${RPM_BUILD_ROOT} install
+
+%clean
+rm -rf ${RPM_BUILD_ROOT}
+
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
+%files
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_libdir}/*.so.*
+
+%files devel
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README README.mingw ChangeLog
+%{_libdir}/*.a
+%{_libdir}/*.la
+%{_libdir}/*.so
+%{_libdir}/pkgconfig/libesedb.pc
+%{_includedir}/*
+%{_mandir}/man3/*
+
+%files tools
+%defattr(644,root,root,755)
+%doc AUTHORS COPYING NEWS README
+%attr(755,root,root) %{_bindir}/esedbexport
+%attr(755,root,root) %{_bindir}/esedbinfo
+%{_mandir}/man1/*
+
+%changelog
+* Sun Jun 27 2010 Joachim Metz <jbmetz@users.sourceforge.net> 20100627-1
+- Clean up of previous version of spec file
+
