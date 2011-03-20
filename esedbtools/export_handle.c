@@ -1077,7 +1077,7 @@ int export_handle_export_indexes(
 
 		if( libsystem_path_sanitize_filename(
 		     index_name,
-		     index_name_size - 1,
+		     &index_name_size,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -2709,7 +2709,7 @@ int export_handle_export_file(
 
 			if( libsystem_path_sanitize_filename(
 			     table_name,
-			     table_name_size - 1,
+			     &table_name_size,
 			     error ) != 1 )
 			{
 				liberror_error_set(

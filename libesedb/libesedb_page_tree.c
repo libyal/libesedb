@@ -1219,6 +1219,7 @@ int libesedb_page_tree_read_page(
 			     &sub_node_index,
 			     node_data_offset,
 			     (size64_t) page_value_index,
+			     0,
 			     error ) != 1 )
 			{
 				liberror_error_set(

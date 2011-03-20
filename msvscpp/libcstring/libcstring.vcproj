@@ -87,6 +87,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\libcstring\libcstring_locale.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libcstring\libcstring_system_string.c"
 				>
 			</File>
@@ -110,6 +114,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libcstring\libcstring_definitions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcstring\libcstring_locale.h"
 				>
 			</File>
 			<File

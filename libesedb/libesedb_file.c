@@ -1013,8 +1013,6 @@ int libesedb_file_open_read(
 	if( libfdata_vector_initialize(
 	     &( internal_file->pages_vector ),
 	     (size64_t) internal_file->io_handle->page_size,
-	     internal_file->io_handle->pages_data_offset,
-	     internal_file->io_handle->pages_data_size,
 	     (intptr_t *) internal_file->io_handle,
 	     NULL,
 	     NULL,
@@ -1027,6 +1025,22 @@ int libesedb_file_open_read(
 		 LIBERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create pages vector.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_vector_append_segment(
+	     internal_file->pages_vector,
+	     internal_file->io_handle->pages_data_offset,
+	     internal_file->io_handle->pages_data_size,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append segment to pages vector.",
 		 function );
 
 		return( -1 );

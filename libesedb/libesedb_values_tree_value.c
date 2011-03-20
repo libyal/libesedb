@@ -1432,7 +1432,8 @@ int libesedb_values_tree_value_read_record(
 						}
 						remaining_definition_data_size -= tagged_data_type_size;
 
-						if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+						if( ( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+						  &&  ( io_handle->page_size >= 16384 ) )
 						 || ( ( previous_tagged_data_type_offset & 0x4000 ) != 0 ) )
 						{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1943,6 +1944,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     data_block,
 	     long_value_segment_data_offset,
 	     (size64_t) long_value_segment_data_size,
+	     0,
 	     error ) != 1 )
 	{
 		liberror_error_set(

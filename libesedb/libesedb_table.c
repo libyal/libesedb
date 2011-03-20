@@ -180,8 +180,6 @@ int libesedb_table_initialize(
 		if( libfdata_vector_initialize(
 		     &( internal_table->pages_vector ),
 		     (size64_t) io_handle->page_size,
-		     io_handle->pages_data_offset,
-		     io_handle->pages_data_size,
 		     (intptr_t *) io_handle,
 		     NULL,
 		     NULL,
@@ -194,6 +192,22 @@ int libesedb_table_initialize(
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create pages vector.",
+			 function );
+
+			goto on_error;
+		}
+		if( libfdata_vector_append_segment(
+		     internal_table->pages_vector,
+		     io_handle->pages_data_offset,
+		     io_handle->pages_data_size,
+		     0,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append segment to pages vector.",
 			 function );
 
 			goto on_error;
@@ -294,8 +308,6 @@ int libesedb_table_initialize(
 			if( libfdata_vector_initialize(
 			     &( internal_table->long_values_pages_vector ),
 			     (size64_t) io_handle->page_size,
-			     io_handle->pages_data_offset,
-			     io_handle->pages_data_size,
 			     (intptr_t *) io_handle,
 			     NULL,
 			     NULL,
@@ -308,6 +320,22 @@ int libesedb_table_initialize(
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create long values pages vector.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdata_vector_append_segment(
+			     internal_table->long_values_pages_vector,
+			     io_handle->pages_data_offset,
+			     io_handle->pages_data_size,
+			     0,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append segment to long values pages vector.",
 				 function );
 
 				goto on_error;
