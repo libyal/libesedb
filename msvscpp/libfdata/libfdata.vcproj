@@ -122,6 +122,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdata\libfdata_range.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_support.c"
 				>
 			</File>
@@ -189,6 +193,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_notify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_range.h"
 				>
 			</File>
 			<File

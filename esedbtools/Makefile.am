@@ -41,6 +41,7 @@ esedbexport_LDADD  = \
 	@LIBFVALUE_LIBADD@ \
 	@LIBFWNT_LIBADD@ \
 	@LIBFMAPI_LIBADD@ \
+	@INTLLIBS@ \
 	@MEMWATCH_LIBADD@
 
 esedbinfo_SOURCES = \
@@ -52,6 +53,7 @@ esedbinfo_LDADD  = \
 	../liberror/liberror.la \
 	../libesedb/libesedb.la \
 	../libsystem/libsystem.la \
+	@INTLLIBS@ \
 	@MEMWATCH_LIBADD@
 
 MAINTAINERCLEANFILES = \
