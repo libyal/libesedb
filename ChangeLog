@@ -116,9 +116,6 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
-20110425
-* updated libuna - initial windows 932 codepage support
-
 20110413
 * updated libuna - initial windows 936 codepage support
 * updated libcstring, libfdata
