@@ -108,6 +108,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\esedbtools\esedbinput.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\esedboutput.c"
 				>
 			</File>
@@ -142,7 +146,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\esedbinput.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\esedboutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedbtools_libesedb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedbtools_libfdatetime.h"
 				>
 			</File>
 			<File

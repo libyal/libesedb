@@ -1153,6 +1153,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 int windows_search_export_compressed_string_value(
      uint8_t *value_data,
      size_t value_data_size,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
@@ -1474,8 +1475,8 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-			                                                  sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -1543,7 +1544,7 @@ int windows_search_export_compressed_string_value(
 		if( libuna_utf8_string_size_from_byte_stream(
 		     &( decoded_value_data[ 1 ] ),
 		     decoded_value_data_size - 1,
-		     LIBUNA_CODEPAGE_ASCII,
+		     ascii_codepage,
 		     &value_string_size,
 		     error ) != 1 )
 		{
@@ -1581,7 +1582,7 @@ int windows_search_export_compressed_string_value(
 		     value_string_size,
 		     &( decoded_value_data[ 1 ] ),
 		     decoded_value_data_size - 1,
-		     LIBUNA_CODEPAGE_ASCII,
+		     ascii_codepage,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -2167,6 +2168,7 @@ int windows_search_export_record_value_filetime(
 int windows_search_export_record_value_compressed_string(
      libesedb_record_t *record,
      int record_value_entry,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
@@ -2258,6 +2260,7 @@ int windows_search_export_record_value_compressed_string(
 			if( windows_search_export_compressed_string_value(
 			     value_data,
 			     value_data_size,
+			     ascii_codepage,
 			     record_file_stream,
 			     error ) != 1 )
 			{
@@ -2351,6 +2354,7 @@ if( libsystem_notify_verbose != 0 )
 				if( windows_search_export_compressed_string_value(
 				     value_data,
 				     value_data_size,
+				     ascii_codepage,
 				     record_file_stream,
 				     error ) != 1 )
 				{
@@ -2457,6 +2461,7 @@ if( libsystem_notify_verbose != 0 )
 				if( windows_search_export_compressed_string_value(
 				     value_data,
 				     value_data_size,
+				     ascii_codepage,
 				     record_file_stream,
 				     error ) != 1 )
 				{
@@ -2627,8 +2632,8 @@ int windows_search_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-						                          sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = libcstring_system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -2697,6 +2702,7 @@ int windows_search_export_record_value_utf16_string(
  */
 int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error )
 {
@@ -3549,6 +3555,7 @@ int windows_search_export_record_systemindex_0a(
 			result = windows_search_export_record_value_compressed_string(
 				  record,
 				  value_iterator,
+				  ascii_codepage,
 				  record_file_stream,
 				  error );
 		}
@@ -3783,14 +3790,6 @@ int windows_search_export_record_systemindex_gthr(
 				  record,
 				  value_iterator,
 				  LIBUNA_ENDIAN_LITTLE,
-				  record_file_stream,
-				  error );
-		}
-		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED )
-		{
-			result = windows_search_export_record_value_compressed_string(
-				  record,
-				  value_iterator,
 				  record_file_stream,
 				  error );
 		}

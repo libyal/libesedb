@@ -29,15 +29,7 @@
 #include <libcstring.h>
 #include <liberror.h>
 
-/* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
- * before including libesedb_extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_EXPORT
-#endif
-
-#include <libesedb.h>
-
+#include "esedbtools_libesedb.h"
 #include "log_handle.h"
 
 #if defined( __cplusplus )
@@ -58,6 +50,26 @@ struct export_handle
 	 */
 	uint8_t export_mode;
 
+	/* The ascii codepage
+	 */
+	int ascii_codepage;
+
+	/* The target path
+	 */
+	libcstring_system_character_t *target_path;
+
+	/* The target path size
+	 */
+	size_t target_path_size;
+
+	/* The items export path
+	 */
+	libcstring_system_character_t *items_export_path;
+
+	/* The items export path size
+	 */
+	size_t items_export_path_size;
+
 	/* The nofication output stream
 	 */
 	FILE *notify_stream;
@@ -69,7 +81,6 @@ struct export_handle
 
 int export_handle_initialize(
      export_handle_t **export_handle,
-     uint8_t export_mode,
      liberror_error_t **error );
 
 int export_handle_free(
@@ -80,9 +91,38 @@ int export_handle_signal_abort(
      export_handle_t *export_handle,
      liberror_error_t **error );
 
+int export_handle_set_export_mode(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *string,
+     liberror_error_t **error );
+
+int export_handle_set_ascii_codepage(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *string,
+     liberror_error_t **error );
+
+int export_handle_set_target_path(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *target_path,
+     liberror_error_t **error );
+
+int export_handle_set_export_path(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *base_path,
+     size_t base_path_length,
+     const libcstring_system_character_t *suffix,
+     size_t suffix_length,
+     libcstring_system_character_t **export_path,
+     size_t *export_path_size,
+     liberror_error_t **error );
+
+int export_handle_create_items_export_path(
+     export_handle_t *export_handle,
+     liberror_error_t **error );
+
 int export_handle_make_directory(
      export_handle_t *export_handle,
-     libcstring_system_character_t *directory_name,
+     const libcstring_system_character_t *directory_name,
      log_handle_t *log_handle,
      liberror_error_t **error );
 
@@ -139,8 +179,6 @@ int export_handle_export_record_value(
 int export_handle_export_file(
      export_handle_t *export_handle,
      libesedb_file_t *file,
-     libcstring_system_character_t *export_path,
-     size_t export_path_length,
      const libcstring_system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,

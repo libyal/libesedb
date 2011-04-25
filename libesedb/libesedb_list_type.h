@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-/* The array comparison definitions
+/* The list comparison definitions
  */
 enum LIBESEDB_LIST_COMPARE_DEFINITIONS
 {
@@ -48,7 +48,7 @@ enum LIBESEDB_LIST_COMPARE_DEFINITIONS
         LIBESEDB_LIST_COMPARE_GREATER
 };
 
-/* The array insert flag definitions
+/* The list insert flag definitions
  */
 enum LIBESEDB_LIST_INSERT_FLAGS
 {

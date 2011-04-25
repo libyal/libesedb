@@ -65,11 +65,15 @@ void usage_fprint(
 	fprintf( stream, "Use esedbexport to export items stored in an Extensible Storage Engine (ESE)\n"
 	                 "Database (EDB) file\n\n" );
 
-	fprintf( stream, "Usage: esedbexport [ -l logfile ] [ -m mode ] [ -t target ] [ -T table_name ]\n"
-	                 "                   [ -hvV ] source\n\n" );
+	fprintf( stream, "Usage: esedbexport [ -c codepage ] [ -l logfile ] [ -m mode ] [ -t target ]\n"
+	                 "                   [ -T table_name ] [ -hvV ] source\n\n" );
 
 	fprintf( stream, "\tsource: the source file\n\n" );
 
+	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-874,\n"
+	                 "\t        windows-932, windows-936, windows-1250, windows-1251,\n"
+	                 "\t        windows-1252 (default), windows-1253, windows-1254\n"
+	                 "\t        windows-1255, windows-1256, windows-1257 or windows-1258\n" );
 	fprintf( stream, "\t-h:     shows this help\n" );
 	fprintf( stream, "\t-l:     logs information about the exported items\n" );
 	fprintf( stream, "\t-m:     export mode, option: all, tables (default)\n"
@@ -138,68 +142,6 @@ void esedbexport_signal_handler(
 	}
 }
 
-/* Determines the export mode
- * Returns 1 if successful or -1 on error
- */
-int esedbexport_determine_export_mode(
-     const libcstring_system_character_t *argument,
-     uint8_t *export_mode,
-     liberror_error_t **error )
-{
-	static char *function  = "esedbexport_determine_export_mode";
-	size_t argument_length = 0;
-	int result             = -1;
-
-	if( argument == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid argument string.",
-		 function );
-
-		return( -1 );
-	}
-	if( export_mode == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export mode.",
-		 function );
-
-		return( -1 );
-	}
-	argument_length = libcstring_system_string_length(
-	                   argument );
-
-	if( argument_length == 3 )
-	{
-		if( libcstring_system_string_compare(
-		     argument,
-		     _LIBCSTRING_SYSTEM_STRING( "all" ),
-		     3 ) == 0 )
-		{
-			*export_mode = EXPORT_MODE_ALL;
-			result       = 1;
-		}
-	}
-	else if( argument_length == 6 )
-	{
-		if( libcstring_system_string_compare(
-		     argument,
-		     _LIBCSTRING_SYSTEM_STRING( "tables" ),
-		     6 ) == 0 )
-		{
-			*export_mode = EXPORT_MODE_TABLES;
-			result       = 1;
-		}
-	}
-	return( result );
-}
-
 /* The main program
  */
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
@@ -208,25 +150,21 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
-	libcstring_system_character_t *export_path        = NULL;
-	libcstring_system_character_t *log_filename       = NULL;
-	libcstring_system_character_t *option_export_mode = NULL;
-	libcstring_system_character_t *option_table_name  = NULL;
-	libcstring_system_character_t *option_target_path = NULL;
-	libcstring_system_character_t *path_separator     = NULL;
-	libcstring_system_character_t *source             = NULL;
-	libcstring_system_character_t *target_path        = NULL;
-	liberror_error_t *error                           = NULL;
-	log_handle_t *log_handle                          = NULL;
-	char *program                                     = "esedbexport";
-	size_t export_path_length                         = 0;
-	size_t source_length                              = 0;
-	size_t table_name_size                            = 0;
-	size_t target_path_length                         = 0;
-	libcstring_system_integer_t option                = 0;
-	uint8_t export_mode                               = EXPORT_MODE_TABLES;
-	int result                                        = 0;
-	int verbose                                       = 0;
+	libcstring_system_character_t *log_filename          = NULL;
+	libcstring_system_character_t *option_ascii_codepage = NULL;
+	libcstring_system_character_t *option_export_mode    = NULL;
+	libcstring_system_character_t *option_table_name     = NULL;
+	libcstring_system_character_t *option_target_path    = NULL;
+	libcstring_system_character_t *path_separator        = NULL;
+	libcstring_system_character_t *source                = NULL;
+	liberror_error_t *error                              = NULL;
+	log_handle_t *log_handle                             = NULL;
+	char *program                                        = "esedbexport";
+	size_t source_length                                 = 0;
+	size_t table_name_size                               = 0;
+	libcstring_system_integer_t option                   = 0;
+	int result                                           = 0;
+	int verbose                                          = 0;
 
 	libsystem_notify_set_stream(
 	 stderr,
@@ -271,6 +209,11 @@ int main( int argc, char * const argv[] )
 				 stdout );
 
 				return( EXIT_FAILURE );
+
+			case (libcstring_system_integer_t) 'c':
+				option_ascii_codepage = optarg;
+
+				break;
 
 			case (libcstring_system_integer_t) 'h':
 				usage_fprint(
@@ -323,21 +266,7 @@ int main( int argc, char * const argv[] )
 	}
 	source = argv[ optind ];
 
-	libsystem_notify_set_verbose(
-	 verbose );
-	libesedb_notify_set_stream(
-	 stderr,
-	 NULL );
-	libesedb_notify_set_verbose(
-	 verbose );
-
-	/* Determine if target path basename
-	 */
-	if( option_target_path != NULL )
-	{
-		target_path = option_target_path;
-	}
-	else
+	if( option_target_path == NULL )
 	{
 		source_length = libcstring_system_string_length(
 		                 source );
@@ -355,71 +284,16 @@ int main( int argc, char * const argv[] )
 		{
 			path_separator++;
 		}
-		target_path = path_separator;
+		option_target_path = path_separator;
 	}
-	target_path_length = libcstring_system_string_length(
-	                      target_path );
+	libsystem_notify_set_verbose(
+	 verbose );
+	libesedb_notify_set_stream(
+	 stderr,
+	 NULL );
+	libesedb_notify_set_verbose(
+	 verbose );
 
-	/* Create the export path
-	 */
-	export_path_length = 7 + target_path_length;
-
-	export_path = libcstring_system_string_allocate(
-	               export_path_length + 1 );
-
-	if( export_path == NULL )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to create export path.\n" );
-
-		goto on_error;
-	}
-	if( libcstring_system_string_sprintf(
-	     export_path,
-	     export_path_length + 1,
-	     _LIBCSTRING_SYSTEM_STRING( "%" ) _LIBCSTRING_SYSTEM_STRING( PRIs_LIBCSTRING_SYSTEM ) _LIBCSTRING_SYSTEM_STRING( ".export" ),
-	     target_path ) == -1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to set export path.\n" );
-
-		memory_free(
-		 export_path );
-
-		goto on_error;
-	}
-	/* Determine if the export paths exists
-	 */
-	result = libsystem_file_exists(
-	          export_path,
-	          &error );
-
-	if( result == -1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.\n",
-		 export_path );
-
-		memory_free(
-		 export_path );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		fprintf(
-		 stderr,
-		 "%" PRIs_LIBCSTRING_SYSTEM " already exists.\n",
-		 export_path );
-
-		memory_free(
-		 export_path );
-
-		goto on_error;
-	}
 	if( option_table_name != NULL )
 	{
 		table_name_size = 1 + libcstring_system_string_length(
@@ -427,22 +301,79 @@ int main( int argc, char * const argv[] )
 	}
 	if( option_export_mode != NULL )
 	{
-		if( esedbexport_determine_export_mode(
-		     option_export_mode,
-		     &export_mode,
-		     &error ) != 1 )
+		result = export_handle_set_export_mode(
+			  esedbexport_export_handle,
+			  option_export_mode,
+			  &error );
+
+		if( result == -1 )
 		{
-			libsystem_notify_print_error_backtrace(
-			 error );
-			liberror_error_free(
-			 &error );
+			fprintf(
+			 stderr,
+			 "Unable to set export mode.\n" );
 
-			export_mode = EXPORT_MODE_TABLES;
-
+			goto on_error;
+		}
+		else if( result == 0 )
+		{
 			fprintf(
 			 stderr,
 			 "Unsupported export mode defaulting to: tables.\n" );
 		}
+	}
+	if( option_ascii_codepage != NULL )
+	{
+		result = export_handle_set_ascii_codepage(
+		          esedbexport_export_handle,
+		          option_ascii_codepage,
+		          &error );
+
+		if( result == -1 )
+		{
+			fprintf(
+			 stderr,
+			 "Unable to set ASCII codepage in export handle.\n" );
+
+			goto on_error;
+		}
+		else if( result == 0 )
+		{
+			fprintf(
+			 stderr,
+			 "Unsupported ASCII codepage defaulting to: windows-1252.\n" );
+		}
+	}
+	if( export_handle_set_target_path(
+	     esedbexport_export_handle,
+	     option_target_path,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to set target path.\n" );
+
+		goto on_error;
+	}
+	result = export_handle_create_items_export_path(
+	          esedbexport_export_handle,
+	          &error );
+
+	if( result == -1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to create items export path.\n" );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		fprintf(
+		 stderr,
+		 "%" PRIs_LIBCSTRING_SYSTEM " already exists.\n",
+		 esedbexport_export_handle->items_export_path );
+
+		goto on_error;
 	}
 	if( log_handle_initialize(
 	     &log_handle,
@@ -451,9 +382,6 @@ int main( int argc, char * const argv[] )
 		fprintf(
 		 stderr,
 		 "Unable to create log handle.\n" );
-
-		memory_free(
-		 export_path );
 
 		goto on_error;
 	}
@@ -467,22 +395,15 @@ int main( int argc, char * const argv[] )
 		 "Unable to open log file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 log_filename );
 
-		memory_free(
-		 export_path );
-
 		goto on_error;
 	}
 	if( export_handle_initialize(
 	     &esedbexport_export_handle,
-	     export_mode,
 	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
 		 "Unable to create export handle.\n" );
-
-		memory_free(
-		 export_path );
 
 		goto on_error;
 	}
@@ -493,9 +414,6 @@ int main( int argc, char * const argv[] )
 		fprintf(
 		 stderr,
 		 "Unable to create file.\n" );
-
-		memory_free(
-		 export_path );
 
 		goto on_error;
 	}
@@ -522,9 +440,6 @@ int main( int argc, char * const argv[] )
 		 "Unablt to open file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
 		 source );
 
-		memory_free(
-		 export_path );
-
 		goto on_error;
 	}
 #ifdef TODO_SIGNAL_ABORT
@@ -545,8 +460,6 @@ int main( int argc, char * const argv[] )
 	if( export_handle_export_file(
 	     esedbexport_export_handle,
 	     esedbexport_file,
-	     export_path,
-	     export_path_length,
 	     option_table_name,
 	     table_name_size - 1,
 	     log_handle,
@@ -556,16 +469,8 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Unable to export file.\n" );
 
-		memory_free(
-		 export_path );
-
 		goto on_error;
 	}
-	memory_free(
-	 export_path );
-
-	export_path = NULL;
-
 #ifdef TODO_SIGNAL_ABORT
 	if( libsystem_signal_detach(
 	     &error ) != 1 )

@@ -77,6 +77,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 int windows_search_export_compressed_string_value(
      uint8_t *value_data,
      size_t value_data_size,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error );
 
@@ -105,6 +106,7 @@ int windows_search_export_record_value_filetime(
 int windows_search_export_record_value_compressed_string(
      libesedb_record_t *record,
      int record_value_entry,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error );
 
@@ -117,6 +119,7 @@ int windows_search_export_record_value_utf16_string(
 
 int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
+     int ascii_codepage,
      FILE *record_file_stream,
      liberror_error_t **error );
 

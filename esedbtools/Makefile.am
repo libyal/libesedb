@@ -22,7 +22,10 @@ bin_PROGRAMS = \
 
 esedbexport_SOURCES = \
 	esedbexport.c \
+	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h \
+	esedbtools_libesedb.h \
+	esedbtools_libfdatetime.h \
 	export.c export.h \
 	export_exchange.c export_exchange.h \
 	export_handle.c export_handle.h \

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20110321],
+ [20110425],
  [jbmetz@users.sourceforge.net])
 
 AC_CONFIG_SRCDIR(
