@@ -116,6 +116,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20110509
+* updated libesedb_libfdata.h
+
 20110413
 * updated libuna - initial windows 936 codepage support
 * updated libcstring, libfdata
