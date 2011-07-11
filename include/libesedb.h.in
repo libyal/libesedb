@@ -356,8 +356,8 @@ int libesedb_file_get_amount_of_tables(
  */
 LIBESEDB_EXTERN \
 int libesedb_table_free(
-                     libesedb_table_t **table,
-                     libesedb_error_t **error );
+     libesedb_table_t **table,
+     libesedb_error_t **error );
 
 /* Retrieves the table identifier or Father Data Page (FDP) object identifier
  * Returns 1 if successful or -1 on error

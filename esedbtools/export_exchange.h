@@ -28,14 +28,7 @@
 
 #include <liberror.h>
 
-/* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
- * before including libesedb_extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_EXPORT
-#endif
-
-#include <libesedb.h>
+#include "esedbtools_libesedb.h"
 
 #if defined( __cplusplus )
 extern "C" {

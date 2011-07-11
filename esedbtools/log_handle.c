@@ -61,8 +61,8 @@ int log_handle_initialize(
 	}
 	if( *log_handle == NULL )
 	{
-		*log_handle = (log_handle_t *) memory_allocate(
-		                                sizeof( log_handle_t ) );
+		*log_handle = memory_allocate_structure(
+		               log_handle_t );
 
 		if( *log_handle == NULL )
 		{
@@ -73,7 +73,7 @@ int log_handle_initialize(
 			 "%s: unable to create log handle.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *log_handle,
@@ -87,15 +87,20 @@ int log_handle_initialize(
 			 "%s: unable to clear log handle.",
 			 function );
 
-			memory_free(
-			 *log_handle );
-
-			*log_handle = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *log_handle != NULL )
+	{
+		memory_free(
+		 *log_handle );
+
+		*log_handle = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the log handle and its elements

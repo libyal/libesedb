@@ -26,6 +26,8 @@ esedbexport_SOURCES = \
 	esedboutput.c esedboutput.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
+	esedbtools_libfguid.h \
+	esedbtools_libuna.h \
 	export.c export.h \
 	export_exchange.c export_exchange.h \
 	export_handle.c export_handle.h \
@@ -49,7 +51,13 @@ esedbexport_LDADD  = \
 
 esedbinfo_SOURCES = \
 	esedbinfo.c \
-	esedboutput.c esedboutput.h
+	esedbinput.c esedbinput.h \
+	esedboutput.c esedboutput.h \
+	esedbtools_libesedb.h \
+	esedbtools_libfdatetime.h \
+	esedbtools_libfguid.h \
+	esedbtools_libuna.h \
+	info_handle.c info_handle.h
 
 esedbinfo_LDADD  = \
 	../libcstring/libcstring.la \

@@ -23,28 +23,10 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_LOCAL_LIBUNA )
-#include <libuna_definitions.h>
-#elif defined( HAVE_LIBUNA_H )
-#include <libuna.h>
-#endif
-
 #if defined( HAVE_LOCAL_LIBBFIO )
 #include <libbfio_definitions.h>
 #elif defined( HAVE_LIBBFIO_H )
 #include <libbfio.h>
-#endif
-
-#if defined( HAVE_LOCAL_LIBFDATETIME )
-#include <libfdatetime_definitions.h>
-#elif defined( HAVE_LIBFDATETIME_H )
-#include <libfdatetime.h>
-#endif
-
-#if defined( HAVE_LOCAL_LIBFGUID )
-#include <libfguid_definitions.h>
-#elif defined( HAVE_LIBFGUID_H )
-#include <libfguid.h>
 #endif
 
 #if defined( HAVE_LOCAL_LIBFVALUE )
@@ -52,15 +34,6 @@
 #elif defined( HAVE_LIBFVALUE_H )
 #include <libfvalue.h>
 #endif
-
-/* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
- * before including libesedb.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_IMPORT
-#endif
-
-#include <libesedb.h>
 
 #if defined( HAVE_LOCAL_LIBFWNT )
 #include <libfwnt_definitions.h>
@@ -77,6 +50,10 @@
 #include <libsystem.h>
 
 #include "esedboutput.h"
+#include "esedbtools_libesedb.h"
+#include "esedbtools_libfdatetime.h"
+#include "esedbtools_libfguid.h"
+#include "esedbtools_libuna.h"
 
 /* Prints the copyright information
  */

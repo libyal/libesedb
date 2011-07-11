@@ -677,6 +677,89 @@ int export_handle_make_directory(
 	return( 1 );
 }
 
+/* Opens the export handle
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_open(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *filename,
+     liberror_error_t **error )
+{
+	static char *function = "export_handle_open";
+
+	if( export_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libesedb_file_open_wide(
+	     export_handle->input_file,
+	     filename,
+	     LIBESEDB_OPEN_READ,
+	     error ) != 1 )
+#else
+	if( libesedb_file_open(
+	     export_handle->input_file,
+	     filename,
+	     LIBESEDB_OPEN_READ,
+	     error ) != 1 )
+#endif
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 "%s: unable to open input file.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Closes the export handle
+ * Returns the 0 if succesful or -1 on error
+ */
+int export_handle_close(
+     export_handle_t *export_handle,
+     liberror_error_t **error )
+{
+	static char *function = "export_handle_close";
+
+	if( export_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_file_close(
+	     export_handle->input_file,
+	     error ) != 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 "%s: unable to close input file.",
+		 function );
+
+		return( -1 );
+	}
+	return( 0 );
+}
+
 /* Creates a text item file
  * Returns 1 if successful, 0 if the file already exists or -1 on error
  */
@@ -2938,11 +3021,10 @@ libsystem_notify_print_data(
 }
 
 /* Exports the items in the file
- * Returns 1 if successful or -1 on error
+ * Returns the 1 if succesful, 0 if no items are available or -1 on error
  */
 int export_handle_export_file(
      export_handle_t *export_handle,
-     libesedb_file_t *file,
      const libcstring_system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,
@@ -2954,7 +3036,7 @@ int export_handle_export_file(
 	size_t table_name_size                    = 0;
 	int number_of_tables                      = 0;
 	int result                                = 0;
-	int table_iterator                        = 0;
+	int table_index                           = 0;
 
 	if( export_handle == NULL )
 	{
@@ -2967,16 +3049,23 @@ int export_handle_export_file(
 
 		return( -1 );
 	}
-	if( file == NULL )
+	if( libesedb_file_get_number_of_tables(
+	     export_handle->input_file,
+	     &number_of_tables,
+	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid file.",
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of tables.",
 		 function );
 
-		return( -1 );
+		goto on_error;
+	}
+	if( number_of_tables == 0 )
+	{
+		return( 0 );
 	}
 	if( export_handle_make_directory(
 	     export_handle,
@@ -2994,27 +3083,13 @@ int export_handle_export_file(
 
 		goto on_error;
 	}
-	if( libesedb_file_get_number_of_tables(
-	     file,
-	     &number_of_tables,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of tables.",
-		 function );
-
-		goto on_error;
-	}
-	for( table_iterator = 0;
-	     table_iterator < number_of_tables;
-	     table_iterator++ )
+	for( table_index = 0;
+	     table_index < number_of_tables;
+	     table_index++ )
 	{
 		if( libesedb_file_get_table(
-		     file,
-		     table_iterator,
+		     export_handle->input_file,
+		     table_index,
 		     &table,
 		     error ) != 1 )
 		{
@@ -3024,7 +3099,7 @@ int export_handle_export_file(
 			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve table: %d.",
 			 function,
-			 table_iterator );
+			 table_index );
 
 			goto on_error;
 		}
@@ -3039,7 +3114,6 @@ int export_handle_export_file(
 		          &table_name_size,
 		          error );
 #endif
-
 		if( result != 1 )
 		{
 			liberror_error_set(
@@ -3110,7 +3184,7 @@ int export_handle_export_file(
 			fprintf(
 			 export_handle->notify_stream,
 			 "Exporting table %d (%" PRIs_LIBCSTRING_SYSTEM ")",
-			 table_iterator + 1,
+			 table_index + 1,
 			 table_name );
 
 			if( export_table_name == NULL )
@@ -3154,7 +3228,7 @@ int export_handle_export_file(
 				 LIBERROR_RUNTIME_ERROR_GENERIC,
 				 "%s: unable to export table: %d.",
 				 function,
-				 table_iterator );
+				 table_index );
 
 				goto on_error;
 			}
@@ -3174,7 +3248,7 @@ int export_handle_export_file(
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table: %d.",
 			 function,
-			 table_iterator );
+			 table_index );
 
 			goto on_error;
 		}

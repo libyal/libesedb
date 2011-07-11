@@ -1,5 +1,5 @@
 /*
- * The libuna header wrapper
+ * The libfguid header wrapper
  *
  * Copyright (c) 2009-2011, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,42 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LIBUNA_H )
-#define _LIBESEDB_LIBUNA_H
+#if !defined( _ESEDBTOOLS_LIBFGUID_H )
+#define _ESEDBTOOLS_LIBFGUID_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBUNA for local use of libuna
+/* Define HAVE_LOCAL_LIBFGUID for local use of libfguid
  */
-#if defined( HAVE_LOCAL_LIBUNA )
+#if defined( HAVE_LOCAL_LIBFGUID )
 
-#include <libuna_base16_stream.h>
-#include <libuna_base64_stream.h>
-#include <libuna_base64url_stream.h>
-#include <libuna_byte_stream.h>
-#include <libuna_unicode_character.h>
-#include <libuna_url_stream.h>
-#include <libuna_utf16_stream.h>
-#include <libuna_utf16_string.h>
-#include <libuna_utf32_stream.h>
-#include <libuna_utf32_string.h>
-#include <libuna_utf8_stream.h>
-#include <libuna_utf8_string.h>
-#include <libuna_types.h>
+#include <libfguid_definitions.h>
+#include <libfguid_identifier.h>
+#include <libfguid_types.h>
 
-#elif defined( HAVE_LIBUNA_H )
+#elif defined( HAVE_LIBFGUID_H )
 
-/* If libtool DLL support is enabled set LIBUNA_DLL_IMPORT
- * before including libuna.h
+/* If libtool DLL support is enabled set LIBFGUID_DLL_IMPORT
+ * before including libfguid.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBUNA_DLL_IMPORT
+#define LIBFGUID_DLL_IMPORT
 #endif
 
-#include <libuna.h>
+#include <libfguid.h>
 
 #else
-#error Missing libuna.h
+#error Missing libfguid.h
 #endif
 
 #endif

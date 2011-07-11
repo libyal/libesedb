@@ -58,8 +58,8 @@ int libesedb_page_value_initialize(
 	}
 	if( *page_value == NULL )
 	{
-		*page_value = (libesedb_page_value_t *) memory_allocate(
-		                                         sizeof( libesedb_page_value_t ) );
+		*page_value = memory_allocate_structure(
+		               libesedb_page_value_t );
 
 		if( *page_value == NULL )
 		{
@@ -70,7 +70,7 @@ int libesedb_page_value_initialize(
 			 "%s: unable to create page value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *page_value,
@@ -84,15 +84,20 @@ int libesedb_page_value_initialize(
 			 "%s: unable to clear page value.",
 			 function );
 
-			memory_free(
-			 *page_value );
-
-			*page_value = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *page_value != NULL )
+	{
+		memory_free(
+		 *page_value );
+
+		*page_value = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the page value
@@ -145,8 +150,8 @@ int libesedb_page_tags_value_initialize(
 	}
 	if( *page_tags_value == NULL )
 	{
-		*page_tags_value = (libesedb_page_tags_value_t *) memory_allocate(
-		                                                   sizeof( libesedb_page_tags_value_t ) );
+		*page_tags_value = memory_allocate_structure(
+		                    libesedb_page_tags_value_t );
 
 		if( *page_tags_value == NULL )
 		{
@@ -157,7 +162,7 @@ int libesedb_page_tags_value_initialize(
 			 "%s: unable to create page tags value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *page_tags_value,
@@ -171,15 +176,20 @@ int libesedb_page_tags_value_initialize(
 			 "%s: unable to clear page tags value.",
 			 function );
 
-			memory_free(
-			 *page_tags_value );
-
-			*page_tags_value = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *page_tags_value != NULL )
+	{
+		memory_free(
+		 *page_tags_value );
+
+		*page_tags_value = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the page tags value
@@ -230,8 +240,8 @@ int libesedb_page_initialize(
 	}
 	if( *page == NULL )
 	{
-		*page = (libesedb_page_t *) memory_allocate(
-		                             sizeof( libesedb_page_t ) );
+		*page = memory_allocate_structure(
+		         libesedb_page_t );
 
 		if( *page == NULL )
 		{
@@ -242,7 +252,7 @@ int libesedb_page_initialize(
 			 "%s: unable to create page.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *page,
@@ -256,12 +266,7 @@ int libesedb_page_initialize(
 			 "%s: unable to clear page.",
 			 function );
 
-			memory_free(
-			 *page );
-
-			*page = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_array_initialize(
 		     &( ( *page )->values_array ),
@@ -275,10 +280,20 @@ int libesedb_page_initialize(
 			 "%s: unable to create page values array.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *page != NULL )
+	{
+		memory_free(
+		 *page );
+
+		*page = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees page

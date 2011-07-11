@@ -20,6 +20,7 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
 #include <memory.h>
 #include <types.h>
 
@@ -34,23 +35,14 @@
 #include <stdlib.h>
 #endif
 
-/* If libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
- * before including libesedb.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_IMPORT
-#endif
-
-#include <libesedb.h>
-
 #include <libsystem.h>
 
-#include "export_handle.h"
 #include "esedboutput.h"
+#include "esedbtools_libesedb.h"
+#include "export_handle.h"
 #include "log_handle.h"
 
 export_handle_t *esedbexport_export_handle = NULL;
-libesedb_file_t *esedbexport_file          = NULL;
 int esedbexport_abort                      = 0;
 
 /* Prints the executable usage information
@@ -115,22 +107,6 @@ void esedbexport_signal_handler(
 			 &error );
 		}
 	}
-	if( esedbexport_file != NULL )
-	{
-		if( libesedb_file_signal_abort(
-		     esedbexport_file,
-		     &error ) != 1 )
-		{
-			libsystem_notify_printf(
-			 "%s: unable to signal file to abort.\n",
-			 function );
-
-			libsystem_notify_print_error_backtrace(
-			 error );
-			liberror_error_free(
-			 &error );
-		}
-	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
 	if( libsystem_file_io_close(
@@ -161,7 +137,7 @@ int main( int argc, char * const argv[] )
 	log_handle_t *log_handle                             = NULL;
 	char *program                                        = "esedbexport";
 	size_t source_length                                 = 0;
-	size_t table_name_size                               = 0;
+	size_t option_table_name_length                      = 0;
 	libcstring_system_integer_t option                   = 0;
 	int result                                           = 0;
 	int verbose                                          = 0;
@@ -286,6 +262,11 @@ int main( int argc, char * const argv[] )
 		}
 		option_target_path = path_separator;
 	}
+	if( option_table_name != NULL )
+	{
+		option_table_name_length = libcstring_system_string_length(
+		                            option_table_name );
+	}
 	libsystem_notify_set_verbose(
 	 verbose );
 	libesedb_notify_set_stream(
@@ -294,11 +275,29 @@ int main( int argc, char * const argv[] )
 	libesedb_notify_set_verbose(
 	 verbose );
 
-	if( option_table_name != NULL )
+	if( log_handle_initialize(
+	     &log_handle,
+	     &error ) != 1 )
 	{
-		table_name_size = 1 + libcstring_system_string_length(
-	        	               option_table_name );
+		fprintf(
+		 stderr,
+		 "Unable to initialize log handle.\n" );
+
+		goto on_error;
 	}
+	if( export_handle_initialize(
+	     &esedbexport_export_handle,
+	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to initialize export handle.\n" );
+
+		goto on_error;
+	}
+/* TODO
+	esedbexport_export_handle->print_status_information = print_status_information;
+*/
 	if( option_export_mode != NULL )
 	{
 		result = export_handle_set_export_mode(
@@ -375,16 +374,6 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( log_handle_initialize(
-	     &log_handle,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to create log handle.\n" );
-
-		goto on_error;
-	}
 	if( log_handle_open(
 	     log_handle,
 	     log_filename,
@@ -397,51 +386,10 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( export_handle_initialize(
-	     &esedbexport_export_handle,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to create export handle.\n" );
-
-		goto on_error;
-	}
-	if( libesedb_file_initialize(
-	     &esedbexport_file,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to create file.\n" );
-
-		goto on_error;
-	}
 	fprintf(
 	 stdout,
 	 "Opening file.\n" );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libesedb_file_open_wide(
-	     esedbexport_file,
-	     source,
-	     LIBESEDB_OPEN_READ,
-	     &error ) != 1 )
-#else
-	if( libesedb_file_open(
-	     esedbexport_file,
-	     source,
-	     LIBESEDB_OPEN_READ,
-	     &error ) != 1 )
-#endif
-	{
-		fprintf(
-		 stderr,
-		 "Unablt to open file: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-		 source );
-
-		goto on_error;
-	}
 #ifdef TODO_SIGNAL_ABORT
 	if( libsystem_signal_attach(
 	     esedbexport_signal_handler,
@@ -457,13 +405,31 @@ int main( int argc, char * const argv[] )
 		 &error );
 	}
 #endif
-	if( export_handle_export_file(
+	if( export_handle_open(
 	     esedbexport_export_handle,
-	     esedbexport_file,
-	     option_table_name,
-	     table_name_size - 1,
-	     log_handle,
+	     source,
 	     &error ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to open: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+		 source );
+
+		goto on_error;
+	}
+/* TODO
+	fprintf(
+	 stdout,
+	 "Exporting aliases.\n" );
+*/
+	result = export_handle_export_file(
+	          esedbexport_export_handle,
+	          option_table_name,
+	          option_table_name_length,
+	          log_handle,
+	          &error );
+
+	if( result == -1 )
 	{
 		fprintf(
 		 stderr,
@@ -485,23 +451,13 @@ int main( int argc, char * const argv[] )
 		 &error );
 	}
 #endif
-	if( libesedb_file_close(
-	     esedbexport_file,
+	if( export_handle_close(
+	     esedbexport_export_handle,
 	     &error ) != 0 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to close file.\n" );
-
-		goto on_error;
-	}
-	if( libesedb_file_free(
-	     &esedbexport_file,
-	     &error ) != 1 )
-	{
-		fprintf(
-		 stderr,
-		 "Unable to free file.\n" );
+		 "Unable to close export handle.\n" );
 
 		goto on_error;
 	}
@@ -543,6 +499,7 @@ int main( int argc, char * const argv[] )
 
 		return( EXIT_FAILURE );
 	}
+/* TODO export FAILED ? */
 	fprintf(
 	 stdout,
 	 "Export completed.\n" );
@@ -557,28 +514,16 @@ on_error:
 		liberror_error_free(
 		 &error );
 	}
-	if( esedbexport_file != NULL )
-	{
-		libesedb_file_close(
-		 esedbexport_file,
-		 NULL );
-		libesedb_file_free(
-		 &esedbexport_file,
-		 NULL );
-	}
-	if( log_handle != NULL )
-	{
-		log_handle_close(
-		 log_handle,
-		 NULL );
-		log_handle_free(
-		 &log_handle,
-		 NULL );
-	}
 	if( esedbexport_export_handle != NULL )
 	{
 		export_handle_free(
 		 &esedbexport_export_handle,
+		 NULL );
+	}
+	if( log_handle != NULL )
+	{
+		log_handle_free(
+		 &log_handle,
 		 NULL );
 	}
 	return( EXIT_FAILURE );

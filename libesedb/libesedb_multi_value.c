@@ -78,8 +78,8 @@ int libesedb_multi_value_initialize(
 	}
 	if( *multi_value == NULL )
 	{
-		internal_multi_value = (libesedb_internal_multi_value_t *) memory_allocate(
-		                                                            sizeof( libesedb_internal_multi_value_t ) );
+		internal_multi_value = memory_allocate_structure(
+		                        libesedb_internal_multi_value_t );
 
 		if( internal_multi_value == NULL )
 		{
@@ -90,7 +90,7 @@ int libesedb_multi_value_initialize(
 			 "%s: unable to create internal multi value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_multi_value,
@@ -104,10 +104,7 @@ int libesedb_multi_value_initialize(
 			 "%s: unable to clear internal multi value.",
 			 function );
 
-			memory_free(
-			 internal_multi_value );
-
-			return( -1 );
+			goto on_error;
 		}
 		internal_multi_value->column_catalog_definition = column_catalog_definition;
 		internal_multi_value->record_value              = record_value;
@@ -115,6 +112,14 @@ int libesedb_multi_value_initialize(
 		*multi_value = (libesedb_multi_value_t *) internal_multi_value;
 	}
 	return( 1 );
+
+on_error:
+	if( internal_multi_value != NULL )
+	{
+		memory_free(
+		 internal_multi_value );
+	}
+	return( -1 );
 }
 
 /* Frees a multi value

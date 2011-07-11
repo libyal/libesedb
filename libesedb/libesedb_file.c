@@ -62,8 +62,8 @@ int libesedb_file_initialize(
 	}
 	if( *file == NULL )
 	{
-		internal_file = (libesedb_internal_file_t *) memory_allocate(
-		                                              sizeof( libesedb_internal_file_t ) );
+		internal_file = memory_allocate_structure(
+		                 libesedb_internal_file_t );
 
 		if( internal_file == NULL )
 		{
@@ -74,7 +74,7 @@ int libesedb_file_initialize(
 			 "%s: unable to create file.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     internal_file,
@@ -104,29 +104,37 @@ int libesedb_file_initialize(
 			 "%s: unable to create IO handle.",
 			 function );
 
-			memory_free(
-			 internal_file );
+			goto on_error;
+		}
+		if( libesedb_i18n_initialize(
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to initalize internationalization (i18n).",
+			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		*file = (libesedb_file_t *) internal_file;
 	}
-	if( libesedb_i18n_initialize(
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to initalize internationalization (i18n).",
-		 function );
+	return( 1 );
 
+on_error:
+	if( internal_file != NULL )
+	{
+		if( internal_file->io_handle != NULL )
+		{
+			libesedb_io_handle_free(
+			 &( internal_file->io_handle ),
+			 NULL );
+		}
 		memory_free(
 		 internal_file );
-
-		return( -1 );
 	}
-	return( 1 );
+	return( -1 );
 }
 
 /* Frees a file
@@ -288,7 +296,7 @@ int libesedb_file_open(
 		 "%s: unable to create file IO handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libbfio_handle_set_track_offsets_read(
@@ -303,11 +311,7 @@ int libesedb_file_open(
                  "%s: unable to set track offsets read in file IO handle.",
                  function );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-                return( -1 );
+		goto on_error;
 	}
 #endif
 	if( libbfio_file_set_name(
@@ -324,11 +328,7 @@ int libesedb_file_open(
                  "%s: unable to set filename in file IO handle.",
                  function );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-                return( -1 );
+		goto on_error;
 	}
 	if( libesedb_file_open_file_io_handle(
 	     file,
@@ -344,15 +344,20 @@ int libesedb_file_open(
 		 function,
 		 filename );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	internal_file->file_io_handle_created_in_library = 1;
 
 	return( 1 );
+
+on_error:
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	return( -1 );
 }
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
@@ -428,7 +433,7 @@ int libesedb_file_open_wide(
 		 "%s: unable to create file IO handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libbfio_handle_set_track_offsets_read(
@@ -443,11 +448,7 @@ int libesedb_file_open_wide(
                  "%s: unable to set track offsets read in file IO handle.",
                  function );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-                return( -1 );
+		goto on_error;
 	}
 #endif
 	if( libbfio_file_set_name_wide(
@@ -464,11 +465,7 @@ int libesedb_file_open_wide(
                  "%s: unable to set filename in file IO handle.",
                  function );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-                return( -1 );
+		goto on_error;
 	}
 	if( libesedb_file_open_file_io_handle(
 	     file,
@@ -484,15 +481,20 @@ int libesedb_file_open_wide(
 		 function,
 		 filename );
 
-		libbfio_handle_free(
-		 &file_io_handle,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	internal_file->file_io_handle_created_in_library = 1;
 
 	return( 1 );
+
+on_error:
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	return( -1 );
 }
 
 #endif

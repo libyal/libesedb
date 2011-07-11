@@ -38,8 +38,8 @@ extern "C" {
 
 enum EXPORT_MODES
 {
-	EXPORT_MODE_ALL				= (int) 'a',
-	EXPORT_MODE_TABLES			= (int) 't'
+	EXPORT_MODE_ALL			= (int) 'a',
+	EXPORT_MODE_TABLES		= (int) 't'
 };
 
 typedef struct export_handle export_handle_t;
@@ -49,6 +49,10 @@ struct export_handle
 	/* The export mode
 	 */
 	uint8_t export_mode;
+
+	/* The libesedb input file
+	 */
+	libesedb_file_t *input_file;
 
 	/* The ascii codepage
 	 */
@@ -126,6 +130,17 @@ int export_handle_make_directory(
      log_handle_t *log_handle,
      liberror_error_t **error );
 
+int export_handle_open(
+     export_handle_t *export_handle,
+     const libcstring_system_character_t *filename,
+     liberror_error_t **error );
+
+int export_handle_close(
+     export_handle_t *export_handle,
+     liberror_error_t **error );
+
+/* Item generic export functions
+ */
 int export_handle_create_text_item_file(
      export_handle_t *export_handle,
      const libcstring_system_character_t *item_filename,
@@ -178,7 +193,6 @@ int export_handle_export_record_value(
 
 int export_handle_export_file(
      export_handle_t *export_handle,
-     libesedb_file_t *file,
      const libcstring_system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,

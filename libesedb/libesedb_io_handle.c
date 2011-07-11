@@ -201,7 +201,7 @@ int libesedb_io_handle_read_file_header(
 		return( -1 );
 	}
 	file_header_data = (uint8_t *) memory_allocate(
-	                                read_size );
+	                                sizeof( uint8_t ) * read_size );
 
 	if( file_header_data == NULL )
 	{

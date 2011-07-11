@@ -1,4 +1,12 @@
 TODO
+* code clean up
+  - memory_allocate, working on libesedb_page.c
+* handle is_empty page flag, the page seems to be ignored
+  - update documentation
+* fix warnings in libfdata, libesedb
+* add esedbtools header for: libfwnt, libfmapi, 
+* clean up and refactor info handle
+* update msvscpp files
 * windows search use local codepage instead of ASCII
 * export handle: fix creation of indexes directory
 * API: add function to retrieve database signature
@@ -115,6 +123,14 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20110711
+* changes for: warning: AC_LANG_CONFTEST: no AC_LANG_SOURCE call detected in body
+* updated common, libcstring, log_handle.[ch], libuna, libbfio, libfdatetime,
+  libfmapi, libfvalue
+* refactored export handle and esedbexport
+* refactored esedbinfo to use info handle
+* code clean up
 
 20110509
 * updated libesedb_libfdata.h
