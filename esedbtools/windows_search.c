@@ -1386,7 +1386,9 @@ int windows_search_export_compressed_string_value(
 				 value_utf16_stream_size );
 			}
 #endif
-			/* Sometimes the UTF-16 stream is cut-off in the surrogate ranges
+			/* Sometimes the UTF-16 stream is cut-off in the surrogate high range
+			 * The last 2 bytes are ignored otherwise libuna will not convert
+			 * the stream to a string
 			 */
 			if( ( ( value_utf16_stream[ value_utf16_stream_size - 1 ] ) >= 0xd8 )
 			 && ( ( value_utf16_stream[ value_utf16_stream_size - 1 ] ) <= 0xdb ) )

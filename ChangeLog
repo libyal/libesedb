@@ -1,13 +1,9 @@
 TODO
-* code clean up
-  - memory_allocate, working on libesedb_page.c
+* update msvscpp files add VSDebug
 * handle is_empty page flag, the page seems to be ignored
   - update documentation
-* fix warnings in libfdata, libesedb
 * add esedbtools header for: libfwnt, libfmapi, 
 * clean up and refactor info handle
-* update msvscpp files
-* windows search use local codepage instead of ASCII
 * export handle: fix creation of indexes directory
 * API: add function to retrieve database signature
   - can be used to match up EDB/STM pairs
@@ -23,6 +19,8 @@ TODO
 * code clean up
   - change page value index and number of values into int
   - rename LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE to LIBESEDB_ITEM_FLAG_FILE_IO_HANDLE_NON_MANAGED etc
+  - clean up TODO's
+  - refactor info handle
 * combine libesedb_io_handle_read_page with libesedb_page_read
   - need libesedb_page_read for recovery ?
 
@@ -37,10 +35,6 @@ TODO
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
 * implement cloning of items for improved asynchronous and multi threaded usage
-
-Code clean up:
-* refactor esedbinfo esedbinfo_file_info_fprint into separate functions or
-  info handle
 
 libesedb:
 * add get_table_by_object_identifier function
@@ -126,7 +120,10 @@ Notes
 
 20110712
 * fixes for export handle and windows search ASCII codepage
-* fix for cut-off of UTF-16 stream in the surrogate range
+* windows search: fix for cut-off of 'compressed' UTF-16 stream in the surrogate range
+* code clean up
+* updated libfdata
+* fixed unused variables warnings in libfdata and libesedb
 
 20110711
 * changes for: warning: AC_LANG_CONFTEST: no AC_LANG_SOURCE call detected in body

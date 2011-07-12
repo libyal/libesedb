@@ -139,7 +139,10 @@ int libesedb_table_initialize(
 			 "%s: unable to clear table.",
 			 function );
 
-			goto on_error;
+			memory_free(
+			 internal_table );
+
+			return( -1 );
 		}
 		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
 		{
@@ -176,7 +179,8 @@ int libesedb_table_initialize(
 				goto on_error;
 			}
 		}
-		/* TODO clone function ? */
+		/* TODO add clone function ?
+		 */
 		if( libfdata_vector_initialize(
 		     &( internal_table->pages_vector ),
 		     (size64_t) io_handle->page_size,
@@ -245,7 +249,7 @@ int libesedb_table_initialize(
 
 			goto on_error;
 		}
-		/* TODO clone function
+		/* TODO add clone function
 		 */
 		if( libfdata_tree_initialize(
 		     &( internal_table->table_values_tree ),
@@ -304,7 +308,8 @@ int libesedb_table_initialize(
 		}
 		if( table_definition->long_value_catalog_definition != NULL )
 		{
-			/* TODO clone function ? */
+			/* TODO add clone function ?
+			 */
 			if( libfdata_vector_initialize(
 			     &( internal_table->long_values_pages_vector ),
 			     (size64_t) io_handle->page_size,
@@ -373,7 +378,7 @@ int libesedb_table_initialize(
 
 				goto on_error;
 			}
-			/* TODO clone function
+			/* TODO add clone function
 			 */
 			if( libfdata_tree_initialize(
 			     &( internal_table->long_values_tree ),

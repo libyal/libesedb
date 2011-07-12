@@ -70,8 +70,8 @@ int libesedb_values_tree_value_initialize(
 	}
 	if( *values_tree_value == NULL )
 	{
-		*values_tree_value = (libesedb_values_tree_value_t *) memory_allocate(
-		                                                       sizeof( libesedb_values_tree_value_t ) );
+		*values_tree_value = memory_allocate_structure(
+		                      libesedb_values_tree_value_t );
 
 		if( *values_tree_value == NULL )
 		{
@@ -82,7 +82,7 @@ int libesedb_values_tree_value_initialize(
 			 "%s: unable to create values tree value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *values_tree_value,
@@ -96,15 +96,20 @@ int libesedb_values_tree_value_initialize(
 			 "%s: unable to clear values tree value.",
 			 function );
 
-			memory_free(
-			 *values_tree_value );
-
-			*values_tree_value = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( *values_tree_value != NULL )
+	{
+		memory_free(
+		 *values_tree_value );
+
+		*values_tree_value = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the values tree value
@@ -208,7 +213,7 @@ int libesedb_values_tree_value_set_key_common(
 			 "%s: unable to create key.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_copy(
 		     values_tree_value->key,
@@ -222,11 +227,21 @@ int libesedb_values_tree_value_set_key_common(
 			 "%s: unable to copy common key.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		values_tree_value->key_size = common_key_size;
 	}
 	return( 1 );
+
+on_error:
+	if( values_tree_value->key != NULL )
+	{
+		memory_free(
+		 values_tree_value->key );
+
+		values_tree_value->key = NULL;
+	}
+	return( -1 );
 }
 
 /* Sets the local part of the key in the values tree value
@@ -496,7 +511,6 @@ int libesedb_values_tree_value_read_record(
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
 	static char *function                                           = "libesedb_values_tree_value_read_record";
-	off64_t record_data_offset                                      = 0;
 	size_t record_data_size                                         = 0;
 	size_t remaining_definition_data_size                           = 0;
 	uint16_t fixed_size_data_type_value_offset                      = 0;
@@ -684,9 +698,8 @@ int libesedb_values_tree_value_read_record(
 
 		goto on_error;
 	}
-	record_data        = &( page_value->data[ values_tree_value->data_offset ] );
-	record_data_size   = page_value->size - values_tree_value->data_offset;
-	record_data_offset = values_tree_value->page_offset + page_value->offset + values_tree_value->data_offset;
+	record_data      = &( page_value->data[ values_tree_value->data_offset ] );
+	record_data_size = page_value->size - values_tree_value->data_offset;
 
 	if( record_data_size < sizeof( esedb_data_definition_header_t ) )
 	{
@@ -1028,7 +1041,6 @@ int libesedb_values_tree_value_read_record(
 					 column_catalog_definition->size );
 				}
 #endif
-				/* record_data_offset + fixed_size_data_type_value_offset, */
 				if( libfvalue_value_set_data(
 				     record_value,
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
@@ -1083,7 +1095,6 @@ int libesedb_values_tree_value_read_record(
 					 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
 				}
 #endif
-
 				if( current_variable_size_data_type == column_catalog_definition->identifier )
 				{
 					/* The MSB signifies that the variable size data type is empty
@@ -1102,7 +1113,6 @@ int libesedb_values_tree_value_read_record(
 							 variable_size_data_type_size - previous_variable_size_data_type_size );
 						}
 #endif
-						/* record_data_offset + variable_size_data_type_value_offset, */
 						if( libfvalue_value_set_data(
 						     record_value,
 						     &( record_data[ variable_size_data_type_value_offset ] ),
@@ -1255,7 +1265,6 @@ int libesedb_values_tree_value_read_record(
 
 							goto on_error;
 						}
-						/* record_data_offset + tagged_data_type_value_offset, */
 						if( libfvalue_value_set_data(
 						     record_value,
 						     &( record_data[ tagged_data_type_value_offset ] ),
@@ -1495,7 +1504,6 @@ int libesedb_values_tree_value_read_record(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
-						/* record_data_offset + tagged_data_type_value_offset, */
 						if( libfvalue_value_set_data(
 						     record_value,
 						     &( record_data[ tagged_data_type_value_offset ] ),

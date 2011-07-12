@@ -77,8 +77,8 @@ int libesedb_table_definition_initialize(
 	}
 	if( *table_definition == NULL )
 	{
-		*table_definition = (libesedb_table_definition_t *) memory_allocate(
-		                                                     sizeof( libesedb_table_definition_t ) );
+		*table_definition = memory_allocate_structure(
+		                     libesedb_table_definition_t );
 
 		if( *table_definition == NULL )
 		{
@@ -89,7 +89,7 @@ int libesedb_table_definition_initialize(
 			 "%s: unable to create table definition.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *table_definition,
@@ -121,12 +121,7 @@ int libesedb_table_definition_initialize(
 			 "%s: unable to create column catalog definition list.",
 			 function );
 
-			memory_free(
-			 *table_definition );
-
-			*table_definition = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_list_initialize(
 		     &( ( *table_definition )->index_catalog_definition_list ),
@@ -139,20 +134,28 @@ int libesedb_table_definition_initialize(
 			 "%s: unable to create index catalog definition list.",
 			 function );
 
-			libesedb_list_free(
-			 &( ( *table_definition )->column_catalog_definition_list ),
-			 NULL,
-			 NULL );
-			memory_free(
-			 *table_definition );
-
-			*table_definition = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		( *table_definition )->table_catalog_definition = table_catalog_definition;
 	}
 	return( 1 );
+
+on_error:
+	if( *table_definition != NULL )
+	{
+		if( ( *table_definition )->column_catalog_definition_list != NULL )
+		{
+			libesedb_list_free(
+			 &( ( *table_definition )->column_catalog_definition_list ),
+			 NULL,
+			 NULL );
+		}
+		memory_free(
+		 *table_definition );
+
+		*table_definition = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees the table definition

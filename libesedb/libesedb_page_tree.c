@@ -78,8 +78,8 @@ int libesedb_page_tree_initialize(
 	}
 	if( *page_tree == NULL )
 	{
-		*page_tree = (libesedb_page_tree_t *) memory_allocate(
-		                                       sizeof( libesedb_page_tree_t ) );
+		*page_tree = memory_allocate_structure(
+		              libesedb_page_tree_t );
 
 		if( *page_tree == NULL )
 		{
@@ -90,7 +90,7 @@ int libesedb_page_tree_initialize(
 			 "%s: unable to create page tree.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( memory_set(
 		     *page_tree,
@@ -104,12 +104,7 @@ int libesedb_page_tree_initialize(
 			 "%s: unable to clear page tree.",
 			 function );
 
-			memory_free(
-			 *page_tree );
-
-			*page_tree = NULL;
-
-			return( -1 );
+			goto on_error;
 		}
 		( *page_tree )->io_handle                 = io_handle;
 		( *page_tree )->pages_vector              = pages_vector;
@@ -119,6 +114,16 @@ int libesedb_page_tree_initialize(
 		( *page_tree )->template_table_definition = template_table_definition;
 	}
 	return( 1 );
+
+on_error:
+	if( *page_tree != NULL )
+	{
+		memory_free(
+		 *page_tree );
+
+		*page_tree = NULL;
+	}
+	return( -1 );
 }
 
 /* Frees page tree
@@ -835,7 +840,6 @@ int libesedb_page_tree_read_space_tree_page(
 
 				libnotify_printf(
 				 "\n" );
-
 			}
 #endif
 			if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
@@ -1056,7 +1060,6 @@ int libesedb_page_tree_read_page(
 			previous_child_page_number      = child_page->page_number;
 			previous_next_child_page_number = child_page->next_page_number;
 #endif
-
 	}
 	else
 	{
@@ -1884,7 +1887,7 @@ int libesedb_page_tree_read_node_value(
 		 "%s: unable to create values tree value.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	values_tree_value->page_offset      = node_data_offset;
 	values_tree_value->page_number      = (uint32_t) page_number;
@@ -1903,11 +1906,7 @@ int libesedb_page_tree_read_node_value(
 		 "%s: unable to determine if node is the root.",
 		 function );
 
-		libesedb_values_tree_value_free(
-		 (intptr_t *) values_tree_value,
-		NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	else if( result != 0 )
 	{
@@ -1927,11 +1926,7 @@ int libesedb_page_tree_read_node_value(
 			 function,
 			 page_number );
 
-			libesedb_values_tree_value_free(
-			 (intptr_t *) values_tree_value,
-			NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
 	}
@@ -1958,11 +1953,7 @@ int libesedb_page_tree_read_node_value(
 			 page_number,
 			 node_data_size );
 
-			libesedb_values_tree_value_free(
-			 (intptr_t *) values_tree_value,
-			NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( libfdata_tree_node_set_node_value(
@@ -1980,13 +1971,18 @@ int libesedb_page_tree_read_node_value(
 		 "%s: unable to set values tree value as node value.",
 		 function );
 
-		libesedb_values_tree_value_free(
-		 (intptr_t *) values_tree_value,
-		NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( values_tree_value != NULL )
+	{
+		libesedb_values_tree_value_free(
+		 (intptr_t *) values_tree_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads a page tree sub nodes

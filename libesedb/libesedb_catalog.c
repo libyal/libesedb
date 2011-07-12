@@ -757,7 +757,7 @@ int libesedb_catalog_read(
 
 		return( -1 );
 	}
-	/* TODO clone function
+	/* TODO add clone function
 	 */
 	if( libfdata_tree_initialize(
 	     &catalog_values_tree,
@@ -776,12 +776,10 @@ int libesedb_catalog_read(
 		 "%s: unable to create catalog values tree.",
 		 function );
 
-		libesedb_page_tree_free(
-		 (intptr_t *) catalog_page_tree,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
+	catalog_page_tree = NULL;
+
 	if( libfdata_cache_initialize(
 	     &catalog_values_cache,
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TREE_VALUES,
@@ -794,11 +792,7 @@ int libesedb_catalog_read(
 		 "%s: unable to create catalog values cache.",
 		 function );
 
-		libfdata_tree_free(
-		 &catalog_values_tree,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	node_data_offset  = LIBESEDB_PAGE_NUMBER_CATALOG - 1;
 	node_data_offset *= io_handle->page_size;
@@ -816,14 +810,7 @@ int libesedb_catalog_read(
 		 "%s: unable to set root node in catalog values tree.",
 		 function );
 
-		libfdata_cache_free(
-		 &catalog_values_cache,
-		 NULL );
-		libfdata_tree_free(
-		 &catalog_values_tree,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     catalog_values_tree,
@@ -840,14 +827,7 @@ int libesedb_catalog_read(
 		 "%s: unable to retrieve number of leaf nodes from catalog values tree.",
 		 function );
 
-		libfdata_cache_free(
-		 &catalog_values_cache,
-		 NULL );
-		libfdata_tree_free(
-		 &catalog_values_tree,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	for( leaf_node_index = 0;
 	     leaf_node_index < number_of_leaf_nodes;
@@ -870,14 +850,7 @@ int libesedb_catalog_read(
 			 function,
 			 leaf_node_index );
 
-			libfdata_cache_free(
-			 &catalog_values_cache,
-			 NULL );
-			libfdata_tree_free(
-			 &catalog_values_tree,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libfdata_tree_node_get_node_value(
 		     catalog_values_tree_node,
@@ -894,14 +867,7 @@ int libesedb_catalog_read(
 			 "%s: unable to retrieve node value from values tree node.",
 			 function );
 
-			libfdata_cache_free(
-			 &catalog_values_cache,
-			 NULL );
-			libfdata_tree_free(
-			 &catalog_values_tree,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_values_tree_value_read_data(
 		     values_tree_value,
@@ -920,14 +886,7 @@ int libesedb_catalog_read(
 			 "%s: unable to read values tree value data.",
 			 function );
 
-			libfdata_cache_free(
-			 &catalog_values_cache,
-			 NULL );
-			libfdata_tree_free(
-			 &catalog_values_tree,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_catalog_definition_initialize(
 		     &catalog_definition,
@@ -940,14 +899,7 @@ int libesedb_catalog_read(
 			 "%s: unable to create catalog definition.",
 			 function );
 
-			libfdata_cache_free(
-			 &catalog_values_cache,
-			 NULL );
-			libfdata_tree_free(
-			 &catalog_values_tree,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_catalog_definition_read(
 		     catalog_definition,
@@ -963,22 +915,13 @@ int libesedb_catalog_read(
 			 "%s: unable to read catalog definition.",
 			 function );
 
-			libesedb_catalog_definition_free(
-			 (intptr_t *) catalog_definition,
-			 NULL );
-			libfdata_cache_free(
-			 &catalog_values_cache,
-			 NULL );
-			libfdata_tree_free(
-			 &catalog_values_tree,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
 		 && ( table_definition == NULL ) )
 		{
-			/* TODO add build-in table 1 support */
+			/* TODO add build-in table 1 support
+			 */
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libnotify_verbose != 0 )
 			{
@@ -999,14 +942,7 @@ int libesedb_catalog_read(
 				 "%s: unable to free catalog definition.",
 				 function );
 
-				libfdata_cache_free(
-				 &catalog_values_cache,
-				 NULL );
-				libfdata_tree_free(
-				 &catalog_values_tree,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			catalog_definition = NULL;
 		}
@@ -1030,17 +966,8 @@ int libesedb_catalog_read(
 					libesedb_table_definition_free(
 					 (intptr_t *) table_definition,
 					 NULL );
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
 
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1059,14 +986,8 @@ int libesedb_catalog_read(
 					libesedb_table_definition_free(
 					 (intptr_t *) table_definition,
 					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
 
-					return( -1 );
+					goto on_error;
 				}
 				break;
 
@@ -1083,17 +1004,7 @@ int libesedb_catalog_read(
 					 "%s: unable to append column catalog definition to table definition.",
 					 function );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1112,17 +1023,7 @@ int libesedb_catalog_read(
 					 "%s: unable to append index catalog definition to table definition.",
 					 function );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1141,17 +1042,7 @@ int libesedb_catalog_read(
 					 "%s: unable to set long value catalog definition in table definition.",
 					 function );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1170,17 +1061,7 @@ int libesedb_catalog_read(
 					 "%s: unable to set callback catalog definition in table definition.",
 					 function );
 
-					libesedb_catalog_definition_free(
-					 (intptr_t *) catalog_definition,
-					 NULL );
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1207,14 +1088,7 @@ int libesedb_catalog_read(
 					 "%s: unable to free catalog definition.",
 					 function );
 
-					libfdata_cache_free(
-					 &catalog_values_cache,
-					 NULL );
-					libfdata_tree_free(
-					 &catalog_values_tree,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				catalog_definition = NULL;
 
@@ -1232,11 +1106,7 @@ int libesedb_catalog_read(
 		 "%s: unable to free catalog values cache.",
 		 function );
 
-		libfdata_tree_free(
-		 &catalog_values_tree,
-		 NULL );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( libfdata_tree_free(
 	     &catalog_values_tree,
@@ -1249,8 +1119,35 @@ int libesedb_catalog_read(
 		 "%s: unable to free catalog values tree.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( catalog_definition != NULL )
+	{
+		libesedb_catalog_definition_free(
+		 (intptr_t *) catalog_definition,
+		 NULL );
+	}
+	if( catalog_values_cache != NULL )
+	{
+		libfdata_cache_free(
+		 &catalog_values_cache,
+		 NULL );
+	}
+	if( catalog_values_tree != NULL )
+	{
+		libfdata_tree_free(
+		 &catalog_values_tree,
+		 NULL );
+	}
+	if( catalog_page_tree != NULL )
+	{
+		libesedb_page_tree_free(
+		 (intptr_t *) catalog_page_tree,
+		 NULL );
+	}
+	return( -1 );
 }
 

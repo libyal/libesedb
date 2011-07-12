@@ -434,7 +434,7 @@ int libesedb_page_read(
 		 function,
 		 page->offset );
 
-		return( -1 );
+		goto on_error;
 	}
 	page->data = (uint8_t *) memory_allocate(
 	                          (size_t) io_handle->page_size );
@@ -448,7 +448,7 @@ int libesedb_page_read(
 		 "%s: unable to create page data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	page->data_size = (size_t) io_handle->page_size;
 
@@ -467,7 +467,7 @@ int libesedb_page_read(
 		 "%s: unable to read page data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	page_values_data      = page->data;
 	page_values_data_size = page->data_size;
@@ -665,7 +665,7 @@ int libesedb_page_read(
 				 "%s: unable to calculate ECC-32 and XOR-32 checksum.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		else
@@ -684,7 +684,7 @@ int libesedb_page_read(
 				 "%s: unable to calculate XOR-32 checksum.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		if( stored_xor32_checksum != calculated_xor32_checksum )
@@ -699,7 +699,7 @@ int libesedb_page_read(
 			 stored_xor32_checksum,
 			 calculated_xor32_checksum );
 
-			return( -1 );
+			goto on_error;
 #else
 			if( libnotify_verbose != 0 )
 			{
@@ -723,7 +723,7 @@ int libesedb_page_read(
 			 stored_ecc32_checksum,
 			 calculated_ecc32_checksum );
 
-			return( -1 );
+			goto on_error;
 #else
 			if( libnotify_verbose != 0 )
 			{
@@ -797,7 +797,6 @@ int libesedb_page_read(
 			 8 );
 		}
 #endif
-
 		page_values_data        += sizeof( esedb_extended_page_header_t );
 		page_values_data_size   -= sizeof( esedb_extended_page_header_t );
 		page_values_data_offset += sizeof( esedb_extended_page_header_t );
@@ -818,7 +817,7 @@ int libesedb_page_read(
 			 "%s: unable to create page tags array.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_page_read_tags(
 		     page_tags_array,
@@ -835,12 +834,7 @@ int libesedb_page_read(
 			 "%s: unable to read page tags.",
 			 function );
 
-			libesedb_array_free(
-			 &page_tags_array,
-			 &libesedb_page_tags_value_free,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		/* The offsets in the page tags are relative after the page header
 		 */
@@ -860,12 +854,7 @@ int libesedb_page_read(
 			 "%s: unable to read page values.",
 			 function );
 
-			libesedb_array_free(
-			 &page_tags_array,
-			 &libesedb_page_tags_value_free,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_array_free(
 		     &page_tags_array,
@@ -879,10 +868,27 @@ int libesedb_page_read(
 			 "%s: unable to free the page tags array.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( page_tags_array != NULL )
+	{
+		libesedb_array_free(
+		 &page_tags_array,
+		 &libesedb_page_tags_value_free,
+		 NULL );
+	}
+	if( page->data != NULL )
+	{
+		memory_free(
+		 page->data );
+
+		page->data = NULL;
+	}
+	return( -1 );
 }
 
 /* Reads the page tags
@@ -964,7 +970,7 @@ int libesedb_page_read_tags(
 		 "%s: unable to resize page tags array.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -998,7 +1004,7 @@ int libesedb_page_read_tags(
 			 "%s: unable to create page tags value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		byte_stream_copy_to_uint16_little_endian(
 		 page_tags_data,
@@ -1071,11 +1077,7 @@ int libesedb_page_read_tags(
 			 function,
 			 page_tags_index );
 
-			libesedb_page_tags_value_free(
-			 (intptr_t *) page_tags_value,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		page_tags_value = NULL;
 	}
@@ -1087,6 +1089,15 @@ int libesedb_page_read_tags(
 	}
 #endif
 	return( 1 );
+
+on_error:
+	if( page_tags_value != NULL )
+	{
+		libesedb_page_tags_value_free(
+		 (intptr_t *) page_tags_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the page values
@@ -1185,7 +1196,7 @@ int libesedb_page_read_values(
 		 "%s: unable to resize page values array.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	for( page_tags_index = 0;
 	     page_tags_index < page_tags_array->number_of_entries;
@@ -1205,7 +1216,7 @@ int libesedb_page_read_values(
 			 function,
 			 page_tags_index );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( page_tags_value == NULL )
 		{
@@ -1216,7 +1227,7 @@ int libesedb_page_read_values(
 			 "%s: invalid page tags value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_page_value_initialize(
 		     &page_value,
@@ -1229,7 +1240,7 @@ int libesedb_page_read_values(
 			 "%s: unable to create tags value.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		 && ( io_handle->page_size >= 16384 ) )
@@ -1277,11 +1288,7 @@ int libesedb_page_read_values(
 			 function,
 			 page_tags_index );
 
-			libesedb_page_value_free(
-			 (intptr_t *) page_value,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
 		page_value = NULL;
 	}
@@ -1293,6 +1300,15 @@ int libesedb_page_read_values(
 	}
 #endif
 	return( 1 );
+
+on_error:
+	if( page_value != NULL )
+	{
+		libesedb_page_value_free(
+		 (intptr_t *) page_value,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the number of page values
