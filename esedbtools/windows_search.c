@@ -208,10 +208,6 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 		{
 			compression_size = compressed_data_size - compressed_data_iterator;
 		}
-		else
-		{
-			compressed_data_iterator += 1;
-		}
 #endif
 		*uncompressed_data_size  += compression_size * 2;
 		compressed_data_iterator += compression_size + 1;
@@ -1379,23 +1375,41 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
+#if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
+			if( libsystem_notify_verbose != 0 )
+			{
+				libsystem_notify_printf(
+				 "%s: decompressed data:\n",
+				 function );
+				libsystem_notify_print_data(
+				 value_utf16_stream,
+				 value_utf16_stream_size );
+			}
+#endif
+			/* Sometimes the UTF-16 stream is cut-off in the surrogate ranges
+			 */
+			if( ( ( value_utf16_stream[ value_utf16_stream_size - 1 ] ) >= 0xd8 )
+			 && ( ( value_utf16_stream[ value_utf16_stream_size - 1 ] ) <= 0xdb ) )
+			{
+				value_utf16_stream_size -= 2;
+			}
 			memory_free(
 			 decoded_value_data );
 
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_size_from_utf16_stream(
-			          value_utf16_stream,
-			          value_utf16_stream_size,
-			          LIBUNA_ENDIAN_LITTLE,
-			          &value_string_size,
-			          error );
+				  value_utf16_stream,
+				  value_utf16_stream_size,
+				  LIBUNA_ENDIAN_LITTLE,
+				  &value_string_size,
+				  error );
 #else
 			result = libuna_utf8_string_size_from_utf16_stream(
-			          value_utf16_stream,
-			          value_utf16_stream_size,
-			          LIBUNA_ENDIAN_LITTLE,
-			          &value_string_size,
-			          error );
+				  value_utf16_stream,
+				  value_utf16_stream_size,
+				  LIBUNA_ENDIAN_LITTLE,
+				  &value_string_size,
+				  error );
 #endif
 			if( result != 1 )
 			{
@@ -1412,7 +1426,7 @@ int windows_search_export_compressed_string_value(
 				return( -1 );
 			}
 			value_string = libcstring_system_string_allocate(
-			                value_string_size );
+					value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -1430,20 +1444,20 @@ int windows_search_export_compressed_string_value(
 			}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_copy_from_utf16_stream(
-			          (uint16_t *) value_string,
-			          value_string_size,
-			          value_utf16_stream,
-			          value_utf16_stream_size,
-			          LIBUNA_ENDIAN_LITTLE,
-			          error );
+				  (uint16_t *) value_string,
+				  value_string_size,
+				  value_utf16_stream,
+				  value_utf16_stream_size,
+				  LIBUNA_ENDIAN_LITTLE,
+				  error );
 #else
 			result = libuna_utf8_string_copy_from_utf16_stream(
-			          (uint8_t *) value_string,
-			          value_string_size,
-			          value_utf16_stream,
-			          value_utf16_stream_size,
-			          LIBUNA_ENDIAN_LITTLE,
-			          error );
+				  (uint8_t *) value_string,
+				  value_string_size,
+				  value_utf16_stream,
+				  value_utf16_stream_size,
+				  LIBUNA_ENDIAN_LITTLE,
+				  error );
 #endif
 			if( result != 1 )
 			{

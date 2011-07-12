@@ -90,8 +90,22 @@ int export_handle_initialize(
 
 			goto on_error;
 		}
-		( *export_handle )->export_mode   = EXPORT_MODE_TABLES;
-		( *export_handle )->notify_stream = EXPORT_HANDLE_NOTIFY_STREAM;
+		if( libesedb_file_initialize(
+		     &( ( *export_handle )->input_file ),
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to initialize input file.",
+			 function );
+
+			goto on_error;
+		}
+		( *export_handle )->export_mode    = EXPORT_MODE_TABLES;
+		( *export_handle )->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
+		( *export_handle )->notify_stream  = EXPORT_HANDLE_NOTIFY_STREAM;
 	}
 	return( 1 );
 
@@ -114,6 +128,7 @@ int export_handle_free(
      liberror_error_t **error )
 {
 	static char *function = "export_handle_free";
+	int result            = 1;
 
 	if( export_handle == NULL )
 	{
@@ -128,12 +143,28 @@ int export_handle_free(
 	}
 	if( *export_handle != NULL )
 	{
+		if( ( *export_handle )->input_file != NULL )
+		{
+			if( libesedb_file_free(
+			     &( ( *export_handle )->input_file ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free input file.",
+				 function );
+
+				result = -1;
+			}
+		}
 		memory_free(
 		 *export_handle );
 
 		*export_handle = NULL;
 	}
-	return( 1 );
+	return( result );
 }
 
 /* Signals the export handle to abort

@@ -124,6 +124,10 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20110712
+* fixes for export handle and windows search ASCII codepage
+* fix for cut-off of UTF-16 stream in the surrogate range
+
 20110711
 * changes for: warning: AC_LANG_CONFTEST: no AC_LANG_SOURCE call detected in body
 * updated common, libcstring, log_handle.[ch], libuna, libbfio, libfdatetime,
