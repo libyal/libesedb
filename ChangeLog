@@ -1,8 +1,7 @@
 TODO
-* update msvscpp files add VSDebug
 * handle is_empty page flag, the page seems to be ignored
   - update documentation
-* add esedbtools header for: libfwnt, libfmapi, 
+* add esedbtools header for: libfwnt, libfmapi
 * clean up and refactor info handle
 * export handle: fix creation of indexes directory
 * API: add function to retrieve database signature
@@ -117,6 +116,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20110713
+* updated msvscpp files
 
 20110712
 * fixes for export handle and windows search ASCII codepage

@@ -35,6 +35,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_lcid.h"
 #include "libesedb_libuna.h"
+#include "libesedb_unused.h"
 
 #include "esedb_page_values.h"
 
@@ -157,7 +158,7 @@ int libesedb_catalog_definition_read(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
-     int ascii_codepage,
+     int ascii_codepage LIBESEDB_ATTRIBUTE_UNUSED,
      liberror_error_t **error )
 {
 	uint8_t *fixed_size_data_type_value_data            = NULL;
@@ -182,6 +183,8 @@ int libesedb_catalog_definition_read(
 	uint16_t value_16bit                                = 0;
 	int result                                          = 0;
 #endif
+
+	LIBESEDB_UNREFERENCED_PARAMETER( ascii_codepage )
 
 	if( catalog_definition == NULL )
 	{
