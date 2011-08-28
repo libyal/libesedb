@@ -214,17 +214,35 @@ typedef union byte_stream_float64
 	( byte_stream )[ 1 ] = (uint8_t) ( ( value >> 8 ) & 0x0ff ); \
 	( byte_stream )[ 0 ] = (uint8_t) ( value & 0x0ff )
 
+#define byte_stream_bit_rotate_left_8bit( byte_stream, number_of_bits ) \
+	( ( byte_stream << number_of_bits ) | ( byte_stream >> ( 8 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_right_8bit( byte_stream, number_of_bits ) \
+	( ( byte_stream >> number_of_bits ) | ( byte_stream << ( 8 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_left_16bit( byte_stream, number_of_bits ) \
+	( ( byte_stream << number_of_bits ) | ( byte_stream >> ( 16 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_right_16bit( byte_stream, number_of_bits ) \
+	( ( byte_stream >> number_of_bits ) | ( byte_stream << ( 16 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_left_32bit( byte_stream, number_of_bits ) \
+	( ( byte_stream << number_of_bits ) | ( byte_stream >> ( 32 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_right_32bit( byte_stream, number_of_bits ) \
+	( ( byte_stream >> number_of_bits ) | ( byte_stream << ( 32 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_left_64bit( byte_stream, number_of_bits ) \
+	( ( byte_stream << number_of_bits ) | ( byte_stream >> ( 64 - number_of_bits ) ) )
+
+#define byte_stream_bit_rotate_right_64bit( byte_stream, number_of_bits ) \
+	( ( byte_stream >> number_of_bits ) | ( byte_stream << ( 64 - number_of_bits ) ) )
+
 #define byte_stream_bit_rotate_left( value, number_of_bits ) \
 	( ( value << number_of_bits ) | ( value >> ( ( sizeof( value ) << 3 ) - number_of_bits ) ) )
 
 #define byte_stream_bit_rotate_right( value, number_of_bits ) \
 	( ( value >> number_of_bits ) | ( value << ( ( sizeof( value ) << 3 ) - number_of_bits ) ) )
-
-#define byte_stream_bit_shift_left( value, number_of_bits ) \
-	( value << number_of_bits )
-
-#define byte_stream_bit_shift_right( value, number_of_bits ) \
-	( value >> number_of_bits )
 
 #if defined( __cplusplus )
 }

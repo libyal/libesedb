@@ -159,6 +159,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libbfio\libbfio_file_pool.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libbfio\libbfio_file_range.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libbfio\libbfio_handle.c"
 				>
 			</File>
@@ -210,6 +218,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libbfio\libbfio_file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libbfio\libbfio_file_pool.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libbfio\libbfio_file_range.h"
 				>
 			</File>
 			<File

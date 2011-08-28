@@ -1,6 +1,5 @@
 TODO
-* handle is_empty page flag, the page seems to be ignored
-  - update documentation
+* check Win2K ntds.dit support
 * add esedbtools header for: libfwnt, libfmapi
 * clean up and refactor info handle
 * export handle: fix creation of indexes directory
@@ -9,10 +8,6 @@ TODO
 
 * windows search
   - multi long value segment decryption/compression support
-* vista search:
-  - compression type: 0x02 cut-short run-length string ?
-* win7 search:
-  - unsupported compression type: 0x06
 * export error in more test files: nibble count value exceeds maximum
 
 * code clean up
@@ -116,6 +111,11 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20110828
+* updated configure, common, libsystem, libbfio, libfvalue, 
+* added support to ignore empty pages
+* windows search added support for compression type 0x06
 
 20110713
 * updated msvscpp files

@@ -236,6 +236,10 @@ int libesedb_page_tree_read_root_page(
 
 		return( -1 );
 	}
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
+	}
 	supported_flags = required_flags
 	                | LIBESEDB_PAGE_FLAG_IS_LEAF
 	                | LIBESEDB_PAGE_FLAG_IS_PARENT
@@ -530,6 +534,10 @@ int libesedb_page_tree_read_space_tree_page(
 		 page->flags );
 
 		return( -1 );
+	}
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
 	}
 	supported_flags = required_flags
 	                | LIBESEDB_PAGE_FLAG_IS_LEAF
@@ -985,6 +993,10 @@ int libesedb_page_tree_read_page(
 		 function );
 
 		return( -1 );
+	}
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
 	}
 	supported_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
 	                | LIBESEDB_PAGE_FLAG_IS_LEAF

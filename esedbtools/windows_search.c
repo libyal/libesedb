@@ -201,14 +201,24 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 		}
 		compression_size = compressed_data[ compressed_data_iterator++ ];
 
-#ifdef TODO
-		/* Some run-level compressed string seem to be cut-short at the end
+		/* Check if the last byte in the compressed string was the compression size
+		 * or the run-length byte value
 		 */
-		if( ( compressed_data_iterator + compression_size ) > compressed_data_size )
+		if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 		{
-			compression_size = compressed_data_size - compressed_data_iterator;
+			break;
 		}
+		/* Check if the compressed string was cut-short at the end
+		 */
+		if( ( compressed_data_iterator + 1 + compression_size ) > compressed_data_size )
+		{
+#if defined( HAVE_DEBUG_OUTPUT )
+fprintf( stderr, "MARKER: %zd, %d, %zd, %zd\n",
+ compressed_data_iterator, compression_size, compressed_data_size,
+ compressed_data_size - compressed_data_iterator - 1 );
 #endif
+			compression_size = (uint8_t) ( compressed_data_size - compressed_data_iterator - 1 );
+		}
 		*uncompressed_data_size  += compression_size * 2;
 		compressed_data_iterator += compression_size + 1;
 	}
@@ -290,7 +300,7 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 	}
 	while( compressed_data_iterator < compressed_data_size )
 	{
-		if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
+		if( compressed_data_iterator >= compressed_data_size )
 		{
 			liberror_error_set(
 			 error,
@@ -302,16 +312,33 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 			return( -1 );
 		}
 		compression_size = compressed_data[ compressed_data_iterator++ ];
+
+		/* Check if the last byte in the compressed string was the compression size
+		 * or the run-length byte value
+		 */
+		if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
+		{
+			break;
+		}
+		/* Check if the compressed string was cut-short at the end
+		 */
+		if( ( compressed_data_iterator + 1 + compression_size ) > compressed_data_size )
+		{
+			compression_size = (uint8_t) ( compressed_data_size - compressed_data_iterator - 1 );
+		}
+		if( compressed_data_iterator >= compressed_data_size )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 "%s: compressed data size value too small.",
+			 function );
+
+			return( -1 );
+		}
 		compression_byte = compressed_data[ compressed_data_iterator++ ];
 
-#ifdef TODO
-		/* Some run-level compressed string seem to be cut-short at the end
-		 */
-		if( ( compressed_data_iterator + compression_size ) > compressed_data_size )
-		{
-			compression_size = compressed_data_size - compressed_data_iterator;
-		}
-#endif
 		while( compression_size > 0 )
 		{
 			if( compressed_data_iterator >= compressed_data_size )
@@ -1209,8 +1236,7 @@ int windows_search_export_compressed_string_value(
 
 	/* Byte-index compressed data
 	 */
-	if( ( compression_type == 2 )
-	 || ( compression_type == 3 ) )
+	if( ( compression_type & 0x02 ) != 0 )
 	{
 		if( windows_search_get_byte_index_uncompressed_data_size(
 		     &( decoded_value_data[ 1 ] ),
@@ -1303,7 +1329,7 @@ int windows_search_export_compressed_string_value(
 			decoded_value_data      = decompressed_value_data;
 			decoded_value_data_size = decompressed_value_data_size;
 
-			compression_type -= 2;
+			compression_type &= ~( 0x02 );
 		}
 	}
 	/* Run-length compressed UTF-16 little-endian string
@@ -1584,8 +1610,8 @@ int windows_search_export_compressed_string_value(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			libsystem_notify_print_data(
-			 decoded_value_data,
-			 decoded_value_data_size );
+			 value_data,
+			 value_data_size );
 #endif
 		}
 		memory_free(

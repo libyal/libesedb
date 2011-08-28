@@ -1029,7 +1029,7 @@ int libesedb_page_read_tags(
 		{
 			page_tags_value->flags  = page_tag_offset >> 13;
 			page_tags_value->offset = page_tag_offset & 0x1fff;
-			page_tags_value->size   = page_tag_size;
+			page_tags_value->size   = page_tag_size & 0x1fff;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -1049,7 +1049,7 @@ int libesedb_page_read_tags(
 			 page_tag_size );
 
 			if( ( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-			 && ( io_handle->page_size >= 16384 ) )
+			 && ( io_handle->page_size < 16384 ) )
 			{
 				libnotify_printf(
 				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
