@@ -1,4 +1,6 @@
 TODO
+* esedbexport -t /root creates /root.export ?
+* esedbexport skip table on error
 * check Win2K ntds.dit support
 * add esedbtools header for: libfwnt, libfmapi
 * clean up and refactor info handle
