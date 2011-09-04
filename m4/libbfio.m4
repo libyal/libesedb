@@ -25,7 +25,7 @@ AC_DEFUN([AC_CHECK_LIBBFIO],
    AC_CHECK_LIB(
     bfio,
     libbfio_get_version,
-    [],
+    [ac_cv_libbfio_dummy=yes],
     [ac_cv_libbfio=no])
   
    dnl Handle functions
@@ -225,6 +225,15 @@ AC_DEFUN([AC_CHECK_LIBBFIO],
     [ac_cv_libbfio_dummy=yes],
     [ac_cv_libbfio=no])
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libbfio" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBBFIO],
+   [1],
+   [Define to 1 if you have the `bfio' library (-lbfio).])
+  LIBS="-lbfio $LIBS"
   ])
 
  AS_IF(

@@ -25,11 +25,20 @@ AC_DEFUN([AC_CHECK_LIBFDATA],
    AC_CHECK_LIB(
     fdatetime,
     libfdata_get_version,
-    [],
+    [ac_cv_libfdata_dummy=yes],
     [ac_cv_libfdata=no])
   
    dnl TODO add functions
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfdata" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFDATA],
+   [1],
+   [Define to 1 if you have the `fdata' library (-lfdata).])
+  LIBS="-lfdata $LIBS"
   ])
 
  AS_IF(

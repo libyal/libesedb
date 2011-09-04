@@ -25,7 +25,7 @@ AC_DEFUN([AC_CHECK_LIBUNA],
    AC_CHECK_LIB(
     una,
     libuna_get_version,
-    [],
+    [ac_cv_libuna_dummy=yes],
     [ac_cv_libuna=no])
   
    dnl Byte stream functions
@@ -323,6 +323,15 @@ AC_DEFUN([AC_CHECK_LIBUNA],
     [ac_cv_libuna=no])
    ])
  ])
+
+ AS_IF(
+  [test "x$ac_cv_libuna" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBUNA],
+   [1],
+   [Define to 1 if you have the `una' library (-luna).])
+  LIBS="-luna $LIBS"
+  ])
 
  AS_IF(
   [test "x$ac_cv_libuna" = xyes],

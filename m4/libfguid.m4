@@ -25,11 +25,20 @@ AC_DEFUN([AC_CHECK_LIBFGUID],
    AC_CHECK_LIB(
     fdatetime,
     libfguid_get_version,
-    [],
+    [ac_cv_libfguid_dummy=yes],
     [ac_cv_libfguid=no])
   
    dnl TODO add functions
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfguid" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFGUID],
+   [1],
+   [Define to 1 if you have the `fguid' library (-lfguid).])
+  LIBS="-lfguid $LIBS"
   ])
 
  AS_IF(

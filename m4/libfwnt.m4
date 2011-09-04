@@ -25,11 +25,20 @@ AC_DEFUN([AC_CHECK_LIBFWNT],
    AC_CHECK_LIB(
     fdatetime,
     libfwnt_get_version,
-    [],
+    [ac_cv_libfwnt_dummy=yes],
     [ac_cv_libfwnt=no])
   
    dnl TODO add functions
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfwnt" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFWNT],
+   [1],
+   [Define to 1 if you have the `fwnt' library (-lfwnt).])
+  LIBS="-lfwnt $LIBS"
   ])
 
  AS_IF(

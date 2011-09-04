@@ -25,11 +25,20 @@ AC_DEFUN([AC_CHECK_LIBFMAPI],
    AC_CHECK_LIB(
     fdatetime,
     libfmapi_get_version,
-    [],
+    [ac_cv_libfmapi_dummy=yes],
     [ac_cv_libfmapi=no])
   
    dnl TODO add functions
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfmapi" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFMAPI],
+   [1],
+   [Define to 1 if you have the `fmapi' library (-lfmapi).])
+  LIBS="-lfmapi $LIBS"
   ])
 
  AS_IF(

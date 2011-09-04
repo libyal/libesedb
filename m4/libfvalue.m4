@@ -25,7 +25,7 @@ AC_DEFUN([AC_CHECK_LIBFVALUE],
    AC_CHECK_LIB(
     fvalue,
     libfvalue_get_version,
-    [],
+    [ac_cv_libfvalue_dummy=yes],
     [ac_cv_libfvalue=no])
   
    dnl String functions
@@ -202,6 +202,15 @@ AC_DEFUN([AC_CHECK_LIBFVALUE],
     [ac_cv_libfvalue_dummy=yes],
     [ac_cv_libfvalue=no])
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfvalue" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFVALUE],
+   [1],
+   [Define to 1 if you have the `fvalue' library (-lfvalue).])
+  LIBS="-lfvalue $LIBS"
   ])
 
  AS_IF(

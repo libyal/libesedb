@@ -114,6 +114,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20110904
+* updated configure
+
 20110828
 * updated configure, common, libsystem, libbfio, libfvalue, 
 * added support to ignore empty pages

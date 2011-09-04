@@ -25,7 +25,7 @@ AC_DEFUN([AC_CHECK_LIBFDATETIME],
    AC_CHECK_LIB(
     fdatetime,
     libfdatetime_get_version,
-    [],
+    [ac_cv_libfdatetime_dummy=yes],
     [ac_cv_libfdatetime=no])
   
    dnl Filetime functions
@@ -60,6 +60,15 @@ AC_DEFUN([AC_CHECK_LIBFDATETIME],
     [ac_cv_libfdatetime_dummy=yes],
     [ac_cv_libfdatetime=no])
    ])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfdatetime" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBFDATETIME],
+   [1],
+   [Define to 1 if you have the `fdatetime' library (-lfdatetime).])
+  LIBS="-lfdatetime $LIBS"
   ])
 
  AS_IF(
