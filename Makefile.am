@@ -23,15 +23,22 @@ SUBDIRS = \
 	macosx \
 	msvscpp
 
-REDHAT_FILES = \
+GETTEXT_FILES = \
+	config.rpath \
+	po/Makevars.in
+
+PKGCONFIG_FILES = \
+	libesedb.pc.in
+
+SPEC_FILES = \
 	libesedb.spec \
 	libesedb.spec.in
 
 EXTRA_DIST = \
-	config.rpath \
 	README.mingw \
-	po/Makevars.in \
-	libesedb.pc.in \
+	README.static \
+        $(GETTEXT_FILES) \
+        $(PKGCONFIG_FILES) \
         $(REDHAT_FILES)
 
 MAINTAINERCLEANFILES = \

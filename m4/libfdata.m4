@@ -23,7 +23,7 @@ AC_DEFUN([AC_CHECK_LIBFDATA],
    [ac_cv_libfdata=no],
    [ac_cv_libfdata=yes
    AC_CHECK_LIB(
-    fdatetime,
+    fdata,
     libfdata_get_version,
     [ac_cv_libfdata_dummy=yes],
     [ac_cv_libfdata=no])
@@ -49,6 +49,24 @@ AC_DEFUN([AC_CHECK_LIBFDATA],
   [AC_SUBST(
    [HAVE_LIBFDATA],
    [0])
+  ])
+ ])
+
+dnl Function to detect if libfdata dependencies are available
+AC_DEFUN([AC_CHECK_LOCAL_LIBFDATA],
+ [dnl Types used in libfdata/libfdata_date_time.h
+ AC_STRUCT_TM
+
+ dnl Headers included in libfdata/libfdata_date_time.h
+ AC_HEADER_TIME
+
+ dnl Date and time functions used in libfdata/libfdata_date_time.h
+ AC_CHECK_FUNCS(
+  [time],
+  [],
+  [AC_MSG_FAILURE(
+   [Missing function: time],
+   [1])
   ])
  ])
 

@@ -156,7 +156,10 @@ AC_DEFUN([AC_CHECK_FUNC_MKDIR],
 
 dnl Function to detect if libsystem dependencies are available
 AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
- [dnl Headers included in libsystem/libsystem_file.h, libsystem/libsystem_glob.h,
+ [dnl Types used in libsystem/libsystem_date_time.c
+ AC_STRUCT_TM
+
+ dnl Headers included in libsystem/libsystem_file.h, libsystem/libsystem_glob.h,
  dnl libsystem/libsystem_notify.h and libsystem/libsystem_string.h
  AC_CHECK_HEADERS([errno.h])
 
