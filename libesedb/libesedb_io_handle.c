@@ -138,6 +138,45 @@ int libesedb_io_handle_free(
 	return( result );
 }
 
+/* Sets the pages data range
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_io_handle_set_pages_data_range(
+     libesedb_io_handle_t *io_handle,
+     size64_t file_size,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_io_handle_set_pages_data_range";
+
+	if( io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle->page_size == 0 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid IO handle - missing page size.",
+		 function );
+
+		return( -1 );
+	}
+	io_handle->pages_data_offset = (off64_t) ( io_handle->page_size * 2 );
+	io_handle->pages_data_size   = file_size - (size64_t) io_handle->pages_data_offset;
+	io_handle->last_page_number  = (uint32_t) ( io_handle->pages_data_size / io_handle->page_size );
+
+	return( 1 );
+}
+
 /* Reads the file (or database) header
  * Returns 1 if successful or -1 on error
  */
@@ -198,7 +237,7 @@ int libesedb_io_handle_read_file_header(
 		 function,
 		 file_offset );
 
-		return( -1 );
+		goto on_error;
 	}
 	file_header_data = (uint8_t *) memory_allocate(
 	                                sizeof( uint8_t ) * read_size );
@@ -212,7 +251,7 @@ int libesedb_io_handle_read_file_header(
 		 "%s: unable to create file header data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	read_count = libbfio_handle_read(
 	              file_io_handle,
@@ -229,10 +268,7 @@ int libesedb_io_handle_read_file_header(
 		 "%s: unable to read file header.",
 		 function );
 
-		memory_free(
-		 file_header_data );
-
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -245,7 +281,6 @@ int libesedb_io_handle_read_file_header(
 		 sizeof( esedb_file_header_t ) );
 	}
 #endif
-
 	if( memory_compare(
 	     ( (esedb_file_header_t *) file_header_data )->signature,
 	     esedb_file_signature,
@@ -258,10 +293,7 @@ int libesedb_io_handle_read_file_header(
 		 "%s: unsupported file signature.",
 		 function );
 
-		memory_free(
-		 file_header_data );
-
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_checksum_calculate_little_endian_xor32(
 	     &calculated_xor32_checksum,
@@ -277,10 +309,7 @@ int libesedb_io_handle_read_file_header(
 		 "%s: unable to calculate XOR-32 checksum.",
 		 function );
 
-		memory_free(
-		 file_header_data );
-
-		return( -1 );
+		goto on_error;
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->checksum,
@@ -297,10 +326,7 @@ int libesedb_io_handle_read_file_header(
 		 stored_xor32_checksum,
 		 calculated_xor32_checksum );
 
-		memory_free(
-		 file_header_data );
-
-		return( -1 );
+		goto on_error;
 	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) file_header_data )->format_version,
@@ -731,6 +757,8 @@ int libesedb_io_handle_read_file_header(
 	memory_free(
 	 file_header_data );
 
+	file_header_data = NULL;
+
 	/* TODO add more values to internal structures */
 
 	if( file_offset == 0 )
@@ -800,6 +828,14 @@ int libesedb_io_handle_read_file_header(
 		}
 	}
 	return( 1 );
+
+on_error:
+	if( file_header_data != NULL )
+	{
+		memory_free(
+		 file_header_data );
+	}
+	return( -1 );
 }
 
 /* Reads a page

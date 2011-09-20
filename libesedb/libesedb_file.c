@@ -855,7 +855,7 @@ int libesedb_file_open_read(
 		 "%s: unable to retrieve file size.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -877,7 +877,7 @@ int libesedb_file_open_read(
 		 "%s: unable to read (database) file header.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libnotify_verbose != 0 )
@@ -909,7 +909,6 @@ int libesedb_file_open_read(
 				 *error );
 			}
 #endif
-
 			liberror_error_free(
 			 error );
 
@@ -935,7 +934,7 @@ int libesedb_file_open_read(
 		 "%s: unable to read backup (database) file header.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( internal_file->io_handle->format_version != 0x620 )
 	{
@@ -947,7 +946,7 @@ int libesedb_file_open_read(
 		 function,
 		 internal_file->io_handle->format_version );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( internal_file->io_handle->page_size == 0 )
 	{
@@ -958,7 +957,7 @@ int libesedb_file_open_read(
 		 "%s: invalid page size.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( internal_file->io_handle->format_version == 0x620 )
 	{
@@ -978,7 +977,7 @@ int libesedb_file_open_read(
 				 internal_file->io_handle->format_version,
 				 internal_file->io_handle->format_revision );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 		else
@@ -1000,17 +999,24 @@ int libesedb_file_open_read(
 				 internal_file->io_handle->format_version,
 				 internal_file->io_handle->format_revision );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
-	/* TODO move to function in IO handle
-	 * libesedb_io_handle_set_pages_data_range( offset, size );
-	 */
-	internal_file->io_handle->pages_data_offset = (off64_t) ( internal_file->io_handle->page_size * 2 );
-	internal_file->io_handle->pages_data_size   = file_size - (size64_t) internal_file->io_handle->pages_data_offset;
-	internal_file->io_handle->last_page_number  = (uint32_t) ( internal_file->io_handle->pages_data_size / internal_file->io_handle->page_size );
+	if( libesedb_io_handle_set_pages_data_range(
+	     internal_file->io_handle,
+	     file_size,
+	     error ) != 1 )
+	{
+                liberror_error_set(
+                 error,
+                 LIBERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 "%s: unable to set pages data range in IO handle.",
+                 function );
 
+		goto on_error;
+	}
 	/* TODO clone function ? */
 	if( libfdata_vector_initialize(
 	     &( internal_file->pages_vector ),
@@ -1029,7 +1035,7 @@ int libesedb_file_open_read(
 		 "%s: unable to create pages vector.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libfdata_vector_append_segment(
 	     internal_file->pages_vector,
@@ -1045,7 +1051,7 @@ int libesedb_file_open_read(
 		 "%s: unable to append segment to pages vector.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libfdata_cache_initialize(
 	     &( internal_file->pages_cache ),
@@ -1059,7 +1065,7 @@ int libesedb_file_open_read(
 		 "%s: unable to create pages cache.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( internal_file->io_handle->file_type == LIBESEDB_FILE_TYPE_DATABASE )
 	{
@@ -1081,7 +1087,7 @@ int libesedb_file_open_read(
 			 "%s: unable to create database.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_database_read(
 		     internal_file->database,
@@ -1098,7 +1104,7 @@ int libesedb_file_open_read(
 			 "%s: unable to read database.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libnotify_verbose != 0 )
@@ -1118,7 +1124,7 @@ int libesedb_file_open_read(
 			 "%s: unable to create catalog.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_catalog_read(
 		     internal_file->catalog,
@@ -1135,11 +1141,38 @@ int libesedb_file_open_read(
 			 "%s: unable to read catalog.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		/* TODO what about the backup of the catalog */
 	}
 	return( 1 );
+
+on_error:
+	if( internal_file->pages_vector != NULL )
+	{
+		libfdata_vector_free(
+		 &( internal_file->pages_vector ),
+		 NULL );
+	}
+	if( internal_file->pages_cache != NULL )
+	{
+		libfdata_cache_free(
+		 &( internal_file->pages_cache ),
+		 NULL );
+	}
+	if( internal_file->database != NULL )
+	{
+		libesedb_database_free(
+		 &( internal_file->database ),
+		 NULL );
+	}
+	if( internal_file->catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &( internal_file->catalog ),
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Retrieves the file type

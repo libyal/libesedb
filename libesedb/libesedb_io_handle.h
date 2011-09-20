@@ -89,6 +89,11 @@ int libesedb_io_handle_free(
      libesedb_io_handle_t **io_handle,
      liberror_error_t **error );
 
+int libesedb_io_handle_set_pages_data_range(
+     libesedb_io_handle_t *io_handle,
+     size64_t file_size,
+     liberror_error_t **error );
+
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
