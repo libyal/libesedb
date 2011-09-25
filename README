@@ -1,17 +1,10 @@
-Mac OS X
-* missing libtoolize
-* building multiple architure binaries
+Solaris
+To build libesedb on Solaris make sure that /usr/ccs/bin and /usr/swf/bin are defined in the PATH environment variable
 
 
-Missing libtoolize
-Use glibtoolize instead
-
-
-Building multiple architecture binaries
-I.e. on Mac OS X 10.4 run the following commands:
-CFLAGS="-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" ./configure --disable-dependency-tracking --prefix=$PWD/macosx/tmp/
-make
-make install
-
-The binaries are installed in $PWD/macosx/tmp/
+Also see:
+* README.dll
+* README.macosx
+* README.mingw
+* README.static
 

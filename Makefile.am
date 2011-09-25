@@ -35,6 +35,8 @@ SPEC_FILES = \
 	libesedb.spec.in
 
 EXTRA_DIST = \
+	README.dll \
+	README.macosx \
 	README.mingw \
 	README.static \
         $(GETTEXT_FILES) \

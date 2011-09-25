@@ -31,11 +31,30 @@
 extern "C" {
 #endif
 
-int libesedb_compression_7bit_ascii_decompress(
-     uint8_t *uncompressed_data,
-     size_t uncompressed_data_size,
-     uint8_t *compressed_data,
+int libesedb_compression_7bit_get_utf8_string_size(
+     const uint8_t *compressed_data,
      size_t compressed_data_size,
+     size_t *utf8_string_size,
+     liberror_error_t **error );
+
+int libesedb_compression_7bit_copy_to_utf8_string(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     liberror_error_t **error );
+
+int libesedb_compression_7bit_get_utf16_string_size(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *utf16_string_size,
+     liberror_error_t **error );
+
+int libesedb_compression_7bit_copy_to_utf16_string(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

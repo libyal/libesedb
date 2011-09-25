@@ -30,3 +30,7 @@ CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP CFLAGS="$CFL
 You should end up with the following DLL:
 libesedb-<version>/libesedb/.libs/libesedb-1.dll
 
+And the following executables:
+libesedb-<version>/esedbtools/.libs/esedbexport.exe
+libesedb-<version>/esedbtools/.libs/esedbinfo.exe
+

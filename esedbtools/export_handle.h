@@ -198,13 +198,6 @@ int export_handle_export_file(
      log_handle_t *log_handle,
      liberror_error_t **error );
 
-int decompress_7bit_ascii(
-     uint8_t *uncompressed_data,
-     size_t uncompressed_data_size,
-     uint8_t *compressed_data,
-     size_t compressed_data_size,
-     liberror_error_t **error );
-
 #if defined( __cplusplus )
 }
 #endif

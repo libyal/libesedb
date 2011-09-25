@@ -953,7 +953,6 @@ int libesedb_catalog_definition_read(
 
 							return( -1 );
 						}
-
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libnotify_verbose != 0 )
 						{
