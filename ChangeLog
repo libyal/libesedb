@@ -119,6 +119,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20110927
+* updated libfmapi
+
 20110925
 * updated libuna, libbfio, libfdatetime
 * added 7bit ASCII compressed strings support
