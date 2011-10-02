@@ -1367,12 +1367,26 @@ int libesedb_values_tree_value_read_record(
 						 function,
 						 column_catalog_definition->identifier,
 						 tagged_data_type_identifier );
-						libnotify_printf(
-						 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-						 function,
-						 column_catalog_definition->identifier,
-						 tagged_data_type_offset,
-						 tagged_data_type_offset & 0x3fff );
+
+						if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+						 && ( io_handle->page_size >= 16384 ) )
+						{
+							libnotify_printf(
+							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+							 function,
+							 column_catalog_definition->identifier,
+							 tagged_data_type_offset,
+							 tagged_data_type_offset );
+						}
+						else
+						{
+							libnotify_printf(
+							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+							 function,
+							 column_catalog_definition->identifier,
+							 tagged_data_type_offset,
+							 tagged_data_type_offset & 0x3fff );
+						}
 					}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
@@ -1395,24 +1409,50 @@ int libesedb_values_tree_value_read_record(
 						tagged_data_type_offset_data_size -= 4;
 						remaining_definition_data_size    -= 4;
 					}
-					if( ( previous_tagged_data_type_offset & 0x3fff ) > ( tagged_data_type_offset & 0x3fff ) )
+					if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+					 && ( io_handle->page_size >= 16384 ) )
 					{
-						liberror_error_set(
-						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-						 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
-						 function );
+						if( previous_tagged_data_type_offset > tagged_data_type_offset )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
+							 function );
 
-						goto on_error;
-					}
-					if( ( tagged_data_type_offset & 0x3fff ) > ( previous_tagged_data_type_offset & 0x3fff ) )
-					{
-						tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
+							goto on_error;
+						}
+						if( tagged_data_type_offset > previous_tagged_data_type_offset )
+						{
+							tagged_data_type_size = tagged_data_type_offset - previous_tagged_data_type_offset;
+						}
+						else
+						{
+							tagged_data_type_size = (uint16_t) remaining_definition_data_size;
+						}
 					}
 					else
 					{
-						tagged_data_type_size = (uint16_t) remaining_definition_data_size;
+						if( ( previous_tagged_data_type_offset & 0x3fff ) > ( tagged_data_type_offset & 0x3fff ) )
+						{
+							liberror_error_set(
+							 error,
+							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
+							 function );
+
+							goto on_error;
+						}
+						if( ( tagged_data_type_offset & 0x3fff ) > ( previous_tagged_data_type_offset & 0x3fff ) )
+						{
+							tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
+						}
+						else
+						{
+							tagged_data_type_size = (uint16_t) remaining_definition_data_size;
+						}
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libnotify_verbose != 0 )
@@ -1424,7 +1464,17 @@ int libesedb_values_tree_value_read_record(
 						 tagged_data_type_size );
 					}
 #endif
-					tagged_data_type_value_offset = tagged_data_types_offset + ( previous_tagged_data_type_offset & 0x3fff );
+					if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+					 && ( io_handle->page_size >= 16384 ) )
+					{
+						tagged_data_type_value_offset = tagged_data_types_offset
+						                              + previous_tagged_data_type_offset;
+					}
+					else
+					{
+						tagged_data_type_value_offset = tagged_data_types_offset
+						                              + ( previous_tagged_data_type_offset & 0x3fff );
+					}
 
 					if( tagged_data_type_size > 0 )
 					{

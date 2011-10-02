@@ -249,6 +249,7 @@ int libesedb_page_tree_read_root_page(
 	                | LIBESEDB_PAGE_FLAG_0x0400
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
 	                | LIBESEDB_PAGE_FLAG_0x8000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
@@ -548,6 +549,7 @@ int libesedb_page_tree_read_space_tree_page(
 	                | LIBESEDB_PAGE_FLAG_0x0400
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
 	                | LIBESEDB_PAGE_FLAG_0x8000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
@@ -762,20 +764,17 @@ int libesedb_page_tree_read_space_tree_page(
 
 				return( -1 );
 			}
-			if( (size_t) page_value_size != sizeof( esedb_space_tree_page_entry_t ) )
+			if( page_value_size < 2 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported page value size: %" PRIu16 ".",
-				 function,
-				 page_value_size );
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: unsupported key size value out of bounds.",
+				 function );
 
 				return( -1 );
 			}
-			/* TODO handle the space tree page values */
-
 			byte_stream_copy_to_uint16_little_endian(
 			 page_value_data,
 			 key_size );
@@ -793,15 +792,14 @@ int libesedb_page_tree_read_space_tree_page(
 				 key_size );
 			}
 #endif
-			if( key_size != 4 )
+			if( key_size > page_value_size )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported key size: %" PRIu16 ".",
-				 function,
-				 key_size);
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: unsupported key size value out of bounds.",
+				 function );
 
 				return( -1 );
 			}
@@ -832,6 +830,17 @@ int libesedb_page_tree_read_space_tree_page(
 			page_value_data += key_size;
 			page_value_size -= key_size;
 
+			if( page_value_size < 4 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: unsupported key size value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			byte_stream_copy_to_uint32_little_endian(
 			 page_value_data,
 			 number_of_pages );
@@ -1008,6 +1017,7 @@ int libesedb_page_tree_read_page(
 	                | LIBESEDB_PAGE_FLAG_0x0400
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
 	                | LIBESEDB_PAGE_FLAG_0x8000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )

@@ -4,7 +4,7 @@ dnl Function to detect if libfguid is available
 AC_DEFUN([AC_CHECK_LIBFGUID],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libfguid" != x && test "x$ac_cv_with_libfguid" != xno && test "x$ac_cv_with_libfguid" != xauto-detect],
+  [test "x$ac_cv_with_libfguid" != x && test "x$ac_cv_with_libfguid" != xno && test "x$ac_cv_with_libfguid" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libfguid"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libfguid}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBFGUID],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libfguid" != xno],
+  [test "x$ac_cv_with_libfguid" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfguid.h])
  

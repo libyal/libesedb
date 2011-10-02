@@ -2776,7 +2776,8 @@ int export_handle_export_record_value(
 				break;
 		}
 	}
-	else if( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
+	else if( ( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
+	      && ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 ) )
 	{
 		if( libesedb_record_get_long_value(
 		     record,
@@ -2879,8 +2880,9 @@ libsystem_notify_print_data(
 			return( -1 );
 		}
 	}
-	/* TODO handle 0x10 flag */
+	/* TODO handle 0x10 flags */
 	else if( ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	      && ( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
 	      && ( ( value_flags & 0x10 ) == 0 ) )
 	{
 		/* TODO what about non string multi values ?

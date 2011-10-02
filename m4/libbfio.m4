@@ -4,7 +4,7 @@ dnl Function to detect if libbfio is available
 AC_DEFUN([AC_CHECK_LIBBFIO],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libbfio" != x && test "x$ac_cv_with_libbfio" != xno && test "x$ac_cv_with_libbfio" != xauto-detect],
+  [test "x$ac_cv_with_libbfio" != x && test "x$ac_cv_with_libbfio" != xno && test "x$ac_cv_with_libbfio" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libbfio"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libbfio}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBBFIO],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libbfio" != xno],
+  [test "x$ac_cv_with_libbfio" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libbfio.h])
  
@@ -253,65 +253,59 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBBFIO],
  AC_CHECK_HEADERS([errno.h fcntl.h sys/stat.h unistd.h])
 
  dnl File input/output functions used in libbfio/libbfio_file.h
- AC_CHECK_FUNCS(
-  [close],
-  [],
+ AC_CHECK_FUNCS([close fstat ftruncate lseek open read stat write])
+
+ AS_IF(
+  [test "x$ac_cv_func_close" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: close],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [fstat],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_fstat" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fstat],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [ftruncate],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_ftruncate" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: ftruncate],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [lseek],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_lseek" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: lseek],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [open],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_open" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: open],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [read],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_read" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: read],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [stat],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_stat" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: stat],
    [1])
   ])
  
- AC_CHECK_FUNCS(
-  [write],
-  [],
+ AS_IF(
+  [test "x$ac_cv_func_write" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: write],
    [1])
@@ -322,11 +316,12 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBBFIO],
 
  AS_IF(
   [test "x$ac_cv_have_decl_strerror_r" = xno],
-  [AC_CHECK_FUNCS(
-   [strerror],
-   [],
+  [AC_CHECK_FUNCS([strerror])
+
+  AS_IF(
+   [test "x$ac_cv_func_strerror" != xyes],
    [AC_MSG_FAILURE(
-    [Missing functions: strerror_r and strerror],
+    [Missing functions: strerror and strerror_r],
     [1])
    ])
   ])

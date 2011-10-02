@@ -4,7 +4,7 @@ dnl Function to detect if libfdatetime is available
 AC_DEFUN([AC_CHECK_LIBFDATETIME],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libfdatetime" != x && test "x$ac_cv_with_libfdatetime" != xno && test "x$ac_cv_with_libfdatetime" != xauto-detect],
+  [test "x$ac_cv_with_libfdatetime" != x && test "x$ac_cv_with_libfdatetime" != xno && test "x$ac_cv_with_libfdatetime" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libfdatetime"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libfdatetime}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBFDATETIME],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libfdatetime" != xno],
+  [test "x$ac_cv_with_libfdatetime" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfdatetime.h])
  

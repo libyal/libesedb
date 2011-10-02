@@ -4,7 +4,7 @@ dnl Function to detect if libuna is available
 AC_DEFUN([AC_CHECK_LIBUNA],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libuna" != x && test "x$ac_cv_with_libuna" != xno && test "x$ac_cv_with_libuna" != xauto-detect],
+  [test "x$ac_cv_with_libuna" != x && test "x$ac_cv_with_libuna" != xno && test "x$ac_cv_with_libuna" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libuna"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libuna}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBUNA],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libuna" != xno],
+  [test "x$ac_cv_with_libuna" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libuna.h])
 

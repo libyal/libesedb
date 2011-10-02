@@ -4,7 +4,7 @@ dnl Function to detect if libfmapi is available
 AC_DEFUN([AC_CHECK_LIBFMAPI],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xno && test "x$ac_cv_with_libfmapi" != xauto-detect],
+  [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xno && test "x$ac_cv_with_libfmapi" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libfmapi"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libfmapi}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBFMAPI],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libfmapi" != xno],
+  [test "x$ac_cv_with_libfmapi" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfmapi.h])
  

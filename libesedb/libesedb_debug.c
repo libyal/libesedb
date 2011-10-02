@@ -151,6 +151,16 @@ void libesedb_debug_print_page_flags(
 		libnotify_printf(
 		 "\tIs new record format\n" );
 	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_SCRUBBED ) != 0 )
+	{
+		libnotify_printf(
+		 "\tIs scrubbed\n" );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_0x8000 ) != 0 )
+	{
+		libnotify_printf(
+		 "\t0x8000\n" );
+	}
 }
 
 /* Prints the page tag flags

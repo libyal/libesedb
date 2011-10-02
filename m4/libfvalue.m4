@@ -4,7 +4,7 @@ dnl Function to detect if libfvalue available
 AC_DEFUN([AC_CHECK_LIBFVALUE],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libfvalue" != x && test "x$ac_cv_with_libfvalue" != xno && test "x$ac_cv_with_libfvalue" != xauto-detect],
+  [test "x$ac_cv_with_libfvalue" != x && test "x$ac_cv_with_libfvalue" != xno && test "x$ac_cv_with_libfvalue" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libfvalue"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libfvalue}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBFVALUE],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libfvalue" != xno],
+  [test "x$ac_cv_with_libfvalue" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfvalue.h])
  

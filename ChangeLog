@@ -28,7 +28,8 @@ TODO
   - need database which uses default value
 * handle compressed values inside the library
   - 7bit ASCII/Unicode strings (done)
-  - XPRESS compressed data
+  - XPRESS compressed data (done)
+  - other
 * error tolerance probe test for the page size using the backup database header
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
@@ -118,6 +119,14 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20111002
+* improved space tree leaf page entry support
+* worked on compression support
+  - added XPRESS support
+  - improved 7-bit support
+* bug fix for tagged data value offset > 0x4000 in certain 0x620 revision 0x11
+  databases
 
 20110927
 * updated libfmapi

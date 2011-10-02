@@ -4,14 +4,17 @@ To compile a libesedb DLL using mingw you'll need:
 * mingw
 
 To build a DLL using mingw use:
-mingw32-configure --enable-winapi=yes
+mingw32-configure --prefix=/opt/local/i386-mingw32 --enable-winapi=yes
 mingw32-make
 
 It is recommended that you use WINAPI support but it is possible to compile
 libesedb without it (--enable-winapi=no)
 
-If mingw32-configure and mingw32-make are not available you'll need to build
-it by hand. For this you can use a script similar to the following:
+If mingw32-configure and mingw32-make are not available you can build it with:
+./configure --host=i386-mingw32 --prefix=/opt/local/i386-mingw32 --enable-winapi=yes
+make
+
+If this does not work try a script similar to the following:
 
 #!/bin/sh
 CC=/opt/local/bin/i386-mingw32-gcc
@@ -24,7 +27,7 @@ MINGWFLAGS="-mwin32 -mconsole -march=i586 "
 CFLAGS="$MINGWFLAGS"
 CXXFLAGS="$MINGWFLAGS"
 
-CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP ./configure --target=i586-mingw32msvc --host=i586 --enable-winapi=yes
+CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP ./configure --host=i586-mingw32msvc --enable-winapi=yes
 CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" make
 
 You should end up with the following DLL:
@@ -33,4 +36,7 @@ libesedb-<version>/libesedb/.libs/libesedb-1.dll
 And the following executables:
 libesedb-<version>/esedbtools/.libs/esedbexport.exe
 libesedb-<version>/esedbtools/.libs/esedbinfo.exe
+
+To install the libesedb DLL in the MinGW build tree use:
+sudo make install
 

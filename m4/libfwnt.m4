@@ -4,7 +4,7 @@ dnl Function to detect if libfwnt is available
 AC_DEFUN([AC_CHECK_LIBFWNT],
  [dnl Check if parameters were provided
  AS_IF(
-  [test x"$ac_cv_with_libfwnt" != x && test "x$ac_cv_with_libfwnt" != xno && test "x$ac_cv_with_libfwnt" != xauto-detect],
+  [test "x$ac_cv_with_libfwnt" != x && test "x$ac_cv_with_libfwnt" != xno && test "x$ac_cv_with_libfwnt" != xauto-detect],
   [AS_IF(
    [test -d "$ac_cv_with_libfwnt"],
    [CFLAGS="$CFLAGS -I${ac_cv_with_libfwnt}/include"
@@ -14,7 +14,7 @@ AC_DEFUN([AC_CHECK_LIBFWNT],
   ])
 
  AS_IF(
-  [test x"$ac_cv_with_libfwnt" != xno],
+  [test "x$ac_cv_with_libfwnt" != xno],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfwnt.h])
  

@@ -573,7 +573,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 
 			return( -1 );
 		}
-		result = libesedb_compression_7bit_get_utf8_string_size(
+		result = libesedb_compression_get_utf8_string_size(
 			  entry_data,
 			  entry_data_size,
 			  utf8_string_size,
@@ -704,7 +704,7 @@ int libesedb_multi_value_get_value_utf8_string(
 
 			return( -1 );
 		}
-		result = libesedb_compression_7bit_copy_to_utf8_string(
+		result = libesedb_compression_copy_to_utf8_string(
 			  entry_data,
 			  entry_data_size,
 			  utf8_string,
@@ -836,7 +836,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 
 			return( -1 );
 		}
-		result = libesedb_compression_7bit_get_utf16_string_size(
+		result = libesedb_compression_get_utf16_string_size(
 			  entry_data,
 			  entry_data_size,
 			  utf16_string_size,
@@ -967,7 +967,7 @@ int libesedb_multi_value_get_value_utf16_string(
 
 			return( -1 );
 		}
-		result = libesedb_compression_7bit_copy_to_utf16_string(
+		result = libesedb_compression_copy_to_utf16_string(
 			  entry_data,
 			  entry_data_size,
 			  utf16_string,
