@@ -7,8 +7,8 @@ License: LGPL
 Source: %{name}-%{version}.tar.gz
 URL: http://libesedb.sourceforge.net
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-@libesedb_spec_requires@ @libesedb_spec_requires_libbfio@ @libesedb_spec_requires_libfdata@ @libesedb_spec_requires_libfdatetime@ @libesedb_spec_requires_libfguid@ @libesedb_spec_requires_libuna@
-@libesedb_spec_build_requires@ @libesedb_spec_build_requires_libbfio@ @libesedb_spec_build_requires_libfdata@ @libesedb_spec_build_requires_libfdatetime@ @libesedb_spec_build_requires_libfguid@ @libesedb_spec_build_requires_libuna@
+@libesedb_spec_requires@ @ax_libbfio_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libuna_spec_requires@
+@libesedb_spec_build_requires@ @ax_libbfio_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libuna_spec_build_requires@
 
 %description
 libesedb is a library to support the Extensible Storage Engine (ESE) Database File (EDB) format
@@ -24,8 +24,8 @@ Header files and libraries for developing applications for libesedb.
 %package tools
 Summary: Several tools for accessing Extensible Storage Engine (ESE) Database File (EDB)
 Group: Applications/System
-Requires: libesedb = %{version}-%{release} @libesedb_spec_requires_libfwnt@ @libesedb_spec_requires_libfmapi@
-@libesedb_spec_tools_build_requires@ @libesedb_spec_build_requires_libfwnt@ @libesedb_spec_build_requires_libfmapi@
+Requires: libesedb = %{version}-%{release} @ax_libfmapi_spec_requires@ @ax_libfwnt_spec_requires@ @ax_libmapidb_spec_requires@
+@libesedb_spec_tools_build_requires@ @ax_libfmapi_spec_build_requires@ @ax_libfwnt_spec_build_requires@ @ax_libmapidb_spec_build_requires@
 
 %description tools
 Several tools for accessing Extensible Storage Engine (ESE) Database File (EDB)
@@ -71,6 +71,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
+* Sat Oct  8 2011 Joachim Metz <jbmetz@users.sourceforge.net> 20111008-1
+- Changes for configure update and README files
+
 * Sun Jun 27 2010 Joachim Metz <jbmetz@users.sourceforge.net> 20100627-1
 - Clean up of previous version of spec file
 

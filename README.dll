@@ -15,16 +15,12 @@ To create a DLL using Cygwin you'll need:
 Cygwin with the following packages:
 * binutils
 * gcc-core
-* bison (for libodraw)
-* flex (for libodraw)
 * autoconf
 * automake
 * make
 * libtool
 * gettext
 * libiconv
-* openssl-devel (optional but recommended)
-* libuuid-devel (optional but recommended)
 
 Building the library:
 ./configure
@@ -67,7 +63,7 @@ libesedb/.libs/libesedb-<version>.dll
 
 
 Using the DLL
-Make sure you use define LIBEWF_DLL_IMPORT before including <libesedb.h>,
+Make sure you use define LIBESEDB_DLL_IMPORT before including <libesedb.h>,
 
 When the DLL was build with Microsoft Visual Studio, you'll also need the Microsoft Visual Studio redistributable DLLs
 to run on other platforms than the build platform.

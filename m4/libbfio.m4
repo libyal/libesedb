@@ -1,7 +1,10 @@
 dnl Functions for libbfio
+dnl
+dnl Version: 20111007
 
 dnl Function to detect if libbfio is available
-AC_DEFUN([AC_CHECK_LIBBFIO],
+dnl ac_libbfio_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
+AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
   [test "x$ac_cv_with_libbfio" != x && test "x$ac_cv_with_libbfio" != xno && test "x$ac_cv_with_libbfio" != xauto-detect],
@@ -248,7 +251,7 @@ AC_DEFUN([AC_CHECK_LIBBFIO],
  ])
 
 dnl Function to detect if libbfio dependencies are available
-AC_DEFUN([AC_CHECK_LOCAL_LIBBFIO],
+AC_DEFUN([AX_LIBBFIO_CHECK_LOCAL],
  [dnl Headers included in libbfio/libbfio_file.c
  AC_CHECK_HEADERS([errno.h fcntl.h sys/stat.h unistd.h])
 
@@ -324,6 +327,60 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBBFIO],
     [Missing functions: strerror and strerror_r],
     [1])
    ])
+  ])
+ ])
+
+dnl Function to detect how to enable libbfio
+AC_DEFUN([AX_LIBBFIO_CHECK_ENABLE],
+ [AX_COMMON_ARG_WITH(
+  [libbfio],
+  [libbfio],
+  [search for libbfio in includedir and libdir or in the specified DIR, or no if to use local version],
+  [auto-detect],
+  [DIR])
+
+ AX_LIBBFIO_CHECK_LIB
+
+ AS_IF(
+  [test "x$ac_cv_libbfio" != xyes],
+  [AX_LIBBFIO_CHECK_LOCAL
+
+  AC_DEFINE(
+   [HAVE_LOCAL_LIBBFIO],
+   [1],
+   [Define to 1 if the local version of libbfio is used.])
+  AC_SUBST(
+   [HAVE_LOCAL_LIBBFIO],
+   [1])
+  AC_SUBST(
+   [LIBBFIO_CPPFLAGS],
+   [-I../libbfio])
+  AC_SUBST(
+   [LIBBFIO_LIBADD],
+   [../libbfio/libbfio.la])
+
+  ac_cv_libbfio=local
+  ])
+
+ AM_CONDITIONAL(
+  [HAVE_LOCAL_LIBBFIO],
+  [test "x$ac_cv_libbfio" = xlocal])
+
+ AS_IF(
+  [test "x$ac_cv_libbfio" = xyes],
+  [AC_SUBST(
+   [ax_libbfio_pc_libs_private],
+   [-lbfio])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libbfio" = xyes],
+  [AC_SUBST(
+   [ax_libbfio_spec_requires],
+   [libbfio])
+  AC_SUBST(
+   [ax_libbfio_spec_build_requires],
+   [libbfio-devel])
   ])
  ])
 

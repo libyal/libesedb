@@ -57,6 +57,19 @@ int libesedb_compression_xpress_decompress(
      size_t uncompressed_data_size,
      liberror_error_t **error );
 
+int libesedb_compression_decompress_get_size(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *uncompressed_data_size,
+     liberror_error_t **error );
+
+int libesedb_compression_decompress(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     liberror_error_t **error );
+
 int libesedb_compression_get_utf8_string_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,

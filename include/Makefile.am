@@ -1,13 +1,13 @@
 include_HEADERS = \
-        libesedb.h
+	libesedb.h
 
 pkginclude_HEADERS = \
-        libesedb/codepage.h \
-        libesedb/definitions.h \
-        libesedb/error.h \
-        libesedb/extern.h \
-        libesedb/features.h \
-        libesedb/types.h
+	libesedb/codepage.h \
+	libesedb/definitions.h \
+	libesedb/error.h \
+	libesedb/extern.h \
+	libesedb/features.h \
+	libesedb/types.h
 
 EXTRA_DIST = \
 	libesedb.h.in \

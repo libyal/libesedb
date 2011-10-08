@@ -1,7 +1,10 @@
 dnl Functions for libuna
+dnl
+dnl Version: 20111007
 
-dnl Function to detect if libuna is available
-AC_DEFUN([AC_CHECK_LIBUNA],
+dnl Function to detect if libuna is available as library
+dnl ac_libuna_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
+AC_DEFUN([AX_LIBUNA_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
   [test "x$ac_cv_with_libuna" != x && test "x$ac_cv_with_libuna" != xno && test "x$ac_cv_with_libuna" != xauto-detect],
@@ -341,6 +344,58 @@ AC_DEFUN([AC_CHECK_LIBUNA],
   [AC_SUBST(
    [HAVE_LIBUNA],
    [0])
+  ])
+ ])
+
+dnl Function to detect how to enable libuna
+AC_DEFUN([AX_LIBUNA_CHECK_ENABLE],
+ [AX_COMMON_ARG_WITH(
+  [libuna],
+  [libuna],
+  [search for libuna in includedir and libdir or in the specified DIR, or no if to use local version],
+  [auto-detect],
+  [DIR])
+
+ AX_LIBUNA_CHECK_LIB
+
+ AS_IF(
+  [test "x$ac_cv_libuna" != xyes],
+  [AC_DEFINE(
+   [HAVE_LOCAL_LIBUNA],
+   [1],
+   [Define to 1 if the local version of libuna is used.])
+  AC_SUBST(
+   [HAVE_LOCAL_LIBUNA],
+   [1])
+  AC_SUBST(
+   [LIBUNA_CPPFLAGS],
+   [-I../libuna])
+  AC_SUBST(
+   [LIBUNA_LIBADD],
+   [../libuna/libuna.la])
+
+  ac_cv_libuna=local
+  ])
+
+ AM_CONDITIONAL(
+  [HAVE_LOCAL_LIBUNA],
+  [test "x$ac_cv_libuna" = xlocal])
+
+ AS_IF(
+  [test "x$ac_cv_libuna" = xyes],
+  [AC_SUBST(
+   [ax_libuna_pc_libs_private],
+   [-luna])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libuna" = xyes],
+  [AC_SUBST(
+   [ax_libuna_spec_requires],
+   [libuna])
+  AC_SUBST(
+   [ax_libuna_spec_build_requires],
+   [libuna-devel])
   ])
  ])
 

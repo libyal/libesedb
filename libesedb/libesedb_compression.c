@@ -102,7 +102,7 @@ int libesedb_compression_7bit_decompress_get_size(
 	return( 1 );
 }
 
-/* Copies decompressed 7-bit compressed data to an UTF-8 string
+/* Decompresses 7-bit compressed-data
  * Returns 1 on success or -1 on error
  */
 int libesedb_compression_7bit_decompress(
@@ -306,7 +306,7 @@ int libesedb_compression_xpress_decompress_get_size(
 	return( 1 );
 }
 
-/* Copies decompressed XPRESS compressed data to an UTF-8 string
+/* Decompresses XPRESS compressed-data
  * Returns 1 on success or -1 on error
  */
 int libesedb_compression_xpress_decompress(
@@ -593,6 +593,159 @@ int libesedb_compression_xpress_decompress(
 	return( 1 );
 }
 
+/* Retrieves the size of the decompressed compressed-data
+ * Returns 1 on success or -1 on error
+ */
+int libesedb_compression_decompress_get_size(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     size_t *uncompressed_data_size,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_compression_decompress_get_size";
+	int result            = 0;
+
+	if( compressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size < 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: compressed data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data[ 0 ] == 0x18 )
+	{
+		result = libesedb_compression_xpress_decompress_get_size(
+		          compressed_data,
+		          compressed_data_size,
+		          uncompressed_data_size,
+		          error );
+	}
+	else
+	{
+		result = libesedb_compression_7bit_decompress_get_size(
+		          compressed_data,
+		          compressed_data_size,
+		          uncompressed_data_size,
+		          error );
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable retrieve uncompressed data size.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Decompresses compressed-data
+ * Returns 1 on success or -1 on error
+ */
+int libesedb_compression_decompress(
+     const uint8_t *compressed_data,
+     size_t compressed_data_size,
+     uint8_t *uncompressed_data,
+     size_t uncompressed_data_size,
+     liberror_error_t **error )
+{
+	static char *function = "libesedb_compression_decompress";
+	int result            = 0;
+
+	if( compressed_data == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid compressed data.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size > (size_t) SSIZE_MAX )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid compressed data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data_size < 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: compressed data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( compressed_data[ 0 ] == 0x18 )
+	{
+		result = libesedb_compression_xpress_decompress(
+		          compressed_data,
+		          compressed_data_size,
+		          uncompressed_data,
+		          uncompressed_data_size,
+		          error );
+	}
+	else
+	{
+		result = libesedb_compression_7bit_decompress(
+		          compressed_data,
+		          compressed_data_size,
+		          uncompressed_data,
+		          uncompressed_data_size,
+		          error );
+	}
+	if( result != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 "%s: unable decompressed data.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the UTF-8 string size of compressed-data
  * Returns 1 on success or -1 on error
  */
@@ -703,16 +856,18 @@ int libesedb_compression_get_utf8_string_size(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve uncompressed data.",
+		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 "%s: unable decompressed data.",
 		 function );
 
 		goto on_error;
 	}
 	result = 0;
 
-	if( ( uncompressed_data_size % 2 ) == 0 )
+	if( ( ( uncompressed_data_size % 2 ) == 0 )
+	 && ( ( compressed_data[ 0 ] == 0x18 )
+	  ||  ( ( compressed_data[ 0 ] & 0x10 ) == 0 ) ) )
 	{
 		result = libuna_utf8_string_size_from_utf16_stream(
 			  uncompressed_data,
@@ -889,16 +1044,18 @@ int libesedb_compression_copy_to_utf8_string(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve uncompressed data.",
+		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 "%s: unable decompressed data.",
 		 function );
 
 		goto on_error;
 	}
 	result = 0;
 
-	if( ( uncompressed_data_size % 2 ) == 0 )
+	if( ( ( uncompressed_data_size % 2 ) == 0 )
+	 && ( ( compressed_data[ 0 ] == 0x18 )
+	  ||  ( ( compressed_data[ 0 ] & 0x10 ) == 0 ) ) )
 	{
 		result = libuna_utf8_string_copy_from_utf16_stream(
 			  utf8_string,
@@ -1076,16 +1233,18 @@ int libesedb_compression_get_utf16_string_size(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve uncompressed data.",
+		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 "%s: unable decompressed data.",
 		 function );
 
 		goto on_error;
 	}
 	result = 0;
 
-	if( ( uncompressed_data_size % 2 ) == 0 )
+	if( ( ( uncompressed_data_size % 2 ) == 0 )
+	 && ( ( compressed_data[ 0 ] == 0x18 )
+	  ||  ( ( compressed_data[ 0 ] & 0x10 ) == 0 ) ) )
 	{
 		result = libuna_utf16_string_size_from_utf16_stream(
 			  uncompressed_data,
@@ -1262,16 +1421,18 @@ int libesedb_compression_copy_to_utf16_string(
 	{
 		liberror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable retrieve uncompressed data.",
+		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 "%s: unable decompressed data.",
 		 function );
 
 		goto on_error;
 	}
 	result = 0;
 
-	if( ( uncompressed_data_size % 2 ) == 0 )
+	if( ( ( uncompressed_data_size % 2 ) == 0 )
+	 && ( ( compressed_data[ 0 ] == 0x18 )
+	  ||  ( ( compressed_data[ 0 ] & 0x10 ) == 0 ) ) )
 	{
 		result = libuna_utf16_string_copy_from_utf16_stream(
 			  utf16_string,

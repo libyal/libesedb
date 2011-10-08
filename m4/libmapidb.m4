@@ -1,4 +1,6 @@
 dnl Functions for libmapidb
+dnl
+dnl Version: 20111008
 
 dnl Function to detect if libmapidb is available
 AC_DEFUN([AC_CHECK_LIBMAPIDB],
@@ -40,6 +42,57 @@ AC_DEFUN([AC_CHECK_LIBMAPIDB],
   [AC_SUBST(
    [HAVE_LIBMAPIDB],
    [0])
+  ])
+ ])
+
+dnl Function to detect how to enable libmapidb
+AC_DEFUN([AX_LIBMAPIDB_CHECK_ENABLE],
+ [AX_COMMON_ARG_WITH(
+  [libmapidb],
+  [libmapidb],
+  [search for libmapidb in includedir and libdir or in the specified DIR, or no if to use local version],
+  [auto-detect],
+  [DIR])
+
+ AX_LIBMAPIDB_CHECK_LIB
+
+ AS_IF(
+  [test "x$ac_cv_libmapidb" != xyes],
+  [AC_DEFINE(
+   [HAVE_LOCAL_LIBMAPIDB],
+   [1],
+   [Define to 1 if the local version of libmapidb is used.])
+  AC_SUBST(
+   [HAVE_LOCAL_LIBMAPIDB],
+   [1])
+  AC_SUBST(
+   [LIBMAPIDB_CPPFLAGS],
+   [-I../libmapidb])
+  AC_SUBST(
+   [LIBMAPIDB_LIBADD],
+   [../libmapidb/libmapidb.la])
+  ac_cv_libmapidb=local
+  ])
+
+ AM_CONDITIONAL(
+  [HAVE_LOCAL_LIBMAPIDB],
+  [test "x$ac_cv_libmapidb" = xlocal])
+
+ AS_IF(
+  [test "x$ac_cv_libmapidb" = xyes],
+  [AC_SUBST(
+   [ax_libmapidb_pc_libs_private],
+   [-lmapidb])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libmapidb" = xyes],
+  [AC_SUBST(
+   [ax_libmapidb_spec_requires],
+   [libmapidb])
+  AC_SUBST(
+   [ax_libmapidb_spec_build_requires],
+   [libmapidb-devel])
   ])
  ])
 

@@ -1,7 +1,10 @@
 dnl Functions for libfdata
+dnl
+dnl Version: 20111008
 
 dnl Function to detect if libfdata is available
-AC_DEFUN([AC_CHECK_LIBFDATA],
+dnl ac_libfdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
+AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
   [test "x$ac_cv_with_libfdata" != x && test "x$ac_cv_with_libfdata" != xno && test "x$ac_cv_with_libfdata" != xauto-detect],
@@ -53,7 +56,7 @@ AC_DEFUN([AC_CHECK_LIBFDATA],
  ])
 
 dnl Function to detect if libfdata dependencies are available
-AC_DEFUN([AC_CHECK_LOCAL_LIBFDATA],
+AC_DEFUN([AX_LIBFDATA_CHECK_LOCAL],
  [dnl Types used in libfdata/libfdata_date_time.h
  AC_STRUCT_TM
 
@@ -70,3 +73,55 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBFDATA],
   ])
  ])
 
+dnl Function to detect how to enable libfdata
+AC_DEFUN([AX_LIBFDATA_CHECK_ENABLE],
+ [AX_COMMON_ARG_WITH(
+  [libfdata],
+  [libfdata],
+  [search for libfdata in includedir and libdir or in the specified DIR, or no if to use local version],
+  [auto-detect],
+  [DIR])
+
+ AX_LIBFDATA_CHECK_LIB
+
+ AS_IF(
+  [test "x$ac_cv_libfdata" != xyes],
+  [AX_LIBFDATA_CHECK_LOCAL
+
+  AC_DEFINE(
+   [HAVE_LOCAL_LIBFDATA],
+   [1],
+   [Define to 1 if the local version of libfdata is used.])
+  AC_SUBST(
+   [HAVE_LOCAL_LIBFDATA],
+   [1])
+  AC_SUBST(
+   [LIBFDATA_CPPFLAGS],
+   [-I../libfdata])
+  AC_SUBST(
+   [LIBFDATA_LIBADD],
+   [../libfdata/libfdata.la])
+  ac_cv_libfdata=local
+  ])
+
+ AM_CONDITIONAL(
+  [HAVE_LOCAL_LIBFDATA],
+  [test "x$ac_cv_libfdata" = xlocal])
+
+ AS_IF(
+  [test "x$ac_cv_libfdata" = xyes],
+  [AC_SUBST(
+   [ax_libfdata_pc_libs_private],
+   [-lfdata])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfdata" = xyes],
+  [AC_SUBST(
+   [ax_libfdata_spec_requires],
+   [libfdata])
+  AC_SUBST(
+   [ax_libfdata_spec_build_requires],
+   [libfdata-devel])
+  ])
+ ])

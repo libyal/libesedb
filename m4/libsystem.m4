@@ -1,8 +1,10 @@
 dnl Functions for libsystem
+dnl
+dnl Version: 20111004
 
 dnl Function to detect if ctime_r or ctime is available
 dnl Also checks how to use ctime_r
-AC_DEFUN([AC_CHECK_FUNC_CTIME],
+AC_DEFUN([AX_LIBSYSTEM_CHECK_FUNC_CTIME],
  [AC_CHECK_FUNCS([ctime_r])
 
  AS_IF(
@@ -86,7 +88,7 @@ AC_DEFUN([AC_CHECK_FUNC_CTIME],
 
 dnl Function to detect if mkdir is available
 dnl Also checks how to use mkdir
-AC_DEFUN([AC_CHECK_FUNC_MKDIR],
+AC_DEFUN([AX_LIBSYSTEM_CHECK_FUNC_MKDIR],
  [AC_CHECK_FUNCS([mkdir])
 
  AS_IF(
@@ -155,7 +157,7 @@ AC_DEFUN([AC_CHECK_FUNC_MKDIR],
  ])
 
 dnl Function to detect if libsystem dependencies are available
-AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
+AC_DEFUN([AX_LIBSYSTEM_CHECK_LOCAL],
  [dnl Types used in libsystem/libsystem_date_time.c
  AC_STRUCT_TM
 
@@ -177,7 +179,8 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
 
  AS_IF(
   [test "x$ac_cv_header_glob_h" = xno],
-  [AC_CHECK_HEADERS([io.h]) ])
+  [AC_CHECK_HEADERS([io.h])
+  ])
 
  dnl Headers included in libsystem/libsystem_signal.h
  AC_CHECK_HEADERS([signal.h sys/signal.h])
@@ -259,7 +262,7 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
   ])
  
  dnl Date and time functions used in libsystem/libsystem_date_time.h
- AC_CHECK_FUNC_CTIME
+ AX_LIBSYSTEM_CHECK_FUNC_CTIME
  
  AC_CHECK_FUNCS([gmtime gmtime_r time])
 
@@ -287,16 +290,17 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
    [1])
   ])
  
- AC_CHECK_FUNC_MKDIR
+ AX_LIBSYSTEM_CHECK_FUNC_MKDIR
  
  dnl Check for error string functions used in libsystem/libsystem_error_string.c
  AC_FUNC_STRERROR_R()
  
  AS_IF(
-  [test "x$ac_cv_have_decl_strerror_r" = xno],
-  [AC_CHECK_FUNCS(
-   [strerror],
-   [],
+  [test "x$ac_cv_have_decl_strerror_r" != xyes],
+  [AC_CHECK_FUNCS([strerror])
+
+  AS_IF(
+   [test "x$ac_cv_func_strerror" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: strerror_r and strerror],
     [1])
@@ -308,5 +312,6 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBSYSTEM],
  
  dnl Check for internationalization functions in libsystem/libsystem_support.c
  AC_CHECK_FUNCS([bindtextdomain textdomain])
+
  ])
 

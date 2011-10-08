@@ -1,7 +1,9 @@
 dnl Functions for libcstring
+dnl
+dnl Version: 20111004
 
 dnl Function to detect whether nl_langinfo supports CODESET
-AC_DEFUN([AC_CHECK_FUNC_LANGINFO_CODESET],
+AC_DEFUN([AX_LIBCSTRING_CHECK_FUNC_LANGINFO_CODESET],
  [AC_CHECK_FUNCS([nl_langinfo])
 
  AS_IF(
@@ -29,7 +31,7 @@ AC_DEFUN([AC_CHECK_FUNC_LANGINFO_CODESET],
  ])
 
 dnl Function to detect if libcstring dependencies are available
-AC_DEFUN([AC_CHECK_LOCAL_LIBCSTRING],
+AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
  [dnl Headers included in libcstring/libcstring_narrow_string.h
  AC_CHECK_HEADERS([stdlib.h string.h])
 
@@ -37,242 +39,216 @@ AC_DEFUN([AC_CHECK_LOCAL_LIBCSTRING],
  AC_CHECK_HEADERS([langinfo.h locale.h])
 
  dnl Check for environment functions in libcstring/libcstring_locale.c
- AC_CHECK_FUNCS(
-  [getenv],
-  [],
+ AC_CHECK_FUNCS([getenv])
+
+ AS_IF(
+  [test "x$ac_cv_func_getenv" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: getenv],
-   [1]) ])
+   [1])
+  ])
  
  dnl Check for localization functions in libcstring/libcstring_locale.c
  AS_IF(
   [test "x$ac_cv_enable_winapi" = xno],
-  [AC_CHECK_FUNCS(
-   [localeconv],
-   [],
+  [AC_CHECK_FUNCS([localeconv])
+
+  AS_IF(
+   [test "x$ac_cv_func_localeconv" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: localeconv],
-    [1]) ]) ])
+    [1])
+   ])
+  ])
  
- AC_CHECK_FUNCS(
-  [setlocale],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: setlocale],
-   [1]) ])
- 
- AC_CHECK_FUNC_LANGINFO_CODESET
- 
- dnl Narrow character string functions used in libcstring/libcstring_narrow_string.h
- AC_CHECK_FUNCS(
-  [fgets],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: fgets],
-   [1]) ])
- 
- AC_CHECK_FUNCS(
-  [memchr],
-  [],
-  [AC_CHECK_FUNCS(
-   [strchr],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: memchr and strchr],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [memcmp],
-  [],
-  [AC_CHECK_FUNCS(
-   [strncmp],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: memcmp and strncmp],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [memcpy],
-  [],
-  [AC_CHECK_FUNCS(
-   [strncpy],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: memcpy and strncpy],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [memrchr],
-  [AC_CHECK_DECLS(
-   [memrchr],
-   [ac_cv_memrchr=yes],
-   [ac_cv_memrchr=no]) ],
-  [ac_cv_memrchr=no])
- 
- AS_IF(
-  [test "x$ac_cv_memrchr" = xno],
-  [AC_CHECK_FUNCS(
-   [strrchr],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: strrchr and memrchr],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [snprintf],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: snprintf],
-   [1]) ])
- 
- AC_CHECK_FUNCS(
-  [sscanf],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: sscanf],
-   [1]) ])
- 
- AC_CHECK_FUNCS(
-  [strlen],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: strlen],
-   [1]) ])
- 
- AC_CHECK_FUNCS(
-  [strncasecmp],
-  [],
-  [AC_CHECK_FUNCS(
-   [strcasecmp],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: strncasecmp and strcasecmp],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [strstr],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: strstr],
-   [1]) ])
- 
- AC_CHECK_FUNCS(
-  [strtoll],
-  [],
-  [AC_CHECK_FUNCS(
-   [atoll],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: strtoll and atoll],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [strtoull],
-  [],
-  [AC_CHECK_FUNCS(
-   [atoll],
-   [],
-   [AC_MSG_FAILURE(
-    [Missing functions: strtoull and atoll],
-    [1]) ]) ])
- 
- AC_CHECK_FUNCS(
-  [vsnprintf],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: vsnprintf],
-   [1]) ])
+ AC_CHECK_FUNCS([setlocale])
 
  AS_IF(
+  [test "x$ac_cv_func_setlocale" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: setlocale],
+   [1])
+  ])
+ 
+ AX_LIBCSTRING_CHECK_FUNC_LANGINFO_CODESET
+ 
+ dnl Narrow character string functions used in libcstring/libcstring_narrow_string.h
+ AC_CHECK_FUNCS([atoll fgets memchr memcmp memcpy memrchr snprintf sscanf strcasecmp strchr strlen strncasecmp strncmp strncpy strrchr strstr strtoll strtoull vsnprintf])
+
+ AS_IF(
+  [test "x$ac_cv_func_fgets" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: fgets],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_memchr" != xyes && test "x$ac_cv_func_strchr" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: memchr and strchr],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_memcmp" != xyes && test "x$ac_cv_func_strncmp" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: memcmp and strncmp],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_memcpy" != xyes && test "x$ac_cv_func_strncpy" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: memcpy and strncpy],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_memrchr" = xyes],
+  [AC_CHECK_DECLS([memrchr])
+
+  AS_IF(
+   [test "x$ac_cv_decl_memrchr" != xyes],
+   [ac_cv_func_memrchr=no])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_memrchr" != xyes && test "x$ac_cv_func_strrchr" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: strrchr and memrchr],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_snprintf" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: snprintf],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_sscanf" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: sscanf],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_strlen" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: strlen],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_strcasecmp" != xyes && test "x$ac_cv_func_strncasecmp" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: strncasecmp and strcasecmp],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_strstr" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: strstr],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_atoll" != xyes && test "x$ac_cv_func_strtoll" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: atoll and strtoll],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_atoll" != xyes && test "x$ac_cv_func_strtoull" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing functions: strtoull and atoll],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_strstr" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: vsnprintf],
+   [1])
+  ])
+
+ dnl Wide character string functions used in libcstring/libcstring_wide_string.h
+ AS_IF(
   [test "x$ac_cv_enable_wide_character_type" != xno],
-  [dnl Wide character string functions used in libcstring/libcstring_wide_string.h
-  AC_CHECK_FUNCS(
-   [swprintf],
-   [],
+  [AC_CHECK_FUNCS([swprintf towlower wcscasecmp wcschr wcslen wcsncasecmp wcsncmp wcsncpy wcsrchr wcsstr wcstoll wcstoull wmemchr wmemcmp wmemcpy wmemrchr])
+
+  AS_IF(
+   [test "x$ac_cv_func_swprintf" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: swprintf],
-    [1]) ])
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wmemchr],
-   [],
-   [AC_CHECK_FUNCS(
-    [wcschr],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemchr and wcschr],
-     [1]) ]) ])
+  AS_IF(
+   [test "x$ac_cv_func_wmemchr" != xyes && test "x$ac_cv_func_wcschr" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemchr and wcschr],
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wmemcmp],
-   [],
-   [AC_CHECK_FUNCS(
-    [wcsncmp],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemcmp and wcsncmp],
-     [1]) ]) ])
+  AS_IF(
+   [test "x$ac_cv_func_wmemcmp" != xyes && test "x$ac_cv_func_wcsncmp" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemcmp and wcsncmp],
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wmemcpy],
-   [],
-   [AC_CHECK_FUNCS(
-    [wcsncpy],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemcpy and wcsncpy],
-     [1]) ]) ])
+  AS_IF(
+   [test "x$ac_cv_func_wmemcpy" != xyes && test "x$ac_cv_func_wcsncpy" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemcpy and wcsncpy],
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wmemrchr],
-   [],
-   [AC_CHECK_FUNCS(
-    [wcsrchr],
-    [],
-    [AC_MSG_FAILURE(
-     [Missing functions: wmemrchr and wcsrchr],
-     [1]) ]) ])
+  AS_IF(
+   [test "x$ac_cv_func_wmemrchr" != xyes && test "x$ac_cv_func_wcsrchr" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing functions: wmemrchr and wcsrchr],
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wcslen],
-   [],
+  AS_IF(
+   [test "x$ac_cv_func_wcslen" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcslen],
-    [1]) ])
+    [1])
+   ])
   
-  AC_CHECK_FUNCS(
-   [wcsncasecmp],
-   [],
-   [AC_CHECK_FUNCS(
-    [wcscasecmp],
-    [],
-    [AC_CHECK_FUNCS(
-     [towlower],
-     [],
-     [AC_MSG_FAILURE(
-      [Missing functions: wcsncasecmp, wcscasecmp and towlower],
-      [1]) ]) ]) ])
+  AS_IF(
+   [test "x$ac_cv_func_wcsncasecmp" != xyes && test "x$ac_cv_func_wcscasecmp" != xyes && test "x$ac_cv_func_towlower" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing functions: wcsncasecmp, wcscasecmp and towlower],
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wcsstr],
-   [],
+  AS_IF(
+   [test "x$ac_cv_func_wcsstr" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcsstr],
-    [1]) ])
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wcstoll],
-   [],
+  AS_IF(
+   [test "x$ac_cv_func_wcstoll" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcstoll],
-    [1]) ])
+    [1])
+   ])
  
-  AC_CHECK_FUNCS(
-   [wcstoull],
-   [],
+  AS_IF(
+   [test "x$ac_cv_func_wcstoull" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcstoull],
-    [1]) ])
+    [1])
+   ])
   ])
  ])
 

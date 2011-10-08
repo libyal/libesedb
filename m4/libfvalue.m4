@@ -1,7 +1,10 @@
 dnl Functions for libfvalue
+dnl
+dnl Version: 20111007
 
 dnl Function to detect if libfvalue available
-AC_DEFUN([AC_CHECK_LIBFVALUE],
+dnl ac_libfvalue_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
+AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
   [test "x$ac_cv_with_libfvalue" != x && test "x$ac_cv_with_libfvalue" != xno && test "x$ac_cv_with_libfvalue" != xauto-detect],
@@ -221,6 +224,58 @@ AC_DEFUN([AC_CHECK_LIBFVALUE],
   [AC_SUBST(
    [HAVE_LIBFVALUE],
    [0])
+  ])
+ ])
+
+dnl Function to detect how to enable libfvalue
+AC_DEFUN([AX_LIBFVALUE_CHECK_ENABLE],
+ [AX_COMMON_ARG_WITH(
+  [libfvalue],
+  [libfvalue],
+  [search for libfvalue in includedir and libdir or in the specified DIR, or no if to use local version],
+  [auto-detect],
+  [DIR])
+
+ AX_LIBFVALUE_CHECK_LIB
+
+ AS_IF(
+  [test "x$ac_cv_libfvalue" != xyes],
+  [AC_DEFINE(
+   [HAVE_LOCAL_LIBFVALUE],
+   [1],
+   [Define to 1 if the local version of libfvalue is used.])
+  AC_SUBST(
+   [HAVE_LOCAL_LIBFVALUE],
+   [1])
+  AC_SUBST(
+   [LIBFVALUE_CPPFLAGS],
+   [-I../libfvalue])
+  AC_SUBST(
+   [LIBFVALUE_LIBADD],
+   [../libfvalue/libfvalue.la])
+
+  ac_cv_libfvalue=local
+  ])
+
+ AM_CONDITIONAL(
+  [HAVE_LOCAL_LIBFVALUE],
+  [test "x$ac_cv_libfvalue" = xlocal])
+
+ AS_IF(
+  [test "x$ac_cv_libfvalue" = xyes],
+  [AC_SUBST(
+   [ax_libfvalue_pc_libs_private],
+   [-lfvalue])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libfvalue" = xyes],
+  [AC_SUBST(
+   [ax_libfvalue_spec_requires],
+   [libfvalue])
+  AC_SUBST(
+   [ax_libfvalue_spec_build_requires],
+   [libfvalue-devel])
   ])
  ])
 

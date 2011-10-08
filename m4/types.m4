@@ -1,7 +1,9 @@
 dnl Functions for type definitions
+dnl
+dnl Version: 20111004
 
 dnl Function to detect if type definitions are available
-AC_DEFUN([AC_CHECK_LOCAL_TYPES],
+AC_DEFUN([AX_TYPES_CHECK_LOCAL],
  [AS_IF(
   [test "x$ac_cv_enable_winapi" = xyes],
   [ac_cv_enable_wide_character_type=yes])

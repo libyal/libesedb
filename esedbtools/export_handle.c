@@ -2126,8 +2126,10 @@ int export_handle_export_record_value(
         libesedb_long_value_t *long_value           = NULL;
         libesedb_multi_value_t *multi_value         = NULL;
 	libfdatetime_filetime_t *filetime           = NULL;
+	uint8_t *binary_data                        = NULL;
 	uint8_t *value_data                         = NULL;
 	static char *function                       = "export_handle_export_record_value";
+	size_t binary_data_size                     = 0;
 	size_t value_data_size                      = 0;
 	size_t value_string_size                    = 0;
 	double value_double                         = 0.0;
@@ -2764,6 +2766,85 @@ int export_handle_export_record_value(
 
 					memory_free(
 					 value_string );
+				}
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
+				result = libesedb_record_get_value_binary_data_size(
+					  record,
+					  record_value_entry,
+					  &binary_data_size,
+					  error );
+
+				if( result == -1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve size of binary data: %d (%" PRIu32 ").",
+					 function,
+					 record_value_entry,
+					 column_identifier );
+
+					return( -1 );
+				}
+				if( result != 0 )
+				{
+					if( binary_data_size == 0 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+						 "%s: missing binary data.",
+						 function );
+
+						return( -1 );
+					}
+					binary_data = (uint8_t *) memory_allocate(
+					                           sizeof( uint8_t ) * binary_data_size  );
+
+					if( binary_data == NULL )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_MEMORY,
+						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create binary data.",
+						 function );
+
+						return( -1 );
+					}
+					result = libesedb_record_get_value_binary_data(
+					          record,
+					          record_value_entry,
+					          binary_data,
+					          binary_data_size,
+					          error );
+
+					if( result != 1 )
+					{
+						liberror_error_set(
+						 error,
+						 LIBERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to retrieve binary data: %d.",
+						 function,
+						 record_value_entry );
+
+						memory_free(
+						 binary_data );
+
+						return( -1 );
+					}
+					export_binary_data(
+					 binary_data,
+					 binary_data_size,
+					 record_file_stream );
+
+					memory_free(
+					 binary_data );
 				}
 				break;
 

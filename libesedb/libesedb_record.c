@@ -2766,10 +2766,15 @@ int libesedb_record_get_value_binary_data_size(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
+	uint8_t *entry_data                                      = NULL;
 	uint8_t *value_data                                      = NULL;
+	uint8_t *value_metadata                                  = NULL;
 	static char *function                                    = "libesedb_record_get_value_binary_data_size";
+	size_t entry_data_size                                   = 0;
+	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_byte_order                                 = 0;
+	uint8_t value_flags                                      = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2861,12 +2866,62 @@ int libesedb_record_get_value_binary_data_size(
 	}
 	else if( result != 0 )
 	{
-		if( libfvalue_value_get_data(
+		/* The metadata contains the value flags
+		 */
+		if( libfvalue_value_get_metadata(
 		     record_value,
-		     &value_data,
-		     binary_data_size,
-		     &value_byte_order,
+		     &value_metadata,
+		     &value_metadata_size,
 		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value metadata: %d.",
+			 function,
+			 value_entry );
+
+			return( -1 );
+		}
+		if( value_metadata != NULL )
+		{
+			value_flags = *value_metadata;
+		}
+		if( ( value_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
+		{
+			if( libfvalue_value_get_entry_data(
+			     record_value,
+			     0,
+			     &entry_data,
+			     &entry_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve record value entry data.",
+				 function );
+
+				return( -1 );
+			}
+			result = libesedb_compression_decompress_get_size(
+			          entry_data,
+			          entry_data_size,
+			          binary_data_size,
+			          error );
+		}
+		else
+		{
+			 result = libfvalue_value_get_data(
+			           record_value,
+			           &value_data,
+			           binary_data_size,
+			           &value_byte_order,
+			           error );
+		}
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,
@@ -2894,8 +2949,13 @@ int libesedb_record_get_value_binary_data(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
+	uint8_t *entry_data                                      = NULL;
+	uint8_t *value_metadata                                  = NULL;
 	static char *function                                    = "libesedb_record_get_value_binary_data";
+	size_t entry_data_size                                   = 0;
+	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
+	uint8_t value_flags                                      = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2987,11 +3047,62 @@ int libesedb_record_get_value_binary_data(
 	}
 	else if( result != 0 )
 	{
-		if( libfvalue_value_copy_data(
+		/* The metadata contains the value flags
+		 */
+		if( libfvalue_value_get_metadata(
 		     record_value,
-		     binary_data,
-		     binary_data_size,
+		     &value_metadata,
+		     &value_metadata_size,
 		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value metadata: %d.",
+			 function,
+			 value_entry );
+
+			return( -1 );
+		}
+		if( value_metadata != NULL )
+		{
+			value_flags = *value_metadata;
+		}
+		if( ( value_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
+		{
+			if( libfvalue_value_get_entry_data(
+			     record_value,
+			     0,
+			     &entry_data,
+			     &entry_data_size,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve record value entry data.",
+				 function );
+
+				return( -1 );
+			}
+			result = libesedb_compression_decompress(
+			          entry_data,
+			          entry_data_size,
+			          binary_data,
+			          binary_data_size,
+			          error );
+		}
+		else
+		{
+			result = libfvalue_value_copy_data(
+			          record_value,
+			          binary_data,
+			          binary_data_size,
+			          error );
+		}
+		if( result != 1 )
 		{
 			liberror_error_set(
 			 error,

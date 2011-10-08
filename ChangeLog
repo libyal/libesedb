@@ -1,4 +1,8 @@
 TODO
+* libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
+* handle compressed values inside the library
+  - compressed binary data
+* check READMEs for EWF
 * esedbexport -t /root creates /root.export ?
 * esedbexport skip table on error
 * check Win2K ntds.dit support
@@ -26,10 +30,6 @@ TODO
   - libesedb_data_type_definition remove offset
 * handle default value
   - need database which uses default value
-* handle compressed values inside the library
-  - 7bit ASCII/Unicode strings (done)
-  - XPRESS compressed data (done)
-  - other
 * error tolerance probe test for the page size using the backup database header
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
@@ -119,6 +119,13 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20111008
+* updated configure.ac and m4 files
+* updated README files
+* updated pc and spec file
+* worked on compressed binary data support
+* updated common, libsystem, libfdatetime
 
 20111002
 * improved space tree leaf page entry support
