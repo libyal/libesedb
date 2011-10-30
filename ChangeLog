@@ -120,6 +120,11 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20111030
+* updated configure.ac and m4 files
+* updated libfdatetime, libfvalue
+* changes for libfvalue
+
 20111008
 * updated configure.ac and m4 files
 * updated README files

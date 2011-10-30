@@ -1,6 +1,6 @@
 dnl Functions for libfdatetime
 dnl
-dnl Version: 20111007
+dnl Version: 20111025
 
 dnl Function to detect if libfdatetime is available
 dnl ac_libfdatetime_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -17,7 +17,8 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
   ])
 
  AS_IF(
-  [test "x$ac_cv_with_libfdatetime" != xno],
+  [test "x$ac_cv_with_libfdatetime" = xno],
+  [ac_cv_libfdatetime=no],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfdatetime.h])
  
@@ -25,9 +26,42 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
    [test "x$ac_cv_header_libfdatetime_h" = xno],
    [ac_cv_libfdatetime=no],
    [ac_cv_libfdatetime=yes
+
    AC_CHECK_LIB(
     fdatetime,
     libfdatetime_get_version,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+  
+   dnl FAT date time functions
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_initialize,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_free,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_copy_from_byte_stream,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_copy_from_uint32,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_copy_to_utf8_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_fat_date_time_copy_to_utf16_string,
     [ac_cv_libfdatetime_dummy=yes],
     [ac_cv_libfdatetime=no])
   
@@ -59,11 +93,80 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
     [ac_cv_libfdatetime=no])
    AC_CHECK_LIB(
     fdatetime,
+    libfdatetime_filetime_copy_to_utf16_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
     libfdatetime_filetime_add,
     [ac_cv_libfdatetime_dummy=yes],
     [ac_cv_libfdatetime=no])
-   ])
+
+   dnl NSF timedate functions
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_initialize,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_free,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_copy_from_byte_stream,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_copy_from_uint64,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_copy_to_utf8_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_nsf_timedate_copy_to_utf16_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+
+   dnl POSIX time functions
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_initialize,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_free,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_copy_from_byte_stream,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_copy_from_uint32,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_copy_to_utf8_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
+   AC_CHECK_LIB(
+    fdatetime,
+    libfdatetime_posix_time_copy_to_utf16_string,
+    [ac_cv_libfdatetime_dummy=yes],
+    [ac_cv_libfdatetime=no])
   ])
+ ])
 
  AS_IF(
   [test "x$ac_cv_libfdatetime" = xyes],

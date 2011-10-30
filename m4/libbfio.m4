@@ -1,9 +1,8 @@
 dnl Functions for libbfio
 dnl
-dnl Version: 20111007
+dnl Version: 20111025
 
 dnl Function to detect if libbfio is available
-dnl ac_libbfio_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
 AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
@@ -17,7 +16,8 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
   ])
 
  AS_IF(
-  [test "x$ac_cv_with_libbfio" != xno],
+  [test "x$ac_cv_with_libbfio" = xno],
+  [ac_cv_libbfio=no],
   [dnl Check for headers
   AC_CHECK_HEADERS([libbfio.h])
  

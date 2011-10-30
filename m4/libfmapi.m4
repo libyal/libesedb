@@ -1,6 +1,6 @@
 dnl Functions for libfmapi
 dnl
-dnl Version: 20111008
+dnl Version: 20111025
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -17,7 +17,8 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
   ])
 
  AS_IF(
-  [test "x$ac_cv_with_libfmapi" != xno],
+  [test "x$ac_cv_with_libfmapi" = xno],
+  [ac_cv_libfmapi=no],
   [dnl Check for headers
   AC_CHECK_HEADERS([libfmapi.h])
  

@@ -1,6 +1,6 @@
 dnl Functions for common
 dnl
-dnl Version: 20111004
+dnl Version: 20111011
 
 dnl Function to test if a certain feature was enabled
 AC_DEFUN([AX_COMMON_ARG_ENABLE],
@@ -71,11 +71,6 @@ AC_DEFUN([AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES],
 
   AC_SUBST(
    [STATIC_LDFLAGS])
-
-  AC_DEFINE(
-   [HAVE_STATIC_EXECUTABLES],
-   [1],
-   [Define if executables should be static compiled.])
 
   ac_cv_enable_static_executables=yes])
  ])

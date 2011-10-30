@@ -796,7 +796,7 @@ int libesedb_values_tree_value_read_record(
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
-	     &libfvalue_value_free_as_value,
+	     (int (*)(intptr_t *, liberror_error_t **)) &libfvalue_value_free_as_value,
 	     error ) != 1 )
 	{
 		liberror_error_set(
@@ -986,7 +986,6 @@ int libesedb_values_tree_value_read_record(
 		if( libfvalue_value_initialize(
 		     &record_value,
 		     record_value_type,
-		     LIBFVALUE_VALUE_FLAG_DATA_MANAGED | LIBFVALUE_VALUE_FLAG_METADATA_MANAGED,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -1046,7 +1045,7 @@ int libesedb_values_tree_value_read_record(
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
 				     column_catalog_definition->size,
 				     LIBFVALUE_ENDIAN_LITTLE,
-				     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
+				     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 				     error ) != 1 )
 				{
 					liberror_error_set(
@@ -1118,7 +1117,7 @@ int libesedb_values_tree_value_read_record(
 						     &( record_data[ variable_size_data_type_value_offset ] ),
 						     variable_size_data_type_size - previous_variable_size_data_type_size,
 						     LIBFVALUE_ENDIAN_LITTLE,
-						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
+						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1214,7 +1213,7 @@ int libesedb_values_tree_value_read_record(
 						     record_value,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     1,
-						     LIBFVALUE_VALUE_METADATA_FLAG_NON_MANAGED,
+						     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1270,7 +1269,7 @@ int libesedb_values_tree_value_read_record(
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
 						     LIBFVALUE_ENDIAN_LITTLE,
-						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
+						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
@@ -1513,7 +1512,7 @@ int libesedb_values_tree_value_read_record(
 							     record_value,
 							     &( record_data[ tagged_data_type_value_offset ] ),
 							     1,
-							     LIBFVALUE_VALUE_METADATA_FLAG_NON_MANAGED,
+							     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
 							     error ) != 1 )
 							{
 								liberror_error_set(
@@ -1559,7 +1558,7 @@ int libesedb_values_tree_value_read_record(
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
 						     LIBFVALUE_ENDIAN_LITTLE,
-						     LIBFVALUE_VALUE_DATA_FLAG_NON_MANAGED,
+						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
 							liberror_error_set(
