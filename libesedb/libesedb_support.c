@@ -105,6 +105,8 @@ int libesedb_set_codepage(
 	 && ( codepage != LIBESEDB_CODEPAGE_KOI8_R )
 	 && ( codepage != LIBESEDB_CODEPAGE_KOI8_U )
 	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_874 )
+	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_932 )
+	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_936 )
 	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_1250 )
 	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_1251 )
 	 && ( codepage != LIBESEDB_CODEPAGE_WINDOWS_1252 )

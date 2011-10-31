@@ -251,7 +251,6 @@ int esedbinput_determine_ascii_codepage(
 					*ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_874;
 					result          = 1;
 				}
-#ifdef TODO_WINDOWS_932_SUPPORT
 				else if( libcstring_system_string_compare(
 				          &( string[ 8 ] ),
 				          _LIBCSTRING_SYSTEM_STRING( "932" ),
@@ -260,7 +259,6 @@ int esedbinput_determine_ascii_codepage(
 					*ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_932;
 					result          = 1;
 				}
-#endif
 				else if( libcstring_system_string_compare(
 				          &( string[ 8 ] ),
 				          _LIBCSTRING_SYSTEM_STRING( "936" ),

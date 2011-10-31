@@ -15,5 +15,12 @@ LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i386" \
 make
 make install
 
+E.g. on Mac OS X 10.6 to build an Intel 32-bit and 64-bit multi binary, run the following commands:
+CFLAGS="-isysroot /Developer/SDKs/MacOSX10.6.sdk -arch x86_64 -arch i386" \
+LDFLAGS="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.6.sdk -arch x86_64 -arch i386" \
+./configure --disable-dependency-tracking --prefix=$PWD/macosx/tmp/
+make
+make install
+
 The binaries are installed in $PWD/macosx/tmp/
 
