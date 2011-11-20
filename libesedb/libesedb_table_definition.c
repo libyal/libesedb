@@ -52,6 +52,17 @@ int libesedb_table_definition_initialize(
 
 		return( -1 );
 	}
+	if( *table_definition != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table definition value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( table_catalog_definition == NULL )
 	{
 		liberror_error_set(
@@ -75,69 +86,67 @@ int libesedb_table_definition_initialize(
 
 		return( -1 );
 	}
+	*table_definition = memory_allocate_structure(
+	                     libesedb_table_definition_t );
+
 	if( *table_definition == NULL )
 	{
-		*table_definition = memory_allocate_structure(
-		                     libesedb_table_definition_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create table definition.",
+		 function );
 
-		if( *table_definition == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create table definition.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     *table_definition,
-		     0,
-		     sizeof( libesedb_table_definition_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear table definition.",
-			 function );
-
-			memory_free(
-			 *table_definition );
-
-			*table_definition = NULL;
-
-			return( -1 );
-		}
-		if( libesedb_list_initialize(
-		     &( ( *table_definition )->column_catalog_definition_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create column catalog definition list.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_list_initialize(
-		     &( ( *table_definition )->index_catalog_definition_list ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index catalog definition list.",
-			 function );
-
-			goto on_error;
-		}
-		( *table_definition )->table_catalog_definition = table_catalog_definition;
+		goto on_error;
 	}
+	if( memory_set(
+	     *table_definition,
+	     0,
+	     sizeof( libesedb_table_definition_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear table definition.",
+		 function );
+
+		memory_free(
+		 *table_definition );
+
+		*table_definition = NULL;
+
+		return( -1 );
+	}
+	if( libesedb_list_initialize(
+	     &( ( *table_definition )->column_catalog_definition_list ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create column catalog definition list.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_list_initialize(
+	     &( ( *table_definition )->index_catalog_definition_list ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index catalog definition list.",
+		 function );
+
+		goto on_error;
+	}
+	( *table_definition )->table_catalog_definition = table_catalog_definition;
+
 	return( 1 );
 
 on_error:
@@ -162,7 +171,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_table_definition_free(
-     intptr_t *table_definition,
+     libesedb_table_definition_t **table_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_free";
@@ -179,85 +188,89 @@ int libesedb_table_definition_free(
 
 		return( -1 );
 	}
-	if( ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition != NULL )
+	if( *table_definition != NULL )
 	{
-		if( libesedb_catalog_definition_free(
-		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->table_catalog_definition,
+		if( ( *table_definition )->table_catalog_definition != NULL )
+		{
+			if( libesedb_catalog_definition_free(
+			     &( ( *table_definition )->table_catalog_definition ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free table catalog definition.",
+				 function );
+
+				result = -1;
+			}
+		}
+		if( ( *table_definition )->long_value_catalog_definition != NULL )
+		{
+			if( libesedb_catalog_definition_free(
+			     &( ( *table_definition )->long_value_catalog_definition ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long value catalog definition.",
+				 function );
+
+				result = -1;
+			}
+		}
+		if( ( *table_definition )->callback_catalog_definition != NULL )
+		{
+			if( libesedb_catalog_definition_free(
+			     &( ( *table_definition )->callback_catalog_definition ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free callback catalog definition.",
+				 function );
+
+				result = -1;
+			}
+		}
+		if( libesedb_list_free(
+		     &( ( *table_definition )->column_catalog_definition_list ),
+		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table catalog definition.",
+			 "%s: unable to free column catalog definition list.",
 			 function );
 
 			result = -1;
 		}
-	}
-	if( ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition != NULL )
-	{
-		if( libesedb_catalog_definition_free(
-		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->long_value_catalog_definition,
+		if( libesedb_list_free(
+		     &( ( *table_definition )->index_catalog_definition_list ),
+		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value catalog definition.",
+			 "%s: unable to free index catalog definition list.",
 			 function );
 
 			result = -1;
 		}
-	}
-	if( ( (libesedb_table_definition_t *) table_definition )->callback_catalog_definition != NULL )
-	{
-		if( libesedb_catalog_definition_free(
-		     (intptr_t *) ( (libesedb_table_definition_t *) table_definition )->callback_catalog_definition,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free callback catalog definition.",
-			 function );
+		memory_free(
+		 *table_definition );
 
-			result = -1;
-		}
+		*table_definition = NULL;
 	}
-	if( libesedb_list_free(
-	     &( ( (libesedb_table_definition_t *) table_definition )->column_catalog_definition_list ),
-	     &libesedb_catalog_definition_free,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free column catalog definition list.",
-		 function );
-
-		result = -1;
-	}
-	if( libesedb_list_free(
-	     &( ( (libesedb_table_definition_t *) table_definition )->index_catalog_definition_list ),
-	     &libesedb_catalog_definition_free,
-	     error ) != 1 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free index catalog definition list.",
-		 function );
-
-		result = -1;
-	}
-	memory_free(
-	table_definition );
-
 	return( result );
 }
 

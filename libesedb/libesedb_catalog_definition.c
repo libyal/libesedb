@@ -59,36 +59,44 @@ int libesedb_catalog_definition_initialize(
 
 		return( -1 );
 	}
+	if( *catalog_definition != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid catalog definition value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*catalog_definition = memory_allocate_structure(
+	                       libesedb_catalog_definition_t );
+
 	if( *catalog_definition == NULL )
 	{
-		*catalog_definition = memory_allocate_structure(
-		                       libesedb_catalog_definition_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create catalog definition.",
+		 function );
 
-		if( *catalog_definition == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create catalog definition.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *catalog_definition,
+	     0,
+	     sizeof( libesedb_catalog_definition_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear catalog definition.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *catalog_definition,
-		     0,
-		     sizeof( libesedb_catalog_definition_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear catalog definition.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -107,7 +115,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_catalog_definition_free(
-     intptr_t *catalog_definition,
+     libesedb_catalog_definition_t **catalog_definition,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_free";
@@ -123,31 +131,35 @@ int libesedb_catalog_definition_free(
 
 		return( -1 );
 	}
-	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->name != NULL )
+	if( *catalog_definition != NULL )
 	{
-		memory_free(
-		 ( (libesedb_catalog_definition_t *) catalog_definition )->name );
-	}
+		if( ( *catalog_definition )->name != NULL )
+		{
+			memory_free(
+			 ( *catalog_definition )->name );
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->name_string != NULL )
-	{
-		memory_free(
-		 ( (libesedb_catalog_definition_t *) catalog_definition )->name_string );
-	}
+		if( ( *catalog_definition )->name_string != NULL )
+		{
+			memory_free(
+			 ( *catalog_definition )->name_string );
+		}
 #endif
-	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->template_name != NULL )
-	{
+		if( ( *catalog_definition )->template_name != NULL )
+		{
+			memory_free(
+			 ( *catalog_definition )->template_name );
+		}
+		if( ( *catalog_definition )->default_value != NULL )
+		{
+			memory_free(
+			 ( *catalog_definition )->default_value );
+		}
 		memory_free(
-		 ( (libesedb_catalog_definition_t *) catalog_definition )->template_name );
-	}
-	if( ( ( libesedb_catalog_definition_t *) catalog_definition )->default_value != NULL )
-	{
-		memory_free(
-		 ( (libesedb_catalog_definition_t *) catalog_definition )->default_value );
-	}
-	memory_free(
-	 catalog_definition );
+		 *catalog_definition );
 
+		*catalog_definition = NULL;
+	}
 	return( 1 );
 }
 

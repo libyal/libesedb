@@ -68,6 +68,17 @@ int libesedb_long_value_initialize(
 
 		return( -1 );
 	}
+	if( *long_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid long value value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( column_catalog_definition == NULL )
 	{
 		liberror_error_set(
@@ -114,112 +125,163 @@ int libesedb_long_value_initialize(
 
 		return( -1 );
 	}
-	if( *long_value == NULL )
+	internal_long_value = memory_allocate_structure(
+	                       libesedb_internal_long_value_t );
+
+	if( internal_long_value == NULL )
 	{
-		internal_long_value = memory_allocate_structure(
-		                       libesedb_internal_long_value_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create long value.",
+		 function );
 
-		if( internal_long_value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create long value.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     internal_long_value,
+	     0,
+	     sizeof( libesedb_internal_long_value_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear long value.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_long_value,
-		     0,
-		     sizeof( libesedb_internal_long_value_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear long value.",
-			 function );
+		memory_free(
+		 internal_long_value );
 
-			goto on_error;
-		}
-		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-		{
-			internal_long_value->file_io_handle = file_io_handle;
-		}
-		else
-		{
-			if( libbfio_handle_clone(
-			     &( internal_long_value->file_io_handle ),
-			     file_io_handle,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-			if( libbfio_handle_set_open_on_demand(
-			     internal_long_value->file_io_handle,
-			     1,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to set open on demand in file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( libfdata_block_initialize(
-		     &( internal_long_value->data_block ),
-		     NULL,
-		     NULL,
-		     NULL,
-		     &libfdata_block_read_segment_data,
-		     0,
+		return( -1 );
+	}
+	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+	{
+		internal_long_value->file_io_handle = file_io_handle;
+	}
+	else
+	{
+		if( libbfio_handle_clone(
+		     &( internal_long_value->file_io_handle ),
+		     file_io_handle,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create data block.",
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy file IO handle.",
 			 function );
 
 			goto on_error;
 		}
-		if( libfdata_cache_initialize(
-		     &( internal_long_value->data_cache ),
-		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create data cache.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_values_tree_get_value_by_key(
-		     long_values_tree,
+		if( libbfio_handle_set_open_on_demand(
 		     internal_long_value->file_io_handle,
-		     long_values_cache,
-		     long_value_key,
-		     long_value_key_size,
-		     &values_tree_value,
-		     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
+		     1,
 		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to set open on demand in file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libfdata_block_initialize(
+	     &( internal_long_value->data_block ),
+	     NULL,
+	     NULL,
+	     NULL,
+	     &libfdata_block_read_segment_data,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data block.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_cache_initialize(
+	     &( internal_long_value->data_cache ),
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data cache.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_values_tree_get_value_by_key(
+	     long_values_tree,
+	     internal_long_value->file_io_handle,
+	     long_values_cache,
+	     long_value_key,
+	     long_value_key_size,
+	     &values_tree_value,
+	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve values tree value.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_values_tree_value_read_long_value(
+	     values_tree_value,
+	     internal_long_value->file_io_handle,
+	     long_values_pages_vector,
+	     long_values_pages_cache,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read values tree value long value.",
+		 function );
+
+		goto on_error;
+	}
+	/* Reverse the reversed-key
+	 */
+	long_value_segment_key[ 0 ] = long_value_key[ 3 ];
+	long_value_segment_key[ 1 ] = long_value_key[ 2 ];
+	long_value_segment_key[ 2 ] = long_value_key[ 1 ];
+	long_value_segment_key[ 3 ] = long_value_key[ 0 ];
+
+	do
+	{
+		byte_stream_copy_from_uint32_big_endian(
+		 &( long_value_segment_key[ 4 ] ),
+		 long_value_segment_offset );
+
+		result = libesedb_values_tree_get_value_by_key(
+			  long_values_tree,
+			  internal_long_value->file_io_handle,
+			  long_values_cache,
+			  long_value_segment_key,
+			  8,
+			  &values_tree_value,
+			  0,
+			  error );
+
+		if( result == -1 )
 		{
 			liberror_error_set(
 			 error,
@@ -230,87 +292,37 @@ int libesedb_long_value_initialize(
 
 			goto on_error;
 		}
-		if( libesedb_values_tree_value_read_long_value(
-		     values_tree_value,
-		     internal_long_value->file_io_handle,
-		     long_values_pages_vector,
-		     long_values_pages_cache,
-		     error ) != 1 )
+		else if( result != 0 )
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read values tree value long value.",
-			 function );
-
-			goto on_error;
-		}
-		/* Reverse the reversed-key
-		 */
-		long_value_segment_key[ 0 ] = long_value_key[ 3 ];
-		long_value_segment_key[ 1 ] = long_value_key[ 2 ];
-		long_value_segment_key[ 2 ] = long_value_key[ 1 ];
-		long_value_segment_key[ 3 ] = long_value_key[ 0 ];
-
-		do
-		{
-			byte_stream_copy_from_uint32_big_endian(
-			 &( long_value_segment_key[ 4 ] ),
-			 long_value_segment_offset );
-
-			result = libesedb_values_tree_get_value_by_key(
-			          long_values_tree,
-			          internal_long_value->file_io_handle,
-			          long_values_cache,
-			          long_value_segment_key,
-			          8,
-			          &values_tree_value,
-			          0,
-			          error );
-
-			if( result == -1 )
+			if( libesedb_values_tree_value_read_long_value_segment(
+			     values_tree_value,
+			     internal_long_value->file_io_handle,
+			     io_handle,
+			     long_values_pages_vector,
+			     long_values_pages_cache,
+			     long_value_segment_offset,
+			     internal_long_value->data_block,
+			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve values tree value.",
+				 LIBERROR_ERROR_DOMAIN_IO,
+				 LIBERROR_IO_ERROR_READ_FAILED,
+				 "%s: unable to read values tree value long value.",
 				 function );
 
 				goto on_error;
 			}
-			else if( result != 0 )
-			{
-				if( libesedb_values_tree_value_read_long_value_segment(
-				     values_tree_value,
-				     internal_long_value->file_io_handle,
-				     io_handle,
-				     long_values_pages_vector,
-				     long_values_pages_cache,
-				     long_value_segment_offset,
-				     internal_long_value->data_block,
-				     error ) != 1 )
-				{
-					liberror_error_set(
-					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_READ_FAILED,
-					 "%s: unable to read values tree value long value.",
-					 function );
-
-					goto on_error;
-				}
-				long_value_segment_offset += values_tree_value->data_size;
-			}
+			long_value_segment_offset += values_tree_value->data_size;
 		}
-		while( result == 1 );
-
-		internal_long_value->column_catalog_definition = column_catalog_definition;
-		internal_long_value->flags                     = flags;
-
-		*long_value = (libesedb_long_value_t *) internal_long_value;
 	}
+	while( result == 1 );
+
+	internal_long_value->column_catalog_definition = column_catalog_definition;
+	internal_long_value->flags                     = flags;
+
+	*long_value = (libesedb_long_value_t *) internal_long_value;
+
 	return( 1 );
 
 on_error:

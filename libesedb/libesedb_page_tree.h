@@ -77,7 +77,7 @@ int libesedb_page_tree_initialize(
      liberror_error_t **error );
 
 int libesedb_page_tree_free(
-     intptr_t *page_tree,
+     libesedb_page_tree_t **page_tree,
      liberror_error_t **error );
 
 int libesedb_page_tree_read_root_page(

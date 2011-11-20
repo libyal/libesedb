@@ -1,9 +1,9 @@
 dnl Functions for libmapidb
 dnl
-dnl Version: 20111030
+dnl Version: 20111120
 
 dnl Function to detect if libmapidb is available
-AC_DEFUN([AC_CHECK_LIBMAPIDB],
+AC_DEFUN([AX_LIBMAPIDB_CHECK_LIB],
  [dnl Check if parameters were provided
  AS_IF(
   [test "x$ac_cv_with_libmapidb" != x && test "x$ac_cv_with_libmapidb" != xno && test "x$ac_cv_with_libmapidb" != xauto-detect],

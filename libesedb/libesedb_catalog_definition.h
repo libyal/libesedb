@@ -103,7 +103,7 @@ int libesedb_catalog_definition_initialize(
      liberror_error_t **error );
 
 int libesedb_catalog_definition_free(
-     intptr_t *catalog_definition,
+     libesedb_catalog_definition_t **catalog_definition,
      liberror_error_t **error );
 
 int libesedb_catalog_definition_read(

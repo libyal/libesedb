@@ -68,36 +68,44 @@ int libesedb_values_tree_value_initialize(
 
 		return( -1 );
 	}
+	if( *values_tree_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid values tree value value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*values_tree_value = memory_allocate_structure(
+	                      libesedb_values_tree_value_t );
+
 	if( *values_tree_value == NULL )
 	{
-		*values_tree_value = memory_allocate_structure(
-		                      libesedb_values_tree_value_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create values tree value.",
+		 function );
 
-		if( *values_tree_value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create values tree value.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *values_tree_value,
+	     0,
+	     sizeof( libesedb_values_tree_value_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear values tree value.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *values_tree_value,
-		     0,
-		     sizeof( libesedb_values_tree_value_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear values tree value.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -116,11 +124,10 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_values_tree_value_free(
-     intptr_t *values_tree_value,
+     libesedb_values_tree_value_t **values_tree_value,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_values_tree_value_free";
-	int result            = 1;
 
 	if( values_tree_value == NULL )
 	{
@@ -133,15 +140,19 @@ int libesedb_values_tree_value_free(
 
 		return( -1 );
 	}
-	if( ( ( libesedb_values_tree_value_t *) values_tree_value )->key != NULL )
+	if( *values_tree_value != NULL )
 	{
+		if( ( *values_tree_value )->key != NULL )
+		{
+			memory_free(
+			 ( *values_tree_value )->key );
+		}
 		memory_free(
-		 ( (libesedb_values_tree_value_t *) values_tree_value )->key );
-	}
-	memory_free(
-	 values_tree_value );
+		 *values_tree_value );
 
-	return( result );
+		*values_tree_value = NULL;
+	}
+	return( 1 );
 }
 
 /* Sets the common part of the key in the values tree value
@@ -796,7 +807,7 @@ int libesedb_values_tree_value_read_record(
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
-	     (int (*)(intptr_t *, liberror_error_t **)) &libfvalue_value_free_as_value,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libfvalue_value_free,
 	     error ) != 1 )
 	{
 		liberror_error_set(

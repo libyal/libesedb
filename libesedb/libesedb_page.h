@@ -119,7 +119,7 @@ int libesedb_page_value_initialize(
      liberror_error_t **error );
 
 int libesedb_page_value_free(
-     intptr_t *page_value,
+     libesedb_page_value_t **page_value,
      liberror_error_t **error );
 
 int libesedb_page_tags_value_initialize(
@@ -127,7 +127,7 @@ int libesedb_page_tags_value_initialize(
      liberror_error_t **error );
 
 int libesedb_page_tags_value_free(
-     intptr_t *page_tags_value,
+     libesedb_page_tags_value_t **page_tags_value,
      liberror_error_t **error );
 
 int libesedb_page_initialize(
@@ -135,7 +135,7 @@ int libesedb_page_initialize(
      liberror_error_t **error );
 
 int libesedb_page_free(
-     intptr_t *page,
+     libesedb_page_t **page,
      liberror_error_t **error );
 
 int libesedb_page_read(

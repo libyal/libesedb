@@ -51,36 +51,44 @@ int libesedb_database_initialize(
 
 		return( -1 );
 	}
+	if( *database != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid database value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*database = memory_allocate_structure(
+	             libesedb_database_t );
+
 	if( *database == NULL )
 	{
-		*database = memory_allocate_structure(
-		             libesedb_database_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create database.",
+		 function );
 
-		if( *database == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create database.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     ( *database ),
+	     0,
+	     sizeof( libesedb_database_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear database.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     ( *database ),
-		     0,
-		     sizeof( libesedb_database_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear database.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -183,7 +191,7 @@ int libesedb_database_read(
 	if( libfdata_tree_initialize(
 	     &database_values_tree,
 	     (intptr_t *) database_page_tree,
-	     &libesedb_page_tree_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     &libesedb_page_tree_read_node_value,
 	     &libesedb_page_tree_read_sub_nodes,
@@ -370,7 +378,7 @@ on_error:
 	if( database_page_tree != NULL )
 	{
 		libesedb_page_tree_free(
-		 (intptr_t *) database_page_tree,
+		 &database_page_tree,
 		 NULL );
 	}
 	return( -1 );

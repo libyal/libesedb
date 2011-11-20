@@ -65,7 +65,7 @@ int libesedb_table_definition_initialize(
      liberror_error_t **error );
 
 int libesedb_table_definition_free(
-     intptr_t *table_definition,
+     libesedb_table_definition_t **table_definition,
      liberror_error_t **error );
 
 int libesedb_table_definition_set_long_value_catalog_definition(

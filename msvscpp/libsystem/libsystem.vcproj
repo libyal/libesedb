@@ -157,6 +157,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libsystem\libsystem_directory.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libsystem\libsystem_error_string.c"
 				>
 			</File>
@@ -216,10 +220,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libsystem\libsystem_directory.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_directory_io.h"
 				>
 			</File>
 			<File

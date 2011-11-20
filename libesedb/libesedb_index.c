@@ -72,6 +72,17 @@ int libesedb_index_initialize(
 
 		return( -1 );
 	}
+	if( *index != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid index value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( table_definition == NULL )
 	{
 		liberror_error_set(
@@ -106,168 +117,166 @@ int libesedb_index_initialize(
 
 		return( -1 );
 	}
-	if( *index == NULL )
+	internal_index = memory_allocate_structure(
+	                  libesedb_internal_index_t );
+
+	if( internal_index == NULL )
 	{
-		internal_index = memory_allocate_structure(
-		                  libesedb_internal_index_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create index.",
+		 function );
 
-		if( internal_index == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create index.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_index,
-		     0,
-		     sizeof( libesedb_internal_index_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear index.",
-			 function );
-
-			memory_free(
-			 internal_index );
-
-			return( -1 );
-		}
-		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-		{
-			internal_index->file_io_handle = file_io_handle;
-		}
-		else
-		{
-			if( libbfio_handle_clone(
-			     &( internal_index->file_io_handle ),
-			     file_io_handle,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-			if( libbfio_handle_set_open_on_demand(
-			     internal_index->file_io_handle,
-			     1,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to set open on demand in file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		/* TODO (template) table definition required ? */
-
-		if( libesedb_page_tree_initialize(
-		     &index_page_tree,
-		     io_handle,
-		     pages_vector,
-		     pages_cache,
-		     index_catalog_definition->identifier,
-		     NULL,
-		     NULL,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index page tree.",
-			 function );
-
-			goto on_error;
-		}
-		/* TODO clone function
-		 */
-		if( libfdata_tree_initialize(
-		     &( internal_index->index_values_tree ),
-		     (intptr_t *) index_page_tree,
-		     &libesedb_page_tree_free,
-		     NULL,
-		     &libesedb_page_tree_read_node_value,
-		     &libesedb_page_tree_read_sub_nodes,
-		     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index values tree.",
-			 function );
-
-			libesedb_page_tree_free(
-			 (intptr_t *) index_page_tree,
-			 NULL );
-
-			goto on_error;
-		}
-		if( libfdata_cache_initialize(
-		     &( internal_index->index_values_cache ),
-		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create index values cache.",
-			 function );
-
-			goto on_error;
-		}
-		node_data_offset  = index_catalog_definition->father_data_page_number - 1;
-		node_data_offset *= io_handle->page_size;
-
-		if( libfdata_tree_set_root_node(
-		     internal_index->index_values_tree,
-		     node_data_offset,
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set root node in index values tree.",
-			 function );
-
-			goto on_error;
-		}
-		internal_index->io_handle                 = io_handle;
-		internal_index->table_definition          = table_definition;
-		internal_index->template_table_definition = template_table_definition;
-		internal_index->index_catalog_definition  = index_catalog_definition;
-		internal_index->pages_vector              = pages_vector;
-		internal_index->pages_cache               = pages_cache;
-		internal_index->long_values_pages_vector  = long_values_pages_vector;
-		internal_index->long_values_pages_cache   = long_values_pages_cache;
-		internal_index->table_values_tree         = table_values_tree;
-		internal_index->table_values_cache        = table_values_cache;
-		internal_index->long_values_tree          = long_values_tree;
-		internal_index->long_values_cache         = long_values_cache;
-		internal_index->flags                     = flags;
-
-		*index = (libesedb_index_t *) internal_index;
+		goto on_error;
 	}
+	if( memory_set(
+	     internal_index,
+	     0,
+	     sizeof( libesedb_internal_index_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear index.",
+		 function );
+
+		memory_free(
+		 internal_index );
+
+		return( -1 );
+	}
+	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+	{
+		internal_index->file_io_handle = file_io_handle;
+	}
+	else
+	{
+		if( libbfio_handle_clone(
+		     &( internal_index->file_io_handle ),
+		     file_io_handle,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+		if( libbfio_handle_set_open_on_demand(
+		     internal_index->file_io_handle,
+		     1,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to set open on demand in file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	/* TODO (template) table definition required ? */
+
+	if( libesedb_page_tree_initialize(
+	     &index_page_tree,
+	     io_handle,
+	     pages_vector,
+	     pages_cache,
+	     index_catalog_definition->identifier,
+	     NULL,
+	     NULL,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index page tree.",
+		 function );
+
+		goto on_error;
+	}
+	/* TODO clone function
+	 */
+	if( libfdata_tree_initialize(
+	     &( internal_index->index_values_tree ),
+	     (intptr_t *) index_page_tree,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+	     NULL,
+	     &libesedb_page_tree_read_node_value,
+	     &libesedb_page_tree_read_sub_nodes,
+	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values tree.",
+		 function );
+
+		libesedb_page_tree_free(
+		 &index_page_tree,
+		 NULL );
+
+		goto on_error;
+	}
+	if( libfdata_cache_initialize(
+	     &( internal_index->index_values_cache ),
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create index values cache.",
+		 function );
+
+		goto on_error;
+	}
+	node_data_offset  = index_catalog_definition->father_data_page_number - 1;
+	node_data_offset *= io_handle->page_size;
+
+	if( libfdata_tree_set_root_node(
+	     internal_index->index_values_tree,
+	     node_data_offset,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set root node in index values tree.",
+		 function );
+
+		goto on_error;
+	}
+	internal_index->io_handle                 = io_handle;
+	internal_index->table_definition          = table_definition;
+	internal_index->template_table_definition = template_table_definition;
+	internal_index->index_catalog_definition  = index_catalog_definition;
+	internal_index->pages_vector              = pages_vector;
+	internal_index->pages_cache               = pages_cache;
+	internal_index->long_values_pages_vector  = long_values_pages_vector;
+	internal_index->long_values_pages_cache   = long_values_pages_cache;
+	internal_index->table_values_tree         = table_values_tree;
+	internal_index->table_values_cache        = table_values_cache;
+	internal_index->long_values_tree          = long_values_tree;
+	internal_index->long_values_cache         = long_values_cache;
+	internal_index->flags                     = flags;
+
+	*index = (libesedb_index_t *) internal_index;
+
 	return( 1 );
 
 on_error:

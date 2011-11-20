@@ -28,6 +28,7 @@
 #include "libesedb_list_type.h"
 
 /* Creates a list element
+ * Make sure the value element is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_list_element_initialize(
@@ -47,36 +48,44 @@ int libesedb_list_element_initialize(
 
 		return( -1 );
 	}
+	if( *element != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid element value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*element = memory_allocate_structure(
+	            libesedb_list_element_t );
+
 	if( *element == NULL )
 	{
-		*element = memory_allocate_structure(
-		            libesedb_list_element_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create list element.",
+		 function );
 
-		if( *element == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create list element.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *element,
+	     0,
+	     sizeof( libesedb_list_element_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear list element.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *element,
-		     0,
-		     sizeof( libesedb_list_element_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear list element.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -98,7 +107,7 @@ on_error:
 int libesedb_list_element_free(
      libesedb_list_element_t **element,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error )
 {
@@ -133,7 +142,7 @@ int libesedb_list_element_free(
 		if( value_free_function != NULL )
 		{
 			if( value_free_function(
-			     ( *element )->value,
+			     &( ( *element )->value ),
 			     error ) != 1 )
 			{
 				liberror_error_set(
@@ -218,6 +227,7 @@ int libesedb_list_element_set_value(
 }
 
 /* Creates a list
+ * Make sure the value list is pointing to is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_list_initialize(
@@ -237,36 +247,44 @@ int libesedb_list_initialize(
 
 		return( -1 );
 	}
+	if( *list != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid list value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*list = memory_allocate_structure(
+	         libesedb_list_t );
+
 	if( *list == NULL )
 	{
-		*list = memory_allocate_structure(
-		         libesedb_list_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create list.",
+		 function );
 
-		if( *list == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create list.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *list,
+	     0,
+	     sizeof( libesedb_list_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear list.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *list,
-		     0,
-		     sizeof( libesedb_list_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear list.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 
@@ -288,7 +306,7 @@ on_error:
 int libesedb_list_free(
      libesedb_list_t **list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error )
 {
@@ -337,7 +355,7 @@ int libesedb_list_free(
 int libesedb_list_empty(
      libesedb_list_t *list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error )
 {
@@ -425,7 +443,7 @@ int libesedb_list_clone(
      libesedb_list_t **destination_list,
      libesedb_list_t *source_list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,
@@ -570,7 +588,7 @@ on_error:
 	if( destination_value != NULL )
 	{
 		value_free_function(
-		 destination_value,
+		 &destination_value,
 		 NULL );
 	}
 	if( *destination_list != NULL )

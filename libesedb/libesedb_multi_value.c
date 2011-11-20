@@ -55,6 +55,17 @@ int libesedb_multi_value_initialize(
 
 		return( -1 );
 	}
+	if( *multi_value != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid multi value value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( column_catalog_definition == NULL )
 	{
 		liberror_error_set(
@@ -77,41 +88,39 @@ int libesedb_multi_value_initialize(
 
 		return( -1 );
 	}
-	if( *multi_value == NULL )
+	internal_multi_value = memory_allocate_structure(
+	                        libesedb_internal_multi_value_t );
+
+	if( internal_multi_value == NULL )
 	{
-		internal_multi_value = memory_allocate_structure(
-		                        libesedb_internal_multi_value_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create internal multi value.",
+		 function );
 
-		if( internal_multi_value == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create internal multi value.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_multi_value,
-		     0,
-		     sizeof( libesedb_internal_multi_value_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear internal multi value.",
-			 function );
-
-			goto on_error;
-		}
-		internal_multi_value->column_catalog_definition = column_catalog_definition;
-		internal_multi_value->record_value              = record_value;
-
-		*multi_value = (libesedb_multi_value_t *) internal_multi_value;
+		goto on_error;
 	}
+	if( memory_set(
+	     internal_multi_value,
+	     0,
+	     sizeof( libesedb_internal_multi_value_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear internal multi value.",
+		 function );
+
+		goto on_error;
+	}
+	internal_multi_value->column_catalog_definition = column_catalog_definition;
+	internal_multi_value->record_value              = record_value;
+
+	*multi_value = (libesedb_multi_value_t *) internal_multi_value;
+
 	return( 1 );
 
 on_error:

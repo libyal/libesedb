@@ -120,6 +120,13 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20111120
+* code clean up
+* updated array type, list type
+* updated libcstring, libsystem, libfdata, libfdatetime, libfguid, libfvalue,
+  libfmapi, libfwnt
+* removed restriction that page tree header should consists of 0-byte values
+
 20111031
 * updated README.macosx
 * updated libcstring, libsystem, libuna, libbfio, libfdatetime, libfvalue

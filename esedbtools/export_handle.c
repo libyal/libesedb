@@ -60,53 +60,62 @@ int export_handle_initialize(
 
 		return( -1 );
 	}
+	if( *export_handle != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid export handle value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*export_handle = memory_allocate_structure(
+	                  export_handle_t );
+
 	if( *export_handle == NULL )
 	{
-		*export_handle = memory_allocate_structure(
-		                  export_handle_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create export handle.",
+		 function );
 
-		if( *export_handle == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create export handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     *export_handle,
-		     0,
-		     sizeof( export_handle_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear export handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_file_initialize(
-		     &( ( *export_handle )->input_file ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize input file.",
-			 function );
-
-			goto on_error;
-		}
-		( *export_handle )->export_mode    = EXPORT_MODE_TABLES;
-		( *export_handle )->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
-		( *export_handle )->notify_stream  = EXPORT_HANDLE_NOTIFY_STREAM;
+		goto on_error;
 	}
+	if( memory_set(
+	     *export_handle,
+	     0,
+	     sizeof( export_handle_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear export handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_file_initialize(
+	     &( ( *export_handle )->input_file ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input file.",
+		 function );
+
+		goto on_error;
+	}
+	( *export_handle )->export_mode    = EXPORT_MODE_TABLES;
+	( *export_handle )->ascii_codepage = LIBESEDB_CODEPAGE_WINDOWS_1252;
+	( *export_handle )->notify_stream  = EXPORT_HANDLE_NOTIFY_STREAM;
+
 	return( 1 );
 
 on_error:
@@ -143,21 +152,28 @@ int export_handle_free(
 	}
 	if( *export_handle != NULL )
 	{
-		if( ( *export_handle )->input_file != NULL )
+		if( libesedb_file_free(
+		     &( ( *export_handle )->input_file ),
+		     error ) != 1 )
 		{
-			if( libesedb_file_free(
-			     &( ( *export_handle )->input_file ),
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free input file.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free input file.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
+		}
+		if( ( *export_handle )->target_path != NULL )
+		{
+			memory_free(
+			 ( *export_handle )->target_path );
+		}
+		if( ( *export_handle )->items_export_path != NULL )
+		{
+			memory_free(
+			 ( *export_handle )->items_export_path );
 		}
 		memory_free(
 		 *export_handle );
@@ -651,60 +667,6 @@ int export_handle_create_items_export_path(
 	{
 		return( 0 );
 	}
-	return( 1 );
-}
-
-/* Makes (creates) a directory
- * Returns 1 if successful or -1 on error
- */
-int export_handle_make_directory(
-     export_handle_t *export_handle,
-     const libcstring_system_character_t *directory_name,
-     log_handle_t *log_handle,
-     liberror_error_t **error )
-{
-	static char *function = "export_handle_make_directory";
-
-	if( export_handle == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid export handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( directory_name == NULL )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid directory name.",
-		 function );
-
-		return( -1 );
-	}
-	if( libsystem_directory_make(
-	     directory_name ) != 0 )
-	{
-		liberror_error_set(
-		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 directory_name );
-
-		return( -1 );
-	}
-	log_handle_printf(
-	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-	 directory_name );
-
 	return( 1 );
 }
 
@@ -1473,22 +1435,25 @@ int export_handle_export_indexes(
 
 		return( 1 );
 	}
-	if( export_handle_make_directory(
-	     export_handle,
+	if( libsystem_directory_make(
 	     index_directory_name,
-	     log_handle,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM "",
+		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 index_directory_name );
 
 		goto on_error;
 	}
+	log_handle_printf(
+	 log_handle,
+	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+	 index_directory_name );
+
 	memory_free(
 	 index_directory_name );
 
@@ -3212,22 +3177,25 @@ int export_handle_export_file(
 	{
 		return( 0 );
 	}
-	if( export_handle_make_directory(
-	     export_handle,
+	if( libsystem_directory_make(
 	     export_handle->items_export_path,
-	     log_handle,
 	     error ) != 1 )
 	{
 		liberror_error_set(
 		 error,
 		 LIBERROR_ERROR_DOMAIN_IO,
 		 LIBERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM "",
+		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 export_handle->items_export_path );
 
 		goto on_error;
 	}
+	log_handle_printf(
+	 log_handle,
+	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+	 export_handle->items_export_path );
+
 	for( table_index = 0;
 	     table_index < number_of_tables;
 	     table_index++ )

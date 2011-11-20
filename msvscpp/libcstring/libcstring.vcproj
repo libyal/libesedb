@@ -161,7 +161,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_wide.c"
+				RelativePath="..\..\libcstring\libcstring_wide_string.c"
 				>
 			</File>
 		</Filter>
@@ -187,7 +187,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_narrow.h"
+				RelativePath="..\..\libcstring\libcstring_narrow_string.h"
 				>
 			</File>
 			<File
@@ -203,7 +203,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcstring\libcstring_wide.h"
+				RelativePath="..\..\libcstring\libcstring_wide_string.h"
 				>
 			</File>
 		</Filter>

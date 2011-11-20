@@ -102,7 +102,7 @@ int libesedb_list_element_initialize(
 int libesedb_list_element_free(
      libesedb_list_element_t **element,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
@@ -123,14 +123,14 @@ int libesedb_list_initialize(
 int libesedb_list_free(
      libesedb_list_t **list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
 int libesedb_list_empty(
      libesedb_list_t *list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      liberror_error_t **error );
 
@@ -138,7 +138,7 @@ int libesedb_list_clone(
      libesedb_list_t **destination_list,
      libesedb_list_t *source_list,
      int (*value_free_function)(
-            intptr_t *value,
+            intptr_t **value,
             liberror_error_t **error ),
      int (*value_clone_function)(
             intptr_t **destination,

@@ -54,41 +54,50 @@ int libesedb_column_initialize(
 
 		return( -1 );
 	}
-	if( *column == NULL )
+	if( *column != NULL )
 	{
-		internal_column = memory_allocate_structure(
-		                   libesedb_internal_column_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid column value already set.",
+		 function );
 
-		if( internal_column == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create column.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_column,
-		     0,
-		     sizeof( libesedb_internal_column_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear column.",
-			 function );
-
-			goto on_error;
-		}
-		internal_column->io_handle          = io_handle;
-		internal_column->catalog_definition = catalog_definition;
-
-		*column = (libesedb_column_t *) internal_column;
+		return( -1 );
 	}
+	internal_column = memory_allocate_structure(
+	                   libesedb_internal_column_t );
+
+	if( internal_column == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create column.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_set(
+	     internal_column,
+	     0,
+	     sizeof( libesedb_internal_column_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear column.",
+		 function );
+
+		goto on_error;
+	}
+	internal_column->io_handle          = io_handle;
+	internal_column->catalog_definition = catalog_definition;
+
+	*column = (libesedb_column_t *) internal_column;
+
 	return( 1 );
 
 on_error:

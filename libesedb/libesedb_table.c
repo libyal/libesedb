@@ -66,6 +66,17 @@ int libesedb_table_initialize(
 
 		return( -1 );
 	}
+	if( *table != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid table value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( io_handle == NULL )
 	{
 		liberror_error_set(
@@ -111,78 +122,205 @@ int libesedb_table_initialize(
 
 		return( -1 );
 	}
-	if( *table == NULL )
-	{
-		internal_table = memory_allocate_structure(
-		                  libesedb_internal_table_t );
+	internal_table = memory_allocate_structure(
+	                  libesedb_internal_table_t );
 
-		if( internal_table == NULL )
+	if( internal_table == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create table.",
+		 function );
+
+		goto on_error;
+	}
+	if( memory_set(
+	     internal_table,
+	     0,
+	     sizeof( libesedb_internal_table_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear table.",
+		 function );
+
+		memory_free(
+		 internal_table );
+
+		return( -1 );
+	}
+	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+	{
+		internal_table->file_io_handle = file_io_handle;
+	}
+	else
+	{
+		if( libbfio_handle_clone(
+		     &( internal_table->file_io_handle ),
+		     file_io_handle,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create table.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy file IO handle.",
 			 function );
 
 			goto on_error;
 		}
-		if( memory_set(
-		     internal_table,
-		     0,
-		     sizeof( libesedb_internal_table_t ) ) == NULL )
+		if( libbfio_handle_set_open_on_demand(
+		     internal_table->file_io_handle,
+		     1,
+		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear table.",
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to set open on demand in file IO handle.",
 			 function );
 
-			memory_free(
-			 internal_table );
-
-			return( -1 );
+			goto on_error;
 		}
-		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-		{
-			internal_table->file_io_handle = file_io_handle;
-		}
-		else
-		{
-			if( libbfio_handle_clone(
-			     &( internal_table->file_io_handle ),
-			     file_io_handle,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy file IO handle.",
-				 function );
+	}
+	/* TODO add clone function ?
+	 */
+	if( libfdata_vector_initialize(
+	     &( internal_table->pages_vector ),
+	     (size64_t) io_handle->page_size,
+	     (intptr_t *) io_handle,
+	     NULL,
+	     NULL,
+	     &libesedb_io_handle_read_page,
+	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create pages vector.",
+		 function );
 
-				goto on_error;
-			}
-			if( libbfio_handle_set_open_on_demand(
-			     internal_table->file_io_handle,
-			     1,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to set open on demand in file IO handle.",
-				 function );
+		goto on_error;
+	}
+	if( libfdata_vector_append_segment(
+	     internal_table->pages_vector,
+	     io_handle->pages_data_offset,
+	     io_handle->pages_data_size,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to append segment to pages vector.",
+		 function );
 
-				goto on_error;
-			}
-		}
+		goto on_error;
+	}
+	if( libfdata_cache_initialize(
+	     &( internal_table->pages_cache ),
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create pages cache.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_page_tree_initialize(
+	     &table_page_tree,
+	     io_handle,
+	     internal_table->pages_vector,
+	     internal_table->pages_cache,
+	     table_definition->table_catalog_definition->identifier,
+	     table_definition,
+	     template_table_definition,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table page tree.",
+		 function );
+
+		goto on_error;
+	}
+	/* TODO add clone function
+	 */
+	if( libfdata_tree_initialize(
+	     &( internal_table->table_values_tree ),
+	     (intptr_t *) table_page_tree,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+	     NULL,
+	     &libesedb_page_tree_read_node_value,
+	     &libesedb_page_tree_read_sub_nodes,
+	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table values tree.",
+		 function );
+
+		libesedb_page_tree_free(
+		 &table_page_tree,
+		 NULL );
+
+		goto on_error;
+	}
+	if( libfdata_cache_initialize(
+	     &( internal_table->table_values_cache ),
+	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create values cache.",
+		 function );
+
+		goto on_error;
+	}
+	node_data_offset  = table_definition->table_catalog_definition->father_data_page_number - 1;
+	node_data_offset *= io_handle->page_size;
+
+	if( libfdata_tree_set_root_node(
+	     internal_table->table_values_tree,
+	     node_data_offset,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set root node in table values tree.",
+		 function );
+
+		goto on_error;
+	}
+	if( table_definition->long_value_catalog_definition != NULL )
+	{
 		/* TODO add clone function ?
 		 */
 		if( libfdata_vector_initialize(
-		     &( internal_table->pages_vector ),
+		     &( internal_table->long_values_pages_vector ),
 		     (size64_t) io_handle->page_size,
 		     (intptr_t *) io_handle,
 		     NULL,
@@ -195,13 +333,13 @@ int libesedb_table_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create pages vector.",
+			 "%s: unable to create long values pages vector.",
 			 function );
 
 			goto on_error;
 		}
 		if( libfdata_vector_append_segment(
-		     internal_table->pages_vector,
+		     internal_table->long_values_pages_vector,
 		     io_handle->pages_data_offset,
 		     io_handle->pages_data_size,
 		     0,
@@ -211,13 +349,13 @@ int libesedb_table_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-			 "%s: unable to append segment to pages vector.",
+			 "%s: unable to append segment to long values pages vector.",
 			 function );
 
 			goto on_error;
 		}
 		if( libfdata_cache_initialize(
-		     &( internal_table->pages_cache ),
+		     &( internal_table->long_values_pages_cache ),
 		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 		     error ) != 1 )
 		{
@@ -225,17 +363,17 @@ int libesedb_table_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create pages cache.",
+			 "%s: unable to create long values pages cache.",
 			 function );
 
 			goto on_error;
 		}
 		if( libesedb_page_tree_initialize(
-		     &table_page_tree,
+		     &long_values_page_tree,
 		     io_handle,
-		     internal_table->pages_vector,
-		     internal_table->pages_cache,
-		     table_definition->table_catalog_definition->identifier,
+		     internal_table->long_values_pages_vector,
+		     internal_table->long_values_pages_cache,
+		     table_definition->long_value_catalog_definition->identifier,
 		     table_definition,
 		     template_table_definition,
 		     error ) != 1 )
@@ -244,7 +382,7 @@ int libesedb_table_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create table page tree.",
+			 "%s: unable to create long value page tree.",
 			 function );
 
 			goto on_error;
@@ -252,9 +390,9 @@ int libesedb_table_initialize(
 		/* TODO add clone function
 		 */
 		if( libfdata_tree_initialize(
-		     &( internal_table->table_values_tree ),
-		     (intptr_t *) table_page_tree,
-		     &libesedb_page_tree_free,
+		     &( internal_table->long_values_tree ),
+		     (intptr_t *) long_values_page_tree,
+		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
 		     NULL,
 		     &libesedb_page_tree_read_node_value,
 		     &libesedb_page_tree_read_sub_nodes,
@@ -265,34 +403,34 @@ int libesedb_table_initialize(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create table values tree.",
+			 "%s: unable to create long values tree.",
 			 function );
 
 			libesedb_page_tree_free(
-			 (intptr_t *) table_page_tree,
+			 &long_values_page_tree,
 			 NULL );
 
 			goto on_error;
 		}
 		if( libfdata_cache_initialize(
-		     &( internal_table->table_values_cache ),
-		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
+		     &( internal_table->long_values_cache ),
+		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
 		     error ) != 1 )
 		{
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create values cache.",
+			 "%s: unable to create long values values.",
 			 function );
 
 			goto on_error;
 		}
-		node_data_offset  = table_definition->table_catalog_definition->father_data_page_number - 1;
+		node_data_offset  = table_definition->long_value_catalog_definition->father_data_page_number - 1;
 		node_data_offset *= io_handle->page_size;
 
 		if( libfdata_tree_set_root_node(
-		     internal_table->table_values_tree,
+		     internal_table->long_values_tree,
 		     node_data_offset,
 		     0,
 		     error ) != 1 )
@@ -306,143 +444,14 @@ int libesedb_table_initialize(
 
 			goto on_error;
 		}
-		if( table_definition->long_value_catalog_definition != NULL )
-		{
-			/* TODO add clone function ?
-			 */
-			if( libfdata_vector_initialize(
-			     &( internal_table->long_values_pages_vector ),
-			     (size64_t) io_handle->page_size,
-			     (intptr_t *) io_handle,
-			     NULL,
-			     NULL,
-			     &libesedb_io_handle_read_page,
-			     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create long values pages vector.",
-				 function );
-
-				goto on_error;
-			}
-			if( libfdata_vector_append_segment(
-			     internal_table->long_values_pages_vector,
-			     io_handle->pages_data_offset,
-			     io_handle->pages_data_size,
-			     0,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append segment to long values pages vector.",
-				 function );
-
-				goto on_error;
-			}
-			if( libfdata_cache_initialize(
-			     &( internal_table->long_values_pages_cache ),
-			     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create long values pages cache.",
-				 function );
-
-				goto on_error;
-			}
-			if( libesedb_page_tree_initialize(
-			     &long_values_page_tree,
-			     io_handle,
-			     internal_table->long_values_pages_vector,
-			     internal_table->long_values_pages_cache,
-			     table_definition->long_value_catalog_definition->identifier,
-			     table_definition,
-			     template_table_definition,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create long value page tree.",
-				 function );
-
-				goto on_error;
-			}
-			/* TODO add clone function
-			 */
-			if( libfdata_tree_initialize(
-			     &( internal_table->long_values_tree ),
-			     (intptr_t *) long_values_page_tree,
-			     &libesedb_page_tree_free,
-			     NULL,
-			     &libesedb_page_tree_read_node_value,
-			     &libesedb_page_tree_read_sub_nodes,
-			     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create long values tree.",
-				 function );
-
-				libesedb_page_tree_free(
-				 (intptr_t *) long_values_page_tree,
-				 NULL );
-
-				goto on_error;
-			}
-			if( libfdata_cache_initialize(
-			     &( internal_table->long_values_cache ),
-			     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create long values values.",
-				 function );
-
-				goto on_error;
-			}
-			node_data_offset  = table_definition->long_value_catalog_definition->father_data_page_number - 1;
-			node_data_offset *= io_handle->page_size;
-
-			if( libfdata_tree_set_root_node(
-			     internal_table->long_values_tree,
-			     node_data_offset,
-			     0,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set root node in table values tree.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		internal_table->io_handle                 = io_handle;
-		internal_table->table_definition          = table_definition;
-		internal_table->template_table_definition = template_table_definition;
-		internal_table->flags                     = flags;
-
-		*table = (libesedb_table_t *) internal_table;
 	}
+	internal_table->io_handle                 = io_handle;
+	internal_table->table_definition          = table_definition;
+	internal_table->template_table_definition = template_table_definition;
+	internal_table->flags                     = flags;
+
+	*table = (libesedb_table_t *) internal_table;
+
 	return( 1 );
 
 on_error:
@@ -598,6 +607,38 @@ int libesedb_table_free(
 			 function );
 
 			result = -1;
+		}
+		if( internal_table->long_values_pages_vector != NULL )
+		{
+			if( libfdata_vector_free(
+			     &( internal_table->long_values_pages_vector ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long values pages vector.",
+				 function );
+
+				result = -1;
+			}
+		}
+		if( internal_table->long_values_pages_cache != NULL )
+		{
+			if( libfdata_cache_free(
+			     &( internal_table->long_values_pages_cache ),
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long values pages cache.",
+				 function );
+
+				result = -1;
+			}
 		}
 		if( libfdata_tree_free(
 		     &( internal_table->table_values_tree ),

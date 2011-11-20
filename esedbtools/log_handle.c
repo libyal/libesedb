@@ -59,36 +59,44 @@ int log_handle_initialize(
 
 		return( -1 );
 	}
+	if( *log_handle != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid log handle value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*log_handle = memory_allocate_structure(
+	               log_handle_t );
+
 	if( *log_handle == NULL )
 	{
-		*log_handle = memory_allocate_structure(
-		               log_handle_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create log handle.",
+		 function );
 
-		if( *log_handle == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create log handle.",
-			 function );
+		goto on_error;
+	}
+	if( memory_set(
+	     *log_handle,
+	     0,
+	     sizeof( log_handle_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear log handle.",
+		 function );
 
-			goto on_error;
-		}
-		if( memory_set(
-		     *log_handle,
-		     0,
-		     sizeof( log_handle_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear log handle.",
-			 function );
-
-			goto on_error;
-		}
+		goto on_error;
 	}
 	return( 1 );
 

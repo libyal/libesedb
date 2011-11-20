@@ -65,6 +65,17 @@ int libesedb_page_tree_initialize(
 
 		return( -1 );
 	}
+	if( *page_tree != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid page tree value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( io_handle == NULL )
 	{
 		liberror_error_set(
@@ -76,43 +87,41 @@ int libesedb_page_tree_initialize(
 
 		return( -1 );
 	}
+	*page_tree = memory_allocate_structure(
+	              libesedb_page_tree_t );
+
 	if( *page_tree == NULL )
 	{
-		*page_tree = memory_allocate_structure(
-		              libesedb_page_tree_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create page tree.",
+		 function );
 
-		if( *page_tree == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create page tree.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     *page_tree,
-		     0,
-		     sizeof( libesedb_page_tree_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear page tree.",
-			 function );
-
-			goto on_error;
-		}
-		( *page_tree )->io_handle                 = io_handle;
-		( *page_tree )->pages_vector              = pages_vector;
-		( *page_tree )->pages_cache               = pages_cache;
-		( *page_tree )->object_identifier         = object_identifier;
-		( *page_tree )->table_definition          = table_definition;
-		( *page_tree )->template_table_definition = template_table_definition;
+		goto on_error;
 	}
+	if( memory_set(
+	     *page_tree,
+	     0,
+	     sizeof( libesedb_page_tree_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear page tree.",
+		 function );
+
+		goto on_error;
+	}
+	( *page_tree )->io_handle                 = io_handle;
+	( *page_tree )->pages_vector              = pages_vector;
+	( *page_tree )->pages_cache               = pages_cache;
+	( *page_tree )->object_identifier         = object_identifier;
+	( *page_tree )->table_definition          = table_definition;
+	( *page_tree )->template_table_definition = template_table_definition;
+
 	return( 1 );
 
 on_error:
@@ -130,7 +139,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_free(
-     intptr_t *page_tree,
+     libesedb_page_tree_t **page_tree,
      liberror_error_t **error )
 {
 	static char *function = "libesedb_page_tree_free";
@@ -147,12 +156,16 @@ int libesedb_page_tree_free(
 
 		return( -1 );
 	}
-	/* The io_handle, pages_vector, pages_cache, table_definition and template_table_definition references
-	 * are freed elsewhere
-	 */
-	memory_free(
-	 page_tree );
+	if( *page_tree != NULL )
+	{
+		/* The io_handle, pages_vector, pages_cache, table_definition and template_table_definition references
+		 * are freed elsewhere
+		 */
+		memory_free(
+		 *page_tree );
 
+		*page_tree = NULL;
+	}
 	return( result );
 }
 
@@ -661,36 +674,7 @@ int libesedb_page_tree_read_space_tree_page(
 
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
-		if( page_value_size == 16 )
-		{
-			if( ( page_value_data[  0 ] != 0 )
-			 || ( page_value_data[  1 ] != 0 )
-			 || ( page_value_data[  2 ] != 0 )
-			 || ( page_value_data[  3 ] != 0 )
-			 || ( page_value_data[  4 ] != 0 )
-			 || ( page_value_data[  5 ] != 0 )
-			 || ( page_value_data[  6 ] != 0 )
-			 || ( page_value_data[  7 ] != 0 )
-			 || ( page_value_data[  8 ] != 0 )
-			 || ( page_value_data[  9 ] != 0 )
-			 || ( page_value_data[ 10 ] != 0 )
-			 || ( page_value_data[ 11 ] != 0 )
-			 || ( page_value_data[ 12 ] != 0 )
-			 || ( page_value_data[ 13 ] != 0 )
-			 || ( page_value_data[ 14 ] != 0 )
-			 || ( page_value_data[ 15 ] != 0 ) )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported header.",
-				 function );
-
-				return( -1 );
-			}
-		}
-		else if( page_value_size != 0 )
+		if( page_value_size != 16 )
 		{
 			liberror_error_set(
 			 error,
@@ -1914,6 +1898,17 @@ int libesedb_page_tree_read_node_value(
 
 		goto on_error;
 	}
+	if( values_tree_value == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing values tree value.",
+		 function );
+
+		return( -1 );
+	}
 	values_tree_value->page_offset      = node_data_offset;
 	values_tree_value->page_number      = (uint32_t) page_number;
 	values_tree_value->page_value_index = (uint16_t) node_data_size;
@@ -1985,7 +1980,7 @@ int libesedb_page_tree_read_node_value(
 	     node,
 	     cache,
 	     (intptr_t *) values_tree_value,
-	     &libesedb_values_tree_value_free,
+	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_values_tree_value_free,
 	     LIBFDATA_TREE_NODE_VALUE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
@@ -2004,7 +1999,7 @@ on_error:
 	if( values_tree_value != NULL )
 	{
 		libesedb_values_tree_value_free(
-		 (intptr_t *) values_tree_value,
+		 &values_tree_value,
 		 NULL );
 	}
 	return( -1 );

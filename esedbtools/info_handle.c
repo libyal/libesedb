@@ -120,51 +120,60 @@ int info_handle_initialize(
 
 		return( -1 );
 	}
+	if( *info_handle != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid info handle value already set.",
+		 function );
+
+		return( -1 );
+	}
+	*info_handle = memory_allocate_structure(
+	                info_handle_t );
+
 	if( *info_handle == NULL )
 	{
-		*info_handle = memory_allocate_structure(
-		                info_handle_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create info handle.",
+		 function );
 
-		if( *info_handle == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create info handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     *info_handle,
-		     0,
-		     sizeof( info_handle_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear info handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_file_initialize(
-		     &( ( *info_handle )->input_file ),
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to initialize input file.",
-			 function );
-
-			goto on_error;
-		}
-		( *info_handle )->notify_stream = INFO_HANDLE_NOTIFY_STREAM;
+		goto on_error;
 	}
+	if( memory_set(
+	     *info_handle,
+	     0,
+	     sizeof( info_handle_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear info handle.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_file_initialize(
+	     &( ( *info_handle )->input_file ),
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to initialize input file.",
+		 function );
+
+		goto on_error;
+	}
+	( *info_handle )->notify_stream = INFO_HANDLE_NOTIFY_STREAM;
+
 	return( 1 );
 
 on_error:
@@ -201,21 +210,18 @@ int info_handle_free(
 	}
 	if( *info_handle != NULL )
 	{
-		if( ( *info_handle )->input_file != NULL )
+		if( libesedb_file_free(
+		     &( ( *info_handle )->input_file ),
+		     error ) != 1 )
 		{
-			if( libesedb_file_free(
-			     &( ( *info_handle )->input_file ),
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free input file.",
-				 function );
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free input file.",
+			 function );
 
-				result = -1;
-			}
+			result = -1;
 		}
 		memory_free(
 		 *info_handle );

@@ -87,7 +87,7 @@ int libesedb_values_tree_value_initialize(
      liberror_error_t **error );
 
 int libesedb_values_tree_value_free(
-     intptr_t *values_tree_value,
+     libesedb_values_tree_value_t **values_tree_value,
      liberror_error_t **error );
 
 int libesedb_values_tree_value_set_key_common(

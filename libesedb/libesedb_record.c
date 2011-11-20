@@ -74,6 +74,17 @@ int libesedb_record_initialize(
 
 		return( -1 );
 	}
+	if( *record != NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid record value already set.",
+		 function );
+
+		return( -1 );
+	}
 	if( table_definition == NULL )
 	{
 		liberror_error_set(
@@ -108,138 +119,136 @@ int libesedb_record_initialize(
 
 		return( -1 );
 	}
-	if( *record == NULL )
+	internal_record = memory_allocate_structure(
+	                   libesedb_internal_record_t );
+
+	if( internal_record == NULL )
 	{
-		internal_record = memory_allocate_structure(
-		                   libesedb_internal_record_t );
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create record.",
+		 function );
 
-		if( internal_record == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create record.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_set(
-		     internal_record,
-		     0,
-		     sizeof( libesedb_internal_record_t ) ) == NULL )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
-			 "%s: unable to clear record.",
-			 function );
-
-			memory_free(
-			 internal_record );
-
-			return( -1 );
-		}
-		if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-		{
-			internal_record->file_io_handle = file_io_handle;
-		}
-		else
-		{
-			if( libbfio_handle_clone(
-			     &( internal_record->file_io_handle ),
-			     file_io_handle,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-			if( libbfio_handle_set_open_on_demand(
-			     internal_record->file_io_handle,
-			     1,
-			     error ) != 1 )
-			{
-				liberror_error_set(
-				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to set open on demand in file IO handle.",
-				 function );
-
-				goto on_error;
-			}
-		}
-		if( libesedb_array_initialize(
-		     &( internal_record->values_array ),
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create values array.",
-			 function );
-
-			goto on_error;
-		}
-		if( libfdata_tree_node_get_node_value(
-		     values_tree_node,
-		     internal_record->file_io_handle,
-		     values_cache,
-		     (intptr_t **) &values_tree_value,
-		     0,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve node value from values tree node.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_values_tree_value_read_record(
-		     values_tree_value,
-		     internal_record->file_io_handle,
-		     io_handle,
-		     pages_vector,
-		     pages_cache,
-		     table_definition,
-		     template_table_definition,
-		     internal_record->values_array,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read values tree value record.",
-			 function );
-
-			goto on_error;
-		}
-		internal_record->io_handle                 = io_handle;
-		internal_record->table_definition          = table_definition;
-		internal_record->template_table_definition = template_table_definition;
-		internal_record->pages_vector              = pages_vector;
-		internal_record->pages_cache               = pages_cache;
-		internal_record->long_values_pages_vector  = long_values_pages_vector;
-		internal_record->long_values_pages_cache   = long_values_pages_cache;
-		internal_record->long_values_tree          = long_values_tree;
-		internal_record->long_values_cache         = long_values_cache;
-		internal_record->flags                     = flags;
-
-		*record = (libesedb_record_t *) internal_record;
+		goto on_error;
 	}
+	if( memory_set(
+	     internal_record,
+	     0,
+	     sizeof( libesedb_internal_record_t ) ) == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_MEMORY,
+		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 "%s: unable to clear record.",
+		 function );
+
+		memory_free(
+		 internal_record );
+
+		return( -1 );
+	}
+	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
+	{
+		internal_record->file_io_handle = file_io_handle;
+	}
+	else
+	{
+		if( libbfio_handle_clone(
+		     &( internal_record->file_io_handle ),
+		     file_io_handle,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+		if( libbfio_handle_set_open_on_demand(
+		     internal_record->file_io_handle,
+		     1,
+		     error ) != 1 )
+		{
+			liberror_error_set(
+			 error,
+			 LIBERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to set open on demand in file IO handle.",
+			 function );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_array_initialize(
+	     &( internal_record->values_array ),
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create values array.",
+		 function );
+
+		goto on_error;
+	}
+	if( libfdata_tree_node_get_node_value(
+	     values_tree_node,
+	     internal_record->file_io_handle,
+	     values_cache,
+	     (intptr_t **) &values_tree_value,
+	     0,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve node value from values tree node.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_values_tree_value_read_record(
+	     values_tree_value,
+	     internal_record->file_io_handle,
+	     io_handle,
+	     pages_vector,
+	     pages_cache,
+	     table_definition,
+	     template_table_definition,
+	     internal_record->values_array,
+	     error ) != 1 )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_IO,
+		 LIBERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read values tree value record.",
+		 function );
+
+		goto on_error;
+	}
+	internal_record->io_handle                 = io_handle;
+	internal_record->table_definition          = table_definition;
+	internal_record->template_table_definition = template_table_definition;
+	internal_record->pages_vector              = pages_vector;
+	internal_record->pages_cache               = pages_cache;
+	internal_record->long_values_pages_vector  = long_values_pages_vector;
+	internal_record->long_values_pages_cache   = long_values_pages_cache;
+	internal_record->long_values_tree          = long_values_tree;
+	internal_record->long_values_cache         = long_values_cache;
+	internal_record->flags                     = flags;
+
+	*record = (libesedb_record_t *) internal_record;
+
 	return( 1 );
 
 on_error:
@@ -332,7 +341,7 @@ int libesedb_record_free(
 		}
 		if( libesedb_array_free(
 		     &( internal_record->values_array ),
-		     (int (*)(intptr_t *, liberror_error_t **)) &libfvalue_value_free_as_value,
+		     (int (*)(intptr_t **, liberror_error_t **)) &libfvalue_value_free,
 		     error ) != 1 )
 		{
 			liberror_error_set(
