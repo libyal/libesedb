@@ -31,6 +31,8 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_page.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
@@ -46,7 +48,7 @@ int libesedb_page_tree_initialize(
      libesedb_page_tree_t **page_tree,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
@@ -1801,7 +1803,7 @@ int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
+     libfcache_cache_t *cache,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
@@ -2012,7 +2014,7 @@ int libesedb_page_tree_read_sub_nodes(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
-     libfdata_cache_t *cache,
+     libfcache_cache_t *cache,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,

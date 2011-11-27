@@ -35,6 +35,7 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
 #include "libesedb_table.h"
@@ -734,7 +735,7 @@ int libesedb_file_close(
 
 		result = -1;
 	}
-	if( libfdata_cache_free(
+	if( libfcache_cache_free(
 	     &( internal_file->pages_cache ),
 	     error ) != 1 )
 	{
@@ -1064,7 +1065,7 @@ int libesedb_file_open_read(
 
 		goto on_error;
 	}
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &( internal_file->pages_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 	     error ) != 1 )
@@ -1167,7 +1168,7 @@ on_error:
 	}
 	if( internal_file->pages_cache != NULL )
 	{
-		libfdata_cache_free(
+		libfcache_cache_free(
 		 &( internal_file->pages_cache ),
 		 NULL );
 	}

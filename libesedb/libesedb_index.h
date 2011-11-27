@@ -31,6 +31,7 @@
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
@@ -69,7 +70,7 @@ struct libesedb_internal_index
 
 	/* The pages cache
 	 */
-	libfdata_cache_t *pages_cache;
+	libfcache_cache_t *pages_cache;
 
 	/* The long values pages vector
 	 */
@@ -77,7 +78,7 @@ struct libesedb_internal_index
 
 	/* The long values pages cache
 	 */
-	libfdata_cache_t *long_values_pages_cache;
+	libfcache_cache_t *long_values_pages_cache;
 
 	/* The table values tree
 	 */
@@ -85,7 +86,7 @@ struct libesedb_internal_index
 
 	/* The table values cache
 	 */
-	libfdata_cache_t *table_values_cache;
+	libfcache_cache_t *table_values_cache;
 
 	/* The long values tree
 	 */
@@ -93,7 +94,7 @@ struct libesedb_internal_index
 
 	/* The long values cache
 	 */
-	libfdata_cache_t *long_values_cache;
+	libfcache_cache_t *long_values_cache;
 
 	/* The item flags
 	 */
@@ -105,7 +106,7 @@ struct libesedb_internal_index
 
 	/* The index values cache
 	 */
-	libfdata_cache_t *index_values_cache;
+	libfcache_cache_t *index_values_cache;
 };
 
 int libesedb_index_initialize(
@@ -116,13 +117,13 @@ int libesedb_index_initialize(
      libesedb_table_definition_t *template_table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
-     libfdata_cache_t *long_values_pages_cache,
+     libfcache_cache_t *long_values_pages_cache,
      libfdata_tree_t *table_values_tree,
-     libfdata_cache_t *table_values_cache,
+     libfcache_cache_t *table_values_cache,
      libfdata_tree_t *long_values_tree,
-     libfdata_cache_t *long_values_cache,
+     libfcache_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error );
 

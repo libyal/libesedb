@@ -1135,6 +1135,7 @@ int export_handle_export_table(
 				result = export_exchange_record_msg(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1150,6 +1151,7 @@ int export_handle_export_table(
 				result = export_exchange_record_global(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1165,6 +1167,7 @@ int export_handle_export_table(
 				result = export_exchange_record_folders(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 			else if( libcstring_system_string_compare(
@@ -1177,6 +1180,7 @@ int export_handle_export_table(
 				result = export_exchange_record_mailbox(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1192,6 +1196,7 @@ int export_handle_export_table(
 				result = export_exchange_record_per_user_read(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1207,6 +1212,7 @@ int export_handle_export_table(
 				result = windows_security_export_record_smtblsection(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 			else if( libcstring_system_string_compare(
@@ -1219,6 +1225,7 @@ int export_handle_export_table(
 				result = windows_security_export_record_smtblversion(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1235,6 +1242,7 @@ int export_handle_export_table(
 				          record,
 				          export_handle->ascii_codepage,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1250,6 +1258,7 @@ int export_handle_export_table(
 				result = windows_search_export_record_systemindex_gthr(
 				          record,
 				          table_file_stream,
+				          log_handle,
 				          error );
 			}
 		}
@@ -1258,6 +1267,7 @@ int export_handle_export_table(
 			result = export_handle_export_record(
 			          record,
 			          table_file_stream,
+			          log_handle,
 			          error );
 		}
 		if( result != 1 )
@@ -1921,6 +1931,7 @@ int export_handle_export_index(
 			result = export_handle_export_record(
 			          record,
 			          index_file_stream,
+			          log_handle,
 			          error );
 		}
 		if( result != 1 )
@@ -1998,6 +2009,7 @@ on_error:
 int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	static char *function = "export_handle_export_record";
@@ -2048,6 +2060,7 @@ int export_handle_export_record(
 		     record,
 		     value_iterator,
 		     record_file_stream,
+		     log_handle,
 		     error ) != 1 )
 		{
 			liberror_error_set(
@@ -2083,6 +2096,7 @@ int export_handle_export_record_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 24 ];
@@ -2825,12 +2839,26 @@ int export_handle_export_record_value(
 	else if( ( ( value_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
 	      && ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 ) )
 	{
-		if( libesedb_record_get_long_value(
-		     record,
-		     record_value_entry,
-		     &long_value,
-		     error ) != 1 )
+		result = libesedb_record_get_long_value(
+		          record,
+		          record_value_entry,
+		          &long_value,
+		          error );
+
+		if( result != 1 )
 		{
+			log_handle_printf(
+			 log_handle,
+			 "Unable to retrieve long value of record entry: %d.\n",
+			 record_value_entry );
+
+			if( libsystem_notify_verbose != 0 )
+			{
+				libsystem_notify_printf(
+				 "%s: unable to retrieve long value of record entry: %d.",
+				 function,
+				 record_value_entry );
+			}
 			liberror_error_set(
 			 error,
 			 LIBERROR_ERROR_DOMAIN_RUNTIME,
@@ -2839,45 +2867,30 @@ int export_handle_export_record_value(
 			 function,
 			 record_value_entry );
 
-			return( -1 );
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libsystem_notify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			liberror_error_free(
+			 error );
 		}
-		if( libesedb_long_value_get_number_of_segments(
-		     long_value,
-		     &number_of_long_value_segments,
-		     error ) != 1 )
+		else
 		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of long value segments.",
-			 function );
-
-			libesedb_long_value_free(
-			 &long_value,
-			 NULL );
-
-			return( -1 );
-		}
-		for( long_value_segment_iterator = 0;
-	 	     long_value_segment_iterator < number_of_long_value_segments;
-		     long_value_segment_iterator++ )
-		{
-			if( libesedb_long_value_get_segment_data(
+			if( libesedb_long_value_get_number_of_segments(
 			     long_value,
-			     long_value_segment_iterator,
-			     &value_data,
-			     &value_data_size,
+			     &number_of_long_value_segments,
 			     error ) != 1 )
 			{
 				liberror_error_set(
 				 error,
 				 LIBERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve long value segment: %d of record entry: %d.",
-				 function,
-				 long_value_segment_iterator,
-				 record_value_entry );
+				 "%s: unable to retrieve number of long value segments.",
+				 function );
 
 				libesedb_long_value_free(
 				 &long_value,
@@ -2885,8 +2898,34 @@ int export_handle_export_record_value(
 
 				return( -1 );
 			}
-			if( value_data != NULL )
+			for( long_value_segment_iterator = 0;
+			     long_value_segment_iterator < number_of_long_value_segments;
+			     long_value_segment_iterator++ )
 			{
+				if( libesedb_long_value_get_segment_data(
+				     long_value,
+				     long_value_segment_iterator,
+				     &value_data,
+				     &value_data_size,
+				     error ) != 1 )
+				{
+					liberror_error_set(
+					 error,
+					 LIBERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve long value segment: %d of record entry: %d.",
+					 function,
+					 long_value_segment_iterator,
+					 record_value_entry );
+
+					libesedb_long_value_free(
+					 &long_value,
+					 NULL );
+
+					return( -1 );
+				}
+				if( value_data != NULL )
+				{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( LONG_VALUE_TEST )
 libsystem_notify_printf(
  "LONG VALUE DATA: %d out of %d\n",
@@ -2896,34 +2935,35 @@ libsystem_notify_print_data(
  value_data,
  value_data_size );
 #endif
+				}
 			}
-		}
-		if( libesedb_long_value_free(
-		     &long_value,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value.",
-			 function );
+			if( libesedb_long_value_free(
+			     &long_value,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long value.",
+				 function );
 
-			return( -1 );
-		}
+				return( -1 );
+			}
 
-		if( libesedb_long_value_free(
-		     &long_value,
-		     error ) != 1 )
-		{
-			liberror_error_set(
-			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value.",
-			 function );
+			if( libesedb_long_value_free(
+			     &long_value,
+			     error ) != 1 )
+			{
+				liberror_error_set(
+				 error,
+				 LIBERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long value.",
+				 function );
 
-			return( -1 );
+				return( -1 );
+			}
 		}
 	}
 	/* TODO handle 0x10 flags */

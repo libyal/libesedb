@@ -1,5 +1,5 @@
 /*
- * The libfdata header wrapper
+ * The internal libfcache header
  *
  * Copyright (c) 2009-2011, Joachim Metz <jbmetz@users.sourceforge.net>
  *
@@ -19,39 +19,33 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LIBFDATA_H )
-#define _LIBESEDB_LIBFDATA_H
+#if !defined( _LIBESEDB_LIBFCACHE_H )
+#define _LIBESEDB_LIBFCACHE_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBFDATA for local use of libfdata
+/* Define HAVE_LOCAL_LIBFCACHE for local use of libfcache
  */
-#if defined( HAVE_LOCAL_LIBFDATA )
+#if defined( HAVE_LOCAL_LIBFCACHE )
 
-#include <libfdata_block.h>
-#include <libfdata_buffer.h>
-#include <libfdata_cache.h>
-#include <libfdata_definitions.h>
-#include <libfdata_list.h>
-#include <libfdata_list_element.h>
-#include <libfdata_tree.h>
-#include <libfdata_tree_node.h>
-#include <libfdata_types.h>
-#include <libfdata_vector.h>
+#include <libfcache_cache.h>
+#include <libfcache_date_time.h>
+#include <libfcache_definitions.h>
+#include <libfcache_types.h>
 
-#elif defined( HAVE_LIBFDATA_H )
+#elif defined( HAVE_LIBFCACHE_H )
 
-/* If libtool DLL support is enabled set LIBFDATA_DLL_IMPORT
- * before including libfdata.h
+/* If libtool DLL support is enabled set LIBFCACHE_DLL_IMPORT
+ * before including libfcache.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFDATA_DLL_IMPORT
+#define LIBFCACHE_DLL_IMPORT
 #endif
 
-#include <libfdata.h>
+#include <libfcache.h>
 
 #else
-#error Missing libfdata.h
+#error Missing libfcache.h
 #endif
 
 #endif

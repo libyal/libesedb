@@ -30,6 +30,7 @@
 #include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
 
@@ -107,7 +108,7 @@ int libesedb_values_tree_value_read_data(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      uint8_t **data,
      size_t *data_size,
      liberror_error_t **error );
@@ -117,7 +118,7 @@ int libesedb_values_tree_value_read_record(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libesedb_array_t *values_array,
@@ -127,7 +128,7 @@ int libesedb_values_tree_value_read_long_value(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      liberror_error_t **error );
 
 int libesedb_values_tree_value_read_long_value_segment(
@@ -135,7 +136,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_block_t *data_block,
      liberror_error_t **error );

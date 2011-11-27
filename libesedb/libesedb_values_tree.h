@@ -28,6 +28,7 @@
 #include <liberror.h>
 
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_values_tree_value.h"
 
@@ -38,7 +39,7 @@ extern "C" {
 int libesedb_values_tree_get_leaf_node_by_key(
      libfdata_tree_t *values_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_cache_t *values_cache,
+     libfcache_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libfdata_tree_node_t **values_tree_leaf_node,
@@ -48,7 +49,7 @@ int libesedb_values_tree_get_leaf_node_by_key(
 int libesedb_values_tree_node_get_leaf_node_by_key(
      libfdata_tree_node_t *values_tree_node,
      libbfio_handle_t *file_io_handle,
-     libfdata_cache_t *values_cache,
+     libfcache_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libfdata_tree_node_t **values_tree_leaf_node,
@@ -58,7 +59,7 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 int libesedb_values_tree_get_value_by_key(
      libfdata_tree_t *values_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_cache_t *values_cache,
+     libfcache_cache_t *values_cache,
      uint8_t *key,
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,

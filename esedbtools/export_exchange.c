@@ -1633,6 +1633,7 @@ int export_exchange_record_value_string(
 int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -1970,6 +1971,7 @@ int export_exchange_record_folders(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -2006,6 +2008,7 @@ int export_exchange_record_folders(
 int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2293,6 +2296,7 @@ int export_exchange_record_global(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -2330,6 +2334,7 @@ int export_exchange_record_global(
 int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2592,6 +2597,7 @@ int export_exchange_record_mailbox(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -2628,6 +2634,7 @@ int export_exchange_record_mailbox(
 int export_exchange_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -2883,6 +2890,7 @@ int export_exchange_record_msg(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -2919,6 +2927,7 @@ int export_exchange_record_msg(
 int export_exchange_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -3139,6 +3148,7 @@ int export_exchange_record_per_user_read(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )

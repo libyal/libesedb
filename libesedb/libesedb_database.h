@@ -29,6 +29,7 @@
 
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
 #if defined( __cplusplus )
@@ -56,7 +57,7 @@ int libesedb_database_read(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

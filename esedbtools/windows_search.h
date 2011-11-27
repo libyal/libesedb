@@ -29,6 +29,7 @@
 #include <liberror.h>
 
 #include "esedbtools_libesedb.h"
+#include "log_handle.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -114,11 +115,13 @@ int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
      int ascii_codepage,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int windows_search_export_record_systemindex_gthr(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 #if defined( __cplusplus )

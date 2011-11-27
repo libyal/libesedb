@@ -32,7 +32,6 @@
 #include <libfdata_block_reference.h>
 #include <libfdata_buffer.h>
 #include <libfdata_buffer_reference.h>
-#include <libfdata_cache.h>
 #include <libfdata_definitions.h>
 #include <libfdata_list.h>
 #include <libfdata_list_element.h>

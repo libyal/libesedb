@@ -28,6 +28,8 @@
 
 #include "libesedb_definitions.h"
 #include "libesedb_database.h"
+#include "libesedb_libfcache.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
 
 /* Initialize a database
@@ -141,12 +143,12 @@ int libesedb_database_read(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      liberror_error_t **error )
 {
 	libesedb_page_tree_t *database_page_tree        = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
-	libfdata_cache_t *database_values_cache         = NULL;
+	libfcache_cache_t *database_values_cache        = NULL;
 	libfdata_tree_t *database_values_tree           = NULL;
 	libfdata_tree_node_t *database_values_tree_node = NULL;
 	uint8_t *data                                   = NULL;
@@ -209,7 +211,7 @@ int libesedb_database_read(
 	}
 	database_page_tree = NULL;
 
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &database_values_cache,
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TREE_VALUES,
 	     error ) != 1 )
@@ -334,7 +336,7 @@ int libesedb_database_read(
 		}
 #endif
 	}
-	if( libfdata_cache_free(
+	if( libfcache_cache_free(
 	     &database_values_cache,
 	     error ) != 1 )
 	{
@@ -365,7 +367,7 @@ int libesedb_database_read(
 on_error:
 	if( database_values_cache != NULL )
 	{
-		libfdata_cache_free(
+		libfcache_cache_free(
 		 &database_values_cache,
 		 NULL );
 	}

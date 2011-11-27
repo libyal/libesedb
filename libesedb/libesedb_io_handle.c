@@ -33,6 +33,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
 #include "libesedb_unused.h"
@@ -855,7 +856,7 @@ int libesedb_io_handle_read_page(
      intptr_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfdata_cache_t *cache,
+     libfcache_cache_t *cache,
      int element_index,
      off64_t element_data_offset,
      size64_t element_data_size LIBESEDB_ATTRIBUTE_UNUSED,

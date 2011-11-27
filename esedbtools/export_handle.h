@@ -177,12 +177,14 @@ int export_handle_export_index(
 int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_handle_export_record_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_handle_export_file(

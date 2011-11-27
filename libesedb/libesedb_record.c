@@ -30,6 +30,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_long_value.h"
@@ -49,13 +50,13 @@ int libesedb_record_initialize(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
-     libfdata_cache_t *long_values_pages_cache,
+     libfcache_cache_t *long_values_pages_cache,
      libfdata_tree_node_t *values_tree_node,
-     libfdata_cache_t *values_cache,
+     libfcache_cache_t *values_cache,
      libfdata_tree_t *long_values_tree,
-     libfdata_cache_t *long_values_cache,
+     libfcache_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error )
 {

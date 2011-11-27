@@ -27,6 +27,7 @@
 #include <liberror.h>
 
 #include "libesedb_definitions.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
 #include "libesedb_values_tree.h"
@@ -41,9 +42,9 @@ int libesedb_long_value_initialize(
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *long_values_pages_vector,
-     libfdata_cache_t *long_values_pages_cache,
+     libfcache_cache_t *long_values_pages_cache,
      libfdata_tree_t *long_values_tree,
-     libfdata_cache_t *long_values_cache,
+     libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,
@@ -209,7 +210,7 @@ int libesedb_long_value_initialize(
 
 		goto on_error;
 	}
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &( internal_long_value->data_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
 	     error ) != 1 )
@@ -330,7 +331,7 @@ on_error:
 	{
 		if( internal_long_value->data_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_long_value->data_cache ),
 			 NULL );
 		}
@@ -427,7 +428,7 @@ int libesedb_long_value_free(
 
 			result = -1;
 		}
-		if( libfdata_cache_free(
+		if( libfcache_cache_free(
 		     &( internal_long_value->data_cache ),
 		     error ) != 1 )
 		{

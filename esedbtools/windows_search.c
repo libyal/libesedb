@@ -2682,6 +2682,7 @@ int windows_search_export_record_systemindex_0a(
      libesedb_record_t *record,
      int ascii_codepage,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -3543,6 +3544,7 @@ int windows_search_export_record_systemindex_0a(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -3579,6 +3581,7 @@ int windows_search_export_record_systemindex_0a(
 int windows_search_export_record_systemindex_gthr(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -3777,6 +3780,7 @@ int windows_search_export_record_systemindex_gthr(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )

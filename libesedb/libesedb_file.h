@@ -32,6 +32,7 @@
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
 #if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
@@ -68,7 +69,7 @@ struct libesedb_internal_file
 
 	/* The pages cache
 	 */
-	libfdata_cache_t *pages_cache;
+	libfcache_cache_t *pages_cache;
 
 	/* The database
 	 */

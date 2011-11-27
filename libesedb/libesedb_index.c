@@ -30,6 +30,8 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
+#include "libesedb_libfcache.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_record.h"
 #include "libesedb_types.h"
@@ -46,13 +48,13 @@ int libesedb_index_initialize(
      libesedb_table_definition_t *template_table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
-     libfdata_cache_t *long_values_pages_cache,
+     libfcache_cache_t *long_values_pages_cache,
      libfdata_tree_t *table_values_tree,
-     libfdata_cache_t *table_values_cache,
+     libfcache_cache_t *table_values_cache,
      libfdata_tree_t *long_values_tree,
-     libfdata_cache_t *long_values_cache,
+     libfcache_cache_t *long_values_cache,
      uint8_t flags,
      liberror_error_t **error )
 {
@@ -229,7 +231,7 @@ int libesedb_index_initialize(
 
 		goto on_error;
 	}
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &( internal_index->index_values_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES,
 	     error ) != 1 )
@@ -284,7 +286,7 @@ on_error:
 	{
 		if( internal_index->index_values_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_index->index_values_cache ),
 			 NULL );
 		}
@@ -385,7 +387,7 @@ int libesedb_index_free(
 
 			result = -1;
 		}
-		if( libfdata_cache_free(
+		if( libfcache_cache_free(
 		     &( internal_index->index_values_cache ),
 		     error ) != 1 )
 		{

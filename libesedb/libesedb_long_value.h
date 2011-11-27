@@ -31,6 +31,7 @@
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_types.h"
 
@@ -56,7 +57,7 @@ struct libesedb_internal_long_value
 
 	/* The long values cache
 	 */
-	libfdata_cache_t *long_values_cache;
+	libfcache_cache_t *long_values_cache;
 
 	/* The item flags
 	 */
@@ -68,7 +69,7 @@ struct libesedb_internal_long_value
 
 	/* The data cache 
 	 */
-	libfdata_cache_t *data_cache;
+	libfcache_cache_t *data_cache;
 };
 
 int libesedb_long_value_initialize(
@@ -77,9 +78,9 @@ int libesedb_long_value_initialize(
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *long_values_pages_vector,
-     libfdata_cache_t *long_values_pages_cache,
+     libfcache_cache_t *long_values_pages_cache,
      libfdata_tree_t *long_values_tree,
-     libfdata_cache_t *long_values_cache,
+     libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,

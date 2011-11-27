@@ -29,6 +29,8 @@
 #include "libesedb_definitions.h"
 #include "libesedb_catalog.h"
 #include "libesedb_catalog_definition.h"
+#include "libesedb_libfcache.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_libuna.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
@@ -707,14 +709,14 @@ int libesedb_catalog_read(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
-     libfdata_cache_t *pages_cache,
+     libfcache_cache_t *pages_cache,
      liberror_error_t **error )
 {
 	libesedb_catalog_definition_t *catalog_definition = NULL;
 	libesedb_page_tree_t *catalog_page_tree           = NULL;
 	libesedb_table_definition_t *table_definition     = NULL;
 	libesedb_values_tree_value_t *values_tree_value   = NULL;
-	libfdata_cache_t *catalog_values_cache            = NULL;
+	libfcache_cache_t *catalog_values_cache           = NULL;
 	libfdata_tree_t *catalog_values_tree              = NULL;
 	libfdata_tree_node_t *catalog_values_tree_node    = NULL;
 	uint8_t *catalog_definition_data                  = NULL;
@@ -788,7 +790,7 @@ int libesedb_catalog_read(
 	}
 	catalog_page_tree = NULL;
 
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &catalog_values_cache,
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TREE_VALUES,
 	     error ) != 1 )
@@ -1103,7 +1105,7 @@ int libesedb_catalog_read(
 				break;
 		}
 	}
-	if( libfdata_cache_free(
+	if( libfcache_cache_free(
 	     &catalog_values_cache,
 	     error ) != 1 )
 	{
@@ -1140,7 +1142,7 @@ on_error:
 	}
 	if( catalog_values_cache != NULL )
 	{
-		libfdata_cache_free(
+		libfcache_cache_free(
 		 &catalog_values_cache,
 		 NULL );
 	}

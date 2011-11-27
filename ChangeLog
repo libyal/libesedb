@@ -1,4 +1,5 @@
 TODO
+* Add microseconds to filetimes in library and tools
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
 * handle compressed values inside the library
   - compressed binary data
@@ -119,6 +120,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20111127
+* updated libfdata
+* added libfcache
 
 20111120
 * code clean up

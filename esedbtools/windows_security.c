@@ -432,6 +432,7 @@ int windows_security_export_record_value_utf16_string(
 int windows_security_export_record_smtblversion(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -631,6 +632,7 @@ int windows_security_export_record_smtblversion(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )
@@ -667,6 +669,7 @@ int windows_security_export_record_smtblversion(
 int windows_security_export_record_smtblsection(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
@@ -846,6 +849,7 @@ int windows_security_export_record_smtblsection(
 				  record,
 				  value_iterator,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		if( result != 1 )

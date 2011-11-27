@@ -29,6 +29,8 @@
 #include "libesedb_definitions.h"
 #include "libesedb_index.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libfcache.h"
+#include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_record.h"
@@ -225,7 +227,7 @@ int libesedb_table_initialize(
 
 		goto on_error;
 	}
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &( internal_table->pages_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 	     error ) != 1 )
@@ -283,7 +285,7 @@ int libesedb_table_initialize(
 
 		goto on_error;
 	}
-	if( libfdata_cache_initialize(
+	if( libfcache_cache_initialize(
 	     &( internal_table->table_values_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
 	     error ) != 1 )
@@ -354,7 +356,7 @@ int libesedb_table_initialize(
 
 			goto on_error;
 		}
-		if( libfdata_cache_initialize(
+		if( libfcache_cache_initialize(
 		     &( internal_table->long_values_pages_cache ),
 		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 		     error ) != 1 )
@@ -412,7 +414,7 @@ int libesedb_table_initialize(
 
 			goto on_error;
 		}
-		if( libfdata_cache_initialize(
+		if( libfcache_cache_initialize(
 		     &( internal_table->long_values_cache ),
 		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
 		     error ) != 1 )
@@ -459,7 +461,7 @@ on_error:
 	{
 		if( internal_table->long_values_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_table->long_values_cache ),
 			 NULL );
 		}
@@ -471,7 +473,7 @@ on_error:
 		}
 		if( internal_table->long_values_pages_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_table->long_values_pages_cache ),
 			 NULL );
 		}
@@ -483,7 +485,7 @@ on_error:
 		}
 		if( internal_table->table_values_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_table->table_values_cache ),
 			 NULL );
 		}
@@ -495,7 +497,7 @@ on_error:
 		}
 		if( internal_table->pages_cache != NULL )
 		{
-			libfdata_cache_free(
+			libfcache_cache_free(
 			 &( internal_table->pages_cache ),
 			 NULL );
 		}
@@ -595,7 +597,7 @@ int libesedb_table_free(
 
 			result = -1;
 		}
-		if( libfdata_cache_free(
+		if( libfcache_cache_free(
 		     &( internal_table->pages_cache ),
 		     error ) != 1 )
 		{
@@ -626,7 +628,7 @@ int libesedb_table_free(
 		}
 		if( internal_table->long_values_pages_cache != NULL )
 		{
-			if( libfdata_cache_free(
+			if( libfcache_cache_free(
 			     &( internal_table->long_values_pages_cache ),
 			     error ) != 1 )
 			{
@@ -653,7 +655,7 @@ int libesedb_table_free(
 
 			result = -1;
 		}
-		if( libfdata_cache_free(
+		if( libfcache_cache_free(
 		     &( internal_table->table_values_cache ),
 		     error ) != 1 )
 		{
@@ -684,7 +686,7 @@ int libesedb_table_free(
 		}
 		if( internal_table->long_values_cache != NULL )
 		{
-			if( libfdata_cache_free(
+			if( libfcache_cache_free(
 			     &( internal_table->long_values_cache ),
 			     error ) != 1 )
 			{

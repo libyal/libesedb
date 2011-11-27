@@ -2,6 +2,7 @@ EXTRA_DIST = \
 	libbfio/libbfio.vcproj \
 	libcstring/libcstring.vcproj \
 	liberror/liberror.vcproj \
+	libfcache/libfcache.vcproj \
 	libfdata/libfdata.vcproj \
 	libfdatetime/libfdatetime.vcproj \
 	libfguid/libfguid.vcproj \

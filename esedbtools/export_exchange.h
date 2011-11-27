@@ -29,6 +29,7 @@
 #include <liberror.h>
 
 #include "esedbtools_libesedb.h"
+#include "log_handle.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -95,26 +96,31 @@ int export_exchange_record_value_string(
 int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_exchange_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 int export_exchange_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      liberror_error_t **error );
 
 #if defined( __cplusplus )
