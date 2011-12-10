@@ -1952,7 +1952,7 @@ int windows_search_export_record_value_filetime(
      FILE *record_file_stream,
      liberror_error_t **error )
 {
-	libcstring_system_character_t filetime_string[ 24 ];
+	libcstring_system_character_t filetime_string[ 32 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -2083,16 +2083,16 @@ int windows_search_export_record_value_filetime(
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
-			          24,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			          32,
+			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
 			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
 			          error );
 #else
 			result = libfdatetime_filetime_copy_to_utf8_string(
 			          filetime,
 			          (uint8_t *) filetime_string,
-			          24,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME,
+			          32,
+			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
 			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
 			          error );
 #endif

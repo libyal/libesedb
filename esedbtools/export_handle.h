@@ -135,6 +135,15 @@ int export_handle_close(
 
 /* Item generic export functions
  */
+int export_handle_create_item_filename(
+     export_handle_t *export_handle,
+     int item_index,
+     const libcstring_system_character_t *item_name,
+     size_t item_name_length,
+     libcstring_system_character_t **item_filename,
+     size_t *item_filename_size,
+     liberror_error_t **error );
+
 int export_handle_create_text_item_file(
      export_handle_t *export_handle,
      const libcstring_system_character_t *item_filename,
@@ -147,6 +156,7 @@ int export_handle_create_text_item_file(
 int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
+     int table_index,
      const libcstring_system_character_t *table_name,
      size_t table_name_length,
      const libcstring_system_character_t *export_path,
@@ -167,6 +177,7 @@ int export_handle_export_indexes(
 int export_handle_export_index(
      export_handle_t *export_handle,
      libesedb_index_t *index,
+     int index_iterator,
      const libcstring_system_character_t *index_name,
      size_t index_name_length,
      const libcstring_system_character_t *export_path,

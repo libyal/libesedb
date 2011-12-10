@@ -1,9 +1,7 @@
 TODO
-* Add microseconds to filetimes in library and tools
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
 * handle compressed values inside the library
   - compressed binary data
-* check READMEs for EWF
 * esedbexport -t /root creates /root.export ?
 * esedbexport skip table on error
 * check Win2K ntds.dit support
@@ -120,6 +118,12 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20111210
+* updated libcstring, libsystem
+* esedbexport:
+  - added table index nr to filename for duplicate table names
+  - added microseconds to filetimes
 
 20111127
 * updated libfdata

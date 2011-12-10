@@ -158,7 +158,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdata\libfdata_block_reference.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_buffer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_buffer_reference.c"
 				>
 			</File>
 			<File
@@ -179,6 +187,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_range.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_reference.c"
 				>
 			</File>
 			<File
@@ -212,7 +224,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdata\libfdata_block_reference.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_buffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_buffer_reference.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_date_time.h"
 				>
 			</File>
 			<File
@@ -225,6 +249,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_inline.h"
 				>
 			</File>
 			<File
@@ -252,6 +280,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdata\libfdata_reference.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_support.h"
 				>
 			</File>
@@ -265,6 +297,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_unused.h"
 				>
 			</File>
 			<File

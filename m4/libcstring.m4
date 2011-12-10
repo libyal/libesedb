@@ -1,6 +1,6 @@
 dnl Functions for libcstring
 dnl
-dnl Version: 20111004
+dnl Version: 201111203
 
 dnl Function to detect whether nl_langinfo supports CODESET
 AC_DEFUN([AX_LIBCSTRING_CHECK_FUNC_LANGINFO_CODESET],
@@ -73,7 +73,7 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
  AX_LIBCSTRING_CHECK_FUNC_LANGINFO_CODESET
  
  dnl Narrow character string functions used in libcstring/libcstring_narrow_string.h
- AC_CHECK_FUNCS([atoll fgets memchr memcmp memcpy memrchr snprintf sscanf strcasecmp strchr strlen strncasecmp strncmp strncpy strrchr strstr strtoll strtoull vsnprintf])
+ AC_CHECK_FUNCS([fgets memchr memcmp memcpy memrchr snprintf sscanf strcasecmp strchr strlen strncasecmp strncmp strncpy strrchr strstr vsnprintf])
 
  AS_IF(
   [test "x$ac_cv_func_fgets" != xyes],
@@ -155,20 +155,6 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
   ])
  
  AS_IF(
-  [test "x$ac_cv_func_atoll" != xyes && test "x$ac_cv_func_strtoll" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing functions: atoll and strtoll],
-   [1])
-  ])
- 
- AS_IF(
-  [test "x$ac_cv_func_atoll" != xyes && test "x$ac_cv_func_strtoull" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing functions: strtoull and atoll],
-   [1])
-  ])
- 
- AS_IF(
   [test "x$ac_cv_func_strstr" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: vsnprintf],
@@ -178,7 +164,7 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
  dnl Wide character string functions used in libcstring/libcstring_wide_string.h
  AS_IF(
   [test "x$ac_cv_enable_wide_character_type" != xno],
-  [AC_CHECK_FUNCS([swprintf towlower wcscasecmp wcschr wcslen wcsncasecmp wcsncmp wcsncpy wcsrchr wcsstr wcstoll wcstoull wmemchr wmemcmp wmemcpy wmemrchr])
+  [AC_CHECK_FUNCS([swprintf towlower wcscasecmp wcschr wcslen wcsncasecmp wcsncmp wcsncpy wcsrchr wcsstr wmemchr wmemcmp wmemcpy wmemrchr])
 
   AS_IF(
    [test "x$ac_cv_func_swprintf" != xyes],
@@ -233,20 +219,6 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
    [test "x$ac_cv_func_wcsstr" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcsstr],
-    [1])
-   ])
- 
-  AS_IF(
-   [test "x$ac_cv_func_wcstoll" != xyes],
-   [AC_MSG_FAILURE(
-    [Missing function: wcstoll],
-    [1])
-   ])
- 
-  AS_IF(
-   [test "x$ac_cv_func_wcstoull" != xyes],
-   [AC_MSG_FAILURE(
-    [Missing function: wcstoull],
     [1])
    ])
   ])
