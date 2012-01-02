@@ -1,6 +1,6 @@
 dnl Functions for libuna
 dnl
-dnl Version: 20111025
+dnl Version: 20111224
 
 dnl Function to detect if libuna is available as library
 dnl ac_libuna_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -32,6 +32,114 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
     [ac_cv_libuna_dummy=yes],
     [ac_cv_libuna=no])
   
+   dnl Base16 stream functions
+   AC_CHECK_LIB(
+    una,
+    libuna_base16_stream_size_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base16_stream_copy_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base16_stream_size_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base16_stream_copy_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+
+   dnl Base32 stream functions
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_quintuplet_copy_from_base32_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_quintuplet_copy_to_base32_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_quintuplet_copy_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_quintuplet_copy_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_stream_size_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_stream_copy_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_stream_size_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base32_stream_copy_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+
+   dnl Base64 stream functions
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_triplet_copy_from_base64_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_triplet_copy_to_base64_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_triplet_copy_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_triplet_copy_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_stream_size_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_stream_copy_to_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_stream_size_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+   AC_CHECK_LIB(
+    una,
+    libuna_base64_stream_copy_from_byte_stream,
+    [ac_cv_libuna_dummy=yes],
+    [ac_cv_libuna=no])
+
    dnl Byte stream functions
    AC_CHECK_LIB(
     una,

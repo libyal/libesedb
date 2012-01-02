@@ -24,7 +24,7 @@ BEGIN
       VALUE "FileDescription",		"Library to support the Extensible Storage Engine (ESE) Database File (EDB) fomat\0"
       VALUE "FileVersion",		"@VERSION@" "\0"
       VALUE "InternalName",		"libesedb.dll\0"
-      VALUE "LegalCopyright",		"(c) 2009-2011 Joachim Metz <jbmetz@users.sourceforge.net>\0"
+      VALUE "LegalCopyright",		"(c) 2009-2012 Joachim Metz <jbmetz@users.sourceforge.net>\0"
       VALUE "OriginalFilename",		"libesedb.dll\0"
       VALUE "ProductName",		"libesedb\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"

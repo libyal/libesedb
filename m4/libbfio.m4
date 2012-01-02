@@ -1,6 +1,6 @@
 dnl Functions for libbfio
 dnl
-dnl Version: 20111025
+dnl Version: 20111224
 
 dnl Function to detect if libbfio is available
 AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
@@ -256,7 +256,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LOCAL],
  AC_CHECK_HEADERS([errno.h fcntl.h sys/stat.h unistd.h])
 
  dnl File input/output functions used in libbfio/libbfio_file.h
- AC_CHECK_FUNCS([close fstat ftruncate lseek open read stat write])
+ AC_CHECK_FUNCS([close fstat ftruncate getcwd lseek open read stat write])
 
  AS_IF(
   [test "x$ac_cv_func_close" != xyes],
@@ -276,6 +276,13 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LOCAL],
   [test "x$ac_cv_func_ftruncate" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: ftruncate],
+   [1])
+  ])
+ 
+ AS_IF(
+  [test "x$ac_cv_func_getcwd" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: getcwd],
    [1])
   ])
  

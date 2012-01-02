@@ -119,6 +119,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20120102
+* 2012 update
+
 20111210
 * updated libcstring, libsystem
 * esedbexport:

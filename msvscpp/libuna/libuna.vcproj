@@ -155,11 +155,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_base64_stream.c"
+				RelativePath="..\..\libuna\libuna_base32_stream.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_base64url_stream.c"
+				RelativePath="..\..\libuna\libuna_base64_stream.c"
 				>
 			</File>
 			<File
@@ -321,11 +321,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_base64_stream.h"
+				RelativePath="..\..\libuna\libuna_base32_stream.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libuna\libuna_base64url_stream.h"
+				RelativePath="..\..\libuna\libuna_base64_stream.h"
 				>
 			</File>
 			<File

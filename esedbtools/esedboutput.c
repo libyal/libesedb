@@ -1,7 +1,7 @@
 /*
  * Common output functions for the esedbtools
  *
- * Copyright (c) 2009-2011, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2009-2012, Joachim Metz <jbmetz@users.sourceforge.net>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -68,7 +68,7 @@ void esedboutput_copyright_fprint(
 	 */
 	fprintf(
 	 stream,
-	 _( "Copyright (c) 2009-2011, %s.\n" ),
+	 _( "Copyright (c) 2009-2012, %s.\n" ),
 	 _( "Joachim Metz" ) );
 
 	fprintf(
