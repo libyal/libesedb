@@ -1,4 +1,5 @@
 TODO
+* update include/codepage add 949 and 950
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
 * handle compressed values inside the library
   - compressed binary data
