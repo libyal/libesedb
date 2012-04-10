@@ -219,7 +219,8 @@ int libesedb_file_signal_abort(
      libesedb_file_t *file,
      liberror_error_t **error )
 {
-	static char *function = "libesedb_file_signal_abort";
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_signal_abort";
 
 	if( file == NULL )
 	{
@@ -232,7 +233,18 @@ int libesedb_file_signal_abort(
 
 		return( -1 );
 	}
-	( (libesedb_internal_file_t *) file )->abort = 1;
+	if( internal_file->io_handle == NULL )
+	{
+		liberror_error_set(
+		 error,
+		 LIBERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid internal file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file->io_handle->abort = 1;
 
 	return( 1 );
 }
@@ -261,6 +273,8 @@ int libesedb_file_open(
 
 		return( -1 );
 	}
+	internal_file = (libesedb_internal_file_t *) file;
+
 	if( filename == NULL )
 	{
 		liberror_error_set(
@@ -295,8 +309,6 @@ int libesedb_file_open(
 
 		return( -1 );
 	}
-	internal_file = (libesedb_internal_file_t *) file;
-
 	if( libbfio_file_initialize(
 	     &file_io_handle,
 	     error ) != 1 )
@@ -398,6 +410,8 @@ int libesedb_file_open_wide(
 
 		return( -1 );
 	}
+	internal_file = (libesedb_internal_file_t *) file;
+
 	if( filename == NULL )
 	{
 		liberror_error_set(
@@ -432,8 +446,6 @@ int libesedb_file_open_wide(
 
 		return( -1 );
 	}
-	internal_file = (libesedb_internal_file_t *) file;
-
 	if( libbfio_file_initialize(
 	     &file_io_handle,
 	     error ) != 1 )

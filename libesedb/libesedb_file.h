@@ -78,10 +78,6 @@ struct libesedb_internal_file
 	/* The catalog
 	 */
 	libesedb_catalog_t *catalog;
-
-	/* Value to indicate if abort was signalled
-	 */
-	int abort;
 };
 
 LIBESEDB_EXTERN \

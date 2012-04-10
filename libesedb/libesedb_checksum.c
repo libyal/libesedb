@@ -1,5 +1,5 @@
 /*
- * Checkcum functions
+ * Checksum functions
  *
  * Copyright (c) 2009-2012, Joachim Metz <jbmetz@users.sourceforge.net>
  *

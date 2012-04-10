@@ -80,6 +80,10 @@ struct libesedb_io_handle
 	/* The codepage of the ASCII strings
 	 */
 	int ascii_codepage;
+
+	/* Value to indicate if abort was signalled
+	 */
+	int abort;
 };
 
 int libesedb_io_handle_initialize(
