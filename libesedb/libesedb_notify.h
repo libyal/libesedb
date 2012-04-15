@@ -25,11 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include <stdio.h>
 
 #include "libesedb_extern.h"
+#include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -44,16 +43,16 @@ void libesedb_notify_set_verbose(
 LIBESEDB_EXTERN \
 int libesedb_notify_set_stream(
      FILE *stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_notify_stream_open(
      const char *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_notify_stream_close(
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif
 

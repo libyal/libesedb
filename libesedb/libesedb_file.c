@@ -23,10 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_catalog.h"
 #include "libesedb_database.h"
 #include "libesedb_debug.h"
@@ -35,6 +31,9 @@
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
+#include "libesedb_libcstring.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
@@ -47,17 +46,17 @@
  */
 int libesedb_file_initialize(
      libesedb_file_t **file,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_initialize";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -65,10 +64,10 @@ int libesedb_file_initialize(
 	}
 	if( *file != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid file value already set.",
 		 function );
 
@@ -79,10 +78,10 @@ int libesedb_file_initialize(
 
 	if( internal_file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create file.",
 		 function );
 
@@ -93,10 +92,10 @@ int libesedb_file_initialize(
 	     0,
 	     sizeof( libesedb_internal_file_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear file.",
 		 function );
 
@@ -109,10 +108,10 @@ int libesedb_file_initialize(
 	     &( internal_file->io_handle ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create IO handle.",
 		 function );
 
@@ -121,10 +120,10 @@ int libesedb_file_initialize(
 	if( libesedb_i18n_initialize(
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to initalize internationalization (i18n).",
 		 function );
 
@@ -154,7 +153,7 @@ on_error:
  */
 int libesedb_file_free(
      libesedb_file_t **file,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_free";
@@ -162,10 +161,10 @@ int libesedb_file_free(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -181,10 +180,10 @@ int libesedb_file_free(
 			     *file,
 			     error ) != 0 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_CLOSE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 				 "%s: unable to close file.",
 				 function );
 
@@ -197,10 +196,10 @@ int libesedb_file_free(
 		     &( internal_file->io_handle ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free IO handle.",
 			 function );
 
@@ -217,17 +216,17 @@ int libesedb_file_free(
  */
 int libesedb_file_signal_abort(
      libesedb_file_t *file,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_signal_abort";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -235,10 +234,10 @@ int libesedb_file_signal_abort(
 	}
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -256,7 +255,7 @@ int libesedb_file_open(
      libesedb_file_t *file,
      const char *filename,
      int access_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle        = NULL;
 	libesedb_internal_file_t *internal_file = NULL;
@@ -264,10 +263,10 @@ int libesedb_file_open(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -277,10 +276,10 @@ int libesedb_file_open(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -289,10 +288,10 @@ int libesedb_file_open(
 	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
 	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -300,10 +299,10 @@ int libesedb_file_open(
 	}
 	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: write access currently not supported.",
 		 function );
 
@@ -313,10 +312,10 @@ int libesedb_file_open(
 	     &file_io_handle,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create file IO handle.",
 		 function );
 
@@ -328,10 +327,10 @@ int libesedb_file_open(
 	     1,
 	     error ) != 1 )
 	{
-                liberror_error_set(
+                libcerror_error_set(
                  error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
                  "%s: unable to set track offsets read in file IO handle.",
                  function );
 
@@ -345,10 +344,10 @@ int libesedb_file_open(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
-                liberror_error_set(
+                libcerror_error_set(
                  error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
                  "%s: unable to set filename in file IO handle.",
                  function );
 
@@ -360,10 +359,10 @@ int libesedb_file_open(
 	     access_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open file: %s.",
 		 function,
 		 filename );
@@ -393,7 +392,7 @@ int libesedb_file_open_wide(
      libesedb_file_t *file,
      const wchar_t *filename,
      int access_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libbfio_handle_t *file_io_handle        = NULL;
 	libesedb_internal_file_t *internal_file = NULL;
@@ -401,10 +400,10 @@ int libesedb_file_open_wide(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -414,10 +413,10 @@ int libesedb_file_open_wide(
 
 	if( filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid filename.",
 		 function );
 
@@ -426,10 +425,10 @@ int libesedb_file_open_wide(
 	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
 	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -437,10 +436,10 @@ int libesedb_file_open_wide(
 	}
 	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: write access currently not supported.",
 		 function );
 
@@ -450,10 +449,10 @@ int libesedb_file_open_wide(
 	     &file_io_handle,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create file IO handle.",
 		 function );
 
@@ -465,10 +464,10 @@ int libesedb_file_open_wide(
 	     1,
 	     error ) != 1 )
 	{
-                liberror_error_set(
+                libcerror_error_set(
                  error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
                  "%s: unable to set track offsets read in file IO handle.",
                  function );
 
@@ -482,10 +481,10 @@ int libesedb_file_open_wide(
 	      filename ) + 1,
 	     error ) != 1 )
 	{
-                liberror_error_set(
+                libcerror_error_set(
                  error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
                  "%s: unable to set filename in file IO handle.",
                  function );
 
@@ -497,10 +496,10 @@ int libesedb_file_open_wide(
 	     access_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open file: %ls.",
 		 function,
 		 filename );
@@ -530,7 +529,7 @@ int libesedb_file_open_file_io_handle(
      libesedb_file_t *file,
      libbfio_handle_t *file_io_handle,
      int access_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_open_file_io_handle";
@@ -539,10 +538,10 @@ int libesedb_file_open_file_io_handle(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -552,10 +551,10 @@ int libesedb_file_open_file_io_handle(
 
 	if( internal_file->file_io_handle != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal file - file IO handle already set.",
 		 function );
 
@@ -563,10 +562,10 @@ int libesedb_file_open_file_io_handle(
 	}
 	if( file_io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file IO handle.",
 		 function );
 
@@ -575,10 +574,10 @@ int libesedb_file_open_file_io_handle(
 	if( ( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) == 0 )
 	 && ( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) == 0 ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported access flags.",
 		 function );
 
@@ -586,10 +585,10 @@ int libesedb_file_open_file_io_handle(
 	}
 	if( ( access_flags & LIBESEDB_ACCESS_FLAG_WRITE ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: write access currently not supported.",
 		 function );
 
@@ -607,10 +606,10 @@ int libesedb_file_open_file_io_handle(
 
 	if( file_io_handle_is_open == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open file.",
 		 function );
 
@@ -623,10 +622,10 @@ int libesedb_file_open_file_io_handle(
 		     bfio_access_flags,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
 			 "%s: unable to open file IO handle.",
 			 function );
 
@@ -637,10 +636,10 @@ int libesedb_file_open_file_io_handle(
 	     internal_file,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read from file handle.",
 		 function );
 
@@ -654,7 +653,7 @@ int libesedb_file_open_file_io_handle(
  */
 int libesedb_file_close(
      libesedb_file_t *file,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_close";
@@ -662,10 +661,10 @@ int libesedb_file_close(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -675,10 +674,10 @@ int libesedb_file_close(
 
 	if( internal_file->file_io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid file - missing file IO handle.",
 		 function );
 
@@ -687,16 +686,16 @@ int libesedb_file_close(
 	if( internal_file->file_io_handle_created_in_library != 0 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
 			if( libesedb_debug_print_read_offsets(
 			     internal_file->file_io_handle,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
 				 "%s: unable to print the read offsets.",
 				 function );
 
@@ -708,10 +707,10 @@ int libesedb_file_close(
 		     internal_file->file_io_handle,
 		     error ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_CLOSE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 			 "%s: unable to close file IO handle.",
 			 function );
 
@@ -721,10 +720,10 @@ int libesedb_file_close(
 		     &( internal_file->file_io_handle ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free file IO handle.",
 			 function );
 
@@ -738,10 +737,10 @@ int libesedb_file_close(
 	     &( internal_file->pages_vector ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free pages vector.",
 		 function );
 
@@ -751,10 +750,10 @@ int libesedb_file_close(
 	     &( internal_file->pages_cache ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free pages cache.",
 		 function );
 
@@ -764,10 +763,10 @@ int libesedb_file_close(
 	     &( internal_file->database ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free database.",
 		 function );
 
@@ -777,10 +776,10 @@ int libesedb_file_close(
 	     &( internal_file->catalog ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free catalog.",
 		 function );
 
@@ -794,7 +793,7 @@ int libesedb_file_close(
  */
 int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_file_open_read";
 	off64_t file_offset   = 0;
@@ -803,10 +802,10 @@ int libesedb_file_open_read(
 
 	if( internal_file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal file.",
 		 function );
 
@@ -814,10 +813,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -825,10 +824,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->pages_vector != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal file - pages vector already set.",
 		 function );
 
@@ -836,10 +835,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->pages_cache != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal file - pages cache already set.",
 		 function );
 
@@ -847,10 +846,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->database != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal file - database already set.",
 		 function );
 
@@ -858,10 +857,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->catalog != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid internal file - catalog already set.",
 		 function );
 
@@ -872,19 +871,19 @@ int libesedb_file_open_read(
 	     &file_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve file size.",
 		 function );
 
 		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "Reading (database) file header:\n" );
 	}
 #endif
@@ -894,19 +893,19 @@ int libesedb_file_open_read(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read (database) file header.",
 		 function );
 
 		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "Reading backup (database) file header:\n" );
 	}
 #endif
@@ -925,15 +924,15 @@ int libesedb_file_open_read(
 		while( file_offset <= 0x8000 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( ( libnotify_verbose != 0 )
+			if( ( libcnotify_verbose != 0 )
 			 && ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 
 			result = libesedb_io_handle_read_file_header(
@@ -951,10 +950,10 @@ int libesedb_file_open_read(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read backup (database) file header.",
 		 function );
 
@@ -962,10 +961,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->io_handle->format_version != 0x620 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported format version: 0x%04" PRIx32 ".",
 		 function,
 		 internal_file->io_handle->format_version );
@@ -974,10 +973,10 @@ int libesedb_file_open_read(
 	}
 	if( internal_file->io_handle->page_size == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid page size.",
 		 function );
 
@@ -990,10 +989,10 @@ int libesedb_file_open_read(
 			if( ( internal_file->io_handle->page_size != 0x1000 )
 			 && ( internal_file->io_handle->page_size != 0x2000 ) )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
 				 function,
 				 internal_file->io_handle->page_size,
@@ -1012,10 +1011,10 @@ int libesedb_file_open_read(
 			 && ( internal_file->io_handle->page_size != 0x4000 )
 			 && ( internal_file->io_handle->page_size != 0x8000 ) )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported page size: %" PRIu32 " (0x%04" PRIx32 ") for format version: 0x%" PRIx32 " revision: 0x%" PRIx32 ".",
 				 function,
 				 internal_file->io_handle->page_size,
@@ -1032,10 +1031,10 @@ int libesedb_file_open_read(
 	     file_size,
 	     error ) != 1 )
 	{
-                liberror_error_set(
+                libcerror_error_set(
                  error,
-                 LIBERROR_ERROR_DOMAIN_RUNTIME,
-                 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+                 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+                 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
                  "%s: unable to set pages data range in IO handle.",
                  function );
 
@@ -1052,10 +1051,10 @@ int libesedb_file_open_read(
 	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create pages vector.",
 		 function );
 
@@ -1068,10 +1067,10 @@ int libesedb_file_open_read(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append segment to pages vector.",
 		 function );
 
@@ -1082,10 +1081,10 @@ int libesedb_file_open_read(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create pages cache.",
 		 function );
 
@@ -1094,9 +1093,9 @@ int libesedb_file_open_read(
 	if( internal_file->io_handle->file_type == LIBESEDB_FILE_TYPE_DATABASE )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "Reading the database:\n" );
 		}
 #endif
@@ -1104,10 +1103,10 @@ int libesedb_file_open_read(
 		     &( internal_file->database ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create database.",
 			 function );
 
@@ -1121,19 +1120,19 @@ int libesedb_file_open_read(
 		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read database.",
 			 function );
 
 			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "Reading the catalog:\n" );
 		}
 #endif
@@ -1141,10 +1140,10 @@ int libesedb_file_open_read(
 		     &( internal_file->catalog ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create catalog.",
 			 function );
 
@@ -1158,10 +1157,10 @@ int libesedb_file_open_read(
 		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read catalog.",
 			 function );
 
@@ -1205,17 +1204,17 @@ on_error:
 int libesedb_file_get_type(
      libesedb_file_t *file,
      uint32_t *type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_get_type";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1225,10 +1224,10 @@ int libesedb_file_get_type(
 
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -1236,10 +1235,10 @@ int libesedb_file_get_type(
 	}
 	if( type == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid type.",
 		 function );
 
@@ -1257,17 +1256,17 @@ int libesedb_file_get_format_version(
      libesedb_file_t *file,
      uint32_t *format_version,
      uint32_t *format_revision,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_get_format_version";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1277,10 +1276,10 @@ int libesedb_file_get_format_version(
 
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -1288,10 +1287,10 @@ int libesedb_file_get_format_version(
 	}
 	if( format_version == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid format version.",
 		 function );
 
@@ -1299,10 +1298,10 @@ int libesedb_file_get_format_version(
 	}
 	if( format_revision == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid format revision.",
 		 function );
 
@@ -1321,17 +1320,17 @@ int libesedb_file_get_creation_format_version(
      libesedb_file_t *file,
      uint32_t *format_version,
      uint32_t *format_revision,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_get_creation_format_version";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1341,10 +1340,10 @@ int libesedb_file_get_creation_format_version(
 
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -1352,10 +1351,10 @@ int libesedb_file_get_creation_format_version(
 	}
 	if( format_version == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid format version.",
 		 function );
 
@@ -1363,10 +1362,10 @@ int libesedb_file_get_creation_format_version(
 	}
 	if( format_revision == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid format revision.",
 		 function );
 
@@ -1384,17 +1383,17 @@ int libesedb_file_get_creation_format_version(
 int libesedb_file_get_page_size(
      libesedb_file_t *file,
      uint32_t *page_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_get_page_size";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1404,10 +1403,10 @@ int libesedb_file_get_page_size(
 
 	if( internal_file->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal file - missing IO handle.",
 		 function );
 
@@ -1415,10 +1414,10 @@ int libesedb_file_get_page_size(
 	}
 	if( page_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page size.",
 		 function );
 
@@ -1435,17 +1434,17 @@ int libesedb_file_get_page_size(
 int libesedb_file_get_number_of_tables(
      libesedb_file_t *file,
      int *number_of_tables,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_get_number_of_tables";
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1457,10 +1456,10 @@ int libesedb_file_get_number_of_tables(
 	{
 		if( number_of_tables == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid number of tables.",
 			 function );
 
@@ -1475,10 +1474,10 @@ int libesedb_file_get_number_of_tables(
 		     number_of_tables,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of tables.",
 			 function );
 
@@ -1495,7 +1494,7 @@ int libesedb_file_get_table(
      libesedb_file_t *file,
      int table_entry,
      libesedb_table_t **table,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file                = NULL;
 	libesedb_table_definition_t *table_definition          = NULL;
@@ -1504,10 +1503,10 @@ int libesedb_file_get_table(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1517,10 +1516,10 @@ int libesedb_file_get_table(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1528,10 +1527,10 @@ int libesedb_file_get_table(
 	}
 	if( *table != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table value already set.",
 		 function );
 
@@ -1543,10 +1542,10 @@ int libesedb_file_get_table(
 	     &table_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve table definition: %d.",
 		 function,
 		 table_entry );
@@ -1555,10 +1554,10 @@ int libesedb_file_get_table(
 	}
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing table definition.",
 		 function );
 
@@ -1566,10 +1565,10 @@ int libesedb_file_get_table(
 	}
 	if( table_definition->table_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid table definition - missing table catalog definition.",
 		 function );
 
@@ -1584,10 +1583,10 @@ int libesedb_file_get_table(
 		     &template_table_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve template table definition.",
 			 function );
 
@@ -1603,10 +1602,10 @@ int libesedb_file_get_table(
 	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create table.",
 		 function );
 
@@ -1623,7 +1622,7 @@ int libesedb_file_get_table_by_utf8_name(
      const uint8_t *utf8_string,
      size_t utf8_string_length,
      libesedb_table_t **table,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file                = NULL;
 	libesedb_table_definition_t *table_definition          = NULL;
@@ -1633,10 +1632,10 @@ int libesedb_file_get_table_by_utf8_name(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1646,10 +1645,10 @@ int libesedb_file_get_table_by_utf8_name(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1657,10 +1656,10 @@ int libesedb_file_get_table_by_utf8_name(
 	}
 	if( *table != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table value already set.",
 		 function );
 
@@ -1675,10 +1674,10 @@ int libesedb_file_get_table_by_utf8_name(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve table definition.",
 		 function );
 
@@ -1688,10 +1687,10 @@ int libesedb_file_get_table_by_utf8_name(
 	{
 		if( table_definition == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition.",
 			 function );
 
@@ -1699,10 +1698,10 @@ int libesedb_file_get_table_by_utf8_name(
 		}
 		if( table_definition->table_catalog_definition == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table definition - missing table catalog definition.",
 			 function );
 
@@ -1717,10 +1716,10 @@ int libesedb_file_get_table_by_utf8_name(
 			     &template_table_definition,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve template table definition.",
 				 function );
 
@@ -1736,10 +1735,10 @@ int libesedb_file_get_table_by_utf8_name(
 		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create table.",
 			 function );
 
@@ -1757,7 +1756,7 @@ int libesedb_file_get_table_by_utf16_name(
      const uint16_t *utf16_string,
      size_t utf16_string_length,
      libesedb_table_t **table,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_file_t *internal_file                = NULL;
 	libesedb_table_definition_t *table_definition          = NULL;
@@ -1767,10 +1766,10 @@ int libesedb_file_get_table_by_utf16_name(
 
 	if( file == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid file.",
 		 function );
 
@@ -1780,10 +1779,10 @@ int libesedb_file_get_table_by_utf16_name(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1791,10 +1790,10 @@ int libesedb_file_get_table_by_utf16_name(
 	}
 	if( *table != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table value already set.",
 		 function );
 
@@ -1809,10 +1808,10 @@ int libesedb_file_get_table_by_utf16_name(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve table definition.",
 		 function );
 
@@ -1822,10 +1821,10 @@ int libesedb_file_get_table_by_utf16_name(
 	{
 		if( table_definition == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition.",
 			 function );
 
@@ -1833,10 +1832,10 @@ int libesedb_file_get_table_by_utf16_name(
 		}
 		if( table_definition->table_catalog_definition == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table definition - missing table catalog definition.",
 			 function );
 
@@ -1851,10 +1850,10 @@ int libesedb_file_get_table_by_utf16_name(
 			     &template_table_definition,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve template table definition.",
 				 function );
 
@@ -1870,10 +1869,10 @@ int libesedb_file_get_table_by_utf16_name(
 		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create table.",
 			 function );
 

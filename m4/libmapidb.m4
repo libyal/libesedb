@@ -1,6 +1,6 @@
 dnl Functions for libmapidb
 dnl
-dnl Version: 20111120
+dnl Version: 20120414
 
 dnl Function to detect if libmapidb is available
 AC_DEFUN([AX_LIBMAPIDB_CHECK_LIB],
@@ -37,6 +37,16 @@ AC_DEFUN([AX_LIBMAPIDB_CHECK_LIB],
 
  AS_IF(
   [test "x$ac_cv_libmapidb" = xyes],
+  [AC_DEFINE(
+   [HAVE_LIBMAPIDB],
+   [1],
+   [Define to 1 if you have the `mapidb' library (-lmapidb).])
+
+  ac_cv_libmapidb_LIBADD="-lmapidb"
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_libmapidb" = xyes],
   [AC_SUBST(
    [HAVE_LIBMAPIDB],
    [1]) ],
@@ -55,29 +65,56 @@ AC_DEFUN([AX_LIBMAPIDB_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBMAPIDB_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libmapidb],
+   [libmapidb >= 20120405],
+   [ac_cv_libmapidb=yes],
+   [ac_cv_libmapidb=no])
 
+  ac_cv_libmapidb_CPPFLAGS="$pkg_cv_libmapidb_CFLAGS"
+  ac_cv_libmapidb_LIBADD="$pkg_cv_libmapidb_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libmapidb" != xyes],
-  [AC_DEFINE(
+  [AX_LIBMAPIDB_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libmapidb" != xyes],
+  [ac_cv_libmapidb_CPPFLAGS="-I../libmapidb";
+  ac_cv_libmapidb_LIBADD="../libmapidb/libmapidb.la";
+
+  ac_cv_libmapidb=local
+
+  AC_DEFINE(
    [HAVE_LOCAL_LIBMAPIDB],
    [1],
    [Define to 1 if the local version of libmapidb is used.])
   AC_SUBST(
    [HAVE_LOCAL_LIBMAPIDB],
    [1])
-  AC_SUBST(
-   [LIBMAPIDB_CPPFLAGS],
-   [-I../libmapidb])
-  AC_SUBST(
-   [LIBMAPIDB_LIBADD],
-   [../libmapidb/libmapidb.la])
-  ac_cv_libmapidb=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBMAPIDB],
   [test "x$ac_cv_libmapidb" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libmapidb_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBMAPIDB_CPPFLAGS],
+   [$ac_cv_libmapidb_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libmapidb_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBMAPIDB_LIBADD],
+   [$ac_cv_libmapidb_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libmapidb" = xyes],

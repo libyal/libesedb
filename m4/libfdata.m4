@@ -1,6 +1,6 @@
 dnl Functions for libfdata
 dnl
-dnl Version: 20111025
+dnl Version: 20120409
 
 dnl Function to detect if libfdata is available
 dnl ac_libfdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -42,7 +42,8 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
    [HAVE_LIBFDATA],
    [1],
    [Define to 1 if you have the `fdata' library (-lfdata).])
-  LIBS="-lfdata $LIBS"
+
+  ac_cv_libfdata_LIBADD="-lfdata"
   ])
 
  AS_IF(
@@ -56,24 +57,6 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
   ])
  ])
 
-dnl Function to detect if libfdata dependencies are available
-AC_DEFUN([AX_LIBFDATA_CHECK_LOCAL],
- [dnl Types used in libfdata/libfdata_date_time.h
- AC_STRUCT_TM
-
- dnl Headers included in libfdata/libfdata_date_time.h
- AC_HEADER_TIME
-
- dnl Date and time functions used in libfdata/libfdata_date_time.h
- AC_CHECK_FUNCS(
-  [time],
-  [],
-  [AC_MSG_FAILURE(
-   [Missing function: time],
-   [1])
-  ])
- ])
-
 dnl Function to detect how to enable libfdata
 AC_DEFUN([AX_LIBFDATA_CHECK_ENABLE],
  [AX_COMMON_ARG_WITH(
@@ -83,11 +66,31 @@ AC_DEFUN([AX_LIBFDATA_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBFDATA_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libfdata],
+   [libfdata >= 20120405],
+   [ac_cv_libfdata=yes],
+   [ac_cv_libfdata=no])
 
+  ac_cv_libfdata_CPPFLAGS="$pkg_cv_libfdata_CFLAGS"
+  ac_cv_libfdata_LIBADD="$pkg_cv_libfdata_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libfdata" != xyes],
-  [AX_LIBFDATA_CHECK_LOCAL
+  [AX_LIBFDATA_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libfdata" != xyes],
+  [ac_cv_libfdata_CPPFLAGS="-I../libfdata";
+  ac_cv_libfdata_LIBADD="../libfdata/libfdata.la";
+
+  ac_cv_libfdata=local
 
   AC_DEFINE(
    [HAVE_LOCAL_LIBFDATA],
@@ -96,18 +99,23 @@ AC_DEFUN([AX_LIBFDATA_CHECK_ENABLE],
   AC_SUBST(
    [HAVE_LOCAL_LIBFDATA],
    [1])
-  AC_SUBST(
-   [LIBFDATA_CPPFLAGS],
-   [-I../libfdata])
-  AC_SUBST(
-   [LIBFDATA_LIBADD],
-   [../libfdata/libfdata.la])
-  ac_cv_libfdata=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBFDATA],
   [test "x$ac_cv_libfdata" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libfdata_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBFDATA_CPPFLAGS],
+   [$ac_cv_libfdata_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libfdata_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBFDATA_LIBADD],
+   [$ac_cv_libfdata_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libfdata" = xyes],

@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -38,14 +38,14 @@ int libesedb_checksum_calculate_little_endian_ecc32(
      size_t size,
      size_t offset,
      uint32_t initial_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_checksum_calculate_little_endian_xor32(
      uint32_t *checksum_value,
      const uint8_t *buffer,
      size_t size,
      uint32_t initial_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

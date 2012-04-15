@@ -23,13 +23,12 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_compression.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
@@ -58,7 +57,7 @@ int libesedb_record_initialize(
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record     = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
@@ -66,10 +65,10 @@ int libesedb_record_initialize(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -77,10 +76,10 @@ int libesedb_record_initialize(
 	}
 	if( *record != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid record value already set.",
 		 function );
 
@@ -88,10 +87,10 @@ int libesedb_record_initialize(
 	}
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -99,10 +98,10 @@ int libesedb_record_initialize(
 	}
 	if( table_definition->table_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid table definition - missing table catalog definition.",
 		 function );
 
@@ -110,10 +109,10 @@ int libesedb_record_initialize(
 	}
 	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags: 0x%02" PRIx8 ".",
 		 function,
 		 flags );
@@ -125,10 +124,10 @@ int libesedb_record_initialize(
 
 	if( internal_record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create record.",
 		 function );
 
@@ -139,10 +138,10 @@ int libesedb_record_initialize(
 	     0,
 	     sizeof( libesedb_internal_record_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear record.",
 		 function );
 
@@ -162,10 +161,10 @@ int libesedb_record_initialize(
 		     file_io_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy file IO handle.",
 			 function );
 
@@ -176,10 +175,10 @@ int libesedb_record_initialize(
 		     1,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to set open on demand in file IO handle.",
 			 function );
 
@@ -191,10 +190,10 @@ int libesedb_record_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create values array.",
 		 function );
 
@@ -208,10 +207,10 @@ int libesedb_record_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve node value from values tree node.",
 		 function );
 
@@ -228,10 +227,10 @@ int libesedb_record_initialize(
 	     internal_record->values_array,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read values tree value record.",
 		 function );
 
@@ -282,7 +281,7 @@ on_error:
  */
 int libesedb_record_free(
      libesedb_record_t **record,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
 	static char *function                       = "libesedb_record_free";
@@ -290,10 +289,10 @@ int libesedb_record_free(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -316,10 +315,10 @@ int libesedb_record_free(
 				     internal_record->file_io_handle,
 				     error ) != 0 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 					 "%s: unable to close file IO handle.",
 					 function );
 
@@ -329,10 +328,10 @@ int libesedb_record_free(
 				     &( internal_record->file_io_handle ),
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 					 "%s: unable to free file IO handle.",
 					 function );
 
@@ -342,13 +341,13 @@ int libesedb_record_free(
 		}
 		if( libesedb_array_free(
 		     &( internal_record->values_array ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libfvalue_value_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free values array.",
 			 function );
 
@@ -366,17 +365,17 @@ int libesedb_record_free(
 int libesedb_record_get_number_of_values(
      libesedb_record_t *record,
      int *number_of_values,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
 	static char *function                       = "libesedb_record_get_number_of_values";
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -389,10 +388,10 @@ int libesedb_record_get_number_of_values(
 	     number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of entries from values array.",
 		 function );
 
@@ -408,17 +407,17 @@ int libesedb_record_get_column_catalog_definition(
      libesedb_internal_record_t *internal_record,
      int value_entry,
      libesedb_catalog_definition_t **column_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function                = "libesedb_record_get_column_identifier";
 	int template_table_number_of_columns = 0;
 
 	if( internal_record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid internal record.",
 		 function );
 
@@ -426,10 +425,10 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	if( internal_record->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal record - missing table definition.",
 		 function );
 
@@ -442,10 +441,10 @@ int libesedb_record_get_column_catalog_definition(
 		     &template_table_number_of_columns,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of columns from template table.",
 			 function );
 
@@ -460,10 +459,10 @@ int libesedb_record_get_column_catalog_definition(
 		     (intptr_t **) column_catalog_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column catalog definition from template table.",
 			 function );
 
@@ -478,10 +477,10 @@ int libesedb_record_get_column_catalog_definition(
 		     (intptr_t **) column_catalog_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column catalog definition from table.",
 			 function );
 
@@ -498,7 +497,7 @@ int libesedb_record_get_column_identifier(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *column_identifier,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -506,10 +505,10 @@ int libesedb_record_get_column_identifier(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -523,10 +522,10 @@ int libesedb_record_get_column_identifier(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -537,10 +536,10 @@ int libesedb_record_get_column_identifier(
 	     column_identifier,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
@@ -556,7 +555,7 @@ int libesedb_record_get_column_type(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *column_type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -564,10 +563,10 @@ int libesedb_record_get_column_type(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -581,10 +580,10 @@ int libesedb_record_get_column_type(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -595,10 +594,10 @@ int libesedb_record_get_column_type(
 	     column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -615,7 +614,7 @@ int libesedb_record_get_utf8_column_name_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -623,10 +622,10 @@ int libesedb_record_get_utf8_column_name_size(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -636,10 +635,10 @@ int libesedb_record_get_utf8_column_name_size(
 
 	if( internal_record->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal record - missing IO handle.",
 		 function );
 
@@ -651,10 +650,10 @@ int libesedb_record_get_utf8_column_name_size(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -666,10 +665,10 @@ int libesedb_record_get_utf8_column_name_size(
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -687,7 +686,7 @@ int libesedb_record_get_utf8_column_name(
      int value_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -695,10 +694,10 @@ int libesedb_record_get_utf8_column_name(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -708,10 +707,10 @@ int libesedb_record_get_utf8_column_name(
 
 	if( internal_record->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal record - missing IO handle.",
 		 function );
 
@@ -723,10 +722,10 @@ int libesedb_record_get_utf8_column_name(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -739,10 +738,10 @@ int libesedb_record_get_utf8_column_name(
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
@@ -759,7 +758,7 @@ int libesedb_record_get_utf16_column_name_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -767,10 +766,10 @@ int libesedb_record_get_utf16_column_name_size(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -780,10 +779,10 @@ int libesedb_record_get_utf16_column_name_size(
 
 	if( internal_record->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal record - missing IO handle.",
 		 function );
 
@@ -795,10 +794,10 @@ int libesedb_record_get_utf16_column_name_size(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -810,10 +809,10 @@ int libesedb_record_get_utf16_column_name_size(
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -831,7 +830,7 @@ int libesedb_record_get_utf16_column_name(
      int value_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -839,10 +838,10 @@ int libesedb_record_get_utf16_column_name(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -852,10 +851,10 @@ int libesedb_record_get_utf16_column_name(
 
 	if( internal_record->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal record - missing IO handle.",
 		 function );
 
@@ -867,10 +866,10 @@ int libesedb_record_get_utf16_column_name(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -883,10 +882,10 @@ int libesedb_record_get_utf16_column_name(
 	     internal_record->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
@@ -904,7 +903,7 @@ int libesedb_record_get_value(
      uint8_t **value_data,
      size_t *value_data_size,
      uint8_t *value_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
 	libfvalue_value_t *record_value             = NULL;
@@ -915,10 +914,10 @@ int libesedb_record_get_value(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -928,10 +927,10 @@ int libesedb_record_get_value(
 
 	if( value_flags == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid value flags.",
 		 function );
 
@@ -943,10 +942,10 @@ int libesedb_record_get_value(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -960,10 +959,10 @@ int libesedb_record_get_value(
 	     &value_byte_order,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value data: %d.",
 		 function,
 		 value_entry );
@@ -978,10 +977,10 @@ int libesedb_record_get_value(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata: %d.",
 		 function,
 		 value_entry );
@@ -1006,7 +1005,7 @@ int libesedb_record_get_value_boolean(
      libesedb_record_t *record,
      int value_entry,
      uint8_t *value_boolean,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1017,10 +1016,10 @@ int libesedb_record_get_value_boolean(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1034,10 +1033,10 @@ int libesedb_record_get_value_boolean(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1048,10 +1047,10 @@ int libesedb_record_get_value_boolean(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1059,10 +1058,10 @@ int libesedb_record_get_value_boolean(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BOOLEAN )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1075,10 +1074,10 @@ int libesedb_record_get_value_boolean(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1091,10 +1090,10 @@ int libesedb_record_get_value_boolean(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1109,10 +1108,10 @@ int libesedb_record_get_value_boolean(
 		     value_boolean,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to boolean value.",
 			 function );
 
@@ -1129,7 +1128,7 @@ int libesedb_record_get_value_8bit(
      libesedb_record_t *record,
      int value_entry,
      uint8_t *value_8bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1140,10 +1139,10 @@ int libesedb_record_get_value_8bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1157,10 +1156,10 @@ int libesedb_record_get_value_8bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1171,10 +1170,10 @@ int libesedb_record_get_value_8bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1182,10 +1181,10 @@ int libesedb_record_get_value_8bit(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1198,10 +1197,10 @@ int libesedb_record_get_value_8bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1214,10 +1213,10 @@ int libesedb_record_get_value_8bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1232,10 +1231,10 @@ int libesedb_record_get_value_8bit(
 		     value_8bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to 8-bit value.",
 			 function );
 
@@ -1252,7 +1251,7 @@ int libesedb_record_get_value_16bit(
      libesedb_record_t *record,
      int value_entry,
      uint16_t *value_16bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1263,10 +1262,10 @@ int libesedb_record_get_value_16bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1280,10 +1279,10 @@ int libesedb_record_get_value_16bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1294,10 +1293,10 @@ int libesedb_record_get_value_16bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1306,10 +1305,10 @@ int libesedb_record_get_value_16bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1322,10 +1321,10 @@ int libesedb_record_get_value_16bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1338,10 +1337,10 @@ int libesedb_record_get_value_16bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1356,10 +1355,10 @@ int libesedb_record_get_value_16bit(
 		     value_16bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to 16-bit value.",
 			 function );
 
@@ -1376,7 +1375,7 @@ int libesedb_record_get_value_32bit(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *value_32bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1387,10 +1386,10 @@ int libesedb_record_get_value_32bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1404,10 +1403,10 @@ int libesedb_record_get_value_32bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1418,10 +1417,10 @@ int libesedb_record_get_value_32bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1430,10 +1429,10 @@ int libesedb_record_get_value_32bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1446,10 +1445,10 @@ int libesedb_record_get_value_32bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1462,10 +1461,10 @@ int libesedb_record_get_value_32bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1480,10 +1479,10 @@ int libesedb_record_get_value_32bit(
 		     value_32bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to 32-bit value.",
 			 function );
 
@@ -1500,7 +1499,7 @@ int libesedb_record_get_value_64bit(
      libesedb_record_t *record,
      int value_entry,
      uint64_t *value_64bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1511,10 +1510,10 @@ int libesedb_record_get_value_64bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1528,10 +1527,10 @@ int libesedb_record_get_value_64bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1542,10 +1541,10 @@ int libesedb_record_get_value_64bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1554,10 +1553,10 @@ int libesedb_record_get_value_64bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1570,10 +1569,10 @@ int libesedb_record_get_value_64bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1586,10 +1585,10 @@ int libesedb_record_get_value_64bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1604,10 +1603,10 @@ int libesedb_record_get_value_64bit(
 		     value_64bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to 64-bit value.",
 			 function );
 
@@ -1624,7 +1623,7 @@ int libesedb_record_get_value_filetime(
      libesedb_record_t *record,
      int value_entry,
      uint64_t *value_filetime,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1635,10 +1634,10 @@ int libesedb_record_get_value_filetime(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1652,10 +1651,10 @@ int libesedb_record_get_value_filetime(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1666,10 +1665,10 @@ int libesedb_record_get_value_filetime(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1677,10 +1676,10 @@ int libesedb_record_get_value_filetime(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1693,10 +1692,10 @@ int libesedb_record_get_value_filetime(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1709,10 +1708,10 @@ int libesedb_record_get_value_filetime(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1729,10 +1728,10 @@ int libesedb_record_get_value_filetime(
 		     value_filetime,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to 64-bit value.",
 			 function );
 
@@ -1749,7 +1748,7 @@ int libesedb_record_get_value_floating_point_32bit(
      libesedb_record_t *record,
      int value_entry,
      float *value_floating_point_32bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1760,10 +1759,10 @@ int libesedb_record_get_value_floating_point_32bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1777,10 +1776,10 @@ int libesedb_record_get_value_floating_point_32bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1791,10 +1790,10 @@ int libesedb_record_get_value_floating_point_32bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1802,10 +1801,10 @@ int libesedb_record_get_value_floating_point_32bit(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1818,10 +1817,10 @@ int libesedb_record_get_value_floating_point_32bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1834,10 +1833,10 @@ int libesedb_record_get_value_floating_point_32bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1852,10 +1851,10 @@ int libesedb_record_get_value_floating_point_32bit(
 		     value_floating_point_32bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to single precision floating point value.",
 			 function );
 
@@ -1872,7 +1871,7 @@ int libesedb_record_get_value_floating_point_64bit(
      libesedb_record_t *record,
      int value_entry,
      double *value_floating_point_64bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -1883,10 +1882,10 @@ int libesedb_record_get_value_floating_point_64bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1900,10 +1899,10 @@ int libesedb_record_get_value_floating_point_64bit(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -1914,10 +1913,10 @@ int libesedb_record_get_value_floating_point_64bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1925,10 +1924,10 @@ int libesedb_record_get_value_floating_point_64bit(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1941,10 +1940,10 @@ int libesedb_record_get_value_floating_point_64bit(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -1957,10 +1956,10 @@ int libesedb_record_get_value_floating_point_64bit(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -1975,10 +1974,10 @@ int libesedb_record_get_value_floating_point_64bit(
 		     value_floating_point_64bit,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to double precision floating point value.",
 			 function );
 
@@ -1996,7 +1995,7 @@ int libesedb_record_get_value_utf8_string_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2012,10 +2011,10 @@ int libesedb_record_get_value_utf8_string_size(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2029,10 +2028,10 @@ int libesedb_record_get_value_utf8_string_size(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -2043,10 +2042,10 @@ int libesedb_record_get_value_utf8_string_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -2055,10 +2054,10 @@ int libesedb_record_get_value_utf8_string_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -2071,10 +2070,10 @@ int libesedb_record_get_value_utf8_string_size(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -2087,10 +2086,10 @@ int libesedb_record_get_value_utf8_string_size(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -2107,10 +2106,10 @@ int libesedb_record_get_value_utf8_string_size(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -2123,10 +2122,10 @@ int libesedb_record_get_value_utf8_string_size(
 		}
 		if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 			 function,
 			 value_flags );
@@ -2142,10 +2141,10 @@ int libesedb_record_get_value_utf8_string_size(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -2167,10 +2166,10 @@ int libesedb_record_get_value_utf8_string_size(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve UTF-8 string size.",
 			 function );
 
@@ -2190,7 +2189,7 @@ int libesedb_record_get_value_utf8_string(
      int value_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2206,10 +2205,10 @@ int libesedb_record_get_value_utf8_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2223,10 +2222,10 @@ int libesedb_record_get_value_utf8_string(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -2237,10 +2236,10 @@ int libesedb_record_get_value_utf8_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -2249,10 +2248,10 @@ int libesedb_record_get_value_utf8_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -2265,10 +2264,10 @@ int libesedb_record_get_value_utf8_string(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -2281,10 +2280,10 @@ int libesedb_record_get_value_utf8_string(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -2301,10 +2300,10 @@ int libesedb_record_get_value_utf8_string(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -2317,10 +2316,10 @@ int libesedb_record_get_value_utf8_string(
 		}
 		if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 			 function,
 			 value_flags );
@@ -2336,10 +2335,10 @@ int libesedb_record_get_value_utf8_string(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -2363,10 +2362,10 @@ int libesedb_record_get_value_utf8_string(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to UTF-8 string.",
 			 function );
 
@@ -2384,7 +2383,7 @@ int libesedb_record_get_value_utf16_string_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2400,10 +2399,10 @@ int libesedb_record_get_value_utf16_string_size(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2417,10 +2416,10 @@ int libesedb_record_get_value_utf16_string_size(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -2431,10 +2430,10 @@ int libesedb_record_get_value_utf16_string_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -2443,10 +2442,10 @@ int libesedb_record_get_value_utf16_string_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -2459,10 +2458,10 @@ int libesedb_record_get_value_utf16_string_size(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -2475,10 +2474,10 @@ int libesedb_record_get_value_utf16_string_size(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -2495,10 +2494,10 @@ int libesedb_record_get_value_utf16_string_size(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -2511,10 +2510,10 @@ int libesedb_record_get_value_utf16_string_size(
 		}
 		if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 			 function,
 			 value_flags );
@@ -2530,10 +2529,10 @@ int libesedb_record_get_value_utf16_string_size(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -2555,10 +2554,10 @@ int libesedb_record_get_value_utf16_string_size(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve UTF-16 string size.",
 			 function );
 
@@ -2578,7 +2577,7 @@ int libesedb_record_get_value_utf16_string(
      int value_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2594,10 +2593,10 @@ int libesedb_record_get_value_utf16_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2611,10 +2610,10 @@ int libesedb_record_get_value_utf16_string(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -2625,10 +2624,10 @@ int libesedb_record_get_value_utf16_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -2637,10 +2636,10 @@ int libesedb_record_get_value_utf16_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -2653,10 +2652,10 @@ int libesedb_record_get_value_utf16_string(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -2669,10 +2668,10 @@ int libesedb_record_get_value_utf16_string(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -2689,10 +2688,10 @@ int libesedb_record_get_value_utf16_string(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -2705,10 +2704,10 @@ int libesedb_record_get_value_utf16_string(
 		}
 		if( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 			 function,
 			 value_flags );
@@ -2724,10 +2723,10 @@ int libesedb_record_get_value_utf16_string(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -2751,10 +2750,10 @@ int libesedb_record_get_value_utf16_string(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to UTF-16 string.",
 			 function );
 
@@ -2771,7 +2770,7 @@ int libesedb_record_get_value_binary_data_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *binary_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2789,10 +2788,10 @@ int libesedb_record_get_value_binary_data_size(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2806,10 +2805,10 @@ int libesedb_record_get_value_binary_data_size(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -2820,10 +2819,10 @@ int libesedb_record_get_value_binary_data_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -2832,10 +2831,10 @@ int libesedb_record_get_value_binary_data_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -2848,10 +2847,10 @@ int libesedb_record_get_value_binary_data_size(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -2864,10 +2863,10 @@ int libesedb_record_get_value_binary_data_size(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -2884,10 +2883,10 @@ int libesedb_record_get_value_binary_data_size(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -2907,10 +2906,10 @@ int libesedb_record_get_value_binary_data_size(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -2933,10 +2932,10 @@ int libesedb_record_get_value_binary_data_size(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve value data.",
 			 function );
 
@@ -2954,7 +2953,7 @@ int libesedb_record_get_value_binary_data(
      int value_entry,
      uint8_t *binary_data,
      size_t binary_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -2970,10 +2969,10 @@ int libesedb_record_get_value_binary_data(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2987,10 +2986,10 @@ int libesedb_record_get_value_binary_data(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -3001,10 +3000,10 @@ int libesedb_record_get_value_binary_data(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -3013,10 +3012,10 @@ int libesedb_record_get_value_binary_data(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -3029,10 +3028,10 @@ int libesedb_record_get_value_binary_data(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -3045,10 +3044,10 @@ int libesedb_record_get_value_binary_data(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -3065,10 +3064,10 @@ int libesedb_record_get_value_binary_data(
 		     &value_metadata_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value metadata: %d.",
 			 function,
 			 value_entry );
@@ -3088,10 +3087,10 @@ int libesedb_record_get_value_binary_data(
 			     &entry_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve record value entry data.",
 				 function );
 
@@ -3114,10 +3113,10 @@ int libesedb_record_get_value_binary_data(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable copy value data.",
 			 function );
 
@@ -3135,7 +3134,7 @@ int libesedb_record_get_long_value(
      libesedb_record_t *record,
      int value_entry,
      libesedb_long_value_t **long_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -3150,10 +3149,10 @@ int libesedb_record_get_long_value(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -3163,10 +3162,10 @@ int libesedb_record_get_long_value(
 
 	if( long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
 
@@ -3174,10 +3173,10 @@ int libesedb_record_get_long_value(
 	}
 	if( *long_value != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: long value already set.",
 		 function );
 
@@ -3189,10 +3188,10 @@ int libesedb_record_get_long_value(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -3204,10 +3203,10 @@ int libesedb_record_get_long_value(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -3220,10 +3219,10 @@ int libesedb_record_get_long_value(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata: %d.",
 		 function,
 		 value_entry );
@@ -3232,10 +3231,10 @@ int libesedb_record_get_long_value(
 	}
 	if( value_metadata == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing value metadata.",
 		 function );
 
@@ -3245,10 +3244,10 @@ int libesedb_record_get_long_value(
 	 */
 	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 		 function,
 		 *value_metadata );
@@ -3257,10 +3256,10 @@ int libesedb_record_get_long_value(
 	}
 	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 		 function,
 		 *value_metadata );
@@ -3273,10 +3272,10 @@ int libesedb_record_get_long_value(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -3292,10 +3291,10 @@ int libesedb_record_get_long_value(
 		     &value_byte_order,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve value data.",
 			 function );
 
@@ -3315,10 +3314,10 @@ int libesedb_record_get_long_value(
 		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long value.",
 			 function );
 
@@ -3336,7 +3335,7 @@ int libesedb_record_get_multi_value(
      libesedb_record_t *record,
      int value_entry,
      libesedb_multi_value_t **multi_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -3356,10 +3355,10 @@ int libesedb_record_get_multi_value(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -3369,10 +3368,10 @@ int libesedb_record_get_multi_value(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -3380,10 +3379,10 @@ int libesedb_record_get_multi_value(
 	}
 	if( *multi_value != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: multi value already set.",
 		 function );
 
@@ -3395,10 +3394,10 @@ int libesedb_record_get_multi_value(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -3406,10 +3405,10 @@ int libesedb_record_get_multi_value(
 	}
 	if( column_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing column catalog definition.",
 		 function );
 
@@ -3421,10 +3420,10 @@ int libesedb_record_get_multi_value(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -3437,10 +3436,10 @@ int libesedb_record_get_multi_value(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata: %d.",
 		 function,
 		 value_entry );
@@ -3449,10 +3448,10 @@ int libesedb_record_get_multi_value(
 	}
 	if( value_metadata == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing value metadata.",
 		 function );
 
@@ -3462,10 +3461,10 @@ int libesedb_record_get_multi_value(
 	 */
 	if( ( *value_metadata & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 		 function,
 		 *value_metadata );
@@ -3475,10 +3474,10 @@ int libesedb_record_get_multi_value(
 	if( ( ( *value_metadata & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
 	 || ( ( *value_metadata & 0x10 ) != 0 ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported value flags: 0x%02" PRIx8 ".",
 		 function,
 		 *value_metadata );
@@ -3491,10 +3490,10 @@ int libesedb_record_get_multi_value(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -3510,10 +3509,10 @@ int libesedb_record_get_multi_value(
 		     &value_byte_order,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable retrieve value data.",
 			 function );
 
@@ -3521,10 +3520,10 @@ int libesedb_record_get_multi_value(
 		}
 		if( value_data == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing value data.",
 			 function );
 
@@ -3532,24 +3531,25 @@ int libesedb_record_get_multi_value(
 		}
 		if( value_data_size > (size_t) UINT16_MAX )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: value data size exceeds maximum.",
 			 function );
 
 			return( -1 );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: multi value data:\n",
 			 function );
-			libnotify_print_data(
+			libcnotify_print_data(
 			 value_data,
-			 value_data_size );
+			 value_data_size,
+			 0 );
 		}
 #endif
 		/* The first 2 bytes contain the offset to the first value
@@ -3563,9 +3563,9 @@ int libesedb_record_get_multi_value(
 		value_data += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 			 function,
 			 value_entry_offset_index,
@@ -3579,10 +3579,10 @@ int libesedb_record_get_multi_value(
 
 		if( number_of_value_entries == 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing value entries.",
 			 function );
 
@@ -3593,10 +3593,10 @@ int libesedb_record_get_multi_value(
 		     (int) number_of_value_entries,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
 			 "%s: unable resize value entries.",
 			 function );
 
@@ -3613,9 +3613,9 @@ int libesedb_record_get_multi_value(
 			value_data += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 				 function,
 				 value_entry_offset_index,
@@ -3627,10 +3627,10 @@ int libesedb_record_get_multi_value(
 
 			if( value_16bit < value_entry_offset )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: invalid value offset: %" PRIu16 " value is smaller than previous.",
 				 function,
 				 value_entry_offset_index );
@@ -3646,10 +3646,10 @@ int libesedb_record_get_multi_value(
 			     (size_t) value_entry_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable set value entry: %" PRIu16 ".",
 				 function,
 				 value_entry_offset_index - 1 );
@@ -3667,10 +3667,10 @@ int libesedb_record_get_multi_value(
 		     (size_t) value_entry_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable set value entry: %" PRIu16 ".",
 			 function,
 			 value_entry_offset_index - 1 );
@@ -3678,9 +3678,9 @@ int libesedb_record_get_multi_value(
 			return( -1 );
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "\n" );
 		}
 #endif
@@ -3690,10 +3690,10 @@ int libesedb_record_get_multi_value(
 		     record_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create multi value.",
 			 function );
 

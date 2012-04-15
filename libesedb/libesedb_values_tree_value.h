@@ -25,11 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
@@ -85,23 +84,23 @@ struct libesedb_values_tree_value
 
 int libesedb_values_tree_value_initialize(
      libesedb_values_tree_value_t **values_tree_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_free(
      libesedb_values_tree_value_t **values_tree_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_set_key_common(
      libesedb_values_tree_value_t *values_tree_value,
      uint8_t *common_key,
      size_t common_key_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_set_key_local(
      libesedb_values_tree_value_t *values_tree_value,
      uint8_t *local_key,
      size_t local_key_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_read_data(
      libesedb_values_tree_value_t *values_tree_value,
@@ -111,7 +110,7 @@ int libesedb_values_tree_value_read_data(
      libfcache_cache_t *pages_cache,
      uint8_t **data,
      size_t *data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_read_record(
      libesedb_values_tree_value_t *values_tree_value,
@@ -122,14 +121,14 @@ int libesedb_values_tree_value_read_record(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libesedb_array_t *values_array,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_read_long_value(
      libesedb_values_tree_value_t *values_tree_value,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_value_read_long_value_segment(
      libesedb_values_tree_value_t *values_tree_value,
@@ -139,7 +138,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_block_t *data_block,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

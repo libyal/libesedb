@@ -25,10 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
@@ -75,24 +74,24 @@ int libesedb_page_tree_initialize(
      uint32_t object_identifier,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_free(
      libesedb_page_tree_t **page_tree,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_root_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      off64_t page_offset,
      uint32_t page_number,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_space_tree_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      uint32_t page_number,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_page(
      libesedb_page_tree_t *page_tree,
@@ -101,7 +100,7 @@ int libesedb_page_tree_read_page(
      uint32_t page_number,
      libfdata_tree_node_t *value_tree_node,
      libesedb_values_tree_value_t *values_tree_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_page_value(
      libesedb_page_tree_t *page_tree,
@@ -111,7 +110,7 @@ int libesedb_page_tree_read_page_value(
      uint16_t page_value_index,
      libfdata_tree_node_t *value_tree_node,
      libesedb_values_tree_value_t *values_tree_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_node_value(
      intptr_t *io_handle,
@@ -121,7 +120,7 @@ int libesedb_page_tree_read_node_value(
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tree_read_sub_nodes(
      intptr_t *io_handle,
@@ -131,7 +130,7 @@ int libesedb_page_tree_read_sub_nodes(
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size,
      uint8_t read_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -26,7 +26,7 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include <libcstring.h>
+#include "esedbtools_libcstring.h"
 
 #if defined( __cplusplus )
 extern "C" {

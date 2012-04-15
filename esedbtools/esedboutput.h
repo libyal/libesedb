@@ -23,9 +23,8 @@
 #define _ESEDBOUTPUT_H
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
-
-#include <libsystem.h>
 
 #if defined( __cplusplus )
 extern "C" {

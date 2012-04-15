@@ -35,24 +35,14 @@
 #include <libfvalue.h>
 #endif
 
-#if defined( HAVE_LOCAL_LIBFWNT )
-#include <libfwnt_definitions.h>
-#elif defined( HAVE_LIBFWNT_H )
-#include <libfwnt.h>
-#endif
-
-#if defined( HAVE_LOCAL_LIBFMAPI )
-#include <libfmapi_definitions.h>
-#elif defined( HAVE_LIBFMAPI_H )
-#include <libfmapi.h>
-#endif
-
-#include <libsystem.h>
-
 #include "esedboutput.h"
+/* TODO libcsystem is required for gettext */
+#include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libfguid.h"
+#include "esedbtools_libfmapi.h"
+#include "esedbtools_libfwnt.h"
 #include "esedbtools_libuna.h"
 
 /* Prints the copyright information

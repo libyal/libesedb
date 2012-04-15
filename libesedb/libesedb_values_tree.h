@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_values_tree_value.h"
@@ -44,7 +43,7 @@ int libesedb_values_tree_get_leaf_node_by_key(
      size_t key_size,
      libfdata_tree_node_t **values_tree_leaf_node,
      uint8_t flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_node_get_leaf_node_by_key(
      libfdata_tree_node_t *values_tree_node,
@@ -54,7 +53,7 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
      size_t key_size,
      libfdata_tree_node_t **values_tree_leaf_node,
      uint8_t flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_values_tree_get_value_by_key(
      libfdata_tree_t *values_tree,
@@ -64,7 +63,7 @@ int libesedb_values_tree_get_value_by_key(
      size_t key_size,
      libesedb_values_tree_value_t **values_tree_value,
      uint8_t flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

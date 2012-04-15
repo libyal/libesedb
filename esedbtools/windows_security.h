@@ -26,8 +26,7 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include <liberror.h>
-
+#include "esedbtools_libcerror.h"
 #include "esedbtools_libesedb.h"
 #include "log_handle.h"
 
@@ -40,26 +39,26 @@ int windows_security_export_record_value_filetime(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int windows_security_export_record_value_utf16_string(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int windows_security_export_record_smtblversion(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int windows_security_export_record_smtblsection(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -24,9 +24,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_definitions.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
@@ -48,7 +48,7 @@ int libesedb_long_value_initialize(
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t long_value_segment_key[ 8 ];
 
@@ -60,10 +60,10 @@ int libesedb_long_value_initialize(
 
 	if( long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
 
@@ -71,10 +71,10 @@ int libesedb_long_value_initialize(
 	}
 	if( *long_value != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid long value value already set.",
 		 function );
 
@@ -82,10 +82,10 @@ int libesedb_long_value_initialize(
 	}
 	if( column_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column catalog definition.",
 		 function );
 
@@ -93,10 +93,10 @@ int libesedb_long_value_initialize(
 	}
 	if( long_value_key == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value key.",
 		 function );
 
@@ -104,10 +104,10 @@ int libesedb_long_value_initialize(
 	}
 	if( long_value_key_size != 4 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupport long value key size: %" PRIzd ".",
 		 function,
 		 long_value_key_size );
@@ -116,10 +116,10 @@ int libesedb_long_value_initialize(
 	}
 	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags: 0x%02" PRIx8 ".",
 		 function,
 		 flags );
@@ -131,10 +131,10 @@ int libesedb_long_value_initialize(
 
 	if( internal_long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create long value.",
 		 function );
 
@@ -145,10 +145,10 @@ int libesedb_long_value_initialize(
 	     0,
 	     sizeof( libesedb_internal_long_value_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear long value.",
 		 function );
 
@@ -168,10 +168,10 @@ int libesedb_long_value_initialize(
 		     file_io_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy file IO handle.",
 			 function );
 
@@ -182,10 +182,10 @@ int libesedb_long_value_initialize(
 		     1,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to set open on demand in file IO handle.",
 			 function );
 
@@ -201,10 +201,10 @@ int libesedb_long_value_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create data block.",
 		 function );
 
@@ -215,10 +215,10 @@ int libesedb_long_value_initialize(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create data cache.",
 		 function );
 
@@ -234,10 +234,10 @@ int libesedb_long_value_initialize(
 	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve values tree value.",
 		 function );
 
@@ -250,10 +250,10 @@ int libesedb_long_value_initialize(
 	     long_values_pages_cache,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read values tree value long value.",
 		 function );
 
@@ -284,10 +284,10 @@ int libesedb_long_value_initialize(
 
 		if( result == -1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve values tree value.",
 			 function );
 
@@ -305,10 +305,10 @@ int libesedb_long_value_initialize(
 			     internal_long_value->data_block,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_IO,
-				 LIBERROR_IO_ERROR_READ_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read values tree value long value.",
 				 function );
 
@@ -361,7 +361,7 @@ on_error:
  */
 int libesedb_long_value_free(
      libesedb_long_value_t **long_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
 	static char *function                               = "libesedb_long_value_free";
@@ -369,10 +369,10 @@ int libesedb_long_value_free(
 
 	if( long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
 
@@ -391,10 +391,10 @@ int libesedb_long_value_free(
 				     internal_long_value->file_io_handle,
 				     error ) != 0 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 					 "%s: unable to close file IO handle.",
 					 function );
 
@@ -404,10 +404,10 @@ int libesedb_long_value_free(
 				     &( internal_long_value->file_io_handle ),
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 					 "%s: unable to free file IO handle.",
 					 function );
 
@@ -419,10 +419,10 @@ int libesedb_long_value_free(
 		     &( internal_long_value->data_block ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free data block.",
 			 function );
 
@@ -432,10 +432,10 @@ int libesedb_long_value_free(
 		     &( internal_long_value->data_cache ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free data cache.",
 			 function );
 
@@ -453,17 +453,17 @@ int libesedb_long_value_free(
 int libesedb_long_value_get_number_of_segments(
      libesedb_long_value_t *long_value,
      int *number_of_segments,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
 	static char *function                               = "libesedb_long_value_get_number_of_segments";
 
 	if( long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
 
@@ -476,10 +476,10 @@ int libesedb_long_value_get_number_of_segments(
 	     number_of_segments,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of segments.",
 		 function );
 
@@ -496,17 +496,17 @@ int libesedb_long_value_get_segment_data(
      int data_segment_index,
      uint8_t **segment_data,
      size_t *segment_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
 	static char *function                               = "libesedb_long_value_get_segment_data";
 
 	if( long_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value.",
 		 function );
 
@@ -524,10 +524,10 @@ int libesedb_long_value_get_segment_data(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve segment data.",
 		 function );
 

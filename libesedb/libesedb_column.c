@@ -23,12 +23,11 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_column.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_types.h"
 
 /* Creates a column
@@ -38,17 +37,17 @@ int libesedb_column_initialize(
      libesedb_column_t **column,
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_initialize";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -56,10 +55,10 @@ int libesedb_column_initialize(
 	}
 	if( *column != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid column value already set.",
 		 function );
 
@@ -70,10 +69,10 @@ int libesedb_column_initialize(
 
 	if( internal_column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create column.",
 		 function );
 
@@ -84,10 +83,10 @@ int libesedb_column_initialize(
 	     0,
 	     sizeof( libesedb_internal_column_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear column.",
 		 function );
 
@@ -114,7 +113,7 @@ on_error:
  */
 int libesedb_column_free(
      libesedb_column_t **column,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_free";
@@ -122,10 +121,10 @@ int libesedb_column_free(
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -151,17 +150,17 @@ int libesedb_column_free(
 int libesedb_column_get_identifier(
      libesedb_column_t *column,
      uint32_t *identifier,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_identifier";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -174,10 +173,10 @@ int libesedb_column_get_identifier(
 	     identifier,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
@@ -192,17 +191,17 @@ int libesedb_column_get_identifier(
 int libesedb_column_get_type(
      libesedb_column_t *column,
      uint32_t *type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_type";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -215,10 +214,10 @@ int libesedb_column_get_type(
 	     type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -234,17 +233,17 @@ int libesedb_column_get_type(
 int libesedb_column_get_utf8_name_size(
      libesedb_column_t *column,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_utf8_name_size";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -254,10 +253,10 @@ int libesedb_column_get_utf8_name_size(
 
 	if( internal_column->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
@@ -269,10 +268,10 @@ int libesedb_column_get_utf8_name_size(
 	     internal_column->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -289,17 +288,17 @@ int libesedb_column_get_utf8_name(
      libesedb_column_t *column,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_utf8_name";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -309,10 +308,10 @@ int libesedb_column_get_utf8_name(
 
 	if( internal_column->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
@@ -325,10 +324,10 @@ int libesedb_column_get_utf8_name(
 	     internal_column->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
@@ -344,17 +343,17 @@ int libesedb_column_get_utf8_name(
 int libesedb_column_get_utf16_name_size(
      libesedb_column_t *column,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_utf16_name_size";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -364,10 +363,10 @@ int libesedb_column_get_utf16_name_size(
 
 	if( internal_column->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
@@ -379,10 +378,10 @@ int libesedb_column_get_utf16_name_size(
 	     internal_column->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -399,17 +398,17 @@ int libesedb_column_get_utf16_name(
      libesedb_column_t *column,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_column_t *internal_column = NULL;
 	static char *function                       = "libesedb_column_get_utf16_name";
 
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -419,10 +418,10 @@ int libesedb_column_get_utf16_name(
 
 	if( internal_column->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal column - missing IO handle.",
 		 function );
 
@@ -435,10 +434,10 @@ int libesedb_column_get_utf16_name(
 	     internal_column->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 

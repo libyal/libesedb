@@ -25,11 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -116,34 +115,34 @@ struct libesedb_page
 
 int libesedb_page_value_initialize(
      libesedb_page_value_t **page_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_value_free(
      libesedb_page_value_t **page_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tags_value_initialize(
      libesedb_page_tags_value_t **page_tags_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_tags_value_free(
      libesedb_page_tags_value_t **page_tags_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_initialize(
      libesedb_page_t **page,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_free(
      libesedb_page_t **page,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_read(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_read_tags(
      libesedb_array_t *page_tags_array,
@@ -151,7 +150,7 @@ int libesedb_page_read_tags(
      uint16_t number_of_page_tags,
      uint8_t *page_data,
      size_t page_data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_read_values(
      libesedb_page_t *page,
@@ -160,18 +159,18 @@ int libesedb_page_read_values(
      uint8_t *page_values_data,
      size_t page_values_data_size,
      size_t page_values_data_offset,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_get_number_of_values(
      libesedb_page_t *page,
      uint16_t *number_of_values,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_page_get_value(
      libesedb_page_t *page,
      uint16_t value_index,
      libesedb_page_value_t **page_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

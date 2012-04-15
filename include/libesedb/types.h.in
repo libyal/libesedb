@@ -24,91 +24,98 @@
 
 #include <libesedb/features.h>
 
-/* Microsoft C/C++ compiler
+/* Integer type definitions
  */
-#if defined( _MSC_VER )
-
-/* Define _LIBESEDB_TYPES_H_INTEGERS to avoid conflict
- */
-#if !defined( _LIBESEDB_TYPES_H_INTEGERS )
-#define _LIBESEDB_TYPES_H_INTEGERS
+#if defined( _MSC_VER ) || ( defined( __BORLANDC__ ) && ( __BORLANDC__ <= 0x0560 ) )
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* The Microsoft Visual Studio C++ compiler does not have <inttypes.h> or <stdint.h>
- * therefore it does not support the (u)int#_t type definitions
- * it has __int# defintions instead
+/* The Microsoft Visual Studio C++ compiler or earlier versions of the Borland C++ Builder
+ * do not support the (u)int#_t type definitions but have __int# defintions instead
  */
-typedef __int8			int8_t;
-typedef unsigned __int8		uint8_t;
-typedef __int16			int16_t;
-typedef unsigned __int16	uint16_t;
-typedef __int32			int32_t;
-typedef unsigned __int32	uint32_t;
-typedef __int64			int64_t;
-typedef unsigned __int64	uint64_t;
+#if !defined( HAVE_INT8_T )
+#define HAVE_INT8_T
+typedef __int8 int8_t;
+#endif
+
+#if !defined( HAVE_UINT8_T )
+#define HAVE_UINT8_T
+typedef unsigned __int8 uint8_t;
+#endif
+
+#if !defined( HAVE_INT16_T )
+#define HAVE_INT16_T
+typedef __int16 int16_t;
+#endif
+
+#if !defined( HAVE_UINT16_T )
+#define HAVE_UINT16_T
+typedef unsigned __int16 uint16_t;
+#endif
+
+#if !defined( HAVE_INT32_T )
+#define HAVE_INT32_T
+typedef __int32 int32_t;
+#endif
+
+#if !defined( HAVE_UINT32_T )
+#define HAVE_UINT32_T
+typedef unsigned __int32 uint32_t;
+#endif
+
+#if !defined( HAVE_INT64_T )
+#define HAVE_INT64_T
+typedef __int64 int64_t;
+#endif
+
+#if !defined( HAVE_UINT64_T )
+#define HAVE_UINT64_T
+typedef unsigned __int64 uint64_t;
+#endif
+
+/* The Microsoft Visual Studio C++ compiler or earlier versions of the Borland C++ Builder
+ * do not support the ssize_t type definition
+ */
+#if !defined( HAVE_SSIZE_T )
+#define HAVE_SSIZE_T
 
 #if defined( _WIN64 )
-typedef __int64			ssize_t;
+typedef __int64 ssize_t;
 #else
-typedef __int32			ssize_t;
+typedef __int32 ssize_t;
 #endif
+
+#endif /* !defined( HAVE_SSIZE_T ) */
+
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ <= 0x0560 )
+
+/* Earlier versions of the Borland C++ Builder do not support the intptr_t type definition
+ */
+#if !defined( HAVE_INTPTR_T )
+#define HAVE_INTPTR_T
+
+#if defined( _WIN64 )
+typedef __int64	intptr_t;
+#else
+typedef __int32	intptr_t;
+#endif
+
+#endif /* !defined( HAVE_INTPTR_T ) */
+
+#endif /* defined( __BORLANDC__ ) && ( __BORLANDC__ <= 0x0560 ) */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_TYPES_H_INTEGERS ) */
-
-/* Borland C/C++ compiler
- */
 #elif defined( __BORLANDC__ )
-#if __BORLANDC__ <= 0x0560
 
-/* Define _LIBESEDB_TYPES_H_INTEGERS to avoid conflict
+/* Later versions of the Borland C/C++ compiler define the types in <stdint.h>
  */
-#if !defined( _LIBESEDB_TYPES_H_INTEGERS )
-#define _LIBESEDB_TYPES_H_INTEGERS
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* Earlier versions of the Borland C++ Builder compiler
- * do not have <stdint.h> therefore they do not support
- * the (u)int#_t type definitions they have __int# defintions instead
- */
-typedef __int8			int8_t;
-typedef unsigned __int8		uint8_t;
-typedef __int16			int16_t;
-typedef unsigned __int16	uint16_t;
-typedef __int32			int32_t;
-typedef unsigned __int32	uint32_t;
-typedef __int64			int64_t;
-typedef unsigned __int64	uint64_t;
-
-#if defined( _WIN64 )
-typedef __int64			ssize_t;
-typedef unsigned __int64	intptr_t;
-#else
-typedef __int32			ssize_t;
-typedef unsigned __int32	intptr_t;
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* !defined( _LIBESEDB_TYPES_H_INTEGERS ) */
-
-#else
 #include <stdint.h>
-#endif /* __BORLANDC__ <= 0x0560 */
 
-/* Other compilers
- */
 #else
 
 #if @HAVE_SYS_TYPES_H@ || defined( HAVE_SYS_TYPES_H )
@@ -131,20 +138,44 @@ typedef unsigned __int32	intptr_t;
 #error Missing integer type definitions (inttypes.h, stdint.h)
 #endif
 
-#endif /* Compiler specific integer type definitions */
+#endif
 
-#if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined( _MSC_VER ) || defined( __MINGW32_VERSION )
-#include <wchar.h>
+#if ( !defined( HAVE_SIZE32_T ) && ! @HAVE_SIZE32_T@ ) || HAVE_SIZE32_T == 0
+#define HAVE_SIZE32_T	1
+typedef uint32_t size32_t;
+#endif
 
-#elif defined( __BORLANDC__ )
-#if __BORLANDC__ <= 0x0520
+#if ( !defined( HAVE_SSIZE32_T ) && ! @HAVE_SSIZE32_T@ ) || HAVE_SSIZE32_T == 0
+#define HAVE_SSIZE32_T	1
+typedef int32_t ssize32_t;
+#endif
+
+#if ( !defined( HAVE_SIZE64_T ) && ! @HAVE_SIZE64_T@ ) || HAVE_SIZE64_T == 0
+#define HAVE_SIZE64_T	1
+typedef uint64_t size64_t;
+#endif
+
+#if ( !defined( HAVE_SSIZE64_T ) && ! @HAVE_SSIZE64_T@ ) || HAVE_SSIZE64_T == 0
+#define HAVE_SSIZE64_T	1
+typedef int64_t ssize64_t;
+#endif
+
+#if ( !defined( HAVE_OFF64_T ) && ! @HAVE_OFF64_T@ ) || HAVE_OFF64_T == 0
+#define HAVE_OFF64_T	1
+typedef int64_t off64_t;
+#endif
+
+/* Wide character definition
+ */
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ <= 0x0520 )
 #include <string.h>
 
-#else
+#elif defined( WINAPI )
 #include <wchar.h>
-#endif /* __BORLANDC__ <= 0x0520 */
 
 #elif @HAVE_WCHAR_H@ || defined( HAVE_WCHAR_H )
 
@@ -152,54 +183,16 @@ typedef unsigned __int32	intptr_t;
  */
 #if !defined( __USE_UNIX98 )
 #define __USE_UNIX98
-#define LIBESEDB_DEFINITION_UNIX98
-#endif
-
-/* __USE_ISOC99 is required to add wcstoll and wcstuoll definition
- */
-#if !defined( __USE_ISOC99 )
-#define __USE_ISOC99
-#define LIBESEDB_DEFINITION_ISOC99
+#define LIBCSTRING_DEFINITION_UNIX98
 #endif
 
 #include <wchar.h>
 
-#if defined( LIBESEDB_DEFINITION_UNIX98 )
+#if defined( LIBCSTRING_DEFINITION_UNIX98 )
 #undef __USE_UNIX98
-#undef LIBESEDB_DEFINITION_UNIX98
+#undef LIBCSTRING_DEFINITION_UNIX98
 #endif
 
-#if defined( LIBESEDB_DEFINITION_ISOC99 )
-#undef __USE_ISOC99
-#undef LIBESEDB_DEFINITION_ISOC99
-#endif
-
-#endif
-
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#if ! @HAVE_SIZE32_T@ || ! HAVE_SIZE32_T
-typedef uint32_t size32_t;
-#endif
-
-#if ! @HAVE_SSIZE32_T@ || ! HAVE_SSIZE32_T
-typedef int32_t ssize32_t;
-#endif
-
-#if ! @HAVE_SIZE64_T@ || ! HAVE_SIZE64_T
-typedef uint64_t size64_t;
-#endif
-
-#if ! @HAVE_SSIZE64_T@ || ! HAVE_SSIZE64_T
-typedef int64_t ssize64_t;
-#endif
-
-#if ! @HAVE_OFF64_T@ || ! HAVE_OFF64_T
-typedef int64_t off64_t;
 #endif
 
 /* The following type definitions hide internal data structures

@@ -25,63 +25,14 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
-/* Define HAVE_LOCAL_LIBFWNT for local use of libfwnt
- */
-#if defined( HAVE_LOCAL_LIBFWNT )
-
-#include <libfwnt_definitions.h>
-#include <libfwnt_security_identifier.h>
-#include <libfwnt_types.h>
-
-#elif defined( HAVE_LIBFWNT_H )
-
-/* If libtool DLL support is enabled set LIBFWNT_DLL_IMPORT
- * before including libfwnt.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFWNT_DLL_IMPORT
-#endif
-
-#include <libfwnt.h>
-
-#else
-#error Missing libfwnt.h
-#endif
-
-/* Define HAVE_LOCAL_LIBFMAPI for local use of libfmapi
- */
-#if defined( HAVE_LOCAL_LIBFMAPI )
-
-#include <libfmapi_definitions.h>
-#include <libfmapi_types.h>
-
-#if defined( HAVE_DEBUG_OUTPUT )
-#include <libfmapi_debug.h>
-#endif
-
-#elif defined( HAVE_LIBFMAPI_H )
-
-/* If libtool DLL support is enabled set LIBFMAPI_DLL_IMPORT
- * before including libfmapi.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBFMAPI_DLL_IMPORT
-#endif
-
-#include <libfmapi.h>
-
-#else
-#error Missing libfmapi.h
-#endif
-
-#include <libsystem.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcnotify.h"
+#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libfguid.h"
+#include "esedbtools_libfmapi.h"
+#include "esedbtools_libfwnt.h"
 #include "esedbtools_libuna.h"
 #include "export.h"
 #include "export_exchange.h"
@@ -108,7 +59,7 @@ int export_exchange_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "export_exchange_record_binary_data";
@@ -124,10 +75,10 @@ int export_exchange_record_binary_data(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -135,10 +86,10 @@ int export_exchange_record_binary_data(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -150,10 +101,10 @@ int export_exchange_record_binary_data(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -163,10 +114,10 @@ int export_exchange_record_binary_data(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -181,10 +132,10 @@ int export_exchange_record_binary_data(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -194,7 +145,7 @@ int export_exchange_record_binary_data(
 	if( value_data != NULL )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libsystem_notify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_record_get_utf16_column_name(
@@ -213,24 +164,25 @@ int export_exchange_record_binary_data(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve column name of value: %d.",
 				 function,
 				 record_value_entry );
 
 				return( -1 );
 			}
-			libsystem_notify_printf(
+			libcnotify_printf(
 			 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
 			 function,
 			 column_name );
 
-			libsystem_notify_print_data(
+			libcnotify_print_data(
 			 value_data,
-			 value_data_size );
+			 value_data_size,
+			 0 );
 		}
 #endif
 		export_binary_data(
@@ -249,7 +201,7 @@ int export_exchange_record_value_32bit(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "export_exchange_record_value_32bit";
@@ -260,10 +212,10 @@ int export_exchange_record_value_32bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -272,10 +224,10 @@ int export_exchange_record_value_32bit(
 	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
 	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported byte order: 0x%02" PRIx8 "",
 		 function,
 		 byte_order );
@@ -284,10 +236,10 @@ int export_exchange_record_value_32bit(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -299,10 +251,10 @@ int export_exchange_record_value_32bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -311,10 +263,10 @@ int export_exchange_record_value_32bit(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -329,10 +281,10 @@ int export_exchange_record_value_32bit(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -345,10 +297,10 @@ int export_exchange_record_value_32bit(
 		{
 			if( value_data_size != 4 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -391,7 +343,7 @@ int export_exchange_record_value_64bit(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "export_exchange_record_value_64bit";
@@ -402,10 +354,10 @@ int export_exchange_record_value_64bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -414,10 +366,10 @@ int export_exchange_record_value_64bit(
 	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
 	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported byte order: 0x%02" PRIx8 "",
 		 function,
 		 byte_order );
@@ -426,10 +378,10 @@ int export_exchange_record_value_64bit(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -441,10 +393,10 @@ int export_exchange_record_value_64bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -454,10 +406,10 @@ int export_exchange_record_value_64bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -472,10 +424,10 @@ int export_exchange_record_value_64bit(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -488,10 +440,10 @@ int export_exchange_record_value_64bit(
 		{
 			if( value_data_size != 8 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -535,7 +487,7 @@ int export_exchange_record_value_filetime(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 32 ];
 
@@ -549,10 +501,10 @@ int export_exchange_record_value_filetime(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -560,10 +512,10 @@ int export_exchange_record_value_filetime(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -575,10 +527,10 @@ int export_exchange_record_value_filetime(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -588,10 +540,10 @@ int export_exchange_record_value_filetime(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -606,10 +558,10 @@ int export_exchange_record_value_filetime(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -622,10 +574,10 @@ int export_exchange_record_value_filetime(
 		{
 			if( value_data_size != 8 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -636,10 +588,10 @@ int export_exchange_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create filetime.",
 				 function );
 
@@ -652,10 +604,10 @@ int export_exchange_record_value_filetime(
 			     byte_order,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
@@ -684,10 +636,10 @@ int export_exchange_record_value_filetime(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy filetime to string.",
 				 function );
 
@@ -701,10 +653,10 @@ int export_exchange_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free filetime.",
 				 function );
 
@@ -734,7 +686,7 @@ int export_exchange_record_value_guid(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t guid_string[ LIBFGUID_IDENTIFIER_STRING_SIZE ];
 
@@ -748,10 +700,10 @@ int export_exchange_record_value_guid(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -759,10 +711,10 @@ int export_exchange_record_value_guid(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -774,10 +726,10 @@ int export_exchange_record_value_guid(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -786,10 +738,10 @@ int export_exchange_record_value_guid(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -804,10 +756,10 @@ int export_exchange_record_value_guid(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -824,10 +776,10 @@ int export_exchange_record_value_guid(
 				     &guid,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 					 "%s: unable to create GUID.",
 					 function );
 
@@ -840,10 +792,10 @@ int export_exchange_record_value_guid(
 				     byte_order,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 					 "%s: unable to copy byte stream to GUID.",
 					 function );
 
@@ -868,10 +820,10 @@ int export_exchange_record_value_guid(
 #endif
 				if( result != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 					 "%s: unable to copy GUID to string.",
 					 function );
 
@@ -885,10 +837,10 @@ int export_exchange_record_value_guid(
 				     &guid,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 					 "%s: unable to free GUID.",
 					 function );
 
@@ -925,7 +877,7 @@ int export_exchange_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "export_exchange_record_value_mapi_entryid";
@@ -941,10 +893,10 @@ int export_exchange_record_value_mapi_entryid(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -952,10 +904,10 @@ int export_exchange_record_value_mapi_entryid(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -967,10 +919,10 @@ int export_exchange_record_value_mapi_entryid(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -980,10 +932,10 @@ int export_exchange_record_value_mapi_entryid(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -998,10 +950,10 @@ int export_exchange_record_value_mapi_entryid(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1013,7 +965,7 @@ int export_exchange_record_value_mapi_entryid(
 		if( value_data != NULL )
 		{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
-			if( libsystem_notify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 				result = libesedb_record_get_utf16_column_name(
@@ -1032,17 +984,17 @@ int export_exchange_record_value_mapi_entryid(
 #endif
 				if( result != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve column name of value: %d.",
 					 function,
 					 record_value_entry );
 
 					return( -1 );
 				}
-				libsystem_notify_printf(
+				libcnotify_printf(
 				 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
 				 function,
 				 column_name );
@@ -1053,10 +1005,10 @@ int export_exchange_record_value_mapi_entryid(
 				     LIBUNA_CODEPAGE_WINDOWS_1252,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_PRINT_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_PRINT_FAILED,
 					 "%s: unable to print entry identifier value: %d\n",
 					 function,
 					 record_value_entry );
@@ -1094,7 +1046,7 @@ int export_exchange_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_multi_value_t *multi_value = NULL;
 	uint8_t *value_data                 = NULL;
@@ -1113,10 +1065,10 @@ int export_exchange_record_value_mapi_multi_value(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1124,10 +1076,10 @@ int export_exchange_record_value_mapi_multi_value(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1139,10 +1091,10 @@ int export_exchange_record_value_mapi_multi_value(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -1152,10 +1104,10 @@ int export_exchange_record_value_mapi_multi_value(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -1170,10 +1122,10 @@ int export_exchange_record_value_mapi_multi_value(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1185,7 +1137,7 @@ int export_exchange_record_value_mapi_multi_value(
 	 && ( ( value_flags & 0x10 ) == 0 ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
-		if( libsystem_notify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_record_get_utf16_column_name(
@@ -1204,17 +1156,17 @@ int export_exchange_record_value_mapi_multi_value(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve column name of value: %d.",
 				 function,
 				 record_value_entry );
 
 				return( -1 );
 			}
-			libsystem_notify_printf(
+			libcnotify_printf(
 			 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
 			 function,
 			 column_name );
@@ -1226,10 +1178,10 @@ int export_exchange_record_value_mapi_multi_value(
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve multi value of record entry: %d.",
 			 function,
 			 record_value_entry );
@@ -1241,10 +1193,10 @@ int export_exchange_record_value_mapi_multi_value(
 		     &number_of_multi_values,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of multi values.",
 			 function );
 
@@ -1266,10 +1218,10 @@ int export_exchange_record_value_mapi_multi_value(
 			     &value_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve multi value: %d of record entry: %d.",
 				 function,
 				 multi_value_iterator,
@@ -1285,19 +1237,20 @@ int export_exchange_record_value_mapi_multi_value(
 			{
 				/* TODO print entry index */
 
-				libsystem_notify_print_data(
+				libcnotify_print_data(
 				 value_data,
-				 value_data_size );
+				 value_data_size,
+				 0 );
 			}
 		}
 		if( libesedb_multi_value_free(
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free multi value: %d.",
 			 function,
 			 multi_value_iterator );
@@ -1322,7 +1275,7 @@ int export_exchange_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t sid_string[ 128 ];
 
@@ -1337,10 +1290,10 @@ int export_exchange_record_value_sid(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1348,10 +1301,10 @@ int export_exchange_record_value_sid(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1363,10 +1316,10 @@ int export_exchange_record_value_sid(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -1375,10 +1328,10 @@ int export_exchange_record_value_sid(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -1393,10 +1346,10 @@ int export_exchange_record_value_sid(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1411,10 +1364,10 @@ int export_exchange_record_value_sid(
 			     &sid,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create SID.",
 				 function );
 
@@ -1426,10 +1379,10 @@ int export_exchange_record_value_sid(
 			     value_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy byte stream to SID.",
 				 function );
 
@@ -1446,10 +1399,10 @@ int export_exchange_record_value_sid(
 
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve SID string size.",
 				 function );
 
@@ -1464,10 +1417,10 @@ int export_exchange_record_value_sid(
 			 */
 			if( sid_string_size > 128 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: SID string size value exceeds maximum.",
 				 function );
 
@@ -1492,10 +1445,10 @@ int export_exchange_record_value_sid(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy SID to string.",
 				 function );
 
@@ -1509,10 +1462,10 @@ int export_exchange_record_value_sid(
 			     &sid,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free SID.",
 				 function );
 
@@ -1541,7 +1494,7 @@ int export_exchange_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "export_exchange_record_value_string";
@@ -1551,10 +1504,10 @@ int export_exchange_record_value_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1562,10 +1515,10 @@ int export_exchange_record_value_string(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1577,10 +1530,10 @@ int export_exchange_record_value_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -1590,10 +1543,10 @@ int export_exchange_record_value_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -1608,10 +1561,10 @@ int export_exchange_record_value_string(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1634,7 +1587,7 @@ int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -1649,10 +1602,10 @@ int export_exchange_record_folders(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1660,10 +1613,10 @@ int export_exchange_record_folders(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1674,10 +1627,10 @@ int export_exchange_record_folders(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -1703,10 +1656,10 @@ int export_exchange_record_folders(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -1718,10 +1671,10 @@ int export_exchange_record_folders(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -1744,10 +1697,10 @@ int export_exchange_record_folders(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -1760,10 +1713,10 @@ int export_exchange_record_folders(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -1777,11 +1730,11 @@ int export_exchange_record_folders(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -1793,21 +1746,21 @@ int export_exchange_record_folders(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'S' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -1976,10 +1929,10 @@ int export_exchange_record_folders(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -2009,7 +1962,7 @@ int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -2024,10 +1977,10 @@ int export_exchange_record_global(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2035,10 +1988,10 @@ int export_exchange_record_global(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2049,10 +2002,10 @@ int export_exchange_record_global(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2078,10 +2031,10 @@ int export_exchange_record_global(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -2093,10 +2046,10 @@ int export_exchange_record_global(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2119,10 +2072,10 @@ int export_exchange_record_global(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -2135,10 +2088,10 @@ int export_exchange_record_global(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -2152,11 +2105,11 @@ int export_exchange_record_global(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -2168,21 +2121,21 @@ int export_exchange_record_global(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'S' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -2301,10 +2254,10 @@ int export_exchange_record_global(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -2335,7 +2288,7 @@ int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -2350,10 +2303,10 @@ int export_exchange_record_mailbox(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2361,10 +2314,10 @@ int export_exchange_record_mailbox(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2375,10 +2328,10 @@ int export_exchange_record_mailbox(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2404,10 +2357,10 @@ int export_exchange_record_mailbox(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -2419,10 +2372,10 @@ int export_exchange_record_mailbox(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2445,10 +2398,10 @@ int export_exchange_record_mailbox(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -2461,10 +2414,10 @@ int export_exchange_record_mailbox(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -2478,11 +2431,11 @@ int export_exchange_record_mailbox(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -2494,21 +2447,21 @@ int export_exchange_record_mailbox(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'S' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -2602,10 +2555,10 @@ int export_exchange_record_mailbox(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -2635,7 +2588,7 @@ int export_exchange_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -2650,10 +2603,10 @@ int export_exchange_record_msg(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2661,10 +2614,10 @@ int export_exchange_record_msg(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2675,10 +2628,10 @@ int export_exchange_record_msg(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2704,10 +2657,10 @@ int export_exchange_record_msg(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -2719,10 +2672,10 @@ int export_exchange_record_msg(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2745,10 +2698,10 @@ int export_exchange_record_msg(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -2761,10 +2714,10 @@ int export_exchange_record_msg(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -2778,11 +2731,11 @@ int export_exchange_record_msg(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -2794,21 +2747,21 @@ int export_exchange_record_msg(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'L' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'L' )
 				{
 /* TODO
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
 */
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'S' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'S' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -2895,10 +2848,10 @@ int export_exchange_record_msg(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -2928,7 +2881,7 @@ int export_exchange_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -2943,10 +2896,10 @@ int export_exchange_record_per_user_read(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2954,10 +2907,10 @@ int export_exchange_record_per_user_read(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2968,10 +2921,10 @@ int export_exchange_record_per_user_read(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2997,10 +2950,10 @@ int export_exchange_record_per_user_read(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -3012,10 +2965,10 @@ int export_exchange_record_per_user_read(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -3038,10 +2991,10 @@ int export_exchange_record_per_user_read(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -3054,10 +3007,10 @@ int export_exchange_record_per_user_read(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -3071,11 +3024,11 @@ int export_exchange_record_per_user_read(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
 				}
@@ -3087,11 +3040,11 @@ int export_exchange_record_per_user_read(
 			if( ( column_name_size > 1 )
 			 && ( column_name_size < 8 ) )
 			{
-				if( column_name[ 0 ] == (libcstring_character_t) 'T' )
+				if( column_name[ 0 ] == (libcstring_system_character_t) 'T' )
 				{
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( column_name[ 0 ] == (libcstring_character_t) 'Q' )
+				else if( column_name[ 0 ] == (libcstring_system_character_t) 'Q' )
 				{
 					byte_order        = _BYTE_STREAM_ENDIAN_BIG;
 					known_column_type = EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -3153,10 +3106,10 @@ int export_exchange_record_per_user_read(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );

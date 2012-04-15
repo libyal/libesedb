@@ -23,11 +23,10 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_compression.h"
 #include "libesedb_definitions.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_types.h"
@@ -39,17 +38,17 @@ int libesedb_multi_value_initialize(
      libesedb_multi_value_t **multi_value,
      libesedb_catalog_definition_t *column_catalog_definition,
      libfvalue_value_t *record_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_initialize";
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -57,10 +56,10 @@ int libesedb_multi_value_initialize(
 	}
 	if( *multi_value != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid multi value value already set.",
 		 function );
 
@@ -68,10 +67,10 @@ int libesedb_multi_value_initialize(
 	}
 	if( column_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column catalog definition.",
 		 function );
 
@@ -79,10 +78,10 @@ int libesedb_multi_value_initialize(
 	}
 	if( record_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record value.",
 		 function );
 
@@ -93,10 +92,10 @@ int libesedb_multi_value_initialize(
 
 	if( internal_multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create internal multi value.",
 		 function );
 
@@ -107,10 +106,10 @@ int libesedb_multi_value_initialize(
 	     0,
 	     sizeof( libesedb_internal_multi_value_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear internal multi value.",
 		 function );
 
@@ -137,16 +136,16 @@ on_error:
  */
 int libesedb_multi_value_free(
      libesedb_multi_value_t **multi_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_multi_value_free";
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -170,17 +169,17 @@ int libesedb_multi_value_free(
 int libesedb_multi_value_get_number_of_values(
      libesedb_multi_value_t *multi_value,
      int *number_of_values,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_number_of_entries";
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -193,10 +192,10 @@ int libesedb_multi_value_get_number_of_values(
 	     number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of value entries.",
 		 function );
 	}
@@ -212,17 +211,17 @@ int libesedb_multi_value_get_value(
      uint32_t *column_type,
      uint8_t **value_data,
      size_t *value_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value";
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -235,10 +234,10 @@ int libesedb_multi_value_get_value(
 	     column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -251,10 +250,10 @@ int libesedb_multi_value_get_value(
 	     value_data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value entry data: %d.",
 		 function,
 		 value_index );
@@ -271,7 +270,7 @@ int libesedb_multi_value_get_value_32bit(
      libesedb_multi_value_t *multi_value,
      int value_index,
      uint32_t *value_32bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value_32bit";
@@ -279,10 +278,10 @@ int libesedb_multi_value_get_value_32bit(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -295,10 +294,10 @@ int libesedb_multi_value_get_value_32bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -307,10 +306,10 @@ int libesedb_multi_value_get_value_32bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -323,10 +322,10 @@ int libesedb_multi_value_get_value_32bit(
 	     value_32bit,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 32-bit value.",
 		 function,
 		 value_index );
@@ -343,7 +342,7 @@ int libesedb_multi_value_get_value_64bit(
      libesedb_multi_value_t *multi_value,
      int value_index,
      uint64_t *value_64bit,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value_64bit";
@@ -351,10 +350,10 @@ int libesedb_multi_value_get_value_64bit(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -367,10 +366,10 @@ int libesedb_multi_value_get_value_64bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -379,10 +378,10 @@ int libesedb_multi_value_get_value_64bit(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -395,10 +394,10 @@ int libesedb_multi_value_get_value_64bit(
 	     value_64bit,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 64-bit value.",
 		 function,
 		 value_index );
@@ -415,7 +414,7 @@ int libesedb_multi_value_get_value_filetime(
      libesedb_multi_value_t *multi_value,
      int value_index,
      uint64_t *value_filetime,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value_filetime";
@@ -423,10 +422,10 @@ int libesedb_multi_value_get_value_filetime(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -439,10 +438,10 @@ int libesedb_multi_value_get_value_filetime(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -450,10 +449,10 @@ int libesedb_multi_value_get_value_filetime(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -468,10 +467,10 @@ int libesedb_multi_value_get_value_filetime(
 	     value_filetime,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 64-bit value.",
 		 function,
 		 value_index );
@@ -489,7 +488,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
      libesedb_multi_value_t *multi_value,
      int value_index,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	uint8_t *entry_data                                   = NULL;
@@ -503,10 +502,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -519,10 +518,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -531,10 +530,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -549,10 +548,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata.",
 		 function );
 
@@ -572,10 +571,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 		     &entry_data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
 			 value_index );
@@ -598,10 +597,10 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve UTF-8 string size: %d.",
 		 function,
 		 value_index );
@@ -620,7 +619,7 @@ int libesedb_multi_value_get_value_utf8_string(
      int value_index,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	uint8_t *entry_data                                   = NULL;
@@ -634,10 +633,10 @@ int libesedb_multi_value_get_value_utf8_string(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -650,10 +649,10 @@ int libesedb_multi_value_get_value_utf8_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -662,10 +661,10 @@ int libesedb_multi_value_get_value_utf8_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -680,10 +679,10 @@ int libesedb_multi_value_get_value_utf8_string(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata.",
 		 function );
 
@@ -703,10 +702,10 @@ int libesedb_multi_value_get_value_utf8_string(
 		     &entry_data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
 			 value_index );
@@ -731,10 +730,10 @@ int libesedb_multi_value_get_value_utf8_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to UTF-8 string.",
 		 function,
 		 value_index );
@@ -752,7 +751,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
      libesedb_multi_value_t *multi_value,
      int value_index,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	uint8_t *entry_data                                   = NULL;
@@ -766,10 +765,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -782,10 +781,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -794,10 +793,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -812,10 +811,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata.",
 		 function );
 
@@ -835,10 +834,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 		     &entry_data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
 			 value_index );
@@ -861,10 +860,10 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve UTF-16 string size: %d.",
 		 function,
 		 value_index );
@@ -883,7 +882,7 @@ int libesedb_multi_value_get_value_utf16_string(
      int value_index,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	uint8_t *entry_data                                   = NULL;
@@ -897,10 +896,10 @@ int libesedb_multi_value_get_value_utf16_string(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -913,10 +912,10 @@ int libesedb_multi_value_get_value_utf16_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -925,10 +924,10 @@ int libesedb_multi_value_get_value_utf16_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -943,10 +942,10 @@ int libesedb_multi_value_get_value_utf16_string(
 	     &value_metadata_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value metadata.",
 		 function );
 
@@ -966,10 +965,10 @@ int libesedb_multi_value_get_value_utf16_string(
 		     &entry_data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
 			 value_index );
@@ -994,10 +993,10 @@ int libesedb_multi_value_get_value_utf16_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to UTF-16 string.",
 		 function,
 		 value_index );
@@ -1014,7 +1013,7 @@ int libesedb_multi_value_get_value_binary_data_size(
      libesedb_multi_value_t *multi_value,
      int value_index,
      size_t *binary_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	uint8_t *value_entry_data                             = NULL;
@@ -1023,10 +1022,10 @@ int libesedb_multi_value_get_value_binary_data_size(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -1039,10 +1038,10 @@ int libesedb_multi_value_get_value_binary_data_size(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1051,10 +1050,10 @@ int libesedb_multi_value_get_value_binary_data_size(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1068,10 +1067,10 @@ int libesedb_multi_value_get_value_binary_data_size(
 	     binary_data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value entry data: %d.",
 		 function,
 		 value_index );
@@ -1089,7 +1088,7 @@ int libesedb_multi_value_get_value_binary_data(
      int value_index,
      uint8_t *binary_data,
      size_t binary_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value_binary_data";
@@ -1097,10 +1096,10 @@ int libesedb_multi_value_get_value_binary_data(
 
 	if( multi_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid multi value.",
 		 function );
 
@@ -1113,10 +1112,10 @@ int libesedb_multi_value_get_value_binary_data(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -1125,10 +1124,10 @@ int libesedb_multi_value_get_value_binary_data(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -1142,10 +1141,10 @@ int libesedb_multi_value_get_value_binary_data(
 	     binary_data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable copy value entry data: %d.",
 		 function,
 		 value_index );

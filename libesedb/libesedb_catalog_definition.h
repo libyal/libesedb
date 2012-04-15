@@ -25,8 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
+#include "libesedb_libcerror.h"
+#include "libesedb_libcstring.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -100,80 +100,80 @@ struct libesedb_catalog_definition
 
 int libesedb_catalog_definition_initialize(
      libesedb_catalog_definition_t **catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_free(
      libesedb_catalog_definition_t **catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_read(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *definition_data,
      size_t definition_data_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_identifier(
      libesedb_catalog_definition_t *catalog_definition,
      uint32_t *identifier,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_column_type(
      libesedb_catalog_definition_t *catalog_definition,
      uint32_t *column_type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf8_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf8_name(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf16_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf16_name(
      libesedb_catalog_definition_t *catalog_definition,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf8_template_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf8_template_name(
      libesedb_catalog_definition_t *catalog_definition,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf16_template_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_definition_get_utf16_template_name(
      libesedb_catalog_definition_t *catalog_definition,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

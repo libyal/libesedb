@@ -23,11 +23,11 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_definitions.h"
 #include "libesedb_database.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
@@ -38,16 +38,16 @@
  */
 int libesedb_database_initialize(
      libesedb_database_t **database,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_database_initialize";
 
 	if( database == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid database.",
 		 function );
 
@@ -55,10 +55,10 @@ int libesedb_database_initialize(
 	}
 	if( *database != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid database value already set.",
 		 function );
 
@@ -69,10 +69,10 @@ int libesedb_database_initialize(
 
 	if( *database == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create database.",
 		 function );
 
@@ -83,10 +83,10 @@ int libesedb_database_initialize(
 	     0,
 	     sizeof( libesedb_database_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear database.",
 		 function );
 
@@ -110,16 +110,16 @@ on_error:
  */
 int libesedb_database_free(
      libesedb_database_t **database,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_database_free";
 
 	if( database == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid database.",
 		 function );
 
@@ -144,7 +144,7 @@ int libesedb_database_read(
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_page_tree_t *database_page_tree        = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
@@ -160,10 +160,10 @@ int libesedb_database_read(
 
 	if( database == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid database.",
 		 function );
 
@@ -179,10 +179,10 @@ int libesedb_database_read(
 	     NULL,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create database page tree.",
 		 function );
 
@@ -193,17 +193,17 @@ int libesedb_database_read(
 	if( libfdata_tree_initialize(
 	     &database_values_tree,
 	     (intptr_t *) database_page_tree,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     &libesedb_page_tree_read_node_value,
 	     &libesedb_page_tree_read_sub_nodes,
 	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create database values tree.",
 		 function );
 
@@ -216,10 +216,10 @@ int libesedb_database_read(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TREE_VALUES,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create database values cache.",
 		 function );
 
@@ -234,10 +234,10 @@ int libesedb_database_read(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set root node in database values tree.",
 		 function );
 
@@ -251,10 +251,10 @@ int libesedb_database_read(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of leaf nodes from database values tree.",
 		 function );
 
@@ -273,10 +273,10 @@ int libesedb_database_read(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve leaf node: %d from database values tree.",
 			 function,
 			 leaf_node_index );
@@ -291,10 +291,10 @@ int libesedb_database_read(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve node value from values tree node.",
 			 function );
 
@@ -310,10 +310,10 @@ int libesedb_database_read(
 		     &data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_READ_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
 			 "%s: unable to read values tree value data.",
 			 function );
 
@@ -321,17 +321,18 @@ int libesedb_database_read(
 		}
 		/* TODO */
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
 			if( data_size > 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: database value: %d data:\n",
 				 function,
 				 leaf_node_index );
-				libnotify_print_data(
+				libcnotify_print_data(
 				 data,
-				 data_size );
+				 data_size,
+				 0 );
 			}
 		}
 #endif
@@ -340,10 +341,10 @@ int libesedb_database_read(
 	     &database_values_cache,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free database values cache.",
 		 function );
 
@@ -353,10 +354,10 @@ int libesedb_database_read(
 	     &database_values_tree,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to free database values tree.",
 		 function );
 

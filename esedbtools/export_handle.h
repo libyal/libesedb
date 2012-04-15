@@ -26,9 +26,8 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "log_handle.h"
 
@@ -85,30 +84,30 @@ struct export_handle
 
 int export_handle_initialize(
      export_handle_t **export_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_free(
      export_handle_t **export_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_signal_abort(
      export_handle_t *export_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_set_export_mode(
      export_handle_t *export_handle,
      const libcstring_system_character_t *string,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_set_ascii_codepage(
      export_handle_t *export_handle,
      const libcstring_system_character_t *string,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_set_target_path(
      export_handle_t *export_handle,
      const libcstring_system_character_t *target_path,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_set_export_path(
      export_handle_t *export_handle,
@@ -118,20 +117,20 @@ int export_handle_set_export_path(
      size_t suffix_length,
      libcstring_system_character_t **export_path,
      size_t *export_path_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_create_items_export_path(
      export_handle_t *export_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_open(
      export_handle_t *export_handle,
      const libcstring_system_character_t *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_close(
      export_handle_t *export_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 /* Item generic export functions
  */
@@ -142,7 +141,7 @@ int export_handle_create_item_filename(
      size_t item_name_length,
      libcstring_system_character_t **item_filename,
      size_t *item_filename_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_create_text_item_file(
      export_handle_t *export_handle,
@@ -151,7 +150,7 @@ int export_handle_create_text_item_file(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      FILE **item_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_table(
      export_handle_t *export_handle,
@@ -162,7 +161,7 @@ int export_handle_export_table(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_indexes(
      export_handle_t *export_handle,
@@ -172,7 +171,7 @@ int export_handle_export_indexes(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_index(
      export_handle_t *export_handle,
@@ -183,27 +182,27 @@ int export_handle_export_index(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_record_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_handle_export_file(
      export_handle_t *export_handle,
      const libcstring_system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

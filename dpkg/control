@@ -1,0 +1,29 @@
+Source: libesedb
+Section: unknown
+Priority: extra
+Maintainer: Joachim Metz <jbmetz@users.sourceforge.net>
+Build-Depends: debhelper (>= 7), autotools-dev
+Standards-Version: 3.8.3
+Homepage: https://sourceforge.net/projects/libesedb/
+
+Package: libesedb
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
+ libesedb is a library to support the Extensible Storage Engine (ESE) Database File (EDB) format.
+
+Package: libesedb-dev
+Section: libdevel
+Architecture: any
+Depends: libesedb (= ${Source-Version})
+Description: Header files and libraries for developing applications for libesedb
+ Header files and libraries for developing applications for libesedb.
+
+Package: libesedb-tools
+Section: utils
+Architecture: any
+Depends: libesedb (= ${Source-Version}), ${shlibs:Depends}
+Description: Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
+ Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB).
+

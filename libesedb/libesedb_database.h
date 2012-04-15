@@ -25,10 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
@@ -46,11 +45,11 @@ struct libesedb_database
 
 int libesedb_database_initialize(
      libesedb_database_t **database,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_database_free(
      libesedb_database_t **database,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_database_read(
      libesedb_database_t *database,
@@ -58,7 +57,7 @@ int libesedb_database_read(
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

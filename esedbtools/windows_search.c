@@ -25,11 +25,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
-#include <libsystem.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcnotify.h"
+#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libuna.h"
@@ -66,7 +64,7 @@ int windows_search_decode(
      size_t data_size,
      uint8_t *encoded_data, 
      size_t encoded_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function        = "windows_search_decode";
 	size_t data_iterator         = 0;
@@ -76,10 +74,10 @@ int windows_search_decode(
 
 	if( encoded_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid encoded data.",
 		 function );
 
@@ -87,10 +85,10 @@ int windows_search_decode(
 	}
 	if( encoded_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid encoded data size value exceeds maximum.",
 		 function );
 
@@ -98,10 +96,10 @@ int windows_search_decode(
 	}
 	if( data_size < encoded_data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: data size value too small.",
 		 function );
 
@@ -143,7 +141,7 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
      uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function           = "windows_search_get_run_length_uncompressed_utf16_string_size";
 	size_t compressed_data_iterator = 0;
@@ -151,10 +149,10 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -162,10 +160,10 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -173,10 +171,10 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 	}
 	if( uncompressed_data_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data size.",
 		 function );
 
@@ -188,10 +186,10 @@ int windows_search_get_run_length_uncompressed_utf16_string_size(
 	{
 		if( compressed_data_iterator >= compressed_data_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 			 "%s: compressed data size value too small.",
 			 function );
 
@@ -224,10 +222,10 @@ fprintf( stderr, "MARKER: %zd, %d, %zd, %zd\n",
 	}
 	if( compressed_data_iterator > compressed_data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -246,7 +244,7 @@ int windows_search_decompress_run_length_compressed_utf16_string(
      size_t uncompressed_data_size,
      uint8_t *compressed_data,
      size_t compressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function             = "windows_search_decompress_run_length_compressed_utf16_string";
 	size_t compressed_data_iterator   = 0;
@@ -256,10 +254,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data.",
 		 function );
 
@@ -267,10 +265,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 	}
 	if( uncompressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid uncompressed data size value exceeds maximum.",
 		 function );
 
@@ -278,10 +276,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 	}
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -289,10 +287,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -302,10 +300,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 	{
 		if( compressed_data_iterator >= compressed_data_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 			 "%s: compressed data size value too small.",
 			 function );
 
@@ -328,10 +326,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 		}
 		if( compressed_data_iterator >= compressed_data_size )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 			 "%s: compressed data size value too small.",
 			 function );
 
@@ -343,10 +341,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 		{
 			if( compressed_data_iterator >= compressed_data_size )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 				 "%s: compressed data size value too small.",
 				 function );
 
@@ -354,10 +352,10 @@ int windows_search_decompress_run_length_compressed_utf16_string(
 			}
 			if( ( uncompressed_data_iterator + 1 ) >= uncompressed_data_size )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 				 "%s: uncompressed data size value too small.",
 				 function );
 
@@ -379,17 +377,17 @@ int windows_search_get_byte_index_uncompressed_data_size(
      uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function                  = "windows_search_get_byte_index_uncompressed_size";
 	uint16_t stored_uncompressed_data_size = 0;
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -397,10 +395,10 @@ int windows_search_get_byte_index_uncompressed_data_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -408,10 +406,10 @@ int windows_search_get_byte_index_uncompressed_data_size(
 	}
 	if( uncompressed_data_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data size.",
 		 function );
 
@@ -436,7 +434,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
      size_t uncompressed_data_size,
      uint8_t *compressed_data, 
      size_t compressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint16_t compression_value_table[ 2048 ];
 
@@ -466,10 +464,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data.",
 		 function );
 
@@ -477,10 +475,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 	if( uncompressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid uncompressed data size value exceeds maximum.",
 		 function );
 
@@ -488,10 +486,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -499,10 +497,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -510,10 +508,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 	if( compressed_data_size <= 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -524,24 +522,25 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	     0,
 	     2048 * 2 ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear compression value table.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: compressed data header:\n",
 		 function );
-		libsystem_notify_print_data(
+		libcnotify_print_data(
 		 compressed_data,
-		 258 );
+		 258,
+		 0 );
 	}
 #endif
 	/* Byte 0 - 1 contain the uncompressed data size
@@ -552,10 +551,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 	if( uncompressed_data_size < stored_uncompressed_data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: uncompressed data size value too small.",
 		 function );
 
@@ -577,9 +576,9 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		nibble_count_table[ nibble_count_table_index >> 4 ]   += 1;
 	}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: uncompressed data size:\t%" PRIu16 "\n",
 		 function,
 		 stored_uncompressed_data_size );
@@ -588,23 +587,23 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		     nibble_count_table_index < 16;
 		     nibble_count_table_index++ )
 		{
-			libsystem_notify_printf(
+			libcnotify_printf(
 			 "%s: nibble count table index: %02d value:\t\t0x%08" PRIx32 " (%" PRIu32 ")\n",
 			 function,
 			 nibble_count_table_index,
 			 nibble_count_table[ nibble_count_table_index ],
 			 nibble_count_table[ nibble_count_table_index ] );
 		}
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
 	if( nibble_count_table[ 0 ] >= 0x01ff )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: first nibble count table entry value exceeds maximum.",
 		 function );
 
@@ -635,10 +634,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 	if( nibble_count != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: nibble count value exceeds maximum.",
 		 function );
 
@@ -649,9 +648,9 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	nibble_count = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 0,
@@ -668,9 +667,9 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		nibble_count                                          = total_nibble_count_table[ nibble_count_table_index ];
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-		if( libsystem_notify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libsystem_notify_printf(
+			libcnotify_printf(
 			 "%s: total nibble count table index: %02d value:\t0x%08" PRIx32 " (%" PRIu32 ")\n",
 			 function,
 			 nibble_count_table_index,
@@ -680,9 +679,9 @@ int windows_search_decompress_byte_indexed_compressed_data(
 #endif
 	}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -708,10 +707,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 			if( compression_value_table_index > 2048 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression value table index value exceeds maximum.",
 				 function );
 
@@ -732,10 +731,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 			if( compression_value_table_index > 2048 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression value table index value exceeds maximum.",
 				 function );
 
@@ -750,10 +749,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 	if( total_nibble_count > 2048 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: total nibble count value exceeds maximum.",
 		 function );
 
@@ -806,14 +805,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	}
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: compression value table:\n",
 		 function );
-		libsystem_notify_print_data(
+		libcnotify_print_data(
 		 (uint8_t *) compression_value_table,
-		 2 * 2048 );
+		 2 * 2048,
+		 0 );
 	}
 #endif
 	/* Byte 258 - end contain the compression data bit stream
@@ -822,10 +822,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 	if( ( compressed_data_iterator + 3 ) >= compressed_data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -880,10 +880,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 				if( compression_value_table_index > 2048 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 					 "%s: compression value table index value exceeds maximum.",
 					 function );
 
@@ -921,10 +921,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 			if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 				 "%s: compressed data size value too small.",
 				 function );
 
@@ -977,10 +977,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			{
 				if( compressed_data_iterator >= compressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: compressed data size value too small.",
 					 function );
 
@@ -994,10 +994,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			{
 				if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: compressed data size value too small.",
 					 function );
 
@@ -1023,10 +1023,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 
 				if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: compressed data size value too small.",
 					 function );
 
@@ -1047,10 +1047,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			}
 			if( ( uncompressed_data_iterator + compression_size ) > uncompressed_data_size )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 				 "%s: uncompressed data size value too small.",
 				 function );
 
@@ -1058,10 +1058,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 			}
 			if( compression_offset > uncompressed_data_iterator )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 				 "%s: compression offset value exceeds uncompressed data iterator.",
 				 function );
 
@@ -1080,10 +1080,10 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		{
 			if( uncompressed_data_iterator >= uncompressed_data_size )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 				 "%s: uncompressed data size value too small.",
 				 function );
 
@@ -1093,14 +1093,15 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: uncompressed data:\n",
 		 function );
-		libsystem_notify_print_data(
+		libcnotify_print_data(
 		 uncompressed_data,
-		 uncompressed_data_iterator );
+		 uncompressed_data_iterator,
+		 0 );
 	}
 #endif
 	return( 1 );
@@ -1114,7 +1115,7 @@ int windows_search_export_compressed_string_value(
      size_t value_data_size,
      int ascii_codepage,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *value_string = NULL;
 	uint8_t *decoded_value_data                 = NULL;
@@ -1131,10 +1132,10 @@ int windows_search_export_compressed_string_value(
 
 	if( value_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid value data.",
 		 function );
 
@@ -1142,10 +1143,10 @@ int windows_search_export_compressed_string_value(
 	}
 	if( value_data_size == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
 		 "%s: invalid value data size value zero or less.",
 		 function );
 
@@ -1153,10 +1154,10 @@ int windows_search_export_compressed_string_value(
 	}
 	if( value_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid value data size value exceeds maximum.",
 		 function );
 
@@ -1164,10 +1165,10 @@ int windows_search_export_compressed_string_value(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1180,10 +1181,10 @@ int windows_search_export_compressed_string_value(
 
 	if( decoded_value_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create decoded value data.",
 		 function );
 
@@ -1196,10 +1197,10 @@ int windows_search_export_compressed_string_value(
 	     value_data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to decode value data.",
 		 function );
 
@@ -1210,26 +1211,28 @@ int windows_search_export_compressed_string_value(
 	}
 /* TODO test purposes
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: value data:\n",
 		 function );
-		libsystem_notify_print_data(
+		libcnotify_print_data(
 		 value_data,
-		 value_data_size );
+		 value_data_size,
+		 0 );
 	}
 #endif
 */
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-	if( libsystem_notify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libsystem_notify_printf(
+		libcnotify_printf(
 		 "%s: decoded data:\n",
 		 function );
-		libsystem_notify_print_data(
+		libcnotify_print_data(
 		 decoded_value_data,
-		 decoded_value_data_size );
+		 decoded_value_data_size,
+		 0 );
 	}
 #endif
 	compression_type = decoded_value_data[ 0 ];
@@ -1244,10 +1247,10 @@ int windows_search_export_compressed_string_value(
 		     &decompressed_value_data_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve byte-index compressed data size.",
 			 function );
 
@@ -1263,10 +1266,10 @@ int windows_search_export_compressed_string_value(
 
 		if( decompressed_value_data == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create decompressed value data.",
 			 function );
 
@@ -1289,10 +1292,10 @@ int windows_search_export_compressed_string_value(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to decompress byte-index compressed data.",
 			 function );
 
@@ -1300,11 +1303,11 @@ int windows_search_export_compressed_string_value(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libsystem_notify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 
 			memory_free(
@@ -1313,14 +1316,15 @@ int windows_search_export_compressed_string_value(
 		else
 		{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-			if( libsystem_notify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libsystem_notify_printf(
+				libcnotify_printf(
 				 "%s: decompressed data:\n",
 				 function );
-				libsystem_notify_print_data(
+				libcnotify_print_data(
 				 decompressed_value_data,
-				 decompressed_value_data_size );
+				 decompressed_value_data_size,
+				 0 );
 			}
 #endif
 			memory_free(
@@ -1342,20 +1346,20 @@ int windows_search_export_compressed_string_value(
 		     &value_utf16_stream_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve run-length uncompressed UTF-16 string size.",
 			 function );
 
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libsystem_notify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 
 			memory_free(
@@ -1368,10 +1372,10 @@ int windows_search_export_compressed_string_value(
 
 			if( value_utf16_stream == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 				 "%s: unable to create value UTF-16 stream.",
 				 function );
 
@@ -1387,10 +1391,10 @@ int windows_search_export_compressed_string_value(
 			     decoded_value_data_size - 1,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to decompress run-length compressed UTF-16 string.",
 				 function );
 
@@ -1402,14 +1406,15 @@ int windows_search_export_compressed_string_value(
 				return( -1 );
 			}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
-			if( libsystem_notify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libsystem_notify_printf(
+				libcnotify_printf(
 				 "%s: decompressed data:\n",
 				 function );
-				libsystem_notify_print_data(
+				libcnotify_print_data(
 				 value_utf16_stream,
-				 value_utf16_stream_size );
+				 value_utf16_stream_size,
+				 0 );
 			}
 #endif
 			/* Sometimes the UTF-16 stream is cut-off in the surrogate high range
@@ -1441,10 +1446,10 @@ int windows_search_export_compressed_string_value(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to determine size of value UTF-16 stream.",
 				 function );
 
@@ -1458,10 +1463,10 @@ int windows_search_export_compressed_string_value(
 
 			if( value_string == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 				 "%s: unable to create value string.",
 				 function );
 
@@ -1489,10 +1494,10 @@ int windows_search_export_compressed_string_value(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve value string.",
 				 function );
 
@@ -1526,10 +1531,10 @@ int windows_search_export_compressed_string_value(
 		     &value_string_size,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine size of value string.",
 			 function );
 
@@ -1543,10 +1548,10 @@ int windows_search_export_compressed_string_value(
 
 		if( narrow_value_string == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create value string.",
 			 function );
 
@@ -1563,10 +1568,10 @@ int windows_search_export_compressed_string_value(
 		     ascii_codepage,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve value string.",
 			 function );
 
@@ -1602,16 +1607,17 @@ int windows_search_export_compressed_string_value(
 	}
 	else
 	{
-		if( libsystem_notify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libsystem_notify_printf(
+			libcnotify_printf(
 			 "unsupported compression type: 0x%02" PRIx8 "\n",
 			 compression_type );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			libsystem_notify_print_data(
+			libcnotify_print_data(
 			 value_data,
-			 value_data_size );
+			 value_data_size,
+			 0 );
 #endif
 		}
 		memory_free(
@@ -1628,7 +1634,7 @@ int windows_search_export_record_value_32bit(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "windows_search_export_record_value_32bit";
@@ -1639,10 +1645,10 @@ int windows_search_export_record_value_32bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1651,10 +1657,10 @@ int windows_search_export_record_value_32bit(
 	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
 	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported byte order: 0x%02" PRIx8 "",
 		 function,
 		 byte_order );
@@ -1663,10 +1669,10 @@ int windows_search_export_record_value_32bit(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1678,10 +1684,10 @@ int windows_search_export_record_value_32bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -1690,10 +1696,10 @@ int windows_search_export_record_value_32bit(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -1708,10 +1714,10 @@ int windows_search_export_record_value_32bit(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1724,10 +1730,10 @@ int windows_search_export_record_value_32bit(
 		{
 			if( value_data_size != 4 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -1771,7 +1777,7 @@ int windows_search_export_record_value_64bit(
      uint8_t byte_order,
      uint8_t format,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
 	static char *function  = "windows_search_export_record_value_64bit";
@@ -1782,10 +1788,10 @@ int windows_search_export_record_value_64bit(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1794,10 +1800,10 @@ int windows_search_export_record_value_64bit(
 	if( ( byte_order != _BYTE_STREAM_ENDIAN_BIG )
 	 && ( byte_order != _BYTE_STREAM_ENDIAN_LITTLE ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported byte order: 0x%02" PRIx8 "",
 		 function,
 		 byte_order );
@@ -1807,10 +1813,10 @@ int windows_search_export_record_value_64bit(
 	if( ( format != WINDOWS_SEARCH_FORMAT_DECIMAL )
 	 && ( format != WINDOWS_SEARCH_FORMAT_HEXADECIMAL ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported format: 0x%02" PRIx8 "",
 		 function,
 		 format );
@@ -1819,10 +1825,10 @@ int windows_search_export_record_value_64bit(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1834,10 +1840,10 @@ int windows_search_export_record_value_64bit(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -1848,10 +1854,10 @@ int windows_search_export_record_value_64bit(
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -1866,10 +1872,10 @@ int windows_search_export_record_value_64bit(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -1882,10 +1888,10 @@ int windows_search_export_record_value_64bit(
 		{
 			if( value_data_size != 8 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -1950,7 +1956,7 @@ int windows_search_export_record_value_filetime(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 32 ];
 
@@ -1964,10 +1970,10 @@ int windows_search_export_record_value_filetime(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1975,10 +1981,10 @@ int windows_search_export_record_value_filetime(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -1990,10 +1996,10 @@ int windows_search_export_record_value_filetime(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -2002,10 +2008,10 @@ int windows_search_export_record_value_filetime(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -2020,10 +2026,10 @@ int windows_search_export_record_value_filetime(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -2036,10 +2042,10 @@ int windows_search_export_record_value_filetime(
 		{
 			if( value_data_size != 8 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -2050,10 +2056,10 @@ int windows_search_export_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create filetime.",
 				 function );
 
@@ -2066,10 +2072,10 @@ int windows_search_export_record_value_filetime(
 			     byte_order,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
@@ -2098,10 +2104,10 @@ int windows_search_export_record_value_filetime(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy filetime to string.",
 				 function );
 
@@ -2115,10 +2121,10 @@ int windows_search_export_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free filetime.",
 				 function );
 
@@ -2148,7 +2154,7 @@ int windows_search_export_record_value_compressed_string(
      int record_value_entry,
      int ascii_codepage,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_long_value_t *long_value   = NULL;
 	libesedb_multi_value_t *multi_value = NULL;
@@ -2164,10 +2170,10 @@ int windows_search_export_record_value_compressed_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2175,10 +2181,10 @@ int windows_search_export_record_value_compressed_string(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2190,10 +2196,10 @@ int windows_search_export_record_value_compressed_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -2203,10 +2209,10 @@ int windows_search_export_record_value_compressed_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -2221,10 +2227,10 @@ int windows_search_export_record_value_compressed_string(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value of record entry: %d.",
 		 function,
 		 record_value_entry );
@@ -2242,10 +2248,10 @@ int windows_search_export_record_value_compressed_string(
 			     record_file_stream,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
 				 "%s: unable to export compressed string value of record entry: %d.",
 				 function,
 				 record_value_entry );
@@ -2262,10 +2268,10 @@ int windows_search_export_record_value_compressed_string(
 		     &long_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve long value of record entry: %d.",
 			 function,
 			 record_value_entry );
@@ -2277,10 +2283,10 @@ int windows_search_export_record_value_compressed_string(
 		     &number_of_long_value_segments,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of long value segments.",
 			 function );
 
@@ -2301,10 +2307,10 @@ int windows_search_export_record_value_compressed_string(
 			     &value_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve long value segment: %d of record entry: %d.",
 				 function,
 				 long_value_segment_iterator,
@@ -2317,9 +2323,9 @@ int windows_search_export_record_value_compressed_string(
 				return( -1 );
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-if( libsystem_notify_verbose != 0 )
+if( libcnotify_verbose != 0 )
 {
-	libsystem_notify_printf(
+	libcnotify_printf(
 	 "LONG VALUE DATA: %d out of %d\n",
 	 long_value_segment_iterator + 1,
 	 number_of_long_value_segments );
@@ -2336,10 +2342,10 @@ if( libsystem_notify_verbose != 0 )
 				     record_file_stream,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GENERIC,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GENERIC,
 					 "%s: unable to export compressed string of long value segment: %d of record entry: %d.",
 					 function,
 					 long_value_segment_iterator,
@@ -2357,10 +2363,10 @@ if( libsystem_notify_verbose != 0 )
 		     &long_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free long value.",
 			 function );
 
@@ -2377,10 +2383,10 @@ if( libsystem_notify_verbose != 0 )
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve multi value of record entry: %d.",
 			 function,
 			 record_value_entry );
@@ -2392,10 +2398,10 @@ if( libsystem_notify_verbose != 0 )
 		     &number_of_multi_values,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of multi values.",
 			 function );
 
@@ -2417,10 +2423,10 @@ if( libsystem_notify_verbose != 0 )
 			     &value_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve multi value: %d of record entry: %d.",
 				 function,
 				 multi_value_iterator,
@@ -2443,10 +2449,10 @@ if( libsystem_notify_verbose != 0 )
 				     record_file_stream,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GENERIC,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GENERIC,
 					 "%s: unable to export compressed string of multi value: %d of record entry: %d.",
 					 function,
 					 multi_value_iterator,
@@ -2470,10 +2476,10 @@ if( libsystem_notify_verbose != 0 )
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free multi value: %d.",
 			 function,
 			 multi_value_iterator );
@@ -2499,7 +2505,7 @@ int windows_search_export_record_value_utf16_string(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *value_string = NULL;
 	uint8_t *value_data                         = NULL;
@@ -2512,10 +2518,10 @@ int windows_search_export_record_value_utf16_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2523,10 +2529,10 @@ int windows_search_export_record_value_utf16_string(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2538,10 +2544,10 @@ int windows_search_export_record_value_utf16_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -2551,10 +2557,10 @@ int windows_search_export_record_value_utf16_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -2569,10 +2575,10 @@ int windows_search_export_record_value_utf16_string(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -2600,10 +2606,10 @@ int windows_search_export_record_value_utf16_string(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to determine size of value string: %d.",
 				 function,
 				 record_value_entry );
@@ -2615,10 +2621,10 @@ int windows_search_export_record_value_utf16_string(
 
 			if( value_string == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 				 "%s: unable to create value string.",
 				 function );
 
@@ -2643,10 +2649,10 @@ int windows_search_export_record_value_utf16_string(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve value string: %d.",
 				 function,
 				 record_value_entry );
@@ -2683,7 +2689,7 @@ int windows_search_export_record_systemindex_0a(
      int ascii_codepage,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -2699,10 +2705,10 @@ int windows_search_export_record_systemindex_0a(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2710,10 +2716,10 @@ int windows_search_export_record_systemindex_0a(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2724,10 +2730,10 @@ int windows_search_export_record_systemindex_0a(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2753,10 +2759,10 @@ int windows_search_export_record_systemindex_0a(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -2768,10 +2774,10 @@ int windows_search_export_record_systemindex_0a(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -2794,10 +2800,10 @@ int windows_search_export_record_systemindex_0a(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -2810,10 +2816,10 @@ int windows_search_export_record_systemindex_0a(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -3549,10 +3555,10 @@ int windows_search_export_record_systemindex_0a(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -3582,7 +3588,7 @@ int windows_search_export_record_systemindex_gthr(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -3597,10 +3603,10 @@ int windows_search_export_record_systemindex_gthr(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -3608,10 +3614,10 @@ int windows_search_export_record_systemindex_gthr(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -3622,10 +3628,10 @@ int windows_search_export_record_systemindex_gthr(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -3651,10 +3657,10 @@ int windows_search_export_record_systemindex_gthr(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -3666,10 +3672,10 @@ int windows_search_export_record_systemindex_gthr(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -3692,10 +3698,10 @@ int windows_search_export_record_systemindex_gthr(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -3708,10 +3714,10 @@ int windows_search_export_record_systemindex_gthr(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -3785,10 +3791,10 @@ int windows_search_export_record_systemindex_gthr(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );

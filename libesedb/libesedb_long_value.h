@@ -25,12 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_types.h"
@@ -84,18 +83,18 @@ int libesedb_long_value_initialize(
      uint8_t *long_value_key,
      size_t long_value_key_size,
      uint8_t flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_long_value_free(
      libesedb_long_value_t **long_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_long_value_get_number_of_segments(
      libesedb_long_value_t *long_value,
      int *number_of_segments,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_long_value_get_segment_data(
@@ -103,7 +102,7 @@ int libesedb_long_value_get_segment_data(
      int data_segment_index,
      uint8_t **segment_data,
      size_t *segment_data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -23,12 +23,12 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_column.h"
 #include "libesedb_definitions.h"
 #include "libesedb_index.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
@@ -49,7 +49,7 @@ int libesedb_table_initialize(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table   = NULL;
 	libesedb_page_tree_t *long_values_page_tree = NULL;
@@ -59,10 +59,10 @@ int libesedb_table_initialize(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -70,10 +70,10 @@ int libesedb_table_initialize(
 	}
 	if( *table != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table value already set.",
 		 function );
 
@@ -81,10 +81,10 @@ int libesedb_table_initialize(
 	}
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -92,10 +92,10 @@ int libesedb_table_initialize(
 	}
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -103,10 +103,10 @@ int libesedb_table_initialize(
 	}
 	if( table_definition->table_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid table definition - missing table catalog definition.",
 		 function );
 
@@ -114,10 +114,10 @@ int libesedb_table_initialize(
 	}
 	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags: 0x%02" PRIx8 ".",
 		 function,
 		 flags );
@@ -129,10 +129,10 @@ int libesedb_table_initialize(
 
 	if( internal_table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create table.",
 		 function );
 
@@ -143,10 +143,10 @@ int libesedb_table_initialize(
 	     0,
 	     sizeof( libesedb_internal_table_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear table.",
 		 function );
 
@@ -166,10 +166,10 @@ int libesedb_table_initialize(
 		     file_io_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy file IO handle.",
 			 function );
 
@@ -180,10 +180,10 @@ int libesedb_table_initialize(
 		     1,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to set open on demand in file IO handle.",
 			 function );
 
@@ -202,10 +202,10 @@ int libesedb_table_initialize(
 	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create pages vector.",
 		 function );
 
@@ -218,10 +218,10 @@ int libesedb_table_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append segment to pages vector.",
 		 function );
 
@@ -232,10 +232,10 @@ int libesedb_table_initialize(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create pages cache.",
 		 function );
 
@@ -251,10 +251,10 @@ int libesedb_table_initialize(
 	     template_table_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create table page tree.",
 		 function );
 
@@ -265,17 +265,17 @@ int libesedb_table_initialize(
 	if( libfdata_tree_initialize(
 	     &( internal_table->table_values_tree ),
 	     (intptr_t *) table_page_tree,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     &libesedb_page_tree_read_node_value,
 	     &libesedb_page_tree_read_sub_nodes,
 	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create table values tree.",
 		 function );
 
@@ -290,10 +290,10 @@ int libesedb_table_initialize(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create values cache.",
 		 function );
 
@@ -308,10 +308,10 @@ int libesedb_table_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set root node in table values tree.",
 		 function );
 
@@ -331,10 +331,10 @@ int libesedb_table_initialize(
 		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long values pages vector.",
 			 function );
 
@@ -347,10 +347,10 @@ int libesedb_table_initialize(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 			 "%s: unable to append segment to long values pages vector.",
 			 function );
 
@@ -361,10 +361,10 @@ int libesedb_table_initialize(
 		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long values pages cache.",
 			 function );
 
@@ -380,10 +380,10 @@ int libesedb_table_initialize(
 		     template_table_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long value page tree.",
 			 function );
 
@@ -394,17 +394,17 @@ int libesedb_table_initialize(
 		if( libfdata_tree_initialize(
 		     &( internal_table->long_values_tree ),
 		     (intptr_t *) long_values_page_tree,
-		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 		     NULL,
 		     &libesedb_page_tree_read_node_value,
 		     &libesedb_page_tree_read_sub_nodes,
 		     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long values tree.",
 			 function );
 
@@ -419,10 +419,10 @@ int libesedb_table_initialize(
 		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create long values values.",
 			 function );
 
@@ -437,10 +437,10 @@ int libesedb_table_initialize(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set root node in table values tree.",
 			 function );
 
@@ -527,7 +527,7 @@ on_error:
  */
 int libesedb_table_free(
      libesedb_table_t **table,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_free";
@@ -535,10 +535,10 @@ int libesedb_table_free(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -560,10 +560,10 @@ int libesedb_table_free(
 				     internal_table->file_io_handle,
 				     error ) != 0 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 					 "%s: unable to close file IO handle.",
 					 function );
 
@@ -573,10 +573,10 @@ int libesedb_table_free(
 				     &( internal_table->file_io_handle ),
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 					 "%s: unable to free file IO handle.",
 					 function );
 
@@ -588,10 +588,10 @@ int libesedb_table_free(
 		     &( internal_table->pages_vector ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free pages vector.",
 			 function );
 
@@ -601,10 +601,10 @@ int libesedb_table_free(
 		     &( internal_table->pages_cache ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free pages cache.",
 			 function );
 
@@ -616,10 +616,10 @@ int libesedb_table_free(
 			     &( internal_table->long_values_pages_vector ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long values pages vector.",
 				 function );
 
@@ -632,10 +632,10 @@ int libesedb_table_free(
 			     &( internal_table->long_values_pages_cache ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long values pages cache.",
 				 function );
 
@@ -646,10 +646,10 @@ int libesedb_table_free(
 		     &( internal_table->table_values_tree ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table values tree.",
 			 function );
 
@@ -659,10 +659,10 @@ int libesedb_table_free(
 		     &( internal_table->table_values_cache ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table values cache.",
 			 function );
 
@@ -674,10 +674,10 @@ int libesedb_table_free(
 			     &( internal_table->long_values_tree ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long values tree.",
 				 function );
 
@@ -690,10 +690,10 @@ int libesedb_table_free(
 			     &( internal_table->long_values_cache ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long values cache.",
 				 function );
 
@@ -712,17 +712,17 @@ int libesedb_table_free(
 int libesedb_table_get_identifier(
      libesedb_table_t *table,
      uint32_t *identifier,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_identifier";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -732,10 +732,10 @@ int libesedb_table_get_identifier(
 
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -746,10 +746,10 @@ int libesedb_table_get_identifier(
 	     identifier,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
@@ -765,17 +765,17 @@ int libesedb_table_get_identifier(
 int libesedb_table_get_utf8_name_size(
      libesedb_table_t *table,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf8_name_size";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -785,10 +785,10 @@ int libesedb_table_get_utf8_name_size(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -796,10 +796,10 @@ int libesedb_table_get_utf8_name_size(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -811,10 +811,10 @@ int libesedb_table_get_utf8_name_size(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -831,17 +831,17 @@ int libesedb_table_get_utf8_name(
      libesedb_table_t *table,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf8_name";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -851,10 +851,10 @@ int libesedb_table_get_utf8_name(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -862,10 +862,10 @@ int libesedb_table_get_utf8_name(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -878,10 +878,10 @@ int libesedb_table_get_utf8_name(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
@@ -897,17 +897,17 @@ int libesedb_table_get_utf8_name(
 int libesedb_table_get_utf16_name_size(
      libesedb_table_t *table,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf16_name_size";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -917,10 +917,10 @@ int libesedb_table_get_utf16_name_size(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -928,10 +928,10 @@ int libesedb_table_get_utf16_name_size(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -943,10 +943,10 @@ int libesedb_table_get_utf16_name_size(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -963,17 +963,17 @@ int libesedb_table_get_utf16_name(
      libesedb_table_t *table,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf16_name";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -983,10 +983,10 @@ int libesedb_table_get_utf16_name(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -994,10 +994,10 @@ int libesedb_table_get_utf16_name(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1010,10 +1010,10 @@ int libesedb_table_get_utf16_name(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
@@ -1029,17 +1029,17 @@ int libesedb_table_get_utf16_name(
 int libesedb_table_get_utf8_template_name_size(
      libesedb_table_t *table,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf8_template_name_size";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1049,10 +1049,10 @@ int libesedb_table_get_utf8_template_name_size(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -1060,10 +1060,10 @@ int libesedb_table_get_utf8_template_name_size(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1075,10 +1075,10 @@ int libesedb_table_get_utf8_template_name_size(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -1095,17 +1095,17 @@ int libesedb_table_get_utf8_template_name(
      libesedb_table_t *table,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf8_template_name";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1115,10 +1115,10 @@ int libesedb_table_get_utf8_template_name(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -1126,10 +1126,10 @@ int libesedb_table_get_utf8_template_name(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1142,10 +1142,10 @@ int libesedb_table_get_utf8_template_name(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
@@ -1161,17 +1161,17 @@ int libesedb_table_get_utf8_template_name(
 int libesedb_table_get_utf16_template_name_size(
      libesedb_table_t *table,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf16_template_name_size";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1181,10 +1181,10 @@ int libesedb_table_get_utf16_template_name_size(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -1192,10 +1192,10 @@ int libesedb_table_get_utf16_template_name_size(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1207,10 +1207,10 @@ int libesedb_table_get_utf16_template_name_size(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -1227,17 +1227,17 @@ int libesedb_table_get_utf16_template_name(
      libesedb_table_t *table,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_utf16_template_name";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1247,10 +1247,10 @@ int libesedb_table_get_utf16_template_name(
 
 	if( internal_table->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing IO handle.",
 		 function );
 
@@ -1258,10 +1258,10 @@ int libesedb_table_get_utf16_template_name(
 	}
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1274,10 +1274,10 @@ int libesedb_table_get_utf16_template_name(
 	     internal_table->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
@@ -1297,7 +1297,7 @@ int libesedb_table_get_number_of_columns(
      libesedb_table_t *table,
      int *number_of_columns,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_number_of_columns";
@@ -1305,10 +1305,10 @@ int libesedb_table_get_number_of_columns(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1318,10 +1318,10 @@ int libesedb_table_get_number_of_columns(
 
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1329,10 +1329,10 @@ int libesedb_table_get_number_of_columns(
 	}
 	if( internal_table->table_definition->column_catalog_definition_list == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
 		 function );
 
@@ -1340,10 +1340,10 @@ int libesedb_table_get_number_of_columns(
 	}
 	if( number_of_columns == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of columns.",
 		 function );
 
@@ -1351,10 +1351,10 @@ int libesedb_table_get_number_of_columns(
 	}
 	if( ( flags & ~( LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags.",
 		 function );
 
@@ -1368,10 +1368,10 @@ int libesedb_table_get_number_of_columns(
 		     &template_table_number_of_columns,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of columns from template table.",
 			 function );
 
@@ -1383,10 +1383,10 @@ int libesedb_table_get_number_of_columns(
 	     number_of_columns,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of columns from table.",
 		 function );
 
@@ -1409,7 +1409,7 @@ int libesedb_table_get_column(
      int column_entry,
      libesedb_column_t **column,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_table_t *internal_table                = NULL;
@@ -1418,10 +1418,10 @@ int libesedb_table_get_column(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1431,10 +1431,10 @@ int libesedb_table_get_column(
 
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1442,10 +1442,10 @@ int libesedb_table_get_column(
 	}
 	if( internal_table->table_definition->column_catalog_definition_list == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
 		 function );
 
@@ -1453,10 +1453,10 @@ int libesedb_table_get_column(
 	}
 	if( column == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column.",
 		 function );
 
@@ -1464,10 +1464,10 @@ int libesedb_table_get_column(
 	}
 	if( *column != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid column value already set.",
 		 function );
 
@@ -1475,10 +1475,10 @@ int libesedb_table_get_column(
 	}
 	if( ( flags & ~( LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags.",
 		 function );
 
@@ -1493,10 +1493,10 @@ int libesedb_table_get_column(
 			     &template_table_number_of_columns,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve number of columns from template table.",
 				 function );
 
@@ -1512,10 +1512,10 @@ int libesedb_table_get_column(
 		     (intptr_t **) &column_catalog_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column catalog definition from template table.",
 			 function );
 
@@ -1530,10 +1530,10 @@ int libesedb_table_get_column(
 		     (intptr_t **) &column_catalog_definition,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column catalog definition from table.",
 			 function );
 
@@ -1542,10 +1542,10 @@ int libesedb_table_get_column(
 	}
 	if( column_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing column catalog definition.",
 		 function );
 
@@ -1557,10 +1557,10 @@ int libesedb_table_get_column(
 	     column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create column.",
 		 function );
 
@@ -1575,17 +1575,17 @@ int libesedb_table_get_column(
 int libesedb_table_get_number_of_indexes(
      libesedb_table_t *table,
      int *number_of_indexes,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_number_of_indexes";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1595,10 +1595,10 @@ int libesedb_table_get_number_of_indexes(
 
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1609,10 +1609,10 @@ int libesedb_table_get_number_of_indexes(
 	     number_of_indexes,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of indexes.",
 		 function );
 
@@ -1628,7 +1628,7 @@ int libesedb_table_get_index(
      libesedb_table_t *table,
      int index_entry,
      libesedb_index_t **index,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table               = NULL;
 	libesedb_catalog_definition_t *index_catalog_definition = NULL;
@@ -1636,10 +1636,10 @@ int libesedb_table_get_index(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1649,10 +1649,10 @@ int libesedb_table_get_index(
 
 	if( internal_table->table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - missing table definition.",
 		 function );
 
@@ -1660,10 +1660,10 @@ int libesedb_table_get_index(
 	}
 	if( internal_table->table_definition->index_catalog_definition_list == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal table - invalid table definition - missing index catalog definition list.",
 		 function );
 
@@ -1671,10 +1671,10 @@ int libesedb_table_get_index(
 	}
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -1682,10 +1682,10 @@ int libesedb_table_get_index(
 	}
 	if( *index != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid index value already set.",
 		 function );
 
@@ -1697,10 +1697,10 @@ int libesedb_table_get_index(
 	     (intptr_t **) &index_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve index catalog definition.",
 		 function );
 
@@ -1724,10 +1724,10 @@ int libesedb_table_get_index(
 	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index.",
 		 function );
 
@@ -1742,17 +1742,17 @@ int libesedb_table_get_index(
 int libesedb_table_get_number_of_records(
      libesedb_table_t *table,
      int *number_of_records,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_table_t *internal_table = NULL;
 	static char *function                     = "libesedb_table_get_number_of_records";
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1768,10 +1768,10 @@ int libesedb_table_get_number_of_records(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of leaf nodes from table values tree.",
 		 function );
 
@@ -1787,7 +1787,7 @@ int libesedb_table_get_record(
      libesedb_table_t *table,
      int record_entry,
      libesedb_record_t **record,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libfdata_tree_node_t *record_values_tree_node = NULL;
 	libesedb_internal_table_t *internal_table     = NULL;
@@ -1795,10 +1795,10 @@ int libesedb_table_get_record(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1808,10 +1808,10 @@ int libesedb_table_get_record(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -1819,10 +1819,10 @@ int libesedb_table_get_record(
 	}
 	if( *record != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid record value already set.",
 		 function );
 
@@ -1837,10 +1837,10 @@ int libesedb_table_get_record(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve leaf node: %d from table values tree.",
 		 function,
 		 record_entry );
@@ -1864,10 +1864,10 @@ int libesedb_table_get_record(
              LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create record.",
 		 function );
 

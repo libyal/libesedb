@@ -23,16 +23,16 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_array_type.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_column_type.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
+#include "libesedb_libcstring.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
@@ -54,16 +54,16 @@ enum LIBESEDB_TAGGED_DATA_TYPES_FORMATS
  */
 int libesedb_values_tree_value_initialize(
      libesedb_values_tree_value_t **values_tree_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_values_tree_value_initialize";
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -71,10 +71,10 @@ int libesedb_values_tree_value_initialize(
 	}
 	if( *values_tree_value != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid values tree value value already set.",
 		 function );
 
@@ -85,10 +85,10 @@ int libesedb_values_tree_value_initialize(
 
 	if( *values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create values tree value.",
 		 function );
 
@@ -99,10 +99,10 @@ int libesedb_values_tree_value_initialize(
 	     0,
 	     sizeof( libesedb_values_tree_value_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear values tree value.",
 		 function );
 
@@ -126,16 +126,16 @@ on_error:
  */
 int libesedb_values_tree_value_free(
      libesedb_values_tree_value_t **values_tree_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_values_tree_value_free";
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -163,16 +163,16 @@ int libesedb_values_tree_value_set_key_common(
      libesedb_values_tree_value_t *values_tree_value,
      uint8_t *common_key,
      size_t common_key_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_values_tree_value_set_key_common";
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -180,10 +180,10 @@ int libesedb_values_tree_value_set_key_common(
 	}
 	if( values_tree_value->key != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid values tree value - key already set.",
 		 function );
 
@@ -191,10 +191,10 @@ int libesedb_values_tree_value_set_key_common(
 	}
 	if( common_key == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid common key.",
 		 function );
 
@@ -202,10 +202,10 @@ int libesedb_values_tree_value_set_key_common(
 	}
 	if( common_key_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid common key size value exceeds maximum.",
 		 function );
 
@@ -218,10 +218,10 @@ int libesedb_values_tree_value_set_key_common(
 
 		if( values_tree_value->key == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create key.",
 			 function );
 
@@ -232,10 +232,10 @@ int libesedb_values_tree_value_set_key_common(
 		     common_key,
 		     sizeof( uint8_t ) * common_key_size ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 			 "%s: unable to copy common key.",
 			 function );
 
@@ -263,17 +263,17 @@ int libesedb_values_tree_value_set_key_local(
      libesedb_values_tree_value_t *values_tree_value,
      uint8_t *local_key,
      size_t local_key_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	void *reallocation    = NULL;
 	static char *function = "libesedb_values_tree_value_set_key_local";
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -281,10 +281,10 @@ int libesedb_values_tree_value_set_key_local(
 	}
 	if( local_key == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid local key.",
 		 function );
 
@@ -292,10 +292,10 @@ int libesedb_values_tree_value_set_key_local(
 	}
 	if( local_key_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid local key size value exceeds maximum.",
 		 function );
 
@@ -309,10 +309,10 @@ int libesedb_values_tree_value_set_key_local(
 
 		if( reallocation == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to resize key.",
 			 function );
 
@@ -325,10 +325,10 @@ int libesedb_values_tree_value_set_key_local(
 		     local_key,
 		     sizeof( uint8_t ) * local_key_size ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 			 "%s: unable to copy local key.",
 			 function );
 
@@ -350,7 +350,7 @@ int libesedb_values_tree_value_read_data(
      libfcache_cache_t *pages_cache,
      uint8_t **data,
      size_t *data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
@@ -358,10 +358,10 @@ int libesedb_values_tree_value_read_data(
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -370,10 +370,10 @@ int libesedb_values_tree_value_read_data(
 	if( ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_INDEX )
 	 && ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
 		 function,
 		 values_tree_value->type );
@@ -382,10 +382,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -393,10 +393,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid data.",
 		 function );
 
@@ -404,10 +404,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( data_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid data size.",
 		 function );
 
@@ -422,10 +422,10 @@ int libesedb_values_tree_value_read_data(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
 		 function,
 		 values_tree_value->page_number,
@@ -435,10 +435,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( page == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page.",
 		 function );
 
@@ -450,10 +450,10 @@ int libesedb_values_tree_value_read_data(
 	     &page_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -462,10 +462,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( page_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -474,10 +474,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( page_value->data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value data.",
 		 function );
 
@@ -485,10 +485,10 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( values_tree_value->data_offset > page_value->size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -513,7 +513,7 @@ int libesedb_values_tree_value_read_record(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libesedb_array_t *values_array,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
 	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
@@ -552,10 +552,10 @@ int libesedb_values_tree_value_read_record(
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -563,10 +563,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
 		 function,
 		 values_tree_value->type );
@@ -575,10 +575,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -586,10 +586,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -597,10 +597,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( table_definition->column_catalog_definition_list == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid table definition - missing column catalog definition list.",
 		 function );
 
@@ -609,10 +609,10 @@ int libesedb_values_tree_value_read_record(
 	if( ( template_table_definition != NULL )
 	 && ( template_table_definition->column_catalog_definition_list == NULL ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid template table definition - missing column catalog definition list.",
 		 function );
 
@@ -620,10 +620,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( values_array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid values array.",
 		 function );
 
@@ -638,10 +638,10 @@ int libesedb_values_tree_value_read_record(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
 		 function,
 		 values_tree_value->page_number,
@@ -651,10 +651,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( page == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page.",
 		 function );
 
@@ -666,10 +666,10 @@ int libesedb_values_tree_value_read_record(
 	     &page_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -678,10 +678,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( page_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -690,10 +690,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( page_value->data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value data.",
 		 function );
 
@@ -701,10 +701,10 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( values_tree_value->data_offset > page_value->size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -715,10 +715,10 @@ int libesedb_values_tree_value_read_record(
 
 	if( record_data_size < sizeof( esedb_data_definition_header_t ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid record data size value out of bounds.",
 		 function );
 
@@ -737,19 +737,19 @@ int libesedb_values_tree_value_read_record(
 	 variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last fixed size data type\t\t: %" PRIu8 "\n",
 		 function,
 		 last_fixed_size_data_type );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last variable size data type\t\t: %" PRIu8 "\n",
 		 function,
 		 last_variable_size_data_type );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: variable size data types offset\t\t: %" PRIu16 "\n",
 		 function,
 		 variable_size_data_types_offset );
@@ -763,10 +763,10 @@ int libesedb_values_tree_value_read_record(
 		     &number_of_template_table_column_catalog_definitions,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of template table column catalog definitions.",
 			 function );
 
@@ -778,10 +778,10 @@ int libesedb_values_tree_value_read_record(
 	     &number_of_table_column_catalog_definitions,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of table column catalog definitions.",
 		 function );
 
@@ -794,10 +794,10 @@ int libesedb_values_tree_value_read_record(
 	{
 		if( number_of_table_column_catalog_definitions > number_of_template_table_column_catalog_definitions )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid number of table column catalog definitions value exceeds number in template table.",
 			 function );
 
@@ -808,13 +808,13 @@ int libesedb_values_tree_value_read_record(
 	if( libesedb_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libfvalue_value_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
 		 "%s: unable to resize values array.",
 		 function );
 
@@ -844,10 +844,10 @@ int libesedb_values_tree_value_read_record(
 	{
 		if( column_catalog_definition_list_element == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: corruption detected for column catalog definition list element: %d.",
 			 function,
 			 column_catalog_definition_iterator );
@@ -856,10 +856,10 @@ int libesedb_values_tree_value_read_record(
 		}
 		if( column_catalog_definition_list_element->value == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing column catalog definition list element: %d.",
 			 function,
 			 column_catalog_definition_iterator );
@@ -870,10 +870,10 @@ int libesedb_values_tree_value_read_record(
 
 		if( column_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported column catalog definition type: %" PRIu16 " for list element: %d.",
 			 function,
 			 column_catalog_definition->type,
@@ -887,10 +887,10 @@ int libesedb_values_tree_value_read_record(
 		{
 			if( column_catalog_definition->identifier != 256 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 				 "%s: only tagged data types supported in tables using a template table.",
 				 function );
 
@@ -898,17 +898,17 @@ int libesedb_values_tree_value_read_record(
 			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libnotify_verbose != 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: column definition identifier\t\t: %03" PRIu32 "\n",
 			 function,
 			 column_catalog_definition->identifier );
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: column definition name\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 			 function,
 			 column_catalog_definition->name_string );
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: column definition type\t\t\t: %s (%s)\n",
 			 function,
 			 libesedb_column_type_get_description(
@@ -985,10 +985,10 @@ int libesedb_values_tree_value_read_record(
 				break;
 
 			default:
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported column type: %" PRIu32 ".",
 				 function,
 				 column_catalog_definition->column_type );
@@ -1000,10 +1000,10 @@ int libesedb_values_tree_value_read_record(
 		     record_value_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 			 "%s: unable to create record value.",
 			 function );
 
@@ -1025,10 +1025,10 @@ int libesedb_values_tree_value_read_record(
 			     record_value_codepage,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable to set value codepage.",
 				 function );
 
@@ -1040,16 +1040,17 @@ int libesedb_values_tree_value_read_record(
 			if( column_catalog_definition->identifier <= last_fixed_size_data_type )
 			{
 #if defined( HAVE_DEBUG_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: (%03" PRIu32 ") fixed size data type size\t\t: %" PRIu32 "\n",
 					 function,
 					 column_catalog_definition->identifier,
 					 column_catalog_definition->size );
-					libnotify_print_data(
+					libcnotify_print_data(
 					 &( record_data[ fixed_size_data_type_value_offset ] ),
-					 column_catalog_definition->size );
+					 column_catalog_definition->size,
+					 0 );
 				}
 #endif
 				if( libfvalue_value_set_data(
@@ -1060,10 +1061,10 @@ int libesedb_values_tree_value_read_record(
 				     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 					 "%s: unable to set data in fixed size data type definition.",
 					 function );
 
@@ -1071,10 +1072,10 @@ int libesedb_values_tree_value_read_record(
 				}
 				if( column_catalog_definition->size > (uint32_t) UINT16_MAX )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 					 "%s: invalid common catalog definition size value exceeds maximum.",
 					 function );
 
@@ -1096,9 +1097,9 @@ int libesedb_values_tree_value_read_record(
 				current_variable_size_data_type++;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-				if( libnotify_verbose != 0 )
+				if( libcnotify_verbose != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 "%s: (%03" PRIu16 ") variable size data type size\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 					 function,
 					 current_variable_size_data_type,
@@ -1113,15 +1114,16 @@ int libesedb_values_tree_value_read_record(
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu32 ") variable size data type:\n",
 							 function,
 							 column_catalog_definition->identifier );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( record_data[ variable_size_data_type_value_offset ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 #endif
 						if( libfvalue_value_set_data(
@@ -1132,10 +1134,10 @@ int libesedb_values_tree_value_read_record(
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 							 "%s: unable to set data in variable size data type definition.",
 							 function );
 
@@ -1145,9 +1147,9 @@ int libesedb_values_tree_value_read_record(
 						previous_variable_size_data_type_size = variable_size_data_type_size;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					else if( libnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu32 ") variable size data type\t\t: <NULL>\n",
 						 function,
 						 column_catalog_definition->identifier );
@@ -1188,14 +1190,14 @@ int libesedb_values_tree_value_read_record(
 				 && ( column_catalog_definition->identifier == tagged_data_type_identifier ) )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu16 ") tagged data type identifier\t: %" PRIu16 "\n",
 						 function,
 						 column_catalog_definition->identifier,
 						 tagged_data_type_identifier );
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu16 ") tagged data type size\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 						 function,
 						 column_catalog_definition->identifier,
@@ -1207,16 +1209,16 @@ int libesedb_values_tree_value_read_record(
 					if( ( tagged_data_type_size & 0x8000 ) != 0 )
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type flags\t\t: 0x%02" PRIx8 "\n",
 							 function,
 							 column_catalog_definition->identifier,
 							 record_data[ tagged_data_type_value_offset ] );
 							libesedb_debug_print_tagged_data_type_flags(
 							 record_data[ tagged_data_type_value_offset ] );
-							libnotify_printf(
+							libcnotify_printf(
 							 "\n" );
 						}
 #endif
@@ -1228,10 +1230,10 @@ int libesedb_values_tree_value_read_record(
 						     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 							 "%s: unable to set tagged data type flags in tagged data type definition.",
 							 function );
 
@@ -1242,21 +1244,22 @@ int libesedb_values_tree_value_read_record(
 						remaining_definition_data_size -= 1;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						if( tagged_data_type_size > 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
 							 column_catalog_definition->identifier );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( record_data[ tagged_data_type_value_offset ] ),
-							 tagged_data_type_size );
+							 tagged_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu32 ") tagged data type\t\t\t: <NULL>\n",
 							 function,
 							 column_catalog_definition->identifier );
@@ -1267,10 +1270,10 @@ int libesedb_values_tree_value_read_record(
 					{
 						if( tagged_data_type_size > remaining_definition_data_size )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
@@ -1284,10 +1287,10 @@ int libesedb_values_tree_value_read_record(
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
@@ -1337,10 +1340,10 @@ int libesedb_values_tree_value_read_record(
 
 						if( tagged_data_type_offset == 0 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type offset value out of bounds.",
 							 function );
 
@@ -1351,18 +1354,19 @@ int libesedb_values_tree_value_read_record(
 						remaining_definition_data_size -= 4;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: tagged data type offset data size\t: %" PRIu16 "\n",
 							 function,
 							 tagged_data_type_offset_data_size );
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: tagged data type offset data:\n",
 							 function );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 tagged_data_type_offset_data,
-							 tagged_data_type_offset_data_size + 4 );
+							 tagged_data_type_offset_data_size + 4,
+							 0 );
 						}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 					}
@@ -1371,9 +1375,9 @@ int libesedb_values_tree_value_read_record(
 				 && ( column_catalog_definition->identifier == tagged_data_type_identifier ) )
 				{
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu16 ") tagged data type identifier\t: %" PRIu16 "\n",
 						 function,
 						 column_catalog_definition->identifier,
@@ -1382,7 +1386,7 @@ int libesedb_values_tree_value_read_record(
 						if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 						 && ( io_handle->page_size >= 16384 ) )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 							 function,
 							 column_catalog_definition->identifier,
@@ -1391,7 +1395,7 @@ int libesedb_values_tree_value_read_record(
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 							 function,
 							 column_catalog_definition->identifier,
@@ -1425,10 +1429,10 @@ int libesedb_values_tree_value_read_record(
 					{
 						if( previous_tagged_data_type_offset > tagged_data_type_offset )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
 							 function );
 
@@ -1447,10 +1451,10 @@ int libesedb_values_tree_value_read_record(
 					{
 						if( ( previous_tagged_data_type_offset & 0x3fff ) > ( tagged_data_type_offset & 0x3fff ) )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
 							 function );
 
@@ -1466,9 +1470,9 @@ int libesedb_values_tree_value_read_record(
 						}
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu16 ") tagged data type size\t\t: %" PRIu16 "\n",
 						 function,
 						 column_catalog_definition->identifier,
@@ -1491,10 +1495,10 @@ int libesedb_values_tree_value_read_record(
 					{
 						if( tagged_data_type_size > remaining_definition_data_size )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 							 "%s: invalid tagged data type size value exceeds remaining data size.",
 							 function );
 
@@ -1507,16 +1511,16 @@ int libesedb_values_tree_value_read_record(
 						 || ( ( previous_tagged_data_type_offset & 0x4000 ) != 0 ) )
 						{
 #if defined( HAVE_DEBUG_OUTPUT )
-							if( libnotify_verbose != 0 )
+							if( libcnotify_verbose != 0 )
 							{
-								libnotify_printf(
+								libcnotify_printf(
 								 "%s: (%03" PRIu16 ") tagged data type flags\t\t: 0x%02" PRIx8 "\n",
 								 function,
 								 column_catalog_definition->identifier,
 								 record_data[ tagged_data_type_value_offset ] );
 								libesedb_debug_print_tagged_data_type_flags(
 								 record_data[ tagged_data_type_value_offset ] );
-								libnotify_printf(
+								libcnotify_printf(
 								 "\n" );
 							}
 #endif
@@ -1527,10 +1531,10 @@ int libesedb_values_tree_value_read_record(
 							     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
 							     error ) != 1 )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_RUNTIME,
-								 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+								 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 								 "%s: unable to set tagged data type flags in tagged data type definition.",
 								 function );
 
@@ -1540,24 +1544,25 @@ int libesedb_values_tree_value_read_record(
 							tagged_data_type_size         -= 1;
 						}
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
 							 column_catalog_definition->identifier );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( record_data[ tagged_data_type_value_offset ] ),
-							 tagged_data_type_size );
+							 tagged_data_type_size,
+							 0 );
 						}
 #endif
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					/* TODO are zero size tagged data type values handled correctly?
 					 */
-					else if( libnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu32 ") tagged data type\t\t\t: <NULL>\n",
 						 function,
 						 column_catalog_definition->identifier );
@@ -1573,10 +1578,10 @@ int libesedb_values_tree_value_read_record(
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 							 "%s: unable to set data in tagged data type definition.",
 							 function );
 
@@ -1592,10 +1597,10 @@ int libesedb_values_tree_value_read_record(
 		     (intptr_t *) record_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 			 "%s: unable to set data type definition: %d.",
 			 function,
 			 column_catalog_definition_iterator );
@@ -1616,18 +1621,19 @@ int libesedb_values_tree_value_read_record(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
 		if( fixed_size_data_type_value_offset < variable_size_data_types_offset )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: fixed size data types trailing data:\n",
 			 function );
-			libnotify_print_data(
+			libcnotify_print_data(
 			 &( record_data[ fixed_size_data_type_value_offset ] ),
-			 variable_size_data_types_offset - fixed_size_data_type_value_offset );
+			 variable_size_data_types_offset - fixed_size_data_type_value_offset,
+			 0 );
 		}
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -1651,7 +1657,7 @@ int libesedb_values_tree_value_read_long_value(
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
@@ -1662,10 +1668,10 @@ int libesedb_values_tree_value_read_long_value(
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -1673,10 +1679,10 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_LONG_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
 		 function,
 		 values_tree_value->type );
@@ -1692,10 +1698,10 @@ int libesedb_values_tree_value_read_long_value(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
 		 function,
 		 values_tree_value->page_number,
@@ -1705,10 +1711,10 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( page == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page.",
 		 function );
 
@@ -1720,10 +1726,10 @@ int libesedb_values_tree_value_read_long_value(
 	     &page_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -1732,10 +1738,10 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( page_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -1744,10 +1750,10 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( page_value->data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value data.",
 		 function );
 
@@ -1755,10 +1761,10 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( values_tree_value->data_offset > page_value->size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -1769,10 +1775,10 @@ int libesedb_values_tree_value_read_long_value(
 
 	if( long_value_data_size != 8 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported long values data size: %" PRIzd ".",
 		 function,
 		 long_value_data_size );
@@ -1780,14 +1786,15 @@ int libesedb_values_tree_value_read_long_value(
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: long value data:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 long_value_data,
-		 long_value_data_size );
+		 long_value_data_size,
+		 0 );
 	}
 #endif
 	byte_stream_copy_to_uint16_little_endian(
@@ -1797,9 +1804,9 @@ int libesedb_values_tree_value_read_long_value(
 	long_value_data += 4;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown1\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -1813,13 +1820,13 @@ int libesedb_values_tree_value_read_long_value(
 	long_value_data += 4;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last segment offset\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -1837,7 +1844,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_block_t *data_block,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_page_t *page                  = NULL;
 	libesedb_page_value_t *page_value      = NULL;
@@ -1848,10 +1855,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 	if( values_tree_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid values tree value.",
 		 function );
 
@@ -1859,10 +1866,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_LONG_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
 		 function,
 		 values_tree_value->type );
@@ -1871,10 +1878,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( data_block == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid data block.",
 		 function );
 
@@ -1889,10 +1896,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
 		 function,
 		 values_tree_value->page_number,
@@ -1902,10 +1909,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( page == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page.",
 		 function );
 
@@ -1917,10 +1924,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     &page_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -1929,10 +1936,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( page_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
 		 values_tree_value->page_value_index );
@@ -1941,10 +1948,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( page_value->data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value data.",
 		 function );
 
@@ -1952,10 +1959,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( values_tree_value->data_offset > page_value->size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid values tree value - data offset exceeds page value size.",
 		 function );
 
@@ -1970,15 +1977,15 @@ int libesedb_values_tree_value_read_long_value_segment(
 	                               + values_tree_value->data_offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: long value segment with offset: %" PRIu32 " has data at offset: %" PRIi64 " of size: %" PRIzd "\n",
 		 function,
 		 long_value_segment_offset,
 		 long_value_segment_data_offset,
 		 long_value_segment_data_size );
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -1987,10 +1994,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     &data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of data block size.",
 		 function );
 
@@ -1998,10 +2005,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( long_value_segment_offset != (off64_t) data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported long value segment offset: %" PRIi64 " value must match end of previous segment: %" PRIzd ".",
 		 function,
 		 long_value_segment_offset,
@@ -2016,10 +2023,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append long value segment at offset: %" PRIu32 " to data block.",
 		 function,
 		 long_value_segment_offset );

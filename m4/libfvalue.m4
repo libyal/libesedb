@@ -1,6 +1,6 @@
 dnl Functions for libfvalue
 dnl
-dnl Version: 20111025
+dnl Version: 20120408
 
 dnl Function to detect if libfvalue available
 dnl ac_libfvalue_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -259,7 +259,8 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
    [HAVE_LIBFVALUE],
    [1],
    [Define to 1 if you have the `fvalue' library (-lfvalue).])
-  LIBS="-lfvalue $LIBS"
+
+  ac_cv_libfvalue_LIBADD="-lfvalue"
   ])
 
  AS_IF(
@@ -282,30 +283,56 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBFVALUE_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libfvalue],
+   [libfvalue >= 20120405],
+   [ac_cv_libfvalue=yes],
+   [ac_cv_libfvalue=no])
 
+  ac_cv_libfvalue_CPPFLAGS="$pkg_cv_libfvalue_CFLAGS"
+  ac_cv_libfvalue_LIBADD="$pkg_cv_libfvalue_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libfvalue" != xyes],
-  [AC_DEFINE(
+  [AX_LIBFVALUE_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libfvalue" != xyes],
+  [ac_cv_libfvalue_CPPFLAGS="-I../libfvalue";
+  ac_cv_libfvalue_LIBADD="../libfvalue/libfvalue.la";
+
+  ac_cv_libfvalue=local
+
+  AC_DEFINE(
    [HAVE_LOCAL_LIBFVALUE],
    [1],
    [Define to 1 if the local version of libfvalue is used.])
   AC_SUBST(
    [HAVE_LOCAL_LIBFVALUE],
    [1])
-  AC_SUBST(
-   [LIBFVALUE_CPPFLAGS],
-   [-I../libfvalue])
-  AC_SUBST(
-   [LIBFVALUE_LIBADD],
-   [../libfvalue/libfvalue.la])
-
-  ac_cv_libfvalue=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBFVALUE],
   [test "x$ac_cv_libfvalue" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libfvalue_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBFVALUE_CPPFLAGS],
+   [$ac_cv_libfvalue_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libfvalue_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBFVALUE_LIBADD],
+   [$ac_cv_libfvalue_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libfvalue" = xyes],

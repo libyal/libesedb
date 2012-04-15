@@ -22,11 +22,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include <stdio.h>
 
 #include "libesedb_error.h"
+#include "libesedb_libcerror.h"
 
 #if !defined( HAVE_LOCAL_LIBESEDB )
 
@@ -35,8 +34,8 @@
 void libesedb_error_free(
       libesedb_error_t **error )
 {
-	liberror_error_free(
-	 (liberror_error_t **) error );
+	libcerror_error_free(
+	 (libcerror_error_t **) error );
 }
 
 /* Prints a descriptive string of the error to the stream
@@ -46,8 +45,8 @@ int libesedb_error_fprint(
      libesedb_error_t *error,
      FILE *stream )
 {
-	return( liberror_error_fprint(
-	         (liberror_error_t *) error,
+	return( libcerror_error_fprint(
+	         (libcerror_error_t *) error,
 	         stream ) );
 }
 
@@ -60,8 +59,8 @@ int libesedb_error_sprint(
      char *string,
      size_t size )
 {
-	return( liberror_error_sprint(
-	         (liberror_error_t *) error,
+	return( libcerror_error_sprint(
+	         (libcerror_error_t *) error,
 	         string,
 	         size ) );
 }
@@ -73,8 +72,8 @@ int libesedb_error_backtrace_fprint(
      libesedb_error_t *error,
       FILE *stream )
 {
-	return( liberror_error_backtrace_fprint(
-	         (liberror_error_t *) error,
+	return( libcerror_error_backtrace_fprint(
+	         (libcerror_error_t *) error,
 	         stream ) );
 }
 
@@ -87,8 +86,8 @@ int libesedb_error_backtrace_sprint(
      char *string,
      size_t size )
 {
-	return( liberror_error_backtrace_sprint(
-	         (liberror_error_t *) error,
+	return( libcerror_error_backtrace_sprint(
+	         (libcerror_error_t *) error,
 	         string,
 	         size ) );
 }

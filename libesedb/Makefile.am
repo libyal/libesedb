@@ -2,10 +2,13 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(datadir)/locale\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	-I$(top_srcdir)/libcstring \
-	-I$(top_srcdir)/liberror \
-	-I$(top_srcdir)/libnotify \
+	@LIBCSTRING_CPPFLAGS@ \
+	@LIBCERROR_CPPFLAGS@ \
+	@LIBCLOCALE_CPPFLAGS@ \
+	@LIBCNOTIFY_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
+	@LIBCFILE_CPPFLAGS@ \
+	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFCACHE_CPPFLAGS@ \
 	@LIBFDATA_CPPFLAGS@ \
@@ -41,6 +44,10 @@ libesedb_la_SOURCES = \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_legacy.c libesedb_legacy.h \
 	libesedb_libbfio.h \
+	libesedb_libcerror.h \
+	libesedb_libclocale.h \
+	libesedb_libcnotify.h \
+	libesedb_libcstring.h \
 	libesedb_libfcache.h \
 	libesedb_libfdata.h \
 	libesedb_libfvalue.h \
@@ -61,10 +68,13 @@ libesedb_la_SOURCES = \
 	libesedb_values_tree_value.c libesedb_values_tree_value.h
 
 libesedb_la_LIBADD = \
-	../libcstring/libcstring.la \
-	../liberror/liberror.la \
-	../libnotify/libnotify.la \
+	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
 	@LIBUNA_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBFCACHE_LIBADD@ \
 	@LIBFDATA_LIBADD@ \

@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_list_type.h"
 
 #if defined( __cplusplus )
@@ -62,31 +61,31 @@ struct libesedb_table_definition
 int libesedb_table_definition_initialize(
      libesedb_table_definition_t **table_definition,
      libesedb_catalog_definition_t *table_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_table_definition_free(
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_table_definition_set_long_value_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *long_value_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_table_definition_set_callback_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *callback_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_table_definition_append_column_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *column_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_table_definition_append_index_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

@@ -23,9 +23,8 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_array_type.h"
+#include "libesedb_libcerror.h"
 
 /* Creates an array
  * Make sure the value array is pointing to is set to NULL
@@ -34,17 +33,17 @@
 int libesedb_array_initialize(
      libesedb_array_t **array,
      int number_of_entries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_initialize";
 	size_t entries_size   = 0;
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -52,10 +51,10 @@ int libesedb_array_initialize(
 	}
 	if( *array != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid array value already set.",
 		 function );
 
@@ -63,10 +62,10 @@ int libesedb_array_initialize(
 	}
 	if( number_of_entries < 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of entries.",
 		 function );
 
@@ -77,10 +76,10 @@ int libesedb_array_initialize(
 
 	if( *array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create array.",
 		 function );
 
@@ -91,10 +90,10 @@ int libesedb_array_initialize(
 	     0,
 	     sizeof( libesedb_array_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear array.",
 		 function );
 
@@ -106,10 +105,10 @@ int libesedb_array_initialize(
 
 		if( entries_size > (size_t) SSIZE_MAX )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 			 "%s: invalid entries size value exceeds maximum.",
 			 function );
 
@@ -120,10 +119,10 @@ int libesedb_array_initialize(
 
 		if( ( *array )->entries == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create array entries.",
 			 function );
 
@@ -134,10 +133,10 @@ int libesedb_array_initialize(
 		     0,
 		     entries_size ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 			 "%s: unable to clear array entries.",
 			 function );
 
@@ -172,18 +171,18 @@ int libesedb_array_free(
      libesedb_array_t **array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error )
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_free";
 	int result            = 1;
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -198,10 +197,10 @@ int libesedb_array_free(
 			     entry_free_function,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to clear array.",
 				 function );
 
@@ -226,17 +225,17 @@ int libesedb_array_empty(
      libesedb_array_t *array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error )
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_empty";
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -247,10 +246,10 @@ int libesedb_array_empty(
 	     entry_free_function,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 		 "%s: unable to clear array.",
 		 function );
 
@@ -269,8 +268,8 @@ int libesedb_array_clear(
      libesedb_array_t *array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error )
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_clear";
 	int entry_iterator    = 0;
@@ -278,10 +277,10 @@ int libesedb_array_clear(
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -301,10 +300,10 @@ int libesedb_array_clear(
 					     &( array->entries[ entry_iterator ] ),
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 						 "%s: unable to free array entry: %d.",
 						 function,
 						 entry_iterator );
@@ -331,22 +330,22 @@ int libesedb_array_clone(
      libesedb_array_t *source_array,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      int (*entry_clone_function)(
             intptr_t **destination,
             intptr_t *source,
-            liberror_error_t **error ),
-     liberror_error_t **error )
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_clone";
 	int entry_iterator    = 0;
 
 	if( destination_array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid destination array.",
 		 function );
 
@@ -354,10 +353,10 @@ int libesedb_array_clone(
 	}
 	if( *destination_array != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid destination array already set.",
 		 function );
 
@@ -365,10 +364,10 @@ int libesedb_array_clone(
 	}
 	if( entry_free_function == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry free function.",
 		 function );
 
@@ -376,10 +375,10 @@ int libesedb_array_clone(
 	}
 	if( entry_clone_function == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry clone function.",
 		 function );
 
@@ -396,10 +395,10 @@ int libesedb_array_clone(
 	     source_array->number_of_entries,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create destination array.",
 		 function );
 
@@ -407,10 +406,10 @@ int libesedb_array_clone(
 	}
 	if( *destination_array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing destination array.",
 		 function );
 
@@ -429,10 +428,10 @@ int libesedb_array_clone(
 				     source_array->entries[ entry_iterator ],
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 					 "%s: unable to clone array entry: %d.",
 					 function,
 					 entry_iterator );
@@ -463,8 +462,8 @@ int libesedb_array_resize(
      int number_of_entries,
      int (*entry_free_function)(
             intptr_t **entry,
-            liberror_error_t **error ),
-     liberror_error_t **error )
+            libcerror_error_t **error ),
+     libcerror_error_t **error )
 {
 	void *reallocation    = NULL;
 	static char *function = "libesedb_array_resize";
@@ -474,10 +473,10 @@ int libesedb_array_resize(
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -485,10 +484,10 @@ int libesedb_array_resize(
 	}
 	if( number_of_entries < 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of entries.",
 		 function );
 
@@ -500,10 +499,10 @@ int libesedb_array_resize(
 
 		if( entries_size > (size_t) SSIZE_MAX )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
 			 "%s: invalid entries size value exceeds maximum.",
 			 function );
 
@@ -515,10 +514,10 @@ int libesedb_array_resize(
 
 		if( reallocation == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to resize array entries.",
 			 function );
 
@@ -531,10 +530,10 @@ int libesedb_array_resize(
 		     0,
 		     sizeof( intptr_t * ) * ( number_of_entries - array->number_of_allocated_entries ) ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 			 "%s: unable to clear array entries.",
 			 function );
 
@@ -551,10 +550,10 @@ int libesedb_array_resize(
 	{
 		if( entry_free_function == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid entry free function.",
 			 function );
 
@@ -572,10 +571,10 @@ int libesedb_array_resize(
 					     &( array->entries[ entry_iterator ] ),
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 						 "%s: unable to free array entry: %d.",
 						 function,
 						 entry_iterator );
@@ -597,16 +596,16 @@ int libesedb_array_resize(
 int libesedb_array_get_number_of_entries(
      libesedb_array_t *array,
      int *number_of_entries,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_get_number_of_entries";
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -614,10 +613,10 @@ int libesedb_array_get_number_of_entries(
 	}
 	if( number_of_entries == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid number of entries.",
 		 function );
 
@@ -635,16 +634,16 @@ int libesedb_array_get_entry_by_index(
      libesedb_array_t *array,
      int entry_index,
      intptr_t **entry,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_get_entry_by_index";
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -652,10 +651,10 @@ int libesedb_array_get_entry_by_index(
 	}
 	if( array->entries == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid array - missing entries.",
 		 function );
 
@@ -664,10 +663,10 @@ int libesedb_array_get_entry_by_index(
 	if( ( entry_index < 0 )
 	 || ( entry_index >= array->number_of_entries ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid entry index value out of bounds.",
 		 function );
 
@@ -675,10 +674,10 @@ int libesedb_array_get_entry_by_index(
 	}
 	if( entry == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry.",
 		 function );
 
@@ -696,16 +695,16 @@ int libesedb_array_set_entry_by_index(
      libesedb_array_t *array,
      int entry_index,
      intptr_t *entry,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_set_entry_by_index";
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -713,10 +712,10 @@ int libesedb_array_set_entry_by_index(
 	}
 	if( array->entries == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid array - missing entries.",
 		 function );
 
@@ -725,10 +724,10 @@ int libesedb_array_set_entry_by_index(
 	if( ( entry_index < 0 )
 	 || ( entry_index >= array->number_of_entries ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid entry index value out of bounds.",
 		 function );
 
@@ -747,16 +746,16 @@ int libesedb_array_append_entry(
      libesedb_array_t *array,
      int *entry_index,
      intptr_t *entry,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_array_append_entry";
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -764,10 +763,10 @@ int libesedb_array_append_entry(
 	}
 	if( entry_index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry index.",
 		 function );
 
@@ -781,10 +780,10 @@ int libesedb_array_append_entry(
 	     NULL,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
 		 "%s: unable to resize array.",
 		 function );
 
@@ -792,10 +791,10 @@ int libesedb_array_append_entry(
 	}
 	if( array->entries == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid array - missing entries.",
 		 function );
 
@@ -824,9 +823,9 @@ int libesedb_array_insert_entry(
      int (*entry_compare_function)(
             intptr_t *first_entry,
             intptr_t *second_entry,
-            liberror_error_t **error ),
+            libcerror_error_t **error ),
      uint8_t insert_flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_tree_node_insert_node";
 	int entry_iterator    = 0;
@@ -834,10 +833,10 @@ int libesedb_array_insert_entry(
 
 	if( array == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid array.",
 		 function );
 
@@ -845,10 +844,10 @@ int libesedb_array_insert_entry(
 	}
 	if( entry_index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry index.",
 		 function );
 
@@ -856,10 +855,10 @@ int libesedb_array_insert_entry(
 	}
 	if( entry_compare_function == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid entry compare function.",
 		 function );
 
@@ -867,10 +866,10 @@ int libesedb_array_insert_entry(
 	}
 	if( ( insert_flags & ~( LIBESEDB_ARRAY_INSERT_FLAG_UNIQUE_ENTRIES ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported insert flags: 0x%02" PRIx8 ".",
 		 function,
 		 insert_flags );
@@ -890,10 +889,10 @@ int libesedb_array_insert_entry(
 
 			if( result == -1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to compare entry: %d.",
 				 function,
 				 entry_iterator );
@@ -913,10 +912,10 @@ int libesedb_array_insert_entry(
 			}
 			else if( result != LIBESEDB_ARRAY_COMPARE_GREATER )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported entry compare function return value: %d.",
 				 function,
 				 result );
@@ -936,10 +935,10 @@ int libesedb_array_insert_entry(
 		     NULL,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
 			 "%s: unable to resize array.",
 			 function );
 
@@ -947,10 +946,10 @@ int libesedb_array_insert_entry(
 		}
 		if( array->entries == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid array - missing entries.",
 			 function );
 
@@ -974,10 +973,10 @@ int libesedb_array_insert_entry(
 		     NULL,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_RESIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
 			 "%s: unable to resize array.",
 			 function );
 
@@ -985,10 +984,10 @@ int libesedb_array_insert_entry(
 		}
 		if( array->entries == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid array - missing entries.",
 			 function );
 

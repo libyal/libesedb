@@ -25,11 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -53,50 +52,50 @@ int libesedb_column_initialize(
      libesedb_column_t **column,
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_free(
      libesedb_column_t **column,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_identifier(
      libesedb_column_t *column,
      uint32_t *identifier,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_type(
      libesedb_column_t *column,
      uint32_t *type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_utf8_name_size(
      libesedb_column_t *column,
      size_t *utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_utf8_name(
      libesedb_column_t *column,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_utf16_name_size(
      libesedb_column_t *column,
      size_t *utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_column_get_utf16_name(
      libesedb_column_t *column,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

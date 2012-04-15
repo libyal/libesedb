@@ -25,13 +25,12 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog.h"
 #include "libesedb_database.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
@@ -83,24 +82,24 @@ struct libesedb_internal_file
 LIBESEDB_EXTERN \
 int libesedb_file_initialize(
      libesedb_file_t **file,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_free(
      libesedb_file_t **file,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_signal_abort(
      libesedb_file_t *file,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_open(
      libesedb_file_t *file,
      const char *filename,
      int access_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 LIBESEDB_EXTERN \
@@ -108,7 +107,7 @@ int libesedb_file_open_wide(
      libesedb_file_t *file,
      const wchar_t *filename,
      int access_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 #endif
 
 LIBESEDB_EXTERN \
@@ -116,55 +115,55 @@ int libesedb_file_open_file_io_handle(
      libesedb_file_t *file,
      libbfio_handle_t *file_io_handle,
      int access_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_close(
      libesedb_file_t *file,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_type(
      libesedb_file_t *file,
      uint32_t *type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_format_version(
      libesedb_file_t *file,
      uint32_t *format_version,
      uint32_t *format_revision,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_creation_format_version(
      libesedb_file_t *file,
      uint32_t *format_version,
      uint32_t *format_revision,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_page_size(
      libesedb_file_t *file,
      uint32_t *page_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_number_of_tables(
      libesedb_file_t *file,
      int *number_of_tables,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_table(
      libesedb_file_t *file,
      int table_entry,
      libesedb_table_t **table,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_table_by_utf8_name(
@@ -172,7 +171,7 @@ int libesedb_file_get_table_by_utf8_name(
      const uint8_t *utf8_string,
      size_t utf8_string_length,
      libesedb_table_t **table,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_file_get_table_by_utf16_name(
@@ -180,7 +179,7 @@ int libesedb_file_get_table_by_utf16_name(
      const uint16_t *utf16_string,
      size_t utf16_string_length,
      libesedb_table_t **table,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

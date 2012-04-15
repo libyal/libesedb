@@ -23,12 +23,11 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_array_type.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_table_definition.h"
 
 /* Creates a table definition
@@ -37,16 +36,16 @@
 int libesedb_table_definition_initialize(
      libesedb_table_definition_t **table_definition,
      libesedb_catalog_definition_t *table_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_initialize";
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -54,10 +53,10 @@ int libesedb_table_definition_initialize(
 	}
 	if( *table_definition != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table definition value already set.",
 		 function );
 
@@ -65,10 +64,10 @@ int libesedb_table_definition_initialize(
 	}
 	if( table_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table catalog definition.",
 		 function );
 
@@ -76,10 +75,10 @@ int libesedb_table_definition_initialize(
 	}
 	if( table_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported catalog definition type: %" PRIu16 ".",
 		 function,
 		 table_catalog_definition->type );
@@ -91,10 +90,10 @@ int libesedb_table_definition_initialize(
 
 	if( *table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create table definition.",
 		 function );
 
@@ -105,10 +104,10 @@ int libesedb_table_definition_initialize(
 	     0,
 	     sizeof( libesedb_table_definition_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear table definition.",
 		 function );
 
@@ -123,10 +122,10 @@ int libesedb_table_definition_initialize(
 	     &( ( *table_definition )->column_catalog_definition_list ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create column catalog definition list.",
 		 function );
 
@@ -136,10 +135,10 @@ int libesedb_table_definition_initialize(
 	     &( ( *table_definition )->index_catalog_definition_list ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index catalog definition list.",
 		 function );
 
@@ -172,17 +171,17 @@ on_error:
  */
 int libesedb_table_definition_free(
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_free";
 	int result            = 1;
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -196,10 +195,10 @@ int libesedb_table_definition_free(
 			     &( ( *table_definition )->table_catalog_definition ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free table catalog definition.",
 				 function );
 
@@ -212,10 +211,10 @@ int libesedb_table_definition_free(
 			     &( ( *table_definition )->long_value_catalog_definition ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long value catalog definition.",
 				 function );
 
@@ -228,10 +227,10 @@ int libesedb_table_definition_free(
 			     &( ( *table_definition )->callback_catalog_definition ),
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free callback catalog definition.",
 				 function );
 
@@ -240,13 +239,13 @@ int libesedb_table_definition_free(
 		}
 		if( libesedb_list_free(
 		     &( ( *table_definition )->column_catalog_definition_list ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_catalog_definition_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free column catalog definition list.",
 			 function );
 
@@ -254,13 +253,13 @@ int libesedb_table_definition_free(
 		}
 		if( libesedb_list_free(
 		     &( ( *table_definition )->index_catalog_definition_list ),
-		     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_catalog_definition_free,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free index catalog definition list.",
 			 function );
 
@@ -280,16 +279,16 @@ int libesedb_table_definition_free(
 int libesedb_table_definition_set_long_value_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *long_value_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_set_long_value_catalog_definition";
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -297,10 +296,10 @@ int libesedb_table_definition_set_long_value_catalog_definition(
 	}
 	if( table_definition->long_value_catalog_definition != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table definition - long value catalog definition already set.",
 		 function );
 
@@ -308,10 +307,10 @@ int libesedb_table_definition_set_long_value_catalog_definition(
 	}
 	if( long_value_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid long value catalog definition.",
 		 function );
 
@@ -319,10 +318,10 @@ int libesedb_table_definition_set_long_value_catalog_definition(
 	}
 	if( long_value_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_LONG_VALUE )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported catalog definition type: %" PRIu16 ".",
 		 function,
 		 long_value_catalog_definition->type );
@@ -340,16 +339,16 @@ int libesedb_table_definition_set_long_value_catalog_definition(
 int libesedb_table_definition_set_callback_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *callback_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_set_callback_catalog_definition";
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -357,10 +356,10 @@ int libesedb_table_definition_set_callback_catalog_definition(
 	}
 	if( table_definition->callback_catalog_definition != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid table definition - callback catalog definition already set.",
 		 function );
 
@@ -368,10 +367,10 @@ int libesedb_table_definition_set_callback_catalog_definition(
 	}
 	if( callback_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid callback catalog definition.",
 		 function );
 
@@ -379,10 +378,10 @@ int libesedb_table_definition_set_callback_catalog_definition(
 	}
 	if( callback_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_CALLBACK )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported catalog definition type: %" PRIu16 ".",
 		 function,
 		 callback_catalog_definition->type );
@@ -400,16 +399,16 @@ int libesedb_table_definition_set_callback_catalog_definition(
 int libesedb_table_definition_append_column_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *column_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_append_column_catalog_definition";
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -417,10 +416,10 @@ int libesedb_table_definition_append_column_catalog_definition(
 	}
 	if( column_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column catalog definition.",
 		 function );
 
@@ -428,10 +427,10 @@ int libesedb_table_definition_append_column_catalog_definition(
 	}
 	if( column_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported catalog definition type: %" PRIu16 ".",
 		 function,
 		 column_catalog_definition->type );
@@ -443,10 +442,10 @@ int libesedb_table_definition_append_column_catalog_definition(
 	     (intptr_t *) column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append column catalog definition to list.",
 		 function );
 
@@ -461,16 +460,16 @@ int libesedb_table_definition_append_column_catalog_definition(
 int libesedb_table_definition_append_index_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *index_catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_append_index_catalog_definition";
 
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -478,10 +477,10 @@ int libesedb_table_definition_append_index_catalog_definition(
 	}
 	if( index_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index catalog definition.",
 		 function );
 
@@ -489,10 +488,10 @@ int libesedb_table_definition_append_index_catalog_definition(
 	}
 	if( index_catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported catalog definition type: %" PRIu16 ".",
 		 function,
 		 index_catalog_definition->type );
@@ -504,10 +503,10 @@ int libesedb_table_definition_append_index_catalog_definition(
 	     (intptr_t *) index_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
 		 "%s: unable to append index catalog definition to list.",
 		 function );
 

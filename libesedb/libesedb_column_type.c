@@ -23,9 +23,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_column_type.h"
 
 #if defined( HAVE_DEBUG_OUTPUT )

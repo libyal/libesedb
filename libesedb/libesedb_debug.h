@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -67,11 +66,11 @@ int libesedb_debug_print_log_time(
      size_t log_time_size,
      const char *description,
      const char *indentation,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_debug_print_read_offsets(
      libbfio_handle_t *file_io_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif
 

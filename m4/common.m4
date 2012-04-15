@@ -1,6 +1,6 @@
 dnl Functions for common
 dnl
-dnl Version: 20111011
+dnl Version: 20120406
 
 dnl Function to test if a certain feature was enabled
 AC_DEFUN([AX_COMMON_ARG_ENABLE],
@@ -42,14 +42,14 @@ AC_DEFUN([AX_COMMON_CHECK_ENABLE_WINAPI],
 
  AS_IF(
   [test "x$ac_cv_enable_winapi" = xauto-detect],
-  [ac_check_winapi_target_string="$target"
+  [ac_common_check_winapi_target_string="$target"
 
   AS_IF(
-   [test "x$ac_check_winapi_target_string" = x],
-   [ac_check_winapi_target_string="$host"])
+   [test "x$ac_common_check_winapi_target_string" = x],
+   [ac_common_check_winapi_target_string="$host"])
 
   AS_CASE(
-   [$ac_check_winapi_target_string],
+   [$ac_common_check_winapi_target_string],
    [*mingw*],[AC_MSG_NOTICE(
               [detected MinGW enabling WINAPI support for cross-compilation])
              ac_cv_enable_winapi=yes],

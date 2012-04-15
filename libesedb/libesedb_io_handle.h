@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
@@ -88,22 +87,22 @@ struct libesedb_io_handle
 
 int libesedb_io_handle_initialize(
      libesedb_io_handle_t **io_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_io_handle_free(
      libesedb_io_handle_t **io_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_io_handle_set_pages_data_range(
      libesedb_io_handle_t *io_handle,
      size64_t file_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_io_handle_read_page(
      intptr_t *io_handle,
@@ -114,7 +113,7 @@ int libesedb_io_handle_read_page(
      off64_t element_data_offset,
      size64_t element_data_size,
      uint8_t read_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

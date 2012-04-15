@@ -26,9 +26,8 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 
 #if defined( __cplusplus )
@@ -61,33 +60,33 @@ const char *info_handle_get_column_type_description(
 
 int info_handle_initialize(
      info_handle_t **info_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_free(
      info_handle_t **info_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_signal_abort(
      info_handle_t *info_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_set_ascii_codepage(
      info_handle_t *info_handle,
      const libcstring_system_character_t *string,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_open(
      info_handle_t *info_handle,
      const libcstring_system_character_t *filename,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_close(
      info_handle_t *info_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int info_handle_file_fprint(
      info_handle_t *info_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

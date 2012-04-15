@@ -23,9 +23,8 @@
 #include <byte_stream.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_checksum.h"
+#include "libesedb_libcerror.h"
 
 /* The largest primary (or scalar) available
  * supported by a single load and store instruction
@@ -64,7 +63,7 @@ int libesedb_checksum_calculate_little_endian_ecc32(
      size_t size,
      size_t offset,
      uint32_t initial_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function          = "libesedb_checksum_calculate_little_endian_ecc32";
 	size_t buffer_iterator         = 0;
@@ -82,10 +81,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 
 	if( ecc_checksum_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid ECC checksum value.",
 		 function );
 
@@ -93,10 +92,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	}
 	if( xor_checksum_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid XOR checksum value.",
 		 function );
 
@@ -104,10 +103,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	}
 	if( buffer == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid buffer.",
 		 function );
 
@@ -115,10 +114,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	}
 	if( size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid size value exceeds maximum.",
 		 function );
 
@@ -126,10 +125,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 	}
 	if( offset > size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid offset value out of bounds.",
 		 function );
 
@@ -139,10 +138,10 @@ int libesedb_checksum_calculate_little_endian_ecc32(
 
 	if( ( buffer_alignment % sizeof( uint32_t ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: offset is not 32-bit aligned.",
 		 function );
 
@@ -330,7 +329,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
      const uint8_t *buffer,
      size_t size,
      uint32_t initial_value,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_aligned_t *aligned_buffer_iterator = NULL;
 	uint8_t *buffer_iterator                    = NULL;
@@ -345,10 +344,10 @@ int libesedb_checksum_calculate_little_endian_xor32(
 
 	if( checksum_value == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid checksum value.",
 		 function );
 
@@ -356,10 +355,10 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	}
 	if( buffer == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid buffer.",
 		 function );
 
@@ -367,10 +366,10 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	}
 	if( size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid size value exceeds maximum.",
 		 function );
 

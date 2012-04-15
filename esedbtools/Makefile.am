@@ -1,16 +1,20 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	-I$(top_srcdir)/libcstring \
-	-I$(top_srcdir)/liberror \
-	-I$(top_srcdir)/libsystem \
+	@LIBCSTRING_CPPFLAGS@ \
+	@LIBCERROR_CPPFLAGS@ \
+	@LIBCLOCALE_CPPFLAGS@ \
+	@LIBCNOTIFY_CPPFLAGS@ \
 	@LIBUNA_CPPFLAGS@ \
+	@LIBCFILE_CPPFLAGS@ \
+	@LIBCPATH_CPPFLAGS@ \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFVALUE_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
 	@LIBFMAPI_CPPFLAGS@ \
+	@LIBCSYSTEM_CPPFLAGS@ \
 	@MEMWATCH_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
@@ -22,11 +26,18 @@ bin_PROGRAMS = \
 
 esedbexport_SOURCES = \
 	esedbexport.c \
-	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h \
+	esedbtools_libcerror.h \
+	esedbtools_libclocale.h \
+	esedbtools_libcfile.h \
+	esedbtools_libcnotify.h \
+	esedbtools_libcpath.h \
+	esedbtools_libcstring.h \
+	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
+	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
 	export.c export.h \
 	export_exchange.c export_exchange.h \
@@ -36,23 +47,31 @@ esedbexport_SOURCES = \
 	windows_security.c windows_security.h
 
 esedbexport_LDADD  = \
-	../libcstring/libcstring.la \
-	../liberror/liberror.la \
-	../libesedb/libesedb.la \
-	../libsystem/libsystem.la \
+	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
 	@LIBUNA_LIBADD@ \
+	../libesedb/libesedb.la \
 	@LIBFDATETIME_LIBADD@ \
 	@LIBFGUID_LIBADD@ \
 	@LIBFVALUE_LIBADD@ \
 	@LIBFWNT_LIBADD@ \
 	@LIBFMAPI_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCSYSTEM_LIBADD@ \
 	@LIBINTL@ \
 	@MEMWATCH_LIBADD@
 
 esedbinfo_SOURCES = \
 	esedbinfo.c \
-	esedbinput.c esedbinput.h \
 	esedboutput.c esedboutput.h \
+	esedbtools_libcerror.h \
+	esedbtools_libclocale.h \
+	esedbtools_libcnotify.h \
+	esedbtools_libcstring.h \
+	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
@@ -60,10 +79,12 @@ esedbinfo_SOURCES = \
 	info_handle.c info_handle.h
 
 esedbinfo_LDADD  = \
-	../libcstring/libcstring.la \
-	../liberror/liberror.la \
+	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
 	../libesedb/libesedb.la \
-	../libsystem/libsystem.la \
+	@LIBCSYSTEM_LIBADD@ \
 	@LIBINTL@ \
 	@MEMWATCH_LIBADD@
 

@@ -22,12 +22,11 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_file.h"
 #include "libesedb_legacy.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_record.h"
@@ -42,7 +41,7 @@
 int libesedb_file_get_amount_of_tables(
      libesedb_file_t *file,
      int *amount_of_tables,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_file_get_number_of_tables(
 	         file,
@@ -56,7 +55,7 @@ int libesedb_file_get_amount_of_tables(
 int libesedb_multi_value_get_amount_of_values(
      libesedb_multi_value_t *multi_value,
      int *amount_of_values,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_multi_value_get_number_of_values(
 	         multi_value,
@@ -70,7 +69,7 @@ int libesedb_multi_value_get_amount_of_values(
 int libesedb_record_get_amount_of_values(
      libesedb_record_t *record,
      int *amount_of_values,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_record_get_number_of_values(
 	         record,
@@ -85,7 +84,7 @@ int libesedb_record_get_value_floating_point(
      libesedb_record_t *record,
      int value_entry,
      double *value_floating_point,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
@@ -96,10 +95,10 @@ int libesedb_record_get_value_floating_point(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -113,10 +112,10 @@ int libesedb_record_get_value_floating_point(
 	     &column_catalog_definition,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column catalog definition.",
 		 function );
 
@@ -127,10 +126,10 @@ int libesedb_record_get_value_floating_point(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition column type.",
 		 function );
 
@@ -139,10 +138,10 @@ int libesedb_record_get_value_floating_point(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 ".",
 		 function,
 		 column_type );
@@ -155,10 +154,10 @@ int libesedb_record_get_value_floating_point(
 	     (intptr_t **) &record_value,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d from values array.",
 		 function,
 		 value_entry );
@@ -171,10 +170,10 @@ int libesedb_record_get_value_floating_point(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine if value: %d has data.",
 		 function,
 		 value_entry );
@@ -189,10 +188,10 @@ int libesedb_record_get_value_floating_point(
 		     value_floating_point,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy value to floating point value.",
 			 function );
 
@@ -208,7 +207,7 @@ int libesedb_record_get_value_floating_point(
 int libesedb_table_get_amount_of_columns(
      libesedb_table_t *table,
      int *amount_of_columns,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_table_get_number_of_columns(
 	         table,
@@ -223,7 +222,7 @@ int libesedb_table_get_amount_of_columns(
 int libesedb_table_get_amount_of_indexes(
      libesedb_table_t *table,
      int *amount_of_indexes,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_table_get_number_of_indexes(
 	         table,
@@ -237,7 +236,7 @@ int libesedb_table_get_amount_of_indexes(
 int libesedb_table_get_amount_of_records(
      libesedb_table_t *table,
      int *amount_of_records,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	return( libesedb_table_get_number_of_records(
 	         table,

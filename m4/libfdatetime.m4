@@ -1,6 +1,6 @@
 dnl Functions for libfdatetime
 dnl
-dnl Version: 20111025
+dnl Version: 20120406
 
 dnl Function to detect if libfdatetime is available
 dnl ac_libfdatetime_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -174,7 +174,8 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
    [HAVE_LIBFDATETIME],
    [1],
    [Define to 1 if you have the `fdatetime' library (-lfdatetime).])
-  LIBS="-lfdatetime $LIBS"
+
+  ac_cv_libfdatetime_LIBADD="-lfdatetime"
   ])
 
  AS_IF(
@@ -197,30 +198,56 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBFDATETIME_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libfdatetime],
+   [libfdatetime >= 20120405],
+   [ac_cv_libfdatetime=yes],
+   [ac_cv_libfdatetime=no])
 
+  ac_cv_libfdatetime_CPPFLAGS="$pkg_cv_libfdatetime_CFLAGS"
+  ac_cv_libfdatetime_LIBADD="$pkg_cv_libfdatetime_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libfdatetime" != xyes],
-  [AC_DEFINE(
+  [AX_LIBFDATETIME_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libfdatetime" != xyes],
+  [ac_cv_libfdatetime_CPPFLAGS="-I../libfdatetime";
+  ac_cv_libfdatetime_LIBADD="../libfdatetime/libfdatetime.la";
+
+  ac_cv_libfdatetime=local
+
+  AC_DEFINE(
    [HAVE_LOCAL_LIBFDATETIME],
    [1],
    [Define to 1 if the local version of libfdatetime is used.])
   AC_SUBST(
    [HAVE_LOCAL_LIBFDATETIME],
    [1])
-  AC_SUBST(
-   [LIBFDATETIME_CPPFLAGS],
-   [-I../libfdatetime])
-  AC_SUBST(
-   [LIBFDATETIME_LIBADD],
-   [../libfdatetime/libfdatetime.la])
-
-  ac_cv_libfdatetime=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBFDATETIME],
   [test "x$ac_cv_libfdatetime" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libfdatetime_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBFDATETIME_CPPFLAGS],
+   [$ac_cv_libfdatetime_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libfdatetime_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBFDATETIME_LIBADD],
+   [$ac_cv_libfdatetime_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libfdatetime" = xyes],

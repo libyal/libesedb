@@ -24,15 +24,14 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_checksum.h"
 #include "libesedb_codepage.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
@@ -48,16 +47,16 @@ const uint8_t esedb_file_signature[ 4 ] = { 0xef, 0xcd, 0xab, 0x89 };
  */
 int libesedb_io_handle_initialize(
      libesedb_io_handle_t **io_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_io_handle_initialize";
 
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -65,10 +64,10 @@ int libesedb_io_handle_initialize(
 	}
 	if( *io_handle != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid IO handle value already set.",
 		 function );
 
@@ -79,10 +78,10 @@ int libesedb_io_handle_initialize(
 
 	if( *io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create IO handle.",
 		 function );
 
@@ -93,10 +92,10 @@ int libesedb_io_handle_initialize(
 	     0,
 	     sizeof( libesedb_io_handle_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear IO handle.",
 		 function );
 
@@ -122,17 +121,17 @@ on_error:
  */
 int libesedb_io_handle_free(
      libesedb_io_handle_t **io_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_io_handle_free";
 	int result            = 1;
 
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -154,16 +153,16 @@ int libesedb_io_handle_free(
 int libesedb_io_handle_set_pages_data_range(
      libesedb_io_handle_t *io_handle,
      size64_t file_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_io_handle_set_pages_data_range";
 
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
@@ -171,10 +170,10 @@ int libesedb_io_handle_set_pages_data_range(
 	}
 	if( io_handle->page_size == 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid IO handle - missing page size.",
 		 function );
 
@@ -194,7 +193,7 @@ int libesedb_io_handle_read_file_header(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *file_header_data          = NULL;
 	static char *function              = "libesedb_io_handle_read_file_header";
@@ -214,19 +213,19 @@ int libesedb_io_handle_read_file_header(
 
 	if( io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: reading file header at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
 		 file_offset,
@@ -239,10 +238,10 @@ int libesedb_io_handle_read_file_header(
 	     SEEK_SET,
 	     error ) == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_SEEK_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
 		 "%s: unable to seek file header offset: %" PRIi64 ".",
 		 function,
 		 file_offset );
@@ -254,16 +253,16 @@ int libesedb_io_handle_read_file_header(
 
 	if( file_header_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create file header data.",
 		 function );
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read(
+	read_count = libbfio_handle_read_buffer(
 	              file_io_handle,
 	              file_header_data,
 	              read_size,
@@ -271,24 +270,25 @@ int libesedb_io_handle_read_file_header(
 
 	if( read_count != (ssize_t) read_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read file header.",
 		 function );
 
 		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: file header data:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 file_header_data,
-		 sizeof( esedb_file_header_t ) );
+		 sizeof( esedb_file_header_t ),
+		 0 );
 	}
 #endif
 	if( memory_compare(
@@ -296,10 +296,10 @@ int libesedb_io_handle_read_file_header(
 	     esedb_file_signature,
 	     4 ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported file signature.",
 		 function );
 
@@ -312,10 +312,10 @@ int libesedb_io_handle_read_file_header(
 	     0x89abcdef,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
 		 "%s: unable to calculate XOR-32 checksum.",
 		 function );
 
@@ -327,10 +327,10 @@ int libesedb_io_handle_read_file_header(
 
 	if( stored_xor32_checksum != calculated_xor32_checksum )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_INPUT,
-		 LIBERROR_INPUT_ERROR_CRC_MISMATCH,
+		 LIBCERROR_ERROR_DOMAIN_INPUT,
+		 LIBCERROR_INPUT_ERROR_CHECKSUM_MISMATCH,
 		 "%s: mismatch in file header checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
 		 function,
 		 stored_xor32_checksum,
@@ -361,9 +361,9 @@ int libesedb_io_handle_read_file_header(
 	 creation_format_revision );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: checksum\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 stored_xor32_checksum );
@@ -371,57 +371,60 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->signature,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: signature\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: format version\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 format_version );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: file type\t\t\t\t: %" PRIu32 " (",
 		 function,
 		 io_handle->file_type );
 		libesedb_debug_print_file_type(
 		 io_handle->file_type );
-		libnotify_printf(
+		libcnotify_printf(
 		 ")\n" );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: database time:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->database_time,
-		 8 );
+		 8,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: database signature:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->database_signature,
-		 28 );
+		 28,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->database_state,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: database state\t\t\t: %" PRIu32 " ",
 		 function,
 		 value_32bit );
 		libesedb_debug_print_database_state(
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: consistent position:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->consistent_postition,
-		 8 );
+		 8,
+		 0 );
 		libesedb_debug_print_log_time(
 		 ( (esedb_file_header_t *) file_header_data )->consistent_time,
 		 8,
@@ -435,12 +438,13 @@ int libesedb_io_handle_read_file_header(
 		 "attach time",
 		 "\t\t\t\t",
 		 NULL );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: attach position:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->attach_postition,
-		 8 );
+		 8,
+		 0 );
 
 		libesedb_debug_print_log_time(
 		 ( (esedb_file_header_t *) file_header_data )->detach_time,
@@ -448,52 +452,57 @@ int libesedb_io_handle_read_file_header(
 		 "detach time",
 		 "\t\t\t\t",
 		 NULL );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: detach position:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->detach_postition,
-		 8 );
+		 8,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: log signature:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->log_signature,
-		 28 );
+		 28,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->unknown1,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown1\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 value_32bit,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: previous full backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->previous_full_backup,
-		 24 );
-		libnotify_printf(
+		 24,
+		 0 );
+		libcnotify_printf(
 		 "%s: previous incremental backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->previous_incremental_backup,
-		 24 );
-		libnotify_printf(
+		 24,
+		 0 );
+		libcnotify_printf(
 		 "%s: current full backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->current_full_backup,
-		 24 );
+		 24,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->shadowing_disabled,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: shadowing disabled\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -501,7 +510,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->last_object_identifier,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last object identifier\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -509,37 +518,37 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->index_update_major_version,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: index update major version\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->index_update_minor_version,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: index update minor version\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->index_update_build_number,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: index update build number\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->index_update_service_pack_number,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: index update service pack number\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: format revision\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 format_revision );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: page size\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 page_size );
@@ -547,7 +556,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->repair_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: repair count\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -558,19 +567,21 @@ int libesedb_io_handle_read_file_header(
 		 "\t\t\t\t",
 		 NULL );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown2:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->unknown2,
-		 28 );
+		 28,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: scrub database time:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->scrub_database_time,
-		 8 );
+		 8,
+		 0 );
 		libesedb_debug_print_log_time(
 		 ( (esedb_file_header_t *) file_header_data )->scrub_time,
 		 8,
@@ -578,62 +589,65 @@ int libesedb_io_handle_read_file_header(
 		 "\t\t\t\t",
 		 NULL );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: required log:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->required_log,
-		 8 );
+		 8,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->upgrade_exchange5_format,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: upgrade Exchange 5.5 format\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->upgrade_free_pages,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: upgrade free pages\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->upgrade_space_map_pages,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: upgrade space map pages\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: current shadow volume backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->current_shadow_volume_backup,
-		 24 );
+		 24,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: creation format version\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 creation_format_version );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: creation format revision\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 creation_format_revision );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown3:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->unknown3,
-		 16 );
+		 16,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->old_repair_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: old repair count\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -641,7 +655,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->ecc_fix_success_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: ECC fix success count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -654,7 +668,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->old_ecc_fix_success_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: old ECC fix success count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -662,7 +676,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->ecc_fix_error_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: ECC fix error count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -675,7 +689,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->old_ecc_fix_error_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: old ECC fix error count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -683,7 +697,7 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->bad_checksum_error_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: bad checksum error count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
@@ -696,70 +710,75 @@ int libesedb_io_handle_read_file_header(
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->old_bad_checksum_error_count,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: old bad checksum error count\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: committed log:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->committed_log,
-		 4 );
+		 4,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: previous shadow volume backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->previous_shadow_volume_backup,
-		 24 );
-		libnotify_printf(
+		 24,
+		 0 );
+		libcnotify_printf(
 		 "%s: previous differential backup:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->previous_differential_backup,
-		 24 );
+		 24,
+		 0 );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown4:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->unknown4,
-		 40 );
+		 40,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->nls_major_version,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: NLS major version\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->nls_minor_version,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: NLS minor version\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown5:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 ( (esedb_file_header_t *) file_header_data )->unknown5,
-		 148 );
+		 148,
+		 0 );
 
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) file_header_data )->unknown_flags,
 		 value_32bit );
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: unknown flags\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 value_32bit,
 		 value_32bit );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -788,9 +807,9 @@ int libesedb_io_handle_read_file_header(
 		else if( io_handle->format_version != format_version )
 		{
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: mismatch in format version: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
 				 function,
 				 io_handle->format_version,
@@ -805,9 +824,9 @@ int libesedb_io_handle_read_file_header(
 		else if( io_handle->format_revision != format_revision )
 		{
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: mismatch in format revision: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
 				 function,
 				 io_handle->format_revision,
@@ -822,9 +841,9 @@ int libesedb_io_handle_read_file_header(
 		else if( io_handle->page_size != page_size )
 		{
 #if defined( HAVE_VERBOSE_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: mismatch in page size: 0x%04" PRIx32 " and backup: 0x%04" PRIx32 "\n",
 				 function,
 				 io_handle->page_size,
@@ -861,7 +880,7 @@ int libesedb_io_handle_read_page(
      off64_t element_data_offset,
      size64_t element_data_size LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_page_t *page = NULL;
 	static char *function = "libesedb_io_handle_read_page";
@@ -873,10 +892,10 @@ int libesedb_io_handle_read_page(
 	     &page,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create page.",
 		 function );
 
@@ -889,10 +908,10 @@ int libesedb_io_handle_read_page(
 	     element_data_offset,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read page.",
 		 function );
 
@@ -903,14 +922,14 @@ int libesedb_io_handle_read_page(
 	     cache,
 	     element_index,
 	     (intptr_t *) page,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_free,
 	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set page as element value.",
 		 function );
 

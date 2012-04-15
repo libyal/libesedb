@@ -24,9 +24,6 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
 #if defined( HAVE_STDARG_H ) || defined( WINAPI )
 #include <stdarg.h>
 #elif defined( HAVE_VARARGS_H )
@@ -35,8 +32,9 @@
 #error Missing headers stdarg.h and varargs.h
 #endif
 
-#include <libsystem.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcnotify.h"
+#include "esedbtools_libcsystem.h"
 #include "log_handle.h"
 
 /* Initializes the log handle
@@ -44,16 +42,16 @@
  */
 int log_handle_initialize(
      log_handle_t **log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "log_handle_initialize";
 
 	if( log_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid log handle.",
 		 function );
 
@@ -61,10 +59,10 @@ int log_handle_initialize(
 	}
 	if( *log_handle != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid log handle value already set.",
 		 function );
 
@@ -75,10 +73,10 @@ int log_handle_initialize(
 
 	if( *log_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create log handle.",
 		 function );
 
@@ -89,10 +87,10 @@ int log_handle_initialize(
 	     0,
 	     sizeof( log_handle_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear log handle.",
 		 function );
 
@@ -116,16 +114,16 @@ on_error:
  */
 int log_handle_free(
      log_handle_t **log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "log_handle_free";
 
 	if( log_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid log handle.",
 		 function );
 
@@ -147,16 +145,16 @@ int log_handle_free(
 int log_handle_open(
      log_handle_t *log_handle,
      const libcstring_system_character_t *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "log_handle_open";
 
 	if( log_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid log handle.",
 		 function );
 
@@ -164,16 +162,16 @@ int log_handle_open(
 	}
 	if( filename != NULL )
 	{
-		log_handle->log_stream = libsystem_file_stream_open(
+		log_handle->log_stream = libcsystem_file_stream_open(
 		                          filename,
 		                          _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_OPEN_APPEND ) );
 
 		if( log_handle->log_stream == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_OPEN_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_OPEN_FAILED,
 			 "%s: unable to open file.",
 			 function );
 
@@ -188,16 +186,16 @@ int log_handle_open(
  */
 int log_handle_close(
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "log_handle_close";
 
 	if( log_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid log handle.",
 		 function );
 
@@ -205,13 +203,13 @@ int log_handle_close(
 	}
 	if( log_handle->log_stream != NULL )
 	{
-		if( libsystem_file_stream_close(
+		if( libcsystem_file_stream_close(
 		     log_handle->log_stream ) != 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_IO,
-			 LIBERROR_IO_ERROR_CLOSE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 			 "%s: unable to close log stream.",
 			 function );
 

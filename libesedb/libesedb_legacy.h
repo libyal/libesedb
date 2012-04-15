@@ -25,9 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_extern.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -40,44 +39,44 @@ LIBESEDB_EXTERN \
 int libesedb_file_get_amount_of_tables(
      libesedb_file_t *file,
      int *amount_of_tables,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_amount_of_values(
      libesedb_multi_value_t *multi_value,
      int *amount_of_values,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_amount_of_values(
      libesedb_record_t *record,
      int *amount_of_values,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_floating_point(
      libesedb_record_t *record,
      int value_entry,
      double *value_floating_point,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_table_get_amount_of_columns(
      libesedb_table_t *table,
      int *amount_of_columns,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_table_get_amount_of_indexes(
      libesedb_table_t *table,
      int *amount_of_indexes,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_table_get_amount_of_records(
      libesedb_table_t *table,
      int *amount_of_records,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

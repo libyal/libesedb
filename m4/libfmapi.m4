@@ -1,6 +1,6 @@
 dnl Functions for libfmapi
 dnl
-dnl Version: 20111025
+dnl Version: 20120414
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -42,7 +42,8 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
    [HAVE_LIBFMAPI],
    [1],
    [Define to 1 if you have the `fmapi' library (-lfmapi).])
-  LIBS="-lfmapi $LIBS"
+
+  ac_cv_libfmapi_LIBADD="-lfmapi"
   ])
 
  AS_IF(
@@ -65,29 +66,56 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBFMAPI_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libfmapi],
+   [libfmapi >= 20120405],
+   [ac_cv_libfmapi=yes],
+   [ac_cv_libfmapi=no])
 
+  ac_cv_libfmapi_CPPFLAGS="$pkg_cv_libfmapi_CFLAGS"
+  ac_cv_libfmapi_LIBADD="$pkg_cv_libfmapi_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libfmapi" != xyes],
-  [AC_DEFINE(
+  [AX_LIBFMAPI_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libfmapi" != xyes],
+  [ac_cv_libfmapi_CPPFLAGS="-I../libfmapi";
+  ac_cv_libfmapi_LIBADD="../libfmapi/libfmapi.la";
+
+  ac_cv_libfmapi=local
+
+  AC_DEFINE(
    [HAVE_LOCAL_LIBFMAPI],
    [1],
    [Define to 1 if the local version of libfmapi is used.])
   AC_SUBST(
    [HAVE_LOCAL_LIBFMAPI],
    [1])
-  AC_SUBST(
-   [LIBFMAPI_CPPFLAGS],
-   [-I../libfmapi])
-  AC_SUBST(
-   [LIBFMAPI_LIBADD],
-   [../libfmapi/libfmapi.la])
-  ac_cv_libfmapi=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBFMAPI],
   [test "x$ac_cv_libfmapi" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libfmapi_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBFMAPI_CPPFLAGS],
+   [$ac_cv_libfmapi_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libfmapi_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBFMAPI_LIBADD],
+   [$ac_cv_libfmapi_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libfmapi" = xyes],

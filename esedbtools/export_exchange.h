@@ -26,8 +26,7 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include <liberror.h>
-
+#include "esedbtools_libcerror.h"
 #include "esedbtools_libesedb.h"
 #include "log_handle.h"
 
@@ -39,89 +38,89 @@ int export_exchange_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int export_exchange_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

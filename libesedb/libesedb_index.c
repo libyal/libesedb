@@ -23,13 +23,13 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
+#include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
@@ -56,7 +56,7 @@ int libesedb_index_initialize(
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      uint8_t flags,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	libesedb_page_tree_t *index_page_tree     = NULL;
@@ -65,10 +65,10 @@ int libesedb_index_initialize(
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -76,10 +76,10 @@ int libesedb_index_initialize(
 	}
 	if( *index != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid index value already set.",
 		 function );
 
@@ -87,10 +87,10 @@ int libesedb_index_initialize(
 	}
 	if( table_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table definition.",
 		 function );
 
@@ -98,10 +98,10 @@ int libesedb_index_initialize(
 	}
 	if( index_catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index catalog definition.",
 		 function );
 
@@ -109,10 +109,10 @@ int libesedb_index_initialize(
 	}
 	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported flags: 0x%02" PRIx8 ".",
 		 function,
 		 flags );
@@ -124,10 +124,10 @@ int libesedb_index_initialize(
 
 	if( internal_index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create index.",
 		 function );
 
@@ -138,10 +138,10 @@ int libesedb_index_initialize(
 	     0,
 	     sizeof( libesedb_internal_index_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear index.",
 		 function );
 
@@ -161,10 +161,10 @@ int libesedb_index_initialize(
 		     file_io_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy file IO handle.",
 			 function );
 
@@ -175,10 +175,10 @@ int libesedb_index_initialize(
 		     1,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to set open on demand in file IO handle.",
 			 function );
 
@@ -197,10 +197,10 @@ int libesedb_index_initialize(
 	     NULL,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index page tree.",
 		 function );
 
@@ -211,17 +211,17 @@ int libesedb_index_initialize(
 	if( libfdata_tree_initialize(
 	     &( internal_index->index_values_tree ),
 	     (intptr_t *) index_page_tree,
-	     (int (*)(intptr_t **, liberror_error_t **)) &libesedb_page_tree_free,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     &libesedb_page_tree_read_node_value,
 	     &libesedb_page_tree_read_sub_nodes,
 	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index values tree.",
 		 function );
 
@@ -236,10 +236,10 @@ int libesedb_index_initialize(
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index values cache.",
 		 function );
 
@@ -254,10 +254,10 @@ int libesedb_index_initialize(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set root node in index values tree.",
 		 function );
 
@@ -316,7 +316,7 @@ on_error:
  */
 int libesedb_index_free(
      libesedb_index_t **index,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_free";
@@ -324,10 +324,10 @@ int libesedb_index_free(
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -350,10 +350,10 @@ int libesedb_index_free(
 				     internal_index->file_io_handle,
 				     error ) != 0 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_IO,
-					 LIBERROR_IO_ERROR_CLOSE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 					 "%s: unable to close file IO handle.",
 					 function );
 
@@ -363,10 +363,10 @@ int libesedb_index_free(
 				     &( internal_index->file_io_handle ),
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 					 "%s: unable to free file IO handle.",
 					 function );
 
@@ -378,10 +378,10 @@ int libesedb_index_free(
 		     &( internal_index->index_values_tree ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free index values tree.",
 			 function );
 
@@ -391,10 +391,10 @@ int libesedb_index_free(
 		     &( internal_index->index_values_cache ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free index values cache.",
 			 function );
 
@@ -412,17 +412,17 @@ int libesedb_index_free(
 int libesedb_index_get_identifier(
      libesedb_index_t *index,
      uint32_t *identifier,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_identifier";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -435,10 +435,10 @@ int libesedb_index_get_identifier(
 	     identifier,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve catalog definition identifier.",
 		 function );
 
@@ -454,17 +454,17 @@ int libesedb_index_get_identifier(
 int libesedb_index_get_utf8_name_size(
      libesedb_index_t *index,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_utf8_string_size";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -474,10 +474,10 @@ int libesedb_index_get_utf8_name_size(
 
 	if( internal_index->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
@@ -489,10 +489,10 @@ int libesedb_index_get_utf8_name_size(
 	     internal_index->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -509,17 +509,17 @@ int libesedb_index_get_utf8_name(
      libesedb_index_t *index,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_utf8_string";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -529,10 +529,10 @@ int libesedb_index_get_utf8_name(
 
 	if( internal_index->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
@@ -545,10 +545,10 @@ int libesedb_index_get_utf8_name(
 	     internal_index->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-8 string.",
 		 function );
 
@@ -564,17 +564,17 @@ int libesedb_index_get_utf8_name(
 int libesedb_index_get_utf16_name_size(
      libesedb_index_t *index,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_utf16_string_size";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -584,10 +584,10 @@ int libesedb_index_get_utf16_name_size(
 
 	if( internal_index->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
@@ -599,10 +599,10 @@ int libesedb_index_get_utf16_name_size(
 	     internal_index->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -619,17 +619,17 @@ int libesedb_index_get_utf16_name(
      libesedb_index_t *index,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_utf16_string";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -639,10 +639,10 @@ int libesedb_index_get_utf16_name(
 
 	if( internal_index->io_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: invalid internal index - missing IO handle.",
 		 function );
 
@@ -655,10 +655,10 @@ int libesedb_index_get_utf16_name(
 	     internal_index->io_handle->ascii_codepage,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_CONVERSION,
-		 LIBERROR_CONVERSION_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+		 LIBCERROR_CONVERSION_ERROR_GENERIC,
 		 "%s: unable to retrieve UTF-16 string.",
 		 function );
 
@@ -673,17 +673,17 @@ int libesedb_index_get_utf16_name(
 int libesedb_index_get_number_of_records(
      libesedb_index_t *index,
      int *number_of_records,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
 	static char *function                     = "libesedb_index_get_number_of_records";
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -699,10 +699,10 @@ int libesedb_index_get_number_of_records(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of leaf nodes from index values tree.",
 		 function );
 
@@ -718,7 +718,7 @@ int libesedb_index_get_record(
      libesedb_index_t *index,
      int record_entry,
      libesedb_record_t **record,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libfdata_tree_node_t *index_values_tree_node          = NULL;
 	libfdata_tree_node_t *record_values_tree_node         = NULL;
@@ -730,10 +730,10 @@ int libesedb_index_get_record(
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -743,10 +743,10 @@ int libesedb_index_get_record(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -754,10 +754,10 @@ int libesedb_index_get_record(
 	}
 	if( *record != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid record value already set.",
 		 function );
 
@@ -772,10 +772,10 @@ int libesedb_index_get_record(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve leaf node: %d from index values tree.",
 		 function,
 		 record_entry );
@@ -790,10 +790,10 @@ int libesedb_index_get_record(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve node value from index values tree node.",
 		 function );
 
@@ -809,10 +809,10 @@ int libesedb_index_get_record(
 	     &index_data_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_READ_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
 		 "%s: unable to read index values tree value data.",
 		 function );
 
@@ -828,10 +828,10 @@ int libesedb_index_get_record(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve record values tree node.",
 		 function );
 
@@ -854,10 +854,10 @@ int libesedb_index_get_record(
              LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create record.",
 		 function );
 

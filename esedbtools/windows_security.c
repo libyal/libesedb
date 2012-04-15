@@ -25,11 +25,8 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
-#include <libsystem.h>
-
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libuna.h"
@@ -52,7 +49,7 @@ int windows_security_export_record_value_filetime(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 32 ];
 
@@ -66,10 +63,10 @@ int windows_security_export_record_value_filetime(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -77,10 +74,10 @@ int windows_security_export_record_value_filetime(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -92,10 +89,10 @@ int windows_security_export_record_value_filetime(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -104,10 +101,10 @@ int windows_security_export_record_value_filetime(
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -122,10 +119,10 @@ int windows_security_export_record_value_filetime(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -138,10 +135,10 @@ int windows_security_export_record_value_filetime(
 		{
 			if( value_data_size != 8 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-				 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 				 "%s: unsupported value data size: %" PRIzd "",
 				 function,
 				 value_data_size );
@@ -152,10 +149,10 @@ int windows_security_export_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 				 "%s: unable to create filetime.",
 				 function );
 
@@ -168,10 +165,10 @@ int windows_security_export_record_value_filetime(
 			     byte_order,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
@@ -200,10 +197,10 @@ int windows_security_export_record_value_filetime(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 				 "%s: unable to copy filetime to string.",
 				 function );
 
@@ -217,10 +214,10 @@ int windows_security_export_record_value_filetime(
 			     &filetime,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free filetime.",
 				 function );
 
@@ -250,7 +247,7 @@ int windows_security_export_record_value_utf16_string(
      int record_value_entry,
      uint8_t byte_order,
      FILE *record_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *value_string = NULL;
 	uint8_t *value_data                         = NULL;
@@ -263,10 +260,10 @@ int windows_security_export_record_value_utf16_string(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -274,10 +271,10 @@ int windows_security_export_record_value_utf16_string(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -289,10 +286,10 @@ int windows_security_export_record_value_utf16_string(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -302,10 +299,10 @@ int windows_security_export_record_value_utf16_string(
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported column type: %" PRIu32 "",
 		 function,
 		 column_type );
@@ -320,10 +317,10 @@ int windows_security_export_record_value_utf16_string(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -351,10 +348,10 @@ int windows_security_export_record_value_utf16_string(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to determine size of value string: %d.",
 				 function,
 				 record_value_entry );
@@ -366,10 +363,10 @@ int windows_security_export_record_value_utf16_string(
 
 			if( value_string == NULL )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_MEMORY,
-				 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 				 "%s: unable to create value string.",
 				 function );
 
@@ -394,10 +391,10 @@ int windows_security_export_record_value_utf16_string(
 #endif
 			if( result != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve value string: %d.",
 				 function,
 				 record_value_entry );
@@ -433,7 +430,7 @@ int windows_security_export_record_smtblversion(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -448,10 +445,10 @@ int windows_security_export_record_smtblversion(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -459,10 +456,10 @@ int windows_security_export_record_smtblversion(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -473,10 +470,10 @@ int windows_security_export_record_smtblversion(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -502,10 +499,10 @@ int windows_security_export_record_smtblversion(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -517,10 +514,10 @@ int windows_security_export_record_smtblversion(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -543,10 +540,10 @@ int windows_security_export_record_smtblversion(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -559,10 +556,10 @@ int windows_security_export_record_smtblversion(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -637,10 +634,10 @@ int windows_security_export_record_smtblversion(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -670,7 +667,7 @@ int windows_security_export_record_smtblsection(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t column_name[ 256 ];
 
@@ -685,10 +682,10 @@ int windows_security_export_record_smtblsection(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -696,10 +693,10 @@ int windows_security_export_record_smtblsection(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -710,10 +707,10 @@ int windows_security_export_record_smtblsection(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -739,10 +736,10 @@ int windows_security_export_record_smtblsection(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
 			 value_iterator );
@@ -754,10 +751,10 @@ int windows_security_export_record_smtblsection(
 		 */
 		if( column_name_size > 256 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: column name size value exceeds maximum.",
 			 function );
 
@@ -780,10 +777,10 @@ int windows_security_export_record_smtblsection(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
 			 value_iterator );
@@ -796,10 +793,10 @@ int windows_security_export_record_smtblsection(
 		     &column_type,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
 			 value_iterator );
@@ -854,10 +851,10 @@ int windows_security_export_record_smtblsection(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );

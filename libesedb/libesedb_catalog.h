@@ -25,10 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_list_type.h"
@@ -49,43 +48,43 @@ struct libesedb_catalog
 
 int libesedb_catalog_initialize(
      libesedb_catalog_t **catalog,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_free(
      libesedb_catalog_t **catalog,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_get_number_of_table_definitions(
      libesedb_catalog_t *catalog,
      int *number_of_table_definitions,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_get_table_definition_by_index(
      libesedb_catalog_t *catalog,
      int table_definition_index,
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_get_table_definition_by_name(
      libesedb_catalog_t *catalog,
      const uint8_t *table_name,
      size_t table_name_size,
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_get_table_definition_by_utf8_name(
      libesedb_catalog_t *catalog,
      const uint8_t *utf8_string,
      size_t utf8_string_length,
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_get_table_definition_by_utf16_name(
      libesedb_catalog_t *catalog,
      const uint16_t *utf16_string,
      size_t utf16_string_length,
      libesedb_table_definition_t **table_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_catalog_read(
      libesedb_catalog_t *catalog,
@@ -93,7 +92,7 @@ int libesedb_catalog_read(
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

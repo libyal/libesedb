@@ -24,10 +24,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_compression.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libuna.h"
 
 /* Retrieves the size of the decompressed 7-bit compressed-data
@@ -37,16 +36,16 @@ int libesedb_compression_7bit_decompress_get_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_compression_7bit_decompress_get_size";
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -54,10 +53,10 @@ int libesedb_compression_7bit_decompress_get_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -65,10 +64,10 @@ int libesedb_compression_7bit_decompress_get_size(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -76,10 +75,10 @@ int libesedb_compression_7bit_decompress_get_size(
 	}
 	if( uncompressed_data_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data size.",
 		 function );
 
@@ -87,10 +86,10 @@ int libesedb_compression_7bit_decompress_get_size(
 	}
 	if( compressed_data[ 0 ] == 0x18 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported leading byte: 0x%02" PRIx8 ".",
 		 function,
 		 compressed_data[ 0 ] );
@@ -110,7 +109,7 @@ int libesedb_compression_7bit_decompress(
      size_t compressed_data_size,
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function          = "libesedb_compression_7bit_decompress";
 	size_t compressed_data_index   = 0;
@@ -120,10 +119,10 @@ int libesedb_compression_7bit_decompress(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -131,10 +130,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -142,10 +141,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -153,10 +152,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data.",
 		 function );
 
@@ -164,10 +163,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( uncompressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid uncompressed data size value exceeds maximum.",
 		 function );
 
@@ -175,10 +174,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( uncompressed_data_size < ( ( ( compressed_data_size - 1 ) * 8 ) / 7 ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: uncompressed data size value too small.",
 		 function );
 
@@ -186,10 +185,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( compressed_data[ 0 ] == 0x18 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported leading byte: 0x%02" PRIx8 ".",
 		 function,
 		 compressed_data[ 0 ] );
@@ -219,10 +218,10 @@ int libesedb_compression_7bit_decompress(
 	}
 	if( value_16bit != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported remainder: 0x%02" PRIx16 ".",
 		 function,
 		 value_16bit );
@@ -239,16 +238,16 @@ int libesedb_compression_xpress_decompress_get_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_compression_xpress_decompress_get_size";
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -256,10 +255,10 @@ int libesedb_compression_xpress_decompress_get_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -267,10 +266,10 @@ int libesedb_compression_xpress_decompress_get_size(
 	}
 	if( compressed_data_size < 3 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -278,10 +277,10 @@ int libesedb_compression_xpress_decompress_get_size(
 	}
 	if( uncompressed_data_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data size.",
 		 function );
 
@@ -289,10 +288,10 @@ int libesedb_compression_xpress_decompress_get_size(
 	}
 	if( compressed_data[ 0 ] != 0x18 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported leading byte: 0x%02" PRIx8 ".",
 		 function,
 		 compressed_data[ 0 ] );
@@ -314,7 +313,7 @@ int libesedb_compression_xpress_decompress(
      size_t compressed_data_size,
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function                  = "libesedb_compression_xpress_decompress";
 	size_t compressed_data_iterator        = 0;
@@ -329,10 +328,10 @@ int libesedb_compression_xpress_decompress(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -340,10 +339,10 @@ int libesedb_compression_xpress_decompress(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -351,10 +350,10 @@ int libesedb_compression_xpress_decompress(
 	}
 	if( compressed_data_size < 3 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -362,10 +361,10 @@ int libesedb_compression_xpress_decompress(
 	}
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid uncompressed data.",
 		 function );
 
@@ -373,10 +372,10 @@ int libesedb_compression_xpress_decompress(
 	}
 	if( uncompressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid uncompressed data size value exceeds maximum.",
 		 function );
 
@@ -384,10 +383,10 @@ int libesedb_compression_xpress_decompress(
 	}
 	if( compressed_data[ 0 ] != 0x18 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported leading byte: 0x%02" PRIx8 ".",
 		 function,
 		 compressed_data[ 0 ] );
@@ -419,10 +418,10 @@ int libesedb_compression_xpress_decompress(
 			{
 				if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: compressed data too small.",
 					 function );
 
@@ -451,10 +450,10 @@ int libesedb_compression_xpress_decompress(
 					{
 						if( compressed_data_iterator >= compressed_data_size )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 							 "%s: compressed data too small.",
 							 function );
 
@@ -479,10 +478,10 @@ int libesedb_compression_xpress_decompress(
 				{
 					if( compressed_data_iterator >= compressed_data_size )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 						 "%s: compressed data too small.",
 						 function );
 
@@ -498,10 +497,10 @@ int libesedb_compression_xpress_decompress(
 				{
 					if( ( compressed_data_iterator + 1 ) >= compressed_data_size )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 						 "%s: compressed data too small.",
 						 function );
 
@@ -520,11 +519,11 @@ int libesedb_compression_xpress_decompress(
 
 				if( compression_size > 32771 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_RANGE,
-					 "%s: compression size value out of range.",
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: compression size value out of bounds.",
 					 function );
 
 					return( -1 );
@@ -535,10 +534,10 @@ int libesedb_compression_xpress_decompress(
 				{
 					if( compression_iterator > uncompressed_data_iterator )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 						 "compression iterator: %" PRIzd " out of range: %" PRIzd ".",
 						 function,
 						 compression_iterator,
@@ -548,10 +547,10 @@ int libesedb_compression_xpress_decompress(
 					}
 					if( uncompressed_data_iterator > uncompressed_data_size )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-						 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 						 "%s: uncompressed data too small.",
 						 function );
 
@@ -566,10 +565,10 @@ int libesedb_compression_xpress_decompress(
 			{
 				if( compressed_data_iterator >= compressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: compressed data too small.",
 					 function );
 
@@ -577,10 +576,10 @@ int libesedb_compression_xpress_decompress(
 				}
 				if( uncompressed_data_iterator > uncompressed_data_size )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-					 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 					 "%s: uncompressed data too small.",
 					 function );
 
@@ -600,17 +599,17 @@ int libesedb_compression_decompress_get_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_compression_decompress_get_size";
 	int result            = 0;
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -618,10 +617,10 @@ int libesedb_compression_decompress_get_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -629,10 +628,10 @@ int libesedb_compression_decompress_get_size(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -656,10 +655,10 @@ int libesedb_compression_decompress_get_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
 		 function );
 
@@ -676,17 +675,17 @@ int libesedb_compression_decompress(
      size_t compressed_data_size,
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_compression_decompress";
 	int result            = 0;
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -694,10 +693,10 @@ int libesedb_compression_decompress(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -705,10 +704,10 @@ int libesedb_compression_decompress(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -734,10 +733,10 @@ int libesedb_compression_decompress(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
-		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
 		 "%s: unable decompressed data.",
 		 function );
 
@@ -753,7 +752,7 @@ int libesedb_compression_get_utf8_string_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *uncompressed_data    = NULL;
 	static char *function         = "libesedb_compression_get_utf8_string_size";
@@ -762,10 +761,10 @@ int libesedb_compression_get_utf8_string_size(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -773,10 +772,10 @@ int libesedb_compression_get_utf8_string_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -784,10 +783,10 @@ int libesedb_compression_get_utf8_string_size(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -811,10 +810,10 @@ int libesedb_compression_get_utf8_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
 		 function );
 
@@ -825,10 +824,10 @@ int libesedb_compression_get_utf8_string_size(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create uncompressed data.",
 		 function );
 
@@ -854,10 +853,10 @@ int libesedb_compression_get_utf8_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
-		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
 		 "%s: unable decompressed data.",
 		 function );
 
@@ -878,10 +877,10 @@ int libesedb_compression_get_utf8_string_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine UTF-8 string size of UTF-16 stream.",
 			 function );
 
@@ -889,11 +888,11 @@ int libesedb_compression_get_utf8_string_size(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 	}
@@ -907,10 +906,10 @@ int libesedb_compression_get_utf8_string_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine UTF-8 string size of UTF-8 stream.",
 			 function );
 
@@ -941,7 +940,7 @@ int libesedb_compression_copy_to_utf8_string(
      size_t compressed_data_size,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *uncompressed_data    = NULL;
 	static char *function         = "libesedb_compression_copy_to_utf8_string";
@@ -950,10 +949,10 @@ int libesedb_compression_copy_to_utf8_string(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -961,10 +960,10 @@ int libesedb_compression_copy_to_utf8_string(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -972,10 +971,10 @@ int libesedb_compression_copy_to_utf8_string(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -999,10 +998,10 @@ int libesedb_compression_copy_to_utf8_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
 		 function );
 
@@ -1013,10 +1012,10 @@ int libesedb_compression_copy_to_utf8_string(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create uncompressed data.",
 		 function );
 
@@ -1042,10 +1041,10 @@ int libesedb_compression_copy_to_utf8_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
-		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
 		 "%s: unable decompressed data.",
 		 function );
 
@@ -1067,10 +1066,10 @@ int libesedb_compression_copy_to_utf8_string(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy UTF-16 stream to UTF-8 string.",
 			 function );
 
@@ -1078,11 +1077,11 @@ int libesedb_compression_copy_to_utf8_string(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 	}
@@ -1097,10 +1096,10 @@ int libesedb_compression_copy_to_utf8_string(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy UTF-8 stream to UTF-8 string.",
 			 function );
 
@@ -1130,7 +1129,7 @@ int libesedb_compression_get_utf16_string_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *uncompressed_data    = NULL;
 	static char *function         = "libesedb_compression_get_utf16_string_size";
@@ -1139,10 +1138,10 @@ int libesedb_compression_get_utf16_string_size(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -1150,10 +1149,10 @@ int libesedb_compression_get_utf16_string_size(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -1161,10 +1160,10 @@ int libesedb_compression_get_utf16_string_size(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -1188,10 +1187,10 @@ int libesedb_compression_get_utf16_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
 		 function );
 
@@ -1202,10 +1201,10 @@ int libesedb_compression_get_utf16_string_size(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create uncompressed data.",
 		 function );
 
@@ -1231,10 +1230,10 @@ int libesedb_compression_get_utf16_string_size(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
-		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
 		 "%s: unable decompressed data.",
 		 function );
 
@@ -1255,10 +1254,10 @@ int libesedb_compression_get_utf16_string_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine UTF-16 string size of UTF-16 stream.",
 			 function );
 
@@ -1266,11 +1265,11 @@ int libesedb_compression_get_utf16_string_size(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 	}
@@ -1284,10 +1283,10 @@ int libesedb_compression_get_utf16_string_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to determine UTF-16 string size of UTF-8 stream.",
 			 function );
 
@@ -1318,7 +1317,7 @@ int libesedb_compression_copy_to_utf16_string(
      size_t compressed_data_size,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *uncompressed_data    = NULL;
 	static char *function         = "libesedb_compression_copy_to_utf16_string";
@@ -1327,10 +1326,10 @@ int libesedb_compression_copy_to_utf16_string(
 
 	if( compressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid compressed data.",
 		 function );
 
@@ -1338,10 +1337,10 @@ int libesedb_compression_copy_to_utf16_string(
 	}
 	if( compressed_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid compressed data size value exceeds maximum.",
 		 function );
 
@@ -1349,10 +1348,10 @@ int libesedb_compression_copy_to_utf16_string(
 	}
 	if( compressed_data_size < 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: compressed data size value too small.",
 		 function );
 
@@ -1376,10 +1375,10 @@ int libesedb_compression_copy_to_utf16_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
 		 function );
 
@@ -1390,10 +1389,10 @@ int libesedb_compression_copy_to_utf16_string(
 
 	if( uncompressed_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create uncompressed data.",
 		 function );
 
@@ -1419,10 +1418,10 @@ int libesedb_compression_copy_to_utf16_string(
 	}
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_COMPRESSION,
-		 LIBERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+		 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
 		 "%s: unable decompressed data.",
 		 function );
 
@@ -1444,10 +1443,10 @@ int libesedb_compression_copy_to_utf16_string(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy UTF-16 stream to UTF-16 string.",
 			 function );
 
@@ -1455,11 +1454,11 @@ int libesedb_compression_copy_to_utf16_string(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libnotify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 	}
@@ -1474,10 +1473,10 @@ int libesedb_compression_copy_to_utf16_string(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy UTF-16 stream to UTF-8 string.",
 			 function );
 

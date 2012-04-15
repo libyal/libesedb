@@ -24,16 +24,15 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-#include <libnotify.h>
-
 #include "libesedb_catalog_definition.h"
 #include "libesedb_codepage.h"
 #include "libesedb_column_type.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_lcid.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
+#include "libesedb_libcstring.h"
 #include "libesedb_libuna.h"
 #include "libesedb_unused.h"
 
@@ -44,16 +43,16 @@
  */
 int libesedb_catalog_definition_initialize(
      libesedb_catalog_definition_t **catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_initialize";
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -61,10 +60,10 @@ int libesedb_catalog_definition_initialize(
 	}
 	if( *catalog_definition != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid catalog definition value already set.",
 		 function );
 
@@ -75,10 +74,10 @@ int libesedb_catalog_definition_initialize(
 
 	if( *catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create catalog definition.",
 		 function );
 
@@ -89,10 +88,10 @@ int libesedb_catalog_definition_initialize(
 	     0,
 	     sizeof( libesedb_catalog_definition_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear catalog definition.",
 		 function );
 
@@ -116,16 +115,16 @@ on_error:
  */
 int libesedb_catalog_definition_free(
      libesedb_catalog_definition_t **catalog_definition,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_free";
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -171,7 +170,7 @@ int libesedb_catalog_definition_read(
      uint8_t *definition_data,
      size_t definition_data_size,
      int ascii_codepage LIBESEDB_ATTRIBUTE_UNUSED,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	uint8_t *fixed_size_data_type_value_data            = NULL;
 	uint8_t *variable_size_data_type_size_data          = NULL;
@@ -200,10 +199,10 @@ int libesedb_catalog_definition_read(
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -211,10 +210,10 @@ int libesedb_catalog_definition_read(
 	}
 	if( definition_data == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid definition data.",
 		 function );
 
@@ -222,10 +221,10 @@ int libesedb_catalog_definition_read(
 	}
 	if( definition_data_size > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid definition data size value exceeds maximum.",
 		 function );
 
@@ -233,10 +232,10 @@ int libesedb_catalog_definition_read(
 	}
 	if( definition_data_size < sizeof( esedb_data_definition_header_t ) )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: definition data too small.",
 		 function );
 
@@ -250,19 +249,19 @@ int libesedb_catalog_definition_read(
 	 variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last fixed size data type\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 last_fixed_size_data_type );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: last variable size data type\t\t\t\t: %" PRIu8 "\n",
 		 function,
 		 last_variable_size_data_type );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: variable size data types offset\t\t\t: %" PRIu16 "\n",
 		 function,
 		 variable_size_data_types_offset );
@@ -274,10 +273,10 @@ int libesedb_catalog_definition_read(
 	 */
 	if( last_fixed_size_data_type < 5 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
 		 "%s: last fixed size data type too small.",
 		 function );
 
@@ -285,10 +284,10 @@ int libesedb_catalog_definition_read(
 	}
 	if( last_fixed_size_data_type > 11 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported last fixed size data type: %" PRIu8 ".",
 		 function,
 		 last_fixed_size_data_type );
@@ -334,10 +333,10 @@ int libesedb_catalog_definition_read(
 	}
 	if( variable_size_data_types_offset > definition_data_size )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: variable size data types offset exceeds definition data.",
 		 function );
 
@@ -380,27 +379,27 @@ int libesedb_catalog_definition_read(
 		 catalog_definition->codepage );
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
 		data_type_number = 1;
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: (%03" PRIu16 ") father data page (FDP) object identifier\t: %" PRIu32 "\n",
 		 function,
 		 data_type_number++,
 		 catalog_definition->father_data_page_object_identifier );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: (%03" PRIu16 ") type\t\t\t\t\t\t: 0x%04" PRIx16 " ",
 		 function,
 		 data_type_number++,
 		 catalog_definition->type );
 		libesedb_debug_print_page_value_definition_type(
 		 catalog_definition->type );
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: (%03" PRIu16 ") identifier\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 data_type_number++,
@@ -408,7 +407,7 @@ int libesedb_catalog_definition_read(
 
 		if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") column type\t\t\t\t\t: %" PRIu32 " (%s) %s\n",
 			 function,
 			 data_type_number++,
@@ -420,13 +419,13 @@ int libesedb_catalog_definition_read(
 		}
 		else
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") father data page (FDP) number\t\t\t: %" PRIu32 "\n",
 			 function,
 			 data_type_number++,
 			 catalog_definition->father_data_page_number );
 		}
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: (%03" PRIu16 ") space usage\t\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 data_type_number++,
@@ -440,31 +439,31 @@ int libesedb_catalog_definition_read(
 		{
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
 				libesedb_debug_print_column_group_of_bits(
 				 value_32bit );
-				libnotify_printf(
+				libcnotify_printf(
 				 "\n" );
 			}
 			else if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
 				libesedb_debug_print_index_group_of_bits(
 				 value_32bit );
-				libnotify_printf(
+				libcnotify_printf(
 				 "\n" );
 			}
 			else
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
@@ -475,7 +474,7 @@ int libesedb_catalog_definition_read(
 		{
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
 				 function,
 				 data_type_number++,
@@ -483,14 +482,14 @@ int libesedb_catalog_definition_read(
 
 				if( catalog_definition->codepage != 0 )
 				{
-					libnotify_printf(
+					libcnotify_printf(
 					 " (%s) %s",
 					 libesedb_codepage_get_identifier(
 					  catalog_definition->codepage ),
 					 libesedb_codepage_get_description(
 					  catalog_definition->codepage ) );
 				}
-				libnotify_printf(
+				libcnotify_printf(
 				 "\n" );
 			}
 			else if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
@@ -499,7 +498,7 @@ int libesedb_catalog_definition_read(
 				 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->locale_identifier,
 				 value_32bit );
 
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
 				 function,
 				 data_type_number++,
@@ -515,7 +514,7 @@ int libesedb_catalog_definition_read(
 				 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->number_of_pages,
 				 value_32bit );
 
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") number of pages\t\t\t\t\t: %" PRIu32 "\n",
 				 function,
 				 data_type_number++,
@@ -524,7 +523,7 @@ int libesedb_catalog_definition_read(
 		}
 		if( last_fixed_size_data_type >= 8 )
 		{
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") root flag\t\t\t\t\t: 0x%02" PRIx8 "\n",
 			 function,
 			 data_type_number++,
@@ -536,7 +535,7 @@ int libesedb_catalog_definition_read(
 			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->record_offset,
 			 record_offset );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") record offset\t\t\t\t\t: %" PRIu16 "\n",
 			 function,
 			 data_type_number++,
@@ -548,7 +547,7 @@ int libesedb_catalog_definition_read(
 			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags,
 			 value_32bit );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 data_type_number++,
@@ -560,27 +559,28 @@ int libesedb_catalog_definition_read(
 			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->key_most,
 			 value_16bit );
 
-			libnotify_printf(
+			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") key most\t\t\t\t\t: 0x04%" PRIx16 "\n",
 			 function,
 			 data_type_number++,
 			 value_16bit );
 		}
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( libnotify_verbose != 0 )
+	if( ( libcnotify_verbose != 0 )
 	 && ( variable_size_data_types_offset > calculated_variable_size_data_types_offset ) )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "%s: trailing data:\n",
 		 function );
-		libnotify_print_data(
+		libcnotify_print_data(
 		 &( definition_data[ calculated_variable_size_data_types_offset ] ),
-		 variable_size_data_types_offset - calculated_variable_size_data_types_offset );
+		 variable_size_data_types_offset - calculated_variable_size_data_types_offset,
+		 0 );
 	}
 #endif
 	if( number_of_variable_size_data_types > 0 )
@@ -601,9 +601,9 @@ int libesedb_catalog_definition_read(
 			variable_size_data_type_size_data += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( libnotify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libnotify_printf(
+				libcnotify_printf(
 				 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 				 function,
 				 data_type_number,
@@ -626,10 +626,10 @@ int libesedb_catalog_definition_read(
 
 						if( catalog_definition->name == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 							 "%s: unable to create name.",
 							 function );
 
@@ -642,10 +642,10 @@ int libesedb_catalog_definition_read(
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     catalog_definition->name_size ) == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 							 "%s: unable to set name.",
 							 function );
 
@@ -658,7 +658,7 @@ int libesedb_catalog_definition_read(
 							return( -1 );
 						}
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_size_from_byte_stream(
@@ -678,10 +678,10 @@ int libesedb_catalog_definition_read(
 
 							if( result != 1 )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_RUNTIME,
-								 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+								 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 								 "%s: unable to determine size of name string.",
 								 function );
 
@@ -692,10 +692,10 @@ int libesedb_catalog_definition_read(
 
 							if( catalog_definition->name_string == NULL )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_MEMORY,
-								 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+								 LIBCERROR_ERROR_DOMAIN_MEMORY,
+								 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 								 "%s: unable to create name string.",
 								 function );
 
@@ -721,10 +721,10 @@ int libesedb_catalog_definition_read(
 
 							if( result != 1 )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_CONVERSION,
-								 LIBERROR_CONVERSION_ERROR_GENERIC,
+								 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+								 LIBCERROR_CONVERSION_ERROR_GENERIC,
 								 "%s: unable to set name string.",
 								 function );
 
@@ -735,7 +735,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 data_type_number,
@@ -744,9 +744,9 @@ int libesedb_catalog_definition_read(
 #endif
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					else if( libnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
@@ -756,23 +756,24 @@ int libesedb_catalog_definition_read(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 				case 129:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") stats:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") stats\t\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -793,10 +794,10 @@ int libesedb_catalog_definition_read(
 
 						if( catalog_definition->template_name == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 							 "%s: unable to create template name.",
 							 function );
 
@@ -809,10 +810,10 @@ int libesedb_catalog_definition_read(
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     catalog_definition->template_name_size ) == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 							 "%s: unable to set template name.",
 							 function );
 
@@ -825,7 +826,7 @@ int libesedb_catalog_definition_read(
 							return( -1 );
 						}
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_size_from_byte_stream(
@@ -845,10 +846,10 @@ int libesedb_catalog_definition_read(
 
 							if( result != 1 )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_RUNTIME,
-								 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+								 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+								 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 								 "%s: unable to determine size of template name string.",
 								 function );
 
@@ -859,10 +860,10 @@ int libesedb_catalog_definition_read(
 
 							if( value_string == NULL )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_MEMORY,
-								 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+								 LIBCERROR_ERROR_DOMAIN_MEMORY,
+								 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 								 "%s: unable to create template name string.",
 								 function );
 
@@ -888,10 +889,10 @@ int libesedb_catalog_definition_read(
 
 							if( result != 1 )
 							{
-								liberror_error_set(
+								libcerror_error_set(
 								 error,
-								 LIBERROR_ERROR_DOMAIN_CONVERSION,
-								 LIBERROR_CONVERSION_ERROR_GENERIC,
+								 LIBCERROR_ERROR_DOMAIN_CONVERSION,
+								 LIBCERROR_CONVERSION_ERROR_GENERIC,
 								 "%s: unable to set template name string.",
 								 function );
 
@@ -900,7 +901,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
 							 function,
 							 data_type_number,
@@ -912,9 +913,9 @@ int libesedb_catalog_definition_read(
 #endif
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					else if( libnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
@@ -934,10 +935,10 @@ int libesedb_catalog_definition_read(
 
 						if( catalog_definition->default_value == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 							 "%s: unable to create default value.",
 							 function );
 
@@ -950,10 +951,10 @@ int libesedb_catalog_definition_read(
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
 						     catalog_definition->default_value_size ) == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_COPY_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
 							 "%s: unable to set default value.",
 							 function );
 
@@ -966,22 +967,23 @@ int libesedb_catalog_definition_read(
 							return( -1 );
 						}
 #if defined( HAVE_DEBUG_OUTPUT )
-						if( libnotify_verbose != 0 )
+						if( libcnotify_verbose != 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") default value:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 catalog_definition->default_value,
-							 catalog_definition->default_value_size );
+							 catalog_definition->default_value_size,
+							 0 );
 						}
 #endif
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
-					else if( libnotify_verbose != 0 )
+					else if( libcnotify_verbose != 0 )
 					{
-						libnotify_printf(
+						libcnotify_printf(
 						 "%s: (%03" PRIu8 ") default value\t\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
@@ -991,23 +993,24 @@ int libesedb_catalog_definition_read(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 				case 132:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") KeyFldIDs:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") KeyFldIDs\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1016,23 +1019,24 @@ int libesedb_catalog_definition_read(
 					break;
 
 				case 133:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") VarSegMac:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1041,23 +1045,24 @@ int libesedb_catalog_definition_read(
 					break;
 
 				case 134:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") ConditionalColumns:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1066,23 +1071,24 @@ int libesedb_catalog_definition_read(
 					break;
 
 				case 135:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") TupleLimits:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") TupleLimits\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1091,23 +1097,24 @@ int libesedb_catalog_definition_read(
 					break;
 
 				case 136:
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") Version:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") Version\t\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1118,23 +1125,24 @@ int libesedb_catalog_definition_read(
 
 				default:
 #if defined( HAVE_DEBUG_OUTPUT )
-					if( libnotify_verbose != 0 )
+					if( libcnotify_verbose != 0 )
 					{
 						/* The MSB signifies that the variable size data type is empty
 						 */
 						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") variable size data type:\n",
 							 function,
 							 data_type_number );
-							libnotify_print_data(
+							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size );
+							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 0 );
 						}
 						else
 						{
-							libnotify_printf(
+							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") variable size data type\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
@@ -1153,9 +1161,9 @@ int libesedb_catalog_definition_read(
 		}
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
 	{
-		libnotify_printf(
+		libcnotify_printf(
 		 "\n" );
 	}
 #endif
@@ -1169,16 +1177,16 @@ int libesedb_catalog_definition_read(
 int libesedb_catalog_definition_get_identifier(
      libesedb_catalog_definition_t *catalog_definition,
      uint32_t *identifier,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_identifier";
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1186,10 +1194,10 @@ int libesedb_catalog_definition_get_identifier(
 	}
 	if( identifier == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid identifier.",
 		 function );
 
@@ -1206,16 +1214,16 @@ int libesedb_catalog_definition_get_identifier(
 int libesedb_catalog_definition_get_column_type(
      libesedb_catalog_definition_t *catalog_definition,
      uint32_t *column_type,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_column_type";
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1223,10 +1231,10 @@ int libesedb_catalog_definition_get_column_type(
 	}
 	if( column_type == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid column type.",
 		 function );
 
@@ -1245,17 +1253,17 @@ int libesedb_catalog_definition_get_utf8_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_name_size";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1270,10 +1278,10 @@ int libesedb_catalog_definition_get_utf8_name_size(
 
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-8 string size.",
 		 function );
 
@@ -1291,17 +1299,17 @@ int libesedb_catalog_definition_get_utf8_name(
      uint8_t *utf8_string,
      size_t utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_name";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1317,10 +1325,10 @@ int libesedb_catalog_definition_get_utf8_name(
 
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set UTF-8 string.",
 		 function );
 
@@ -1337,17 +1345,17 @@ int libesedb_catalog_definition_get_utf16_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_name_size";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1362,10 +1370,10 @@ int libesedb_catalog_definition_get_utf16_name_size(
 
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve UTF-16 string size.",
 		 function );
 
@@ -1383,17 +1391,17 @@ int libesedb_catalog_definition_get_utf16_name(
      uint16_t *utf16_string,
      size_t utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_name";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1409,10 +1417,10 @@ int libesedb_catalog_definition_get_utf16_name(
 
 	if( result != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set UTF-16 string.",
 		 function );
 
@@ -1429,17 +1437,17 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_template_name_size";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1449,10 +1457,10 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
 	{
 		if( utf8_string_size == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid UTF-8 string size.",
 			 function );
 
@@ -1471,10 +1479,10 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve UTF-8 string size.",
 			 function );
 
@@ -1493,17 +1501,17 @@ int libesedb_catalog_definition_get_utf8_template_name(
      uint8_t *utf8_string,
      size_t utf8_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_template_name";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1521,10 +1529,10 @@ int libesedb_catalog_definition_get_utf8_template_name(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set UTF-8 string.",
 			 function );
 
@@ -1542,17 +1550,17 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
      libesedb_catalog_definition_t *catalog_definition,
      size_t *utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_template_name_size";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1562,10 +1570,10 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
 	{
 		if( utf16_string_size == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 			 "%s: invalid UTF-16 string size.",
 			 function );
 
@@ -1584,10 +1592,10 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve UTF-16 string size.",
 			 function );
 
@@ -1606,17 +1614,17 @@ int libesedb_catalog_definition_get_utf16_template_name(
      uint16_t *utf16_string,
      size_t utf16_string_size,
      int ascii_codepage,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_template_name";
 	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog definition.",
 		 function );
 
@@ -1634,10 +1642,10 @@ int libesedb_catalog_definition_get_utf16_template_name(
 
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to set UTF-16 string.",
 			 function );
 

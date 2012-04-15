@@ -1,6 +1,6 @@
 dnl Functions for libuna
 dnl
-dnl Version: 20111224
+dnl Version: 20120406
 
 dnl Function to detect if libuna is available as library
 dnl ac_libuna_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -442,7 +442,8 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
    [HAVE_LIBUNA],
    [1],
    [Define to 1 if you have the `una' library (-luna).])
-  LIBS="-luna $LIBS"
+
+  ac_cv_libuna_LIBADD="-luna"
   ])
 
  AS_IF(
@@ -465,30 +466,56 @@ AC_DEFUN([AX_LIBUNA_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- AX_LIBUNA_CHECK_LIB
+ dnl Check for a pkg-config file
+ AS_IF(
+  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+  [PKG_CHECK_MODULES(
+   [libuna],
+   [libuna >= 20120405],
+   [ac_cv_libuna=yes],
+   [ac_cv_libuna=no])
 
+  ac_cv_libuna_CPPFLAGS="$pkg_cv_libuna_CFLAGS"
+  ac_cv_libuna_LIBADD="$pkg_cv_libuna_LIBS"
+ ])
+
+ dnl Check for a shared library version
  AS_IF(
   [test "x$ac_cv_libuna" != xyes],
-  [AC_DEFINE(
+  [AX_LIBUNA_CHECK_LIB])
+
+ dnl Check if the dependencies for the local library version
+ AS_IF(
+  [test "x$ac_cv_libuna" != xyes],
+  [ac_cv_libuna_CPPFLAGS="-I../libuna";
+  ac_cv_libuna_LIBADD="../libuna/libuna.la";
+
+  ac_cv_libuna=local
+
+  AC_DEFINE(
    [HAVE_LOCAL_LIBUNA],
    [1],
    [Define to 1 if the local version of libuna is used.])
   AC_SUBST(
    [HAVE_LOCAL_LIBUNA],
    [1])
-  AC_SUBST(
-   [LIBUNA_CPPFLAGS],
-   [-I../libuna])
-  AC_SUBST(
-   [LIBUNA_LIBADD],
-   [../libuna/libuna.la])
-
-  ac_cv_libuna=local
   ])
 
  AM_CONDITIONAL(
   [HAVE_LOCAL_LIBUNA],
   [test "x$ac_cv_libuna" = xlocal])
+ AS_IF(
+  [test "x$ac_cv_libuna_CPPFLAGS" != "x"],
+  [AC_SUBST(
+   [LIBUNA_CPPFLAGS],
+   [$ac_cv_libuna_CPPFLAGS])
+  ])
+ AS_IF(
+  [test "x$ac_cv_libuna_LIBADD" != "x"],
+  [AC_SUBST(
+   [LIBUNA_LIBADD],
+   [$ac_cv_libuna_LIBADD])
+  ])
 
  AS_IF(
   [test "x$ac_cv_libuna" = xyes],

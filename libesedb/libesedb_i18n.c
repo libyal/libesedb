@@ -22,20 +22,19 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #if defined( HAVE_LIBINTL_H )
 #include <libintl.h>
 #endif
 
 #include "libesedb_i18n.h"
+#include "libesedb_libcerror.h"
 
 static int libesedb_i18n_initialized = 0;
 
 /* Initializes library internationalization functions
  */
 int libesedb_i18n_initialize(
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_i18n_initialize";
 
@@ -46,10 +45,10 @@ int libesedb_i18n_initialize(
 		     "libesedb",
 		     LOCALEDIR ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable to bind text domain.",
 			 function );
 

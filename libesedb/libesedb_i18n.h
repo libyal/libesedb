@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
+#include "libesedb_libcerror.h"
 
 #if defined( HAVE_LIBINTL_H )
 #include <libintl.h>
@@ -41,7 +41,7 @@ extern "C" {
 #endif
 
 int libesedb_i18n_initialize(
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

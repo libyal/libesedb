@@ -25,12 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-
 #include "libesedb_array_type.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
@@ -108,45 +107,45 @@ int libesedb_record_initialize(
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      uint8_t flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_free(
      libesedb_record_t **record,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_number_of_values(
      libesedb_record_t *record,
      int *number_of_values,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 int libesedb_record_get_column_catalog_definition(
      libesedb_internal_record_t *internal_record,
      int value_entry,
      libesedb_catalog_definition_t **column_catalog_definition,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_column_identifier(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *column_identifier,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_column_type(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *column_type,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_utf8_column_name_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_utf8_column_name(
@@ -154,14 +153,14 @@ int libesedb_record_get_utf8_column_name(
      int value_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_utf16_column_name_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_utf16_column_name(
@@ -169,7 +168,7 @@ int libesedb_record_get_utf16_column_name(
      int value_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value(
@@ -178,70 +177,70 @@ int libesedb_record_get_value(
      uint8_t **value_data,
      size_t *value_data_size,
      uint8_t *value_flags,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_boolean(
      libesedb_record_t *record,
      int value_entry,
      uint8_t *value_boolean,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_8bit(
      libesedb_record_t *record,
      int value_entry,
      uint8_t *value_8bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_16bit(
      libesedb_record_t *record,
      int value_entry,
      uint16_t *value_16bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_32bit(
      libesedb_record_t *record,
      int value_entry,
      uint32_t *value_32bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_64bit(
      libesedb_record_t *record,
      int value_entry,
      uint64_t *value_64bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_filetime(
      libesedb_record_t *record,
      int value_entry,
      uint64_t *value_filetime,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_floating_point_32bit(
      libesedb_record_t *record,
      int value_entry,
      float *value_floating_point_32bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_floating_point_64bit(
      libesedb_record_t *record,
      int value_entry,
      double *value_floating_point_64bit,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_utf8_string_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_utf8_string(
@@ -249,14 +248,14 @@ int libesedb_record_get_value_utf8_string(
      int value_entry,
      uint8_t *utf8_string,
      size_t utf8_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_utf16_string_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_utf16_string(
@@ -264,14 +263,14 @@ int libesedb_record_get_value_utf16_string(
      int value_entry,
      uint16_t *utf16_string,
      size_t utf16_string_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_binary_data_size(
      libesedb_record_t *record,
      int value_entry,
      size_t *binary_data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_value_binary_data(
@@ -279,21 +278,21 @@ int libesedb_record_get_value_binary_data(
      int value_entry,
      uint8_t *binary_data,
      size_t binary_data_size,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_long_value(
      libesedb_record_t *record,
      int value_entry,
      libesedb_long_value_t **long_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
 int libesedb_record_get_multi_value(
      libesedb_record_t *record,
      int value_entry,
      libesedb_multi_value_t **multi_value,
-     liberror_error_t **error );
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }

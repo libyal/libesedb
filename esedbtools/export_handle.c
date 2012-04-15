@@ -24,12 +24,13 @@
 #include <memory.h>
 #include <types.h>
 
-#include <libcstring.h>
-#include <liberror.h>
-
-#include <libsystem.h>
-
-#include "esedbinput.h"
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libclocale.h"
+#include "esedbtools_libcnotify.h"
+#include "esedbtools_libcfile.h"
+#include "esedbtools_libcpath.h"
+#include "esedbtools_libcstring.h"
+#include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "export.h"
@@ -45,16 +46,16 @@
  */
 int export_handle_initialize(
      export_handle_t **export_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_initialize";
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -62,10 +63,10 @@ int export_handle_initialize(
 	}
 	if( *export_handle != NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid export handle value already set.",
 		 function );
 
@@ -76,10 +77,10 @@ int export_handle_initialize(
 
 	if( *export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create export handle.",
 		 function );
 
@@ -90,10 +91,10 @@ int export_handle_initialize(
 	     0,
 	     sizeof( export_handle_t ) ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
 		 "%s: unable to clear export handle.",
 		 function );
 
@@ -103,10 +104,10 @@ int export_handle_initialize(
 	     &( ( *export_handle )->input_file ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to initialize input file.",
 		 function );
 
@@ -134,17 +135,17 @@ on_error:
  */
 int export_handle_free(
      export_handle_t **export_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_free";
 	int result            = 1;
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -156,10 +157,10 @@ int export_handle_free(
 		     &( ( *export_handle )->input_file ),
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free input file.",
 			 function );
 
@@ -188,16 +189,16 @@ int export_handle_free(
  */
 int export_handle_signal_abort(
      export_handle_t *export_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_signal_abort";
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -214,7 +215,7 @@ int export_handle_signal_abort(
 int export_handle_set_export_mode(
      export_handle_t *export_handle,
      const libcstring_system_character_t *string,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_export_mode";
 	size_t string_length  = 0;
@@ -222,10 +223,10 @@ int export_handle_set_export_mode(
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -233,10 +234,10 @@ int export_handle_set_export_mode(
 	}
 	if( string == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid string.",
 		 function );
 
@@ -278,33 +279,51 @@ int export_handle_set_export_mode(
 int export_handle_set_ascii_codepage(
      export_handle_t *export_handle,
      const libcstring_system_character_t *string,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	static char *function = "export_handle_set_ascii_codepage";
-	int result            = 0;
+	static char *function  = "export_handle_set_ascii_codepage";
+	size_t string_length   = 0;
+	uint32_t feature_flags = 0;
+	int result             = 0;
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
 		return( -1 );
 	}
-	result = esedbinput_determine_ascii_codepage(
-	          string,
-	          &( export_handle->ascii_codepage ),
-	          error );
+	feature_flags = LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_KOI8
+	              | LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_WINDOWS;
 
+	string_length = libcstring_system_string_length(
+	                 string );
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libclocale_codepage_copy_from_string_wide(
+	          &( export_handle->ascii_codepage ),
+	          string,
+	          string_length,
+	          feature_flags,
+	          error );
+#else
+	result = libclocale_codepage_copy_from_string(
+	          &( export_handle->ascii_codepage ),
+	          string,
+	          string_length,
+	          feature_flags,
+	          error );
+#endif
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to determine ASCII codepage.",
 		 function );
 
@@ -319,23 +338,23 @@ int export_handle_set_ascii_codepage(
 int export_handle_set_target_path(
      export_handle_t *export_handle,
      const libcstring_system_character_t *target_path,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
-	static char *function                                      = "export_handle_set_target_path";
-	size_t target_path_length                                  = 0;
+	static char *function                           = "export_handle_set_target_path";
+	size_t target_path_length                       = 0;
 
 #if defined( WINAPI )
-	libcstring_system_character_t *extended_length_target_path = NULL;
-        size_t extended_length_target_path_size                    = 0;
-	int result                                                 = 0;
+	libcstring_system_character_t *full_target_path = NULL;
+        size_t full_target_path_size                    = 0;
+	int result                                      = 0;
 #endif
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -343,10 +362,10 @@ int export_handle_set_target_path(
 	}
 	if( target_path == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid target path.",
 		 function );
 
@@ -364,19 +383,27 @@ int export_handle_set_target_path(
 	                      target_path );
 
 #if defined( WINAPI )
-	result = libsystem_path_create_windows_extended(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcpath_path_get_full_path_wide(
 	          target_path,
                   target_path_length,
-                  &extended_length_target_path,
-                  &extended_length_target_path_size,
+                  &full_target_path,
+                  &full_target_path_size,
                   error );
-
+#else
+	result = libcpath_path_get_full_path(
+	          target_path,
+                  target_path_length,
+                  &full_target_path,
+                  &full_target_path_size,
+                  error );
+#endif
         if( result == -1 )
         {
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create extended-length target path.",
 		 function );
 
@@ -384,8 +411,8 @@ int export_handle_set_target_path(
         }
         else if( result != 0 )
         {
-                target_path        = extended_length_target_path;
-                target_path_length = extended_length_target_path_size - 1;
+                target_path        = full_target_path;
+                target_path_length = full_target_path_size - 1;
         }
 #endif
 	if( target_path_length > 0 )
@@ -395,10 +422,10 @@ int export_handle_set_target_path(
 
 		if( export_handle->target_path == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create target path.",
 			 function );
 
@@ -409,10 +436,10 @@ int export_handle_set_target_path(
 		     target_path,
 		     target_path_length ) == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 			 "%s: unable to copy target path.",
 			 function );
 
@@ -424,7 +451,7 @@ int export_handle_set_target_path(
 	}
 #if defined( WINAPI )
 	memory_free(
-	 extended_length_target_path );
+	 full_target_path );
 #endif
 	return( 1 );
 
@@ -438,10 +465,10 @@ on_error:
 		export_handle->target_path_size = 0;
 	}
 #if defined( WINAPI )
-	if( extended_length_target_path != NULL )
+	if( full_target_path != NULL )
 	{
 		memory_free(
-		 extended_length_target_path );
+		 full_target_path );
 	}
 #endif
 	return( -1 );
@@ -458,16 +485,16 @@ int export_handle_set_export_path(
      size_t suffix_length,
      libcstring_system_character_t **export_path,
      size_t *export_path_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_set_export_path";
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -475,10 +502,10 @@ int export_handle_set_export_path(
 	}
 	if( base_path == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid base path.",
 		 function );
 
@@ -486,10 +513,10 @@ int export_handle_set_export_path(
 	}
 	if( base_path_length > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid base path length value exceeds maximum.",
 		 function );
 
@@ -497,10 +524,10 @@ int export_handle_set_export_path(
 	}
 	if( suffix == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid suffix.",
 		 function );
 
@@ -508,10 +535,10 @@ int export_handle_set_export_path(
 	}
 	if( suffix_length > (size_t) SSIZE_MAX )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
 		 "%s: invalid suffix length value exceeds maximum.",
 		 function );
 
@@ -519,10 +546,10 @@ int export_handle_set_export_path(
 	}
 	if( export_path == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export path.",
 		 function );
 
@@ -530,10 +557,10 @@ int export_handle_set_export_path(
 	}
 	if( export_path_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export path size.",
 		 function );
 
@@ -554,10 +581,10 @@ int export_handle_set_export_path(
 
 	if( *export_path == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create export path.",
 		 function );
 
@@ -568,10 +595,10 @@ int export_handle_set_export_path(
 	     base_path,
 	     base_path_length ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy base path to item export path.",
 		 function );
 
@@ -582,10 +609,10 @@ int export_handle_set_export_path(
 	     suffix,
 	     suffix_length ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy suffix to item export path.",
 		 function );
 
@@ -612,17 +639,17 @@ on_error:
  */
 int export_handle_create_items_export_path(
      export_handle_t *export_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_create_items_export_path";
 	int result            = 0;
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -638,25 +665,30 @@ int export_handle_create_items_export_path(
 	     &( export_handle->items_export_path_size ),
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set items export path.",
 		 function );
 
 		return( -1 );
 	}
-	result = libsystem_file_exists(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcfile_file_exists_wide(
 		  export_handle->items_export_path,
 		  error );
-
+#else
+	result = libcfile_file_exists(
+		  export_handle->items_export_path,
+		  error );
+#endif
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
 		 function,
 		 export_handle->items_export_path );
@@ -676,16 +708,16 @@ int export_handle_create_items_export_path(
 int export_handle_open(
      export_handle_t *export_handle,
      const libcstring_system_character_t *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_open";
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -705,10 +737,10 @@ int export_handle_open(
 	     error ) != 1 )
 #endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open input file.",
 		 function );
 
@@ -722,16 +754,16 @@ int export_handle_open(
  */
 int export_handle_close(
      export_handle_t *export_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_close";
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -741,10 +773,10 @@ int export_handle_close(
 	     export_handle->input_file,
 	     error ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close input file.",
 		 function );
 
@@ -763,7 +795,7 @@ int export_handle_create_item_filename(
      size_t item_name_length,
      libcstring_system_character_t **item_filename,
      size_t *item_filename_size,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_create_item_filename";
 	int number_of_digits  = 0;
@@ -771,10 +803,10 @@ int export_handle_create_item_filename(
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -782,10 +814,10 @@ int export_handle_create_item_filename(
 	}
 	if( item_index < 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
 		 "%s: invalid item index value out of bounds.",
 		 function );
 
@@ -793,10 +825,10 @@ int export_handle_create_item_filename(
 	}
 	if( item_name == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item name.",
 		 function );
 
@@ -804,10 +836,10 @@ int export_handle_create_item_filename(
 	}
 	if( item_filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item filename.",
 		 function );
 
@@ -815,10 +847,10 @@ int export_handle_create_item_filename(
 	}
 	if( item_filename_size == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item filename size.",
 		 function );
 
@@ -841,10 +873,10 @@ int export_handle_create_item_filename(
 
 	if( *item_filename == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_MEMORY,
-		 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 		 "%s: unable to create item filename string.",
 		 function );
 
@@ -855,10 +887,10 @@ int export_handle_create_item_filename(
 	     item_name,
 	     item_name_length ) == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy item name.",
 		 function );
 
@@ -866,17 +898,17 @@ int export_handle_create_item_filename(
 	}
 	( *item_filename )[ item_name_length++ ] = (libcstring_system_character_t) '.';
 
-	if( libsystem_string_decimal_copy_from_64_bit(
+	if( libcsystem_string_decimal_copy_from_64_bit(
 	     *item_filename,
 	     *item_filename_size,
 	     &item_name_length,
 	     (uint64_t) item_index,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy item index.",
 		 function );
 
@@ -909,7 +941,7 @@ int export_handle_create_text_item_file(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      FILE **item_file_stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *item_filename_path = NULL;
 	static char *function                             = "export_handle_create_text_item_file";
@@ -918,10 +950,10 @@ int export_handle_create_text_item_file(
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -929,43 +961,59 @@ int export_handle_create_text_item_file(
 	}
 	if( item_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid item file stream.",
 		 function );
 
 		return( -1 );
 	}
-	if( libsystem_path_create(
-	     item_filename,
-	     item_filename_length,
-	     export_path,
-	     export_path_length,
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcpath_path_join_wide(
 	     &item_filename_path,
 	     &item_filename_path_size,
+	     export_path,
+	     export_path_length,
+	     item_filename,
+	     item_filename_length,
 	     error ) != 1 )
+#else
+	if( libcpath_path_join(
+	     &item_filename_path,
+	     &item_filename_path_size,
+	     export_path,
+	     export_path_length,
+	     item_filename,
+	     item_filename_length,
+	     error ) != 1 )
+#endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create item filename path.",
 		 function );
 
 		goto on_error;
 	}
-	result = libsystem_file_exists(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcfile_file_exists_wide(
 	          item_filename_path,
 	          error );
-
+#else
+	result = libcfile_file_exists(
+	          item_filename_path,
+	          error );
+#endif
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
 		 function,
 		 item_filename_path );
@@ -979,16 +1027,16 @@ int export_handle_create_text_item_file(
 
 		return( 0 );
 	}
-	*item_file_stream = libsystem_file_stream_open(
+	*item_file_stream = libcsystem_file_stream_open(
 	                     item_filename_path,
 	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
 
 	if( *item_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 item_filename_path );
@@ -1021,7 +1069,7 @@ int export_handle_export_table(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *item_filename = NULL;
 	libcstring_system_character_t *value_string  = NULL;
@@ -1040,10 +1088,10 @@ int export_handle_export_table(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
@@ -1051,10 +1099,10 @@ int export_handle_export_table(
 	}
 	if( table_name == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table name.",
 		 function );
 
@@ -1069,10 +1117,10 @@ int export_handle_export_table(
 	     &item_filename_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create item filename.",
 		 function );
 
@@ -1089,10 +1137,10 @@ int export_handle_export_table(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create table file.",
 		 function );
 
@@ -1123,10 +1171,10 @@ int export_handle_export_table(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of columns.",
 		 function );
 
@@ -1143,10 +1191,10 @@ int export_handle_export_table(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column: %d.",
 			 function,
 			 column_iterator );
@@ -1166,10 +1214,10 @@ int export_handle_export_table(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the size of the column name.",
 			 function );
 
@@ -1177,10 +1225,10 @@ int export_handle_export_table(
 		}
 		if( value_string_size == 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing column name.",
 			 function );
 
@@ -1191,10 +1239,10 @@ int export_handle_export_table(
 
 		if( value_string == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create column name string.",
 			 function );
 
@@ -1215,10 +1263,10 @@ int export_handle_export_table(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the column name.",
 			 function );
 
@@ -1238,10 +1286,10 @@ int export_handle_export_table(
 		     &column,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free column.",
 			 function );
 
@@ -1267,10 +1315,10 @@ int export_handle_export_table(
 	     &number_of_records,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of records.",
 		 function );
 
@@ -1286,10 +1334,10 @@ int export_handle_export_table(
 		     &record,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record: %d.",
 			 function,
 			 record_iterator );
@@ -1447,10 +1495,10 @@ int export_handle_export_table(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record.",
 			 function );
 
@@ -1460,10 +1508,10 @@ int export_handle_export_table(
 		     &record,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free record.",
 			 function );
 
@@ -1474,13 +1522,13 @@ int export_handle_export_table(
 			break;
 		}
 	}
-	if( libsystem_file_stream_close(
+	if( libcsystem_file_stream_close(
 	     table_file_stream ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close table file.",
 		 function );
 
@@ -1502,10 +1550,10 @@ int export_handle_export_table(
 			     log_handle,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
 				 "%s: unable to export indexes.",
 				 function );
 
@@ -1535,7 +1583,7 @@ on_error:
 	}
 	if( table_file_stream != NULL )
 	{
-		libsystem_file_stream_close(
+		libcsystem_file_stream_close(
 		 table_file_stream );
 	}
 	if( item_filename != NULL )
@@ -1557,7 +1605,7 @@ int export_handle_export_indexes(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *index_directory_name = NULL;
 	libcstring_system_character_t *index_name           = NULL;
@@ -1571,43 +1619,59 @@ int export_handle_export_indexes(
 
 	if( table == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid table.",
 		 function );
 
 		return( -1 );
 	}
-	if( libsystem_path_create(
-	     table_name,
-	     table_name_length,
-	     export_path,
-	     export_path_length,
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcpath_path_join_wide(
 	     &index_directory_name,
 	     &index_directory_name_size,
+	     export_path,
+	     export_path_length,
+	     table_name,
+	     table_name_length,
 	     error ) != 1 )
+#else
+	if( libcpath_path_join(
+	     &index_directory_name,
+	     &index_directory_name_size,
+	     export_path,
+	     export_path_length,
+	     table_name,
+	     table_name_length,
+	     error ) != 1 )
+#endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index directory.",
 		 function );
 
 		goto on_error;
 	}
-	result = libsystem_file_exists(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libcfile_file_exists_wide(
 	          index_directory_name,
 	          error );
-
+#else
+	result = libcfile_file_exists(
+	          index_directory_name,
+	          error );
+#endif
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_GENERIC,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_GENERIC,
 		 "%s: unable to determine if %" PRIs_LIBCSTRING_SYSTEM " exists.",
 		 function,
 		 index_directory_name );
@@ -1625,14 +1689,20 @@ int export_handle_export_indexes(
 
 		return( 1 );
 	}
-	if( libsystem_directory_make(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcpath_path_make_directory_wide(
 	     index_directory_name,
 	     error ) != 1 )
+#else
+	if( libcpath_path_make_directory(
+	     index_directory_name,
+	     error ) != 1 )
+#endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
 		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 index_directory_name );
@@ -1654,10 +1724,10 @@ int export_handle_export_indexes(
 	     &number_of_indexes,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of indexes.",
 		 function );
 
@@ -1675,10 +1745,10 @@ int export_handle_export_indexes(
 		     &index,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve index: %d.",
 			 function,
 			 index_iterator + 1 );
@@ -1698,10 +1768,10 @@ int export_handle_export_indexes(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the size of the index name.",
 			 function );
 
@@ -1709,10 +1779,10 @@ int export_handle_export_indexes(
 		}
 		if( index_name_size == 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing index name.",
 			 function );
 
@@ -1723,10 +1793,10 @@ int export_handle_export_indexes(
 
 		if( index_name == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create index name string.",
 			 function );
 
@@ -1747,10 +1817,10 @@ int export_handle_export_indexes(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the index name.",
 			 function );
 
@@ -1774,15 +1844,22 @@ int export_handle_export_indexes(
 		 export_handle->notify_stream,
 		 ".\n" );
 
-		if( libsystem_path_sanitize_filename(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libcpath_path_sanitize_filename_wide(
 		     index_name,
 		     &index_name_size,
 		     error ) != 1 )
+#else
+		if( libcpath_path_sanitize_filename(
+		     index_name,
+		     &index_name_size,
+		     error ) != 1 )
+#endif
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 			 "%s: unable sanitize index name.",
 			 function );
 
@@ -1799,10 +1876,10 @@ int export_handle_export_indexes(
 		     log_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export index: %d.",
 			 function,
 			 index_iterator );
@@ -1818,10 +1895,10 @@ int export_handle_export_indexes(
 		     &index,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free index.",
 			 function );
 
@@ -1862,7 +1939,7 @@ int export_handle_export_index(
      const libcstring_system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *item_filename = NULL;
 	libesedb_record_t *record                    = NULL;
@@ -1876,10 +1953,10 @@ int export_handle_export_index(
 
 	if( index == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index.",
 		 function );
 
@@ -1887,10 +1964,10 @@ int export_handle_export_index(
 	}
 	if( index_name == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid index name.",
 		 function );
 
@@ -1905,10 +1982,10 @@ int export_handle_export_index(
 	     &item_filename_size,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create item filename.",
 		 function );
 
@@ -1925,10 +2002,10 @@ int export_handle_export_index(
 
 	if( result == -1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create index file.",
 		 function );
 
@@ -1960,10 +2037,10 @@ int export_handle_export_index(
 	     0,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of columns.",
 		 function );
 
@@ -1980,10 +2057,10 @@ int export_handle_export_index(
 		     0,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column: %d.",
 			 function,
 			 column_iterator );
@@ -2003,10 +2080,10 @@ int export_handle_export_index(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the size of the column name.",
 			 function );
 
@@ -2014,10 +2091,10 @@ int export_handle_export_index(
 		}
 		if( value_string_size == 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing column name.",
 			 function );
 
@@ -2028,10 +2105,10 @@ int export_handle_export_index(
 
 		if( value_string == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create column name string.",
 			 function );
 
@@ -2052,10 +2129,10 @@ int export_handle_export_index(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the column name.",
 			 function );
 
@@ -2075,10 +2152,10 @@ int export_handle_export_index(
 		     &column,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free column.",
 			 function );
 
@@ -2105,10 +2182,10 @@ int export_handle_export_index(
 	     &number_of_records,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of records.",
 		 function );
 
@@ -2124,10 +2201,10 @@ int export_handle_export_index(
 		     &record,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record: %d.",
 			 function,
 			 record_iterator );
@@ -2146,10 +2223,10 @@ int export_handle_export_index(
 		}
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record.",
 			 function );
 
@@ -2159,23 +2236,23 @@ int export_handle_export_index(
 		     &record,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free record.",
 			 function );
 
 			goto on_error;
 		}
 	}
-	if( libsystem_file_stream_close(
+	if( libcsystem_file_stream_close(
 	     index_file_stream ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_CLOSE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_CLOSE_FAILED,
 		 "%s: unable to close index file.",
 		 function );
 
@@ -2207,7 +2284,7 @@ on_error:
 #endif
 	if( index_file_stream != NULL )
 	{
-		libsystem_file_stream_close(
+		libcsystem_file_stream_close(
 		 index_file_stream );
 	}
 	if( item_filename != NULL )
@@ -2225,7 +2302,7 @@ int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "export_handle_export_record";
 	int number_of_values  = 0;
@@ -2233,10 +2310,10 @@ int export_handle_export_record(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2244,10 +2321,10 @@ int export_handle_export_record(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2258,10 +2335,10 @@ int export_handle_export_record(
 	     &number_of_values,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of values.",
 		 function );
 
@@ -2278,10 +2355,10 @@ int export_handle_export_record(
 		     log_handle,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GENERIC,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
 			 value_iterator );
@@ -2312,7 +2389,7 @@ int export_handle_export_record_value(
      int record_value_entry,
      FILE *record_file_stream,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t filetime_string[ 32 ];
 
@@ -2343,10 +2420,10 @@ int export_handle_export_record_value(
 
 	if( record == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record.",
 		 function );
 
@@ -2354,10 +2431,10 @@ int export_handle_export_record_value(
 	}
 	if( record_file_stream == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid record file stream.",
 		 function );
 
@@ -2369,10 +2446,10 @@ int export_handle_export_record_value(
 	     &column_identifier,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column identifier of value: %d.",
 		 function,
 		 record_value_entry );
@@ -2385,10 +2462,10 @@ int export_handle_export_record_value(
 	     &column_type,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve column type of value: %d.",
 		 function,
 		 record_value_entry );
@@ -2403,10 +2480,10 @@ int export_handle_export_record_value(
 	     &value_flags,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value: %d.",
 		 function,
 		 record_value_entry );
@@ -2426,10 +2503,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve boolean value: %d.",
 					 function,
 					 record_value_entry );
@@ -2462,10 +2539,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 8-bit value: %d.",
 					 function,
 					 record_value_entry );
@@ -2491,10 +2568,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 16-bit value: %d.",
 					 function,
 					 record_value_entry );
@@ -2530,10 +2607,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 32-bit value: %d.",
 					 function,
 					 record_value_entry );
@@ -2569,10 +2646,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve 64-bit value: %d.",
 					 function,
 					 record_value_entry );
@@ -2607,10 +2684,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve filetime value: %d.",
 					 function,
 					 record_value_entry );
@@ -2623,10 +2700,10 @@ int export_handle_export_record_value(
 					     &filetime,
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 						 "%s: unable to create filetime.",
 						 function );
 
@@ -2637,10 +2714,10 @@ int export_handle_export_record_value(
 					     value_64bit,
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 						 "%s: unable to copy filetime from 64-bit value.",
 						 function );
 
@@ -2669,10 +2746,10 @@ int export_handle_export_record_value(
 #endif
 					if( result != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_COPY_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 						 "%s: unable to copy filetime to string.",
 						 function );
 
@@ -2686,10 +2763,10 @@ int export_handle_export_record_value(
 					     &filetime,
 					     error ) != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 						 "%s: unable to free filetime.",
 						 function );
 
@@ -2711,10 +2788,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve single precision floating point value: %d.",
 					 function,
 					 record_value_entry );
@@ -2739,10 +2816,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve double precision floating point value: %d.",
 					 function,
 					 record_value_entry );
@@ -2776,10 +2853,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
 					 function,
 					 record_value_entry,
@@ -2791,10 +2868,10 @@ int export_handle_export_record_value(
 				{
 					if( value_string_size == 0 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 						 "%s: missing value string.",
 						 function );
 
@@ -2805,10 +2882,10 @@ int export_handle_export_record_value(
 
 					if( value_string == NULL )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_MEMORY,
-						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 						 "%s: unable to create value string.",
 						 function );
 
@@ -2831,10 +2908,10 @@ int export_handle_export_record_value(
 #endif
 					if( result != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable to retrieve value string: %d.",
 						 function,
 						 record_value_entry );
@@ -2885,10 +2962,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
 					 function,
 					 record_value_entry,
@@ -2900,10 +2977,10 @@ int export_handle_export_record_value(
 				{
 					if( value_string_size == 0 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 						 "%s: missing value string.",
 						 function );
 
@@ -2914,10 +2991,10 @@ int export_handle_export_record_value(
 
 					if( value_string == NULL )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_MEMORY,
-						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 						 "%s: unable to create value string.",
 						 function );
 
@@ -2940,10 +3017,10 @@ int export_handle_export_record_value(
 #endif
 					if( result != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable to retrieve value string: %d.",
 						 function,
 						 record_value_entry );
@@ -2972,10 +3049,10 @@ int export_handle_export_record_value(
 
 				if( result == -1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve size of binary data: %d (%" PRIu32 ").",
 					 function,
 					 record_value_entry,
@@ -2987,10 +3064,10 @@ int export_handle_export_record_value(
 				{
 					if( binary_data_size == 0 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 						 "%s: missing binary data.",
 						 function );
 
@@ -3001,10 +3078,10 @@ int export_handle_export_record_value(
 
 					if( binary_data == NULL )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_MEMORY,
-						 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 						 "%s: unable to create binary data.",
 						 function );
 
@@ -3019,10 +3096,10 @@ int export_handle_export_record_value(
 
 					if( result != 1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable to retrieve binary data: %d.",
 						 function,
 						 record_value_entry );
@@ -3067,17 +3144,17 @@ int export_handle_export_record_value(
 			 "Unable to retrieve long value of record entry: %d.\n",
 			 record_value_entry );
 
-			if( libsystem_notify_verbose != 0 )
+			if( libcnotify_verbose != 0 )
 			{
-				libsystem_notify_printf(
+				libcnotify_printf(
 				 "%s: unable to retrieve long value of record entry: %d.",
 				 function,
 				 record_value_entry );
 			}
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve long value of record entry: %d.",
 			 function,
 			 record_value_entry );
@@ -3086,11 +3163,11 @@ int export_handle_export_record_value(
 			if( ( error != NULL )
 			 && ( *error != NULL ) )
 			{
-				libsystem_notify_print_error_backtrace(
+				libcnotify_print_error_backtrace(
 				 *error );
 			}
 #endif
-			liberror_error_free(
+			libcerror_error_free(
 			 error );
 		}
 		else
@@ -3100,10 +3177,10 @@ int export_handle_export_record_value(
 			     &number_of_long_value_segments,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve number of long value segments.",
 				 function );
 
@@ -3124,10 +3201,10 @@ int export_handle_export_record_value(
 				     &value_data_size,
 				     error ) != 1 )
 				{
-					liberror_error_set(
+					libcerror_error_set(
 					 error,
-					 LIBERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 					 "%s: unable to retrieve long value segment: %d of record entry: %d.",
 					 function,
 					 long_value_segment_iterator,
@@ -3142,13 +3219,14 @@ int export_handle_export_record_value(
 				if( value_data != NULL )
 				{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( LONG_VALUE_TEST )
-libsystem_notify_printf(
+libcnotify_printf(
  "LONG VALUE DATA: %d out of %d\n",
  long_value_segment_iterator + 1,
  number_of_long_value_segments );
-libsystem_notify_print_data(
+libcnotify_print_data(
  value_data,
- value_data_size );
+ value_data_size,
+ 0 );
 #endif
 				}
 			}
@@ -3156,10 +3234,10 @@ libsystem_notify_print_data(
 			     &long_value,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long value.",
 				 function );
 
@@ -3170,10 +3248,10 @@ libsystem_notify_print_data(
 			     &long_value,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 				 "%s: unable to free long value.",
 				 function );
 
@@ -3194,10 +3272,10 @@ libsystem_notify_print_data(
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve multi value of record entry: %d.",
 			 function,
 			 record_value_entry );
@@ -3209,10 +3287,10 @@ libsystem_notify_print_data(
 		     &number_of_multi_values,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve number of multi values.",
 			 function );
 
@@ -3234,10 +3312,10 @@ libsystem_notify_print_data(
 			     &value_data_size,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve multi value: %d of record entry: %d.",
 				 function,
 				 multi_value_iterator,
@@ -3266,10 +3344,10 @@ libsystem_notify_print_data(
 
 					if( result == -1 )
 					{
-						liberror_error_set(
+						libcerror_error_set(
 						 error,
-						 LIBERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 						 "%s: unable to retrieve size of string of multi value: %d of record entry: %d (%" PRIu32 ").",
 						 function,
 						 multi_value_iterator,
@@ -3289,10 +3367,10 @@ libsystem_notify_print_data(
 
 						if( value_string == NULL )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_MEMORY,
-							 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 							 "%s: unable to create value string.",
 							 function );
 
@@ -3319,10 +3397,10 @@ libsystem_notify_print_data(
 #endif
 						if( result != 1 )
 						{
-							liberror_error_set(
+							libcerror_error_set(
 							 error,
-							 LIBERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 							 "%s: unable to retrieve string of multi value: %d of record entry: %d.",
 							 function,
 							 multi_value_iterator,
@@ -3364,10 +3442,10 @@ libsystem_notify_print_data(
 		     &multi_value,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free multi value: %d.",
 			 function,
 			 multi_value_iterator );
@@ -3393,7 +3471,7 @@ int export_handle_export_file(
      const libcstring_system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	libcstring_system_character_t *table_name = NULL;
 	libesedb_table_t *table                   = NULL;
@@ -3405,10 +3483,10 @@ int export_handle_export_file(
 
 	if( export_handle == NULL )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
 		 function );
 
@@ -3419,10 +3497,10 @@ int export_handle_export_file(
 	     &number_of_tables,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve number of tables.",
 		 function );
 
@@ -3432,14 +3510,20 @@ int export_handle_export_file(
 	{
 		return( 0 );
 	}
-	if( libsystem_directory_make(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	if( libcpath_path_make_directory_wide(
 	     export_handle->items_export_path,
 	     error ) != 1 )
+#else
+	if( libcpath_path_make_directory(
+	     export_handle->items_export_path,
+	     error ) != 1 )
+#endif
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_WRITE_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_WRITE_FAILED,
 		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
 		 function,
 		 export_handle->items_export_path );
@@ -3461,10 +3545,10 @@ int export_handle_export_file(
 		     &table,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve table: %d.",
 			 function,
 			 table_index );
@@ -3484,10 +3568,10 @@ int export_handle_export_file(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the size of the table name.",
 			 function );
 
@@ -3495,10 +3579,10 @@ int export_handle_export_file(
 		}
 		if( table_name_size == 0 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table name.",
 			 function );
 
@@ -3509,10 +3593,10 @@ int export_handle_export_file(
 
 		if( table_name == NULL )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_MEMORY,
-			 LIBERROR_MEMORY_ERROR_INSUFFICIENT,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
 			 "%s: unable to create table name string.",
 			 function );
 
@@ -3533,10 +3617,10 @@ int export_handle_export_file(
 #endif
 		if( result != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_GET_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve the table name.",
 			 function );
 
@@ -3566,15 +3650,22 @@ int export_handle_export_file(
 			 export_handle->notify_stream,
 			 ".\n" );
 
-			if( libsystem_path_sanitize_filename(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			if( libcpath_path_sanitize_filename_wide(
 			     table_name,
 			     &table_name_size,
 			     error ) != 1 )
+#else
+			if( libcpath_path_sanitize_filename(
+			     table_name,
+			     &table_name_size,
+			     error ) != 1 )
+#endif
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 				 "%s: unable sanitize table name.",
 				 function );
 
@@ -3591,10 +3682,10 @@ int export_handle_export_file(
 			     log_handle,
 			     error ) != 1 )
 			{
-				liberror_error_set(
+				libcerror_error_set(
 				 error,
-				 LIBERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBERROR_RUNTIME_ERROR_GENERIC,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
 				 "%s: unable to export table: %d.",
 				 function,
 				 table_index );
@@ -3611,10 +3702,10 @@ int export_handle_export_file(
 		     &table,
 		     error ) != 1 )
 		{
-			liberror_error_set(
+			libcerror_error_set(
 			 error,
-			 LIBERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free table: %d.",
 			 function,
 			 table_index );

@@ -22,15 +22,14 @@
 #include <common.h>
 #include <types.h>
 
-#include <liberror.h>
-#include <libnotify.h>
-
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
 #include <stdio.h>
 
+#include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_notify.h"
 
 #if !defined( HAVE_LOCAL_LIBESEDB )
@@ -40,7 +39,7 @@
 void libesedb_notify_set_verbose(
       int verbose )
 {
-	libnotify_set_verbose(
+	libcnotify_verbose_set(
 	 verbose );
 }
 
@@ -49,18 +48,18 @@ void libesedb_notify_set_verbose(
  */
 int libesedb_notify_set_stream(
      FILE *stream,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_notify_set_stream";
 
-	if( libnotify_set_stream(
+	if( libcnotify_stream_set(
 	     stream,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBERROR_RUNTIME_ERROR_SET_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
 		 "%s: unable to set stream.",
 		 function );
 
@@ -75,18 +74,18 @@ int libesedb_notify_set_stream(
  */
 int libesedb_notify_stream_open(
      const char *filename,
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_notify_stream_open";
 
-	if( libnotify_stream_open(
+	if( libcnotify_stream_open(
 	     filename,
 	     error ) != 1 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open stream.",
 		 function );
 
@@ -99,17 +98,17 @@ int libesedb_notify_stream_open(
  * Returns 0 if successful or -1 on error
  */
 int libesedb_notify_stream_close(
-     liberror_error_t **error )
+     libcerror_error_t **error )
 {
 	static char *function = "libesedb_notify_stream_close";
 
-	if( libnotify_stream_close(
+	if( libcnotify_stream_close(
 	     error ) != 0 )
 	{
-		liberror_error_set(
+		libcerror_error_set(
 		 error,
-		 LIBERROR_ERROR_DOMAIN_IO,
-		 LIBERROR_IO_ERROR_OPEN_FAILED,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_OPEN_FAILED,
 		 "%s: unable to open stream.",
 		 function );
 
