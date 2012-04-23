@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDBTOOLS_LIBCPATH_H )
-#define _LIBESEDBTOOLS_LIBCPATH_H
+#if !defined( _ESEDBTOOLS_LIBCPATH_H )
+#define _ESEDBTOOLS_LIBCPATH_H
 
 #include <common.h>
 

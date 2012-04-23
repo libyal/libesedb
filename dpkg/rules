@@ -38,6 +38,8 @@ install_libesedb_tools:
 	install -p -m755 debian/tmp/usr/bin/* debian/libesedb-tools/usr/bin
 	install -p -m755 debian/tmp/usr/share/man/man1/* debian/libesedb-tools/usr/share/man/man1
 
+override_dh_auto_test:
+
 override_dh_installinit: install_libesedb install_libesedb_dev install_libesedb_tools
 
 override_dh_installmenu:
@@ -65,4 +67,10 @@ override_dh_gconf:
 override_dh_icons:
 
 override_dh_perl:
+
+override_dh_shlibdeps:
+	dh_shlibdeps -Llibesdb -l${PWD}/debian/tmp/usr/lib
+
+override_dh_makeshlibs:
+	dh_makeshlibs -Xlibesdb-dev
 

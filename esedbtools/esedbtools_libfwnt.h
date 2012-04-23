@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_LIBFWNT_H )
-#define _LIBESEDB_LIBFWNT_H
+#if !defined( _ESEDBTOOLS_LIBFWNT_H )
+#define _ESEDBTOOLS_LIBFWNT_H
 
 #include <common.h>
 

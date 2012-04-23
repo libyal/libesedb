@@ -37,6 +37,7 @@ esedbexport_SOURCES = \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
+	esedbtools_libfmapi.h \
 	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
 	export.c export.h \
@@ -75,6 +76,7 @@ esedbinfo_SOURCES = \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
+	esedbtools_libfmapi.h \
 	esedbtools_libuna.h \
 	info_handle.c info_handle.h
 
