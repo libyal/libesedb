@@ -39,6 +39,7 @@
 #include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
+#include "libesedb_value_data_handle.h"
 #include "libesedb_values_tree_value.h"
 
 #include "esedb_page_values.h"
@@ -519,6 +520,7 @@ int libesedb_values_tree_value_read_record(
 	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
 	libesedb_page_t *page                                           = NULL;
 	libesedb_page_value_t *page_value                               = NULL;
+	libesedb_value_data_handle_t *value_data_handle                 = NULL;
 	libfvalue_value_t *record_value                                 = NULL;
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
@@ -545,6 +547,7 @@ int libesedb_values_tree_value_read_record(
 	uint8_t record_value_type                                       = 0;
 	uint8_t tagged_data_types_format                                = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX;
 	int column_catalog_definition_iterator                          = 0;
+	int encoding                                                    = 0;
 	int number_of_column_catalog_definitions                        = 0;
 	int number_of_table_column_catalog_definitions                  = 0;
 	int number_of_template_table_column_catalog_definitions         = 0;
@@ -917,10 +920,12 @@ int libesedb_values_tree_value_read_record(
 			  column_catalog_definition->column_type ) );
 		}
 #endif
+/* TODO refactor to value type */
+
 		switch( column_catalog_definition->column_type )
 		{
 			case LIBESEDB_COLUMN_TYPE_NULL:
-				/* TODO handle this value type */
+/* TODO handle this value type */
 				record_value_type = LIBFVALUE_VALUE_TYPE_UNDEFINED;
 				break;
 
@@ -980,7 +985,7 @@ int libesedb_values_tree_value_read_record(
 				break;
 
 			case LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE:
-				/* TODO handle this value type */
+/* TODO handle this value type */
 				record_value_type = LIBFVALUE_VALUE_TYPE_UNDEFINED;
 				break;
 
@@ -995,16 +1000,15 @@ int libesedb_values_tree_value_read_record(
 
 				goto on_error;
 		}
-		if( libfvalue_value_initialize(
-		     &record_value,
-		     record_value_type,
+		if( libesedb_value_data_handle_initialize(
+		     &value_data_handle,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create record value.",
+			 "%s: unable to create value data handle.",
 			 function );
 
 			goto on_error;
@@ -1020,20 +1024,11 @@ int libesedb_values_tree_value_read_record(
 			{
 				record_value_codepage = io_handle->ascii_codepage;
 			}
-			if( libfvalue_value_set_codepage(
-			     record_value,
-			     record_value_codepage,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set value codepage.",
-				 function );
-
-				goto on_error;
-			}
+			encoding = record_value_codepage;
+		}
+		else
+		{
+			encoding = LIBFVALUE_ENDIAN_LITTLE;
 		}
 		if( column_catalog_definition->identifier <= 127 )
 		{
@@ -1053,11 +1048,11 @@ int libesedb_values_tree_value_read_record(
 					 0 );
 				}
 #endif
-				if( libfvalue_value_set_data(
-				     record_value,
+				if( libesedb_value_data_handle_set_data(
+				     value_data_handle,
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
 				     column_catalog_definition->size,
-				     LIBFVALUE_ENDIAN_LITTLE,
+				     encoding,
 				     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 				     error ) != 1 )
 				{
@@ -1126,11 +1121,11 @@ int libesedb_values_tree_value_read_record(
 							 0 );
 						}
 #endif
-						if( libfvalue_value_set_data(
-						     record_value,
+						if( libesedb_value_data_handle_set_data(
+						     value_data_handle,
 						     &( record_data[ variable_size_data_type_value_offset ] ),
 						     variable_size_data_type_size - previous_variable_size_data_type_size,
-						     LIBFVALUE_ENDIAN_LITTLE,
+						     encoding,
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
@@ -1205,7 +1200,6 @@ int libesedb_values_tree_value_read_record(
 						 tagged_data_type_size & 0x5fff );
 					}
 #endif
-
 					if( ( tagged_data_type_size & 0x8000 ) != 0 )
 					{
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1279,11 +1273,11 @@ int libesedb_values_tree_value_read_record(
 
 							goto on_error;
 						}
-						if( libfvalue_value_set_data(
-						     record_value,
+						if( libesedb_value_data_handle_set_data(
+						     value_data_handle,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     LIBFVALUE_ENDIAN_LITTLE,
+						     encoding,
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
@@ -1570,11 +1564,11 @@ int libesedb_values_tree_value_read_record(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
-						if( libfvalue_value_set_data(
-						     record_value,
+						if( libesedb_value_data_handle_set_data(
+						     value_data_handle,
 						     &( record_data[ tagged_data_type_value_offset ] ),
 						     tagged_data_type_size,
-						     LIBFVALUE_ENDIAN_LITTLE,
+						     encoding,
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
 						{
@@ -1591,6 +1585,33 @@ int libesedb_values_tree_value_read_record(
 				}
 			}
 		}
+		if( libfvalue_value_type_initialize_with_data_handle(
+		     &record_value,
+		     record_value_type,
+		     (intptr_t *) value_data_handle,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_value_data_handle_free,
+		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libesedb_value_data_handle_clone,
+
+		     (int (*)(intptr_t *, uint8_t **, size_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_data,
+		     (int (*)(intptr_t *, const uint8_t *, size_t, int, uint8_t, libcerror_error_t **)) &libesedb_value_data_handle_set_data,
+
+		     (int (*)(intptr_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_number_of_value_entries,
+		     (int (*)(intptr_t *, int, uint8_t **, size_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_value_entry,
+		     (int (*)(intptr_t *, int, const uint8_t *, size_t, int, libcerror_error_t **)) &libesedb_value_data_handle_set_value_entry,
+		     (int (*)(intptr_t *, int *, const uint8_t *, size_t, int, libcerror_error_t **)) &libesedb_value_data_handle_append_value_entry,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create record value.",
+			 function );
+
+			goto on_error;
+		}
+		value_data_handle = NULL;
+
 		if( libesedb_array_set_entry_by_index(
 		     values_array,
 		     column_catalog_definition_iterator,
@@ -1644,6 +1665,12 @@ on_error:
 	{
 		libfvalue_value_free(
 		 &record_value,
+		 NULL );
+	}
+	if( value_data_handle != NULL )
+	{
+		libesedb_value_data_handle_free(
+		 &value_data_handle,
 		 NULL );
 	}
 	return( -1 );

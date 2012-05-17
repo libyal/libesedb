@@ -34,7 +34,7 @@
 #include <libcstring_types.h>
 #include <libcstring_wide_string.h>
 
-#elif defined( HAVE_LIBCSTRING_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCSTRING_DLL_IMPORT
  * before including libcstring.h
@@ -45,8 +45,6 @@
 
 #include <libcstring.h>
 
-#else
-#error Missing libcstring.h
 #endif
 
 #endif

@@ -215,6 +215,7 @@ int libesedb_multi_value_get_value(
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value";
+	int encoding                                          = 0;
 
 	if( multi_value == NULL )
 	{
@@ -248,6 +249,7 @@ int libesedb_multi_value_get_value(
 	     value_index,
 	     value_data,
 	     value_data_size,
+	     &encoding,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -498,6 +500,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	size_t value_metadata_size                            = 0;
 	uint32_t column_type                                  = 0;
 	uint8_t value_flags                                   = 0;
+	int encoding                                          = 0;
 	int result                                            = 0;
 
 	if( multi_value == NULL )
@@ -569,6 +572,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 		     value_index,
 		     &entry_data,
 		     &entry_data_size,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -629,6 +633,7 @@ int libesedb_multi_value_get_value_utf8_string(
 	size_t value_metadata_size                            = 0;
 	uint32_t column_type                                  = 0;
 	uint8_t value_flags                                   = 0;
+	int encoding                                          = 0;
 	int result                                            = 0;
 
 	if( multi_value == NULL )
@@ -700,6 +705,7 @@ int libesedb_multi_value_get_value_utf8_string(
 		     value_index,
 		     &entry_data,
 		     &entry_data_size,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -761,6 +767,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	size_t value_metadata_size                            = 0;
 	uint32_t column_type                                  = 0;
 	uint8_t value_flags                                   = 0;
+	int encoding                                          = 0;
 	int result                                            = 0;
 
 	if( multi_value == NULL )
@@ -832,6 +839,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 		     value_index,
 		     &entry_data,
 		     &entry_data_size,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -892,6 +900,7 @@ int libesedb_multi_value_get_value_utf16_string(
 	size_t value_metadata_size                            = 0;
 	uint32_t column_type                                  = 0;
 	uint8_t value_flags                                   = 0;
+	int encoding                                          = 0;
 	int result                                            = 0;
 
 	if( multi_value == NULL )
@@ -963,6 +972,7 @@ int libesedb_multi_value_get_value_utf16_string(
 		     value_index,
 		     &entry_data,
 		     &entry_data_size,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1019,6 +1029,7 @@ int libesedb_multi_value_get_value_binary_data_size(
 	uint8_t *value_entry_data                             = NULL;
 	static char *function                                 = "libesedb_multi_value_get_value_binary_data_size";
 	uint32_t column_type                                  = 0;
+	int encoding                                          = 0;
 
 	if( multi_value == NULL )
 	{
@@ -1065,6 +1076,7 @@ int libesedb_multi_value_get_value_binary_data_size(
 	     value_index,
 	     &value_entry_data,
 	     binary_data_size,
+	     &encoding,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

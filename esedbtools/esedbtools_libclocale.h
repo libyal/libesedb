@@ -33,7 +33,7 @@
 #include <libclocale_locale.h>
 #include <libclocale_support.h>
 
-#elif defined( HAVE_LIBCLOCALE_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCLOCALE_DLL_IMPORT
  * before including libclocale.h
@@ -44,8 +44,6 @@
 
 #include <libclocale.h>
 
-#else
-#error Missing libclocale.h
 #endif
 
 #endif

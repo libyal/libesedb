@@ -33,7 +33,7 @@
 #include <libcnotify_stream.h>
 #include <libcnotify_verbose.h>
 
-#elif defined( HAVE_LIBCNOTIFY_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCNOTIFY_DLL_IMPORT
  * before including libcnotify.h
@@ -44,8 +44,6 @@
 
 #include <libcnotify.h>
 
-#else
-#error Missing libcnotify.h
 #endif
 
 #endif

@@ -1,6 +1,6 @@
 dnl Functions for libfwnt
 dnl
-dnl Version: 20120406
+dnl Version: 20120501
 
 dnl Function to detect if libfwnt is available
 dnl ac_libfwnt_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,20 +19,39 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libfwnt" = xno],
   [ac_cv_libfwnt=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libfwnt.h])
+  [dnl Check for a pkg-config file
+  AS_IF(
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libfwnt],
+    [libfwnt >= 20120426],
+    [ac_cv_libfwnt=yes],
+    [ac_cv_libfwnt=no])
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libfwnt" = xyes],
+   [ac_cv_libfwnt_CPPFLAGS="$pkg_cv_libfwnt_CFLAGS"
+   ac_cv_libfwnt_LIBADD="$pkg_cv_libfwnt_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libfwnt.h])
  
   AS_IF(
-   [test "x$ac_cv_header_libfwnt_h" = xno],
-   [ac_cv_libfwnt=no],
-   [ac_cv_libfwnt=yes
-   AC_CHECK_LIB(
-    fdatetime,
-    libfwnt_get_version,
-    [ac_cv_libfwnt_dummy=yes],
-    [ac_cv_libfwnt=no])
+    [test "x$ac_cv_header_libfwnt_h" = xno],
+    [ac_cv_libfwnt=no],
+    [dnl Check for the individual functions
+    ac_cv_libfwnt=yes
+
+    AC_CHECK_LIB(
+     fwnt,
+     libfwnt_get_version,
+     [ac_cv_libfwnt_dummy=yes],
+     [ac_cv_libfwnt=no])
   
-   dnl TODO add functions
+    dnl TODO add functions
+
+    ac_cv_libfwnt_LIBADD="-lfwnt"
+    ])
    ])
   ])
 
@@ -42,8 +61,6 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
    [HAVE_LIBFWNT],
    [1],
    [Define to 1 if you have the `fwnt' library (-lfwnt).])
-
-  ac_cv_libfwnt_LIBADD="-lfwnt"
   ])
 
  AS_IF(
@@ -66,23 +83,8 @@ AC_DEFUN([AX_LIBFWNT_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libfwnt],
-   [libfwnt >= 20120405],
-   [ac_cv_libfwnt=yes],
-   [ac_cv_libfwnt=no])
-
-  ac_cv_libfwnt_CPPFLAGS="$pkg_cv_libfwnt_CFLAGS"
-  ac_cv_libfwnt_LIBADD="$pkg_cv_libfwnt_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libfwnt" != xyes],
-  [AX_LIBFWNT_CHECK_LIB])
+ AX_LIBFWNT_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(

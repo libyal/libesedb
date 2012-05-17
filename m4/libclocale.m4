@@ -1,6 +1,6 @@
 dnl Functions for libclocale
 dnl
-dnl Version: 20120407
+dnl Version: 20120509
 
 dnl Function to detect if libclocale is available
 dnl ac_libclocale_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,20 +19,87 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libclocale" = xno],
   [ac_cv_libclocale=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libclocale.h])
- 
+  [dnl Check for a pkg-config file
   AS_IF(
-   [test "x$ac_cv_header_libclocale_h" = xno],
-   [ac_cv_libclocale=no],
-   [ac_cv_libclocale=yes
-   AC_CHECK_LIB(
-    clocale,
-    libclocale_get_version,
-    [ac_cv_libclocale_dummy=yes],
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libclocale],
+    [libclocale >= 20120425],
+    [ac_cv_libclocale=yes],
     [ac_cv_libclocale=no])
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libclocale" = xyes],
+   [ac_cv_libclocale_CPPFLAGS="$pkg_cv_libclocale_CFLAGS"
+   ac_cv_libclocale_LIBADD="$pkg_cv_libclocale_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libclocale.h])
+ 
+   AS_IF(
+    [test "x$ac_cv_header_libclocale_h" = xno],
+    [ac_cv_libclocale=no],
+    [dnl Check for the individual functions
+    ac_cv_libclocale=yes
+
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_get_version,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+ 
+    dnl Codepage functions 
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_codepage,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_codepage_get,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_codepage_set,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_codepage_copy_from_string,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
   
-   dnl TODO add functions
+   AS_IF(
+    [test "x$ac_cv_enable_wide_character_type" != xno],
+    [AC_CHECK_LIB(
+     clocale,
+     libclocale_codepage_copy_from_string_wide,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+    ])
+
+    dnl Locale functions 
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_locale_get_codepage,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_locale_get_decimal_point,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+
+    dnl Support functions 
+    AC_CHECK_LIB(
+     clocale,
+     libclocale_initialize,
+     [ac_cv_libclocale_dummy=yes],
+     [ac_cv_libclocale=no])
+ 
+    ac_cv_libclocale_LIBADD="-lclocale"
+    ])
    ])
   ])
 
@@ -42,8 +109,6 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
    [HAVE_LIBCLOCALE],
    [1],
    [Define to 1 if you have the `clocale' library (-lclocale).])
-
-  ac_cv_libclocale_LIBADD="-lclocale"
   ])
 
  AS_IF(
@@ -139,23 +204,8 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libclocale],
-   [libclocale >= 20120405],
-   [ac_cv_libclocale=yes],
-   [ac_cv_libclocale=no])
-
-  ac_cv_libclocale_CPPFLAGS="$pkg_cv_libclocale_CFLAGS"
-  ac_cv_libclocale_LIBADD="$pkg_cv_libclocale_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libclocale" != xyes],
-  [AX_LIBCLOCALE_CHECK_LIB])
+ AX_LIBCLOCALE_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(
@@ -191,7 +241,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_ENABLE],
   [test "x$ac_cv_libclocale" = xyes],
   [AC_SUBST(
    [ax_libclocale_pc_libs_private],
-   [-lstring])
+   [-lclocale])
   ])
 
  AS_IF(

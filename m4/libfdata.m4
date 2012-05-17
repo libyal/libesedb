@@ -1,6 +1,6 @@
 dnl Functions for libfdata
 dnl
-dnl Version: 20120409
+dnl Version: 20120501
 
 dnl Function to detect if libfdata is available
 dnl ac_libfdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,20 +19,39 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libfdata" = xno],
   [ac_cv_libfdata=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libfdata.h])
- 
+  [dnl Check for a pkg-config file
   AS_IF(
-   [test "x$ac_cv_header_libfdata_h" = xno],
-   [ac_cv_libfdata=no],
-   [ac_cv_libfdata=yes
-   AC_CHECK_LIB(
-    fdata,
-    libfdata_get_version,
-    [ac_cv_libfdata_dummy=yes],
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libfdata],
+    [libfdata >= 20120405],
+    [ac_cv_libfdata=yes],
     [ac_cv_libfdata=no])
-  
-   dnl TODO add functions
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libfdata" = xyes],
+   [ac_cv_libfdata_CPPFLAGS="$pkg_cv_libfdata_CFLAGS"
+   ac_cv_libfdata_LIBADD="$pkg_cv_libfdata_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libfdata.h])
+ 
+   AS_IF(
+    [test "x$ac_cv_header_libfdata_h" = xno],
+    [ac_cv_libfdata=no],
+    [dnl Check for the individual functions
+    ac_cv_libfdata=yes
+ 
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_get_version,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+   
+    dnl TODO add functions
+ 
+    ac_cv_libfdata_LIBADD="-lfdata"
+    ])
    ])
   ])
 
@@ -42,8 +61,6 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
    [HAVE_LIBFDATA],
    [1],
    [Define to 1 if you have the `fdata' library (-lfdata).])
-
-  ac_cv_libfdata_LIBADD="-lfdata"
   ])
 
  AS_IF(
@@ -66,23 +83,8 @@ AC_DEFUN([AX_LIBFDATA_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libfdata],
-   [libfdata >= 20120405],
-   [ac_cv_libfdata=yes],
-   [ac_cv_libfdata=no])
-
-  ac_cv_libfdata_CPPFLAGS="$pkg_cv_libfdata_CFLAGS"
-  ac_cv_libfdata_LIBADD="$pkg_cv_libfdata_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libfdata" != xyes],
-  [AX_LIBFDATA_CHECK_LIB])
+ AX_LIBFDATA_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(

@@ -1,4 +1,5 @@
 TODO
+* windows search add support for windows 8 SystemIndex_PropertyStore
 * update msvscpp files
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
 * handle compressed values inside the library
@@ -119,6 +120,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20120517
+* updated dependencies
 
 20120423
 * fixes for deployment

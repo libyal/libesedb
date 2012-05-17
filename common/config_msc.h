@@ -1,7 +1,7 @@
 /*
  * Configuration file for Microsoft Visual Studio C++ compiler
  *
- * Copyright (c) 2006-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+ * Copyright (c) 2006-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,7 +24,7 @@
 
 /* Define to the address where bug reports for this package should be sent.
  */
-#define PACKAGE_BUGREPORT "jbmetz@users.sourceforge.net"
+#define PACKAGE_BUGREPORT "joachim.metz@gmail.com"
 
 /* Define the size of the wide character for WINAPI
  */

@@ -1,6 +1,6 @@
 dnl Functions for libcstring
 dnl
-dnl Version: 20120408
+dnl Version: 20120501
 
 dnl Function to detect if libcstring is available
 dnl ac_libcstring_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,20 +19,43 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libcstring" = xno],
   [ac_cv_libcstring=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libcstring.h])
- 
-  AS_IF(
+  [AS_IF(
    [test "x$ac_cv_header_libcstring_h" = xno],
    [ac_cv_libcstring=no],
-   [ac_cv_libcstring=yes
-   AC_CHECK_LIB(
-    cstring,
-    libcstring_get_version,
-    [ac_cv_libcstring_dummy=yes],
-    [ac_cv_libcstring=no])
+   [dnl Check for a pkg-config file
+   AS_IF(
+    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+    [PKG_CHECK_MODULES(
+     [libcstring],
+     [libcstring >= 20120425],
+     [ac_cv_libcstring=yes],
+     [ac_cv_libcstring=no])
+    ])
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libcstring" = xyes],
+   [ac_cv_libcstring_CPPFLAGS="$pkg_cv_libcstring_CFLAGS"
+   ac_cv_libcstring_LIBADD="$pkg_cv_libcstring_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libcstring.h])
+ 
+   AS_IF(
+    [test "x$ac_cv_with_libcstring" = xno],
+    [ac_cv_libcstring=no],
+    [dnl Check for the individual functions
+    ac_cv_libcstring=yes
+
+    AC_CHECK_LIB(
+     cstring,
+     libcstring_get_version,
+     [ac_cv_libcstring_dummy=yes],
+     [ac_cv_libcstring=no])
   
-   dnl TODO add functions
+    dnl TODO add functions
+
+    ac_cv_libcstring_LIBADD="-lcstring"
+    ])
    ])
   ])
 
@@ -42,8 +65,6 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LIB],
    [HAVE_LIBCSTRING],
    [1],
    [Define to 1 if you have the `cstring' library (-lcstring).])
-
-  ac_cv_libcstring_LIBADD="-lcstring"
   ])
 
  AS_IF(
@@ -231,23 +252,8 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libcstring],
-   [libcstring >= 20120405],
-   [ac_cv_libcstring=yes],
-   [ac_cv_libcstring=no])
-
-  ac_cv_libcstring_CPPFLAGS="$pkg_cv_libcstring_CFLAGS"
-  ac_cv_libcstring_LIBADD="$pkg_cv_libcstring_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libcstring" != xyes],
-  [AX_LIBCSTRING_CHECK_LIB])
+ AX_LIBCSTRING_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(
@@ -283,7 +289,7 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_ENABLE],
   [test "x$ac_cv_libcstring" = xyes],
   [AC_SUBST(
    [ax_libcstring_pc_libs_private],
-   [-lstring])
+   [-lcstring])
   ])
 
  AS_IF(

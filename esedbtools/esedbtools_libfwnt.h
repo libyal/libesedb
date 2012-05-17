@@ -32,7 +32,7 @@
 #include <libfwnt_security_identifier.h>
 #include <libfwnt_types.h>
 
-#elif defined( HAVE_LIBFWNT_H )
+#else
 
 /* If libtool DLL support is enabled set LIBFWNT_DLL_IMPORT
  * before including libfwnt.h
@@ -43,8 +43,6 @@
 
 #include <libfwnt.h>
 
-#else
-#error Missing libfwnt.h
 #endif
 
 #endif

@@ -41,7 +41,7 @@
 #include <libfdata_types.h>
 #include <libfdata_vector.h>
 
-#elif defined( HAVE_LIBFDATA_H )
+#else
 
 /* If libtool DLL support is enabled set LIBFDATA_DLL_IMPORT
  * before including libfdata.h
@@ -52,8 +52,6 @@
 
 #include <libfdata.h>
 
-#else
-#error Missing libfdata.h
 #endif
 
 #endif

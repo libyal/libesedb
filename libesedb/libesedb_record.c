@@ -910,7 +910,7 @@ int libesedb_record_get_value(
 	uint8_t *value_metadata                     = NULL;
 	static char *function                       = "libesedb_record_get_value";
 	size_t value_metadata_size                  = 0;
-	uint8_t value_byte_order                    = 0;
+	int encoding                                = 0;
 
 	if( record == NULL )
 	{
@@ -956,7 +956,7 @@ int libesedb_record_get_value(
 	     record_value,
 	     value_data,
 	     value_data_size,
-	     &value_byte_order,
+	     &encoding,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -2007,6 +2007,7 @@ int libesedb_record_get_value_utf8_string_size(
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2139,6 +2140,7 @@ int libesedb_record_get_value_utf8_string_size(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2201,6 +2203,7 @@ int libesedb_record_get_value_utf8_string(
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2333,6 +2336,7 @@ int libesedb_record_get_value_utf8_string(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2395,6 +2399,7 @@ int libesedb_record_get_value_utf16_string_size(
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2527,6 +2532,7 @@ int libesedb_record_get_value_utf16_string_size(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2589,6 +2595,7 @@ int libesedb_record_get_value_utf16_string(
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2721,6 +2728,7 @@ int libesedb_record_get_value_utf16_string(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2782,8 +2790,8 @@ int libesedb_record_get_value_binary_data_size(
 	size_t entry_data_size                                   = 0;
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
-	uint8_t value_byte_order                                 = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2904,6 +2912,7 @@ int libesedb_record_get_value_binary_data_size(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2927,7 +2936,7 @@ int libesedb_record_get_value_binary_data_size(
 			           record_value,
 			           &value_data,
 			           binary_data_size,
-			           &value_byte_order,
+			           &encoding,
 			           error );
 		}
 		if( result != 1 )
@@ -2965,6 +2974,7 @@ int libesedb_record_get_value_binary_data(
 	size_t value_metadata_size                               = 0;
 	uint32_t column_type                                     = 0;
 	uint8_t value_flags                                      = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -3085,6 +3095,7 @@ int libesedb_record_get_value_binary_data(
 			     0,
 			     &entry_data,
 			     &entry_data_size,
+			     &encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -3144,7 +3155,7 @@ int libesedb_record_get_long_value(
 	static char *function                                    = "libesedb_record_get_long_value";
 	size_t value_data_size                                   = 0;
 	size_t value_metadata_size                               = 0;
-	uint8_t value_byte_order                                 = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -3288,7 +3299,7 @@ int libesedb_record_get_long_value(
 		     record_value,
 		     &value_data,
 		     &value_data_size,
-		     &value_byte_order,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3350,8 +3361,9 @@ int libesedb_record_get_multi_value(
 	uint16_t value_entry_offset                              = 0;
 	uint16_t value_entry_offset_index                        = 0;
 	uint16_t value_entry_size                                = 0;
-	uint8_t value_byte_order                                 = 0;
+	int encoding                                             = 0;
 	int result                                               = 0;
+	int value_entry_index                                    = 0;
 
 	if( record == NULL )
 	{
@@ -3506,7 +3518,7 @@ int libesedb_record_get_multi_value(
 		     record_value,
 		     &value_data,
 		     &value_data_size,
-		     &value_byte_order,
+		     &encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3588,20 +3600,6 @@ int libesedb_record_get_multi_value(
 
 			return( -1 );
 		}
-		if( libfvalue_value_resize_value_entries(
-		     record_value,
-		     (int) number_of_value_entries,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
-			 "%s: unable resize value entries.",
-			 function );
-
-			return( -1 );
-		}
 		for( value_entry_offset_index = 1;
 		     value_entry_offset_index < number_of_value_entries;
 		     value_entry_offset_index++ )
@@ -3639,11 +3637,12 @@ int libesedb_record_get_multi_value(
 			}
 			value_entry_size = value_16bit - value_entry_offset;
 
-			if( libfvalue_value_set_value_entry(
+			if( libfvalue_value_append_entry_data(
 			     record_value,
-			     (int) ( value_entry_offset_index - 1 ),
+			     &value_entry_index,
 			     (size_t) value_entry_offset,
 			     (size_t) value_entry_size,
+			     encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -3660,11 +3659,12 @@ int libesedb_record_get_multi_value(
 		}
 		value_entry_size = (uint16_t) value_data_size - value_entry_offset;
 
-		if( libfvalue_value_set_value_entry(
+		if( libfvalue_value_append_entry_data(
 		     record_value,
-		     (int) ( value_entry_offset_index - 1 ),
+		     &value_entry_index,
 		     (size_t) value_entry_offset,
 		     (size_t) value_entry_size,
+		     encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

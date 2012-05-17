@@ -35,7 +35,7 @@
 #include <libfmapi_debug.h>
 #endif
 
-#elif defined( HAVE_LIBFMAPI_H )
+#else
 
 /* If libtool DLL support is enabled set LIBFMAPI_DLL_IMPORT
  * before including libfmapi.h
@@ -46,8 +46,6 @@
 
 #include <libfmapi.h>
 
-#else
-#error Missing libfmapi.h
 #endif
 
 #endif

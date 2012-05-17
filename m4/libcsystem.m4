@@ -1,6 +1,6 @@
 dnl Functions for libcsystem
 dnl
-dnl Version: 20120406
+dnl Version: 20120501
 
 dnl Function to detect if libcsystem is available
 dnl ac_libcsystem_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,20 +19,39 @@ AC_DEFUN([AX_LIBCSYSTEM_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libcsystem" = xno],
   [ac_cv_libcsystem=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libcsystem.h])
- 
+  [dnl Check for a pkg-config file
   AS_IF(
-   [test "x$ac_cv_header_libcsystem_h" = xno],
-   [ac_cv_libcsystem=no],
-   [ac_cv_libcsystem=yes
-   AC_CHECK_LIB(
-    fdatetime,
-    libcsystem_get_version,
-    [ac_cv_libcsystem_dummy=yes],
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libcsystem],
+    [libcsystem >= 20120425],
+    [ac_cv_libcsystem=yes],
     [ac_cv_libcsystem=no])
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libcsystem" = xyes],
+   [ac_cv_libcsystem_CPPFLAGS="$pkg_cv_libcsystem_CFLAGS"
+   ac_cv_libcsystem_LIBADD="$pkg_cv_libcsystem_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libcsystem.h])
   
-   dnl TODO add functions
+   AS_IF(
+    [test "x$ac_cv_header_libcsystem_h" = xno],
+    [ac_cv_libcsystem=no],
+    [dnl Check for the individual functions
+    ac_cv_libcsystem=yes
+ 
+    AC_CHECK_LIB(
+     csystem,
+     libcsystem_get_version,
+     [ac_cv_libcsystem_dummy=yes],
+     [ac_cv_libcsystem=no])
+   
+    dnl TODO add functions
+ 
+    ac_cv_libcsystem_LIBADD="-lcsystem"
+    ])
    ])
   ])
 
@@ -42,8 +61,6 @@ AC_DEFUN([AX_LIBCSYSTEM_CHECK_LIB],
    [HAVE_LIBCSYSTEM],
    [1],
    [Define to 1 if you have the `csystem' library (-lcsystem).])
-
-  ac_cv_libcsystem_LIBADD="-lcsystem"
   ])
 
  AS_IF(
@@ -286,23 +303,8 @@ AC_DEFUN([AX_LIBCSYSTEM_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libcsystem],
-   [libcsystem >= 20120405],
-   [ac_cv_libcsystem=yes],
-   [ac_cv_libcsystem=no])
-
-  ac_cv_libcsystem_CPPFLAGS="$pkg_cv_libcsystem_CFLAGS"
-  ac_cv_libcsystem_LIBADD="$pkg_cv_libcsystem_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libcsystem" != xyes],
-  [AX_LIBCSYSTEM_CHECK_LIB])
+ AX_LIBCSYSTEM_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(

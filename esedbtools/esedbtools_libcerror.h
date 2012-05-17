@@ -33,7 +33,7 @@
 #include <libcerror_system.h>
 #include <libcerror_types.h>
 
-#elif defined( HAVE_LIBCERROR_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCERROR_DLL_IMPORT
  * before including libcerror.h
@@ -44,8 +44,6 @@
 
 #include <libcerror.h>
 
-#else
-#error Missing libcerror.h
 #endif
 
 #endif

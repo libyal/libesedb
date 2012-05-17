@@ -535,7 +535,7 @@ int export_exchange_record_value_filetime(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY ) )
@@ -548,7 +548,7 @@ int export_exchange_record_value_filetime(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_record_get_value(
 	     record,
@@ -566,7 +566,7 @@ int export_exchange_record_value_filetime(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
@@ -582,7 +582,7 @@ int export_exchange_record_value_filetime(
 				 function,
 				 value_data_size );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_initialize(
 			     &filetime,
@@ -595,7 +595,7 @@ int export_exchange_record_value_filetime(
 				 "%s: unable to create filetime.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_copy_from_byte_stream(
 			     filetime,
@@ -611,27 +611,21 @@ int export_exchange_record_value_filetime(
 				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
-				libfdatetime_filetime_free(
-				 &filetime,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
-			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #else
 			result = libfdatetime_filetime_copy_to_utf8_string(
 			          filetime,
 			          (uint8_t *) filetime_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
-			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #endif
 			if( result != 1 )
@@ -643,11 +637,7 @@ int export_exchange_record_value_filetime(
 				 "%s: unable to copy filetime to string.",
 				 function );
 
-				libfdatetime_filetime_free(
-				 &filetime,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_free(
 			     &filetime,
@@ -660,7 +650,7 @@ int export_exchange_record_value_filetime(
 				 "%s: unable to free filetime.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			fprintf(
 			 record_file_stream,
@@ -676,6 +666,15 @@ int export_exchange_record_value_filetime(
 		 record_file_stream );
 	}
 	return( 1 );
+
+on_error:
+	if( filetime != NULL )
+	{
+		libfdatetime_filetime_free(
+		 &filetime,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Exports a GUID value in a binary data table record value
@@ -688,7 +687,7 @@ int export_exchange_record_value_guid(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t guid_string[ LIBFGUID_IDENTIFIER_STRING_SIZE ];
+	libcstring_system_character_t guid_string[ 48 ];
 
 	libfguid_identifier_t *guid = NULL;
 	uint8_t *value_data         = NULL;
@@ -809,13 +808,15 @@ int export_exchange_record_value_guid(
 				result = libfguid_identifier_copy_to_utf16_string(
 					  guid,
 					  (uint16_t *) guid_string,
-					  LIBFGUID_IDENTIFIER_STRING_SIZE,
+					  48,
+					  LIBFGUID_STRING_FORMAT_USE_LOWER_CASE,
 					  error );
 #else
 				result = libfguid_identifier_copy_to_utf8_string(
 					  guid,
 					  (uint8_t *) guid_string,
-					  LIBFGUID_IDENTIFIER_STRING_SIZE,
+					  48,
+					  LIBFGUID_STRING_FORMAT_USE_LOWER_CASE,
 					  error );
 #endif
 				if( result != 1 )
@@ -1324,7 +1325,7 @@ int export_exchange_record_value_sid(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
@@ -1336,7 +1337,7 @@ int export_exchange_record_value_sid(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_record_get_value(
 	     record,
@@ -1354,7 +1355,7 @@ int export_exchange_record_value_sid(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
@@ -1371,12 +1372,13 @@ int export_exchange_record_value_sid(
 				 "%s: unable to create SID.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libfwnt_security_identifier_copy_from_byte_stream(
 			     sid,
 			     value_data,
 			     value_data_size,
+			     LIBFWNT_ENDIAN_BIG,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -1386,15 +1388,12 @@ int export_exchange_record_value_sid(
 				 "%s: unable to copy byte stream to SID.",
 				 function );
 
-				libfwnt_security_identifier_free(
-				 &sid,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			result = libfwnt_security_identifier_get_string_size(
 				  sid,
 				  &sid_string_size,
+				  0,
 				  error );
 
 			if( result != 1 )
@@ -1406,11 +1405,7 @@ int export_exchange_record_value_sid(
 				 "%s: unable to retrieve SID string size.",
 				 function );
 
-				libfwnt_security_identifier_free(
-				 &sid,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			/* It is assumed that the SID string cannot be larger than 127 characters
 			 * otherwise using dynamic allocation is more appropriate
@@ -1424,23 +1419,21 @@ int export_exchange_record_value_sid(
 				 "%s: SID string size value exceeds maximum.",
 				 function );
 
-				libfwnt_security_identifier_free(
-				 &sid,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfwnt_security_identifier_copy_to_utf16_string(
 			          sid,
 			          (uint16_t *) sid_string,
 			          128,
+			          0,
 			          error );
 #else
 			result = libfwnt_security_identifier_copy_to_utf8_string(
 			          sid,
 			          (uint8_t *) sid_string,
 			          128,
+			          0,
 			          error );
 #endif
 			if( result != 1 )
@@ -1452,11 +1445,7 @@ int export_exchange_record_value_sid(
 				 "%s: unable to copy SID to string.",
 				 function );
 
-				libfwnt_security_identifier_free(
-				 &sid,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libfwnt_security_identifier_free(
 			     &sid,
@@ -1469,7 +1458,7 @@ int export_exchange_record_value_sid(
 				 "%s: unable to free SID.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			fprintf(
 			 record_file_stream,
@@ -1485,6 +1474,15 @@ int export_exchange_record_value_sid(
 		 record_file_stream );
 	}
 	return( 1 );
+
+on_error:
+	if( sid != NULL )
+	{
+		libfwnt_security_identifier_free(
+		 &sid,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Exports a string in a binary data table record value

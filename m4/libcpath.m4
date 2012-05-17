@@ -1,6 +1,6 @@
 dnl Functions for libcpath
 dnl
-dnl Version: 20120409
+dnl Version: 20120501
 
 dnl Function to detect if libcpath is available
 dnl ac_libcpath_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,159 +19,178 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libcpath" = xno],
   [ac_cv_libcpath=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libcpath.h])
- 
+  [dnl Check for a pkg-config file
   AS_IF(
-   [test "x$ac_cv_header_libcpath_h" = xno],
-   [ac_cv_libcpath=no],
-   [ac_cv_libcpath=yes
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_get_version,
-    [ac_cv_libcpath_dummy=yes],
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libcpath],
+    [libcpath >= 20120425],
+    [ac_cv_libcpath=yes],
     [ac_cv_libcpath=no])
-  
-   dnl Path functions
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_change_directory,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_get_current_working_directory,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_get_full_path,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_join,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_make_directory,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_sanitize,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_path_sanitize_filename,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
+   ])
 
+  AS_IF(
+   [test "x$ac_cv_libcpath" = xyes],
+   [ac_cv_libcpath_CPPFLAGS="$pkg_cv_libcpath_CFLAGS"
+   ac_cv_libcpath_LIBADD="$pkg_cv_libcpath_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libcpath.h])
+ 
    AS_IF(
-    [test "x$ac_cv_enable_wide_character_type" != xno],
-    [AC_CHECK_LIB(
-     cpath,
-     libcpath_path_change_directory_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_get_current_working_directory_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_get_full_path_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_join_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_make_directory_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_sanitize_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_path_sanitize_filename_wide,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    ])
+    [test "x$ac_cv_header_libcpath_h" = xno],
+    [ac_cv_libcpath=no],
+    [dnl Check for the individual functions
+    ac_cv_libcpath=yes
 
-   dnl Split string functions
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_string_split,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_split_string_free,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_split_string_get_string,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_split_string_get_number_of_segments,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_split_string_get_segment_by_index,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-   AC_CHECK_LIB(
-    cpath,
-    libcpath_narrow_split_string_set_segment_by_index,
-    [ac_cv_libcpath_dummy=yes],
-    [ac_cv_libcpath=no])
-
-   AS_IF(
-    [test "x$ac_cv_enable_wide_character_type" != xno],
-    [AC_CHECK_LIB(
-    cpath,
-     libcpath_wide_string_split,
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_get_version,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+   
+    dnl Path functions
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_path_change_directory,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
     AC_CHECK_LIB(
      cpath,
-     libcpath_wide_split_string_free,
+     libcpath_path_get_current_working_directory,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
     AC_CHECK_LIB(
      cpath,
-     libcpath_wide_split_string_get_string,
+     libcpath_path_get_full_path,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
     AC_CHECK_LIB(
      cpath,
-     libcpath_wide_split_string_get_number_of_segments,
+     libcpath_path_join,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
     AC_CHECK_LIB(
      cpath,
-     libcpath_wide_split_string_get_segment_by_index,
+     libcpath_path_make_directory,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
     AC_CHECK_LIB(
      cpath,
-     libcpath_wide_split_string_set_segment_by_index,
+     libcpath_path_sanitize,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_path_sanitize_filename,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+ 
+    AS_IF(
+     [test "x$ac_cv_enable_wide_character_type" != xno],
+     [AC_CHECK_LIB(
+      cpath,
+      libcpath_path_change_directory_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_get_current_working_directory_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_get_full_path_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_join_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_make_directory_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_sanitize_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_path_sanitize_filename_wide,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     ])
+ 
+    dnl Split string functions
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_string_split,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_split_string_free,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_split_string_get_string,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_split_string_get_number_of_segments,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_split_string_get_segment_by_index,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+    AC_CHECK_LIB(
+     cpath,
+     libcpath_narrow_split_string_set_segment_by_index,
+     [ac_cv_libcpath_dummy=yes],
+     [ac_cv_libcpath=no])
+ 
+    AS_IF(
+     [test "x$ac_cv_enable_wide_character_type" != xno],
+     [AC_CHECK_LIB(
+     cpath,
+      libcpath_wide_string_split,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_wide_split_string_free,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_wide_split_string_get_string,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_wide_split_string_get_number_of_segments,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_wide_split_string_get_segment_by_index,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     AC_CHECK_LIB(
+      cpath,
+      libcpath_wide_split_string_set_segment_by_index,
+      [ac_cv_libcpath_dummy=yes],
+      [ac_cv_libcpath=no])
+     ])
+ 
+    ac_cv_libcpath_LIBADD="-lcpath"
     ])
    ])
   ])
@@ -182,8 +201,6 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
    [HAVE_LIBCPATH],
    [1],
    [Define to 1 if you have the `cpath' library (-lcpath).])
-
-  ac_cv_libcpath_LIBADD="-lcpath"
   ])
 
  AS_IF(
@@ -306,23 +323,8 @@ AC_DEFUN([AX_LIBCPATH_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libcpath],
-   [libcpath >= 20120405],
-   [ac_cv_libcpath=yes],
-   [ac_cv_libcpath=no])
-
-  ac_cv_libcpath_CPPFLAGS="$pkg_cv_libcpath_CFLAGS"
-  ac_cv_libcpath_LIBADD="$pkg_cv_libcpath_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libcpath" != xyes],
-  [AX_LIBCPATH_CHECK_LIB])
+ AX_LIBCPATH_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(
@@ -358,7 +360,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_ENABLE],
   [test "x$ac_cv_libcpath" = xyes],
   [AC_SUBST(
    [ax_libcpath_pc_libs_private],
-   [-lstring])
+   [-lcpath])
   ])
 
  AS_IF(

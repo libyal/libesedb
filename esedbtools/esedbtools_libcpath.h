@@ -36,7 +36,7 @@
 #include <libcpath_wide_split_string.h>
 #include <libcpath_wide_string.h>
 
-#elif defined( HAVE_LIBCPATH_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCPATH_DLL_IMPORT
  * before including libcpath.h
@@ -47,8 +47,6 @@
 
 #include <libcpath.h>
 
-#else
-#error Missing libcpath.h
 #endif
 
 #endif

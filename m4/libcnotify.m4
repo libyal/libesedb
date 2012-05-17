@@ -1,6 +1,6 @@
 dnl Functions for libcnotify
 dnl
-dnl Version: 20120407
+dnl Version: 20120501
 
 dnl Function to detect if libcnotify is available
 dnl ac_libcnotify_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -19,59 +19,78 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
  AS_IF(
   [test "x$ac_cv_with_libcnotify" = xno],
   [ac_cv_libcnotify=no],
-  [dnl Check for headers
-  AC_CHECK_HEADERS([libcnotify.h])
- 
+  [dnl Check for a pkg-config file
   AS_IF(
-   [test "x$ac_cv_header_libcnotify_h" = xno],
-   [ac_cv_libcnotify=no],
-   [ac_cv_libcnotify=yes
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_get_version,
-    [ac_cv_libcnotify_dummy=yes],
+   [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
+   [PKG_CHECK_MODULES(
+    [libcnotify],
+    [libcnotify >= 20120425],
+    [ac_cv_libcnotify=yes],
     [ac_cv_libcnotify=no])
-  
-   dnl Print functions
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_printf,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_print_data,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_print_error_backtrace,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-  
-   dnl Stream functions
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_stream_set,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_stream_open,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_stream_close,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
-  
-   dnl Verbose functions
-   AC_CHECK_LIB(
-    cnotify,
-    libcnotify_verbose_set,
-    [ac_cv_libcnotify_dummy=yes],
-    [ac_cv_libcnotify=no])
+   ])
+
+  AS_IF(
+   [test "x$ac_cv_libcnotify" = xyes],
+   [ac_cv_libcnotify_CPPFLAGS="$pkg_cv_libcnotify_CFLAGS"
+   ac_cv_libcnotify_LIBADD="$pkg_cv_libcnotify_LIBS"],
+   [dnl Check for headers
+   AC_CHECK_HEADERS([libcnotify.h])
+ 
+   AS_IF(
+    [test "x$ac_cv_header_libcnotify_h" = xno],
+    [ac_cv_libcnotify=no],
+    [dnl Check for the individual functions
+    ac_cv_libcnotify=yes
+
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_get_version,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+   
+    dnl Print functions
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_printf,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_print_data,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_print_error_backtrace,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+   
+    dnl Stream functions
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_stream_set,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_stream_open,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_stream_close,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+   
+    dnl Verbose functions
+    AC_CHECK_LIB(
+     cnotify,
+     libcnotify_verbose_set,
+     [ac_cv_libcnotify_dummy=yes],
+     [ac_cv_libcnotify=no])
+
+    ac_cv_libcnotify_LIBADD="-lcnotify"
+    ])
    ])
   ])
 
@@ -81,8 +100,6 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
    [HAVE_LIBCNOTIFY],
    [1],
    [Define to 1 if you have the `cnotify' library (-lcnotify).])
-
-  ac_cv_libcnotify_LIBADD=="-lcnotify"
   ])
 
  AS_IF(
@@ -126,23 +143,8 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_ENABLE],
   [auto-detect],
   [DIR])
 
- dnl Check for a pkg-config file
- AS_IF(
-  [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
-  [PKG_CHECK_MODULES(
-   [libcnotify],
-   [libcnotify >= 20120405],
-   [ac_cv_libcnotify=yes],
-   [ac_cv_libcnotify=no])
-
-  ac_cv_libcnotify_CPPFLAGS="$pkg_cv_libcnotify_CFLAGS"
-  ac_cv_libcnotify_LIBADD="$pkg_cv_libcnotify_LIBS"
- ])
-
  dnl Check for a shared library version
- AS_IF(
-  [test "x$ac_cv_libcnotify" != xyes],
-  [AX_LIBCNOTIFY_CHECK_LIB])
+ AX_LIBCNOTIFY_CHECK_LIB
 
  dnl Check if the dependencies for the local library version
  AS_IF(
@@ -178,7 +180,7 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_ENABLE],
   [test "x$ac_cv_libcnotify" = xyes],
   [AC_SUBST(
    [ax_libcnotify_pc_libs_private],
-   [-lstring])
+   [-lcnotify])
   ])
 
  AS_IF(

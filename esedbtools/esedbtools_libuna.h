@@ -42,7 +42,7 @@
 #include <libuna_utf8_string.h>
 #include <libuna_types.h>
 
-#elif defined( HAVE_LIBUNA_H )
+#else
 
 /* If libtool DLL support is enabled set LIBUNA_DLL_IMPORT
  * before including libuna.h
@@ -53,8 +53,6 @@
 
 #include <libuna.h>
 
-#else
-#error Missing libuna.h
 #endif
 
 #endif

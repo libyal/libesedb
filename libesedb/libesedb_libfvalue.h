@@ -30,17 +30,16 @@
 
 #include <libfvalue_codepage.h>
 #include <libfvalue_definitions.h>
+#include <libfvalue_floating_point.h>
+#include <libfvalue_integer.h>
 #include <libfvalue_split_string.h>
 #include <libfvalue_string.h>
 #include <libfvalue_table.h>
 #include <libfvalue_types.h>
 #include <libfvalue_value.h>
+#include <libfvalue_value_type.h>
 
-#if defined( HAVE_DEBUG_OUTPUT )
-#include <libfvalue_debug.h>
-#endif
-
-#elif defined( HAVE_LIBFVALUE_H )
+#else
 
 /* If libtool DLL support is enabled set LIBFVALUE_DLL_IMPORT
  * before including libfvalue.h
@@ -51,8 +50,6 @@
 
 #include <libfvalue.h>
 
-#else
-#error Missing libfvalue.h
 #endif
 
 #endif

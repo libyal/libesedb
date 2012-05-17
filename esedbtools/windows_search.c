@@ -2004,7 +2004,7 @@ int windows_search_export_record_value_filetime(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
@@ -2016,7 +2016,7 @@ int windows_search_export_record_value_filetime(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_record_get_value(
 	     record,
@@ -2034,7 +2034,7 @@ int windows_search_export_record_value_filetime(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
@@ -2050,7 +2050,7 @@ int windows_search_export_record_value_filetime(
 				 function,
 				 value_data_size );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_initialize(
 			     &filetime,
@@ -2063,7 +2063,7 @@ int windows_search_export_record_value_filetime(
 				 "%s: unable to create filetime.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_copy_from_byte_stream(
 			     filetime,
@@ -2079,27 +2079,21 @@ int windows_search_export_record_value_filetime(
 				 "%s: unable to copy byte stream to filetime.",
 				 function );
 
-				libfdatetime_filetime_free(
-				 &filetime,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
-			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #else
 			result = libfdatetime_filetime_copy_to_utf8_string(
 			          filetime,
 			          (uint8_t *) filetime_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_MICRO_SECONDS,
-			          LIBFDATETIME_DATE_TIME_FORMAT_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #endif
 			if( result != 1 )
@@ -2111,11 +2105,7 @@ int windows_search_export_record_value_filetime(
 				 "%s: unable to copy filetime to string.",
 				 function );
 
-				libfdatetime_filetime_free(
-				 &filetime,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( libfdatetime_filetime_free(
 			     &filetime,
@@ -2128,7 +2118,7 @@ int windows_search_export_record_value_filetime(
 				 "%s: unable to free filetime.",
 				 function );
 
-				return( -1 );
+				goto on_error;
 			}
 			fprintf(
 			 record_file_stream,
@@ -2144,6 +2134,15 @@ int windows_search_export_record_value_filetime(
 		 record_file_stream );
 	}
 	return( 1 );
+
+on_error:
+	if( filetime != NULL )
+	{
+		libfdatetime_filetime_free(
+		 &filetime,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Exports a compressed string in a binary data table record value

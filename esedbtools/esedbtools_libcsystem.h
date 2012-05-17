@@ -39,7 +39,7 @@
 #include <libcsystem_support.h>
 #include <libcsystem_unused.h>
 
-#elif defined( HAVE_LIBCSYSTEM_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCSYSTEM_DLL_IMPORT
  * before including libcsystem.h
@@ -50,8 +50,6 @@
 
 #include <libcsystem.h>
 
-#else
-#error Missing libcsystem.h
 #endif
 
 #endif
