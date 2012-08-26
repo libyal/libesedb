@@ -1,6 +1,6 @@
 dnl Functions for libfvalue
 dnl
-dnl Version: 20120501
+dnl Version: 20120701
 
 dnl Function to detect if libfvalue available
 dnl ac_libfvalue_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -48,75 +48,98 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
    
-    dnl UTF-8 string functions
+    dnl Integer functions
     AC_CHECK_LIB(
      fvalue,
-     libfvalue_utf8_string_decimal_copy_from_8bit,
+     libfvalue_string_size_from_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf8_string_copy_from_integer,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
     AC_CHECK_LIB(
      fvalue,
-     libfvalue_utf8_string_decimal_copy_to_8bit,
+     libfvalue_utf8_string_with_index_copy_from_integer,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
     AC_CHECK_LIB(
      fvalue,
-     libfvalue_utf8_string_decimal_copy_from_16bit,
+     libfvalue_utf8_string_copy_to_integer,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
     AC_CHECK_LIB(
      fvalue,
-     libfvalue_utf8_string_decimal_copy_to_16bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf8_string_decimal_copy_from_32bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf8_string_decimal_copy_to_32bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf8_string_decimal_copy_from_64bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf8_string_decimal_copy_to_64bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf8_string_hexadecimal_copy_to_64bit,
+     libfvalue_utf8_string_with_index_copy_to_integer,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
  
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf16_string_copy_from_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf16_string_with_index_copy_from_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf16_string_copy_to_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf16_string_with_index_copy_to_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+ 
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf32_string_copy_from_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf32_string_with_index_copy_from_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf32_string_copy_to_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_utf32_string_with_index_copy_to_integer,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+ 
+    dnl String functions
     AC_CHECK_LIB(
      fvalue,
      libfvalue_utf8_string_split,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
  
-    dnl UTF-16 string functions
     AC_CHECK_LIB(
      fvalue,
-     libfvalue_utf16_string_decimal_copy_from_8bit,
+     libfvalue_utf16_string_split,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
-    AC_CHECK_LIB(
-     fvalue,
-     libfvalue_utf16_string_decimal_copy_from_16bit,
-     [ac_cv_libfvalue_dummy=yes],
-     [ac_cv_libfvalue=no])
-   
+ 
     dnl Split string functions
     AC_CHECK_LIB(
      fvalue,
      libfvalue_split_utf8_string_free,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_split_utf8_string_get_string,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
     AC_CHECK_LIB(
@@ -127,6 +150,27 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
     AC_CHECK_LIB(
      fvalue,
      libfvalue_split_utf8_string_get_segment_by_index,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+ 
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_split_utf16_string_free,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_split_utf16_string_get_string,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_split_utf16_string_get_number_of_segments,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_split_utf16_string_get_segment_by_index,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
  

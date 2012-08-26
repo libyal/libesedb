@@ -92,7 +92,7 @@ AC_DEFUN([AX_LIBCERROR_CHECK_LIB],
      [ac_cv_libcerror_dummy=yes],
      [ac_cv_libcerror=no])
 
-    ac_cv_libcerror_LIBADD=="-lcerror"
+    ac_cv_libcerror_LIBADD="-lcerror"
     ])
    ])
   ])

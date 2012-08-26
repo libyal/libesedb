@@ -1,16 +1,16 @@
 This work was packaged for Debian by:
 
-    Joachim Metz <jbmetz@users.sourceforge.net> on @DATE@
+    Joachim Metz <joachim.metz@gmail.com> on @DATE@
 
-It was downloaded from http://libesedb.sourceforge.net
+It was downloaded from http://code.google.com/p/libesedb/
 
 Upstream Author(s):
 
-    Joachim Metz <jbmetz@users.sourceforge.net>
+    Joachim Metz <joachim.metz@gmail.com>
 
 Copyright:
 
-    Copyright (C) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+    Copyright (C) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
 
 License:
 
@@ -33,7 +33,7 @@ Public License can be found in `/usr/share/common-licenses/LGPL-3'.
 
 The Debian packaging is:
 
-    Copyright (C) 2010-2012, Joachim Metz <jbmetz@users.sourceforge.net>
+    Copyright (C) 2010-2012, Joachim Metz <joachim.metz@gmail.com>
 
 and is licensed under the GPL version 3,
 see `/usr/share/common-licenses/GPL-3'.

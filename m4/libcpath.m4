@@ -1,6 +1,6 @@
 dnl Functions for libcpath
 dnl
-dnl Version: 20120501
+dnl Version: 20120701
 
 dnl Function to detect if libcpath is available
 dnl ac_libcpath_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcpath],
-    [libcpath >= 20120425],
+    [libcpath >= 20120701],
     [ac_cv_libcpath=yes],
     [ac_cv_libcpath=no])
    ])
@@ -120,72 +120,6 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
      AC_CHECK_LIB(
       cpath,
       libcpath_path_sanitize_filename_wide,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     ])
- 
-    dnl Split string functions
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_string_split,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_split_string_free,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_split_string_get_string,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_split_string_get_number_of_segments,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_split_string_get_segment_by_index,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
-    AC_CHECK_LIB(
-     cpath,
-     libcpath_narrow_split_string_set_segment_by_index,
-     [ac_cv_libcpath_dummy=yes],
-     [ac_cv_libcpath=no])
- 
-    AS_IF(
-     [test "x$ac_cv_enable_wide_character_type" != xno],
-     [AC_CHECK_LIB(
-     cpath,
-      libcpath_wide_string_split,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     AC_CHECK_LIB(
-      cpath,
-      libcpath_wide_split_string_free,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     AC_CHECK_LIB(
-      cpath,
-      libcpath_wide_split_string_get_string,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     AC_CHECK_LIB(
-      cpath,
-      libcpath_wide_split_string_get_number_of_segments,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     AC_CHECK_LIB(
-      cpath,
-      libcpath_wide_split_string_get_segment_by_index,
-      [ac_cv_libcpath_dummy=yes],
-      [ac_cv_libcpath=no])
-     AC_CHECK_LIB(
-      cpath,
-      libcpath_wide_split_string_set_segment_by_index,
       [ac_cv_libcpath_dummy=yes],
       [ac_cv_libcpath=no])
      ])
@@ -287,7 +221,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_FUNC_MKDIR],
 dnl Function to detect if libcpath dependencies are available
 AC_DEFUN([AX_LIBCPATH_CHECK_LOCAL],
  [dnl Headers included in libcpath/libcpath_path.h
- AC_CHECK_HEADERS([errno.h sys/stat.h])
+ AC_CHECK_HEADERS([errno.h sys/stat.h sys/syslimits.h])
 
  dnl Path functions used in libcpath/libcpath_path.h
  AC_CHECK_FUNCS([chdir getcwd])

@@ -1,4 +1,6 @@
 TODO
+* complete libfvalue update integration - multi value
+
 * windows search add support for windows 8 SystemIndex_PropertyStore
 * update msvscpp files
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
@@ -120,6 +122,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20120826
+* updated dependencies
+* project move
 
 20120517
 * updated dependencies

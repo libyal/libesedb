@@ -5,10 +5,10 @@ Summary: Library to support the Extensible Storage Engine (ESE) Database File (E
 Group: System Environment/Libraries
 License: LGPL
 Source: %{name}-%{version}.tar.gz
-URL: http://libesedb.sourceforge.net
+URL: http://code.google.com/p/libesedb/
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-@libesedb_spec_requires@ @ax_libbfio_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcpath_spec_requires@ @ax_libcstring_spec_requires@ @ax_libfcache_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libuna_spec_requires@
-@libesedb_spec_build_requires@ @ax_libbfio_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcstring_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libuna_spec_build_requires@
+@libesedb_spec_requires@ @ax_libbfio_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcpath_spec_requires@ @ax_libcsplit_spec_requires@ @ax_libcstring_spec_requires@ @ax_libfcache_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libuna_spec_requires@
+@libesedb_spec_build_requires@ @ax_libbfio_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcstring_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libuna_spec_build_requires@
 
 %description
 libesedb is a library to support the Extensible Storage Engine (ESE) Database File (EDB) format
@@ -71,12 +71,12 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
-* Sat Apr 14 2012 Joachim Metz <jbmetz@users.sourceforge.net> 20120414-1
+* Sat Apr 14 2012 Joachim Metz <joachim.metz@gmail.com> 20120414-1
 - Changes due to dependency changes
 
-* Sat Oct  8 2011 Joachim Metz <jbmetz@users.sourceforge.net> 20111008-1
+* Sat Oct  8 2011 Joachim Metz <joachim.metz@gmail.com> 20111008-1
 - Changes for configure update and README files
 
-* Sun Jun 27 2010 Joachim Metz <jbmetz@users.sourceforge.net> 20100627-1
+* Sun Jun 27 2010 Joachim Metz <joachim.metz@gmail.com> 20100627-1
 - Clean up of previous version of spec file
 

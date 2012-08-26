@@ -29,8 +29,13 @@
 extern "C" {
 #endif
 
-#define _BYTE_STREAM_ENDIAN_BIG		(uint8_t) 'b'
-#define _BYTE_STREAM_ENDIAN_LITTLE	(uint8_t) 'l'
+#define _BYTE_STREAM_HOST_IS_ENDIAN_BIG		( *((uint32_t *) "\x01\x02\x03\x04" ) == 0x01020304 )
+#define _BYTE_STREAM_HOST_IS_ENDIAN_LITTLE	( *((uint32_t *) "\x01\x02\x03\x04" ) == 0x04030201 )
+#define _BYTE_STREAM_HOST_IS_ENDIAN_MIDDLE	( *((uint32_t *) "\x01\x02\x03\x04" ) == 0x02010403 )
+
+#define _BYTE_STREAM_ENDIAN_BIG			(uint8_t) 'b'
+#define _BYTE_STREAM_ENDIAN_LITTLE		(uint8_t) 'l'
+#define _BYTE_STREAM_ENDIAN_MIDDLE		(uint8_t) 'm'
 
 typedef union byte_stream_float32
 {
