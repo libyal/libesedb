@@ -31,7 +31,6 @@
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 

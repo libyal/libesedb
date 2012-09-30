@@ -30,6 +30,13 @@ CXXFLAGS="$MINGWFLAGS"
 CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP ./configure --host=i586-mingw32msvc --enable-winapi=yes
 CC=$CC CXX=$CXX AR=$AR OBJDUMP=$OBJDUMP RANLIB=$RANLIB STRIP=$STRIP CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" make
 
+If you get compiler errors like:
+#error WINAPI file open function for Windows 2000 or earlier NOT implemented yet
+
+That means WINVER is not set or set to a version predating Windows XP (0x0501)
+and you'll have to set WINVER manually like:
+CFLAGS=-DWINVER=0x0501 ./configure --host=i386-mingw32 --enable-winapi=yes
+
 You should end up with the following DLL:
 libesedb-<version>/libesedb/.libs/libesedb-1.dll
 

@@ -28,10 +28,10 @@
 #include "libesedb_index.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
 #include "libesedb_page_tree.h"
 #include "libesedb_record.h"
 #include "libesedb_table.h"
@@ -1363,7 +1363,7 @@ int libesedb_table_get_number_of_columns(
 	if( ( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
 	 && ( internal_table->template_table_definition != NULL ) )
 	{
-		if( libesedb_list_get_number_of_elements(
+		if( libcdata_list_get_number_of_elements(
 		     internal_table->template_table_definition->column_catalog_definition_list,
 		     &template_table_number_of_columns,
 		     error ) != 1 )
@@ -1378,7 +1378,7 @@ int libesedb_table_get_number_of_columns(
 			return( -1 );
 		}
 	}
-	if( libesedb_list_get_number_of_elements(
+	if( libcdata_list_get_number_of_elements(
 	     internal_table->table_definition->column_catalog_definition_list,
 	     number_of_columns,
 	     error ) != 1 )
@@ -1488,7 +1488,7 @@ int libesedb_table_get_column(
 	{
 		if( internal_table->template_table_definition != NULL )
 		{
-			if( libesedb_list_get_number_of_elements(
+			if( libcdata_list_get_number_of_elements(
 			     internal_table->template_table_definition->column_catalog_definition_list,
 			     &template_table_number_of_columns,
 			     error ) != 1 )
@@ -1506,7 +1506,7 @@ int libesedb_table_get_column(
 	}
 	if( column_entry < template_table_number_of_columns )
 	{
-		if( libesedb_list_get_value_by_index(
+		if( libcdata_list_get_value_by_index(
 		     internal_table->template_table_definition->column_catalog_definition_list,
 		     column_entry,
 		     (intptr_t **) &column_catalog_definition,
@@ -1524,7 +1524,7 @@ int libesedb_table_get_column(
 	}
 	else
 	{
-		if( libesedb_list_get_value_by_index(
+		if( libcdata_list_get_value_by_index(
 		     internal_table->table_definition->column_catalog_definition_list,
 		     column_entry - template_table_number_of_columns,
 		     (intptr_t **) &column_catalog_definition,
@@ -1604,7 +1604,7 @@ int libesedb_table_get_number_of_indexes(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_number_of_elements(
+	if( libcdata_list_get_number_of_elements(
 	     internal_table->table_definition->index_catalog_definition_list,
 	     number_of_indexes,
 	     error ) != 1 )
@@ -1691,7 +1691,7 @@ int libesedb_table_get_index(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value_by_index(
+	if( libcdata_list_get_value_by_index(
 	     internal_table->table_definition->index_catalog_definition_list,
 	     index_entry,
 	     (intptr_t **) &index_catalog_definition,

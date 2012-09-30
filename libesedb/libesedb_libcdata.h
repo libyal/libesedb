@@ -1,7 +1,7 @@
 /*
- * The internal definitions
+ * The internal libcdata header
  *
- * Copyright (c) 2008-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,37 +19,38 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( LIBCPATH_INTERNAL_DEFINITIONS_H )
-#define LIBCPATH_INTERNAL_DEFINITIONS_H
+#if !defined( _LIBESEDB_LIBCDATA_H )
+#define _LIBESEDB_LIBCDATA_H
 
 #include <common.h>
-#include <types.h>
 
-/* Define HAVE_LOCAL_LIBCPATH for local use of libcpath
+/* Define HAVE_LOCAL_LIBCDATA for local use of libcdata
  */
-#if !defined( HAVE_LOCAL_LIBCPATH )
-#include <libcpath/definitions.h>
+#if defined( HAVE_LOCAL_LIBCDATA )
 
-/* The definitions in <libcpath/definitions.h> are copied here
- * for local use of libcpath
+#include <libcdata_array.h>
+#include <libcdata_btree.h>
+#include <libcdata_definitions.h>
+#include <libcdata_list.h>
+#include <libcdata_list_element.h>
+#include <libcdata_range_list.h>
+#include <libcdata_tree_node.h>
+#include <libcdata_types.h>
+
+#elif defined( HAVE_LIBCDATA_H )
+
+/* If libtool DLL support is enabled set LIBCDATA_DLL_IMPORT
+ * before including libcdata.h
  */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCDATA_DLL_IMPORT
+#endif
+
+#include <libcdata.h>
+
 #else
-
-#define LIBCPATH_VERSION			20120715
-
-/* The libcstring version string
- */
-#define LIBCPATH_VERSION_STRING			"20120715"
-
-#if defined( WINAPI )
-#define LIBCPATH_SEPARATOR			'\\'
-
-#else
-#define LIBCPATH_SEPARATOR			'/'
-
-#endif /* defined( WINAPI ) */
-
-#endif /* !defined( HAVE_LOCAL_LIBCPATH ) */
+#error Missing libcdata.h
+#endif
 
 #endif
 

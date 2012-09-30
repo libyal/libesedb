@@ -27,6 +27,7 @@
 #include "libesedb_catalog.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
@@ -95,7 +96,7 @@ int libesedb_catalog_initialize(
 
 		goto on_error;
 	}
-	if( libesedb_list_initialize(
+	if( libcdata_list_initialize(
 	     &( ( *catalog )->table_definition_list ),
 	     error ) != 1 )
 	{
@@ -144,7 +145,7 @@ int libesedb_catalog_free(
 	}
 	if( *catalog != NULL )
 	{
-		if( libesedb_list_free(
+		if( libcdata_list_free(
 		     &( ( *catalog )->table_definition_list ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_table_definition_free,
 		     error ) != 1 )
@@ -187,7 +188,7 @@ int libesedb_catalog_get_number_of_table_definitions(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_number_of_elements(
+	if( libcdata_list_get_number_of_elements(
 	     catalog->table_definition_list,
 	     number_of_table_definitions,
 	     error ) != 1 )
@@ -226,7 +227,7 @@ int libesedb_catalog_get_table_definition_by_index(
 
 		return( -1 );
 	}
-	if( libesedb_list_get_value_by_index(
+	if( libcdata_list_get_value_by_index(
 	     catalog->table_definition_list,
 	     table_definition_index,
 	     (intptr_t **) table_definition,
@@ -255,9 +256,10 @@ int libesedb_catalog_get_table_definition_by_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libesedb_list_element_t *list_element = NULL;
+	libcdata_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_catalog_get_table_definition_by_name";
-	int list_element_iterator             = 0;
+	int element_index                     = 0;
+	int number_of_elements                = 0;
 
 	if( catalog == NULL )
 	{
@@ -314,38 +316,65 @@ int libesedb_catalog_get_table_definition_by_name(
 
 		return( -1 );
 	}
-	list_element = catalog->table_definition_list->first_element;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < catalog->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
+	if( libcdata_list_get_first_element(
+	     catalog->table_definition_list,
+	     &list_element,
+	     error ) != 1 )
 	{
-		if( list_element == NULL )
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve first element of table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_list_get_number_of_elements(
+	     catalog->table_definition_list,
+	     &number_of_elements,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements in table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	for( element_index = 0;
+	     element_index < number_of_elements;
+	     element_index++ )
+	{
+		if( libcdata_list_element_get_value(
+		     list_element,
+		     (intptr_t **) table_definition,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value from element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
+		if( *table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
+			 "%s: missing table definition: %d.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
-		if( list_element->value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid list element: %d - missing value.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
 		if( ( *table_definition )->table_catalog_definition == NULL )
 		{
 			libcerror_error_set(
@@ -354,7 +383,7 @@ int libesedb_catalog_get_table_definition_by_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table definition: %d - missing table catalog definition.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -366,7 +395,7 @@ int libesedb_catalog_get_table_definition_by_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table catalog definition: %d - missing name.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -380,7 +409,21 @@ int libesedb_catalog_get_table_definition_by_name(
 				return( 1 );
 			}
 		}
-		list_element = list_element->next_element;
+		if( libcdata_list_element_get_next_element(
+		     list_element,
+		     &list_element,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve next element of element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
 	}
 	*table_definition = NULL;
 
@@ -397,9 +440,10 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libesedb_list_element_t *list_element = NULL;
+	libcdata_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_catalog_get_table_definition_by_utf8_name";
-	int list_element_iterator             = 0;
+	int element_index                     = 0;
+	int number_of_elements                = 0;
 	int result                            = 0;
 
 	if( catalog == NULL )
@@ -457,38 +501,65 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 
 		return( -1 );
 	}
-	list_element = catalog->table_definition_list->first_element;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < catalog->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
+	if( libcdata_list_get_first_element(
+	     catalog->table_definition_list,
+	     &list_element,
+	     error ) != 1 )
 	{
-		if( list_element == NULL )
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve first element of table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_list_get_number_of_elements(
+	     catalog->table_definition_list,
+	     &number_of_elements,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements in table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	for( element_index = 0;
+	     element_index < number_of_elements;
+	     element_index++ )
+	{
+		if( libcdata_list_element_get_value(
+		     list_element,
+		     (intptr_t **) table_definition,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value from element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
+		if( *table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
+			 "%s: missing table definition: %d.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
-		if( list_element->value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid list element: %d - missing value.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
 		if( ( *table_definition )->table_catalog_definition == NULL )
 		{
 			libcerror_error_set(
@@ -497,7 +568,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table definition: %d - missing table catalog definition.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -509,7 +580,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table catalog definition: %d - missing name.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -529,7 +600,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: unable to compare UTF-8 string with table catalog definition: %d name.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -537,7 +608,21 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 		{
 			return( 1 );
 		}
-		list_element = list_element->next_element;
+		if( libcdata_list_element_get_next_element(
+		     list_element,
+		     &list_element,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve next element of element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
 	}
 	*table_definition = NULL;
 
@@ -554,9 +639,10 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libesedb_list_element_t *list_element = NULL;
+	libcdata_list_element_t *list_element = NULL;
 	static char *function                 = "libesedb_catalog_get_table_definition_by_utf16_name";
-	int list_element_iterator             = 0;
+	int element_index                     = 0;
+	int number_of_elements                = 0;
 	int result                            = 0;
 
 	if( catalog == NULL )
@@ -614,38 +700,65 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 
 		return( -1 );
 	}
-	list_element = catalog->table_definition_list->first_element;
-
-	for( list_element_iterator = 0;
-	     list_element_iterator < catalog->table_definition_list->number_of_elements;
-	     list_element_iterator++ )
+	if( libcdata_list_get_first_element(
+	     catalog->table_definition_list,
+	     &list_element,
+	     error ) != 1 )
 	{
-		if( list_element == NULL )
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve first element of table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_list_get_number_of_elements(
+	     catalog->table_definition_list,
+	     &number_of_elements,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements in table definition list.",
+		 function );
+
+		return( -1 );
+	}
+	for( element_index = 0;
+	     element_index < number_of_elements;
+	     element_index++ )
+	{
+		if( libcdata_list_element_get_value(
+		     list_element,
+		     (intptr_t **) table_definition,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value from element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
+		if( *table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: corruption detected for element: %d.",
+			 "%s: missing table definition: %d.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
-		if( list_element->value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid list element: %d - missing value.",
-			 function,
-			 list_element_iterator );
-
-			return( -1 );
-		}
-		*table_definition = (libesedb_table_definition_t *) list_element->value;
-
 		if( ( *table_definition )->table_catalog_definition == NULL )
 		{
 			libcerror_error_set(
@@ -654,7 +767,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table definition: %d - missing table catalog definition.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -666,7 +779,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: invalid table catalog definition: %d - missing name.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -686,7 +799,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: unable to compare UTF-16 string with table catalog definition: %d name.",
 			 function,
-			 list_element_iterator );
+			 element_index );
 
 			return( -1 );
 		}
@@ -694,7 +807,21 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 		{
 			return( 1 );
 		}
-		list_element = list_element->next_element;
+		if( libcdata_list_element_get_next_element(
+		     list_element,
+		     &list_element,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve next element of element: %d.",
+			 function,
+			 element_index );
+
+			return( -1 );
+		}
 	}
 	*table_definition = NULL;
 
@@ -981,7 +1108,7 @@ int libesedb_catalog_read(
 				}
 				catalog_definition = NULL;
 
-				if( libesedb_list_append_value(
+				if( libcdata_list_append_value(
 				     catalog->table_definition_list,
 				     (intptr_t *) table_definition,
 				     error ) != 1 )

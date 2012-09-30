@@ -5,6 +5,7 @@ SUBDIRS = \
 	common \
 	libcstring \
 	libcerror \
+	libcdata \
 	libclocale \
 	libcnotify \
 	libcsplit \
@@ -79,6 +80,7 @@ library:
 	(cd $(srcdir)/common && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcstring && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcerror && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libcdata && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libclocale && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcnotify && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcsplit && $(MAKE) $(AM_MAKEFLAGS))
@@ -109,6 +111,7 @@ distclean: clean
 splint:
 	(cd $(srcdir)/libcstring && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcerror && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libcdata && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libclocale && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcnotify && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcsplit && $(MAKE) splint $(AM_MAKEFLAGS))

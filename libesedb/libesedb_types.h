@@ -33,7 +33,7 @@
 
 /* The following type definitions hide internal data structures
  */
-#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
 typedef struct libesedb_file {}		libesedb_file_t;
 typedef struct libesedb_table {}	libesedb_table_t;
 typedef struct libesedb_column {}	libesedb_column_t;

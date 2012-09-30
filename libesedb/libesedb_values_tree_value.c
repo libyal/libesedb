@@ -23,20 +23,19 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_column_type.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_libcstring.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
-#include "libesedb_list_type.h"
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_value_data_handle.h"
@@ -513,11 +512,11 @@ int libesedb_values_tree_value_read_record(
      libfcache_cache_t *pages_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
-     libesedb_array_t *values_array,
+     libcdata_array_t *values_array,
      libcerror_error_t **error )
 {
+	libcdata_list_element_t *column_catalog_definition_list_element = NULL;
 	libesedb_catalog_definition_t *column_catalog_definition        = NULL;
-	libesedb_list_element_t *column_catalog_definition_list_element = NULL;
 	libesedb_page_t *page                                           = NULL;
 	libesedb_page_value_t *page_value                               = NULL;
 	libesedb_value_data_handle_t *value_data_handle                 = NULL;
@@ -761,7 +760,7 @@ int libesedb_values_tree_value_read_record(
 	if( ( template_table_definition != NULL )
 	 && ( template_table_definition->column_catalog_definition_list != NULL ) )
 	{
-		if( libesedb_list_get_number_of_elements(
+		if( libcdata_list_get_number_of_elements(
 		     template_table_definition->column_catalog_definition_list,
 		     &number_of_template_table_column_catalog_definitions,
 		     error ) != 1 )
@@ -776,7 +775,7 @@ int libesedb_values_tree_value_read_record(
 			goto on_error;
 		}
 	}
-	if( libesedb_list_get_number_of_elements(
+	if( libcdata_list_get_number_of_elements(
 	     table_definition->column_catalog_definition_list,
 	     &number_of_table_column_catalog_definitions,
 	     error ) != 1 )
@@ -808,7 +807,7 @@ int libesedb_values_tree_value_read_record(
 		}
 		number_of_column_catalog_definitions += number_of_template_table_column_catalog_definitions;
 	}
-	if( libesedb_array_resize(
+	if( libcdata_array_resize(
 	     values_array,
 	     number_of_column_catalog_definitions,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
@@ -1612,7 +1611,7 @@ int libesedb_values_tree_value_read_record(
 		}
 		value_data_handle = NULL;
 
-		if( libesedb_array_set_entry_by_index(
+		if( libcdata_array_set_entry_by_index(
 		     values_array,
 		     column_catalog_definition_iterator,
 		     (intptr_t *) record_value,

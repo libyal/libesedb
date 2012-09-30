@@ -26,8 +26,8 @@
 #include <types.h>
 
 #include "libesedb_catalog_definition.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
-#include "libesedb_list_type.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -51,11 +51,11 @@ struct libesedb_table_definition
 
 	/* The column catalog definition list
 	 */
-	libesedb_list_t *column_catalog_definition_list;
+	libcdata_list_t *column_catalog_definition_list;
 
 	/* The index catalog definition list
 	 */
-	libesedb_list_t *index_catalog_definition_list;
+	libcdata_list_t *index_catalog_definition_list;
 };
 
 int libesedb_table_definition_initialize(

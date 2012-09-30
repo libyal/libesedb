@@ -25,8 +25,8 @@
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
-#include "libesedb_value_libcerror.h"
+#include "libesedb_libcdata.h"
+#include "libesedb_libcerror.h"
 #include "libesedb_value_types.h"
 
 #if defined( __cplusplus )
@@ -51,7 +51,7 @@ struct libesedb_value_data_handle
 
 	/* The value entries array
 	 */
-	libesedb_array_t *value_entries;
+	libcdata_array_t *value_entries;
 
 	/* The flags
 	 */

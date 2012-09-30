@@ -4,6 +4,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/common \
 	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
+	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
 	@LIBCNOTIFY_CPPFLAGS@ \
 	@LIBCSPLIT_CPPFLAGS@ \
@@ -15,8 +16,7 @@ AM_CPPFLAGS = \
 	@LIBFDATA_CPPFLAGS@ \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
-	@LIBFVALUE_CPPFLAGS@ \
-	@MEMWATCH_CPPFLAGS@
+	@LIBFVALUE_CPPFLAGS@
 
 lib_LTLIBRARIES = libesedb.la
 
@@ -25,7 +25,6 @@ libesedb_la_SOURCES = \
 	esedb_page.h \
 	esedb_page_values.h \
 	libesedb.c \
-	libesedb_array_type.c libesedb_array_type.h \
 	libesedb_catalog.c libesedb_catalog.h \
 	libesedb_catalog_definition.c libesedb_catalog_definition.h \
 	libesedb_checksum.c libesedb_checksum.h \
@@ -53,7 +52,6 @@ libesedb_la_SOURCES = \
 	libesedb_libfdata.h \
 	libesedb_libfvalue.h \
 	libesedb_libuna.h \
-	libesedb_list_type.c libesedb_list_type.h \
 	libesedb_long_value.c libesedb_long_value.h \
 	libesedb_multi_value.c libesedb_multi_value.h \
 	libesedb_notify.c libesedb_notify.h \
@@ -72,6 +70,7 @@ libesedb_la_SOURCES = \
 libesedb_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \

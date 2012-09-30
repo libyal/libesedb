@@ -27,10 +27,10 @@
 
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
-#include "libesedb_list_type.h"
 #include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )
@@ -43,7 +43,7 @@ struct libesedb_catalog
 {
 	/* The table definition list
 	 */
-	libesedb_list_t *table_definition_list;
+	libcdata_list_t *table_definition_list;
 };
 
 int libesedb_catalog_initialize(

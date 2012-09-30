@@ -24,11 +24,11 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_checksum.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_page.h"
@@ -300,7 +300,7 @@ int libesedb_page_initialize(
 
 		goto on_error;
 	}
-	if( libesedb_array_initialize(
+	if( libcdata_array_initialize(
 	     &( ( *page )->values_array ),
 	     0,
 	     error ) != 1 )
@@ -350,7 +350,7 @@ int libesedb_page_free(
 	}
 	if( *page != NULL )
 	{
-		if( libesedb_array_free(
+		if( libcdata_array_free(
 		     &( ( *page )->values_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
 		     error ) != 1 )
@@ -387,7 +387,7 @@ int libesedb_page_read(
      off64_t file_offset,
      libcerror_error_t **error )
 {
-	libesedb_array_t *page_tags_array  = NULL;
+	libcdata_array_t *page_tags_array  = NULL;
 	uint8_t *page_values_data          = NULL;
 	static char *function              = "libesedb_page_read";
 	size_t page_values_data_offset     = 0;
@@ -844,7 +844,7 @@ int libesedb_page_read(
 	{
 		/* Create the page tags array
 		 */
-		if( libesedb_array_initialize(
+		if( libcdata_array_initialize(
 		     &page_tags_array,
 		     0,
 		     error ) != 1 )
@@ -895,7 +895,7 @@ int libesedb_page_read(
 
 			goto on_error;
 		}
-		if( libesedb_array_free(
+		if( libcdata_array_free(
 		     &page_tags_array,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
 		     error ) != 1 )
@@ -915,7 +915,7 @@ int libesedb_page_read(
 on_error:
 	if( page_tags_array != NULL )
 	{
-		libesedb_array_free(
+		libcdata_array_free(
 		 &page_tags_array,
 		 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
 		 NULL );
@@ -934,7 +934,7 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_read_tags(
-     libesedb_array_t *page_tags_array,
+     libcdata_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
      uint16_t number_of_page_tags,
      uint8_t *page_data,
@@ -996,7 +996,7 @@ int libesedb_page_read_tags(
 
 		return( -1 );
 	}
-	if( libesedb_array_resize(
+	if( libcdata_array_resize(
 	     page_tags_array,
 	     number_of_page_tags,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
@@ -1103,7 +1103,7 @@ int libesedb_page_read_tags(
 			}
 		}
 #endif
-		if( libesedb_array_set_entry_by_index(
+		if( libcdata_array_set_entry_by_index(
 		     page_tags_array,
 		     (int) page_tags_index,
 		     (intptr_t *) page_tags_value,
@@ -1146,7 +1146,7 @@ on_error:
 int libesedb_page_read_values(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
-     libesedb_array_t *page_tags_array,
+     libcdata_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
      size_t page_values_data_offset,
@@ -1156,6 +1156,7 @@ int libesedb_page_read_values(
 	libesedb_page_value_t *page_value           = NULL;
 	static char *function                       = "libesedb_page_read_values";
 	uint16_t page_tags_index                    = 0;
+	int number_of_page_tags                     = 0;
 
 	if( page == NULL )
 	{
@@ -1223,9 +1224,23 @@ int libesedb_page_read_values(
 
 		return( -1 );
 	}
-	if( libesedb_array_resize(
+	if( libcdata_array_get_number_of_entries(
+	     page_tags_array,
+	     &number_of_page_tags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of page tags.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_resize(
 	     page->values_array,
-	     page_tags_array->number_of_entries,
+	     number_of_page_tags,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
 	     error ) != 1 )
 	{
@@ -1239,10 +1254,10 @@ int libesedb_page_read_values(
 		goto on_error;
 	}
 	for( page_tags_index = 0;
-	     page_tags_index < page_tags_array->number_of_entries;
+	     page_tags_index < number_of_page_tags;
 	     page_tags_index++ )
 	{
-		if( libesedb_array_get_entry_by_index(
+		if( libcdata_array_get_entry_by_index(
 		     page_tags_array,
 		     page_tags_index,
 		     (intptr_t **) &page_tags_value,
@@ -1314,7 +1329,7 @@ int libesedb_page_read_values(
 		page_value->size   = page_tags_value->size;
 		page_value->flags  = page_tags_value->flags;
 
-		if( libesedb_array_set_entry_by_index(
+		if( libcdata_array_set_entry_by_index(
 		     page->values_array,
 		     (int) page_tags_index,
 		     (intptr_t *) page_value,
@@ -1384,7 +1399,7 @@ int libesedb_page_get_number_of_values(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_number_of_entries(
+	if( libcdata_array_get_number_of_entries(
 	     page->values_array,
 	     &page_number_of_values,
 	     error ) != 1 )
@@ -1436,7 +1451,7 @@ int libesedb_page_get_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     page->values_array,
 	     (int) value_index,
 	     (intptr_t **) page_value,

@@ -1,4 +1,7 @@
 TODO
+* complete libfvalue update
+* update msvscpp files
+  - libcdata update
 * complete libfvalue update integration - multi value
 
 * windows search add support for windows 8 SystemIndex_PropertyStore

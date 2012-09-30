@@ -23,11 +23,12 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_definitions.h"
+#include "libesedb_libcdata.h"
+#include "libesedb_libcerror.h"
+#include "libesedb_types.h"
 #include "libesedb_value_data_handle.h"
-#include "libesedb_value_definitions.h"
-#include "libesedb_value_libcerror.h"
-#include "libesedb_value_types.h"
-#include "libesedb_value_value_entry.h"
+#include "libesedb_value_entry.h"
 
 /* Creates a data handle
  * Returns 1 if successful or -1 on error

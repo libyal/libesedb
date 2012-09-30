@@ -25,10 +25,10 @@
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
@@ -89,7 +89,7 @@ struct libesedb_internal_record
 
 	/* The values array
 	*/
-	libesedb_array_t *values_array;
+	libcdata_array_t *values_array;
 };
 
 int libesedb_record_initialize(

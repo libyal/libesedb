@@ -24,10 +24,6 @@
 
 #include "common.h"
 
-#if defined( MEMWATCH )
-#include "memwatch.h"
-#endif
-
 #if defined( HAVE_GLIB_H )
 #include <glib.h>
 #endif

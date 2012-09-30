@@ -27,6 +27,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
@@ -185,7 +186,7 @@ int libesedb_record_initialize(
 			goto on_error;
 		}
 	}
-	if( libesedb_array_initialize(
+	if( libcdata_array_initialize(
 	     &( internal_record->values_array ),
 	     0,
 	     error ) != 1 )
@@ -256,7 +257,7 @@ on_error:
 	{
 		if( internal_record->values_array != NULL )
 		{
-			libesedb_array_free(
+			libcdata_array_free(
 			 &( internal_record->values_array ),
 			 NULL,
 			 NULL );
@@ -339,7 +340,7 @@ int libesedb_record_free(
 				}
 			}
 		}
-		if( libesedb_array_free(
+		if( libcdata_array_free(
 		     &( internal_record->values_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
 		     error ) != 1 )
@@ -383,7 +384,7 @@ int libesedb_record_get_number_of_values(
 	}
 	internal_record = (libesedb_internal_record_t *) record;
 
-	if( libesedb_array_get_number_of_entries(
+	if( libcdata_array_get_number_of_entries(
 	     internal_record->values_array,
 	     number_of_values,
 	     error ) != 1 )
@@ -436,7 +437,7 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	if( internal_record->template_table_definition != NULL )
 	{
-		if( libesedb_list_get_number_of_elements(
+		if( libcdata_list_get_number_of_elements(
 		     internal_record->template_table_definition->column_catalog_definition_list,
 		     &template_table_number_of_columns,
 		     error ) != 1 )
@@ -453,7 +454,7 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	if( value_entry < template_table_number_of_columns )
 	{
-		if( libesedb_list_get_value_by_index(
+		if( libcdata_list_get_value_by_index(
 		     internal_record->template_table_definition->column_catalog_definition_list,
 		     value_entry,
 		     (intptr_t **) column_catalog_definition,
@@ -471,7 +472,7 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	else
 	{
-		if( libesedb_list_get_value_by_index(
+		if( libcdata_list_get_value_by_index(
 		     internal_record->table_definition->column_catalog_definition_list,
 		     value_entry - template_table_number_of_columns,
 		     (intptr_t **) column_catalog_definition,
@@ -936,7 +937,7 @@ int libesedb_record_get_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1068,7 +1069,7 @@ int libesedb_record_get_value_boolean(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1191,7 +1192,7 @@ int libesedb_record_get_value_8bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1315,7 +1316,7 @@ int libesedb_record_get_value_16bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1439,7 +1440,7 @@ int libesedb_record_get_value_32bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1563,7 +1564,7 @@ int libesedb_record_get_value_64bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1686,7 +1687,7 @@ int libesedb_record_get_value_filetime(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1811,7 +1812,7 @@ int libesedb_record_get_value_floating_point_32bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -1934,7 +1935,7 @@ int libesedb_record_get_value_floating_point_64bit(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -2065,7 +2066,7 @@ int libesedb_record_get_value_utf8_string_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -2261,7 +2262,7 @@ int libesedb_record_get_value_utf8_string(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -2457,7 +2458,7 @@ int libesedb_record_get_value_utf16_string_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -2653,7 +2654,7 @@ int libesedb_record_get_value_utf16_string(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -2849,7 +2850,7 @@ int libesedb_record_get_value_binary_data_size(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -3032,7 +3033,7 @@ int libesedb_record_get_value_binary_data(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -3208,7 +3209,7 @@ int libesedb_record_get_long_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,
@@ -3426,7 +3427,7 @@ int libesedb_record_get_multi_value(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,

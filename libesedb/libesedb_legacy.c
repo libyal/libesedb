@@ -26,6 +26,7 @@
 #include "libesedb_definitions.h"
 #include "libesedb_file.h"
 #include "libesedb_legacy.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_multi_value.h"
@@ -148,7 +149,7 @@ int libesedb_record_get_value_floating_point(
 
 		return( -1 );
 	}
-	if( libesedb_array_get_entry_by_index(
+	if( libcdata_array_get_entry_by_index(
 	     internal_record->values_array,
 	     value_entry,
 	     (intptr_t **) &record_value,

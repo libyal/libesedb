@@ -25,9 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
@@ -110,7 +110,7 @@ struct libesedb_page
 
 	/* The page values array
 	 */
-	libesedb_array_t *values_array;
+	libcdata_array_t *values_array;
 };
 
 int libesedb_page_value_initialize(
@@ -145,7 +145,7 @@ int libesedb_page_read(
      libcerror_error_t **error );
 
 int libesedb_page_read_tags(
-     libesedb_array_t *page_tags_array,
+     libcdata_array_t *page_tags_array,
      libesedb_io_handle_t *io_handle,
      uint16_t number_of_page_tags,
      uint8_t *page_data,
@@ -155,7 +155,7 @@ int libesedb_page_read_tags(
 int libesedb_page_read_values(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
-     libesedb_array_t *page_tags_array,
+     libcdata_array_t *page_tags_array,
      uint8_t *page_values_data,
      size_t page_values_data_size,
      size_t page_values_data_offset,

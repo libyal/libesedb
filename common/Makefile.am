@@ -7,17 +7,9 @@ EXTRA_DIST = \
 	config_borlandc.h \
 	config_msc.h \
 	file_stream.h \
-	gettext.h \
 	memory.h \
 	types.h \
 	types.h.in
-
-if HAVE_MEMWATCH
-noinst_LTLIBRARIES = libmemwatch.la
-
-libmemwatch_la_SOURCES = \
-        memwatch.c memwatch.h
-endif
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

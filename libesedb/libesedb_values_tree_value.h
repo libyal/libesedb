@@ -25,9 +25,9 @@
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
@@ -120,7 +120,7 @@ int libesedb_values_tree_value_read_record(
      libfcache_cache_t *pages_cache,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
-     libesedb_array_t *values_array,
+     libcdata_array_t *values_array,
      libcerror_error_t **error );
 
 int libesedb_values_tree_value_read_long_value(

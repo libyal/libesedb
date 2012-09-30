@@ -7,6 +7,6 @@ Name: libesedb
 Description: Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
 Version: @VERSION@
 Libs: -L${libdir} -lesedb
-Libs.private: @ax_libbfio_pc_libs_private@ @ax_libcerror_pc_libs_private@ @ax_libcfile_pc_libs_private@ @ax_libclocale_pc_libs_private@ @ax_libcnotify_pc_libs_private@ @ax_libcpath_pc_libs_private@ @ax_libcsplit_pc_libs_private@ @ax_libcstring_pc_libs_private@ @ax_libfcache_pc_libs_private@ @ax_libfdata_pc_libs_private@ @ax_libfdatetime_pc_libs_private@ @ax_libfguid_pc_libs_private@ @ax_libuna_pc_libs_private@
+Libs.private: @ax_libbfio_pc_libs_private@ @ax_libcdata_pc_libs_private@ @ax_libcerror_pc_libs_private@ @ax_libcfile_pc_libs_private@ @ax_libclocale_pc_libs_private@ @ax_libcnotify_pc_libs_private@ @ax_libcpath_pc_libs_private@ @ax_libcsplit_pc_libs_private@ @ax_libcstring_pc_libs_private@ @ax_libfcache_pc_libs_private@ @ax_libfdata_pc_libs_private@ @ax_libfdatetime_pc_libs_private@ @ax_libfguid_pc_libs_private@ @ax_libuna_pc_libs_private@
 Cflags: -I${includedir}
 

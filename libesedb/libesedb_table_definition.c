@@ -23,9 +23,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libesedb_array_type.h"
 #include "libesedb_catalog_definition.h"
 #include "libesedb_definitions.h"
+#include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_table_definition.h"
@@ -118,7 +118,7 @@ int libesedb_table_definition_initialize(
 
 		return( -1 );
 	}
-	if( libesedb_list_initialize(
+	if( libcdata_list_initialize(
 	     &( ( *table_definition )->column_catalog_definition_list ),
 	     error ) != 1 )
 	{
@@ -131,7 +131,7 @@ int libesedb_table_definition_initialize(
 
 		goto on_error;
 	}
-	if( libesedb_list_initialize(
+	if( libcdata_list_initialize(
 	     &( ( *table_definition )->index_catalog_definition_list ),
 	     error ) != 1 )
 	{
@@ -153,7 +153,7 @@ on_error:
 	{
 		if( ( *table_definition )->column_catalog_definition_list != NULL )
 		{
-			libesedb_list_free(
+			libcdata_list_free(
 			 &( ( *table_definition )->column_catalog_definition_list ),
 			 NULL,
 			 NULL );
@@ -237,7 +237,7 @@ int libesedb_table_definition_free(
 				result = -1;
 			}
 		}
-		if( libesedb_list_free(
+		if( libcdata_list_free(
 		     &( ( *table_definition )->column_catalog_definition_list ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
@@ -251,7 +251,7 @@ int libesedb_table_definition_free(
 
 			result = -1;
 		}
-		if( libesedb_list_free(
+		if( libcdata_list_free(
 		     &( ( *table_definition )->index_catalog_definition_list ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
@@ -437,7 +437,7 @@ int libesedb_table_definition_append_column_catalog_definition(
 
 		return( -1 );
 	}
-	if( libesedb_list_append_value(
+	if( libcdata_list_append_value(
 	     table_definition->column_catalog_definition_list,
 	     (intptr_t *) column_catalog_definition,
 	     error ) != 1 )
@@ -498,7 +498,7 @@ int libesedb_table_definition_append_index_catalog_definition(
 
 		return( -1 );
 	}
-	if( libesedb_list_append_value(
+	if( libcdata_list_append_value(
 	     table_definition->index_catalog_definition_list,
 	     (intptr_t *) index_catalog_definition,
 	     error ) != 1 )

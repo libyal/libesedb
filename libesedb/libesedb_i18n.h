@@ -31,10 +31,14 @@
 #include <libintl.h>
 #endif
 
+/* TODO
 #include <gettext.h>
 
 #define	_( string ) \
 	dgettext( "libesedb", string )
+*/
+#define	_( string ) \
+	string
 
 #if defined( __cplusplus )
 extern "C" {
