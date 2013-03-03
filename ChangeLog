@@ -126,6 +126,11 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20130303
+* updated dependencies
+* 2013 update
+* changes for libfdata update
+
 20120826
 * updated dependencies
 * project move

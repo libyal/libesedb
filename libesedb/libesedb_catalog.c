@@ -1,7 +1,7 @@
 /*
  * Catalog functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -901,9 +901,9 @@ int libesedb_catalog_read(
 	     (intptr_t *) catalog_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     &libesedb_page_tree_read_node_value,
-	     &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
+	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -936,7 +936,9 @@ int libesedb_catalog_read(
 
 	if( libfdata_tree_set_root_node(
 	     catalog_values_tree,
+	     0,
 	     node_data_offset,
+	     0,
 	     0,
 	     error ) != 1 )
 	{
@@ -951,7 +953,7 @@ int libesedb_catalog_read(
 	}
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     catalog_values_tree,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     catalog_values_cache,
 	     &number_of_leaf_nodes,
 	     0,
@@ -972,7 +974,7 @@ int libesedb_catalog_read(
 	{
 		if( libfdata_tree_get_leaf_node_by_index(
 		     catalog_values_tree,
-		     file_io_handle,
+		     (intptr_t *) file_io_handle,
 		     catalog_values_cache,
 		     leaf_node_index,
 		     &catalog_values_tree_node,
@@ -991,7 +993,7 @@ int libesedb_catalog_read(
 		}
 		if( libfdata_tree_node_get_node_value(
 		     catalog_values_tree_node,
-		     file_io_handle,
+		     (intptr_t *) file_io_handle,
 		     catalog_values_cache,
 		     (intptr_t **) &values_tree_value,
 		     0,

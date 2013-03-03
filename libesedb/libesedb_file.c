@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -1047,8 +1047,9 @@ int libesedb_file_open_read(
 	     (intptr_t *) internal_file->io_handle,
 	     NULL,
 	     NULL,
-	     &libesedb_io_handle_read_page,
-	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
+	     NULL,
+	     LIBFDATA_FLAG_DATA_HANDLE_NON_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1062,8 +1063,10 @@ int libesedb_file_open_read(
 	}
 	if( libfdata_vector_append_segment(
 	     internal_file->pages_vector,
+	     0,
 	     internal_file->io_handle->pages_data_offset,
 	     internal_file->io_handle->pages_data_size,
+	     0,
 	     0,
 	     error ) != 1 )
 	{

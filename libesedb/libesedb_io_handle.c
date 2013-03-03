@@ -1,7 +1,7 @@
 /*
  * Input/Output (IO) handle functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -872,11 +872,12 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_io_handle_read_page(
-     intptr_t *io_handle,
+     libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
      libfcache_cache_t *cache,
      int element_index,
+     int element_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t element_data_offset,
      size64_t element_data_size LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
@@ -885,6 +886,7 @@ int libesedb_io_handle_read_page(
 	libesedb_page_t *page = NULL;
 	static char *function = "libesedb_io_handle_read_page";
 
+	LIBESEDB_UNREFERENCED_PARAMETER( element_data_file_index );
 	LIBESEDB_UNREFERENCED_PARAMETER( element_data_size );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
@@ -903,7 +905,7 @@ int libesedb_io_handle_read_page(
 	}
 	if( libesedb_page_read(
 	     page,
-	     (libesedb_io_handle_t *) io_handle,
+	     io_handle,
 	     file_io_handle,
 	     element_data_offset,
 	     error ) != 1 )

@@ -415,7 +415,7 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
@@ -633,7 +633,7 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
@@ -1717,7 +1717,7 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
@@ -1869,7 +1869,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
-     libfdata_block_t *data_block,
+     libfdata_stream_t *data_stream,
      libcerror_error_t **error )
 {
 	libesedb_page_t *page                  = NULL;
@@ -1902,20 +1902,20 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( data_block == NULL )
+	if( data_stream == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid data block.",
+		 "%s: invalid data stream.",
 		 function );
 
 		return( -1 );
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
 	     (intptr_t **) &page,
@@ -1996,7 +1996,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	long_value_segment_data_size = page_value->size - values_tree_value->data_offset;
 
-	/* Note that the data block will point to the file offset
+	/* Note that the data stream will point to the file offset
 	 * values_tree_value->page_offset contains the offset relative from the start of the page data
 	 */
 	long_value_segment_data_offset = io_handle->pages_data_offset + values_tree_value->page_offset
@@ -2015,8 +2015,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 "\n" );
 	}
 #endif
-	if( libfdata_block_get_size(
-	     data_block,
+	if( libfdata_stream_get_size(
+	     data_stream,
 	     &data_size,
 	     error ) != 1 )
 	{
@@ -2024,7 +2024,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of data block size.",
+		 "%s: unable to retrieve number of data stream size.",
 		 function );
 
 		return( -1 );
@@ -2042,8 +2042,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libfdata_block_append_segment(
-	     data_block,
+	if( libfdata_stream_append_segment(
+	     data_stream,
 	     long_value_segment_data_offset,
 	     (size64_t) long_value_segment_data_size,
 	     0,
@@ -2053,7 +2053,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value segment at offset: %" PRIu32 " to data block.",
+		 "%s: unable to append long value segment at offset: %" PRIu32 " to data stream.",
 		 function,
 		 long_value_segment_offset );
 

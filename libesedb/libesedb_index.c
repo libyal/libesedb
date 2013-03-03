@@ -1,7 +1,7 @@
 /*
  * Index functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -213,9 +213,9 @@ int libesedb_index_initialize(
 	     (intptr_t *) index_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     &libesedb_page_tree_read_node_value,
-	     &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
+	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -250,7 +250,9 @@ int libesedb_index_initialize(
 
 	if( libfdata_tree_set_root_node(
 	     internal_index->index_values_tree,
+	     0,
 	     node_data_offset,
+	     0,
 	     0,
 	     error ) != 1 )
 	{
@@ -693,7 +695,7 @@ int libesedb_index_get_number_of_records(
 
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     internal_index->index_values_tree,
-	     internal_index->file_io_handle,
+	     (intptr_t *) internal_index->file_io_handle,
 	     internal_index->index_values_cache,
 	     number_of_records,
 	     0,
@@ -765,7 +767,7 @@ int libesedb_index_get_record(
 	}
 	if( libfdata_tree_get_leaf_node_by_index(
 	     internal_index->index_values_tree,
-	     internal_index->file_io_handle,
+	     (intptr_t *) internal_index->file_io_handle,
 	     internal_index->index_values_cache,
 	     record_entry,
 	     &index_values_tree_node,
@@ -784,7 +786,7 @@ int libesedb_index_get_record(
 	}
 	if( libfdata_tree_node_get_node_value(
 	     index_values_tree_node,
-	     internal_index->file_io_handle,
+	     (intptr_t *) internal_index->file_io_handle,
 	     internal_index->index_values_cache,
 	     (intptr_t **) &index_values_tree_value,
 	     0,

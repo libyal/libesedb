@@ -137,7 +137,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
-     libfdata_block_t *data_block,
+     libfdata_stream_t *data_stream,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

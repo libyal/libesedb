@@ -1,7 +1,7 @@
 /*
  * Page tree functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -207,7 +207,7 @@ int libesedb_page_tree_read_root_page(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
@@ -495,7 +495,7 @@ int libesedb_page_tree_read_space_tree_page(
 	}
 	if( libfdata_vector_get_element_value_by_index(
 	     page_tree->pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     (int) page_number - 1,
 	     (intptr_t **) &page,
@@ -964,7 +964,7 @@ int libesedb_page_tree_read_page(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
@@ -1234,6 +1234,7 @@ int libesedb_page_tree_read_page(
 			if( libfdata_tree_node_append_sub_node(
 			     value_tree_node,
 			     &sub_node_index,
+			     0,
 			     node_data_offset,
 			     (size64_t) page_value_index,
 			     0,
@@ -1323,7 +1324,7 @@ int libesedb_page_tree_read_page_value(
 	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
 	     (intptr_t **) &page,
@@ -1374,7 +1375,7 @@ int libesedb_page_tree_read_page_value(
 		}
 		if( libfdata_vector_get_element_value_at_offset(
 		     page_tree->pages_vector,
-		     file_io_handle,
+		     (intptr_t *) file_io_handle,
 		     page_tree->pages_cache,
 		     page_offset,
 		     (intptr_t **) &page,
@@ -1805,36 +1806,35 @@ int libesedb_page_tree_read_page_value(
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_node_value(
-     intptr_t *io_handle,
+     libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
+     int node_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	libesedb_page_tree_t *page_tree                 = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
 	static char *function                           = "libesedb_page_tree_read_node_value";
 	uint64_t page_number                            = 0;
 	int result                                      = 0;
 
+	LIBESEDB_UNREFERENCED_PARAMETER( node_data_file_index );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
-	if( io_handle == NULL )
+	if( page_tree == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree IO handle.",
+		 "%s: invalid page tree.",
 		 function );
 
 		return( -1 );
 	}
-	page_tree = (libesedb_page_tree_t *) io_handle;
-
 	if( page_tree->io_handle == NULL )
 	{
 		libcerror_error_set(
@@ -2016,36 +2016,35 @@ on_error:
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_read_sub_nodes(
-     intptr_t *io_handle,
+     libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
+     int sub_nodes_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	libesedb_page_tree_t *page_tree                 = NULL;
 	libesedb_values_tree_value_t *values_tree_value = NULL;
 	static char *function                           = "libesedb_page_tree_read_sub_nodes";
 	uint64_t page_number                            = 0;
 
+	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_file_index );
 	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_size );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
-	if( io_handle == NULL )
+	if( page_tree == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree IO handle.",
+		 "%s: invalid page tree.",
 		 function );
 
 		return( -1 );
 	}
-	page_tree = (libesedb_page_tree_t *) io_handle;
-
 	if( page_tree->io_handle == NULL )
 	{
 		libcerror_error_set(
@@ -2094,7 +2093,7 @@ int libesedb_page_tree_read_sub_nodes(
 	}
 	if( libfdata_tree_node_get_node_value(
 	     node,
-	     file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     cache,
 	     (intptr_t **) &values_tree_value,
 	     0,

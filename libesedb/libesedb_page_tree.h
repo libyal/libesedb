@@ -1,7 +1,7 @@
 /*
  * Page tree functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -113,20 +113,22 @@ int libesedb_page_tree_read_page_value(
      libcerror_error_t **error );
 
 int libesedb_page_tree_read_node_value(
-     intptr_t *io_handle,
+     libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
+     int node_data_file_index,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint8_t read_flags,
      libcerror_error_t **error );
 
 int libesedb_page_tree_read_sub_nodes(
-     intptr_t *io_handle,
+     libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
+     int node_data_file_index,
      off64_t sub_nodes_offset,
      size64_t sub_nodes_size,
      uint8_t read_flags,

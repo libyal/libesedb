@@ -276,7 +276,7 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 		}
 		if( libfdata_tree_node_get_node_value(
 		     values_tree_sub_node,
-		     file_io_handle,
+		     (intptr_t *) file_io_handle,
 		     values_cache,
 		     (intptr_t **) &values_tree_sub_node_value,
 		     0,
@@ -525,7 +525,7 @@ int libesedb_values_tree_get_value_by_key(
 		}
 		if( libfdata_tree_node_get_node_value(
 		     values_tree_leaf_node,
-		     file_io_handle,
+		     (intptr_t *) file_io_handle,
 		     values_cache,
 		     (intptr_t **) values_tree_value,
 		     0,

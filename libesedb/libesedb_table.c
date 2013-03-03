@@ -1,7 +1,7 @@
 /*
  * Table functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -198,8 +198,9 @@ int libesedb_table_initialize(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     &libesedb_io_handle_read_page,
-	     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
+	     NULL,
+	     LIBFDATA_FLAG_DATA_HANDLE_NON_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -213,8 +214,10 @@ int libesedb_table_initialize(
 	}
 	if( libfdata_vector_append_segment(
 	     internal_table->pages_vector,
+	     0,
 	     io_handle->pages_data_offset,
 	     io_handle->pages_data_size,
+	     0,
 	     0,
 	     error ) != 1 )
 	{
@@ -267,9 +270,9 @@ int libesedb_table_initialize(
 	     (intptr_t *) table_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     &libesedb_page_tree_read_node_value,
-	     &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
+	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -304,7 +307,9 @@ int libesedb_table_initialize(
 
 	if( libfdata_tree_set_root_node(
 	     internal_table->table_values_tree,
+	     0,
 	     node_data_offset,
+	     0,
 	     0,
 	     error ) != 1 )
 	{
@@ -327,8 +332,9 @@ int libesedb_table_initialize(
 		     (intptr_t *) io_handle,
 		     NULL,
 		     NULL,
-		     &libesedb_io_handle_read_page,
-		     LIBFDATA_FLAG_IO_HANDLE_NON_MANAGED,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
+		     NULL,
+		     LIBFDATA_FLAG_DATA_HANDLE_NON_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -342,8 +348,10 @@ int libesedb_table_initialize(
 		}
 		if( libfdata_vector_append_segment(
 		     internal_table->long_values_pages_vector,
+		     0,
 		     io_handle->pages_data_offset,
 		     io_handle->pages_data_size,
+		     0,
 		     0,
 		     error ) != 1 )
 		{
@@ -396,9 +404,9 @@ int libesedb_table_initialize(
 		     (intptr_t *) long_values_page_tree,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 		     NULL,
-		     &libesedb_page_tree_read_node_value,
-		     &libesedb_page_tree_read_sub_nodes,
-		     LIBFDATA_FLAG_IO_HANDLE_MANAGED,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
+		     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -433,7 +441,9 @@ int libesedb_table_initialize(
 
 		if( libfdata_tree_set_root_node(
 		     internal_table->long_values_tree,
+		     0,
 		     node_data_offset,
+		     0,
 		     0,
 		     error ) != 1 )
 		{
@@ -1762,7 +1772,7 @@ int libesedb_table_get_number_of_records(
 
 	if( libfdata_tree_get_number_of_leaf_nodes(
 	     internal_table->table_values_tree,
-	     internal_table->file_io_handle,
+	     (intptr_t *) internal_table->file_io_handle,
 	     internal_table->table_values_cache,
 	     number_of_records,
 	     0,
@@ -1830,7 +1840,7 @@ int libesedb_table_get_record(
 	}
 	if( libfdata_tree_get_leaf_node_by_index(
 	     internal_table->table_values_tree,
-	     internal_table->file_io_handle,
+	     (intptr_t *) internal_table->file_io_handle,
 	     internal_table->table_values_cache,
 	     record_entry,
 	     &record_values_tree_node,

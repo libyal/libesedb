@@ -71,12 +71,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %{_mandir}/man1/*
 
 %changelog
-* Sat Apr 14 2012 Joachim Metz <joachim.metz@gmail.com> 20120414-1
-- Changes due to dependency changes
-
-* Sat Oct  8 2011 Joachim Metz <joachim.metz@gmail.com> 20111008-1
-- Changes for configure update and README files
-
-* Sun Jun 27 2010 Joachim Metz <joachim.metz@gmail.com> 20100627-1
-- Clean up of previous version of spec file
+* @SPEC_DATE@ Joachim Metz <joachim.metz@gmail.com> @VERSION@-1
+- Auto-generated
 

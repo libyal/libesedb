@@ -1,7 +1,7 @@
 /*
  * The libfdata header wrapper
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -28,14 +28,14 @@
  */
 #if defined( HAVE_LOCAL_LIBFDATA )
 
-#include <libfdata_block.h>
-#include <libfdata_block_reference.h>
 #include <libfdata_buffer.h>
 #include <libfdata_buffer_reference.h>
 #include <libfdata_definitions.h>
 #include <libfdata_list.h>
 #include <libfdata_list_element.h>
 #include <libfdata_reference.h>
+#include <libfdata_stream.h>
+#include <libfdata_stream_reference.h>
 #include <libfdata_tree.h>
 #include <libfdata_tree_node.h>
 #include <libfdata_types.h>

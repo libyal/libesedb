@@ -1,7 +1,7 @@
 /*
  * Long value functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -62,9 +62,9 @@ struct libesedb_internal_long_value
 	 */
 	uint8_t flags;
 
-	/* The data block 
+	/* The data stream 
 	 */
-	libfdata_block_t *data_block;
+	libfdata_stream_t *data_stream;
 
 	/* The data cache 
 	 */

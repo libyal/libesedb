@@ -1,5 +1,5 @@
 libesedb (@VERSION@-1) unstable; urgency=low
 
-  * Initial release
+  * Auto-generated
 
- -- Joachim Metz <joachim.metz@gmail.com>  @DATE@
+ -- Joachim Metz <joachim.metz@gmail.com>  @DPKG_DATE@

@@ -1,7 +1,7 @@
 /* 
  * Export handle
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -53,10 +53,6 @@ struct export_handle
 	 */
 	libesedb_file_t *input_file;
 
-	/* The ascii codepage
-	 */
-	int ascii_codepage;
-
 	/* The target path
 	 */
 	libcstring_system_character_t *target_path;
@@ -76,6 +72,10 @@ struct export_handle
 	/* The nofication output stream
 	 */
 	FILE *notify_stream;
+
+	/* The ascii codepage
+	 */
+	int ascii_codepage;
 
 	/* Value to indicate if abort was signalled
 	 */

@@ -1,7 +1,7 @@
 /*
  * Long value functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -192,12 +192,12 @@ int libesedb_long_value_initialize(
 			goto on_error;
 		}
 	}
-	if( libfdata_block_initialize(
-	     &( internal_long_value->data_block ),
+	if( libfdata_stream_initialize(
+	     &( internal_long_value->data_stream ),
 	     NULL,
 	     NULL,
 	     NULL,
-	     &libfdata_block_read_segment_data,
+	     &libfdata_stream_read_segment_data,
 	     0,
 	     error ) != 1 )
 	{
@@ -205,7 +205,7 @@ int libesedb_long_value_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data block.",
+		 "%s: unable to create data stream.",
 		 function );
 
 		goto on_error;
@@ -302,7 +302,7 @@ int libesedb_long_value_initialize(
 			     long_values_pages_vector,
 			     long_values_pages_cache,
 			     long_value_segment_offset,
-			     internal_long_value->data_block,
+			     internal_long_value->data_stream,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -335,10 +335,10 @@ on_error:
 			 &( internal_long_value->data_cache ),
 			 NULL );
 		}
-		if( internal_long_value->data_block != NULL )
+		if( internal_long_value->data_stream != NULL )
 		{
-			libfdata_block_free(
-			 &( internal_long_value->data_block ),
+			libfdata_stream_free(
+			 &( internal_long_value->data_stream ),
 			 NULL );
 		}
 		if( internal_long_value->file_io_handle != NULL )
@@ -415,15 +415,15 @@ int libesedb_long_value_free(
 				}
 			}
 		}
-		if( libfdata_block_free(
-		     &( internal_long_value->data_block ),
+		if( libfdata_stream_free(
+		     &( internal_long_value->data_stream ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free data block.",
+			 "%s: unable to free data stream.",
 			 function );
 
 			result = -1;
@@ -471,8 +471,8 @@ int libesedb_long_value_get_number_of_segments(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( libfdata_block_get_number_of_segments(
-	     internal_long_value->data_block,
+	if( libfdata_stream_get_number_of_segments(
+	     internal_long_value->data_stream,
 	     number_of_segments,
 	     error ) != 1 )
 	{
@@ -514,8 +514,8 @@ int libesedb_long_value_get_segment_data(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( libfdata_block_get_segment_data(
-	     internal_long_value->data_block,
+	if( libfdata_stream_get_segment_data(
+	     internal_long_value->data_stream,
 	     internal_long_value->file_io_handle,
 	     internal_long_value->data_cache,
 	     data_segment_index,

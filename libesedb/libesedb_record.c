@@ -1,7 +1,7 @@
 /*
  * Record (row) functions
  *
- * Copyright (c) 2009-2012, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -202,7 +202,7 @@ int libesedb_record_initialize(
 	}
 	if( libfdata_tree_node_get_node_value(
 	     values_tree_node,
-	     internal_record->file_io_handle,
+	     (intptr_t *) internal_record->file_io_handle,
 	     values_cache,
 	     (intptr_t **) &values_tree_value,
 	     0,
