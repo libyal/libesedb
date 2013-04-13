@@ -1,6 +1,6 @@
 dnl Functions for libcstring
 dnl
-dnl Version: 20120825
+dnl Version: 20130406
 
 dnl Function to detect if libcstring is available
 dnl ac_libcstring_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -39,7 +39,7 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LIB],
    ac_cv_libcstring_LIBADD="$pkg_cv_libcstring_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libcstring.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libcstring_h" = xno],
     [ac_cv_libcstring=no],
@@ -51,7 +51,7 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LIB],
      libcstring_get_version,
      [ac_cv_libcstring_dummy=yes],
      [ac_cv_libcstring=no])
-  
+
     dnl TODO add functions
 
     ac_cv_libcstring_LIBADD="-lcstring"
@@ -95,28 +95,28 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
    [Missing function: fgets],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_memchr" != xyes && test "x$ac_cv_func_strchr" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: memchr and strchr],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_memcmp" != xyes && test "x$ac_cv_func_strncmp" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: memcmp and strncmp],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_memcpy" != xyes && test "x$ac_cv_func_strncpy" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: memcpy and strncpy],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_memrchr" = xyes],
   [AC_CHECK_DECLS([memrchr])
@@ -125,49 +125,49 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
    [test "x$ac_cv_decl_memrchr" != xyes],
    [ac_cv_func_memrchr=no])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_memrchr" != xyes && test "x$ac_cv_func_strrchr" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: strrchr and memrchr],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_snprintf" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: snprintf],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_sscanf" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: sscanf],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_strlen" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: strlen],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_strcasecmp" != xyes && test "x$ac_cv_func_strncasecmp" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: strncasecmp and strcasecmp],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_strstr" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: strstr],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_strstr" != xyes],
   [AC_MSG_FAILURE(
@@ -186,49 +186,49 @@ AC_DEFUN([AX_LIBCSTRING_CHECK_LOCAL],
     [Missing function: swprintf],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wmemchr" != xyes && test "x$ac_cv_func_wcschr" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: wmemchr and wcschr],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wmemcmp" != xyes && test "x$ac_cv_func_wcsncmp" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: wmemcmp and wcsncmp],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wmemcpy" != xyes && test "x$ac_cv_func_wcsncpy" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: wmemcpy and wcsncpy],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wmemrchr" != xyes && test "x$ac_cv_func_wcsrchr" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: wmemrchr and wcsrchr],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wcslen" != xyes],
    [AC_MSG_FAILURE(
     [Missing function: wcslen],
     [1])
    ])
-  
+
   AS_IF(
    [test "x$ac_cv_func_wcsncasecmp" != xyes && test "x$ac_cv_func_wcscasecmp" != xyes && test "x$ac_cv_func_towlower" != xyes],
    [AC_MSG_FAILURE(
     [Missing functions: wcsncasecmp, wcscasecmp and towlower],
     [1])
    ])
- 
+
   AS_IF(
    [test "x$ac_cv_func_wcsstr" != xyes],
    [AC_MSG_FAILURE(

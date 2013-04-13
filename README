@@ -1,25 +1,4 @@
-Building .deb files
-To build .deb files make sure you've have installed debhelper, dpkg-buildpackage and fakeroot
-* copy the dpkg directory to debian
-* run "dpkg-buildpackage -rfakeroot"
-  this will create the .deb files in the parent directory
-
-
-Building .rpm files
-To build .rpm files make sure you've have installed rpmbuild
-* rename the distrubted tar.gz file if necessary; applies to experimental, alpha and beta versions
-  "mv libesedb-alpha-<version>.tar.gz libesedb-<version>.tar.gz"
-* run "rpmbuild -ta libesedb-<version>.tar.gz"
-  this will create the .rpm files in the rpmbuild tree, commonly ~/rpmbuild/RPMS/...
-
-
-Solaris
-To build libesedb on Solaris make sure that /usr/ccs/bin and /usr/sfw/bin are defined in the PATH environment variable
-
-
-Also see:
-* README.dll
+See:
+* http://code.google.com/p/libesedb/wiki/Building
 * README.macosx
-* README.mingw
-* README.static
 

@@ -55,7 +55,7 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files devel
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README README.dll README.macosx README.mingw README.static ChangeLog
+%doc AUTHORS COPYING NEWS README README.macosx ChangeLog
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
