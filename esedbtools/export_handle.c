@@ -1,4 +1,4 @@
-/* 
+/*
  * Export handle
  *
  * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,7 +41,8 @@
 
 #define EXPORT_HANDLE_NOTIFY_STREAM	stdout
 
-/* Initializes the export handle
+/* Creates an export handle
+ * Make sure the value export_handle is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int export_handle_initialize(
@@ -130,7 +131,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the export handle and its elements
+/* Frees an export handle
  * Returns 1 if successful or -1 on error
  */
 int export_handle_free(
@@ -915,7 +916,7 @@ int export_handle_create_item_filename(
 		goto on_error;
 	}
 	( *item_filename )[ item_name_length ] = 0;
-	     
+	
 	return( 1 );
 
 on_error:
@@ -2659,7 +2660,7 @@ int export_handle_export_record_value(
 				else if( result != 0 )
 				{
 					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
-					{ 
+					{
 						fprintf(
 						 record_file_stream,
 						 "%" PRIi64 "",

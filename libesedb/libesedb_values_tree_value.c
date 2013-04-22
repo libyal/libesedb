@@ -1,7 +1,7 @@
 /*
  * Values tree value functions
  *
- * Copyright (c) 2010, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,7 +49,8 @@ enum LIBESEDB_TAGGED_DATA_TYPES_FORMATS
 	LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX,
 };
 
-/* Creates values tree value
+/* Creates a values tree value
+ * Make sure the value values_tree_value is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_values_tree_value_initialize(
@@ -121,7 +122,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the values tree value
+/* Frees a values tree value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_values_tree_value_free(
@@ -1001,6 +1002,7 @@ int libesedb_values_tree_value_read_record(
 		}
 		if( libesedb_value_data_handle_initialize(
 		     &value_data_handle,
+		     (int (*)(libfvalue_data_handle_t *, const uint8_t *, size_t, int, uint32_t, libcerror_error_t **)) &libesedb_value_data_handle_read_value_entries,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1215,12 +1217,9 @@ int libesedb_values_tree_value_read_record(
 							 "\n" );
 						}
 #endif
-
-						if( libfvalue_value_set_metadata(
-						     record_value,
-						     &( record_data[ tagged_data_type_value_offset ] ),
-						     1,
-						     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
+						if( libesedb_value_data_handle_set_data_flags(
+						     value_data_handle,
+						     (uint32_t) &( record_data[ tagged_data_type_value_offset ] ),
 						     error ) != 1 )
 						{
 							libcerror_error_set(
@@ -1503,25 +1502,9 @@ int libesedb_values_tree_value_read_record(
 						  &&  ( io_handle->page_size >= 16384 ) )
 						 || ( ( previous_tagged_data_type_offset & 0x4000 ) != 0 ) )
 						{
-#if defined( HAVE_DEBUG_OUTPUT )
-							if( libcnotify_verbose != 0 )
-							{
-								libcnotify_printf(
-								 "%s: (%03" PRIu16 ") tagged data type flags\t\t: 0x%02" PRIx8 "\n",
-								 function,
-								 column_catalog_definition->identifier,
-								 record_data[ tagged_data_type_value_offset ] );
-								libesedb_debug_print_tagged_data_type_flags(
-								 record_data[ tagged_data_type_value_offset ] );
-								libcnotify_printf(
-								 "\n" );
-							}
-#endif
-							if( libfvalue_value_set_metadata(
-							     record_value,
-							     &( record_data[ tagged_data_type_value_offset ] ),
-							     1,
-							     LIBFVALUE_VALUE_METADATA_FLAG_MANAGED,
+							if( libesedb_value_data_handle_set_data_flags(
+							     value_data_handle,
+							     (uint32_t) &( record_data[ tagged_data_type_value_offset ] ),
 							     error ) != 1 )
 							{
 								libcerror_error_set(
@@ -1588,11 +1571,11 @@ int libesedb_values_tree_value_read_record(
 		     &record_value,
 		     record_value_type,
 		     (intptr_t *) value_data_handle,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_value_data_handle_free,
-		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libesedb_value_data_handle_clone,
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_data_handle,
+		     (int (*)(intptr_t **, intptr_t *, libcerror_error_t **)) &libfvalue_data_handle_clone,
 
-		     (int (*)(intptr_t *, uint8_t **, size_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_data,
-		     (int (*)(intptr_t *, const uint8_t *, size_t, int, uint8_t, libcerror_error_t **)) &libesedb_value_data_handle_set_data,
+		     (int (*)(intptr_t *, uint8_t **, size_t *, int *, libcerror_error_t **)) &libfvalue_data_handle_get_data,
+		     (int (*)(intptr_t *, const uint8_t *, size_t, int, uint8_t, libcerror_error_t **)) &libfvalue_data_handle_set_data,
 
 		     (int (*)(intptr_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_number_of_value_entries,
 		     (int (*)(intptr_t *, int, uint8_t **, size_t *, int *, libcerror_error_t **)) &libesedb_value_data_handle_get_value_entry,
@@ -1869,7 +1852,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
-     libfdata_stream_t *data_stream,
+     libfdata_list_t *data_segments_list,
      libcerror_error_t **error )
 {
 	libesedb_page_t *page                  = NULL;
@@ -1878,6 +1861,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	off64_t long_value_segment_data_offset = 0;
 	size_t long_value_segment_data_size    = 0;
 	size64_t data_size                     = 0;
+	int element_index                      = 0;
 
 	if( values_tree_value == NULL )
 	{
@@ -1899,17 +1883,6 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
 		 function,
 		 values_tree_value->type );
-
-		return( -1 );
-	}
-	if( data_stream == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid data stream.",
-		 function );
 
 		return( -1 );
 	}
@@ -2015,8 +1988,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 "\n" );
 	}
 #endif
-	if( libfdata_stream_get_size(
-	     data_stream,
+	if( libfdata_list_get_size(
+	     data_segments_list,
 	     &data_size,
 	     error ) != 1 )
 	{
@@ -2024,7 +1997,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of data stream size.",
+		 "%s: unable to retrieve size of data segments list.",
 		 function );
 
 		return( -1 );
@@ -2042,8 +2015,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libfdata_stream_append_segment(
-	     data_stream,
+	if( libfdata_list_append_element(
+	     data_segments_list,
+	     &element_index,
+	     0,
 	     long_value_segment_data_offset,
 	     (size64_t) long_value_segment_data_size,
 	     0,
@@ -2053,7 +2028,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value segment at offset: %" PRIu32 " to data stream.",
+		 "%s: unable to append long value segment at offset: %" PRIu32 " to data segments list.",
 		 function,
 		 long_value_segment_offset );
 

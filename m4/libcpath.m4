@@ -1,6 +1,6 @@
 dnl Functions for libcpath
 dnl
-dnl Version: 20120701
+dnl Version: 20130406
 
 dnl Function to detect if libcpath is available
 dnl ac_libcpath_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -35,7 +35,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
    ac_cv_libcpath_LIBADD="$pkg_cv_libcpath_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libcpath.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libcpath_h" = xno],
     [ac_cv_libcpath=no],
@@ -47,7 +47,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
      libcpath_get_version,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
-   
+
     dnl Path functions
     AC_CHECK_LIB(
      cpath,
@@ -84,7 +84,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
      libcpath_path_sanitize_filename,
      [ac_cv_libcpath_dummy=yes],
      [ac_cv_libcpath=no])
- 
+
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
      [AC_CHECK_LIB(
@@ -123,7 +123,7 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LIB],
       [ac_cv_libcpath_dummy=yes],
       [ac_cv_libcpath=no])
      ])
- 
+
     ac_cv_libcpath_LIBADD="-lcpath"
     ])
    ])
@@ -225,23 +225,23 @@ AC_DEFUN([AX_LIBCPATH_CHECK_LOCAL],
 
  dnl Path functions used in libcpath/libcpath_path.h
  AC_CHECK_FUNCS([chdir getcwd])
- 
+
  AS_IF(
   [test "x$ac_cv_func_chdir" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: chdir],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_getcwd" != xyes],
   [AC_MSG_FAILURE(
    [Missing functions: getcwd],
    [1])
   ])
- 
+
  AX_LIBCPATH_CHECK_FUNC_MKDIR
- 
+
  ac_cv_libcpath_CPPFLAGS="-I../libcpath";
  ac_cv_libcpath_LIBADD="../libcpath/libcpath.la";
 

@@ -1,11 +1,8 @@
 TODO
-* complete libfvalue update
-* update msvscpp files
-  - libcdata update
 * complete libfvalue update integration - multi value
+* update msvscpp files
 
 * windows search add support for windows 8 SystemIndex_PropertyStore
-* update msvscpp files
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
 * handle compressed values inside the library
   - compressed binary data
@@ -126,8 +123,21 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
-20130413
+20130421
+* worked on libfvalue update
+
+20130420
+* worked on libfvalue update
+
+20130415
+* worked on libfvalue update
+
+20130414
 * updated dependencies
+* updated macosx files
+* textual changes
+* changes for libfdata update
+* worked on libfvalue update
 
 20130303
 * updated dependencies

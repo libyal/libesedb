@@ -1,6 +1,6 @@
 dnl Functions for libcfile
 dnl
-dnl Version: 20120825
+dnl Version: 20130414
 
 dnl Function to detect if libcfile is available
 dnl ac_libcfile_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -35,7 +35,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
    ac_cv_libcfile_LIBADD="$pkg_cv_libcfile_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libcfile.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libcfile_h" = xno],
     [ac_cv_libcfile=no],
@@ -47,7 +47,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      libcfile_get_version,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
-   
+
     dnl File functions
     AC_CHECK_LIB(
      cfile,
@@ -66,6 +66,11 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      [ac_cv_libcfile=no])
     AC_CHECK_LIB(
      cfile,
+     libcfile_file_open_with_error_code,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
      libcfile_file_close,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
@@ -76,7 +81,17 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      [ac_cv_libcfile=no])
     AC_CHECK_LIB(
      cfile,
+     libcfile_file_read_buffer_with_error_code,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
      libcfile_file_write_buffer,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
+     libcfile_file_write_buffer_with_error_code,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
     AC_CHECK_LIB(
@@ -104,7 +119,22 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      libcfile_file_get_size,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
- 
+    AC_CHECK_LIB(
+     cfile,
+     libcfile_file_is_device,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
+     libcfile_file_io_control_read,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
+     libcfile_file_io_control_read_with_error_code,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
      [AC_CHECK_LIB(
@@ -112,8 +142,13 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
       libcfile_file_open_wide,
       [ac_cv_libcfile_dummy=yes],
       [ac_cv_libcfile=no])
+     AC_CHECK_LIB(
+      cfile,
+      libcfile_file_open_wide_with_error_code,
+      [ac_cv_libcfile_dummy=yes],
+      [ac_cv_libcfile=no])
      ])
- 
+
     dnl File stream functions
     AC_CHECK_LIB(
      cfile,
@@ -160,7 +195,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      libcfile_stream_get_size,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
- 
+
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
      [AC_CHECK_LIB(
@@ -169,14 +204,14 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
       [ac_cv_libcfile_dummy=yes],
       [ac_cv_libcfile=no])
      ])
- 
+
     dnl Support functions
     AC_CHECK_LIB(
      cfile,
      libcfile_file_exists,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
- 
+
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
      [AC_CHECK_LIB(
@@ -210,16 +245,55 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
   ])
  ])
 
+dnl Function to detect if posix_fadvise is available
+AC_DEFUN([AX_LIBCFILE_CHECK_FUNC_POSIX_FADVISE],
+ [AC_CHECK_FUNCS([posix_fadvise])
+
+ AS_IF(
+  [test "x$ac_cv_func_posix_fadvise" = xyes],
+  [AC_MSG_CHECKING(
+    [whether posix_fadvise can be linked])
+
+   SAVE_CFLAGS="$CFLAGS"
+   CFLAGS="$CFLAGS -Wall -Werror"
+   AC_LANG_PUSH(C)
+
+   AC_LINK_IFELSE(
+    [AC_LANG_PROGRAM(
+     [[#include <fcntl.h>]],
+     [[#if !defined( POSIX_FADV_SEQUENTIAL )
+#define POSIX_FADV_SEQUENTIAL 2
+#endif
+posix_fadvise( 0, 0, 0, POSIX_FADV_SEQUENTIAL )]] )],
+     [ac_cv_func_posix_fadvise=yes],
+     [ac_cv_func_posix_fadvise=no])
+
+   AC_LANG_POP(C)
+   CFLAGS="$SAVE_CFLAGS"
+
+   AS_IF(
+    [test "x$ac_cv_func_posix_fadvise" = xyes],
+    [AC_MSG_RESULT(
+     [yes])
+    AC_DEFINE(
+     [HAVE_POSIX_FADVISE],
+     [1],
+     [Define to 1 if you have the posix_fadvise function.]) ],
+    [AC_MSG_RESULT(
+     [no]) ])
+  ])
+ ])
+
 dnl Function to detect if libcfile dependencies are available
 AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
- [dnl Headers included in libcfile/libcfile_file.h, libcfile/libcfile_stream.h and libcfile/libcfile_support.h
+ [dnl Headers included in libcfile/libcfile_file.c, libcfile/libcfile_stream.c and libcfile/libcfile_support.c
  AC_CHECK_HEADERS([errno.h stdio.h sys/stat.h])
 
- dnl Headers included in libcfile/libcfile_file.h
- AC_CHECK_HEADERS([fcntl.h unistd.h])
+ dnl Headers included in libcfile/libcfile_file.c
+ AC_CHECK_HEADERS([cygwin/fs.h fcntl.h linux/fs.h sys/disk.h sys/disklabel.h sys/ioctl.h unistd.h])
 
- dnl File input/output functions used in libcfile/libcfile_file.h
- AC_CHECK_FUNCS([close fstat ftruncate lseek open read write])
+ dnl File input/output functions used in libcfile/libcfile_file.c
+ AC_CHECK_FUNCS([close fstat ftruncate ioctl lseek open read write])
 
  AS_IF(
   [test "x$ac_cv_func_close" != xyes],
@@ -227,42 +301,54 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
    [Missing function: close],
    [1])
   ])
- 
+
+ AX_LIBCFILE_CHECK_FUNC_POSIX_FADVISE
+
  AS_IF(
   [test "x$ac_cv_func_fstat" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fstat],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_ftruncate" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: ftruncate],
    [1])
   ])
- 
+
+ AS_IF(
+  [test x"$ac_cv_enable_winapi" = xno],
+  [AS_IF(
+   [test "x$ac_cv_func_ioctl" != xyes],
+   [AC_MSG_FAILURE(
+    [Missing function: ioctl],
+    [1])
+   ])
+  ])
+
  AS_IF(
   [test "x$ac_cv_func_lseek" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: lseek],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_open" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: open],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_read" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: read],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_write" != xyes],
   [AC_MSG_FAILURE(
@@ -270,7 +356,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
    [1])
   ])
 
- dnl File stream functions used in libcfile/libcfile_stream.h
+ dnl File stream functions used in libcfile/libcfile_stream.c
  AC_CHECK_FUNCS([fclose feof fileno fopen fread fseeko fseeko64 ftello ftello64 fwrite])
 
  AS_IF(
@@ -279,50 +365,50 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
    [Missing function: fclose],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_feof" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: feof],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_fopen" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fopen],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_fread" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fread],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_fseeko" != xyes && test "x$ac_cv_func_fseeko64" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fseeko and fseeko64],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_ftello" != xyes && test "x$ac_cv_func_ftello64" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: ftello and ftello64],
    [1])
   ])
- 
+
  AS_IF(
   [test "x$ac_cv_func_fwrite" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: fwrite],
    [1])
   ])
- 
- dnl File input/output functions used in libcfile/libcfile_support.h
+
+ dnl File input/output functions used in libcfile/libcfile_support.c
  AC_CHECK_FUNCS([stat])
 
  AS_IF(
@@ -331,7 +417,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
    [Missing function: stat],
    [1])
   ])
- 
+
  ac_cv_libcfile_CPPFLAGS="-I../libcfile";
  ac_cv_libcfile_LIBADD="../libcfile/libcfile.la";
 

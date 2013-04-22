@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,8 @@
 #include "libesedb_types.h"
 #include "libesedb_values_tree.h"
 
-/* Creates a index
+/* Creates an index
+ * Make sure the value index is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_index_initialize(
@@ -213,8 +214,8 @@ int libesedb_index_initialize(
 	     (intptr_t *) index_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
 	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
 	     error ) != 1 )
 	{
@@ -313,7 +314,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees index
+/* Frees an index
  * Returns 1 if successful or -1 on error
  */
 int libesedb_index_free(

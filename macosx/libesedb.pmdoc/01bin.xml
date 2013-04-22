@@ -1,0 +1,20 @@
+<pkgref spec="1.12" uuid="33CC8723-4203-43FC-BE41-843CDA7AD3F9">
+<config>
+	<identifier>com.google.code.p.libesedb.bin.pkg</identifier>
+	<version>20130421</version>
+	<description/>
+	<post-install type="none"/>
+	<requireAuthorization/>
+	<installFrom>/home/lordyesta/Projects/libesedb/macosx/tmp/bin</installFrom>
+	<installTo mod="true">/usr</installTo>
+	<flags>
+		<followSymbolicLinks/>
+	</flags>
+	<packageStore type="internal"></packageStore>
+	<mod>installTo.path</mod>
+	<mod>parent</mod>
+	<mod>installTo</mod>
+	<mod>version</mod>
+</config>
+</pkgref>
+

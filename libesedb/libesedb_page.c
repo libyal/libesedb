@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,6 +36,7 @@
 #include "esedb_page.h"
 
 /* Creates a page value
+ * Make sure the value page_value is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_value_initialize(
@@ -107,7 +108,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the page value
+/* Frees a page value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_value_free(
@@ -140,6 +141,7 @@ int libesedb_page_value_free(
 }
 
 /* Creates a page tags value
+ * Make sure the value page_tags_value is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tags_value_initialize(
@@ -211,7 +213,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the page tags value
+/* Frees a page tags value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tags_value_free(
@@ -242,6 +244,7 @@ int libesedb_page_tags_value_free(
 }
 
 /* Creates a page
+ * Make sure the value page is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_initialize(
@@ -327,7 +330,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees page
+/* Frees a page
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_free(

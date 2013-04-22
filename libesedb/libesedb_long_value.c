@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,6 +24,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_data_segment.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
@@ -34,6 +35,7 @@
 #include "libesedb_values_tree_value.h"
 
 /* Creates a long value
+ * Make sure the value long_value is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_initialize(
@@ -192,12 +194,13 @@ int libesedb_long_value_initialize(
 			goto on_error;
 		}
 	}
-	if( libfdata_stream_initialize(
-	     &( internal_long_value->data_stream ),
+	if( libfdata_list_initialize(
+	     &( internal_long_value->data_segments_list ),
 	     NULL,
 	     NULL,
 	     NULL,
-	     &libfdata_stream_read_segment_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
+	     NULL,
 	     0,
 	     error ) != 1 )
 	{
@@ -205,13 +208,13 @@ int libesedb_long_value_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data stream.",
+		 "%s: unable to create data segments list.",
 		 function );
 
 		goto on_error;
 	}
 	if( libfcache_cache_initialize(
-	     &( internal_long_value->data_cache ),
+	     &( internal_long_value->data_segments_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
 	     error ) != 1 )
 	{
@@ -219,7 +222,7 @@ int libesedb_long_value_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data cache.",
+		 "%s: unable to create data segments cache.",
 		 function );
 
 		goto on_error;
@@ -302,7 +305,7 @@ int libesedb_long_value_initialize(
 			     long_values_pages_vector,
 			     long_values_pages_cache,
 			     long_value_segment_offset,
-			     internal_long_value->data_stream,
+			     internal_long_value->data_segments_list,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -329,16 +332,16 @@ int libesedb_long_value_initialize(
 on_error:
 	if( internal_long_value != NULL )
 	{
-		if( internal_long_value->data_cache != NULL )
+		if( internal_long_value->data_segments_cache != NULL )
 		{
 			libfcache_cache_free(
-			 &( internal_long_value->data_cache ),
+			 &( internal_long_value->data_segments_cache ),
 			 NULL );
 		}
-		if( internal_long_value->data_stream != NULL )
+		if( internal_long_value->data_segments_list != NULL )
 		{
-			libfdata_stream_free(
-			 &( internal_long_value->data_stream ),
+			libfdata_list_free(
+			 &( internal_long_value->data_segments_list ),
 			 NULL );
 		}
 		if( internal_long_value->file_io_handle != NULL )
@@ -356,7 +359,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees the long value
+/* Frees a long value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_free(
@@ -415,28 +418,28 @@ int libesedb_long_value_free(
 				}
 			}
 		}
-		if( libfdata_stream_free(
-		     &( internal_long_value->data_stream ),
+		if( libfdata_list_free(
+		     &( internal_long_value->data_segments_list ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free data stream.",
+			 "%s: unable to free data segments list.",
 			 function );
 
 			result = -1;
 		}
 		if( libfcache_cache_free(
-		     &( internal_long_value->data_cache ),
+		     &( internal_long_value->data_segments_cache ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free data cache.",
+			 "%s: unable to free data segments cache.",
 			 function );
 
 			result = -1;
@@ -471,8 +474,8 @@ int libesedb_long_value_get_number_of_segments(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( libfdata_stream_get_number_of_segments(
-	     internal_long_value->data_stream,
+	if( libfdata_list_get_number_of_elements(
+	     internal_long_value->data_segments_list,
 	     number_of_segments,
 	     error ) != 1 )
 	{
@@ -480,7 +483,7 @@ int libesedb_long_value_get_number_of_segments(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of segments.",
+		 "%s: unable to retrieve number of elements from data segments list.",
 		 function );
 
 		return( -1 );
@@ -498,6 +501,7 @@ int libesedb_long_value_get_segment_data(
      size_t *segment_data_size,
      libcerror_error_t **error )
 {
+	libesedb_data_segment_t *data_segment               = NULL;
 	libesedb_internal_long_value_t *internal_long_value = NULL;
 	static char *function                               = "libesedb_long_value_get_segment_data";
 
@@ -514,13 +518,34 @@ int libesedb_long_value_get_segment_data(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( libfdata_stream_get_segment_data(
-	     internal_long_value->data_stream,
-	     internal_long_value->file_io_handle,
-	     internal_long_value->data_cache,
+	if( segment_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment data.",
+		 function );
+
+		return( -1 );
+	}
+	if( segment_data_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid segment data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_list_get_element_value_by_index(
+	     internal_long_value->data_segments_list,
+	     (intptr_t *) internal_long_value->file_io_handle,
+	     internal_long_value->data_segments_cache,
 	     data_segment_index,
-	     segment_data,
-	     segment_data_size,
+	     (intptr_t **) &data_segment,
 	     0,
 	     error ) != 1 )
 	{
@@ -528,11 +553,27 @@ int libesedb_long_value_get_segment_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve segment data.",
-		 function );
+		 "%s: unable to retrieve data segment: %d.",
+		 function,
+		 data_segment_index );
 
 		return( -1 );
 	}
+	if( data_segment == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing data segment: %d.",
+		 function,
+		 data_segment_index );
+
+		return( -1 );
+	}
+	*segment_data      = data_segment->data;
+	*segment_data_size = data_segment->data_size;
+
 	return( 1 );
 }
 

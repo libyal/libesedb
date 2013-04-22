@@ -1,6 +1,6 @@
 dnl Functions for libcnotify
 dnl
-dnl Version: 20120501
+dnl Version: 20130406
 
 dnl Function to detect if libcnotify is available
 dnl ac_libcnotify_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -35,7 +35,7 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
    ac_cv_libcnotify_LIBADD="$pkg_cv_libcnotify_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libcnotify.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libcnotify_h" = xno],
     [ac_cv_libcnotify=no],
@@ -47,7 +47,7 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
      libcnotify_get_version,
      [ac_cv_libcnotify_dummy=yes],
      [ac_cv_libcnotify=no])
-   
+
     dnl Print functions
     AC_CHECK_LIB(
      cnotify,
@@ -64,7 +64,7 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
      libcnotify_print_error_backtrace,
      [ac_cv_libcnotify_dummy=yes],
      [ac_cv_libcnotify=no])
-   
+
     dnl Stream functions
     AC_CHECK_LIB(
      cnotify,
@@ -81,7 +81,7 @@ AC_DEFUN([AX_LIBCNOTIFY_CHECK_LIB],
      libcnotify_stream_close,
      [ac_cv_libcnotify_dummy=yes],
      [ac_cv_libcnotify=no])
-   
+
     dnl Verbose functions
     AC_CHECK_LIB(
      cnotify,

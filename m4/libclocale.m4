@@ -1,6 +1,6 @@
 dnl Functions for libclocale
 dnl
-dnl Version: 20120509
+dnl Version: 20130406
 
 dnl Function to detect if libclocale is available
 dnl ac_libclocale_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -35,7 +35,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
    ac_cv_libclocale_LIBADD="$pkg_cv_libclocale_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libclocale.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libclocale_h" = xno],
     [ac_cv_libclocale=no],
@@ -47,8 +47,8 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
      libclocale_get_version,
      [ac_cv_libclocale_dummy=yes],
      [ac_cv_libclocale=no])
- 
-    dnl Codepage functions 
+
+    dnl Codepage functions
     AC_CHECK_LIB(
      clocale,
      libclocale_codepage,
@@ -69,7 +69,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
      libclocale_codepage_copy_from_string,
      [ac_cv_libclocale_dummy=yes],
      [ac_cv_libclocale=no])
-  
+
    AS_IF(
     [test "x$ac_cv_enable_wide_character_type" != xno],
     [AC_CHECK_LIB(
@@ -79,7 +79,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
      [ac_cv_libclocale=no])
     ])
 
-    dnl Locale functions 
+    dnl Locale functions
     AC_CHECK_LIB(
      clocale,
      libclocale_locale_get_codepage,
@@ -91,13 +91,13 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LIB],
      [ac_cv_libclocale_dummy=yes],
      [ac_cv_libclocale=no])
 
-    dnl Support functions 
+    dnl Support functions
     AC_CHECK_LIB(
      clocale,
      libclocale_initialize,
      [ac_cv_libclocale_dummy=yes],
      [ac_cv_libclocale=no])
- 
+
     ac_cv_libclocale_LIBADD="-lclocale"
     ])
    ])
@@ -164,7 +164,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LOCAL],
    [Missing function: getenv],
    [1])
   ])
- 
+
  dnl Check for localization functions in libclocale/libclocale_locale.c
  AS_IF(
   [test "x$ac_cv_enable_winapi" = xno],
@@ -177,7 +177,7 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LOCAL],
     [1])
    ])
   ])
- 
+
  AC_CHECK_FUNCS([setlocale])
 
  AS_IF(
@@ -186,9 +186,9 @@ AC_DEFUN([AX_LIBCLOCALE_CHECK_LOCAL],
    [Missing function: setlocale],
    [1])
   ])
- 
+
  AX_LIBCLOCALE_CHECK_FUNC_LANGINFO_CODESET
- 
+
  ac_cv_libclocale_CPPFLAGS="-I../libclocale";
  ac_cv_libclocale_LIBADD="../libclocale/libclocale.la";
 

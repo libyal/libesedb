@@ -21,7 +21,7 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "FileDescription",		"Library to support the Extensible Storage Engine (ESE) Database File (EDB) fomat\0"
+      VALUE "FileDescription",		"Library to access the Extensible Storage Engine (ESE) Database File (EDB) fomat\0"
       VALUE "FileVersion",		"@VERSION@" "\0"
       VALUE "InternalName",		"libesedb.dll\0"
       VALUE "LegalCopyright",		"(c) 2009-2013 Joachim Metz <joachim.metz@gmail.com>\0"

@@ -35,7 +35,6 @@
 #include <libfdata_list_element.h>
 #include <libfdata_reference.h>
 #include <libfdata_stream.h>
-#include <libfdata_stream_reference.h>
 #include <libfdata_tree.h>
 #include <libfdata_tree_node.h>
 #include <libfdata_types.h>

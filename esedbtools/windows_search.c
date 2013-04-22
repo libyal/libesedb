@@ -1,4 +1,4 @@
-/* 
+/*
  * Windows Search database export functions
  *
  * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -62,7 +62,7 @@ enum WINDOWS_SEARCH_FORMATS
 int windows_search_decode(
      uint8_t *data,
      size_t data_size,
-     uint8_t *encoded_data, 
+     uint8_t *encoded_data,
      size_t encoded_data_size,
      libcerror_error_t **error )
 {
@@ -432,7 +432,7 @@ int windows_search_get_byte_index_uncompressed_data_size(
 int windows_search_decompress_byte_indexed_compressed_data(
      uint8_t *uncompressed_data,
      size_t uncompressed_data_size,
-     uint8_t *compressed_data, 
+     uint8_t *compressed_data,
      size_t compressed_data_size,
      libcerror_error_t **error )
 {
@@ -1150,7 +1150,7 @@ int windows_search_export_compressed_string_value(
 		 "%s: invalid value data size value zero or less.",
 		 function );
 
-		return( 1 );
+		return( -1 );
 	}
 	if( value_data_size > (size_t) SSIZE_MAX )
 	{

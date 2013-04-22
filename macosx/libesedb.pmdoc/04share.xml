@@ -1,0 +1,20 @@
+<pkgref spec="1.12" uuid="CB5F6411-5CA7-404F-A840-8BBE45DD8912">
+<config>
+	<identifier>com.google.code.p.libesedb.share.pkg</identifier>
+	<version>20130421</version>
+	<description/>
+	<post-install type="none"/>
+	<requireAuthorization/>
+	<installFrom>/home/lordyesta/Projects/libesedb/macosx/tmp/share</installFrom>
+	<installTo mod="true">/usr</installTo>
+	<flags>
+		<followSymbolicLinks/>
+	</flags>
+	<packageStore type="internal"></packageStore>
+	<mod>installTo.path</mod>
+	<mod>parent</mod>
+	<mod>installTo</mod>
+	<mod>version</mod>
+</config>
+</pkgref>
+

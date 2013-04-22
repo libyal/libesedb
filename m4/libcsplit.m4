@@ -1,6 +1,6 @@
 dnl Functions for libcsplit
 dnl
-dnl Version: 20120701
+dnl Version: 20130406
 
 dnl Function to detect if libcsplit is available
 dnl ac_libcsplit_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -47,7 +47,7 @@ AC_DEFUN([AX_LIBCSPLIT_CHECK_LIB],
      libcsplit_get_version,
      [ac_cv_libcsplit_dummy=yes],
      [ac_cv_libcsplit=no])
-   
+
     dnl Narrow string functions
     AC_CHECK_LIB(
      csplit,
@@ -81,7 +81,7 @@ AC_DEFUN([AX_LIBCSPLIT_CHECK_LIB],
      libcsplit_narrow_split_string_set_segment_by_index,
      [ac_cv_libcsplit_dummy=yes],
      [ac_cv_libcsplit=no])
- 
+
     dnl Wide string functions
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
@@ -118,7 +118,7 @@ AC_DEFUN([AX_LIBCSPLIT_CHECK_LIB],
       [ac_cv_libcsplit_dummy=yes],
       [ac_cv_libcsplit=no])
      ])
- 
+
     ac_cv_libcsplit_LIBADD="-lcsplit"
     ])
    ])

@@ -1,6 +1,6 @@
 dnl Functions for libcdata
 dnl
-dnl Version: 20120902
+dnl Version: 20130407
 
 dnl Function to detect if libcdata is available
 dnl ac_libcdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcdata],
-    [libcdata >= 20120425],
+    [libcdata >= 2030407],
     [ac_cv_libcdata=yes],
     [ac_cv_libcdata=no])
    ])
@@ -35,7 +35,7 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
    ac_cv_libcdata_LIBADD="$pkg_cv_libcdata_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libcdata.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libcdata_h" = xno],
     [ac_cv_libcdata=no],
@@ -47,8 +47,381 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
      libcdata_get_version,
      [ac_cv_libcdata_dummy=yes],
      [ac_cv_libcdata=no])
-   
-    dnl TODO add functions
+
+    dnl Array functions
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_initialize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_free,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_empty,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_clone,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_resize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_reverse,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_get_number_of_entries,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_get_entry_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_get_entry_by_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_set_entry_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_prepend_entry,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_append_entry,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_array_insert_entry,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+
+    dnl List functions
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_initialize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_free,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_empty,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_clone,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_get_number_of_elements,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_get_first_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_get_last_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_get_element_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_get_value_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_prepend_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_prepend_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_append_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_append_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_insert_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_insert_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_remove_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+
+    dnl List element functions
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_initialize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_free,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_get_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_set_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_get_previous_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_set_previous_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_get_next_element,
+     [ac_cv_libcdata_dummy=yes],
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_set_next_element,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_get_elements,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_list_element_set_elements,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+     [ac_cv_libcdata=no])
+
+    dnl Range list functions
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_initialize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_free,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_empty,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_clone,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_get_number_of_elements,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_insert_range,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_insert_range_list,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_remove_range,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_get_range_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_get_range_at_offset,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_range_list_range_is_present,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+
+    dnl Tree node functions
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_initialize,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_free,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_empty,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_clone,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_set_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_parent_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_set_parent_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_previous_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_set_previous_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_next_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_set_next_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_nodes,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_set_nodes,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_append_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_append_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_insert_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_insert_value,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_replace_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_remove_node,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_number_of_sub_nodes,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_sub_node_by_index,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
+    AC_CHECK_LIB(
+     cdata,
+     libcdata_tree_node_get_leaf_node_list,
+     [ac_cv_libcdata_dummy=yes],
+     [ac_cv_libcdata=no])
 
     ac_cv_libcdata_LIBADD="-lcdata"
     ])

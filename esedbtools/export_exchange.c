@@ -1,4 +1,4 @@
-/* 
+/*
  * Exchange database export functions
  *
  * Copyright (c) 2010, Joachim Metz <joachim.metz@gmail.com>
@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -809,14 +809,14 @@ int export_exchange_record_value_guid(
 					  guid,
 					  (uint16_t *) guid_string,
 					  48,
-					  LIBFGUID_STRING_FORMAT_USE_LOWER_CASE,
+					  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 					  error );
 #else
 				result = libfguid_identifier_copy_to_utf8_string(
 					  guid,
 					  (uint8_t *) guid_string,
 					  48,
-					  LIBFGUID_STRING_FORMAT_USE_LOWER_CASE,
+					  LIBFGUID_STRING_FORMAT_FLAG_USE_LOWER_CASE,
 					  error );
 #endif
 				if( result != 1 )

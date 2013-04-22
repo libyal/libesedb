@@ -1,6 +1,6 @@
 dnl Functions for libuna
 dnl
-dnl Version: 20120630
+dnl Version: 20130406
 
 dnl Function to detect if libuna is available as library
 dnl ac_libuna_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -47,7 +47,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_get_version,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-   
+
     dnl Base16 stream functions
     AC_CHECK_LIB(
      una,
@@ -74,7 +74,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_base16_stream_with_index_copy_from_byte_stream,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     dnl Base32 stream functions
     AC_CHECK_LIB(
      una,
@@ -96,7 +96,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_base32_quintuplet_copy_to_byte_stream,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     AC_CHECK_LIB(
      una,
      libuna_base32_stream_size_to_byte_stream,
@@ -122,7 +122,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_base32_stream_with_index_copy_from_byte_stream,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     dnl Base64 stream functions
     AC_CHECK_LIB(
      una,
@@ -144,7 +144,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_base64_triplet_copy_to_byte_stream,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     AC_CHECK_LIB(
      una,
      libuna_base64_stream_size_to_byte_stream,
@@ -170,7 +170,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_base64_stream_with_index_copy_from_byte_stream,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     dnl Byte stream functions
     AC_CHECK_LIB(
      una,
@@ -202,7 +202,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_byte_stream_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-   
+
     dnl UTF-8 stream functions
     AC_CHECK_LIB(
      una,
@@ -234,7 +234,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf8_stream_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-  
+
     dnl UTF-16 stream functions
     AC_CHECK_LIB(
      una,
@@ -266,7 +266,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf16_stream_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-  
+
     dnl UTF-32 stream functions
     AC_CHECK_LIB(
      una,
@@ -298,7 +298,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf32_stream_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-  
+
     dnl UTF-8 string functions
     AC_CHECK_LIB(
      una,
@@ -405,7 +405,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf8_string_with_index_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-  
+
     dnl UTF-16 string functions
     AC_CHECK_LIB(
      una,
@@ -512,7 +512,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf16_string_with_index_copy_from_utf32,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
-  
+
     dnl UTF-32 string functions
     AC_CHECK_LIB(
      una,
@@ -618,7 +618,7 @@ AC_DEFUN([AX_LIBUNA_CHECK_LIB],
      libuna_utf32_string_with_index_copy_from_utf16,
      [ac_cv_libuna_dummy=yes],
      [ac_cv_libuna=no])
- 
+
     ac_cv_libuna_LIBADD="-luna"
     ])
    ])

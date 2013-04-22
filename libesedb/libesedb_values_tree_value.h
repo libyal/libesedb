@@ -1,7 +1,7 @@
 /*
  * Values tree value functions
  *
- * Copyright (c) 2010, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -137,7 +137,7 @@ int libesedb_values_tree_value_read_long_value_segment(
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
-     libfdata_stream_t *data_stream,
+     libfdata_list_t *data_segments_list,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

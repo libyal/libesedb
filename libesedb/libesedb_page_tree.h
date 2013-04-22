@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,7 +41,7 @@ typedef struct libesedb_page_tree libesedb_page_tree_t;
 
 struct libesedb_page_tree
 {
-	/* The IO handle 
+	/* The IO handle
 	 */
 	libesedb_io_handle_t *io_handle;
 
@@ -120,6 +120,7 @@ int libesedb_page_tree_read_node_value(
      int node_data_file_index,
      off64_t node_data_offset,
      size64_t node_data_size,
+     uint32_t node_data_flags,
      uint8_t read_flags,
      libcerror_error_t **error );
 
@@ -128,9 +129,10 @@ int libesedb_page_tree_read_sub_nodes(
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
-     int node_data_file_index,
-     off64_t sub_nodes_offset,
-     size64_t sub_nodes_size,
+     int sub_nodes_data_file_index,
+     off64_t sub_nodes_data_offset,
+     size64_t sub_nodes_data_size,
+     uint32_t sub_nodes_data_flags,
      uint8_t read_flags,
      libcerror_error_t **error );
 

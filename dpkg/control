@@ -10,8 +10,8 @@ Package: libesedb
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Library to support the Extensible Storage Engine (ESE) Database File (EDB) format
- libesedb is a library to support the Extensible Storage Engine (ESE) Database File (EDB) format.
+Description: Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
+ libesedb is a library to access the Extensible Storage Engine (ESE) Database File (EDB) format.
 
 Package: libesedb-dev
 Section: libdevel

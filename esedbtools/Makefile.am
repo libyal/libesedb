@@ -48,7 +48,7 @@ esedbexport_SOURCES = \
 	windows_search.c windows_search.h \
 	windows_security.c windows_security.h
 
-esedbexport_LDADD  = \
+esedbexport_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
 	@LIBFMAPI_LIBADD@ \
 	@LIBFVALUE_LIBADD@ \
@@ -80,7 +80,7 @@ esedbinfo_SOURCES = \
 	esedbtools_libuna.h \
 	info_handle.c info_handle.h
 
-esedbinfo_LDADD  = \
+esedbinfo_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCNOTIFY_LIBADD@ \
@@ -96,8 +96,8 @@ distclean: clean
 	/bin/rm -f Makefile
 
 splint:
-	@echo "Running splint on esedbexport ..." 
-	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbexport_SOURCES) 
-	@echo "Running splint on esedbinfo ..." 
-	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbinfo_SOURCES) 
+	@echo "Running splint on esedbexport ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbexport_SOURCES)
+	@echo "Running splint on esedbinfo ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(esedbinfo_SOURCES)
 

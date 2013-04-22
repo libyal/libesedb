@@ -57,7 +57,7 @@ EXTRA_DIST = \
         $(DPKG_FILES) \
         $(GETTEXT_FILES) \
         $(PKGCONFIG_FILES) \
-        $(REDHAT_FILES)
+        $(SPEC_FILES)
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

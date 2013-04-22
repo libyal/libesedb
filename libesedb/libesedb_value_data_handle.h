@@ -27,92 +27,18 @@
 
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
-#include "libesedb_value_types.h"
+#include "libesedb_libfvalue.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_value_data_handle libesedb_value_data_handle_t;
-
-struct libesedb_value_data_handle
-{
-	/* The data
-	 */
-	uint8_t *data;
-
-	/* The data size
-	 */
-	size_t data_size;
-
-	/* The encoding
-	 */
-	int encoding;
-
-	/* The value entries array
-	 */
-	libcdata_array_t *value_entries;
-
-	/* The flags
-	 */
-	uint8_t flags;
-};
-
-int libesedb_value_data_handle_initialize(
-     libesedb_value_data_handle_t **data_handle,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_free(
-     libesedb_value_data_handle_t **data_handle,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_clone(
-     libesedb_value_data_handle_t **destination_data_handle,
-     libesedb_value_data_handle_t *source_data_handle,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_get_data(
-     libesedb_value_data_handle_t *data_handle,
-     uint8_t **data,
-     size_t *data_size,
-     int *encoding,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_set_data(
-     libesedb_value_data_handle_t *data_handle,
+int libesedb_value_data_handle_read_value_entries(
+     libfvalue_data_handle_t *data_handle,
      const uint8_t *data,
      size_t data_size,
      int encoding,
-     uint8_t flags,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_get_number_of_value_entries(
-     libesedb_value_data_handle_t *data_handle,
-     int *number_of_value_entries,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_get_value_entry(
-     libesedb_value_data_handle_t *data_handle,
-     int value_entry_index,
-     uint8_t **value_entry_data,
-     size_t *value_entry_data_size,
-     int *encoding,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_set_value_entry(
-     libesedb_value_data_handle_t *data_handle,
-     int value_entry_index,
-     const uint8_t *value_entry_data,
-     size_t value_entry_data_size,
-     int encoding,
-     libcerror_error_t **error );
-
-int libesedb_value_data_handle_append_value_entry(
-     libesedb_value_data_handle_t *data_handle,
-     int *value_entry_index,
-     const uint8_t *value_entry_data,
-     size_t value_entry_data_size,
-     int encoding,
+     uint32_t data_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

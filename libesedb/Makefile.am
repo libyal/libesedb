@@ -32,6 +32,7 @@ libesedb_la_SOURCES = \
 	libesedb_column.c libesedb_column.h \
 	libesedb_column_type.c libesedb_column_type.h \
 	libesedb_compression.c libesedb_compression.h \
+	libesedb_data_segment.c libesedb_data_segment.h \
 	libesedb_database.c libesedb_database.h \
 	libesedb_debug.c libesedb_debug.h \
 	libesedb_definitions.h \
@@ -100,6 +101,6 @@ distclean: clean
 	/bin/rm -f Makefile
 
 splint:
-	@echo "Running splint on libesedb ..." 
-	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libesedb_la_SOURCES) 
+	@echo "Running splint on libesedb ..."
+	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libesedb_la_SOURCES)
 

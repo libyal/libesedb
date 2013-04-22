@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_data_segment.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_database.c"
 				>
 			</File>
@@ -334,6 +338,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_compression.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_data_segment.h"
 				>
 			</File>
 			<File

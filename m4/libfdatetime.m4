@@ -1,6 +1,6 @@
 dnl Functions for libfdatetime
 dnl
-dnl Version: 20120522
+dnl Version: 20130409
 
 dnl Function to detect if libfdatetime is available
 dnl ac_libfdatetime_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -35,19 +35,19 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
    ac_cv_libfdatetime_LIBADD="$pkg_cv_libfdatetime_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libfdatetime.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libfdatetime_h" = xno],
     [ac_cv_libfdatetime=no],
     [dnl Check for the individual functions
     ac_cv_libfdatetime=yes
- 
+
     AC_CHECK_LIB(
      fdatetime,
      libfdatetime_get_version,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
-   
+
     dnl FAT date time functions
     AC_CHECK_LIB(
      fdatetime,
@@ -99,7 +99,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_fat_date_time_copy_to_utf32_string_with_index,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
-   
+
     dnl Filetime functions
     AC_CHECK_LIB(
      fdatetime,
@@ -156,7 +156,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_filetime_add,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
- 
+
     dnl Floatingtime functions
     AC_CHECK_LIB(
      fdatetime,
@@ -208,7 +208,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_floatingtime_copy_to_utf32_string_with_index,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
- 
+
     dnl NSF timedate functions
     AC_CHECK_LIB(
      fdatetime,
@@ -260,7 +260,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_nsf_timedate_copy_to_utf32_string_with_index,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
- 
+
     dnl POSIX time functions
     AC_CHECK_LIB(
      fdatetime,
@@ -317,7 +317,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_posix_time_copy_to_utf32_string_with_index,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
- 
+
     dnl Systemtime functions
     AC_CHECK_LIB(
      fdatetime,
@@ -369,7 +369,7 @@ AC_DEFUN([AX_LIBFDATETIME_CHECK_LIB],
      libfdatetime_systemetime_copy_to_utf32_string_with_index,
      [ac_cv_libfdatetime_dummy=yes],
      [ac_cv_libfdatetime=no])
- 
+
    ac_cv_libfdatetime_LIBADD="-lfdatetime"
    ])
   ])

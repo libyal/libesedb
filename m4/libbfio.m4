@@ -1,6 +1,6 @@
 dnl Functions for libbfio
 dnl
-dnl Version: 20120501
+dnl Version: 20130409
 
 dnl Function to detect if libbfio is available
 AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
@@ -34,7 +34,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
    ac_cv_libbfio_LIBADD="$pkg_cv_libbfio_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libbfio.h])
- 
+
    AS_IF(
     [test "x$ac_cv_header_libbfio_h" = xno],
     [ac_cv_libbfio=no],
@@ -46,7 +46,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_get_version,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-   
+
     dnl Handle functions
     AC_CHECK_LIB(
      bfio,
@@ -83,7 +83,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_handle_seek_offset,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-  
+
     AC_CHECK_LIB(
      bfio,
      libbfio_handle_is_open,
@@ -114,7 +114,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_handle_get_offset_read,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-   
+
     dnl File functions
     AC_CHECK_LIB(
      bfio,
@@ -136,7 +136,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_file_set_name,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-   
+
     AS_IF(
      [test "x$ac_cv_enable_wide_character_type" != xno],
      [AC_CHECK_LIB(
@@ -155,7 +155,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
       [ac_cv_libbfio_dummy=yes],
       [ac_cv_libbfio=no])
      ])
-   
+
     dnl Pool functions
     AC_CHECK_LIB(
      bfio,
@@ -207,7 +207,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_pool_seek_offset,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-   
+
     AC_CHECK_LIB(
      bfio,
      libbfio_pool_get_number_of_handles,
@@ -243,7 +243,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_pool_set_maximum_number_of_open_handles,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
- 
+
     ac_cv_libbfio_LIBADD="-lbfio"
     ])
    ])

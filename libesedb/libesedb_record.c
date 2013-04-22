@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,6 +41,7 @@
 #include "libesedb_values_tree_value.h"
 
 /* Creates a record
+ * Make sure the value record is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_initialize(
@@ -277,7 +278,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees record
+/* Frees a record
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_free(
@@ -907,10 +908,10 @@ int libesedb_record_get_value(
      libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
+	libfvalue_data_handle_t *value_data_handle  = NULL;
 	libfvalue_value_t *record_value             = NULL;
-	uint8_t *value_metadata                     = NULL;
 	static char *function                       = "libesedb_record_get_value";
-	size_t value_metadata_size                  = 0;
+	uint32_t data_flags                         = 0;
 	int encoding                                = 0;
 
 	if( record == NULL )
@@ -964,38 +965,44 @@ int libesedb_record_get_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value data: %d.",
+		 "%s: unable to retrieve value: %d data.",
 		 function,
 		 value_entry );
 
 		return( -1 );
 	}
-	/* The metadata contains the value flags
-	 */
-	if( libfvalue_value_get_metadata(
+	if( libfvalue_value_get_data_handle(
 	     record_value,
-	     &value_metadata,
-	     &value_metadata_size,
+	     (intptr_t **) &value_data_handle,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value metadata: %d.",
+		 "%s: unable to retrieve value: %d data handle.",
 		 function,
 		 value_entry );
 
 		return( -1 );
 	}
-	if( value_metadata != NULL )
+	if( libfvalue_data_handle_get_data_flags(
+	     value_data_handle,
+	     &data_flags,
+	     error ) != 1 )
 	{
-		*value_flags = *value_metadata;
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 value_entry );
+
+		return( -1 );
 	}
-	else
-	{
-		*value_flags = 0;
-	}
+	*value_flags = (uint8_t) data_flags;
+
 	return( 1 );
 }
 
@@ -3548,7 +3555,7 @@ int libesedb_record_get_multi_value(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: value data size exceeds maximum.",
+			 "%s: invalid value data size value out of bounds.",
 			 function );
 
 			return( -1 );

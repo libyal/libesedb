@@ -9,12 +9,12 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -41,6 +41,7 @@
 #include "esedb_page_values.h"
 
 /* Creates a page tree
+ * Make sure the value page_tree is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_initialize(
@@ -136,7 +137,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees page tree
+/* Frees a page tree
  * Returns 1 if successful or -1 on error
  */
 int libesedb_page_tree_free(
@@ -1813,6 +1814,7 @@ int libesedb_page_tree_read_node_value(
      int node_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t node_data_offset,
      size64_t node_data_size,
+     uint32_t node_data_flags LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
@@ -1822,6 +1824,7 @@ int libesedb_page_tree_read_node_value(
 	int result                                      = 0;
 
 	LIBESEDB_UNREFERENCED_PARAMETER( node_data_file_index );
+	LIBESEDB_UNREFERENCED_PARAMETER( node_data_flags );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( page_tree == NULL )
@@ -2020,9 +2023,10 @@ int libesedb_page_tree_read_sub_nodes(
      libbfio_handle_t *file_io_handle,
      libfdata_tree_node_t *node,
      libfcache_cache_t *cache,
-     int sub_nodes_file_index LIBESEDB_ATTRIBUTE_UNUSED,
-     off64_t sub_nodes_offset,
-     size64_t sub_nodes_size LIBESEDB_ATTRIBUTE_UNUSED,
+     int sub_nodes_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
+     off64_t sub_nodes_data_offset,
+     size64_t sub_nodes_data_size LIBESEDB_ATTRIBUTE_UNUSED,
+     uint32_t sub_nodes_data_flags LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
@@ -2030,8 +2034,9 @@ int libesedb_page_tree_read_sub_nodes(
 	static char *function                           = "libesedb_page_tree_read_sub_nodes";
 	uint64_t page_number                            = 0;
 
-	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_file_index );
-	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_size );
+	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_file_index );
+	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_size );
+	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_flags );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( page_tree == NULL )
@@ -2067,18 +2072,18 @@ int libesedb_page_tree_read_sub_nodes(
 
 		return( -1 );
 	}
-	if( sub_nodes_offset < 0 )
+	if( sub_nodes_data_offset < 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid sub nodes offset value less than zero.",
+		 "%s: invalid sub nodes data offset value less than zero.",
 		 function );
 
 		return( -1 );
 	}
-	page_number = (uint64_t) ( ( sub_nodes_offset / page_tree->io_handle->page_size ) + 1 );
+	page_number = (uint64_t) ( ( sub_nodes_data_offset / page_tree->io_handle->page_size ) + 1 );
 
 	if( page_number > (uint64_t) UINT32_MAX )
 	{
@@ -2122,7 +2127,7 @@ int libesedb_page_tree_read_sub_nodes(
 	if( libesedb_page_tree_read_page(
 	     page_tree,
 	     file_io_handle,
-	     sub_nodes_offset,
+	     sub_nodes_data_offset,
 	     (uint32_t) page_number,
 	     node,
 	     values_tree_value,
@@ -2135,7 +2140,7 @@ int libesedb_page_tree_read_sub_nodes(
 		 "%s: unable to read page: %" PRIu64 " at offset: %" PRIi64 ".",
 		 function,
 		 page_number,
-		 sub_nodes_offset );
+		 sub_nodes_data_offset );
 
 		return( -1 );
 	}

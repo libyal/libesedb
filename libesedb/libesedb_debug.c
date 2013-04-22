@@ -535,7 +535,7 @@ void libesedb_debug_print_file_attribute_flags(
 	}
 }
 
-/* Prints a log structure 
+/* Prints a log structure
  * Returns 1 if successful or -1 on error
  */
 int libesedb_debug_print_log_time(

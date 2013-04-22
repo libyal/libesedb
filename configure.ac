@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20130413],
+ [20130421],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -212,6 +212,11 @@ AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([dpkg/copyright])
 AC_CONFIG_FILES([libesedb/libesedb.rc])
+AC_CONFIG_FILES([macosx/libesedb.pmdoc/01bin.xml])
+AC_CONFIG_FILES([macosx/libesedb.pmdoc/02include.xml])
+AC_CONFIG_FILES([macosx/libesedb.pmdoc/03lib.xml])
+AC_CONFIG_FILES([macosx/libesedb.pmdoc/04share.xml])
+AC_CONFIG_FILES([macosx/libesedb.pmdoc/index.xml])
 AC_CONFIG_FILES([macosx/Introduction.rtf])
 AC_CONFIG_FILES([libesedb.pc])
 AC_CONFIG_FILES([libesedb.spec])
