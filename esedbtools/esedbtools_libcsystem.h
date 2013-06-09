@@ -27,7 +27,6 @@
  */
 #if defined( HAVE_LOCAL_LIBCSYSTEM )
 
-#include <libcsystem_date_time.h>
 #include <libcsystem_definitions.h>
 #include <libcsystem_file_io.h>
 #include <libcsystem_file_stream.h>

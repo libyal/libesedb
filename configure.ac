@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20130421],
+ [20130609],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -140,7 +140,7 @@ CFLAGS="$CFLAGS -Wall";
 
 dnl Check if requires and build requires should be set in spec file
 AS_IF(
- [test "x$ac_cv_libcstring" = xyes || test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libcdata" = xyes || test "x$ac_cv_libclocale" = xyes || test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libcsplit" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes || test "x$ac_cv_libbfio" = xyes || test "x$ac_cv_libfcache" = xyes || test "x$ac_cv_libfdata" = xyes || test "x$ac_cv_libfdatetime" = xyes || test "x$ac_cv_libfguid" = xyes],
+ [test "x$ac_cv_libcstring" = xyes || test "x$ac_cv_libcerror" = xyes || test "x$ac_cv_libcdata" = xyes || test "x$ac_cv_libclocale" = xyes || test "x$ac_cv_libcnotify" = xyes || test "x$ac_cv_libcsplit" = xyes || test "x$ac_cv_libuna" = xyes || test "x$ac_cv_libcfile" = xyes || test "x$ac_cv_libcpath" = xyes || test "x$ac_cv_libbfio" = xyes || test "x$ac_cv_libfcache" = xyes || test "x$ac_cv_libfdata" = xyes || test "x$ac_cv_libfdatetime" = xyes || test "x$ac_cv_libfguid" = xyes || test "x$ac_cv_libfvalue" = xyes || test "x$ac_cv_libfwnt" = xyes],
  [AC_SUBST(
   [libesedb_spec_requires],
   [Requires:])
@@ -150,7 +150,7 @@ AS_IF(
  ])
 
 AS_IF(
- [test "x$ac_cv_libfwnt" = xyes || test "x$ac_cv_libfmapi" = xyes || test "x$ac_cv_libmapidb" = xyes || test "x$ac_cv_libcsystem" = xyes],
+ [test "x$ac_cv_libfmapi" = xyes || test "x$ac_cv_libmapidb" = xyes || test "x$ac_cv_libcsystem" = xyes],
  [AC_SUBST(
   [libesedb_spec_tools_build_requires],
   [BuildRequires:])
@@ -190,8 +190,8 @@ AC_CONFIG_FILES([libfdata/Makefile])
 AC_CONFIG_FILES([libfdatetime/Makefile])
 AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libfvalue/Makefile])
-AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
+AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libmapidb/Makefile])
 AC_CONFIG_FILES([libcsystem/Makefile])

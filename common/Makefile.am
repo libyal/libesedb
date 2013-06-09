@@ -6,6 +6,7 @@ EXTRA_DIST = \
 	config.h \
 	config_borlandc.h \
 	config_msc.h \
+	config_winapi.h \
 	file_stream.h \
 	memory.h \
 	types.h \

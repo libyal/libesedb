@@ -1,5 +1,5 @@
 /*
- * Configuration file for Borland/CodeGear C++ Builder compiler
+ * Configuration for the Borland/CodeGear C++ Builder compiler
  *
  * Copyright (c) 2006-2013, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -21,28 +21,6 @@
 
 #if !defined( _CONFIG_BORLANDC_H )
 #define _CONFIG_BORLANDC_H
-
-/* Define to the address where bug reports for this package should be sent.
- */
-#define PACKAGE_BUGREPORT "joachim.metz@gmail.com"
-
-/* Define the size of the wide character for WINAPI
- */
-#if !defined( SIZEOF_WCHAR_T )
-#define SIZEOF_WCHAR_T          2
-#endif
-
-/* Use the C Runtime (CRT) functions instead of the WINAPI functions
-#define USE_CRT_FUNCTIONS	1
- */
-
-/* Enable verbose output
-#define HAVE_VERBOSE_OUTPUT     1
- */
-
-/* Enable debug output
-#define HAVE_DEBUG_OUTPUT       1
- */
 
 #endif
 

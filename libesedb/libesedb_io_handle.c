@@ -921,6 +921,7 @@ int libesedb_io_handle_read_page(
 	}
 	if( libfdata_vector_set_element_value_by_index(
 	     vector,
+	     (intptr_t *) file_io_handle,
 	     cache,
 	     element_index,
 	     (intptr_t *) page,

@@ -134,7 +134,7 @@ int main( int argc, char * const argv[] )
 	libcstring_system_character_t *option_target_path    = NULL;
 	libcstring_system_character_t *path_separator        = NULL;
 	libcstring_system_character_t *source                = NULL;
-	libcerror_error_t *error                              = NULL;
+	libcerror_error_t *error                             = NULL;
 	log_handle_t *log_handle                             = NULL;
 	char *program                                        = "esedbexport";
 	size_t source_length                                 = 0;

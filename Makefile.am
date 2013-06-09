@@ -18,8 +18,8 @@ SUBDIRS = \
 	libfdatetime \
 	libfguid \
 	libfvalue \
-	libesedb \
 	libfwnt \
+	libesedb \
 	libfmapi \
 	libmapidb \
 	libcsystem \
@@ -90,6 +90,7 @@ library:
 	(cd $(srcdir)/libfdatetime && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfvalue && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libfwnt && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libesedb && $(MAKE) $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 
@@ -121,8 +122,8 @@ splint:
 	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfvalue && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
+	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libmapidb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libcsystem && $(MAKE) splint $(AM_MAKEFLAGS))

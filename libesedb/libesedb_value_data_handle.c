@@ -25,6 +25,7 @@
 
 #include "libesedb_definitions.h"
 #include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_value_data_handle.h"
 
@@ -41,14 +42,11 @@ int libesedb_value_data_handle_read_value_entries(
 {
 	static char *function                  = "libesedb_value_data_handle_read_value_entries";
 	size_t data_offset                     = 0;
-	size_t data_size                       = 0;
-	uint32_t data_flags                    = 0;
 	uint16_t number_of_value_entry_offsets = 0;
 	uint16_t value_16bit                   = 0;
 	uint16_t value_entry_offset            = 0;
 	uint16_t value_entry_offset_index      = 0;
 	uint16_t value_entry_size              = 0;
-	int encoding                           = 0;
 	int value_entry_index                  = 0;
 
 	if( data_handle == NULL )

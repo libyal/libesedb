@@ -26,31 +26,18 @@
 #include <config.h>
 #endif
 
-/* Check to see if the Microsoft Visual Studio C++ compiler is used
- */
-#if defined( _MSC_VER )
-#include <config_msc.h>
-#endif
-
-/* Check to see if the Borland/CodeGear C++ Builder compiler is used
+/* Include the Borland/CodeGear C++ Builder compiler specific configuration
  */
 #if defined( __BORLANDC__ )
 #include <config_borlandc.h>
-#endif
 
-/* Make sure WINAPI is defined
+/* Include the Microsoft Visual Studio C++ compiler specific configuration
  */
-#if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( HAVE_WINDOWS_H )
-/* #define WIN32_LEAN_AND_MEAN */
-
-#include <windows.h>
+#elif defined( _MSC_VER )
+#include <config_msc.h>
 #endif
 
-/* Make sure the WINAPI version is build with both the narrow and wide character functions
- */
-#if defined( WINAPI ) && !defined( HAVE_WIDE_CHARACTER_TYPE )
-#define HAVE_WIDE_CHARACTER_TYPE	1
-#endif
+#include <config_winapi.h>
 
 #endif
 
