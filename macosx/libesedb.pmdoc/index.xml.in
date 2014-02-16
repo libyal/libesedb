@@ -25,6 +25,9 @@
 		<choice title="man pages" id="choiceshare" starts_selected="true" starts_enabled="true" starts_hidden="false">
 			<pkgref id="com.google.code.p.libesedb.share.pkg"/>
 		</choice>
+		<choice title="python" id="choicepython" starts_selected="true" starts_enabled="true" starts_hidden="false">
+			<pkgref id="com.google.code.p.libesedb.site-packages.pkg"/>
+		</choice>
 	</contents>
 	<resources bg-scale="none" bg-align="topleft">
 		<locale lang="en">
@@ -38,6 +41,7 @@
 	<item type="file">02include.xml</item>
 	<item type="file">03lib.xml</item>
 	<item type="file">04share.xml</item>
+	<item type="file">05python.xml</item>
 	<mod>properties.title</mod>
 	<mod>properties.customizeOption</mod>
 	<mod>properties.anywhereDomain</mod>

@@ -1,7 +1,7 @@
 /*
  * Debug functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -532,6 +532,79 @@ void libesedb_debug_print_file_attribute_flags(
 	{
 		libcnotify_printf(
 		 "\tIs virtual (FILE_ATTRIBUTE_VIRTUAL)\n" );
+	}
+}
+
+/* Prints the LCMAP flags
+ * Returns 1 if successful or -1 on error
+ */
+void libesedb_debug_print_lcmap_flags(
+      uint32_t lcmap_flags )
+{
+	if( ( lcmap_flags & 0x00000300 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_TITLECASE)\n" );
+	}
+	else if( ( lcmap_flags & 0x00000100 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_LOWERCASE)\n" );
+	}
+	else if( ( lcmap_flags & 0x00000200 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_UPPERCASE)\n" );
+	}
+
+	if( ( lcmap_flags & 0x00000400 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_SORTKEY)\n" );
+	}
+	if( ( lcmap_flags & 0x00000800 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_BYTEREV)\n" );
+	}
+
+	if( ( lcmap_flags & 0x00100000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_HIRAGANA)\n" );
+	}
+	if( ( lcmap_flags & 0x00200000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_KATAKANA)\n" );
+	}
+
+	if( ( lcmap_flags & 0x00400000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_HALFWIDTH)\n" );
+	}
+	if( ( lcmap_flags & 0x00800000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_FULLWIDTH)\n" );
+	}
+
+	if( ( lcmap_flags & 0x01000000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_LINGUISTIC_CASING)\n" );
+	}
+
+	if( ( lcmap_flags & 0x02000000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_SIMPLIFIED_CHINESE)\n" );
+	}
+	if( ( lcmap_flags & 0x04000000 ) != 0 )
+	{
+		libcnotify_printf(
+		 "\t(LCMAP_TRADITIONAL_CHINESE)\n" );
 	}
 }
 

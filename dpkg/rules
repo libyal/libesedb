@@ -7,6 +7,8 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
+PYTHON_PACKAGE_DIR=$(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_lib(True) ")
+
 
 %:
 	dh  $@
@@ -38,9 +40,17 @@ install_libesedb_tools:
 	install -p -m755 debian/tmp/usr/bin/* debian/libesedb-tools/usr/bin
 	install -p -m755 debian/tmp/usr/share/man/man1/* debian/libesedb-tools/usr/share/man/man1
 
+install_libesedb_python:
+	# Set up libesedb-python package directories and files
+	mkdir -p debian/libesedb-python/$(PYTHON_PACKAGE_DIR)
+	install -p -m775 debian/tmp$(PYTHON_PACKAGE_DIR)/pyesedb.* debian/libesedb-python$(PYTHON_PACKAGE_DIR)
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-python
+
 override_dh_auto_test:
 
-override_dh_installinit: install_libesedb install_libesedb_dev install_libesedb_tools
+override_dh_installinit: install_libesedb install_libesedb_dev install_libesedb_tools install_libesedb_python
 
 override_dh_installmenu:
 
@@ -67,6 +77,8 @@ override_dh_gconf:
 override_dh_icons:
 
 override_dh_perl:
+
+override_dh_pysupport:
 
 override_dh_shlibdeps:
 	dh_shlibdeps -Llibesdb -l${PWD}/debian/tmp/usr/lib

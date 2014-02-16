@@ -1,7 +1,7 @@
 /*
  * Catalog definition functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -66,6 +66,10 @@ struct libesedb_catalog_definition
 	/* The codepage
 	 */
 	uint32_t codepage;
+
+	/* The LCMAP flags
+	 */
+	uint32_t lcmap_flags;
 
 	/* The name
 	 */

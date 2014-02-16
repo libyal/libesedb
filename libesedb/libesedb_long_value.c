@@ -1,7 +1,7 @@
 /*
  * Long value functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -49,7 +49,6 @@ int libesedb_long_value_initialize(
      libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
-     uint8_t flags,
      libcerror_error_t **error )
 {
 	uint8_t long_value_segment_key[ 8 ];
@@ -116,18 +115,6 @@ int libesedb_long_value_initialize(
 
 		return( -1 );
 	}
-	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags: 0x%02" PRIx8 ".",
-		 function,
-		 flags );
-
-		return( -1 );
-	}
 	internal_long_value = memory_allocate_structure(
 	                       libesedb_internal_long_value_t );
 
@@ -158,41 +145,6 @@ int libesedb_long_value_initialize(
 		 internal_long_value );
 
 		return( -1 );
-	}
-	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-	{
-		internal_long_value->file_io_handle = file_io_handle;
-	}
-	else
-	{
-		if( libbfio_handle_clone(
-		     &( internal_long_value->file_io_handle ),
-		     file_io_handle,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy file IO handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( libbfio_handle_set_open_on_demand(
-		     internal_long_value->file_io_handle,
-		     1,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to set open on demand in file IO handle.",
-			 function );
-
-			goto on_error;
-		}
 	}
 	if( libfdata_list_initialize(
 	     &( internal_long_value->data_segments_list ),
@@ -229,7 +181,7 @@ int libesedb_long_value_initialize(
 	}
 	if( libesedb_values_tree_get_value_by_key(
 	     long_values_tree,
-	     internal_long_value->file_io_handle,
+	     file_io_handle,
 	     long_values_cache,
 	     long_value_key,
 	     long_value_key_size,
@@ -248,7 +200,7 @@ int libesedb_long_value_initialize(
 	}
 	if( libesedb_values_tree_value_read_long_value(
 	     values_tree_value,
-	     internal_long_value->file_io_handle,
+	     file_io_handle,
 	     long_values_pages_vector,
 	     long_values_pages_cache,
 	     error ) != 1 )
@@ -277,7 +229,7 @@ int libesedb_long_value_initialize(
 
 		result = libesedb_values_tree_get_value_by_key(
 			  long_values_tree,
-			  internal_long_value->file_io_handle,
+			  file_io_handle,
 			  long_values_cache,
 			  long_value_segment_key,
 			  8,
@@ -300,7 +252,7 @@ int libesedb_long_value_initialize(
 		{
 			if( libesedb_values_tree_value_read_long_value_segment(
 			     values_tree_value,
-			     internal_long_value->file_io_handle,
+			     file_io_handle,
 			     io_handle,
 			     long_values_pages_vector,
 			     long_values_pages_cache,
@@ -322,8 +274,8 @@ int libesedb_long_value_initialize(
 	}
 	while( result == 1 );
 
+	internal_long_value->file_io_handle            = file_io_handle;
 	internal_long_value->column_catalog_definition = column_catalog_definition;
-	internal_long_value->flags                     = flags;
 
 	*long_value = (libesedb_long_value_t *) internal_long_value;
 
@@ -343,15 +295,6 @@ on_error:
 			libfdata_list_free(
 			 &( internal_long_value->data_segments_list ),
 			 NULL );
-		}
-		if( internal_long_value->file_io_handle != NULL )
-		{
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_long_value->file_io_handle ),
-				 NULL );
-			}
 		}
 		memory_free(
 		 internal_long_value );
@@ -386,38 +329,8 @@ int libesedb_long_value_free(
 		internal_long_value = (libesedb_internal_long_value_t *) *long_value;
 		*long_value         = NULL;
 
-		if( ( internal_long_value->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-		{
-			if( internal_long_value->file_io_handle != NULL )
-			{
-				if( libbfio_handle_close(
-				     internal_long_value->file_io_handle,
-				     error ) != 0 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-					 "%s: unable to close file IO handle.",
-					 function );
-
-					result = -1;
-				}
-				if( libbfio_handle_free(
-				     &( internal_long_value->file_io_handle ),
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free file IO handle.",
-					 function );
-
-					result = -1;
-				}
-			}
-		}
+		/* The file_io_handle reference is freed elsewhere
+		 */
 		if( libfdata_list_free(
 		     &( internal_long_value->data_segments_list ),
 		     error ) != 1 )

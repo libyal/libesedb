@@ -1,7 +1,7 @@
 /*
  * Values tree value functions
  *
- * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -356,6 +356,7 @@ int libesedb_values_tree_value_read_data(
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	static char *function             = "libesedb_values_tree_value_read_data";
+	off64_t element_data_offset       = 0;
 
 	if( values_tree_value == NULL )
 	{
@@ -419,6 +420,7 @@ int libesedb_values_tree_value_read_data(
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -427,7 +429,7 @@ int libesedb_values_tree_value_read_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 values_tree_value->page_number,
 		 values_tree_value->page_offset );
@@ -525,6 +527,7 @@ int libesedb_values_tree_value_read_record(
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
 	static char *function                                           = "libesedb_values_tree_value_read_record";
+	off64_t element_data_offset                                     = 0;
 	size_t record_data_size                                         = 0;
 	size_t remaining_definition_data_size                           = 0;
 	uint16_t fixed_size_data_type_value_offset                      = 0;
@@ -638,6 +641,7 @@ int libesedb_values_tree_value_read_record(
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -646,7 +650,7 @@ int libesedb_values_tree_value_read_record(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 values_tree_value->page_number,
 		 values_tree_value->page_offset );
@@ -1043,6 +1047,13 @@ int libesedb_values_tree_value_read_record(
 			if( record_value_codepage == 0 )
 			{
 				record_value_codepage = io_handle->ascii_codepage;
+			}
+			/* Codepage 1200 in the ESE database format is not strict UTF-16 little endian
+			 * it can be used for ASCII strings as well. This could be SCSU.
+			 */
+			if( record_value_codepage == 1200 )
+			{
+				record_value_codepage = LIBFVALUE_CODEPAGE_1200_MIXED;
 			}
 			encoding = record_value_codepage;
 		}
@@ -1706,6 +1717,7 @@ int libesedb_values_tree_value_read_long_value(
 	uint8_t *long_value_data          = NULL;
 	static char *function             = "libesedb_values_tree_value_read_long_value";
 	size_t long_value_data_size       = 0;
+	off64_t element_data_offset       = 0;
 	uint32_t value_32bit              = 0;
 
 	if( values_tree_value == NULL )
@@ -1736,6 +1748,7 @@ int libesedb_values_tree_value_read_long_value(
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -1744,7 +1757,7 @@ int libesedb_values_tree_value_read_long_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 values_tree_value->page_number,
 		 values_tree_value->page_offset );
@@ -1891,9 +1904,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	libesedb_page_t *page                  = NULL;
 	libesedb_page_value_t *page_value      = NULL;
 	static char *function                  = "libesedb_values_tree_value_read_long_value_segment";
+	off64_t element_data_offset            = 0;
 	off64_t long_value_segment_data_offset = 0;
-	size_t long_value_segment_data_size    = 0;
 	size64_t data_size                     = 0;
+	size_t long_value_segment_data_size    = 0;
 	int element_index                      = 0;
 
 	if( values_tree_value == NULL )
@@ -1924,6 +1938,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
 	     values_tree_value->page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -1932,7 +1947,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 values_tree_value->page_number,
 		 values_tree_value->page_offset );
@@ -2012,9 +2027,10 @@ int libesedb_values_tree_value_read_long_value_segment(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: long value segment with offset: %" PRIu32 " has data at offset: %" PRIi64 " of size: %" PRIzd "\n",
+		 "%s: long value segment with offset: %" PRIu32 " has data at offset: %" PRIi64 " (0x%08" PRIx64 ") of size: %" PRIzd "\n",
 		 function,
 		 long_value_segment_offset,
+		 long_value_segment_data_offset,
 		 long_value_segment_data_offset,
 		 long_value_segment_data_size );
 		libcnotify_printf(
@@ -2061,7 +2077,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append long value segment at offset: %" PRIu32 " to data segments list.",
+		 "%s: unable to append long value segment at offset: 0x%08" PRIx64 " to data segments list.",
 		 function,
 		 long_value_segment_offset );
 

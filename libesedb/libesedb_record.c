@@ -1,7 +1,7 @@
 /*
  * Record (row) functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -58,7 +58,6 @@ int libesedb_record_initialize(
      libfcache_cache_t *values_cache,
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
-     uint8_t flags,
      libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record     = NULL;
@@ -109,18 +108,6 @@ int libesedb_record_initialize(
 
 		return( -1 );
 	}
-	if( ( flags & ~( LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) ) != 0 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported flags: 0x%02" PRIx8 ".",
-		 function,
-		 flags );
-
-		return( -1 );
-	}
 	internal_record = memory_allocate_structure(
 	                   libesedb_internal_record_t );
 
@@ -152,41 +139,6 @@ int libesedb_record_initialize(
 
 		return( -1 );
 	}
-	if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) == 0 )
-	{
-		internal_record->file_io_handle = file_io_handle;
-	}
-	else
-	{
-		if( libbfio_handle_clone(
-		     &( internal_record->file_io_handle ),
-		     file_io_handle,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy file IO handle.",
-			 function );
-
-			goto on_error;
-		}
-		if( libbfio_handle_set_open_on_demand(
-		     internal_record->file_io_handle,
-		     1,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to set open on demand in file IO handle.",
-			 function );
-
-			goto on_error;
-		}
-	}
 	if( libcdata_array_initialize(
 	     &( internal_record->values_array ),
 	     0,
@@ -203,7 +155,7 @@ int libesedb_record_initialize(
 	}
 	if( libfdata_tree_node_get_node_value(
 	     values_tree_node,
-	     (intptr_t *) internal_record->file_io_handle,
+	     (intptr_t *) file_io_handle,
 	     values_cache,
 	     (intptr_t **) &values_tree_value,
 	     0,
@@ -220,7 +172,7 @@ int libesedb_record_initialize(
 	}
 	if( libesedb_values_tree_value_read_record(
 	     values_tree_value,
-	     internal_record->file_io_handle,
+	     file_io_handle,
 	     io_handle,
 	     pages_vector,
 	     pages_cache,
@@ -239,6 +191,7 @@ int libesedb_record_initialize(
 		goto on_error;
 	}
 	internal_record->io_handle                 = io_handle;
+	internal_record->file_io_handle            = file_io_handle;
 	internal_record->table_definition          = table_definition;
 	internal_record->template_table_definition = template_table_definition;
 	internal_record->pages_vector              = pages_vector;
@@ -247,7 +200,6 @@ int libesedb_record_initialize(
 	internal_record->long_values_pages_cache   = long_values_pages_cache;
 	internal_record->long_values_tree          = long_values_tree;
 	internal_record->long_values_cache         = long_values_cache;
-	internal_record->flags                     = flags;
 
 	*record = (libesedb_record_t *) internal_record;
 
@@ -262,15 +214,6 @@ on_error:
 			 &( internal_record->values_array ),
 			 NULL,
 			 NULL );
-		}
-		if( internal_record->file_io_handle != NULL )
-		{
-			if( ( flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-			{
-				libbfio_handle_free(
-				 &( internal_record->file_io_handle ),
-				 NULL );
-			}
 		}
 		memory_free(
 		 internal_record );
@@ -305,42 +248,10 @@ int libesedb_record_free(
 		internal_record = (libesedb_internal_record_t *) *record;
 		*record         = NULL;
 
-		/* The io_handle, table_definition, template_table_definition, pages_vector, pages_cache,
-		 * long_values_pages_vector, long_values_pages_cache, long_values_tree
+		/* The io_handle, file_io_handle, table_definition, template_table_definition, pages_vector,
+		 * pages_cache, * long_values_pages_vector, long_values_pages_cache, long_values_tree
 		 * and long_values_cache references are freed elsewhere
 		 */
-		if( ( internal_record->flags & LIBESEDB_ITEM_FLAG_MANAGED_FILE_IO_HANDLE ) != 0 )
-		{
-			if( internal_record->file_io_handle != NULL )
-			{
-				if( libbfio_handle_close(
-				     internal_record->file_io_handle,
-				     error ) != 0 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_CLOSE_FAILED,
-					 "%s: unable to close file IO handle.",
-					 function );
-
-					result = -1;
-				}
-				if( libbfio_handle_free(
-				     &( internal_record->file_io_handle ),
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-					 "%s: unable to free file IO handle.",
-					 function );
-
-					result = -1;
-				}
-			}
-		}
 		if( libcdata_array_free(
 		     &( internal_record->values_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
@@ -3245,7 +3156,6 @@ int libesedb_record_get_long_value(
 		     internal_record->long_values_cache,
 		     value_data,
 		     value_data_size,
-		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -3546,12 +3456,11 @@ int libesedb_record_get_multi_value(
 			}
 			value_entry_size = value_16bit - value_entry_offset;
 
-			if( libfvalue_value_append_entry_data(
+			if( libfvalue_value_append_entry(
 			     record_value,
 			     &value_entry_index,
-			     &( value_data[ value_entry_offset ] ),
+			     (size_t) value_entry_offset,
 			     (size_t) value_entry_size,
-			     encoding,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -3568,12 +3477,11 @@ int libesedb_record_get_multi_value(
 		}
 		value_entry_size = (uint16_t) value_data_size - value_entry_offset;
 
-		if( libfvalue_value_append_entry_data(
+		if( libfvalue_value_append_entry(
 		     record_value,
 		     &value_entry_index,
-		     &( value_data[ value_entry_offset ] ),
+		     (size_t) value_entry_offset,
 		     (size_t) value_entry_size,
-		     encoding,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

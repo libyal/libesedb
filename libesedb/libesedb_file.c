@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -799,6 +799,7 @@ int libesedb_file_open_read(
 	off64_t file_offset   = 0;
 	size64_t file_size    = 0;
 	int result            = 0;
+	int segment_index     = 0;
 
 	if( internal_file == NULL )
 	{
@@ -1063,10 +1064,10 @@ int libesedb_file_open_read(
 	}
 	if( libfdata_vector_append_segment(
 	     internal_file->pages_vector,
+	     &segment_index,
 	     0,
 	     internal_file->io_handle->pages_data_offset,
 	     internal_file->io_handle->pages_data_size,
-	     0,
 	     0,
 	     error ) != 1 )
 	{
@@ -1602,7 +1603,6 @@ int libesedb_file_get_table(
 	     internal_file->io_handle,
 	     table_definition,
 	     template_table_definition,
-	     LIBESEDB_ITEM_FLAGS_DEFAULT,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1735,7 +1735,6 @@ int libesedb_file_get_table_by_utf8_name(
 		     internal_file->io_handle,
 		     table_definition,
 		     template_table_definition,
-		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1869,7 +1868,6 @@ int libesedb_file_get_table_by_utf16_name(
 		     internal_file->io_handle,
 		     table_definition,
 		     template_table_definition,
-		     LIBESEDB_ITEM_FLAGS_DEFAULT,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

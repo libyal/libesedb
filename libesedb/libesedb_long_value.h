@@ -1,7 +1,7 @@
 /*
  * Long value functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -58,10 +58,6 @@ struct libesedb_internal_long_value
 	 */
 	libfcache_cache_t *long_values_cache;
 
-	/* The item flags
-	 */
-	uint8_t flags;
-
 	/* The data segments list
 	 */
 	libfdata_list_t *data_segments_list;
@@ -82,7 +78,6 @@ int libesedb_long_value_initialize(
      libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
-     uint8_t flags,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

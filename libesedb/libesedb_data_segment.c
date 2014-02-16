@@ -1,7 +1,7 @@
 /*
  * Data segment functions
  *
- * Copyright (c) 2010-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2010-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -252,7 +252,7 @@ int libesedb_data_segment_read_element_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read data segment at offset: %" PRIi64 ".",
+		 "%s: unable to read data segment at offset: 0x%08" PRIx64 ".",
 		 function,
 		 element_offset );
 

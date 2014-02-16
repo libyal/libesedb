@@ -1,7 +1,7 @@
 /*
  * Catalog definition functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -379,6 +379,12 @@ int libesedb_catalog_definition_read(
 		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->codepage,
 		 catalog_definition->codepage );
 	}
+	if( last_fixed_size_data_type >= 10 )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags,
+		 catalog_definition->lcmap_flags );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -544,15 +550,15 @@ int libesedb_catalog_definition_read(
 		}
 		if( last_fixed_size_data_type >= 10 )
 		{
-			byte_stream_copy_to_uint32_little_endian(
-			 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->lc_map_flags,
-			 value_32bit );
-
 			libcnotify_printf(
 			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 data_type_number++,
-			 value_32bit );
+			 catalog_definition->lcmap_flags );
+			libesedb_debug_print_lcmap_flags(
+			 catalog_definition->lcmap_flags );
+			libcnotify_printf(
+			 "\n" );
 		}
 		if( last_fixed_size_data_type >= 11 )
 		{

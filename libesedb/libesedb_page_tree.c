@@ -1,7 +1,7 @@
 /*
  * Page tree functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -184,6 +184,7 @@ int libesedb_page_tree_read_root_page(
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	static char *function             = "libesedb_page_tree_read_root_page";
+	off64_t element_data_offset       = 0;
 	uint32_t extent_space             = 0;
 	uint32_t required_flags           = 0;
 	uint32_t supported_flags          = 0;
@@ -211,6 +212,7 @@ int libesedb_page_tree_read_root_page(
 	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -219,7 +221,7 @@ int libesedb_page_tree_read_root_page(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 page_number,
 		 page_offset );
@@ -919,6 +921,7 @@ int libesedb_page_tree_read_page(
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	static char *function             = "libesedb_page_tree_read_page";
+	off64_t element_data_offset       = 0;
 	off64_t node_data_offset          = 0;
 	uint32_t supported_flags          = 0;
 	uint16_t number_of_page_values    = 0;
@@ -968,6 +971,7 @@ int libesedb_page_tree_read_page(
 	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -976,7 +980,7 @@ int libesedb_page_tree_read_page(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 page_number,
 		 page_offset );
@@ -1277,6 +1281,7 @@ int libesedb_page_tree_read_page_value(
 	libesedb_page_value_t *page_value        = NULL;
 	uint8_t *page_value_data                 = NULL;
 	static char *function                    = "libesedb_page_tree_read_page_value";
+	off64_t element_data_offset              = 0;
 	off64_t sub_nodes_offset                 = 0;
 	uint32_t child_page_number               = 0;
 	uint16_t common_key_size                 = 0;
@@ -1328,6 +1333,7 @@ int libesedb_page_tree_read_page_value(
 	     (intptr_t *) file_io_handle,
 	     page_tree->pages_cache,
 	     page_offset,
+	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
 	     error ) != 1 )
@@ -1336,7 +1342,7 @@ int libesedb_page_tree_read_page_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 page_number,
 		 page_offset );
@@ -1379,6 +1385,7 @@ int libesedb_page_tree_read_page_value(
 		     (intptr_t *) file_io_handle,
 		     page_tree->pages_cache,
 		     page_offset,
+		     &element_data_offset,
 		     (intptr_t **) &page,
 		     0,
 		     error ) != 1 )
@@ -1387,7 +1394,7 @@ int libesedb_page_tree_read_page_value(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve page: %" PRIu32 " at offset: %" PRIi64 ".",
+			 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 			 function,
 			 page_number,
 			 page_offset );
@@ -1767,10 +1774,12 @@ int libesedb_page_tree_read_page_value(
 			sub_nodes_offset  = child_page_number - 1;
 			sub_nodes_offset *= page_tree->io_handle->page_size;
 
-			if( libfdata_tree_node_set_sub_nodes_range(
+			if( libfdata_tree_node_set_sub_nodes_data_range(
 			     value_tree_node,
+			     0,
 			     sub_nodes_offset,
 			     0,
+			     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -1942,10 +1951,12 @@ int libesedb_page_tree_read_node_value(
 	{
 		/* The values tree root node is virtual
 		 */
-		if( libfdata_tree_node_set_sub_nodes_range(
+		if( libfdata_tree_node_set_sub_nodes_data_range(
 		     node,
+		     0,
 		     node_data_offset,
 		     0,
+		     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -2137,7 +2148,7 @@ int libesedb_page_tree_read_sub_nodes(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page: %" PRIu64 " at offset: %" PRIi64 ".",
+		 "%s: unable to read page: %" PRIu64 " at offset: 0x%08" PRIx64 ".",
 		 function,
 		 page_number,
 		 sub_nodes_data_offset );

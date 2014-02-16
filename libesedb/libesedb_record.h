@@ -1,7 +1,7 @@
 /*
  * Record (row) functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -83,10 +83,6 @@ struct libesedb_internal_record
 	 */
 	libfcache_cache_t *long_values_cache;
 
-	/* The item flags
-	 */
-	uint8_t flags;
-
 	/* The values array
 	*/
 	libcdata_array_t *values_array;
@@ -106,7 +102,6 @@ int libesedb_record_initialize(
      libfcache_cache_t *values_cache,
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
-     uint8_t flags,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

@@ -1,7 +1,7 @@
 /*
  * Table functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -58,10 +58,6 @@ struct libesedb_internal_table
 	 */
 	libesedb_table_definition_t *template_table_definition;
 
-	/* The item flags
-	 */
-	uint8_t flags;
-
 	/* The pages vector
 	 */
 	libfdata_vector_t *pages_vector;
@@ -101,7 +97,6 @@ int libesedb_table_initialize(
      libesedb_io_handle_t *io_handle,
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
-     uint8_t flags,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

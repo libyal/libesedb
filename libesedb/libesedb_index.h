@@ -1,7 +1,7 @@
 /*
  * Index functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -95,10 +95,6 @@ struct libesedb_internal_index
 	 */
 	libfcache_cache_t *long_values_cache;
 
-	/* The item flags
-	 */
-	uint8_t flags;
-
 	/* The table values (data) tree
 	 */
 	libfdata_tree_t *index_values_tree;
@@ -123,7 +119,6 @@ int libesedb_index_initialize(
      libfcache_cache_t *table_values_cache,
      libfdata_tree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
-     uint8_t flags,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

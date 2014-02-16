@@ -1,7 +1,7 @@
 /*
  * Debug functions
  *
- * Copyright (c) 2009-2013, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -60,6 +60,9 @@ void libesedb_debug_print_index_group_of_bits(
 
 void libesedb_debug_print_file_attribute_flags(
       uint32_t file_attribute_flags );
+
+void libesedb_debug_print_lcmap_flags(
+      uint32_t lcmap_flags );
 
 int libesedb_debug_print_log_time(
      uint8_t *log_time,

@@ -1,0 +1,999 @@
+/*
+ * Python object definition of the libesedb file
+ *
+ * Copyright (c) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
+ *
+ * Refer to AUTHORS for acknowledgements.
+ *
+ * This software is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include <common.h>
+#include <types.h>
+
+#if defined( HAVE_STDLIB_H ) || defined( HAVE_WINAPI )
+#include <stdlib.h>
+#endif
+
+#include "pyesedb_error.h"
+#include "pyesedb_file.h"
+#include "pyesedb_file_object_io_handle.h"
+#include "pyesedb_libcerror.h"
+#include "pyesedb_libclocale.h"
+#include "pyesedb_libcstring.h"
+#include "pyesedb_libesedb.h"
+#include "pyesedb_python.h"
+#include "pyesedb_table.h"
+#include "pyesedb_tables.h"
+#include "pyesedb_unused.h"
+
+#if !defined( LIBESEDB_HAVE_BFIO )
+LIBESEDB_EXTERN \
+int libesedb_file_open_file_io_handle(
+     libesedb_file_t *file,
+     libbfio_handle_t *file_io_handle,
+     int access_flags,
+     libesedb_error_t **error );
+#endif
+
+PyMethodDef pyesedb_file_object_methods[] = {
+
+	{ "signal_abort",
+	  (PyCFunction) pyesedb_file_signal_abort,
+	  METH_NOARGS,
+	  "signal_abort() -> None\n"
+	  "\n"
+	  "Signals the file to abort the current activity." },
+
+	/* Functions to access the file */
+
+	{ "open",
+	  (PyCFunction) pyesedb_file_open,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "open(filename, mode='r') -> None\n"
+	  "\n"
+	  "Opens a file." },
+
+	{ "open_file_object",
+	  (PyCFunction) pyesedb_file_open_file_object,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "open_file_object(file_object, mode='r') -> None\n"
+	  "\n"
+	  "Opens a file using a file-like object." },
+
+	{ "close",
+	  (PyCFunction) pyesedb_file_close,
+	  METH_NOARGS,
+	  "close() -> None\n"
+	  "\n"
+	  "Closes a file." },
+
+	/* Functions to access the file values */
+
+	/* Functions to access the tables */
+
+	{ "get_number_of_tables",
+	  (PyCFunction) pyesedb_file_get_number_of_tables,
+	  METH_NOARGS,
+	  "get_number_of_tables() -> Integer\n"
+	  "\n"
+	  "Retrieves the number of tables" },
+
+	{ "get_table",
+	  (PyCFunction) pyesedb_file_get_table,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_table(table_index) -> Object or None\n"
+	  "\n"
+	  "Retrieves a specific table" },
+
+	{ "get_table_by_name",
+	  (PyCFunction) pyesedb_file_get_table_by_name,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_table_by_name(name) -> Object or None\n"
+	  "\n"
+	  "Retrieves a table specified by the name." },
+
+	/* Sentinel */
+	{ NULL, NULL, 0, NULL }
+};
+
+PyGetSetDef pyesedb_file_object_get_set_definitions[] = {
+
+	{ "number_of_tables",
+	  (getter) pyesedb_file_get_number_of_tables,
+	  (setter) 0,
+	  "The number of tables",
+	  NULL },
+
+	{ "tables",
+	  (getter) pyesedb_file_get_tables,
+	  (setter) 0,
+	  "The tables",
+	  NULL },
+
+	/* Sentinel */
+	{ NULL, NULL, NULL, NULL, NULL }
+};
+
+PyTypeObject pyesedb_file_type_object = {
+	PyObject_HEAD_INIT( NULL )
+
+	/* ob_size */
+	0,
+	/* tp_name */
+	"pyesedb.file",
+	/* tp_basicsize */
+	sizeof( pyesedb_file_t ),
+	/* tp_itemsize */
+	0,
+	/* tp_dealloc */
+	(destructor) pyesedb_file_free,
+	/* tp_print */
+	0,
+	/* tp_getattr */
+	0,
+	/* tp_setattr */
+	0,
+	/* tp_compare */
+	0,
+	/* tp_repr */
+	0,
+	/* tp_as_number */
+	0,
+	/* tp_as_sequence */
+	0,
+	/* tp_as_mapping */
+	0,
+	/* tp_hash */
+	0,
+	/* tp_call */
+	0,
+	/* tp_str */
+	0,
+	/* tp_getattro */
+	0,
+	/* tp_setattro */
+	0,
+	/* tp_as_buffer */
+	0,
+        /* tp_flags */
+	Py_TPFLAGS_DEFAULT,
+	/* tp_doc */
+	"pyesedb file object (wraps libesedb_file_t)",
+	/* tp_traverse */
+	0,
+	/* tp_clear */
+	0,
+	/* tp_richcompare */
+	0,
+	/* tp_weaklistoffset */
+	0,
+	/* tp_iter */
+	0,
+	/* tp_iternext */
+	0,
+	/* tp_methods */
+	pyesedb_file_object_methods,
+	/* tp_members */
+	0,
+	/* tp_getset */
+	pyesedb_file_object_get_set_definitions,
+	/* tp_base */
+	0,
+	/* tp_dict */
+	0,
+	/* tp_descr_get */
+	0,
+	/* tp_descr_set */
+	0,
+	/* tp_dictoffset */
+	0,
+	/* tp_init */
+	(initproc) pyesedb_file_init,
+	/* tp_alloc */
+	0,
+	/* tp_new */
+	0,
+	/* tp_free */
+	0,
+	/* tp_is_gc */
+	0,
+	/* tp_bases */
+	NULL,
+	/* tp_mro */
+	NULL,
+	/* tp_cache */
+	NULL,
+	/* tp_subclasses */
+	NULL,
+	/* tp_weaklist */
+	NULL,
+	/* tp_del */
+	0
+};
+
+/* Creates a new file object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_new(
+           void )
+{
+	pyesedb_file_t *pyesedb_file = NULL;
+	static char *function    = "pyesedb_file_new";
+
+	pyesedb_file = PyObject_New(
+	              struct pyesedb_file,
+	              &pyesedb_file_type_object );
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to initialize file.",
+		 function );
+
+		goto on_error;
+	}
+	if( pyesedb_file_init(
+	     pyesedb_file ) != 0 )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to initialize file.",
+		 function );
+
+		goto on_error;
+	}
+	return( (PyObject *) pyesedb_file );
+
+on_error:
+	if( pyesedb_file != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyesedb_file );
+	}
+	return( NULL );
+}
+
+/* Creates a new file object and opens it
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_new_open(
+           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *pyesedb_file = NULL;
+
+	PYESEDB_UNREFERENCED_PARAMETER( self )
+
+	pyesedb_file = pyesedb_file_new();
+
+	pyesedb_file_open(
+	 (pyesedb_file_t *) pyesedb_file,
+	 arguments,
+	 keywords );
+
+	return( pyesedb_file );
+}
+
+/* Creates a new file object and opens it
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_new_open_file_object(
+           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *pyesedb_file = NULL;
+
+	PYESEDB_UNREFERENCED_PARAMETER( self )
+
+	pyesedb_file = pyesedb_file_new();
+
+	pyesedb_file_open_file_object(
+	 (pyesedb_file_t *) pyesedb_file,
+	 arguments,
+	 keywords );
+
+	return( pyesedb_file );
+}
+
+/* Intializes a file object
+ * Returns 0 if successful or -1 on error
+ */
+int pyesedb_file_init(
+     pyesedb_file_t *pyesedb_file )
+{
+	static char *function    = "pyesedb_file_init";
+	libcerror_error_t *error = NULL;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	/* Make sure libesedb file is set to NULL
+	 */
+	pyesedb_file->file = NULL;
+
+	if( libesedb_file_initialize(
+	     &( pyesedb_file->file ),
+	     &error ) != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_MemoryError,
+		 "%s: unable to initialize file.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( -1 );
+	}
+	return( 0 );
+}
+
+/* Frees a file object
+ */
+void pyesedb_file_free(
+      pyesedb_file_t *pyesedb_file )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyesedb_file_free";
+	int result               = 0;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return;
+	}
+	if( pyesedb_file->ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file - missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( pyesedb_file->ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file - invalid ob_type - missing tp_free.",
+		 function );
+
+		return;
+	}
+	if( pyesedb_file->file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file - missing libesedb file.",
+		 function );
+
+		return;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_free(
+	          &( pyesedb_file->file ),
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free libesedb file.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+	}
+	pyesedb_file->ob_type->tp_free(
+	 (PyObject*) pyesedb_file );
+}
+
+/* Signals the file to abort the current activity
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_signal_abort(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyesedb_file_signal_abort";	
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_signal_abort(
+	          pyesedb_file->file,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to signal abort.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	Py_IncRef(
+	 Py_None );
+
+	return( Py_None );
+}
+
+/* Opens a file
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_open(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	char *filename              = NULL;
+	char *mode                  = NULL;
+	static char *keyword_list[] = { "filename", "mode", NULL };
+	static char *function       = "pyesedb_file_open";
+	int result                  = 0;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "s|s",
+	     keyword_list,
+	     &filename,
+	     &mode ) == 0 )
+        {
+                return( NULL );
+        }
+	if( ( mode != NULL )
+	 && ( mode[ 0 ] != 'r' ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: unsupported mode: %s.",
+		 function,
+		 mode );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_open(
+	          pyesedb_file->file,
+                  filename,
+                  LIBESEDB_OPEN_READ,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to open file.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	Py_IncRef(
+	 Py_None );
+
+	return( Py_None );
+}
+
+/* Opens a file using a file-like object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_open_file_object(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *file_object            = NULL;
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	char *mode                       = NULL;
+	static char *keyword_list[]      = { "file_object", "mode", NULL };
+	static char *function            = "pyesedb_file_open_file_object";
+	int result                       = 0;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "O|s",
+	     keyword_list,
+	     &file_object,
+	     &mode ) == 0 )
+        {
+                return( NULL );
+        }
+	if( ( mode != NULL )
+	 && ( mode[ 0 ] != 'r' ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: unsupported mode: %s.",
+		 function,
+		 mode );
+
+		return( NULL );
+	}
+	if( pyesedb_file_object_initialize(
+	     &file_io_handle,
+	     file_object,
+	     &error ) != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_MemoryError,
+		 "%s: unable to initialize file IO handle.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_open_file_io_handle(
+	          pyesedb_file->file,
+                  file_io_handle,
+                  LIBESEDB_OPEN_READ,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to open file.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	Py_IncRef(
+	 Py_None );
+
+	return( Py_None );
+
+on_error:
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Closes a file
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_close(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyesedb_file_close";
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_close(
+	          pyesedb_file->file,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 0 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to close file.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	Py_IncRef(
+	 Py_None );
+
+	return( Py_None );
+}
+
+/* Retrieves the number of tables
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_number_of_tables(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	static char *function    = "pyesedb_file_get_number_of_tables";
+	int number_of_tables    = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_number_of_tables(
+	          pyesedb_file->file,
+	          &number_of_tables,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of tables.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	return( PyInt_FromLong(
+	         (long) number_of_tables ) );
+}
+
+/* Retrieves a specific table by index
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_table_by_index(
+           pyesedb_file_t *pyesedb_file,
+           int table_index )
+{
+	libcerror_error_t *error = NULL;
+	libesedb_table_t *table = NULL;
+	PyObject *table_object  = NULL;
+	static char *function    = "pyesedb_file_get_table_by_index";
+	int result               = 0;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_table(
+	          pyesedb_file->file,
+	          table_index,
+	          &table,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve table: %d.",
+		 function,
+		 table_index );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	table_object = pyesedb_table_new(
+	                table,
+	                pyesedb_file );
+
+	if( table_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create table object.",
+		 function );
+
+		goto on_error;
+	}
+	return( table_object );
+
+on_error:
+	if( table != NULL )
+	{
+		libesedb_table_free(
+		 &table,
+		 NULL );
+	}
+	return( NULL );
+}
+
+/* Retrieves a specific table
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_table(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *table_object     = NULL;
+	static char *keyword_list[] = { "table_index", NULL };
+	int table_index            = 0;
+
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &table_index ) == 0 )
+        {
+		return( NULL );
+        }
+	table_object = pyesedb_file_get_table_by_index(
+	                 pyesedb_file,
+	                 table_index );
+
+	return( table_object );
+}
+
+/* Retrieves a tables sequence and iterator object for the tables
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_tables(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *tables_object  = NULL;
+	static char *function    = "pyesedb_file_get_tables";
+	int number_of_tables     = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_number_of_tables(
+	          pyesedb_file->file,
+	          &number_of_tables,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve number of tables.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	tables_object = pyesedb_tables_new(
+	                  pyesedb_file,
+	                  &pyesedb_file_get_table_by_index,
+	                  number_of_tables );
+
+	if( tables_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create tables object.",
+		 function );
+
+		return( NULL );
+	}
+	return( tables_object );
+}
+
+/* Retrieves the table specified by the name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_table_by_name(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	libesedb_table_t *table     = NULL;
+	PyObject *table_object      = NULL;
+	char *table_name            = NULL;
+	static char *keyword_list[] = { "table_name", NULL };
+	static char *function       = "pyesedb_file_get_table_by_name";
+	size_t table_name_length    = 0;
+	int result                  = 0;
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "s",
+	     keyword_list,
+	     &table_name ) == 0 )
+        {
+                goto on_error;
+        }
+	table_name_length = libcstring_narrow_string_length(
+	                     table_name );
+
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_table_by_utf8_name(
+	          pyesedb_file->file,
+	          (uint8_t *) table_name,
+	          table_name_length,
+	          &table,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve table.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Check if the table is present
+	 */
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	table_object = pyesedb_table_new(
+	                table,
+	                pyesedb_file );
+
+	if( table_object == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create table object.",
+		 function );
+
+		goto on_error;
+	}
+	return( table_object );
+
+on_error:
+	if( table != NULL )
+	{
+		libesedb_table_free(
+		 &table,
+		 NULL );
+	}
+	return( NULL );
+}
+
