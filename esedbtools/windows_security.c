@@ -58,7 +58,7 @@ int windows_security_export_record_value_filetime(
 	static char *function             = "windows_security_export_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
-	uint8_t value_flags               = 0;
+	uint8_t value_data_flags          = 0;
 	int result                        = 0;
 
 	if( record == NULL )
@@ -111,25 +111,73 @@ int windows_security_export_record_value_filetime(
 
 		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
 		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -226,6 +274,9 @@ int windows_security_export_record_value_filetime(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
 
 on_error:
@@ -234,6 +285,11 @@ on_error:
 		libfdatetime_filetime_free(
 		 &filetime,
 		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
 	}
 	return( -1 );
 }
@@ -254,7 +310,7 @@ int windows_security_export_record_value_utf16_string(
 	size_t value_data_size                      = 0;
 	size_t value_string_size                    = 0;
 	uint32_t column_type                        = 0;
-	uint8_t value_flags                         = 0;
+	uint8_t value_data_flags                    = 0;
 	int result                                  = 0;
 
 	if( record == NULL )
@@ -293,7 +349,7 @@ int windows_security_export_record_value_utf16_string(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
@@ -306,27 +362,75 @@ int windows_security_export_record_value_utf16_string(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -355,7 +459,7 @@ int windows_security_export_record_value_utf16_string(
 				 function,
 				 record_value_entry );
 
-				return( -1 );
+				goto on_error;
 			}
 			value_string = (libcstring_system_character_t *) memory_allocate(
 						                          sizeof( libcstring_system_character_t ) * value_string_size );
@@ -401,7 +505,7 @@ int windows_security_export_record_value_utf16_string(
 				memory_free(
 				 value_string );
 
-				return( -1 );
+				goto on_error;
 			}
 			export_text(
 			 value_string,
@@ -419,7 +523,18 @@ int windows_security_export_record_value_utf16_string(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports the values in a SmTblVersion table record

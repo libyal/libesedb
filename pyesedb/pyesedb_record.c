@@ -27,6 +27,7 @@
 #endif
 
 #include "pyesedb_error.h"
+#include "pyesedb_integer.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libcstring.h"
 #include "pyesedb_libesedb.h"
@@ -46,6 +47,27 @@ PyMethodDef pyesedb_record_object_methods[] = {
 	  "get_number_of_values() -> Integer\n"
 	  "\n"
 	  "Retrieves the number of values" },
+
+	{ "get_value_data",
+	  (PyCFunction) pyesedb_record_get_value_data,
+	  METH_NOARGS,
+	  "get_value_data(value_entry) -> String or None\n"
+	  "\n"
+	  "Retrieves the value data as a binary string." },
+
+	{ "get_record_data_as_integer",
+	  (PyCFunction) pyesedb_record_get_value_data_as_integer,
+	  METH_NOARGS,
+	  "get_record_data_as_integer(value_entry) -> Integer\n"
+	  "\n"
+	  "Retrieves the value data as an integer ." },
+
+	{ "get_record_data_as_string",
+	  (PyCFunction) pyesedb_record_get_value_data_as_string,
+	  METH_NOARGS,
+	  "get_record_data_as_string(value_entry) -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the value data as a string." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -165,7 +187,7 @@ PyTypeObject pyesedb_record_type_object = {
  */
 PyObject *pyesedb_record_new(
            libesedb_record_t *record,
-           pyesedb_table_t *table_object )
+           PyObject *parent_object )
 {
 	pyesedb_record_t *pyesedb_record = NULL;
 	static char *function            = "pyesedb_record_new";
@@ -202,11 +224,11 @@ PyObject *pyesedb_record_new(
 
 		goto on_error;
 	}
-	pyesedb_record->record       = record;
-	pyesedb_record->table_object = table_object;
+	pyesedb_record->record        = record;
+	pyesedb_record->parent_object = parent_object;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_record->table_object );
+	 (PyObject *) pyesedb_record->parent_object );
 
 	return( (PyObject *) pyesedb_record );
 
@@ -219,7 +241,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes an record object
+/* Intializes a record object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_record_init(
@@ -243,7 +265,7 @@ int pyesedb_record_init(
 	return( 0 );
 }
 
-/* Frees an record object
+/* Frees a record object
  */
 void pyesedb_record_free(
       pyesedb_record_t *pyesedb_record )
@@ -300,10 +322,10 @@ void pyesedb_record_free(
 		libcerror_error_free(
 		 &error );
 	}
-	if( pyesedb_record->table_object != NULL )
+	if( pyesedb_record->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_record->table_object );
+		 (PyObject *) pyesedb_record->parent_object );
 	}
 	pyesedb_record->ob_type->tp_free(
 	 (PyObject*) pyesedb_record );
@@ -356,5 +378,484 @@ PyObject *pyesedb_record_get_number_of_values(
 	}
 	return( PyInt_FromLong(
 	         (long) number_of_values ) );
+}
+
+/* Retrieves the value data
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_get_value_data(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	PyObject *string_object     = NULL;
+	uint8_t *value_data         = NULL;
+	static char *function       = "pyesedb_record_get_value_data";
+	static char *keyword_list[] = { "value_entry", NULL };
+	size_t value_data_size      = 0;
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+        {
+		return( NULL );
+        }
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_value_data_size(
+	          pyesedb_record->record,
+	          value_entry,
+	          &value_data_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve value: %d data size.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_data_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_data = (uint8_t *) PyMem_Malloc(
+	                          sizeof( uint8_t ) * value_data_size );
+
+	if( value_data == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create value: %d data.",
+		 function,
+		 value_entry );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_value_data(
+		  pyesedb_record->record,
+		  value_entry,
+		  value_data,
+		  value_data_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve value: %d data.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	string_object = PyString_FromStringAndSize(
+			 (char *) value_data,
+			 (Py_ssize_t) value_data_size );
+
+	PyMem_Free(
+	 value_data );
+
+	return( string_object );
+
+on_error:
+	if( value_data != NULL )
+	{
+		PyMem_Free(
+		 value_data );
+	}
+	return( NULL );
+}
+
+/* Retrieves the value data represented as an integer
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_get_value_data_as_integer(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	PyObject *integer_object    = NULL;
+	static char *function       = "pyesedb_record_get_value_data_as_integer";
+	static char *keyword_list[] = { "value_entry", NULL };
+	uint64_t value_64bit        = 0;
+	int64_t integer_value       = 0;
+	uint32_t column_type        = 0;
+	uint32_t value_32bit        = 0;
+	uint16_t value_16bit        = 0;
+	uint8_t value_is_signed     = 0;
+	uint8_t value_8bit          = 0;
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+        {
+		return( NULL );
+        }
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_column_type(
+	          pyesedb_record->record,
+	          value_entry,
+	          &column_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve column: %d type.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libesedb_record_get_value_8bit(
+				  pyesedb_record->record,
+				  value_entry,
+				  &value_8bit,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			/* Interpret the 8-bit value as unsigned
+			 */
+			integer_value = (uint8_t) value_8bit;
+
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libesedb_record_get_value_16bit(
+				  pyesedb_record->record,
+				  value_entry,
+				  &value_16bit,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
+			{
+				/* Interpret the 16-bit value as signed
+				 */
+				integer_value   = (int16_t) value_16bit;
+				value_is_signed = 1;
+			}
+			else
+			{
+				/* Interpret the 16-bit value as unsigned
+				 */
+				integer_value = (uint16_t) value_16bit;
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libesedb_record_get_value_32bit(
+				  pyesedb_record->record,
+				  value_entry,
+				  &value_32bit,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
+			{
+				/* Interpret the 32-bit value as signed
+				 */
+				integer_value   = (int32_t) value_32bit;
+				value_is_signed = 1;
+			}
+			else
+			{
+				/* Interpret the 32-bit value as unsigned
+				 */
+				integer_value = (uint32_t) value_32bit;
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libesedb_record_get_value_64bit(
+				  pyesedb_record->record,
+				  value_entry,
+				  &value_64bit,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			/* Interpret the 64-bit value as signed
+			 */
+			integer_value   = (int64_t) value_64bit;
+			value_is_signed = 1;
+
+			break;
+
+		default:
+			PyErr_Format(
+			 PyExc_IOError,
+			 "%s: value: %d is not an integer type.",
+			 function,
+			 value_entry );
+
+			return( NULL );
+	}
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve integer value: %d.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( value_is_signed != 0 )
+	{
+		integer_object = pyesedb_integer_signed_new_from_64bit(
+		                  integer_value );
+	}
+	else
+	{
+		integer_object = pyesedb_integer_unsigned_new_from_64bit(
+		                  integer_value );
+	}
+	return( integer_object );
+}
+
+/* Retrieves the value data represented as a string
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_get_value_data_as_string(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	PyObject *string_object     = NULL;
+	uint8_t *value_string       = NULL;
+	const char *errors          = NULL;
+	static char *keyword_list[] = { "value_entry", NULL };
+	static char *function       = "pyesedb_record_get_value_data_as_string";
+	size_t value_string_size    = 0;
+	uint32_t column_type        = 0;
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+        {
+		return( NULL );
+        }
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_column_type(
+	          pyesedb_record->record,
+	          value_entry,
+	          &column_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve column: %d type.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: value: %d is not a string type.",
+		 function,
+		 value_entry );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_value_utf8_string_size(
+	          pyesedb_record->record,
+	          value_entry,
+	          &value_string_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve value: %d string size.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( value_string_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	value_string = (uint8_t *) PyMem_Malloc(
+	                            sizeof( uint8_t ) * value_string_size );
+
+	if( value_string == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create value: %d string.",
+		 function,
+		 value_entry );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_value_utf8_string(
+		  pyesedb_record->record,
+		  value_entry,
+		  value_string,
+		  value_string_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve value: %d string.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) value_string,
+			 (Py_ssize_t) value_string_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 value_string );
+
+	return( string_object );
+
+on_error:
+	if( value_string != NULL )
+	{
+		PyMem_Free(
+		 value_string );
+	}
+	return( NULL );
 }
 

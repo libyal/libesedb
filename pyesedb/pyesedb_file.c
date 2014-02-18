@@ -29,6 +29,7 @@
 #include "pyesedb_error.h"
 #include "pyesedb_file.h"
 #include "pyesedb_file_object_io_handle.h"
+#include "pyesedb_integer.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libclocale.h"
 #include "pyesedb_libcstring.h"
@@ -81,6 +82,34 @@ PyMethodDef pyesedb_file_object_methods[] = {
 
 	/* Functions to access the file values */
 
+	{ "get_type",
+	  (PyCFunction) pyesedb_file_get_type,
+	  METH_NOARGS,
+	  "get_type() -> Integer\n"
+	  "\n"
+	  "Retrieves the type." },
+
+	{ "get_format_version",
+	  (PyCFunction) pyesedb_file_get_format_version,
+	  METH_NOARGS,
+	  "get_format_version() -> Integer\n"
+	  "\n"
+	  "Retrieves the format version." },
+
+	{ "get_creation_format_version",
+	  (PyCFunction) pyesedb_file_get_creation_format_version,
+	  METH_NOARGS,
+	  "get_creation_format_version() -> Integer\n"
+	  "\n"
+	  "Retrieves the creation format version." },
+
+	{ "get_page_size",
+	  (PyCFunction) pyesedb_file_get_page_size,
+	  METH_NOARGS,
+	  "get_page_size() -> Integer\n"
+	  "\n"
+	  "Retrieves the page size." },
+
 	/* Functions to access the tables */
 
 	{ "get_number_of_tables",
@@ -93,7 +122,7 @@ PyMethodDef pyesedb_file_object_methods[] = {
 	{ "get_table",
 	  (PyCFunction) pyesedb_file_get_table,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_table(table_index) -> Object or None\n"
+	  "get_table(table_entry) -> Object or None\n"
 	  "\n"
 	  "Retrieves a specific table" },
 
@@ -109,6 +138,30 @@ PyMethodDef pyesedb_file_object_methods[] = {
 };
 
 PyGetSetDef pyesedb_file_object_get_set_definitions[] = {
+
+	{ "type",
+	  (getter) pyesedb_file_get_type,
+	  (setter) 0,
+	  "The type.",
+	  NULL },
+
+	{ "format_version",
+	  (getter) pyesedb_file_get_format_version,
+	  (setter) 0,
+	  "The format version.",
+	  NULL },
+
+	{ "creation_format_version",
+	  (getter) pyesedb_file_get_creation_format_version,
+	  (setter) 0,
+	  "The creation format version.",
+	  NULL },
+
+	{ "page_size",
+	  (getter) pyesedb_file_get_page_size,
+	  (setter) 0,
+	  "The page size.",
+	  NULL },
 
 	{ "number_of_tables",
 	  (getter) pyesedb_file_get_number_of_tables,
@@ -230,11 +283,11 @@ PyObject *pyesedb_file_new(
            void )
 {
 	pyesedb_file_t *pyesedb_file = NULL;
-	static char *function    = "pyesedb_file_new";
+	static char *function        = "pyesedb_file_new";
 
 	pyesedb_file = PyObject_New(
-	              struct pyesedb_file,
-	              &pyesedb_file_type_object );
+	                struct pyesedb_file,
+	                &pyesedb_file_type_object );
 
 	if( pyesedb_file == NULL )
 	{
@@ -690,6 +743,218 @@ PyObject *pyesedb_file_close(
 	return( Py_None );
 }
 
+/* Retrieves the type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_type(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_file_get_type";
+	uint32_t type            = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_type(
+	          pyesedb_file->file,
+	          &type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  (uint64_t) type );
+
+	return( integer_object );
+}
+
+/* Retrieves the format version
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_format_version(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_file_get_format_version";
+	uint32_t format_revision = 0;
+	uint32_t format_version  = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_format_version(
+	          pyesedb_file->file,
+	          &format_version,
+	          &format_revision,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  ( (uint64_t) format_version << 32 ) | (uint64_t) format_revision );
+
+	return( integer_object );
+}
+
+/* Retrieves the creation format version
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_creation_format_version(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_file_get_creation_format_version";
+	uint32_t format_revision = 0;
+	uint32_t format_version  = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_creation_format_version(
+	          pyesedb_file->file,
+	          &format_version,
+	          &format_revision,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  ( (uint64_t) format_version << 32 ) | (uint64_t) format_revision );
+
+	return( integer_object );
+}
+
+/* Retrieves the page size
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_file_get_page_size(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_file_get_page_size";
+	uint32_t page_size       = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid file.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_file_get_page_size(
+	          pyesedb_file->file,
+	          &page_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve page size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  (uint64_t) page_size );
+
+	return( integer_object );
+}
+
 /* Retrieves the number of tables
  * Returns a Python object if successful or NULL on error
  */
@@ -699,7 +964,7 @@ PyObject *pyesedb_file_get_number_of_tables(
 {
 	libcerror_error_t *error = NULL;
 	static char *function    = "pyesedb_file_get_number_of_tables";
-	int number_of_tables    = 0;
+	int number_of_tables     = 0;
 	int result               = 0;
 
 	PYESEDB_UNREFERENCED_PARAMETER( arguments )
@@ -744,11 +1009,11 @@ PyObject *pyesedb_file_get_number_of_tables(
  */
 PyObject *pyesedb_file_get_table_by_index(
            pyesedb_file_t *pyesedb_file,
-           int table_index )
+           int table_entry )
 {
 	libcerror_error_t *error = NULL;
-	libesedb_table_t *table = NULL;
-	PyObject *table_object  = NULL;
+	libesedb_table_t *table  = NULL;
+	PyObject *table_object   = NULL;
 	static char *function    = "pyesedb_file_get_table_by_index";
 	int result               = 0;
 
@@ -765,7 +1030,7 @@ PyObject *pyesedb_file_get_table_by_index(
 
 	result = libesedb_file_get_table(
 	          pyesedb_file->file,
-	          table_index,
+	          table_entry,
 	          &table,
 	          &error );
 
@@ -778,7 +1043,7 @@ PyObject *pyesedb_file_get_table_by_index(
 		 PyExc_IOError,
 		 "%s: unable to retrieve table: %d.",
 		 function,
-		 table_index );
+		 table_entry );
 
 		libcerror_error_free(
 		 &error );
@@ -818,22 +1083,22 @@ PyObject *pyesedb_file_get_table(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *table_object     = NULL;
-	static char *keyword_list[] = { "table_index", NULL };
-	int table_index            = 0;
+	PyObject *table_object      = NULL;
+	static char *keyword_list[] = { "table_entry", NULL };
+	int table_entry             = 0;
 
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
 	     "i",
 	     keyword_list,
-	     &table_index ) == 0 )
+	     &table_entry ) == 0 )
         {
 		return( NULL );
         }
 	table_object = pyesedb_file_get_table_by_index(
 	                 pyesedb_file,
-	                 table_index );
+	                 table_entry );
 
 	return( table_object );
 }

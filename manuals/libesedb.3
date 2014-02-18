@@ -1,4 +1,4 @@
-.Dd April 14, 2013
+.Dd February 17, 2014
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -171,7 +171,11 @@ Record functions
 .Ft int
 .Fn libesedb_record_get_utf16_column_name "libesedb_record_t *record, int value_entry, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value "libesedb_record_t *record, int value_entry, uint8_t **value_data, size_t *value_data_size, uint8_t *value_flags, libesedb_error_t **error"
+.Fn libesedb_record_get_value_data_size "libesedb_record_t *record, int value_entry, size_t *value_data_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_value_data "libesedb_record_t *record, int value_entry, uint8_t *value_data, size_t value_data_size, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_record_get_value_data_flags "libesedb_record_t *record, int value_entry, uint8_t *value_data_flags, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_value_boolean "libesedb_record_t *record, int value_entry, uint8_t *value_boolean, libesedb_error_t **error"
 .Ft int
@@ -279,6 +283,6 @@ http://code.google.com/p/libesedb/
 .Sh AUTHOR
 These man pages were written by Joachim Metz.
 .Sh COPYRIGHT
-Copyright 2009-2013, Joachim Metz <joachim.metz@gmail.com>.
+Copyright 2009-2014, Joachim Metz <joachim.metz@gmail.com>.
 .Sh SEE ALSO
 the libesedb.h include file

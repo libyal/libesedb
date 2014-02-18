@@ -63,15 +63,15 @@ int pyesedb_table_init(
 void pyesedb_table_free(
       pyesedb_table_t *pyesedb_table );
 
-PyObject *pyesedb_table_get_offset(
-           pyesedb_table_t *pyesedb_table,
-           PyObject *arguments );
-
 PyObject *pyesedb_table_get_identifier(
            pyesedb_table_t *pyesedb_table,
            PyObject *arguments );
 
 PyObject *pyesedb_table_get_name(
+           pyesedb_table_t *pyesedb_table,
+           PyObject *arguments );
+
+PyObject *pyesedb_table_get_template_name(
            pyesedb_table_t *pyesedb_table,
            PyObject *arguments );
 

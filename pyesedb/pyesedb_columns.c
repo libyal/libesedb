@@ -160,7 +160,7 @@ PyObject *pyesedb_columns_new(
            pyesedb_table_t *table_object,
            PyObject* (*get_column_by_index)(
                         pyesedb_table_t *table_object,
-                        int column_index ),
+                        int column_entry ),
            int number_of_columns )
 {
 	pyesedb_columns_t *pyesedb_columns = NULL;
@@ -248,7 +248,7 @@ int pyesedb_columns_init(
 	 */
 	pyesedb_columns->table_object        = NULL;
 	pyesedb_columns->get_column_by_index = NULL;
-	pyesedb_columns->column_index        = 0;
+	pyesedb_columns->column_entry        = 0;
 	pyesedb_columns->number_of_columns   = 0;
 
 	return( 0 );
@@ -417,11 +417,11 @@ PyObject *pyesedb_columns_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_columns->column_index < 0 )
+	if( pyesedb_columns->column_entry < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - invalid column index.",
+		 "%s: invalid columns - invalid column entry.",
 		 function );
 
 		return( NULL );
@@ -435,7 +435,7 @@ PyObject *pyesedb_columns_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_columns->column_index >= pyesedb_columns->number_of_columns )
+	if( pyesedb_columns->column_entry >= pyesedb_columns->number_of_columns )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
@@ -443,12 +443,12 @@ PyObject *pyesedb_columns_iternext(
 		return( NULL );
 	}
 	column_object = pyesedb_columns->get_column_by_index(
-	                pyesedb_columns->table_object,
-	                pyesedb_columns->column_index );
+	                 pyesedb_columns->table_object,
+	                 pyesedb_columns->column_entry );
 
 	if( column_object != NULL )
 	{
-		pyesedb_columns->column_index++;
+		pyesedb_columns->column_entry++;
 	}
 	return( column_object );
 }

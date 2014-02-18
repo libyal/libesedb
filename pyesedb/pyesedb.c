@@ -28,6 +28,7 @@
 
 #include "pyesedb.h"
 #include "pyesedb_column.h"
+#include "pyesedb_column_types.h"
 #include "pyesedb_columns.h"
 #include "pyesedb_error.h"
 #include "pyesedb_file.h"
@@ -285,15 +286,16 @@ on_error:
 PyMODINIT_FUNC initpyesedb(
                 void )
 {
-	PyObject *module                  = NULL;
-	PyTypeObject *column_type_object  = NULL;
-	PyTypeObject *columns_type_object = NULL;
-	PyTypeObject *file_type_object    = NULL;
-	PyTypeObject *record_type_object  = NULL;
-	PyTypeObject *records_type_object = NULL;
-	PyTypeObject *table_type_object   = NULL;
-	PyTypeObject *tables_type_object  = NULL;
-	PyGILState_STATE gil_state        = 0;
+	PyObject *module                       = NULL;
+	PyTypeObject *column_type_object       = NULL;
+	PyTypeObject *column_types_type_object = NULL;
+	PyTypeObject *columns_type_object      = NULL;
+	PyTypeObject *file_type_object         = NULL;
+	PyTypeObject *record_type_object       = NULL;
+	PyTypeObject *records_type_object      = NULL;
+	PyTypeObject *table_type_object        = NULL;
+	PyTypeObject *tables_type_object       = NULL;
+	PyGILState_STATE gil_state             = 0;
 
 	/* Create the module
 	 * This function must be called before grabbing the GIL
@@ -440,6 +442,25 @@ PyMODINIT_FUNC initpyesedb(
 	 module,
 	 "record",
 	 (PyObject *) record_type_object );
+
+	/* Setup the column types type object
+	 */
+	pyesedb_column_types_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_column_types_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_column_types_type_object );
+
+	column_types_type_object = &pyesedb_column_types_type_object;
+
+	PyModule_AddObject(
+	 module,
+	"column_types",
+	(PyObject *) column_types_type_object );
 
 on_error:
 	PyGILState_Release(

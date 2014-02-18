@@ -165,6 +165,7 @@ int libesedb_record_get_utf16_column_name(
      size_t utf16_string_size,
      libcerror_error_t **error );
 
+/* TODO deprecate */
 LIBESEDB_EXTERN \
 int libesedb_record_get_value(
      libesedb_record_t *record,
@@ -172,6 +173,28 @@ int libesedb_record_get_value(
      uint8_t **value_data,
      size_t *value_data_size,
      uint8_t *value_flags,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_record_get_value_data_size(
+     libesedb_record_t *record,
+     int value_entry,
+     size_t *value_data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_record_get_value_data(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *value_data,
+     size_t value_data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_record_get_value_data_flags(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *value_data_flags,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

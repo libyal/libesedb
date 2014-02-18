@@ -160,7 +160,7 @@ PyObject *pyesedb_tables_new(
            pyesedb_file_t *file_object,
            PyObject* (*get_table_by_index)(
                         pyesedb_file_t *file_object,
-                        int table_index ),
+                        int table_entry ),
            int number_of_tables )
 {
 	pyesedb_tables_t *pyesedb_tables = NULL;
@@ -209,7 +209,7 @@ PyObject *pyesedb_tables_new(
 
 		goto on_error;
 	}
-	pyesedb_tables->file_object         = file_object;
+	pyesedb_tables->file_object        = file_object;
 	pyesedb_tables->get_table_by_index = get_table_by_index;
 	pyesedb_tables->number_of_tables   = number_of_tables;
 
@@ -246,9 +246,9 @@ int pyesedb_tables_init(
 	}
 	/* Make sure the tables values are initialized
 	 */
-	pyesedb_tables->file_object         = NULL;
+	pyesedb_tables->file_object        = NULL;
 	pyesedb_tables->get_table_by_index = NULL;
-	pyesedb_tables->table_index        = 0;
+	pyesedb_tables->table_entry        = 0;
 	pyesedb_tables->number_of_tables   = 0;
 
 	return( 0 );
@@ -363,8 +363,8 @@ PyObject *pyesedb_tables_getitem(
 		return( NULL );
 	}
 	table_object = pyesedb_tables->get_table_by_index(
-	                 pyesedb_tables->file_object,
-	                 (int) item_index );
+	                pyesedb_tables->file_object,
+	                (int) item_index );
 
 	return( table_object );
 }
@@ -397,7 +397,7 @@ PyObject *pyesedb_tables_iternext(
            pyesedb_tables_t *pyesedb_tables )
 {
 	PyObject *table_object = NULL;
-	static char *function   = "pyesedb_tables_iternext";
+	static char *function  = "pyesedb_tables_iternext";
 
 	if( pyesedb_tables == NULL )
 	{
@@ -417,11 +417,11 @@ PyObject *pyesedb_tables_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_index < 0 )
+	if( pyesedb_tables->table_entry < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid table index.",
+		 "%s: invalid tables - invalid table entry.",
 		 function );
 
 		return( NULL );
@@ -435,7 +435,7 @@ PyObject *pyesedb_tables_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_index >= pyesedb_tables->number_of_tables )
+	if( pyesedb_tables->table_entry >= pyesedb_tables->number_of_tables )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
@@ -443,12 +443,12 @@ PyObject *pyesedb_tables_iternext(
 		return( NULL );
 	}
 	table_object = pyesedb_tables->get_table_by_index(
-	                 pyesedb_tables->file_object,
-	                 pyesedb_tables->table_index );
+	                pyesedb_tables->file_object,
+	                pyesedb_tables->table_entry );
 
 	if( table_object != NULL )
 	{
-		pyesedb_tables->table_index++;
+		pyesedb_tables->table_entry++;
 	}
 	return( table_object );
 }

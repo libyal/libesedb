@@ -16,11 +16,14 @@ pyexec_LTLIBRARIES = pyesedb.la
 pyesedb_la_SOURCES = \
 	pyesedb.c pyesedb.h \
 	pyesedb_column.c pyesedb_column.h \
+	pyesedb_column_types.c pyesedb_column_types.h \
 	pyesedb_columns.c pyesedb_columns.h \
 	pyesedb_datetime.c pyesedb_datetime.h \
 	pyesedb_error.c pyesedb_error.h \
 	pyesedb_file.c pyesedb_file.h \
 	pyesedb_file_object_io_handle.c pyesedb_file_object_io_handle.h \
+	pyesedb_index.c pyesedb_index.h \
+	pyesedb_indexes.c pyesedb_indexes.h \
 	pyesedb_integer.c pyesedb_integer.h \
 	pyesedb_libbfio.h \
 	pyesedb_libcerror.h \

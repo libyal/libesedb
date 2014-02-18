@@ -65,7 +65,6 @@ int export_exchange_record_binary_data(
 	static char *function  = "export_exchange_record_binary_data";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
-	uint8_t value_flags    = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
@@ -109,7 +108,7 @@ int export_exchange_record_binary_data(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
@@ -122,28 +121,57 @@ int export_exchange_record_binary_data(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( value_data != NULL )
+	if( value_data_size > 0 )
 	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
@@ -172,7 +200,7 @@ int export_exchange_record_binary_data(
 				 function,
 				 record_value_entry );
 
-				return( -1 );
+				goto on_error;
 			}
 			libcnotify_printf(
 			 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
@@ -189,8 +217,19 @@ int export_exchange_record_binary_data(
 		 value_data,
 		 value_data_size,
 		 record_file_stream );
+
+		memory_free(
+		 value_data );
 	}
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a 32-bit value in a binary data table record value
@@ -203,12 +242,12 @@ int export_exchange_record_value_32bit(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	uint8_t *value_data    = NULL;
-	static char *function  = "export_exchange_record_value_32bit";
-	size_t value_data_size = 0;
-	uint32_t column_type   = 0;
-	uint32_t value_32bit   = 0;
-	uint8_t value_flags    = 0;
+	uint8_t *value_data      = NULL;
+	static char *function    = "export_exchange_record_value_32bit";
+	size_t value_data_size   = 0;
+	uint32_t column_type     = 0;
+	uint32_t value_32bit     = 0;
+	uint8_t value_data_flags = 0;
 
 	if( record == NULL )
 	{
@@ -259,7 +298,7 @@ int export_exchange_record_value_32bit(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
@@ -271,27 +310,75 @@ int export_exchange_record_value_32bit(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -305,7 +392,7 @@ int export_exchange_record_value_32bit(
 				 function,
 				 value_data_size );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 			{
@@ -332,7 +419,18 @@ int export_exchange_record_value_32bit(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a 64-bit value in a binary data table record value
@@ -345,12 +443,12 @@ int export_exchange_record_value_64bit(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	uint8_t *value_data    = NULL;
-	static char *function  = "export_exchange_record_value_64bit";
-	size_t value_data_size = 0;
-	uint64_t value_64bit   = 0;
-	uint32_t column_type   = 0;
-	uint8_t value_flags    = 0;
+	uint8_t *value_data      = NULL;
+	static char *function    = "export_exchange_record_value_64bit";
+	size_t value_data_size   = 0;
+	uint64_t value_64bit     = 0;
+	uint32_t column_type     = 0;
+	uint8_t value_data_flags = 0;
 
 	if( record == NULL )
 	{
@@ -401,7 +499,7 @@ int export_exchange_record_value_64bit(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY ) )
@@ -414,27 +512,75 @@ int export_exchange_record_value_64bit(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -448,7 +594,7 @@ int export_exchange_record_value_64bit(
 				 function,
 				 value_data_size );
 
-				return( -1 );
+				goto on_error;
 			}
 			if( byte_order == _BYTE_STREAM_ENDIAN_BIG )
 			{
@@ -462,7 +608,7 @@ int export_exchange_record_value_64bit(
 				 value_data,
 				 value_64bit );
 			}
-			/* TODO for now print as hexadecimal */
+/* TODO for now print as hexadecimal */
 			fprintf(
 			 record_file_stream,
 			 "0x%" PRIx64 "",
@@ -476,7 +622,18 @@ int export_exchange_record_value_64bit(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a filetime value in a binary data table record value
@@ -496,7 +653,7 @@ int export_exchange_record_value_filetime(
 	static char *function             = "export_exchange_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
-	uint8_t value_flags               = 0;
+	uint8_t value_data_flags          = 0;
 	int result                        = 0;
 
 	if( record == NULL )
@@ -550,25 +707,73 @@ int export_exchange_record_value_filetime(
 
 		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
 		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -665,6 +870,9 @@ int export_exchange_record_value_filetime(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
 
 on_error:
@@ -673,6 +881,11 @@ on_error:
 		libfdatetime_filetime_free(
 		 &filetime,
 		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
 	}
 	return( -1 );
 }
@@ -694,7 +907,7 @@ int export_exchange_record_value_guid(
 	static char *function       = "export_exchange_record_value_guid";
 	size_t value_data_size      = 0;
 	uint32_t column_type        = 0;
-	uint8_t value_flags         = 0;
+	uint8_t value_data_flags    = 0;
 	int result                  = 0;
 
 	if( record == NULL )
@@ -733,7 +946,7 @@ int export_exchange_record_value_guid(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	{
@@ -745,27 +958,75 @@ int export_exchange_record_value_guid(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -782,7 +1043,7 @@ int export_exchange_record_value_guid(
 					 "%s: unable to create GUID.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				if( libfguid_identifier_copy_from_byte_stream(
 				     guid,
@@ -798,11 +1059,7 @@ int export_exchange_record_value_guid(
 					 "%s: unable to copy byte stream to GUID.",
 					 function );
 
-					libfguid_identifier_free(
-					 &guid,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 				result = libfguid_identifier_copy_to_utf16_string(
@@ -828,11 +1085,7 @@ int export_exchange_record_value_guid(
 					 "%s: unable to copy GUID to string.",
 					 function );
 
-					libfguid_identifier_free(
-					 &guid,
-					 NULL );
-
-					return( -1 );
+					goto on_error;
 				}
 				if( libfguid_identifier_free(
 				     &guid,
@@ -845,7 +1098,7 @@ int export_exchange_record_value_guid(
 					 "%s: unable to free GUID.",
 					 function );
 
-					return( -1 );
+					goto on_error;
 				}
 				fprintf(
 				 record_file_stream,
@@ -868,7 +1121,24 @@ int export_exchange_record_value_guid(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( guid != NULL )
+	{
+		libfguid_identifier_free(
+		 &guid,
+		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a MAPI ENTRYID value in a binary data table record value
@@ -880,16 +1150,16 @@ int export_exchange_record_value_mapi_entryid(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	uint8_t *value_data    = NULL;
-	static char *function  = "export_exchange_record_value_mapi_entryid";
-	size_t value_data_size = 0;
-	uint32_t column_type   = 0;
-	uint8_t value_flags    = 0;
+	uint8_t *value_data      = NULL;
+	static char *function    = "export_exchange_record_value_mapi_entryid";
+	size_t value_data_size   = 0;
+	uint32_t column_type     = 0;
+	uint8_t value_data_flags = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 	libcstring_system_character_t column_name[ 256 ];
 
-	int result             = 0;
+	int result               = 0;
 #endif
 
 	if( record == NULL )
@@ -928,7 +1198,7 @@ int export_exchange_record_value_mapi_entryid(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
@@ -941,27 +1211,75 @@ int export_exchange_record_value_mapi_entryid(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -993,7 +1311,7 @@ int export_exchange_record_value_mapi_entryid(
 					 function,
 					 record_value_entry );
 
-					return( -1 );
+					goto on_error;
 				}
 				libcnotify_printf(
 				 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
@@ -1014,7 +1332,7 @@ int export_exchange_record_value_mapi_entryid(
 					 function,
 					 record_value_entry );
 
-					return( -1 );
+					goto on_error;
 				}
 			}
 #endif
@@ -1037,7 +1355,18 @@ int export_exchange_record_value_mapi_entryid(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a MAPI multi value value in a binary data table record value
@@ -1054,8 +1383,8 @@ int export_exchange_record_value_mapi_multi_value(
 	static char *function               = "export_exchange_record_value_mapi_multi_value";
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
-	uint8_t value_flags                 = 0;
-	int multi_value_iterator            = 0;
+	uint8_t value_data_flags            = 0;
+	int multi_value_entry               = 0;
 	int number_of_multi_values          = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
@@ -1100,7 +1429,7 @@ int export_exchange_record_value_mapi_multi_value(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
@@ -1113,29 +1442,77 @@ int export_exchange_record_value_mapi_multi_value(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	/* TODO handle 0x10 flag */
-	if( ( ( value_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-	 && ( ( value_flags & 0x10 ) == 0 ) )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+/* TODO handle 0x10 flag */
+	if( ( ( value_data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
+	 && ( ( value_data_flags & 0x10 ) == 0 ) )
 	{
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_LOCAL_LIBFMAPI )
 		if( libcnotify_verbose != 0 )
@@ -1165,7 +1542,7 @@ int export_exchange_record_value_mapi_multi_value(
 				 function,
 				 record_value_entry );
 
-				return( -1 );
+				goto on_error;
 			}
 			libcnotify_printf(
 			 "%s: column name: %" PRIs_LIBCSTRING_SYSTEM "\n",
@@ -1187,7 +1564,7 @@ int export_exchange_record_value_mapi_multi_value(
 			 function,
 			 record_value_entry );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( libesedb_multi_value_get_number_of_values(
 		     multi_value,
@@ -1201,19 +1578,15 @@ int export_exchange_record_value_mapi_multi_value(
 			 "%s: unable to retrieve number of multi values.",
 			 function );
 
-			libesedb_multi_value_free(
-			 &multi_value,
-			 NULL );
-
-			return( -1 );
+			goto on_error;
 		}
-		for( multi_value_iterator = 0;
-	 	     multi_value_iterator < number_of_multi_values;
-		     multi_value_iterator++ )
+		for( multi_value_entry = 0;
+	 	     multi_value_entry < number_of_multi_values;
+		     multi_value_entry++ )
 		{
 			if( libesedb_multi_value_get_value(
 			     multi_value,
-			     multi_value_iterator,
+			     multi_value_entry,
 			     &column_type,
 			     &value_data,
 			     &value_data_size,
@@ -1225,19 +1598,14 @@ int export_exchange_record_value_mapi_multi_value(
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 				 "%s: unable to retrieve multi value: %d of record entry: %d.",
 				 function,
-				 multi_value_iterator,
+				 multi_value_entry,
 				 record_value_entry );
 
-				libesedb_multi_value_free(
-				 &multi_value,
-				 NULL );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( value_data != NULL )
 			{
-				/* TODO print entry index */
-
+/* TODO print entry index */
 				libcnotify_print_data(
 				 value_data,
 				 value_data_size,
@@ -1254,9 +1622,9 @@ int export_exchange_record_value_mapi_multi_value(
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free multi value: %d.",
 			 function,
-			 multi_value_iterator );
+			 multi_value_entry );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	else
@@ -1266,7 +1634,24 @@ int export_exchange_record_value_mapi_multi_value(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( multi_value != NULL )
+	{
+		libesedb_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports a SID value in a binary data table record value
@@ -1286,7 +1671,7 @@ int export_exchange_record_value_sid(
 	size_t sid_string_size             = 0;
 	size_t value_data_size             = 0;
 	uint32_t column_type               = 0;
-	uint8_t value_flags                = 0;
+	uint8_t value_data_flags           = 0;
 	int result                         = 0;
 
 	if( record == NULL )
@@ -1339,25 +1724,73 @@ int export_exchange_record_value_sid(
 
 		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
 		goto on_error;
 	}
-	if( ( value_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
 		if( value_data != NULL )
 		{
@@ -1473,6 +1906,9 @@ int export_exchange_record_value_sid(
 		 value_data_size,
 		 record_file_stream );
 	}
+	memory_free(
+	 value_data );
+
 	return( 1 );
 
 on_error:
@@ -1481,6 +1917,11 @@ on_error:
 		libfwnt_security_identifier_free(
 		 &sid,
 		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
 	}
 	return( -1 );
 }
@@ -1498,7 +1939,6 @@ int export_exchange_record_value_string(
 	static char *function  = "export_exchange_record_value_string";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
-	uint8_t value_flags    = 0;
 
 	if( record == NULL )
 	{
@@ -1536,7 +1976,7 @@ int export_exchange_record_value_string(
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
@@ -1549,25 +1989,57 @@ int export_exchange_record_value_string(
 		 function,
 		 column_type );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libesedb_record_get_value(
+	if( libesedb_record_get_value_data_size(
 	     record,
 	     record_value_entry,
-	     &value_data,
 	     &value_data_size,
-	     &value_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d.",
+		 "%s: unable to retrieve value: %d data size.",
 		 function,
 		 record_value_entry );
 
-		return( -1 );
+		goto on_error;
+	}
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
 	}
 /* TODO UTF-16 string also possible ? */
 	export_narrow_text(
@@ -1575,7 +2047,18 @@ int export_exchange_record_value_string(
 	 value_data_size,
 	 record_file_stream );
 
+	memory_free(
+	 value_data );
+
 	return( 1 );
+
+on_error:
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
 }
 
 /* Exports the values in a Folders table record
@@ -1596,7 +2079,7 @@ int export_exchange_record_folders(
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
-	int value_iterator      = 0;
+	int value_entry         = 0;
 
 	if( record == NULL )
 	{
@@ -1634,21 +2117,21 @@ int export_exchange_record_folders(
 
 		return( -1 );
 	}
-	for( value_iterator = 0;
-	     value_iterator < number_of_values;
-	     value_iterator++ )
+	for( value_entry = 0;
+	     value_entry < number_of_values;
+	     value_entry++ )
 	{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 #endif
@@ -1660,7 +2143,7 @@ int export_exchange_record_folders(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -1681,14 +2164,14 @@ int export_exchange_record_folders(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint16_t *) column_name,
 		          column_name_size,
 		          error );
 #else
 		result = libesedb_record_get_utf8_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint8_t *) column_name,
 		          column_name_size,
 		          error );
@@ -1701,13 +2184,13 @@ int export_exchange_record_folders(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
 		if( libesedb_record_get_column_type(
 		     record,
-		     value_iterator,
+		     value_entry,
 		     &column_type,
 		     error ) != 1 )
 		{
@@ -1717,7 +2200,7 @@ int export_exchange_record_folders(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -1860,7 +2343,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_32bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -1869,7 +2352,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_64bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -1878,7 +2361,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_filetime(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -1887,7 +2370,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_guid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -1896,7 +2379,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_mapi_entryid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -1904,7 +2387,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_sid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -1912,7 +2395,7 @@ int export_exchange_record_folders(
 		{
 			result = export_exchange_record_value_string(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -1920,7 +2403,7 @@ int export_exchange_record_folders(
 		{
 			result = export_handle_export_record_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  log_handle,
 				  error );
@@ -1933,11 +2416,11 @@ int export_exchange_record_folders(
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( value_entry == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 record_file_stream,
@@ -1971,7 +2454,7 @@ int export_exchange_record_global(
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
-	int value_iterator      = 0;
+	int value_entry         = 0;
 
 	if( record == NULL )
 	{
@@ -2009,21 +2492,21 @@ int export_exchange_record_global(
 
 		return( -1 );
 	}
-	for( value_iterator = 0;
-	     value_iterator < number_of_values;
-	     value_iterator++ )
+	for( value_entry = 0;
+	     value_entry < number_of_values;
+	     value_entry++ )
 	{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 #endif
@@ -2035,7 +2518,7 @@ int export_exchange_record_global(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2056,14 +2539,14 @@ int export_exchange_record_global(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint16_t *) column_name,
 		          column_name_size,
 		          error );
 #else
 		result = libesedb_record_get_utf8_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint8_t *) column_name,
 		          column_name_size,
 		          error );
@@ -2076,13 +2559,13 @@ int export_exchange_record_global(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
 		if( libesedb_record_get_column_type(
 		     record,
-		     value_iterator,
+		     value_entry,
 		     &column_type,
 		     error ) != 1 )
 		{
@@ -2092,7 +2575,7 @@ int export_exchange_record_global(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2185,7 +2668,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_binary_data(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2193,7 +2676,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_32bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2202,7 +2685,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_64bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2211,7 +2694,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_filetime(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2220,7 +2703,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_guid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2229,7 +2712,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_mapi_multi_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2237,7 +2720,7 @@ int export_exchange_record_global(
 		{
 			result = export_exchange_record_value_string(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2245,7 +2728,7 @@ int export_exchange_record_global(
 		{
 			result = export_handle_export_record_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  log_handle,
 				  error );
@@ -2258,11 +2741,11 @@ int export_exchange_record_global(
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( value_entry == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 record_file_stream,
@@ -2297,7 +2780,7 @@ int export_exchange_record_mailbox(
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
-	int value_iterator      = 0;
+	int value_entry         = 0;
 
 	if( record == NULL )
 	{
@@ -2335,21 +2818,20 @@ int export_exchange_record_mailbox(
 
 		return( -1 );
 	}
-	for( value_iterator = 0;
-	     value_iterator < number_of_values;
-	     value_iterator++ )
+	for( value_entry = 0;
+	     value_entry < number_of_values;
+	     value_entry++ )
 	{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
-
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 #endif
@@ -2361,7 +2843,7 @@ int export_exchange_record_mailbox(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2382,14 +2864,14 @@ int export_exchange_record_mailbox(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint16_t *) column_name,
 		          column_name_size,
 		          error );
 #else
 		result = libesedb_record_get_utf8_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint8_t *) column_name,
 		          column_name_size,
 		          error );
@@ -2402,13 +2884,13 @@ int export_exchange_record_mailbox(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
 		if( libesedb_record_get_column_type(
 		     record,
-		     value_iterator,
+		     value_entry,
 		     &column_type,
 		     error ) != 1 )
 		{
@@ -2418,7 +2900,7 @@ int export_exchange_record_mailbox(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2494,7 +2976,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_32bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2503,7 +2985,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_64bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2512,7 +2994,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_filetime(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2521,7 +3003,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_guid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2530,7 +3012,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_sid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2538,7 +3020,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_exchange_record_value_string(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2546,7 +3028,7 @@ int export_exchange_record_mailbox(
 		{
 			result = export_handle_export_record_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  log_handle,
 				  error );
@@ -2559,11 +3041,11 @@ int export_exchange_record_mailbox(
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( value_entry == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 record_file_stream,
@@ -2597,7 +3079,7 @@ int export_exchange_record_msg(
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
-	int value_iterator      = 0;
+	int value_entry         = 0;
 
 	if( record == NULL )
 	{
@@ -2635,21 +3117,20 @@ int export_exchange_record_msg(
 
 		return( -1 );
 	}
-	for( value_iterator = 0;
-	     value_iterator < number_of_values;
-	     value_iterator++ )
+	for( value_entry = 0;
+	     value_entry < number_of_values;
+	     value_entry++ )
 	{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
-
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 #endif
@@ -2661,7 +3142,7 @@ int export_exchange_record_msg(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2682,14 +3163,14 @@ int export_exchange_record_msg(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint16_t *) column_name,
 		          column_name_size,
 		          error );
 #else
 		result = libesedb_record_get_utf8_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint8_t *) column_name,
 		          column_name_size,
 		          error );
@@ -2702,13 +3183,13 @@ int export_exchange_record_msg(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
 		if( libesedb_record_get_column_type(
 		     record,
-		     value_iterator,
+		     value_entry,
 		     &column_type,
 		     error ) != 1 )
 		{
@@ -2718,7 +3199,7 @@ int export_exchange_record_msg(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2787,7 +3268,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_32bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2796,7 +3277,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_64bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2805,7 +3286,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_filetime(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2814,7 +3295,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_guid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -2823,7 +3304,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_sid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2831,7 +3312,7 @@ int export_exchange_record_msg(
 		{
 			result = export_exchange_record_value_string(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  error );
 		}
@@ -2839,7 +3320,7 @@ int export_exchange_record_msg(
 		{
 			result = export_handle_export_record_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  log_handle,
 				  error );
@@ -2852,11 +3333,11 @@ int export_exchange_record_msg(
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( value_entry == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 record_file_stream,
@@ -2890,7 +3371,7 @@ int export_exchange_record_per_user_read(
 	int known_column_type   = 0;
 	int number_of_values    = 0;
 	int result              = 0;
-	int value_iterator      = 0;
+	int value_entry         = 0;
 
 	if( record == NULL )
 	{
@@ -2928,21 +3409,21 @@ int export_exchange_record_per_user_read(
 
 		return( -1 );
 	}
-	for( value_iterator = 0;
-	     value_iterator < number_of_values;
-	     value_iterator++ )
+	for( value_entry = 0;
+	     value_entry < number_of_values;
+	     value_entry++ )
 	{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          &column_name_size,
 		          error );
 #endif
@@ -2954,7 +3435,7 @@ int export_exchange_record_per_user_read(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name size of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -2975,14 +3456,14 @@ int export_exchange_record_per_user_read(
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint16_t *) column_name,
 		          column_name_size,
 		          error );
 #else
 		result = libesedb_record_get_utf8_column_name(
 		          record,
-		          value_iterator,
+		          value_entry,
 		          (uint8_t *) column_name,
 		          column_name_size,
 		          error );
@@ -2995,13 +3476,13 @@ int export_exchange_record_per_user_read(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column name of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
 		if( libesedb_record_get_column_type(
 		     record,
-		     value_iterator,
+		     value_entry,
 		     &column_type,
 		     error ) != 1 )
 		{
@@ -3011,7 +3492,7 @@ int export_exchange_record_per_user_read(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve column type of value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
@@ -3070,7 +3551,7 @@ int export_exchange_record_per_user_read(
 		{
 			result = export_exchange_record_value_64bit(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -3079,7 +3560,7 @@ int export_exchange_record_per_user_read(
 		{
 			result = export_exchange_record_value_filetime(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -3088,7 +3569,7 @@ int export_exchange_record_per_user_read(
 		{
 			result = export_exchange_record_value_guid(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  byte_order,
 				  record_file_stream,
 				  error );
@@ -3097,7 +3578,7 @@ int export_exchange_record_per_user_read(
 		{
 			result = export_handle_export_record_value(
 				  record,
-				  value_iterator,
+				  value_entry,
 				  record_file_stream,
 				  log_handle,
 				  error );
@@ -3110,11 +3591,11 @@ int export_exchange_record_per_user_read(
 			 LIBCERROR_RUNTIME_ERROR_GENERIC,
 			 "%s: unable to export record value: %d.",
 			 function,
-			 value_iterator );
+			 value_entry );
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( value_entry == ( number_of_values - 1 ) )
 		{
 			fprintf(
 			 record_file_stream,

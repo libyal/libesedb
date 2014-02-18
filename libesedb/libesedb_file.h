@@ -34,14 +34,6 @@
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
-#if defined( _MSC_VER ) || defined( __BORLANDC__ ) || defined( __MINGW32_VERSION ) || defined( __MINGW64_VERSION_MAJOR )
-
-/* This inclusion is needed otherwise some linkers
- * mess up exporting the legacy functions
- */
-#include "libesedb_legacy.h"
-#endif
-
 #if defined( __cplusplus )
 extern "C" {
 #endif

@@ -332,22 +332,6 @@ int libesedb_file_get_table_by_utf16_name(
      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
- * File functions - deprecated
- * ------------------------------------------------------------------------- */
-
-/* Retrieves the amount of tables
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_file_get_number_of_tables instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_file_get_amount_of_tables(
-     libesedb_file_t *file,
-     int *amount_of_tables,
-     libesedb_error_t **error );
-
-/* -------------------------------------------------------------------------
  * Table functions
  * ------------------------------------------------------------------------- */
 
@@ -517,46 +501,6 @@ int libesedb_table_get_record(
      libesedb_table_t *table,
      int record_entry,
      libesedb_record_t **record,
-     libesedb_error_t **error );
-
-/* -------------------------------------------------------------------------
- * Table functions - deprecated
- * ------------------------------------------------------------------------- */
-
-/* Retrieves the amount of columns in the table
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_table_get_number_of_columns instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_table_get_amount_of_columns(
-     libesedb_table_t *table,
-     int *amount_of_columns,
-     libesedb_error_t **error );
-
-/* Retrieves the amount of indexes
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_table_get_number_of_indexes instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_table_get_amount_of_indexes(
-     libesedb_table_t *table,
-     int *amount_of_indexes,
-     libesedb_error_t **error );
-
-/* Retrieves the amount of records in the table
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_table_get_number_of_records instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_table_get_amount_of_records(
-     libesedb_table_t *table,
-     int *amount_of_records,
      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
@@ -800,16 +744,35 @@ int libesedb_record_get_utf16_column_name(
      size_t utf16_string_size,
      libesedb_error_t **error );
 
-/* Retrieves the value of the specific entry
+/* Retrieves the value data size of the specific entry
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
-int libesedb_record_get_value(
+int libesedb_record_get_value_data_size(
      libesedb_record_t *record,
      int value_entry,
-     uint8_t **value_data,
      size_t *value_data_size,
-     uint8_t *value_flags,
+     libesedb_error_t **error );
+
+/* Retrieves the value data of the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_record_get_value_data(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *value_data,
+     size_t value_data_size,
+     libesedb_error_t **error );
+
+/* Retrieves the value data flags of the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_record_get_value_data_flags(
+     libesedb_record_t *record,
+     int value_entry,
+     uint8_t *value_data_flags,
      libesedb_error_t **error );
 
 /* Retrieves the boolean value of a specific entry
@@ -987,30 +950,19 @@ int libesedb_record_get_multi_value(
  * Record (row) functions - deprecated
  * ------------------------------------------------------------------------- */
 
-/* Retrieves the amount of values in the record
+/* Retrieves the value of the specific entry
  * Returns 1 if successful or -1 on error
  *
- * This function is deprecated use libesedb_record_get_number_of_values instead
+ * This function is deprecated use the libesedb_record_get_value_data functions instead.
  */
 LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN \
-int libesedb_record_get_amount_of_values(
-     libesedb_record_t *record,
-     int *amount_of_values,
-     libesedb_error_t **error );
-
-/* Retrieves the double precision floating point value of a specific entry
- * Returns 1 if successful, 0 if value is NULL or -1 on error
- *
- * This function is deprecated use libesedb_record_get_value_floating_point_32bit
- * or libesedb_record_get_value_floating_point_64bit instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_record_get_value_floating_point(
+int libesedb_record_get_value(
      libesedb_record_t *record,
      int value_entry,
-     double *value_floating_point,
+     uint8_t **value_data,
+     size_t *value_data_size,
+     uint8_t *value_flags,
      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------
@@ -1173,22 +1125,6 @@ int libesedb_multi_value_get_value_binary_data(
      int value_index,
      uint8_t *binary_data,
      size_t binary_data_size,
-     libesedb_error_t **error );
-
-/* -------------------------------------------------------------------------
- * Multi value functions - deprecated
- * ------------------------------------------------------------------------- */
-
-/* Retrieves the amount of values in a multi value
- * Returns 1 if successful or -1 on error
- *
- * This function is deprecated use libesedb_multi_value_get_number_of_values instead
- */
-LIBESEDB_DEPRECATED \
-LIBESEDB_EXTERN \
-int libesedb_multi_value_get_amount_of_values(
-     libesedb_multi_value_t *multi_value,
-     int *amount_of_values,
      libesedb_error_t **error );
 
 #if defined( __cplusplus )

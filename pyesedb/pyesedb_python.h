@@ -40,6 +40,7 @@
 #undef HAVE_UINT64_T
 
 #include <Python.h>
+#include <structmember.h>
 
 #endif
 

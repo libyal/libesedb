@@ -49,7 +49,7 @@ PyMethodDef pyesedb_table_object_methods[] = {
 	  METH_NOARGS,
 	  "get_identifier() -> Integer\n"
 	  "\n"
-	  "Retrieves the identifier (number)." },
+	  "Retrieves the identifier." },
 
 	{ "get_name",
 	  (PyCFunction) pyesedb_table_get_name,
@@ -57,6 +57,13 @@ PyMethodDef pyesedb_table_object_methods[] = {
 	  "get_name() -> Unicode string or None\n"
 	  "\n"
 	  "Retrieves the name." },
+
+	{ "get_template_name",
+	  (PyCFunction) pyesedb_table_get_template_name,
+	  METH_NOARGS,
+	  "get_template_name() -> Unicode string or None\n"
+	  "\n"
+	  "Retrieves the template name." },
 
 	/* Functions to access the columns */
 
@@ -99,11 +106,17 @@ PyGetSetDef pyesedb_table_object_get_set_definitions[] = {
 	{ "identifier",
 	  (getter) pyesedb_table_get_identifier,
 	  (setter) 0,
-	  "The identifier (number).",
+	  "The identifier.",
 	  NULL },
 
 	{ "name",
 	  (getter) pyesedb_table_get_name,
+	  (setter) 0,
+	  "The name.",
+	  NULL },
+
+	{ "template_name",
+	  (getter) pyesedb_table_get_template_name,
 	  (setter) 0,
 	  "The name.",
 	  NULL },
@@ -548,6 +561,120 @@ on_error:
 	return( NULL );
 }
 
+/* Retrieves the template name
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_table_get_template_name(
+           pyesedb_table_t *pyesedb_table,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error  = NULL;
+	PyObject *string_object   = NULL;
+	const char *errors        = NULL;
+	uint8_t *template_name    = NULL;
+	static char *function     = "pyesedb_table_get_template_name";
+	size_t template_name_size = 0;
+	int result                = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_table == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid table.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_table_get_utf8_template_name_size(
+	          pyesedb_table->table,
+	          &template_name_size,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve template name size.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	else if( ( result == 0 )
+	      || ( template_name_size == 0 ) )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	template_name = (uint8_t *) PyMem_Malloc(
+	                             sizeof( uint8_t ) * template_name_size );
+
+	if( template_name == NULL )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: unable to create template name.",
+		 function );
+
+		goto on_error;
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_table_get_utf8_template_name(
+		  pyesedb_table->table,
+		  template_name,
+		  template_name_size,
+		  &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve template name.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		goto on_error;
+	}
+	/* Pass the string length to PyUnicode_DecodeUTF8
+	 * otherwise it makes the end of string character is part
+	 * of the string
+	 */
+	string_object = PyUnicode_DecodeUTF8(
+			 (char *) template_name,
+			 (Py_ssize_t) template_name_size - 1,
+			 errors );
+
+	PyMem_Free(
+	 template_name );
+
+	return( string_object );
+
+on_error:
+	if( template_name != NULL )
+	{
+		PyMem_Free(
+		 template_name );
+	}
+	return( NULL );
+}
+
 /* Retrieves the number of columns
  * Returns a Python object if successful or NULL on error
  */
@@ -605,11 +732,11 @@ PyObject *pyesedb_table_get_column_by_index(
            pyesedb_table_t *pyesedb_table,
            int column_index )
 {
-	libcerror_error_t *error = NULL;
+	libcerror_error_t *error  = NULL;
 	libesedb_column_t *column = NULL;
-	PyObject *column_object  = NULL;
-	static char *function    = "pyesedb_table_get_column_by_index";
-	int result               = 0;
+	PyObject *column_object   = NULL;
+	static char *function     = "pyesedb_table_get_column_by_index";
+	int result                = 0;
 
 	if( pyesedb_table == NULL )
 	{
@@ -818,11 +945,11 @@ PyObject *pyesedb_table_get_record_by_index(
            pyesedb_table_t *pyesedb_table,
            int record_index )
 {
-	libcerror_error_t *error = NULL;
+	libcerror_error_t *error  = NULL;
 	libesedb_record_t *record = NULL;
-	PyObject *record_object  = NULL;
-	static char *function    = "pyesedb_table_get_record_by_index";
-	int result               = 0;
+	PyObject *record_object   = NULL;
+	static char *function     = "pyesedb_table_get_record_by_index";
+	int result                = 0;
 
 	if( pyesedb_table == NULL )
 	{
@@ -859,7 +986,7 @@ PyObject *pyesedb_table_get_record_by_index(
 	}
 	record_object = pyesedb_record_new(
 	                 record,
-	                 pyesedb_table );
+	                 (PyObject *) pyesedb_table );
 
 	if( record_object == NULL )
 	{
@@ -957,8 +1084,8 @@ PyObject *pyesedb_table_get_records(
 		return( NULL );
 	}
 	records_object = pyesedb_records_new(
-	                  pyesedb_table,
-	                  &pyesedb_table_get_record_by_index,
+	                  (PyObject *) pyesedb_table,
+	                  (PyObject *(*)(PyObject *, int)) &pyesedb_table_get_record_by_index,
 	                  number_of_records );
 
 	if( records_object == NULL )

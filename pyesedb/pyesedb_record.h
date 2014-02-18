@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -45,9 +44,9 @@ struct pyesedb_record
 	 */
 	libesedb_record_t *record;
 
-	/* The table object
+	/* The parent (table or index) object
 	 */
-	pyesedb_table_t *table_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pyesedb_record_object_methods[];
@@ -55,7 +54,7 @@ extern PyTypeObject pyesedb_record_type_object;
 
 PyObject *pyesedb_record_new(
            libesedb_record_t *record,
-           pyesedb_table_t *table_object );
+           PyObject *parent_object );
 
 int pyesedb_record_init(
      pyesedb_record_t *pyesedb_record );
@@ -66,6 +65,21 @@ void pyesedb_record_free(
 PyObject *pyesedb_record_get_number_of_values(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments );
+
+PyObject *pyesedb_record_get_value_data(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_get_value_data_as_integer(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_get_value_data_as_string(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
 
 #if defined( __cplusplus )
 }

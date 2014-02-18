@@ -86,6 +86,22 @@ PyObject *pyesedb_file_close(
            pyesedb_file_t *pyesedb_file,
            PyObject *arguments );
 
+PyObject *pyesedb_file_get_type(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments );
+
+PyObject *pyesedb_file_get_format_version(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments );
+
+PyObject *pyesedb_file_get_creation_format_version(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments );
+
+PyObject *pyesedb_file_get_page_size(
+           pyesedb_file_t *pyesedb_file,
+           PyObject *arguments );
+
 PyObject *pyesedb_file_get_number_of_tables(
            pyesedb_file_t *pyesedb_file,
            PyObject *arguments );

@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,19 +40,19 @@ struct pyesedb_records
 	 */
 	PyObject_HEAD
 
-	/* The table object
+	/* The parent (table or index) object
 	 */
-	pyesedb_table_t *table_object;
+	PyObject *parent_object;
 
 	/* The get record by index callback function
 	 */
 	PyObject* (*get_record_by_index)(
-	             pyesedb_table_t *table_object,
-	             int record_index );
+	             PyObject *parent_object,
+	             int record_entry );
 
-	/* The (current) record index
+	/* The (current) record entry
 	 */
-	int record_index;
+	int record_entry;
 
 	/* The number of records
 	 */
@@ -63,10 +62,10 @@ struct pyesedb_records
 extern PyTypeObject pyesedb_records_type_object;
 
 PyObject *pyesedb_records_new(
-           pyesedb_table_t *table_object,
+           PyObject *parent_object,
            PyObject* (*get_record_by_index)(
-                        pyesedb_table_t *table_object,
-                        int record_index ),
+                        PyObject *parent_object,
+                        int record_entry ),
            int number_of_records );
 
 int pyesedb_records_init(

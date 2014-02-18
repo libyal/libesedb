@@ -52,7 +52,7 @@ PyMethodDef pyesedb_column_object_methods[] = {
 PyGetSetDef pyesedb_column_object_get_set_definitions[] = {
 
 	{ "name",
-	  (getter) pyesedb_table_get_name,
+	  (getter) pyesedb_column_get_name,
 	  (setter) 0,
 	  "The name.",
 	  NULL },

@@ -31,7 +31,6 @@
 #include "pyesedb_python.h"
 #include "pyesedb_record.h"
 #include "pyesedb_records.h"
-#include "pyesedb_table.h"
 
 PySequenceMethods pyesedb_records_sequence_methods = {
 	/* sq_length */
@@ -157,20 +156,20 @@ PyTypeObject pyesedb_records_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_records_new(
-           pyesedb_table_t *table_object,
+           PyObject *parent_object,
            PyObject* (*get_record_by_index)(
-                        pyesedb_table_t *table_object,
-                        int record_index ),
+                        PyObject *parent_object,
+                        int record_entry ),
            int number_of_records )
 {
 	pyesedb_records_t *pyesedb_records = NULL;
-	static char *function            = "pyesedb_records_new";
+	static char *function              = "pyesedb_records_new";
 
-	if( table_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid table object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
@@ -187,8 +186,8 @@ PyObject *pyesedb_records_new(
 	/* Make sure the records values are initialized
 	 */
 	pyesedb_records = PyObject_New(
-	                  struct pyesedb_records,
-	                  &pyesedb_records_type_object );
+	                   struct pyesedb_records,
+	                   &pyesedb_records_type_object );
 
 	if( pyesedb_records == NULL )
 	{
@@ -209,12 +208,12 @@ PyObject *pyesedb_records_new(
 
 		goto on_error;
 	}
-	pyesedb_records->table_object        = table_object;
+	pyesedb_records->parent_object       = parent_object;
 	pyesedb_records->get_record_by_index = get_record_by_index;
 	pyesedb_records->number_of_records   = number_of_records;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_records->table_object );
+	 (PyObject *) pyesedb_records->parent_object );
 
 	return( (PyObject *) pyesedb_records );
 
@@ -246,9 +245,9 @@ int pyesedb_records_init(
 	}
 	/* Make sure the records values are initialized
 	 */
-	pyesedb_records->table_object        = NULL;
+	pyesedb_records->parent_object       = NULL;
 	pyesedb_records->get_record_by_index = NULL;
-	pyesedb_records->record_index        = 0;
+	pyesedb_records->record_entry        = 0;
 	pyesedb_records->number_of_records   = 0;
 
 	return( 0 );
@@ -288,10 +287,10 @@ void pyesedb_records_free(
 
 		return;
 	}
-	if( pyesedb_records->table_object != NULL )
+	if( pyesedb_records->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_records->table_object );
+		 (PyObject *) pyesedb_records->parent_object );
 	}
 	pyesedb_records->ob_type->tp_free(
 	 (PyObject*) pyesedb_records );
@@ -363,7 +362,7 @@ PyObject *pyesedb_records_getitem(
 		return( NULL );
 	}
 	record_object = pyesedb_records->get_record_by_index(
-	                 pyesedb_records->table_object,
+	                 pyesedb_records->parent_object,
 	                 (int) item_index );
 
 	return( record_object );
@@ -417,11 +416,11 @@ PyObject *pyesedb_records_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_records->record_index < 0 )
+	if( pyesedb_records->record_entry < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - invalid record index.",
+		 "%s: invalid records - invalid record entry.",
 		 function );
 
 		return( NULL );
@@ -435,7 +434,7 @@ PyObject *pyesedb_records_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_records->record_index >= pyesedb_records->number_of_records )
+	if( pyesedb_records->record_entry >= pyesedb_records->number_of_records )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
@@ -443,12 +442,12 @@ PyObject *pyesedb_records_iternext(
 		return( NULL );
 	}
 	record_object = pyesedb_records->get_record_by_index(
-	                 pyesedb_records->table_object,
-	                 pyesedb_records->record_index );
+	                 pyesedb_records->parent_object,
+	                 pyesedb_records->record_entry );
 
 	if( record_object != NULL )
 	{
-		pyesedb_records->record_index++;
+		pyesedb_records->record_entry++;
 	}
 	return( record_object );
 }

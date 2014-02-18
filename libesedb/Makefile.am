@@ -44,8 +44,8 @@ libesedb_la_SOURCES = \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_lcid.c libesedb_lcid.h \
-	libesedb_legacy.c libesedb_legacy.h \
 	libesedb_libbfio.h \
+	libesedb_libcdata.h \
 	libesedb_libcerror.h \
 	libesedb_libclocale.h \
 	libesedb_libcnotify.h \

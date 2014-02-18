@@ -1,4 +1,6 @@
 TODO
+* deprecate:
+  - libesedb_record_get_value
 * complete libfvalue update integration - multi value
 * update msvscpp files
 
@@ -122,6 +124,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20130217
+* worked on Python-bindings
 
 20130216
 * 2014 update

@@ -49,11 +49,11 @@ struct pyesedb_tables
 	 */
 	PyObject* (*get_table_by_index)(
 	             pyesedb_file_t *file_object,
-	             int table_index );
+	             int table_entry );
 
-	/* The (current) table index
+	/* The (current) table entry
 	 */
-	int table_index;
+	int table_entry;
 
 	/* The number of tables
 	 */
@@ -66,7 +66,7 @@ PyObject *pyesedb_tables_new(
            pyesedb_file_t *file_object,
            PyObject* (*get_table_by_index)(
                         pyesedb_file_t *file_object,
-                        int table_index ),
+                        int table_entry ),
            int number_of_tables );
 
 int pyesedb_tables_init(
