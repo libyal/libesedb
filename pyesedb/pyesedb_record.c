@@ -50,22 +50,22 @@ PyMethodDef pyesedb_record_object_methods[] = {
 
 	{ "get_value_data",
 	  (PyCFunction) pyesedb_record_get_value_data,
-	  METH_NOARGS,
+	  METH_VARARGS | METH_KEYWORDS,
 	  "get_value_data(value_entry) -> String or None\n"
 	  "\n"
 	  "Retrieves the value data as a binary string." },
 
-	{ "get_record_data_as_integer",
+	{ "get_value_data_as_integer",
 	  (PyCFunction) pyesedb_record_get_value_data_as_integer,
-	  METH_NOARGS,
-	  "get_record_data_as_integer(value_entry) -> Integer\n"
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_value_data_as_integer(value_entry) -> Integer\n"
 	  "\n"
 	  "Retrieves the value data as an integer ." },
 
-	{ "get_record_data_as_string",
+	{ "get_value_data_as_string",
 	  (PyCFunction) pyesedb_record_get_value_data_as_string,
-	  METH_NOARGS,
-	  "get_record_data_as_string(value_entry) -> Unicode string or None\n"
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_value_data_as_string(value_entry) -> Unicode string or None\n"
 	  "\n"
 	  "Retrieves the value data as a string." },
 
