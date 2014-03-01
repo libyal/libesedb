@@ -63,6 +63,14 @@ int pyesedb_column_init(
 void pyesedb_column_free(
       pyesedb_column_t *pyesedb_column );
 
+PyObject *pyesedb_column_get_identifier(
+           pyesedb_column_t *pyesedb_column,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_get_type(
+           pyesedb_column_t *pyesedb_column,
+           PyObject *arguments );
+
 PyObject *pyesedb_column_get_name(
            pyesedb_column_t *pyesedb_column,
            PyObject *arguments );

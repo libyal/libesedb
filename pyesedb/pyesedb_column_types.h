@@ -39,10 +39,6 @@ struct pyesedb_column_types
 	/* Python object initialization
 	 */
 	PyObject_HEAD
-
-	/* The enumeration values
-	 */
-	char values[ 18 ];
 };
 
 extern PyTypeObject pyesedb_column_types_type_object;
@@ -55,6 +51,78 @@ int pyesedb_column_types_init(
 
 void pyesedb_column_types_free(
       pyesedb_column_types_t *pyesedb_column_types );
+
+PyObject *pyesedb_column_types_get_null(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_boolean(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_8bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_16bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_32bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_currency(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_float_32bit(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_double_64bit(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_date_time(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_binary_data(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_text(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_large_binary_data(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_large_text(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_super_large_value(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_32bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_64bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_guid(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
+
+PyObject *pyesedb_column_types_get_integer_16bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments );
 
 #if defined( __cplusplus )
 }

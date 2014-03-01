@@ -29,119 +29,120 @@
 #include "pyesedb_column_types.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
+#include "pyesedb_unused.h"
 
-struct PyMemberDef pyesedb_column_types_object_members[] = {
+PyGetSetDef pyesedb_column_types_object_get_set_definitions[] = {
 
 	{ "NULL",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_NULL,
-	  READONLY,
-	  "NULL column type (wraps LIBESEDB_COLUMN_TYPE_NULL)" },
+	  (getter) pyesedb_column_types_get_null,
+	  (setter) 0,
+	  "NULL column type (wraps LIBESEDB_COLUMN_TYPE_NULL)",
+	  NULL },
 
 	{ "BOOLEAN",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_BOOLEAN,
-	  READONLY,
-	  "BOOLEAN column type (wraps LIBESEDB_COLUMN_TYPE_BOOLEAN)" },
+	  (getter) pyesedb_column_types_get_boolean,
+	  (setter) 0,
+	  "BOOLEAN column type (wraps LIBESEDB_COLUMN_TYPE_BOOLEAN)",
+	  NULL },
 
 	{ "INTEGER_8BIT_UNSIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED,
-	  READONLY,
-	  "INTEGER_8BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_8bit_unsigned,
+	  (setter) 0,
+	  "INTEGER_8BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED)",
+	  NULL },
 
 	{ "INTEGER_16BIT_SIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED,
-	  READONLY,
-	  "INTEGER_16BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_16bit_signed,
+	  (setter) 0,
+	  "INTEGER_16BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED)",
+	  NULL },
 
 	{ "INTEGER_32BIT_SIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED,
-	  READONLY,
-	  "INTEGER_32BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_32bit_signed,
+	  (setter) 0,
+	  "INTEGER_32BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED)",
+	  NULL },
 
 	{ "CURRENCY",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_CURRENCY,
-	  READONLY,
-	  "CURRENCY column type (wraps LIBESEDB_COLUMN_TYPE_CURRENCY)" },
+	  (getter) pyesedb_column_types_get_currency,
+	  (setter) 0,
+	  "CURRENCY column type (wraps LIBESEDB_COLUMN_TYPE_CURRENCY)",
+	  NULL },
 
 	{ "FLOAT_32BIT",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_FLOAT_32BIT,
-	  READONLY,
-	  "FLOAT_32BIT column type (wraps LIBESEDB_COLUMN_TYPE_FLOAT_32BIT)" },
+	  (getter) pyesedb_column_types_get_float_32bit,
+	  (setter) 0,
+	  "FLOAT_32BIT column type (wraps LIBESEDB_COLUMN_TYPE_FLOAT_32BIT)",
+	  NULL },
 
 	{ "DOUBLE_64BIT",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT,
-	  READONLY,
-	  "DOUBLE_64BIT column type (wraps LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT)" },
+	  (getter) pyesedb_column_types_get_double_64bit,
+	  (setter) 0,
+	  "DOUBLE_64BIT column type (wraps LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT)",
+	  NULL },
 
 	{ "DATE_TIME",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_DATE_TIME,
-	  READONLY,
-	  "DATE_TIME column type (wraps LIBESEDB_COLUMN_TYPE_DATE_TIME)" },
+	  (getter) pyesedb_column_types_get_date_time,
+	  (setter) 0,
+	  "DATE_TIME column type (wraps LIBESEDB_COLUMN_TYPE_DATE_TIME)",
+	  NULL },
 
 	{ "BINARY_DATA",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_BINARY_DATA,
-	  READONLY,
-	  "BINARY_DATA column type (wraps LIBESEDB_COLUMN_TYPE_BINARY_DATA)" },
+	  (getter) pyesedb_column_types_get_binary_data,
+	  (setter) 0,
+	  "BINARY_DATA column type (wraps LIBESEDB_COLUMN_TYPE_BINARY_DATA)",
+	  NULL },
 
 	{ "TEXT",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_TEXT,
-	  READONLY,
-	  "TEXT column type (wraps LIBESEDB_COLUMN_TYPE_TEXT)" },
+	  (getter) pyesedb_column_types_get_text,
+	  (setter) 0,
+	  "TEXT column type (wraps LIBESEDB_COLUMN_TYPE_TEXT)",
+	  NULL },
 
 	{ "LARGE_BINARY_DATA",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA,
-	  READONLY,
-	  "LARGE_BINARY_DATA column type (wraps LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA)" },
+	  (getter) pyesedb_column_types_get_large_binary_data,
+	  (setter) 0,
+	  "LARGE_BINARY_DATA column type (wraps LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA)",
+	  NULL },
 
 	{ "LARGE_TEXT",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_LARGE_TEXT,
-	  READONLY,
-	  "LARGE_TEXT column type (wraps LIBESEDB_COLUMN_TYPE_LARGE_TEXT)" },
+	  (getter) pyesedb_column_types_get_large_text,
+	  (setter) 0,
+	  "LARGE_TEXT column type (wraps LIBESEDB_COLUMN_TYPE_LARGE_TEXT)",
+	  NULL },
 
 	{ "SUPER_LARGE_VALUE",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE,
-	  READONLY,
-	  "SUPER_LARGE_VALUE column type (wraps LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE)" },
+	  (getter) pyesedb_column_types_get_super_large_value,
+	  (setter) 0,
+	  "SUPER_LARGE_VALUE column type (wraps LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE)",
+	  NULL },
 
 	{ "INTEGER_32BIT_UNSIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED,
-	  READONLY,
-	  "INTEGER_32BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_32bit_unsigned,
+	  (setter) 0,
+	  "INTEGER_32BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED)",
+	  NULL },
 
 	{ "INTEGER_64BIT_SIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED,
-	  READONLY,
-	  "INTEGER_64BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_64bit_signed,
+	  (setter) 0,
+	  "INTEGER_64BIT_SIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED)",
+	  NULL },
 
 	{ "GUID",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_GUID,
-	  READONLY,
-	  "GUID column type (wraps LIBESEDB_COLUMN_TYPE_GUID)" },
+	  (getter) pyesedb_column_types_get_guid,
+	  (setter) 0,
+	  "GUID column type (wraps LIBESEDB_COLUMN_TYPE_GUID)",
+	  NULL },
 
 	{ "INTEGER_16BIT_UNSIGNED",
-	  T_BYTE,
-	  offsetof( pyesedb_column_types_t, values ) + LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED,
-	  READONLY,
-	  "INTEGER_16BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED)" },
+	  (getter) pyesedb_column_types_get_integer_16bit_unsigned,
+	  (setter) 0,
+	  "INTEGER_16BIT_UNSIGNED column type (wraps LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED)",
+	  NULL },
 
 	/* Sentinel */
-	{ NULL, T_BYTE, 0, READONLY, NULL }
+	{ NULL, NULL, NULL, NULL, NULL }
 };
 
 PyTypeObject pyesedb_column_types_type_object = {
@@ -204,9 +205,9 @@ PyTypeObject pyesedb_column_types_type_object = {
 	/* tp_methods */
 	0,
 	/* tp_members */
-	pyesedb_column_types_object_members,
-	/* tp_getset */
 	0,
+	/* tp_getset */
+	pyesedb_column_types_object_get_set_definitions,
 	/* tp_base */
 	0,
 	/* tp_dict */
@@ -301,25 +302,6 @@ int pyesedb_column_types_init(
 
 		return( -1 );
 	}
-	pyesedb_column_types->values[ 0 ]  = (char) LIBESEDB_COLUMN_TYPE_NULL;
-	pyesedb_column_types->values[ 1 ]  = (char) LIBESEDB_COLUMN_TYPE_BOOLEAN;
-	pyesedb_column_types->values[ 2 ]  = (char) LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED;
-	pyesedb_column_types->values[ 3 ]  = (char) LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED;
-	pyesedb_column_types->values[ 4 ]  = (char) LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED;
-	pyesedb_column_types->values[ 5 ]  = (char) LIBESEDB_COLUMN_TYPE_CURRENCY;
-	pyesedb_column_types->values[ 6 ]  = (char) LIBESEDB_COLUMN_TYPE_FLOAT_32BIT;
-	pyesedb_column_types->values[ 7 ]  = (char) LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT;
-	pyesedb_column_types->values[ 8 ]  = (char) LIBESEDB_COLUMN_TYPE_DATE_TIME;
-	pyesedb_column_types->values[ 9 ]  = (char) LIBESEDB_COLUMN_TYPE_BINARY_DATA;
-	pyesedb_column_types->values[ 10 ] = (char) LIBESEDB_COLUMN_TYPE_TEXT;
-	pyesedb_column_types->values[ 11 ] = (char) LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA;
-	pyesedb_column_types->values[ 12 ] = (char) LIBESEDB_COLUMN_TYPE_LARGE_TEXT;
-	pyesedb_column_types->values[ 13 ] = (char) LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE;
-	pyesedb_column_types->values[ 14 ] = (char) LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED;
-	pyesedb_column_types->values[ 15 ] = (char) LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED;
-	pyesedb_column_types->values[ 16 ] = (char) LIBESEDB_COLUMN_TYPE_GUID;
-	pyesedb_column_types->values[ 17 ] = (char) LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED;
-
 	return( 0 );
 }
 
@@ -359,5 +341,239 @@ void pyesedb_column_types_free(
 	}
 	pyesedb_column_types->ob_type->tp_free(
 	 (PyObject*) pyesedb_column_types );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_NULL column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_null(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_NULL ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_BOOLEAN column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_boolean(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_BOOLEAN ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_8bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_16bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_32bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_CURRENCY column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_currency(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_CURRENCY ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_FLOAT_32BIT column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_float_32bit(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_FLOAT_32BIT ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_double_64bit(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_DATE_TIME column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_date_time(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_DATE_TIME ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_BINARY_DATA column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_binary_data(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_BINARY_DATA ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_TEXT column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_text(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_TEXT ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_large_binary_data(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_LARGE_TEXT column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_large_text(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_super_large_value(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_32bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_64bit_signed(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_GUID column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_guid(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_GUID ) );
+}
+
+/* Retrieves the LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED column type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_types_get_integer_16bit_unsigned(
+           pyesedb_column_types_t *pyesedb_column_types,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	return( PyInt_FromLong(
+	         (long) LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) );
 }
 

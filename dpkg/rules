@@ -81,8 +81,8 @@ override_dh_perl:
 override_dh_pysupport:
 
 override_dh_shlibdeps:
-	dh_shlibdeps -Llibesdb -l${PWD}/debian/tmp/usr/lib
+	dh_shlibdeps -Llibesedb -l${PWD}/debian/tmp/usr/lib
 
 override_dh_makeshlibs:
-	dh_makeshlibs -Xlibesdb-dev
+	dh_makeshlibs -Xlibesedb-dev
 

@@ -28,6 +28,7 @@
 
 #include "pyesedb_column.h"
 #include "pyesedb_error.h"
+#include "pyesedb_integer.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libcstring.h"
 #include "pyesedb_libesedb.h"
@@ -37,6 +38,20 @@
 PyMethodDef pyesedb_column_object_methods[] = {
 
 	/* Functions to access the column values */
+
+	{ "get_identifier",
+	  (PyCFunction) pyesedb_column_get_identifier,
+	  METH_NOARGS,
+	  "get_identifier() -> Integer\n"
+	  "\n"
+	  "Retrieves the identifier." },
+
+	{ "get_type",
+	  (PyCFunction) pyesedb_column_get_type,
+	  METH_NOARGS,
+	  "get_type() -> Integer\n"
+	  "\n"
+	  "Retrieves the type." },
 
 	{ "get_name",
 	  (PyCFunction) pyesedb_column_get_name,
@@ -50,6 +65,18 @@ PyMethodDef pyesedb_column_object_methods[] = {
 };
 
 PyGetSetDef pyesedb_column_object_get_set_definitions[] = {
+
+	{ "identifier",
+	  (getter) pyesedb_column_get_identifier,
+	  (setter) 0,
+	  "The identifier.",
+	  NULL },
+
+	{ "type",
+	  (getter) pyesedb_column_get_type,
+	  (setter) 0,
+	  "The type.",
+	  NULL },
 
 	{ "name",
 	  (getter) pyesedb_column_get_name,
@@ -178,8 +205,8 @@ PyObject *pyesedb_column_new(
 		return( NULL );
 	}
 	pyesedb_column = PyObject_New(
-	                 struct pyesedb_column,
-	                 &pyesedb_column_type_object );
+	                  struct pyesedb_column,
+	                  &pyesedb_column_type_object );
 
 	if( pyesedb_column == NULL )
 	{
@@ -305,6 +332,110 @@ void pyesedb_column_free(
 	}
 	pyesedb_column->ob_type->tp_free(
 	 (PyObject*) pyesedb_column );
+}
+
+/* Retrieves the identifier
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_get_identifier(
+           pyesedb_column_t *pyesedb_column,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_column_get_identifier";
+	uint32_t identifier      = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_column == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid column.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_column_get_identifier(
+	          pyesedb_column->column,
+	          &identifier,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve identifier.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  (uint64_t) identifier );
+
+	return( integer_object );
+}
+
+/* Retrieves the type
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_column_get_type(
+           pyesedb_column_t *pyesedb_column,
+           PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
+{
+	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
+	static char *function    = "pyesedb_column_get_type";
+	uint32_t type            = 0;
+	int result               = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( arguments )
+
+	if( pyesedb_column == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid column.",
+		 function );
+
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_column_get_type(
+	          pyesedb_column->column,
+	          &type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve type.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	integer_object = pyesedb_integer_unsigned_new_from_64bit(
+	                  (uint64_t) type );
+
+	return( integer_object );
 }
 
 /* Retrieves the name
