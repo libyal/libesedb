@@ -125,6 +125,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20130302
+* worked on Python-bindings
+
 20130301
 * fix in dpkg files
 * worked on Python-bindings

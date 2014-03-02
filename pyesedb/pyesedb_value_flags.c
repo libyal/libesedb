@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb column types
+ * Python object definition of the libesedb value flags
  *
  * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,24 +26,24 @@
 #include <stdlib.h>
 #endif
 
-#include "pyesedb_column_types.h"
+#include "pyesedb_value_flags.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 #include "pyesedb_unused.h"
 
-PyTypeObject pyesedb_column_types_type_object = {
+PyTypeObject pyesedb_value_flags_type_object = {
 	PyObject_HEAD_INIT( NULL )
 
 	/* ob_size */
 	0,
 	/* tp_name */
-	"pyesedb.column_types",
+	"pyesedb.value_flags",
 	/* tp_basicsize */
-	sizeof( pyesedb_column_types_t ),
+	sizeof( pyesedb_value_flags_t ),
 	/* tp_itemsize */
 	0,
 	/* tp_dealloc */
-	(destructor) pyesedb_column_types_free,
+	(destructor) pyesedb_value_flags_free,
 	/* tp_print */
 	0,
 	/* tp_getattr */
@@ -75,7 +75,7 @@ PyTypeObject pyesedb_column_types_type_object = {
         /* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
-	"pyesedb column types object (wraps LIBESEDB_COLUMN_TYPES)",
+	"pyesedb value flags object (wraps LIBESEDB_COLUMN_TYPES)",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -105,7 +105,7 @@ PyTypeObject pyesedb_column_types_type_object = {
 	/* tp_dictoffset */
 	0,
 	/* tp_init */
-	(initproc) pyesedb_column_types_init,
+	(initproc) pyesedb_value_flags_init,
 	/* tp_alloc */
 	0,
 	/* tp_new */
@@ -128,62 +128,62 @@ PyTypeObject pyesedb_column_types_type_object = {
 	0
 };
 
-/* Creates a new column types object
+/* Creates a new value flags object
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyesedb_column_types_new(
+PyObject *pyesedb_value_flags_new(
            void )
 {
-	pyesedb_column_types_t *pyesedb_column_types = NULL;
-	static char *function                        = "pyesedb_column_types_new";
+	pyesedb_value_flags_t *pyesedb_value_flags = NULL;
+	static char *function                        = "pyesedb_value_flags_new";
 
-	pyesedb_column_types = PyObject_New(
-	                        struct pyesedb_column_types,
-	                        &pyesedb_column_types_type_object );
+	pyesedb_value_flags = PyObject_New(
+	                        struct pyesedb_value_flags,
+	                        &pyesedb_value_flags_type_object );
 
-	if( pyesedb_column_types == NULL )
+	if( pyesedb_value_flags == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize column types.",
+		 "%s: unable to initialize value flags.",
 		 function );
 
 		goto on_error;
 	}
-	if( pyesedb_column_types_init(
-	     pyesedb_column_types ) != 0 )
+	if( pyesedb_value_flags_init(
+	     pyesedb_value_flags ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize column types.",
+		 "%s: unable to initialize value flags.",
 		 function );
 
 		goto on_error;
 	}
-	return( (PyObject *) pyesedb_column_types );
+	return( (PyObject *) pyesedb_value_flags );
 
 on_error:
-	if( pyesedb_column_types != NULL )
+	if( pyesedb_value_flags != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_column_types );
+		 (PyObject *) pyesedb_value_flags );
 	}
 	return( NULL );
 }
 
-/* Intializes a column types object
+/* Intializes a value flags object
  * Returns 0 if successful or -1 on error
  */
-int pyesedb_column_types_init(
-     pyesedb_column_types_t *pyesedb_column_types )
+int pyesedb_value_flags_init(
+     pyesedb_value_flags_t *pyesedb_value_flags )
 {
-	static char *function = "pyesedb_column_types_init";
+	static char *function = "pyesedb_value_flags_init";
 
-	if( pyesedb_column_types == NULL )
+	if( pyesedb_value_flags == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid column types.",
+		 "%s: invalid value flags.",
 		 function );
 
 		return( -1 );
@@ -191,41 +191,41 @@ int pyesedb_column_types_init(
 	return( 0 );
 }
 
-/* Frees a column types object
+/* Frees a value flags object
  */
-void pyesedb_column_types_free(
-      pyesedb_column_types_t *pyesedb_column_types )
+void pyesedb_value_flags_free(
+      pyesedb_value_flags_t *pyesedb_value_flags )
 {
-	static char *function = "pyesedb_column_types_free";
+	static char *function = "pyesedb_value_flags_free";
 
-	if( pyesedb_column_types == NULL )
+	if( pyesedb_value_flags == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid column types.",
+		 "%s: invalid value flags.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_column_types->ob_type == NULL )
+	if( pyesedb_value_flags->ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid column types - missing ob_type.",
+		 "%s: invalid value flags - missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_column_types->ob_type->tp_free == NULL )
+	if( pyesedb_value_flags->ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid column types - invalid ob_type - missing tp_free.",
+		 "%s: invalid value flags - invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
 	}
-	pyesedb_column_types->ob_type->tp_free(
-	 (PyObject*) pyesedb_column_types );
+	pyesedb_value_flags->ob_type->tp_free(
+	 (PyObject*) pyesedb_value_flags );
 }
 

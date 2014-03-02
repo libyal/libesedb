@@ -1,7 +1,7 @@
 <pkgref spec="1.12" uuid="33CC8723-4203-43FC-BE41-843CDA7AD3F9">
 <config>
 	<identifier>com.google.code.p.libesedb.bin.pkg</identifier>
-	<version>20140301</version>
+	<version>20140302</version>
 	<description/>
 	<post-install type="none"/>
 	<requireAuthorization/>

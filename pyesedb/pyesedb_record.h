@@ -66,7 +66,27 @@ PyObject *pyesedb_record_get_number_of_values(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments );
 
+PyObject *pyesedb_record_get_column_type(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_get_column_name(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_get_value_data_flags(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pyesedb_record_get_value_data(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_get_value_data_as_floating_point(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments,
            PyObject *keywords );

@@ -1,5 +1,5 @@
 /*
- * Integer functions
+ * Error functions
  *
  * Copyright (c) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -66,10 +66,11 @@ void VARARGS(
 	va_list argument_list;
 
 	char error_string[ PYESEDB_ERROR_STRING_SIZE ];
+	char exception_string[ PYESEDB_ERROR_STRING_SIZE ];
 
-	static char *function       = "pyesedb_error_raise";
-	size_t error_string_index   = 0;
-	size_t format_string_length = 0;
+	static char *function     = "pyesedb_error_raise";
+	size_t error_string_index = 0;
+	int print_count           = 0;
 
        	if( format_string == NULL )
 	{
@@ -80,74 +81,65 @@ void VARARGS(
 
 		return;
 	}
-	if( error != NULL )
-	{
-		format_string_length = libcstring_narrow_string_length(
-		                        format_string );
-
-		if( format_string_length < ( PYESEDB_ERROR_STRING_SIZE - 2 ) )
-		{
-			if( memory_copy(
-			     error_string,
-			     format_string,
-			     format_string_length ) != NULL )
-			{
-				error_string_index = format_string_length;
-
-				error_string[ error_string_index++ ] = (char) ' ';
-
-				if( libcerror_error_backtrace_sprint(
-				     error,
-				     &( error_string[ error_string_index ] ),
-				     PYESEDB_ERROR_STRING_SIZE - error_string_index ) != -1 )
-				{
-					while( error_string_index < PYESEDB_ERROR_STRING_SIZE )
-					{
-						if( error_string[ error_string_index ] == 0 )
-						{
-							break;
-						}
-						if( error_string[ error_string_index ] == '\n' )
-						{
-							error_string[ error_string_index ] = ' ';
-						}
-						error_string_index++;
-					}
-					if( error_string_index >= PYESEDB_ERROR_STRING_SIZE )
-					{
-						error_string[ PYESEDB_ERROR_STRING_SIZE - 1 ] = 0;
-					}
-					VASTART(
-					 argument_list,
-					 const char *,
-					 format_string );
-
-					PyErr_Format(
-					 exception_object,
-					 error_string,
-					 function,
-					 argument_list );
-
-					VAEND(
-					 argument_list );
-
-					return;
-				}
-			}
-		}
-	}
 	VASTART(
 	 argument_list,
 	 const char *,
 	 format_string );
 
-	PyErr_Format(
-	 exception_object,
-	 format_string,
-	 function );
+	print_count = PyOS_vsnprintf(
+	               exception_string,
+	               PYESEDB_ERROR_STRING_SIZE,
+	               format_string,
+	               argument_list );
 
 	VAEND(
 	 argument_list );
+
+       	if( print_count < 0 )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: unable to format exception string.",
+		 function );
+
+		return;
+	}
+	if( error != NULL )
+	{
+		if( libcerror_error_backtrace_sprint(
+		     error,
+		     error_string,
+		     PYESEDB_ERROR_STRING_SIZE ) != -1 )
+		{
+			while( error_string_index < PYESEDB_ERROR_STRING_SIZE )
+			{
+				if( error_string[ error_string_index ] == 0 )
+				{
+					break;
+				}
+				if( error_string[ error_string_index ] == '\n' )
+				{
+					error_string[ error_string_index ] = ' ';
+				}
+				error_string_index++;
+			}
+			if( error_string_index >= PYESEDB_ERROR_STRING_SIZE )
+			{
+				error_string[ PYESEDB_ERROR_STRING_SIZE - 1 ] = 0;
+			}
+			PyErr_Format(
+			 exception_object,
+			 "%s %s",
+			 exception_string,
+			 error_string );
+
+			return;
+		}
+	}
+	PyErr_Format(
+	 exception_object,
+	 "%s",
+	 exception_string );
 
 	return;
 }

@@ -35,7 +35,8 @@ pyesedb_la_SOURCES = \
 	pyesedb_records.c pyesedb_records.h \
 	pyesedb_table.c pyesedb_table.h \
 	pyesedb_tables.c pyesedb_tables.h \
-	pyesedb_unused.h
+	pyesedb_unused.h \
+	pyesedb_value_flags.c pyesedb_value_flags.h
 
 pyesedb_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \

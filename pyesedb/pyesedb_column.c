@@ -56,7 +56,7 @@ PyMethodDef pyesedb_column_object_methods[] = {
 	{ "get_name",
 	  (PyCFunction) pyesedb_column_get_name,
 	  METH_NOARGS,
-	  "get_name() -> Unicode string or None\n"
+	  "get_name() -> Unicode string\n"
 	  "\n"
 	  "Retrieves the name." },
 

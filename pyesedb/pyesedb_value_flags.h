@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb column types
+ * Python object definition of the libesedb value flags
  *
  * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYESEDB_COLUMN_TYPES_H )
-#define _PYESEDB_COLUMN_TYPES_H
+#if !defined( _PYESEDB_VALUE_FLAGS_G )
+#define _PYESEDB_VALUE_FLAGS_G
 
 #include <common.h>
 #include <types.h>
@@ -32,25 +32,25 @@
 extern "C" {
 #endif
 
-typedef struct pyesedb_column_types pyesedb_column_types_t;
+typedef struct pyesedb_value_flags pyesedb_value_flags_t;
 
-struct pyesedb_column_types
+struct pyesedb_value_flags
 {
 	/* Python object initialization
 	 */
 	PyObject_HEAD
 };
 
-extern PyTypeObject pyesedb_column_types_type_object;
+extern PyTypeObject pyesedb_value_flags_type_object;
 
-PyObject *pyesedb_column_types_new(
+PyObject *pyesedb_value_flags_new(
            void );
 
-int pyesedb_column_types_init(
-     pyesedb_column_types_t *pyesedb_column_types );
+int pyesedb_value_flags_init(
+     pyesedb_value_flags_t *pyesedb_value_flags );
 
-void pyesedb_column_types_free(
-      pyesedb_column_types_t *pyesedb_column_types );
+void pyesedb_value_flags_free(
+      pyesedb_value_flags_t *pyesedb_value_flags );
 
 #if defined( __cplusplus )
 }
