@@ -3130,7 +3130,7 @@ int windows_search_export_record_systemindex_0a(
 				 * Windows Search XP and 7 database contains binary values in big-endian
 				 * In the Windows Search XP database the __SDID column is of type binary data.
 				 * In the Windows Search Vista data base the __SDID column is of type integer 32-bit signed.
-				 * Int Windows Search 7 the __SDID column is no longer present
+				 * In Windows Search 7 the __SDID column is no longer present
 				 */
 				byte_order = _BYTE_STREAM_ENDIAN_LITTLE;
 			}

@@ -43,6 +43,9 @@ struct pyesedb_column_types
 
 extern PyTypeObject pyesedb_column_types_type_object;
 
+int pyesedb_column_types_init_type(
+     PyTypeObject *type_object );
+
 PyObject *pyesedb_column_types_new(
            void );
 

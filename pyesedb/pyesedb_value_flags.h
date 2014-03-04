@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYESEDB_VALUE_FLAGS_G )
-#define _PYESEDB_VALUE_FLAGS_G
+#if !defined( _PYESEDB_VALUE_FLAGS_H )
+#define _PYESEDB_VALUE_FLAGS_H
 
 #include <common.h>
 #include <types.h>
@@ -42,6 +42,9 @@ struct pyesedb_value_flags
 };
 
 extern PyTypeObject pyesedb_value_flags_type_object;
+
+int pyesedb_value_flags_init_type(
+     PyTypeObject *type_object );
 
 PyObject *pyesedb_value_flags_new(
            void );

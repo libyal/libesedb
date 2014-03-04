@@ -75,7 +75,7 @@ PyTypeObject pyesedb_value_flags_type_object = {
         /* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
-	"pyesedb value flags object (wraps LIBESEDB_COLUMN_TYPES)",
+	"pyesedb value flags object (wraps LIBESEDB_VALUE_FLAGS)",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -128,6 +128,67 @@ PyTypeObject pyesedb_value_flags_type_object = {
 	0
 };
 
+/* Initializes the type object
+ * Returns 1 if successful or -1 on error
+ */
+int pyesedb_value_flags_init_type(
+     PyTypeObject *type_object )
+{
+	if( type_object == NULL )
+	{
+		return( -1 );
+	}
+	type_object->tp_dict = PyDict_New();
+
+	if( type_object->tp_dict == NULL )
+	{
+		return( -1 );
+	}
+	if( PyDict_SetItemString(
+             type_object->tp_dict,
+             "VARIABLE_SIZE",
+             PyInt_FromLong(
+              LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
+	{
+		goto on_error;
+	}
+	if( PyDict_SetItemString(
+             type_object->tp_dict,
+             "COMPRESSED",
+             PyInt_FromLong(
+              LIBESEDB_VALUE_FLAG_COMPRESSED ) ) != 0 )
+	{
+		goto on_error;
+	}
+	if( PyDict_SetItemString(
+             type_object->tp_dict,
+             "LONG_VALUE",
+             PyInt_FromLong(
+              LIBESEDB_VALUE_FLAG_LONG_VALUE ) ) != 0 )
+	{
+		goto on_error;
+	}
+	if( PyDict_SetItemString(
+             type_object->tp_dict,
+             "MULTI_VALUE",
+             PyInt_FromLong(
+              LIBESEDB_VALUE_FLAG_MULTI_VALUE ) ) != 0 )
+	{
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( type_object->tp_dict != NULL )
+	{
+		Py_DecRef(
+		 type_object->tp_dict );
+
+		type_object->tp_dict = NULL;
+	}
+	return( -1 );
+}
+
 /* Creates a new value flags object
  * Returns a Python object if successful or NULL on error
  */
@@ -135,11 +196,11 @@ PyObject *pyesedb_value_flags_new(
            void )
 {
 	pyesedb_value_flags_t *pyesedb_value_flags = NULL;
-	static char *function                        = "pyesedb_value_flags_new";
+	static char *function                      = "pyesedb_value_flags_new";
 
 	pyesedb_value_flags = PyObject_New(
-	                        struct pyesedb_value_flags,
-	                        &pyesedb_value_flags_type_object );
+	                       struct pyesedb_value_flags,
+	                       &pyesedb_value_flags_type_object );
 
 	if( pyesedb_value_flags == NULL )
 	{

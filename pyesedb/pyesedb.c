@@ -347,8 +347,8 @@ PyMODINIT_FUNC initpyesedb(
 
 	PyModule_AddObject(
 	 module,
-	"_tables",
-	(PyObject *) tables_type_object );
+	 "_tables",
+	 (PyObject *) tables_type_object );
 
 	/* Setup the table type object
 	 */
@@ -385,8 +385,8 @@ PyMODINIT_FUNC initpyesedb(
 
 	PyModule_AddObject(
 	 module,
-	"_columns",
-	(PyObject *) columns_type_object );
+	 "_columns",
+	 (PyObject *) columns_type_object );
 
 	/* Setup the column type object
 	 */
@@ -423,8 +423,8 @@ PyMODINIT_FUNC initpyesedb(
 
 	PyModule_AddObject(
 	 module,
-	"_records",
-	(PyObject *) records_type_object );
+	 "_records",
+	 (PyObject *) records_type_object );
 
 	/* Setup the record type object
 	 */
@@ -449,149 +449,8 @@ PyMODINIT_FUNC initpyesedb(
 	 */
 	pyesedb_column_types_type_object.tp_new = PyType_GenericNew;
 
-	pyesedb_column_types_type_object.tp_dict = PyDict_New();
-
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "NULL",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_NULL ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "BOOLEAN",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_BOOLEAN ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_8BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_16BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_32BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "CURRENCY",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_CURRENCY ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "FLOAT_32BIT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_FLOAT_32BIT ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "DOUBLE_64BIT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "DATE_TIME",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_DATE_TIME ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "BINARY_DATA",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_BINARY_DATA ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "TEXT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_TEXT ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "LARGE_BINARY_DATA",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "LARGE_TEXT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "SUPER_LARGE_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_32BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_64BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "GUID",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_GUID ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_column_types_type_object.tp_dict,
-             "INTEGER_16BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) ) != 0 )
+	if( pyesedb_column_types_init_type(
+             &pyesedb_column_types_type_object ) != 1 )
 	{
 		goto on_error;
 	}
@@ -607,44 +466,15 @@ PyMODINIT_FUNC initpyesedb(
 
 	PyModule_AddObject(
 	 module,
-	"column_types",
-	(PyObject *) column_types_type_object );
+	 "column_types",
+	 (PyObject *) column_types_type_object );
 
 	/* Setup the value flags type object
 	 */
 	pyesedb_value_flags_type_object.tp_new = PyType_GenericNew;
 
-	pyesedb_value_flags_type_object.tp_dict = PyDict_New();
-
-	if( PyDict_SetItemString(
-             pyesedb_value_flags_type_object.tp_dict,
-             "VARIABLE_SIZE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_value_flags_type_object.tp_dict,
-             "COMPRESSED",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_COMPRESSED ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_value_flags_type_object.tp_dict,
-             "LONG_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_LONG_VALUE ) ) != 0 )
-	{
-		goto on_error;
-	}
-	if( PyDict_SetItemString(
-             pyesedb_value_flags_type_object.tp_dict,
-             "MULTI_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_MULTI_VALUE ) ) != 0 )
+	if( pyesedb_value_flags_init_type(
+             &pyesedb_value_flags_type_object ) != 1 )
 	{
 		goto on_error;
 	}
@@ -660,8 +490,8 @@ PyMODINIT_FUNC initpyesedb(
 
 	PyModule_AddObject(
 	 module,
-	"value_flags",
-	(PyObject *) value_flags_type_object );
+	 "value_flags",
+	 (PyObject *) value_flags_type_object );
 
 on_error:
 	PyGILState_Release(
