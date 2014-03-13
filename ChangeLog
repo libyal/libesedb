@@ -1,6 +1,10 @@
 TODO
+* refactor:
+  - libesedb_multi_value_get_value what about value_type ?
+  - clean up multi value calls to libfvalue
 * deprecate:
   - libesedb_record_get_value
+  - libesedb_multi_value_get_value
 * complete libfvalue update integration - multi value
 * update msvscpp files
 
@@ -124,6 +128,13 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20130305
+* worked on Python-bindings
+* worked on multi value
+
+20130304
+* worked on Python-bindings
 
 20130302
 * worked on Python-bindings

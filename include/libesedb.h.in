@@ -1018,16 +1018,25 @@ int libesedb_multi_value_get_number_of_values(
      int *number_of_values,
      libesedb_error_t **error );
 
-/* Retrieves a specific value of the multi value
+/* Retrieves the value data size of the specific value
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
-int libesedb_multi_value_get_value(
+int libesedb_multi_value_get_value_data_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
-     uint32_t *value_type,
-     uint8_t **value_data,
+     int value_entry,
      size_t *value_data_size,
+     libesedb_error_t **error );
+
+/* Retrieves the value data of the specific value
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value_data(
+     libesedb_multi_value_t *multi_value,
+     int value_entry,
+     uint8_t *value_data,
+     size_t value_data_size,
      libesedb_error_t **error );
 
 /* Retrieves the 32-bit value of a specific value of the multi value
@@ -1036,7 +1045,7 @@ int libesedb_multi_value_get_value(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_32bit(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint32_t *value_32bit,
      libesedb_error_t **error );
 
@@ -1046,7 +1055,7 @@ int libesedb_multi_value_get_value_32bit(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_64bit(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint64_t *value_64bit,
      libesedb_error_t **error );
 
@@ -1056,7 +1065,7 @@ int libesedb_multi_value_get_value_64bit(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_filetime(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint64_t *value_filetime,
      libesedb_error_t **error );
 
@@ -1067,7 +1076,7 @@ int libesedb_multi_value_get_value_filetime(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_utf8_string_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *utf8_string_size,
      libesedb_error_t **error );
 
@@ -1078,7 +1087,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_utf8_string(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libesedb_error_t **error );
@@ -1090,7 +1099,7 @@ int libesedb_multi_value_get_value_utf8_string(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_utf16_string_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *utf16_string_size,
      libesedb_error_t **error );
 
@@ -1101,7 +1110,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_utf16_string(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libesedb_error_t **error );
@@ -1112,7 +1121,7 @@ int libesedb_multi_value_get_value_utf16_string(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_binary_data_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *binary_data_size,
      libesedb_error_t **error );
 
@@ -1122,9 +1131,28 @@ int libesedb_multi_value_get_value_binary_data_size(
 LIBESEDB_EXTERN \
 int libesedb_multi_value_get_value_binary_data(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint8_t *binary_data,
      size_t binary_data_size,
+     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Multi value functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieves a specific value of the multi value
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use the libesedb_multi_value_get_value_data functions instead.
+ */
+LIBESEDB_DEPRECATED \
+LIBESEDB_EXTERN \
+int libesedb_multi_value_get_value(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     uint32_t *value_type,
+     uint8_t **value_data,
+     size_t *value_data_size,
      libesedb_error_t **error );
 
 #if defined( __cplusplus )

@@ -203,12 +203,14 @@ int libesedb_multi_value_get_number_of_values(
 	return( 1 );
 }
 
+/* TODO deprecate */
+
 /* Retrieves a specific value of the multi value
  * Returns 1 if successful or -1 on error
  */
 int libesedb_multi_value_get_value(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint32_t *column_type,
      uint8_t **value_data,
      size_t *value_data_size,
@@ -247,7 +249,7 @@ int libesedb_multi_value_get_value(
 	}
 	if( libfvalue_value_get_entry_data(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     value_data,
 	     value_data_size,
 	     &encoding,
@@ -259,7 +261,101 @@ int libesedb_multi_value_get_value(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value entry data: %d.",
 		 function,
-		 value_index );
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the value data size of the specific value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_data_size(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     size_t *value_data_size,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value_data_size";
+	size_t value_data_offset                              = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libfvalue_value_get_entry(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     &value_data_offset,
+	     value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value entry data: %d size.",
+		 function,
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the value data of the specific value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_data(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     uint8_t *value_data,
+     size_t value_data_size,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value";
+	int encoding                                          = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libfvalue_value_copy_entry_data(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     value_data,
+	     value_data_size,
+	     &encoding,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value entry data: %d.",
+		 function,
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -271,7 +367,7 @@ int libesedb_multi_value_get_value(
  */
 int libesedb_multi_value_get_value_32bit(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint32_t *value_32bit,
      libcerror_error_t **error )
 {
@@ -321,7 +417,7 @@ int libesedb_multi_value_get_value_32bit(
 	}
 	if( libfvalue_value_copy_to_32bit(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     value_32bit,
 	     error ) != 1 )
 	{
@@ -331,7 +427,7 @@ int libesedb_multi_value_get_value_32bit(
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 32-bit value.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -343,7 +439,7 @@ int libesedb_multi_value_get_value_32bit(
  */
 int libesedb_multi_value_get_value_64bit(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint64_t *value_64bit,
      libcerror_error_t **error )
 {
@@ -393,7 +489,7 @@ int libesedb_multi_value_get_value_64bit(
 	}
 	if( libfvalue_value_copy_to_64bit(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     value_64bit,
 	     error ) != 1 )
 	{
@@ -403,7 +499,7 @@ int libesedb_multi_value_get_value_64bit(
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 64-bit value.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -415,7 +511,7 @@ int libesedb_multi_value_get_value_64bit(
  */
 int libesedb_multi_value_get_value_filetime(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint64_t *value_filetime,
      libcerror_error_t **error )
 {
@@ -466,7 +562,7 @@ int libesedb_multi_value_get_value_filetime(
 	 */
 	if( libfvalue_value_copy_to_64bit(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     value_filetime,
 	     error ) != 1 )
 	{
@@ -476,7 +572,7 @@ int libesedb_multi_value_get_value_filetime(
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 64-bit value.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -489,7 +585,7 @@ int libesedb_multi_value_get_value_filetime(
  */
 int libesedb_multi_value_get_value_utf8_string_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *utf8_string_size,
      libcerror_error_t **error )
 {
@@ -557,11 +653,11 @@ int libesedb_multi_value_get_value_utf8_string_size(
 		return( -1 );
 	}
 	if( ( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-	 && ( value_index == 0 ) )
+	 && ( multi_value_index == 0 ) )
 	{
 		if( libfvalue_value_get_entry_data(
 		     internal_multi_value->record_value,
-		     value_index,
+		     multi_value_index,
 		     &entry_data,
 		     &entry_data_size,
 		     &encoding,
@@ -573,7 +669,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
-			 value_index );
+			 multi_value_index );
 
 			return( -1 );
 		}
@@ -587,7 +683,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 	{
 		result = libfvalue_value_get_utf8_string_size(
 			  internal_multi_value->record_value,
-			  value_index,
+			  multi_value_index,
 			  utf8_string_size,
 			  error );
 	}
@@ -599,7 +695,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve UTF-8 string size: %d.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -612,7 +708,7 @@ int libesedb_multi_value_get_value_utf8_string_size(
  */
 int libesedb_multi_value_get_value_utf8_string(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint8_t *utf8_string,
      size_t utf8_string_size,
      libcerror_error_t **error )
@@ -681,11 +777,11 @@ int libesedb_multi_value_get_value_utf8_string(
 		return( -1 );
 	}
 	if( ( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-	 && ( value_index == 0 ) )
+	 && ( multi_value_index == 0 ) )
 	{
 		if( libfvalue_value_get_entry_data(
 		     internal_multi_value->record_value,
-		     value_index,
+		     multi_value_index,
 		     &entry_data,
 		     &entry_data_size,
 		     &encoding,
@@ -697,7 +793,7 @@ int libesedb_multi_value_get_value_utf8_string(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
-			 value_index );
+			 multi_value_index );
 
 			return( -1 );
 		}
@@ -712,7 +808,7 @@ int libesedb_multi_value_get_value_utf8_string(
 	{
 		result = libfvalue_value_copy_to_utf8_string(
 			  internal_multi_value->record_value,
-			  value_index,
+			  multi_value_index,
 			  utf8_string,
 			  utf8_string_size,
 			  error );
@@ -725,7 +821,7 @@ int libesedb_multi_value_get_value_utf8_string(
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to UTF-8 string.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -738,7 +834,7 @@ int libesedb_multi_value_get_value_utf8_string(
  */
 int libesedb_multi_value_get_value_utf16_string_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *utf16_string_size,
      libcerror_error_t **error )
 {
@@ -806,11 +902,11 @@ int libesedb_multi_value_get_value_utf16_string_size(
 		return( -1 );
 	}
 	if( ( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-	 && ( value_index == 0 ) )
+	 && ( multi_value_index == 0 ) )
 	{
 		if( libfvalue_value_get_entry_data(
 		     internal_multi_value->record_value,
-		     value_index,
+		     multi_value_index,
 		     &entry_data,
 		     &entry_data_size,
 		     &encoding,
@@ -822,7 +918,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
-			 value_index );
+			 multi_value_index );
 
 			return( -1 );
 		}
@@ -836,7 +932,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 	{
 		result = libfvalue_value_get_utf16_string_size(
 			  internal_multi_value->record_value,
-			  value_index,
+			  multi_value_index,
 			  utf16_string_size,
 			  error );
 	}
@@ -848,7 +944,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve UTF-16 string size: %d.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -861,7 +957,7 @@ int libesedb_multi_value_get_value_utf16_string_size(
  */
 int libesedb_multi_value_get_value_utf16_string(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint16_t *utf16_string,
      size_t utf16_string_size,
      libcerror_error_t **error )
@@ -930,11 +1026,11 @@ int libesedb_multi_value_get_value_utf16_string(
 		return( -1 );
 	}
 	if( ( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-	 && ( value_index == 0 ) )
+	 && ( multi_value_index == 0 ) )
 	{
 		if( libfvalue_value_get_entry_data(
 		     internal_multi_value->record_value,
-		     value_index,
+		     multi_value_index,
 		     &entry_data,
 		     &entry_data_size,
 		     &encoding,
@@ -946,7 +1042,7 @@ int libesedb_multi_value_get_value_utf16_string(
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 			 "%s: unable to retrieve record value entry: %d data.",
 			 function,
-			 value_index );
+			 multi_value_index );
 
 			return( -1 );
 		}
@@ -961,7 +1057,7 @@ int libesedb_multi_value_get_value_utf16_string(
 	{
 		result = libfvalue_value_copy_to_utf16_string(
 			  internal_multi_value->record_value,
-			  value_index,
+			  multi_value_index,
 			  utf16_string,
 			  utf16_string_size,
 			  error );
@@ -974,7 +1070,7 @@ int libesedb_multi_value_get_value_utf16_string(
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to UTF-16 string.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -986,7 +1082,7 @@ int libesedb_multi_value_get_value_utf16_string(
  */
 int libesedb_multi_value_get_value_binary_data_size(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      size_t *binary_data_size,
      libcerror_error_t **error )
 {
@@ -1038,7 +1134,7 @@ int libesedb_multi_value_get_value_binary_data_size(
 	}
 	if( libfvalue_value_get_entry_data(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     &value_entry_data,
 	     binary_data_size,
 	     &encoding,
@@ -1050,7 +1146,7 @@ int libesedb_multi_value_get_value_binary_data_size(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value entry data: %d.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}
@@ -1062,7 +1158,7 @@ int libesedb_multi_value_get_value_binary_data_size(
  */
 int libesedb_multi_value_get_value_binary_data(
      libesedb_multi_value_t *multi_value,
-     int value_index,
+     int multi_value_index,
      uint8_t *binary_data,
      size_t binary_data_size,
      libcerror_error_t **error )
@@ -1138,7 +1234,7 @@ int libesedb_multi_value_get_value_binary_data(
 	}
 	if( libfvalue_value_get_entry_data(
 	     internal_multi_value->record_value,
-	     value_index,
+	     multi_value_index,
 	     &value_entry_data,
 	     &value_entry_data_size,
 	     &encoding,
@@ -1150,7 +1246,7 @@ int libesedb_multi_value_get_value_binary_data(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrive value entry data: %d.",
 		 function,
-		 value_index );
+		 multi_value_index );
 
 		return( -1 );
 	}

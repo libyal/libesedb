@@ -901,66 +901,6 @@ int libesedb_record_get_value(
 	return( 1 );
 }
 
-/* Retrieves the value data size of the specific entry
- * Returns 1 if successful or -1 on error
- */
-int libesedb_record_get_value_data_size(
-     libesedb_record_t *record,
-     int value_entry,
-     size_t *value_data_size,
-     libcerror_error_t **error )
-{
-	libesedb_internal_record_t *internal_record = NULL;
-	libfvalue_value_t *record_value             = NULL;
-	static char *function                       = "libesedb_record_get_value_data_size";
-
-	if( record == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid record.",
-		 function );
-
-		return( -1 );
-	}
-	internal_record = (libesedb_internal_record_t *) record;
-
-	if( libcdata_array_get_entry_by_index(
-	     internal_record->values_array,
-	     value_entry,
-	     (intptr_t **) &record_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d from values array.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	if( libfvalue_value_get_data_size(
-	     record_value,
-	     value_data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve value: %d data size.",
-		 function,
-		 value_entry );
-
-		return( -1 );
-	}
-	return( 1 );
-}
-
 /* Retrieves the value data flags of the specific entry
  * Returns 1 if successful or -1 on error
  */
@@ -1036,10 +976,69 @@ int libesedb_record_get_value_data_flags(
 	return( 1 );
 }
 
+/* Retrieves the value data size of the specific entry
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_record_get_value_data_size(
+     libesedb_record_t *record,
+     int value_entry,
+     size_t *value_data_size,
+     libcerror_error_t **error )
+{
+	libesedb_internal_record_t *internal_record = NULL;
+	libfvalue_value_t *record_value             = NULL;
+	static char *function                       = "libesedb_record_get_value_data_size";
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( libcdata_array_get_entry_by_index(
+	     internal_record->values_array,
+	     value_entry,
+	     (intptr_t **) &record_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d from values array.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( libfvalue_value_get_data_size(
+	     record_value,
+	     value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data size.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the value data of the specific entry
  * Returns 1 if successful or -1 on error
  */
-LIBESEDB_EXTERN \
 int libesedb_record_get_value_data(
      libesedb_record_t *record,
      int value_entry,
