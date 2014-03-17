@@ -1,7 +1,7 @@
 <pkmkdoc spec="1.12">
 	<properties>
 		<title>libesedb</title>
-		<build>/home/jbmetz/Projects/libesedb/macosx/libesedb.mpkg</build>
+		<build>/home/lordyesta/Projects/libesedb/macosx/libesedb.mpkg</build>
 		<organization>com.google.code.p</organization>
 		<userSees ui="both"/>
 		<min-target os="1"/>

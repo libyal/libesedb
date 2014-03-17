@@ -1,6 +1,6 @@
 dnl Functions for libfdata
 dnl
-dnl Version: 20120501
+dnl Version: 20140317
 
 dnl Function to detect if libfdata is available
 dnl ac_libfdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libfdata],
-    [libfdata >= 20120405],
+    [libfdata >= 20140206],
     [ac_cv_libfdata=yes],
     [ac_cv_libfdata=no])
    ])
@@ -48,7 +48,106 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
      [ac_cv_libfdata_dummy=yes],
      [ac_cv_libfdata=no])
    
-    dnl TODO add functions
+    dnl Stream functions
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_initialize,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_free,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_clone,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_empty,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_resize,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_reverse,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_number_of_segments,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_segment_by_index,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_set_segment_by_index,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_prepend_segment,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_append_segment,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+ 
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_segment_index_at_offset,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_segment_at_offset,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+ 
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_read_buffer,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_read_buffer_at_offset,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_write_buffer,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_seek_offset,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_offset,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
+    AC_CHECK_LIB(
+     fdata,
+     libfdata_stream_get_size,
+     [ac_cv_libfdata_dummy=yes],
+     [ac_cv_libfdata=no])
  
     ac_cv_libfdata_LIBADD="-lfdata"
     ])
