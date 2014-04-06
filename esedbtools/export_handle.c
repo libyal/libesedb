@@ -2399,9 +2399,11 @@ int export_handle_export_record_value(
         libesedb_multi_value_t *multi_value         = NULL;
 	libfdatetime_filetime_t *filetime           = NULL;
 	uint8_t *binary_data                        = NULL;
+	uint8_t *multi_value_data                   = NULL;
 	uint8_t *value_data                         = NULL;
 	static char *function                       = "export_handle_export_record_value";
 	size_t binary_data_size                     = 0;
+	size_t multi_value_data_size                = 0;
 	size_t value_data_size                      = 0;
 	size_t value_string_size                    = 0;
 	double value_double                         = 0.0;
@@ -3317,125 +3319,160 @@ libcnotify_print_data(
 	 	     multi_value_iterator < number_of_multi_values;
 		     multi_value_iterator++ )
 		{
-			if( libesedb_multi_value_get_value(
-			     multi_value,
-			     multi_value_iterator,
-			     &column_type,
-			     &value_data,
-			     &value_data_size,
-			     error ) != 1 )
+			if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
+			 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
 			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve multi value: %d of record entry: %d.",
-				 function,
-				 multi_value_iterator,
-				 record_value_entry );
-
-				goto on_error;
-			}
-			if( value_data != NULL )
-			{
-				if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
-				 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
-				{
 #if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-					result = libesedb_multi_value_get_value_utf16_string_size(
-						  multi_value,
-						  multi_value_iterator,
-						  &value_string_size,
-						  error );
+				result = libesedb_multi_value_get_value_utf16_string_size(
+					  multi_value,
+					  multi_value_iterator,
+					  &value_string_size,
+					  error );
 #else
-					result = libesedb_multi_value_get_value_utf8_string_size(
-						  multi_value,
-						  multi_value_iterator,
-						  &value_string_size,
-						  error );
+				result = libesedb_multi_value_get_value_utf8_string_size(
+					  multi_value,
+					  multi_value_iterator,
+					  &value_string_size,
+					  error );
 #endif
 
-					if( result == -1 )
+				if( result == -1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve size of string of multi value: %d of record entry: %d (%" PRIu32 ").",
+					 function,
+					 multi_value_iterator,
+					 record_value_entry,
+					 column_identifier );
+
+					goto on_error;
+				}
+				else if( result != 0 )
+				{
+					value_string = libcstring_system_string_allocate(
+							value_string_size );
+
+					if( value_string == NULL )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create value string.",
+						 function );
+
+						goto on_error;
+					}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+					result = libesedb_multi_value_get_value_utf16_string(
+						  multi_value,
+						  multi_value_iterator,
+						  (uint16_t *) value_string,
+						  value_string_size,
+						  error );
+#else
+					result = libesedb_multi_value_get_value_utf8_string(
+						  multi_value,
+						  multi_value_iterator,
+						  (uint8_t *) value_string,
+						  value_string_size,
+						  error );
+#endif
+					if( result != 1 )
 					{
 						libcerror_error_set(
 						 error,
 						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve size of string of multi value: %d of record entry: %d (%" PRIu32 ").",
+						 "%s: unable to retrieve string of multi value: %d of record entry: %d.",
 						 function,
 						 multi_value_iterator,
-						 record_value_entry,
-						 column_identifier );
+						 record_value_entry );
 
 						goto on_error;
 					}
-					else if( result != 0 )
-					{
-						value_string = libcstring_system_string_allocate(
-						                value_string_size );
-
-						if( value_string == NULL )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_MEMORY,
-							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-							 "%s: unable to create value string.",
-							 function );
-
-							goto on_error;
-						}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-						result = libesedb_multi_value_get_value_utf16_string(
-						          multi_value,
-						          multi_value_iterator,
-						          (uint16_t *) value_string,
-						          value_string_size,
-						          error );
-#else
-						result = libesedb_multi_value_get_value_utf8_string(
-						          multi_value,
-						          multi_value_iterator,
-						          (uint8_t *) value_string,
-						          value_string_size,
-						          error );
-#endif
-						if( result != 1 )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-							 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-							 "%s: unable to retrieve string of multi value: %d of record entry: %d.",
-							 function,
-							 multi_value_iterator,
-							 record_value_entry );
-
-							goto on_error;
-						}
-						export_text(
-						 value_string,
-						 value_string_size,
-						 record_file_stream );
-
-						memory_free(
-						 value_string );
-
-						value_string = NULL;
-					}
-					if( multi_value_iterator < ( number_of_multi_values - 1 ) )
-					{
-						fprintf(
-						 record_file_stream,
-						 "; " );
-					}
-				}
-				else
-				{
-					export_binary_data(
-					 value_data,
-					 value_data_size,
+					export_text(
+					 value_string,
+					 value_string_size,
 					 record_file_stream );
+
+					memory_free(
+					 value_string );
+
+					value_string = NULL;
+				}
+				if( multi_value_iterator < ( number_of_multi_values - 1 ) )
+				{
+					fprintf(
+					 record_file_stream,
+					 "; " );
+				}
+			}
+			else
+			{
+				if( libesedb_multi_value_get_value_data_size(
+				     multi_value,
+				     multi_value_iterator,
+				     &value_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve multi value: %d data size of record entry: %d.",
+					 function,
+					 multi_value_iterator,
+					 record_value_entry );
+
+					goto on_error;
+				}
+				if( multi_value_data_size > 0 )
+				{
+					multi_value_data = (uint8_t *) memory_allocate(
+									sizeof( uint8_t ) * multi_value_data_size );
+
+					if( multi_value_data == NULL )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create multi value data.",
+						 function );
+
+						goto on_error;
+					}
+					if( libesedb_multi_value_get_value_data(
+					     multi_value,
+					     multi_value_iterator,
+					     multi_value_data,
+					     multi_value_data_size,
+					     error ) != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to retrieve multi value: %d data of record entry: %d.",
+						 function,
+						 multi_value_iterator,
+						 record_value_entry );
+
+						goto on_error;
+					}
+					export_binary_data(
+					 multi_value_data,
+					 multi_value_data_size,
+					 record_file_stream );
+
+					memory_free(
+					 multi_value_data );
+
+					multi_value_data = NULL;
 				}
 			}
 		}
@@ -3464,6 +3501,11 @@ libcnotify_print_data(
 	return( 1 );
 
 on_error:
+	if( multi_value_data != NULL )
+	{
+		memory_free(
+		 multi_value_data );
+	}
 	if( multi_value != NULL )
 	{
 		libesedb_multi_value_free(

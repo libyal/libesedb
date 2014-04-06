@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="liberror"
+	Name="libcerror"
 	ProjectGUID="{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}"
-	RootNamespace="liberror"
+	RootNamespace="libcerror"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -40,7 +40,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				WarnAsError="false"
@@ -57,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\liberror.lib"
+				OutputFile="$(OutDir)\libcerror.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -103,7 +104,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -123,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\liberror.lib"
+				OutputFile="$(OutDir)\libcerror.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -153,7 +154,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\liberror\liberror_error.c"
+				RelativePath="..\..\libcerror\libcerror_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcerror\libcerror_support.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcerror\libcerror_system.c"
 				>
 			</File>
 		</Filter>
@@ -163,19 +172,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\liberror\liberror.h"
+				RelativePath="..\..\libcerror\libcerror_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\liberror\liberror_definitions.h"
+				RelativePath="..\..\libcerror\libcerror_error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\liberror\liberror_error.h"
+				RelativePath="..\..\libcerror\libcerror_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\liberror\liberror_types.h"
+				RelativePath="..\..\libcerror\libcerror_libcstring.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcerror\libcerror_support.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcerror\libcerror_system.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcerror\libcerror_types.h"
 				>
 			</File>
 		</Filter>

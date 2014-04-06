@@ -180,6 +180,8 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 	size_t value_key_index                                   = 0;
 	size_t key_index                                         = 0;
 	int16_t compare                                          = 0;
+	uint8_t key_value                                        = 0;
+	int is_flexible_match                                    = 0;
 	int is_leaf_node                                         = 0;
 	int number_of_sub_nodes                                  = 0;
 	int result                                               = 0;
@@ -223,7 +225,7 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 
 		return( -1 );
 	}
-	if( ( flags & ~( LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY ) ) != 0 )
+	if( ( flags & ~( LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY | LIBESEDB_PAGE_KEY_FLAG_TEST ) ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -344,7 +346,8 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 			{
 				compare_size = values_tree_sub_node_value->key_size;
 			}
-			value_key_index = 0;
+			is_flexible_match = 0;
+			value_key_index   = 0;
 
 			for( key_index = 0;
 			     key_index < compare_size;
@@ -352,12 +355,23 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 			{
 				if( ( flags & LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY ) != 0 )
 				{
-					compare = (int16_t) key[ key_size - ( key_index + 1 ) ] - (int16_t) values_tree_sub_node_value->key[ value_key_index ];
+					key_value = key[ key_size - ( key_index + 1 ) ];
 				}
 				else
 				{
-					compare = (int16_t) key[ key_index ] - (int16_t) values_tree_sub_node_value->key[ value_key_index ];
+					key_value = key[ key_index ];
 				}
+				if( ( ( flags & LIBESEDB_PAGE_KEY_FLAG_TEST ) != 0 )
+				 && ( key_index == 1 )
+				 && ( ( key_value & 0x80 ) != 0 )
+				 && ( ( key_value & 0x7f ) == values_tree_sub_node_value->key[ value_key_index ] ) )
+				{
+					key_value &= 0x7f;
+
+					is_flexible_match = 1;
+				}
+				compare = (int16_t) key_value - (int16_t) values_tree_sub_node_value->key[ value_key_index ];
+
 				if( compare != 0 )
 				{
 					break;
@@ -389,6 +403,10 @@ int libesedb_values_tree_node_get_leaf_node_by_key(
 			if( ( compare == 0 )
 			 && ( values_tree_sub_node_value->key_size == key_size ) )
 			{
+				if( is_flexible_match != 0 )
+				{
+fprintf( stderr, "MARKER\n" );
+				}
 				if( values_tree_leaf_node == NULL )
 				{
 					libcerror_error_set(

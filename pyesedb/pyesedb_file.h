@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "pyesedb_libbfio.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
@@ -44,6 +45,10 @@ struct pyesedb_file
 	/* The libesedb file
 	 */
 	libesedb_file_t *file;
+
+	/* The libbfio file IO handle
+	 */
+	libbfio_handle_t *file_io_handle;
 };
 
 extern PyMethodDef pyesedb_file_object_methods[];

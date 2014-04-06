@@ -381,9 +381,8 @@ int pyesedb_file_init(
 
 		return( -1 );
 	}
-	/* Make sure libesedb file is set to NULL
-	 */
-	pyesedb_file->file = NULL;
+	pyesedb_file->file           = NULL;
+	pyesedb_file->file_io_handle = NULL;
 
 	if( libesedb_file_initialize(
 	     &( pyesedb_file->file ),
@@ -602,13 +601,12 @@ PyObject *pyesedb_file_open_file_object(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *file_object            = NULL;
-	libbfio_handle_t *file_io_handle = NULL;
-	libcerror_error_t *error         = NULL;
-	char *mode                       = NULL;
-	static char *keyword_list[]      = { "file_object", "mode", NULL };
-	static char *function            = "pyesedb_file_open_file_object";
-	int result                       = 0;
+	PyObject *file_object       = NULL;
+	libcerror_error_t *error    = NULL;
+	char *mode                  = NULL;
+	static char *keyword_list[] = { "file_object", "mode", NULL };
+	static char *function       = "pyesedb_file_open_file_object";
+	int result                  = 0;
 
 	if( pyesedb_file == NULL )
 	{
@@ -641,7 +639,7 @@ PyObject *pyesedb_file_open_file_object(
 		return( NULL );
 	}
 	if( pyesedb_file_object_initialize(
-	     &file_io_handle,
+	     &( pyesedb_file->file_io_handle ),
 	     file_object,
 	     &error ) != 1 )
 	{
@@ -660,7 +658,7 @@ PyObject *pyesedb_file_open_file_object(
 
 	result = libesedb_file_open_file_io_handle(
 	          pyesedb_file->file,
-                  file_io_handle,
+                  pyesedb_file->file_io_handle,
                   LIBESEDB_OPEN_READ,
 	          &error );
 
@@ -685,10 +683,10 @@ PyObject *pyesedb_file_open_file_object(
 	return( Py_None );
 
 on_error:
-	if( file_io_handle != NULL )
+	if( pyesedb_file->file_io_handle != NULL )
 	{
 		libbfio_handle_free(
-		 &file_io_handle,
+		 &( pyesedb_file->file_io_handle ),
 		 NULL );
 	}
 	return( NULL );
@@ -736,6 +734,30 @@ PyObject *pyesedb_file_close(
 		 &error );
 
 		return( NULL );
+	}
+	if( pyesedb_file->file_io_handle != NULL )
+	{
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libbfio_handle_free(
+		          &( pyesedb_file->file_io_handle ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to free libbfio file IO handle.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
 	}
 	Py_IncRef(
 	 Py_None );
@@ -1097,8 +1119,8 @@ PyObject *pyesedb_file_get_table(
 		return( NULL );
         }
 	table_object = pyesedb_file_get_table_by_index(
-	                 pyesedb_file,
-	                 table_entry );
+	                pyesedb_file,
+	                table_entry );
 
 	return( table_object );
 }
@@ -1150,9 +1172,9 @@ PyObject *pyesedb_file_get_tables(
 		return( NULL );
 	}
 	tables_object = pyesedb_tables_new(
-	                  pyesedb_file,
-	                  &pyesedb_file_get_table_by_index,
-	                  number_of_tables );
+	                 pyesedb_file,
+	                 &pyesedb_file_get_table_by_index,
+	                 number_of_tables );
 
 	if( tables_object == NULL )
 	{

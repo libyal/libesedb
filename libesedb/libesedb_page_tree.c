@@ -660,7 +660,7 @@ int libesedb_page_tree_read_space_tree_page(
 		libcnotify_print_data(
 		 page_value->data,
 		 (size_t) page_value->size,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 
 		libcnotify_printf(
 		 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
@@ -723,7 +723,7 @@ int libesedb_page_tree_read_space_tree_page(
 			libcnotify_print_data(
 			 page_value->data,
 			 (size_t) page_value->size,
-			 0 );
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 
 			libcnotify_printf(
 			 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
@@ -1289,6 +1289,7 @@ int libesedb_page_tree_read_page_value(
 	uint16_t number_of_page_values           = 0;
 	uint16_t page_value_offset               = 0;
 	uint16_t page_value_size                 = 0;
+	int result                               = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *page_key_data                   = NULL;
@@ -1470,7 +1471,7 @@ int libesedb_page_tree_read_page_value(
 		libcnotify_print_data(
 		 page_value->data,
 		 (size_t) page_value->size,
-		 0 );
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 
 		libcnotify_printf(
 		 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
@@ -1771,26 +1772,45 @@ int libesedb_page_tree_read_page_value(
 		if( ( child_page_number > 0 )
 		 && ( child_page_number <= page_tree->io_handle->last_page_number ) )
 		{
-			sub_nodes_offset  = child_page_number - 1;
-			sub_nodes_offset *= page_tree->io_handle->page_size;
+			result = libfdata_tree_node_sub_nodes_data_range_is_set(
+			          value_tree_node,
+			          error );
 
-			if( libfdata_tree_node_set_sub_nodes_data_range(
-			     value_tree_node,
-			     0,
-			     sub_nodes_offset,
-			     0,
-			     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
-			     error ) != 1 )
+			if( result == -1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set child page number: %" PRIu32 " as sub nodes range.",
+				 "%s: unable to determine if sub nodes range of child page number: %" PRIu32 " is set.",
 				 function,
 				 child_page_number );
 
 				return( -1 );
+			}
+			else if( result == 0 )
+			{
+				sub_nodes_offset  = child_page_number - 1;
+				sub_nodes_offset *= page_tree->io_handle->page_size;
+
+				if( libfdata_tree_node_set_sub_nodes_data_range(
+				     value_tree_node,
+				     0,
+				     sub_nodes_offset,
+				     0,
+				     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+					 "%s: unable to set child page number: %" PRIu32 " as sub nodes range.",
+					 function,
+					 child_page_number );
+
+					return( -1 );
+				}
 			}
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1804,7 +1824,7 @@ int libesedb_page_tree_read_page_value(
 			libcnotify_print_data(
 			 page_value_data,
 			 page_value_size,
-			 0 );
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 #endif
 		values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
@@ -1949,27 +1969,46 @@ int libesedb_page_tree_read_node_value(
 	}
 	else if( result != 0 )
 	{
-		/* The values tree root node is virtual
-		 */
-		if( libfdata_tree_node_set_sub_nodes_data_range(
-		     node,
-		     0,
-		     node_data_offset,
-		     0,
-		     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
-		     error ) != 1 )
+		result = libfdata_tree_node_sub_nodes_data_range_is_set(
+		          node,
+		          error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set page: %" PRIu64 " as sub node range.",
+			 "%s: unable to determine if sub nodes range of page: %" PRIu64 " is set.",
 			 function,
 			 page_number );
 
-			goto on_error;
+			return( -1 );
 		}
-		values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
+		else if( result == 0 )
+		{
+			/* The values tree root node is virtual
+			 */
+			if( libfdata_tree_node_set_sub_nodes_data_range(
+			     node,
+			     0,
+			     node_data_offset,
+			     0,
+			     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set page: %" PRIu64 " as sub node range.",
+				 function,
+				 page_number );
+
+				goto on_error;
+			}
+			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
+		}
 	}
 	else
 	{

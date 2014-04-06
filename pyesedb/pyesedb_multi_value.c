@@ -27,6 +27,7 @@
 #endif
 
 #include "pyesedb_error.h"
+#include "pyesedb_integer.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_multi_value.h"
@@ -514,7 +515,6 @@ PyObject *pyesedb_multi_value_get_value_data_as_floating_point(
 
 	result = libesedb_multi_value_get_column_type(
 	          pyesedb_multi_value->multi_value,
-	          multi_value_index,
 	          &column_type,
 	          &error );
 
@@ -637,7 +637,6 @@ PyObject *pyesedb_multi_value_get_value_data_as_integer(
 
 	result = libesedb_multi_value_get_column_type(
 	          pyesedb_multi_value->multi_value,
-	          multi_value_index,
 	          &column_type,
 	          &error );
 
@@ -835,7 +834,6 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 
 	result = libesedb_multi_value_get_column_type(
 	          pyesedb_multi_value->multi_value,
-	          multi_value_index,
 	          &column_type,
 	          &error );
 

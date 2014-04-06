@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="libfmapi"
-	ProjectGUID="{CDB03E65-C81B-47E0-B70F-C880D841DD61}"
-	RootNamespace="libfmapi"
+	Name="libcfile"
+	ProjectGUID="{4C93BDD3-1804-47F3-9B34-F2DE0CAE1AE0}"
+	RootNamespace="libcfile"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -39,10 +39,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid;..\..\libfwnt"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBFMAPI"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libclocale;..\..\libcnotify;..\..\libuna"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="2"
 				WarningLevel="4"
+				WarnAsError="false"
 				CompileAs="1"
 			/>
 			<Tool
@@ -56,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfmapi.lib"
+				OutputFile="$(OutDir)\libcfile.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -101,12 +103,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid;..\..\libfwnt"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBFMAPI"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libclocale;..\..\libcnotify;..\..\libuna"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
 				WarningLevel="4"
+				WarnAsError="false"
 				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
@@ -121,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfmapi.lib"
+				OutputFile="$(OutDir)\libcfile.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -151,47 +154,23 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_class_identifier.c"
+				RelativePath="..\..\libcfile\libcfile_error.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_checksum.c"
+				RelativePath="..\..\libcfile\libcfile_file.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_codepage.c"
+				RelativePath="..\..\libcfile\libcfile_notify.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_debug.c"
+				RelativePath="..\..\libcfile\libcfile_stream.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_entry_identifier.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_guid.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_lzfu.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_one_off_entry_identifier.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_property_type.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_service_provider_identifier.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_value_type.c"
+				RelativePath="..\..\libcfile\libcfile_support.c"
 				>
 			</File>
 		</Filter>
@@ -201,79 +180,59 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_class_identifier.h"
+				RelativePath="..\..\libcfile\libcfile_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_checksum.h"
+				RelativePath="..\..\libcfile\libcfile_error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_codepage.h"
+				RelativePath="..\..\libcfile\libcfile_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_debug.h"
+				RelativePath="..\..\libcfile\libcfile_file.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_definitions.h"
+				RelativePath="..\..\libcfile\libcfile_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_entry_identifier.h"
+				RelativePath="..\..\libcfile\libcfile_libclocale.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_extern.h"
+				RelativePath="..\..\libcfile\libcfile_libcnotify.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_guid.h"
+				RelativePath="..\..\libcfile\libcfile_libcstring.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_libfdatetime.h"
+				RelativePath="..\..\libcfile\libcfile_libuna.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_libfguid.h"
+				RelativePath="..\..\libcfile\libcfile_notify.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_libfwnt.h"
+				RelativePath="..\..\libcfile\libcfile_stream.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_libuna.h"
+				RelativePath="..\..\libcfile\libcfile_support.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_lzfu.h"
+				RelativePath="..\..\libcfile\libcfile_types.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_one_off_entry_identifier.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_property_type.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_service_provider_identifier.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_types.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_value_type.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libfmapi\libfmapi_x400_object_identifier.h"
+				RelativePath="..\..\libcfile\libcfile_unused.h"
 				>
 			</File>
 		</Filter>

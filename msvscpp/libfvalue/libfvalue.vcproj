@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcdata;..\..\libcnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid;..\..\libfwnt"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBFVALUE"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -101,8 +101,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcdata;..\..\libcnotify;..\..\libuna;..\..\libfdatetime;..\..\libfguid;..\..\libfwnt"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBFVALUE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -151,11 +151,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libfvalue\libfvalue_array_type.c"
+				RelativePath="..\..\libfvalue\libfvalue_binary_data.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfvalue\libfvalue_debug.c"
+				RelativePath="..\..\libfvalue\libfvalue_data_handle.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_error.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_filetime.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_floating_point.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_integer.c"
 				>
 			</File>
 			<File
@@ -164,6 +180,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfvalue\libfvalue_string.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_support.c"
 				>
 			</File>
 			<File
@@ -178,6 +198,10 @@
 				RelativePath="..\..\libfvalue\libfvalue_value_entry.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_value_type.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -185,7 +209,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libfvalue\libfvalue_array_type.h"
+				RelativePath="..\..\libfvalue\libfvalue_binary_data.h"
 				>
 			</File>
 			<File
@@ -193,7 +217,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfvalue\libfvalue_debug.h"
+				RelativePath="..\..\libfvalue\libfvalue_data_handle.h"
 				>
 			</File>
 			<File
@@ -201,7 +225,39 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfvalue\libfvalue_error.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfvalue\libfvalue_extern.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_filetime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_floating_point.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_integer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libcdata.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libcerror.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libcnotify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libcstring.h"
 				>
 			</File>
 			<File
@@ -210,6 +266,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfvalue\libfvalue_libfguid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_libfwnt.h"
 				>
 			</File>
 			<File
@@ -225,6 +285,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfvalue\libfvalue_support.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfvalue\libfvalue_table.h"
 				>
 			</File>
@@ -233,11 +297,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfvalue\libfvalue_unused.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfvalue\libfvalue_value.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfvalue\libfvalue_value_entry.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfvalue\libfvalue_value_type.h"
 				>
 			</File>
 		</Filter>

@@ -2331,8 +2331,12 @@ int windows_search_export_record_value_compressed_string(
 {
 	libesedb_long_value_t *long_value   = NULL;
 	libesedb_multi_value_t *multi_value = NULL;
+	uint8_t *long_value_data            = NULL;
+	uint8_t *multi_value_data           = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
+	size_t long_value_data_size         = 0;
+	size_t multi_value_data_size        = 0;
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_data_flags            = 0;
@@ -2524,8 +2528,8 @@ int windows_search_export_record_value_compressed_string(
 			if( libesedb_long_value_get_segment_data(
 			     long_value,
 			     long_value_segment_iterator,
-			     &value_data,
-			     &value_data_size,
+			     &long_value_data,
+			     &long_value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -2553,12 +2557,12 @@ if( libcnotify_verbose != 0 )
 }
 #endif
 
-			if( value_data != NULL )
+			if( long_value_data != NULL )
 			{
 				/* TODO assume data is compressed per segment */
 				if( windows_search_export_compressed_string_value(
-				     value_data,
-				     value_data_size,
+				     long_value_data,
+				     long_value_data_size,
 				     ascii_codepage,
 				     record_file_stream,
 				     error ) != 1 )
@@ -2626,46 +2630,68 @@ if( libcnotify_verbose != 0 )
 			 "%s: unable to retrieve number of multi values.",
 			 function );
 
-			libesedb_multi_value_free(
-			 &multi_value,
-			 NULL );
-
 			goto on_error;
 		}
 		for( multi_value_iterator = 0;
 	 	     multi_value_iterator < number_of_multi_values;
 		     multi_value_iterator++ )
 		{
-			if( libesedb_multi_value_get_value(
+			if( libesedb_multi_value_get_value_data_size(
 			     multi_value,
 			     multi_value_iterator,
-			     &column_type,
-			     &value_data,
-			     &value_data_size,
+			     &multi_value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve multi value: %d of record entry: %d.",
+				 "%s: unable to retrieve multi value: %d data size of record entry: %d.",
 				 function,
 				 multi_value_iterator,
 				 record_value_entry );
 
-				libesedb_multi_value_free(
-				 &multi_value,
-				 NULL );
-
 				goto on_error;
 			}
-			if( value_data != NULL )
+			if( multi_value_data_size > 0 )
 			{
+				multi_value_data = (uint8_t *) memory_allocate(
+				                                sizeof( uint8_t ) * multi_value_data_size );
+
+				if( multi_value_data == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create multi value data.",
+					 function );
+
+					goto on_error;
+				}
+				if( libesedb_multi_value_get_value_data(
+				     multi_value,
+				     multi_value_iterator,
+				     multi_value_data,
+				     multi_value_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve multi value: %d of record entry: %d.",
+					 function,
+					 multi_value_iterator,
+					 record_value_entry );
+
+					goto on_error;
+				}
 				/* TODO what about non string multi values ?
 				 */
 				if( windows_search_export_compressed_string_value(
-				     value_data,
-				     value_data_size,
+				     multi_value_data,
+				     multi_value_data_size,
 				     ascii_codepage,
 				     record_file_stream,
 				     error ) != 1 )
@@ -2679,12 +2705,13 @@ if( libcnotify_verbose != 0 )
 					 multi_value_iterator,
 					 record_value_entry );
 
-					libesedb_multi_value_free(
-					 &multi_value,
-					 NULL );
-
 					goto on_error;
 				}
+				memory_free(
+				 multi_value_data );
+
+				multi_value_data = NULL;
+
 				if( multi_value_iterator < ( number_of_multi_values - 1 ) )
 				{
 					fprintf(
@@ -2715,12 +2742,25 @@ if( libcnotify_verbose != 0 )
 		 value_data_size,
 		 record_file_stream );
 	}
-	memory_free(
-	 value_data );
-
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
 	return( 1 );
 
 on_error:
+	if( multi_value_data != NULL )
+	{
+		memory_free(
+		 multi_value_data );
+	}
+	if( multi_value != NULL )
+	{
+		libesedb_multi_value_free(
+		 &multi_value,
+		 NULL );
+	}
 	if( value_data != NULL )
 	{
 		memory_free(

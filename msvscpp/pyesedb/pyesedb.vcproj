@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedbexport"
-	ProjectGUID="{6B758D1D-FE05-49C6-836B-9B8AC8DC4FCD}"
-	RootNamespace="esedbexport"
+	Name="pyesedb"
+	ProjectGUID="{E221DB4C-B254-47CB-993D-DC7FED580DA1}"
+	RootNamespace="pyesedb"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -20,7 +20,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -41,8 +41,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libfmapi;..\..\libfwnt;..\..\libcsystem"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;HAVE_LOCAL_LIBFMAPI;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBCSYSTEM;LIBESEDB_DLL_IMPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libcsplit;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;C:\Python27\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBCSPLIT;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;LIBESEDB_DLL_IMPORT"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
@@ -61,15 +61,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libfdatetime.lib"
+				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;C:\Python27\libs"
 				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="2"
-				DataExecutionPrevention="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -120,8 +120,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libfmapi;..\..\libfwnt;..\..\libcsystem"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;HAVE_LOCAL_LIBFMAPI;HAVE_LOCAL_LIBFWNT;HAVE_LOCAL_LIBCSYSTEM;LIBESEDB_DLL_IMPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libcsplit;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;C:\Python27\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBCSPLIT;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;LIBESEDB_DLL_IMPORT"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -142,15 +142,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libfdatetime.lib"
+				OutputFile="$(OutDir)\$(ProjectName).pyd"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;C:\Python27\libs"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="2"
-				DataExecutionPrevention="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -185,35 +185,71 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\esedbtools\esedbexport.c"
+				RelativePath="..\..\pyesedb\pyesedb.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedboutput.c"
+				RelativePath="..\..\pyesedb\pyesedb_column.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.c"
+				RelativePath="..\..\pyesedb\pyesedb_column_types.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_exchange.c"
+				RelativePath="..\..\pyesedb\pyesedb_columns.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_handle.c"
+				RelativePath="..\..\pyesedb\pyesedb_datetime.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\log_handle.c"
+				RelativePath="..\..\pyesedb\pyesedb_error.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\windows_search.c"
+				RelativePath="..\..\pyesedb\pyesedb_file.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\windows_security.c"
+				RelativePath="..\..\pyesedb\pyesedb_file_object_io_handle.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_index.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_indexes.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_integer.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_multi_value.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_record.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_records.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_table.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_tables.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_value_flags.c"
 				>
 			</File>
 		</Filter>
@@ -223,83 +259,99 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\esedbtools\esedboutput.h"
+				RelativePath="..\..\pyesedb\pyesedb.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcerror.h"
+				RelativePath="..\..\pyesedb\pyesedb_column.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcfile.h"
+				RelativePath="..\..\pyesedb\pyesedb_column_types.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libclocale.h"
+				RelativePath="..\..\pyesedb\pyesedb_columns.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcnotify.h"
+				RelativePath="..\..\pyesedb\pyesedb_datetime.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcpath.h"
+				RelativePath="..\..\pyesedb\pyesedb_error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcstring.h"
+				RelativePath="..\..\pyesedb\pyesedb_file.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libcsystem.h"
+				RelativePath="..\..\pyesedb\pyesedb_file_object_io_handle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libesedb.h"
+				RelativePath="..\..\pyesedb\pyesedb_index.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libfdatetime.h"
+				RelativePath="..\..\pyesedb\pyesedb_indexes.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libfguid.h"
+				RelativePath="..\..\pyesedb\pyesedb_integer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libfmapi.h"
+				RelativePath="..\..\pyesedb\pyesedb_libbfio.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libfwnt.h"
+				RelativePath="..\..\pyesedb\pyesedb_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\esedbtools_libuna.h"
+				RelativePath="..\..\pyesedb\pyesedb_libclocale.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.h"
+				RelativePath="..\..\pyesedb\pyesedb_libcstring.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_exchange.h"
+				RelativePath="..\..\pyesedb\pyesedb_libesedb.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_handle.h"
+				RelativePath="..\..\pyesedb\pyesedb_multi_value.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\log_handle.h"
+				RelativePath="..\..\pyesedb\pyesedb_python.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\windows_search.h"
+				RelativePath="..\..\pyesedb\pyesedb_record.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\windows_security.h"
+				RelativePath="..\..\pyesedb\pyesedb_records.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_tables.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_unused.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_value_flags.h"
 				>
 			</File>
 		</Filter>

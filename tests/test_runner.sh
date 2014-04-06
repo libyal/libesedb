@@ -5,6 +5,9 @@
 # When CHECK_WITH_VALGRIND is set to a non-empty value the executable
 # is run with valgrind, otherwise it is run without.
 #
+# When CHECK_WITH_GDB is set to a non-empty value the executable
+# is run with gdb, otherwise it is run without.
+#
 # Copyright (c) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
@@ -52,8 +55,8 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
-# Check if the executable needs to run with valgrind
-if ! test -z ${CHECK_WITH_VALGRIND};
+# Check if the executable needs to run with valgrind or gdb
+if ! test -z ${CHECK_WITH_VALGRIND} || ! test -z ${CHECK_WITH_GDB};
 then
 	# Check if the executable is a libtool shell script or a binary.
 	# Use the binary in combination with valgrind otherwise the shell binary is also tested.
@@ -91,26 +94,34 @@ then
 		fi
 	fi
 
-	IFS="
+	if ! test -z ${CHECK_WITH_VALGRIND};
+	then
+		IFS="
 "; LD_LIBRARY_PATH="../${LIBRARY}/.libs/" valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-reachable=yes --log-file=tmp/valgrind.log ${EXECUTABLE} $*;
+	else
+		IFS="
+"; LD_LIBRARY_PATH="../${LIBRARY}/.libs/" gdb -ex r --args ${EXECUTABLE} $*;
+	fi
 
 	EXIT_RESULT=$?;
 
-	if test ${EXIT_RESULT} -eq 0;
+	if ! test -z ${CHECK_WITH_VALGRIND};
 	then
-		grep "All heap blocks were freed -- no leaks are possible" tmp/valgrind.log > /dev/null 2>&1;
-
-		if test $? -ne 0;
+		if test ${EXIT_RESULT} -eq 0;
 		then
-			echo "Memory leakage detected.";
+			grep "All heap blocks were freed -- no leaks are possible" tmp/valgrind.log > /dev/null 2>&1;
 
-			cat tmp/valgrind.log;
+			if test $? -ne 0;
+			then
+				echo "Memory leakage detected.";
 
-			EXIT_RESULT=${EXIT_FAILURE};
+				cat tmp/valgrind.log;
+
+				EXIT_RESULT=${EXIT_FAILURE};
+			fi
 		fi
+		rm -f tmp/valgrind.log;
 	fi
-
-	rm -f tmp/valgrind.log;
 else
 	IFS="
 "; ${EXECUTABLE} $*;

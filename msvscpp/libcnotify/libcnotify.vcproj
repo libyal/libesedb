@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="libsystem"
-	ProjectGUID="{A2B861D5-6751-43A9-B085-8D48F8754AC5}"
-	RootNamespace="libsystem"
+	Name="libcnotify"
+	ProjectGUID="{5304AD69-D449-4589-B2C9-E4607E56A51D}"
+	RootNamespace="libcnotify"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -39,8 +39,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				WarnAsError="false"
@@ -57,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libsystem.lib"
+				OutputFile="$(OutDir)\libcnotify.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -102,8 +103,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libuna"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -123,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libsystem.lib"
+				OutputFile="$(OutDir)\libcnotify.lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -153,51 +154,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libsystem\libsystem_date_time.c"
+				RelativePath="..\..\libcnotify\libcnotify_print.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_directory.c"
+				RelativePath="..\..\libcnotify\libcnotify_stream.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error_string.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_file.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_getopt.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_glob.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_notify.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_path.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_signal.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_split_string.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_string.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_support.c"
+				RelativePath="..\..\libcnotify\libcnotify_verbose.c"
 				>
 			</File>
 		</Filter>
@@ -207,83 +172,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libsystem\libsystem.h"
+				RelativePath="..\..\libcnotify\libcnotify_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_date_time.h"
+				RelativePath="..\..\libcnotify\libcnotify_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_definitions.h"
+				RelativePath="..\..\libcnotify\libcnotify_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_directory.h"
+				RelativePath="..\..\libcnotify\libcnotify_libcstring.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_error_string.h"
+				RelativePath="..\..\libcnotify\libcnotify_print.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file.h"
+				RelativePath="..\..\libcnotify\libcnotify_stream.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file_io.h"
+				RelativePath="..\..\libcnotify\libcnotify_unused.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libsystem\libsystem_file_stream.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_find.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_getopt.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_glob.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_i18n.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_libuna.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_notify.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_path.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_signal.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_split_string.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_string.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_support.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libsystem\libsystem_unused.h"
+				RelativePath="..\..\libcnotify\libcnotify_verbose.h"
 				>
 			</File>
 		</Filter>

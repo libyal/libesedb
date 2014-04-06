@@ -42,7 +42,7 @@ pyesedb_la_SOURCES = \
 pyesedb_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	../libesedb/libesedb.la
+	../libesedb/libesedb.la \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCFILE_LIBADD@ \

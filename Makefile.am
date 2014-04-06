@@ -135,4 +135,5 @@ splint:
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pyesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
+	(cd $(srcdir)/tests && $(MAKE) $(AM_MAKEFLAGS))
 

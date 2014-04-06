@@ -164,6 +164,47 @@ int libesedb_multi_value_free(
 	return( 1 );
 }
 
+/* Retrieves the column type
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_column_type(
+     libesedb_multi_value_t *multi_value,
+     uint32_t *column_type,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_column_type";
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_multi_value->column_catalog_definition,
+	     column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the number of values of the multi value
  * Returns 1 if successful or -1 on error
  */
@@ -325,7 +366,7 @@ int libesedb_multi_value_get_value_data(
      libcerror_error_t **error )
 {
 	libesedb_internal_multi_value_t *internal_multi_value = NULL;
-	static char *function                                 = "libesedb_multi_value_get_value";
+	static char *function                                 = "libesedb_multi_value_get_value_data";
 	int encoding                                          = 0;
 
 	if( multi_value == NULL )
@@ -354,6 +395,149 @@ int libesedb_multi_value_get_value_data(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve value entry data: %d.",
+		 function,
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the 8-bit value of a specific value of the multi value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_8bit(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     uint8_t *value_8bit,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value_8bit";
+	uint32_t column_type                                  = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_multi_value->column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libfvalue_value_copy_to_8bit(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     value_8bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy value entry: %d to 8-bit value.",
+		 function,
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the 16-bit value of a specific value of the multi value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_16bit(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     uint16_t *value_16bit,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value_16bit";
+	uint32_t column_type                                  = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_multi_value->column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libfvalue_value_copy_to_16bit(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     value_16bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy value entry: %d to 16-bit value.",
 		 function,
 		 multi_value_index );
 
@@ -498,6 +682,148 @@ int libesedb_multi_value_get_value_64bit(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
 		 "%s: unable to copy value entry: %d to 64-bit value.",
+		 function,
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the 32-bit floating point value of a specific value of the multi value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_floating_point_32bit(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     float *value_32bit,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value_floating_point_32bit";
+	uint32_t column_type                                  = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_multi_value->column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_FLOAT_32BIT )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libfvalue_value_copy_to_float(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     value_32bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy value entry: %d to 32-bit floating point value.",
+		 function,
+		 multi_value_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the 64-bit floating point value of a specific value of the multi value
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_multi_value_get_value_floating_point_64bit(
+     libesedb_multi_value_t *multi_value,
+     int multi_value_index,
+     double *value_64bit,
+     libcerror_error_t **error )
+{
+	libesedb_internal_multi_value_t *internal_multi_value = NULL;
+	static char *function                                 = "libesedb_multi_value_get_value_floating_point_64bit";
+	uint32_t column_type                                  = 0;
+
+	if( multi_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid multi value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_multi_value = (libesedb_internal_multi_value_t *) multi_value;
+
+	if( libesedb_catalog_definition_get_column_type(
+	     internal_multi_value->column_catalog_definition,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve catalog definition column type.",
+		 function );
+
+		return( -1 );
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 ".",
+		 function,
+		 column_type );
+
+		return( -1 );
+	}
+	if( libfvalue_value_copy_to_double(
+	     internal_multi_value->record_value,
+	     multi_value_index,
+	     value_64bit,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+		 "%s: unable to copy value entry: %d to 64-bit floating point value.",
 		 function,
 		 multi_value_index );
 

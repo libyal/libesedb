@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFDATETIME"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBFDATETIME"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -101,12 +101,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\liberror"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBFDATETIME"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBFDATETIME"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
 				WarningLevel="4"
+				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
 			<Tool
@@ -166,11 +167,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_floatingtime.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdatetime\libfdatetime_nsf_timedate.c"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfdatetime\libfdatetime_posix_time.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_systemtime.c"
 				>
 			</File>
 			<File
@@ -208,6 +217,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_floatingtime.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_libcerror.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_libcstring.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdatetime\libfdatetime_nsf_timedate.h"
 				>
 			</File>
@@ -216,11 +237,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_systemtime.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdatetime\libfdatetime_support.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\libfdatetime\libfdatetime_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdatetime\libfdatetime_unused.h"
 				>
 			</File>
 		</Filter>

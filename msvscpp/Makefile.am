@@ -1,7 +1,19 @@
 EXTRA_DIST = \
+	esedbexport/esedbexport.vcproj \
+	esedbinfo/esedbinfo.vcproj \
 	libbfio/libbfio.vcproj \
+	libbfio/libbfio.vcproj \
+	libcdata/libcdata.vcproj \
+	libcerror/libcerror.vcproj \
+	libcfile/libcfile.vcproj \
+	libclocale/libclocale.vcproj \
+	libcnotify/libcnotify.vcproj \
+	libcpath/libcpath.vcproj \
+	libcsplit/libcsplit.vcproj \
 	libcstring/libcstring.vcproj \
-	liberror/liberror.vcproj \
+	libcsystem/libcsystem.vcproj \
+	libcthreads/libcthreads.vcproj \
+	libesedb_dll/libesedb_dll.vcproj \
 	libfcache/libfcache.vcproj \
 	libfdata/libfdata.vcproj \
 	libfdatetime/libfdatetime.vcproj \
@@ -9,12 +21,8 @@ EXTRA_DIST = \
 	libfmapi/libfmapi.vcproj \
 	libfvalue/libfvalue.vcproj \
 	libfwnt/libfwnt.vcproj \
-	libnotify/libnotify.vcproj \
-	libesedb_dll/libesedb_dll.vcproj \
-	libsystem/libsystem.vcproj \
 	libuna/libuna.vcproj \
-	esedbexport/esedbexport.vcproj \
-	esedbinfo/esedbinfo.vcproj \
+	pyesedb/pyesedb.vcproj \
 	libesedb.sln
 
 MAINTAINERCLEANFILES = \

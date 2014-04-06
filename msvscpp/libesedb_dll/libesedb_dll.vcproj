@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libesedb"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;LIBESEDB_DLL_EXPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libfwnt;..\..\libesedb"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;HAVE_LOCAL_LIBFWNT;LIBESEDB_DLL_EXPORT"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -109,8 +109,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\liberror;..\..\libnotify;..\..\libuna;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libesedb"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;LIBESEDB_DLL_EXPORT"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcthreads;..\..\libcdata;..\..\libclocale;..\..\libcnotify;..\..\libuna;..\..\libcfile;..\..\libcpath;..\..\libbfio;..\..\libfcache;..\..\libfdata;..\..\libfdatetime;..\..\libfguid;..\..\libfvalue;..\..\libfwnt;..\..\libesedb"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCTHREADS;HAVE_LOCAL_LIBCDATA;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCFILE;HAVE_LOCAL_LIBCPATH;HAVE_LOCAL_LIBBFIO;HAVE_LOCAL_LIBFCACHE;HAVE_LOCAL_LIBFDATA;HAVE_LOCAL_LIBFDATETIME;HAVE_LOCAL_LIBFGUID;HAVE_LOCAL_LIBFVALUE;HAVE_LOCAL_LIBFWNT;LIBESEDB_DLL_EXPORT"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -168,10 +168,6 @@
 			>
 			<File
 				RelativePath="..\..\libesedb\libesedb.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_array_type.c"
 				>
 			</File>
 			<File
@@ -239,14 +235,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_legacy.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_list_type.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_long_value.c"
 				>
 			</File>
@@ -283,6 +271,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_value_data_handle.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_values_tree.c"
 				>
 			</File>
@@ -306,10 +298,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\esedb_page_values.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_array_type.h"
 				>
 			</File>
 			<File
@@ -385,11 +373,31 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_legacy.h"
+				RelativePath="..\..\libesedb\libesedb_libbfio.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_libbfio.h"
+				RelativePath="..\..\libesedb\libesedb_libcdata.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_libcerror.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_libclocale.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_libcnotify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_libcstring.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_libfcache.h"
 				>
 			</File>
 			<File
@@ -402,10 +410,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_libuna.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_list_type.h"
 				>
 			</File>
 			<File
@@ -450,6 +454,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_unused.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_value_data_handle.h"
 				>
 			</File>
 			<File

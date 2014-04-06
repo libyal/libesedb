@@ -732,6 +732,7 @@ int libesedb_index_get_record(
 
 		return( -1 );
 	}
+/* TODO remove LIBESEDB_PAGE_KEY_FLAG_TEST */
 	if( libesedb_values_tree_get_leaf_node_by_key(
 	     internal_index->table_values_tree,
 	     internal_index->file_io_handle,
@@ -739,7 +740,7 @@ int libesedb_index_get_record(
 	     index_data,
 	     index_data_size,
 	     &record_values_tree_node,
-	     0,
+	     LIBESEDB_PAGE_KEY_FLAG_TEST,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

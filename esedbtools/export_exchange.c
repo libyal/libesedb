@@ -1379,8 +1379,10 @@ int export_exchange_record_value_mapi_multi_value(
      libcerror_error_t **error )
 {
 	libesedb_multi_value_t *multi_value = NULL;
+	uint8_t *multi_value_data           = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "export_exchange_record_value_mapi_multi_value";
+	size_t multi_value_data_size        = 0;
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_data_flags            = 0;
@@ -1584,32 +1586,67 @@ int export_exchange_record_value_mapi_multi_value(
 	 	     multi_value_entry < number_of_multi_values;
 		     multi_value_entry++ )
 		{
-			if( libesedb_multi_value_get_value(
+			if( libesedb_multi_value_get_value_data_size(
 			     multi_value,
 			     multi_value_entry,
-			     &column_type,
-			     &value_data,
-			     &value_data_size,
+			     &multi_value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve multi value: %d of record entry: %d.",
+				 "%s: unable to retrieve multi value: %d data size of record entry: %d.",
 				 function,
 				 multi_value_entry,
 				 record_value_entry );
 
 				goto on_error;
 			}
-			if( value_data != NULL )
+			if( multi_value_data_size > 0 )
 			{
+				multi_value_data = (uint8_t *) memory_allocate(
+				                                sizeof( uint8_t ) * multi_value_data_size );
+
+				if( multi_value_data == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create multi value data.",
+					 function );
+
+					goto on_error;
+				}
+				if( libesedb_multi_value_get_value_data(
+				     multi_value,
+				     multi_value_entry,
+				     multi_value_data,
+				     multi_value_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve multi value: %d data of record entry: %d.",
+					 function,
+					 multi_value_entry,
+					 record_value_entry );
+
+					goto on_error;
+				}
 /* TODO print entry index */
 				libcnotify_print_data(
-				 value_data,
-				 value_data_size,
+				 multi_value_data,
+				 multi_value_data_size,
 				 0 );
+
+				memory_free(
+				 multi_value_data );
+
+				multi_value_data = NULL;
 			}
 		}
 		if( libesedb_multi_value_free(
@@ -1640,6 +1677,11 @@ int export_exchange_record_value_mapi_multi_value(
 	return( 1 );
 
 on_error:
+	if( multi_value_data != NULL )
+	{
+		memory_free(
+		 multi_value_data );
+	}
 	if( multi_value != NULL )
 	{
 		libesedb_multi_value_free(
