@@ -149,7 +149,7 @@ PyTypeObject pyesedb_index_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb index object (wraps libesedb_index_t)",
@@ -658,9 +658,9 @@ PyObject *pyesedb_index_get_record(
 	     "i",
 	     keyword_list,
 	     &record_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	record_object = pyesedb_index_get_record_by_index(
 	                 pyesedb_index,
 	                 record_index );

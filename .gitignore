@@ -101,13 +101,6 @@ stamp-h1
 /include/libesedb/types.h
 /libesedb/libesedb.rc
 /libesedb/libesedb_definitions.h
-/macosx/Introduction.rtf
-/macosx/libesedb.pmdoc/01bin.xml
-/macosx/libesedb.pmdoc/02include.xml
-/macosx/libesedb.pmdoc/03lib.xml
-/macosx/libesedb.pmdoc/04share.xml
-/macosx/libesedb.pmdoc/05python.xml
-/macosx/libesedb.pmdoc/index.xml
 /pyesedb/setup.py
 /tests/esedb_test_open_close
 /tests/input

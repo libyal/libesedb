@@ -37,7 +37,7 @@
 #include <libcdata_tree_node.h>
 #include <libcdata_types.h>
 
-#elif defined( HAVE_LIBCDATA_H )
+#else
 
 /* If libtool DLL support is enabled set LIBCDATA_DLL_IMPORT
  * before including libcdata.h
@@ -48,8 +48,6 @@
 
 #include <libcdata.h>
 
-#else
-#error Missing libcdata.h
 #endif
 
 #endif

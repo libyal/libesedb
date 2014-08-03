@@ -54,6 +54,10 @@ struct libesedb_internal_file
 	 */
 	uint8_t file_io_handle_created_in_library;
 
+	/* Value to indicate if the file IO handle was opened inside the library
+	 */
+	uint8_t file_io_handle_opened_in_library;
+
 	/* The pages vector
 	 */
 	libfdata_vector_t *pages_vector;
@@ -116,6 +120,7 @@ int libesedb_file_close(
 
 int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

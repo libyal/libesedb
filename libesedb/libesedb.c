@@ -31,7 +31,7 @@
  */
 #if !defined( HAVE_LOCAL_LIBESEDB )
 
-#if defined( WINAPI )
+#if defined( WINAPI ) && defined( HAVE_DLLMAIN )
 
 #if defined( _MANAGED )
 #pragma managed( push, off )
@@ -74,7 +74,7 @@ int libesedb_is_dll(
 	return( 1 );
 }
 
-#endif /* defined( WINAPI ) */
+#endif /* defined( WINAPI ) && defined( HAVE_DLLMAIN ) */
 
 #endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

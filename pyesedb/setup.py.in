@@ -76,6 +76,7 @@ if PYTHON_LIBRARY_DIRECTORY.startswith(os.sep):
 
 if platform.system() == "Windows":
 	DEFINE_MACROS = [
+		("UNICODE", ""),
 		("HAVE_LOCAL_LIBCSTRING", ""),
 		("HAVE_LOCAL_LIBCERROR", ""),
 		("HAVE_LOCAL_LIBCDATA", ""),

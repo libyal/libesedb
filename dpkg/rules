@@ -7,82 +7,90 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-PYTHON_PACKAGE_DIR=$(shell python -c "import distutils.sysconfig;print distutils.sysconfig.get_python_lib(True) ")
-
-
 %:
 	dh  $@
 
-install_libesedb:
-	# Set up libesedb package directories and files
-	mkdir -p debian/libesedb/usr/lib
-	install -p -m755 debian/tmp/usr/lib/lib*.so.*.*.* debian/libesedb/usr/lib
-
-install_libesedb_dev:
-	# Set up libesedb-dev package directories and files
-	mkdir -p debian/libesedb-dev/usr/include
-	mkdir -p debian/libesedb-dev/usr/include/libesedb
-	mkdir -p debian/libesedb-dev/usr/lib
-	mkdir -p debian/libesedb-dev/usr/lib/pkgconfig
-	mkdir -p debian/libesedb-dev/usr/share/man/man3
-	install -p -m755 debian/tmp/usr/include/*.h debian/libesedb-dev/usr/include
-	install -p -m755 debian/tmp/usr/include/libesedb/*.h debian/libesedb-dev/usr/include/libesedb
-	install -p -m755 debian/tmp/usr/lib/*.la debian/libesedb-dev/usr/lib
-	install -p -m755 debian/tmp/usr/lib/lib*.a debian/libesedb-dev/usr/lib
-	install -p -m755 debian/tmp/usr/lib/lib*.so debian/libesedb-dev/usr/lib
-	install -p -m755 debian/tmp/usr/lib/pkgconfig/* debian/libesedb-dev/usr/lib/pkgconfig
-	install -p -m755 debian/tmp/usr/share/man/man3/* debian/libesedb-dev/usr/share/man/man3
-
-install_libesedb_tools:
-	# Set up libesedb-tools package directories and files
-	mkdir -p debian/libesedb-tools/usr/bin
-	mkdir -p debian/libesedb-tools/usr/share/man/man1
-	install -p -m755 debian/tmp/usr/bin/* debian/libesedb-tools/usr/bin
-	install -p -m755 debian/tmp/usr/share/man/man1/* debian/libesedb-tools/usr/share/man/man1
-
-install_libesedb_python:
-	# Set up libesedb-python package directories and files
-	mkdir -p debian/libesedb-python/$(PYTHON_PACKAGE_DIR)
-	install -p -m775 debian/tmp$(PYTHON_PACKAGE_DIR)/pyesedb.* debian/libesedb-python$(PYTHON_PACKAGE_DIR)
-
+.PHONY: override_dh_auto_configure
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-python
+	dh_auto_configure -- --enable-python CFLAGS="-g"
 
+.PHONY: override_dh_auto_test
 override_dh_auto_test:
 
-override_dh_installinit: install_libesedb install_libesedb_dev install_libesedb_tools install_libesedb_python
+.PHONY: override_dh_install
+override_dh_install:
+	# Create the libesedb package.
+	dh_install "debian/tmp/usr/lib/lib*.so.*.*.*" -p libesedb
+	# Create the libesedb-dev package.
+	dh_install "debian/tmp/usr/include/*.h" -p libesedb-dev
+	dh_install "debian/tmp/usr/include/lib*/*.h" -p libesedb-dev
+	dh_install "debian/tmp/usr/lib/*.a" -p libesedb-dev
+	dh_install "debian/tmp/usr/lib/*.la" -p libesedb-dev
+	dh_install "debian/tmp/usr/lib/*.so" -p libesedb-dev
+	dh_install "debian/tmp/usr/lib/pkgconfig/*" -p libesedb-dev
+	dh_install "debian/tmp/usr/share/man/man3/*" -p libesedb-dev
+	# Create the libesedb-tools package.
+	dh_install "debian/tmp/usr/bin/*" -p libesedb-tools
+	dh_install "debian/tmp/usr/share/man/man1/*" -p libesedb-tools
+	# Create the libesedb-python package.
+	dh_install -X"*_d.so" "debian/tmp/usr/lib/python*/*" -p libesedb-python
+	# The libesedb-dbg and libesedb-python-dbg packages are created by dh_strip.
+	dh_install
 
+.PHONY: override_dh_installmenu
 override_dh_installmenu:
 
+.PHONY: override_dh_installmime
 override_dh_installmime:
 
+.PHONY: override_dh_installmodules
 override_dh_installmodules:
 
+.PHONY: override_dh_installlogcheck
 override_dh_installlogcheck:
 
+.PHONY: override_dh_installlogrotate
 override_dh_installlogrotate:
 
+.PHONY: override_dh_installpam
 override_dh_installpam:
 
+.PHONY: override_dh_installppp
 override_dh_installppp:
 
+.PHONY: override_dh_installudev
 override_dh_installudev:
 
+.PHONY: override_dh_installwm
 override_dh_installwm:
 
+.PHONY: override_dh_installxfonts
 override_dh_installxfonts:
 
+.PHONY: override_dh_gconf
 override_dh_gconf:
 
+.PHONY: override_dh_icons
 override_dh_icons:
 
+.PHONY: override_dh_perl
 override_dh_perl:
 
+.PHONY: override_dh_pysupport
 override_dh_pysupport:
 
+.PHONY: override_dh_strip
+override_dh_strip:
+ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
+	dh_strip -plibesedb --dbg-package=libesedb-dbg
+	dh_strip -plibesedb-python --dbg-package=libesedb-python-dbg
+endif
+
+.PHONY: override_dh_shlibdeps
 override_dh_shlibdeps:
 	dh_shlibdeps -Llibesedb -l${PWD}/debian/tmp/usr/lib
 
+.PHONY: override_dh_makeshlibs
 override_dh_makeshlibs:
 	dh_makeshlibs -Xlibesedb-dev
 

@@ -129,7 +129,7 @@ PyTypeObject pyesedb_column_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb column object (wraps libesedb_column_t)",

@@ -129,6 +129,212 @@ PyObject *pyesedb_get_version(
 	         errors ) );
 }
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+
+/* Checks if the file has a Personal Folder File (ESEDB) signature
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_check_file_signature(
+           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *exception_string    = NULL;
+	PyObject *exception_traceback = NULL;
+	PyObject *exception_type      = NULL;
+	PyObject *exception_value     = NULL;
+	PyObject *string_object       = NULL;
+	libcerror_error_t *error      = NULL;
+	static char *function         = "pyesedb_check_file_signature";
+	static char *keyword_list[]   = { "filename", NULL };
+	const wchar_t *filename_wide  = NULL;
+	const char *filename_narrow   = NULL;
+	char *error_string            = NULL;
+	int result                    = 0;
+
+	PYESEDB_UNREFERENCED_PARAMETER( self )
+
+	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
+	 * On Windows the narrow character strings contains an extended ASCII string with a codepage. Hence we get a conversion
+	 * exception. We cannot use "u" here either since that does not allow us to pass non Unicode string objects and
+	 * Python (at least 2.7) does not seems to automatically upcast them.
+	 */
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "|O",
+	     keyword_list,
+	     &string_object ) == 0 )
+	{
+		return( NULL );
+	}
+	PyErr_Clear();
+
+	result = PyObject_IsInstance(
+	          string_object,
+	          (PyObject *) &PyUnicode_Type );
+
+	if( result == -1 )
+	{
+		PyErr_Fetch(
+		 &exception_type,
+		 &exception_value,
+		 &exception_traceback );
+
+		exception_string = PyObject_Repr(
+		                    exception_value );
+
+		error_string = PyString_AsString(
+		                exception_string );
+
+		if( error_string != NULL )
+		{
+			PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type unicode with error: %s.",
+			 function,
+			 error_string );
+		}
+		else
+		{
+			PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type unicode.",
+			 function );
+		}
+		Py_DecRef(
+		 exception_string );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		PyErr_Clear();
+
+		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
+		                             string_object );
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libesedb_check_file_signature_wide(
+		          filename_wide,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to check file signature.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
+		if( result != 0 )
+		{
+			Py_IncRef(
+			 (PyObject *) Py_True );
+
+			return( Py_True );
+		}
+		Py_IncRef(
+		 (PyObject *) Py_False );
+
+		return( Py_False );
+	}
+	PyErr_Clear();
+
+	result = PyObject_IsInstance(
+		  string_object,
+		  (PyObject *) &PyString_Type );
+
+	if( result == -1 )
+	{
+		PyErr_Fetch(
+		 &exception_type,
+		 &exception_value,
+		 &exception_traceback );
+
+		exception_string = PyObject_Repr(
+				    exception_value );
+
+		error_string = PyString_AsString(
+				exception_string );
+
+		if( error_string != NULL )
+		{
+			PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type string with error: %s.",
+			 function,
+			 error_string );
+		}
+		else
+		{
+			PyErr_Format(
+		         PyExc_RuntimeError,
+			 "%s: unable to determine if string object is of type string.",
+			 function );
+		}
+		Py_DecRef(
+		 exception_string );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		PyErr_Clear();
+
+		filename_narrow = PyString_AsString(
+				   string_object );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libesedb_check_file_signature(
+		          filename_narrow,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result == -1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_IOError,
+			 "%s: unable to check file signature.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+
+			return( NULL );
+		}
+		if( result != 0 )
+		{
+			Py_IncRef(
+			 (PyObject *) Py_True );
+
+			return( Py_True );
+		}
+		Py_IncRef(
+		 (PyObject *) Py_False );
+
+		return( Py_False );
+	}
+	PyErr_Format(
+	 PyExc_TypeError,
+	 "%s: unsupported string object type",
+	 function );
+
+	return( NULL );
+}
+
+#else
+
 /* Checks if the file has a Personal Folder File (ESEDB) signature
  * Returns a Python object if successful or NULL on error
  */
@@ -177,10 +383,18 @@ PyObject *pyesedb_check_file_signature(
 	}
 	if( result != 0 )
 	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
 		return( Py_True );
 	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
 	return( Py_False );
 }
+
+#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 /* Checks if the file has a Personal Folder File (ESEDB) file signature using a file-like object
  * Returns a Python object if successful or NULL on error
@@ -262,8 +476,14 @@ PyObject *pyesedb_check_file_signature_file_object(
 	}
 	if( result != 0 )
 	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
 		return( Py_True );
 	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
 	return( Py_False );
 
 on_error:
@@ -450,7 +670,7 @@ PyMODINIT_FUNC initpyesedb(
 	pyesedb_column_types_type_object.tp_new = PyType_GenericNew;
 
 	if( pyesedb_column_types_init_type(
-             &pyesedb_column_types_type_object ) != 1 )
+	     &pyesedb_column_types_type_object ) != 1 )
 	{
 		goto on_error;
 	}
@@ -474,7 +694,7 @@ PyMODINIT_FUNC initpyesedb(
 	pyesedb_value_flags_type_object.tp_new = PyType_GenericNew;
 
 	if( pyesedb_value_flags_init_type(
-             &pyesedb_value_flags_type_object ) != 1 )
+	     &pyesedb_value_flags_type_object ) != 1 )
 	{
 		goto on_error;
 	}

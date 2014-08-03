@@ -659,7 +659,7 @@ int libesedb_table_get_identifier(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -712,7 +712,7 @@ int libesedb_table_get_utf8_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -723,7 +723,7 @@ int libesedb_table_get_utf8_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -778,7 +778,7 @@ int libesedb_table_get_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -789,7 +789,7 @@ int libesedb_table_get_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -844,7 +844,7 @@ int libesedb_table_get_utf16_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -855,7 +855,7 @@ int libesedb_table_get_utf16_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -910,7 +910,7 @@ int libesedb_table_get_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -921,7 +921,7 @@ int libesedb_table_get_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -976,7 +976,7 @@ int libesedb_table_get_utf8_template_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -987,7 +987,7 @@ int libesedb_table_get_utf8_template_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1042,7 +1042,7 @@ int libesedb_table_get_utf8_template_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1053,7 +1053,7 @@ int libesedb_table_get_utf8_template_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1108,7 +1108,7 @@ int libesedb_table_get_utf16_template_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1119,7 +1119,7 @@ int libesedb_table_get_utf16_template_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1174,7 +1174,7 @@ int libesedb_table_get_utf16_template_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing IO handle.",
+		 "%s: invalid table - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1185,7 +1185,7 @@ int libesedb_table_get_utf16_template_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1245,7 +1245,7 @@ int libesedb_table_get_number_of_columns(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1256,7 +1256,7 @@ int libesedb_table_get_number_of_columns(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
+		 "%s: invalid table - invalid table definition - missing column catalog definition list.",
 		 function );
 
 		return( -1 );
@@ -1358,7 +1358,7 @@ int libesedb_table_get_column(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1369,7 +1369,7 @@ int libesedb_table_get_column(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing column catalog definition list.",
+		 "%s: invalid table - invalid table definition - missing column catalog definition list.",
 		 function );
 
 		return( -1 );
@@ -1522,7 +1522,7 @@ int libesedb_table_get_number_of_indexes(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1576,7 +1576,7 @@ int libesedb_table_get_index(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - missing table definition.",
+		 "%s: invalid table - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -1587,7 +1587,7 @@ int libesedb_table_get_index(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal table - invalid table definition - missing index catalog definition list.",
+		 "%s: invalid table - invalid table definition - missing index catalog definition list.",
 		 function );
 
 		return( -1 );

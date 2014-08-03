@@ -190,7 +190,7 @@ PyTypeObject pyesedb_table_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb table object (wraps libesedb_table_t)",
@@ -815,9 +815,9 @@ PyObject *pyesedb_table_get_column(
 	     "i",
 	     keyword_list,
 	     &column_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	column_object = pyesedb_table_get_column_by_index(
 	                 pyesedb_table,
 	                 column_index );
@@ -1027,9 +1027,9 @@ PyObject *pyesedb_table_get_record(
 	     "i",
 	     keyword_list,
 	     &record_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	record_object = pyesedb_table_get_record_by_index(
 	                 pyesedb_table,
 	                 record_index );

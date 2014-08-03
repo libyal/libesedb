@@ -7,7 +7,6 @@ TODO
   - libesedb_record_get_value
   - libesedb_multi_value_get_value
 * complete libfvalue update integration - multi value
-* update msvscpp files
 
 * windows search add support for windows 8 SystemIndex_PropertyStore
 * libesedb check esedbtools_libX header files for _LIBESEDB_LIBX_ defs
@@ -129,6 +128,12 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20140803
+* bug fix in Python-bindings
+
+20140726
+* updated dependencies
 
 20130406
 * worked on Python-bindings

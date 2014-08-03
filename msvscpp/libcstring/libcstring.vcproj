@@ -41,10 +41,8 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\include;..\..\common"
 				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING"
-				SmallerTypeCheck="false"
 				RuntimeLibrary="2"
 				WarningLevel="4"
-				WarnAsError="false"
 				CompileAs="1"
 			/>
 			<Tool
@@ -58,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libcstring.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -109,7 +107,6 @@
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
 				WarningLevel="4"
-				WarnAsError="false"
 				DebugInformationFormat="3"
 				CompileAs="1"
 			/>
@@ -124,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libcstring.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -189,6 +186,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libcstring\libcstring_types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcstring\libcstring_unused.h"
 				>
 			</File>
 			<File

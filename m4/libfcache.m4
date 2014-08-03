@@ -1,6 +1,6 @@
 dnl Functions for libfcache
 dnl
-dnl Version: 20120501
+dnl Version: 20140601
 
 dnl Function to detect if libfcache is available
 dnl ac_libfcache_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBFCACHE_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libfcache],
-    [libfcache >= 20120405],
+    [libfcache >= 20140601],
     [ac_cv_libfcache=yes],
     [ac_cv_libfcache=no])
    ])
@@ -35,21 +35,90 @@ AC_DEFUN([AX_LIBFCACHE_CHECK_LIB],
    ac_cv_libfcache_LIBADD="$pkg_cv_libfcache_LIBS"],
    [dnl Check for headers
    AC_CHECK_HEADERS([libfcache.h])
-  
+
    AS_IF(
     [test "x$ac_cv_header_libfcache_h" = xno],
     [ac_cv_libfcache=no],
     [dnl Check for the individual functions
     ac_cv_libfcache=yes
- 
+
     AC_CHECK_LIB(
      fcache,
      libfcache_get_version,
      [ac_cv_libfcache_dummy=yes],
      [ac_cv_libfcache=no])
-   
-    dnl TODO add functions
- 
+
+    dnl Cache functions
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_initialize,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_free,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_clone,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_clear,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_get_number_of_entries,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_get_number_of_cache_values,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_get_value_by_index,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_set_value_by_index,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+
+    dnl Cache value functions
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_value_get_identifier,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_value_set_identifier,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_value_get_value,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_value_set_value,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+
+    dnl Date time functions
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_date_time_get_timestamp,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
+
     ac_cv_libfcache_LIBADD="-lfcache"
     ])
    ])

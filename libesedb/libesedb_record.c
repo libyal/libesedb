@@ -331,7 +331,7 @@ int libesedb_record_get_column_catalog_definition(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal record.",
+		 "%s: invalid record.",
 		 function );
 
 		return( -1 );
@@ -342,7 +342,7 @@ int libesedb_record_get_column_catalog_definition(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing table definition.",
+		 "%s: invalid record - missing table definition.",
 		 function );
 
 		return( -1 );
@@ -552,7 +552,7 @@ int libesedb_record_get_utf8_column_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing IO handle.",
+		 "%s: invalid record - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -624,7 +624,7 @@ int libesedb_record_get_utf8_column_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing IO handle.",
+		 "%s: invalid record - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -696,7 +696,7 @@ int libesedb_record_get_utf16_column_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing IO handle.",
+		 "%s: invalid record - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -768,7 +768,7 @@ int libesedb_record_get_utf16_column_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal record - missing IO handle.",
+		 "%s: invalid record - missing IO handle.",
 		 function );
 
 		return( -1 );

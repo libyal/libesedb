@@ -93,6 +93,10 @@ int libesedb_io_handle_free(
      libesedb_io_handle_t **io_handle,
      libcerror_error_t **error );
 
+int libesedb_io_handle_clear(
+     libesedb_io_handle_t *io_handle,
+     libcerror_error_t **error );
+
 int libesedb_io_handle_set_pages_data_range(
      libesedb_io_handle_t *io_handle,
      size64_t file_size,

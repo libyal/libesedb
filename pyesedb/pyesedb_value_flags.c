@@ -72,7 +72,7 @@ PyTypeObject pyesedb_value_flags_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb value flags object (wraps LIBESEDB_VALUE_FLAGS)",
@@ -145,34 +145,34 @@ int pyesedb_value_flags_init_type(
 		return( -1 );
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "VARIABLE_SIZE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
+	     type_object->tp_dict,
+	     "VARIABLE_SIZE",
+	     PyInt_FromLong(
+	      LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "COMPRESSED",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_COMPRESSED ) ) != 0 )
+	     type_object->tp_dict,
+	     "COMPRESSED",
+	     PyInt_FromLong(
+	      LIBESEDB_VALUE_FLAG_COMPRESSED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "LONG_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_LONG_VALUE ) ) != 0 )
+	     type_object->tp_dict,
+	     "LONG_VALUE",
+	     PyInt_FromLong(
+	      LIBESEDB_VALUE_FLAG_LONG_VALUE ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "MULTI_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_VALUE_FLAG_MULTI_VALUE ) ) != 0 )
+	     type_object->tp_dict,
+	     "MULTI_VALUE",
+	     PyInt_FromLong(
+	      LIBESEDB_VALUE_FLAG_MULTI_VALUE ) ) != 0 )
 	{
 		goto on_error;
 	}

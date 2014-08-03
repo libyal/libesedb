@@ -72,7 +72,7 @@ void VARARGS(
 	size_t error_string_index = 0;
 	int print_count           = 0;
 
-       	if( format_string == NULL )
+	if( format_string == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -95,7 +95,7 @@ void VARARGS(
 	VAEND(
 	 argument_list );
 
-       	if( print_count < 0 )
+	if( print_count < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,

@@ -238,7 +238,7 @@ int libesedb_file_signal_abort(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -547,19 +547,6 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
-	internal_file = (libesedb_internal_file_t *) file;
-
-	if( internal_file->file_io_handle != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - file IO handle already set.",
-		 function );
-
-		return( -1 );
-	}
 	if( file_io_handle == NULL )
 	{
 		libcerror_error_set(
@@ -594,14 +581,14 @@ int libesedb_file_open_file_io_handle(
 
 		return( -1 );
 	}
+	internal_file = (libesedb_internal_file_t *) file;
+
 	if( ( access_flags & LIBESEDB_ACCESS_FLAG_READ ) != 0 )
 	{
 		bfio_access_flags = LIBBFIO_ACCESS_FLAG_READ;
 	}
-	internal_file->file_io_handle = file_io_handle;
-
 	file_io_handle_is_open = libbfio_handle_is_open(
-	                          internal_file->file_io_handle,
+	                          file_io_handle,
 	                          error );
 
 	if( file_io_handle_is_open == -1 )
@@ -613,12 +600,12 @@ int libesedb_file_open_file_io_handle(
 		 "%s: unable to open file.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	else if( file_io_handle_is_open == 0 )
 	{
 		if( libbfio_handle_open(
-		     internal_file->file_io_handle,
+		     file_io_handle,
 		     bfio_access_flags,
 		     error ) != 1 )
 		{
@@ -629,11 +616,13 @@ int libesedb_file_open_file_io_handle(
 			 "%s: unable to open file IO handle.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
+		internal_file->file_io_handle_opened_in_library = 1;
 	}
 	if( libesedb_file_open_read(
 	     internal_file,
+	     file_io_handle,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -643,9 +632,25 @@ int libesedb_file_open_file_io_handle(
 		 "%s: unable to read from file handle.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
+	internal_file->file_io_handle = file_io_handle;
+
 	return( 1 );
+
+on_error:
+	if( ( file_io_handle_is_open == 0 )
+	 && ( internal_file->file_io_handle_opened_in_library != 0 ) )
+	{
+		libbfio_handle_close(
+		 file_io_handle,
+		 error );
+
+		internal_file->file_io_handle_opened_in_library = 0;
+	}
+	internal_file->file_io_handle = NULL;
+
+	return( -1 );
 }
 
 /* Closes a file
@@ -683,10 +688,10 @@ int libesedb_file_close(
 
 		return( -1 );
 	}
-	if( internal_file->file_io_handle_created_in_library != 0 )
-	{
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+	if( libcnotify_verbose != 0 )
+	{
+		if( internal_file->file_io_handle_created_in_library != 0 )
 		{
 			if( libesedb_debug_print_read_offsets(
 			     internal_file->file_io_handle,
@@ -702,7 +707,10 @@ int libesedb_file_close(
 				result = -1;
 			}
 		}
+	}
 #endif
+	if( internal_file->file_io_handle_opened_in_library != 0 )
+	{
 		if( libbfio_handle_close(
 		     internal_file->file_io_handle,
 		     error ) != 0 )
@@ -716,6 +724,10 @@ int libesedb_file_close(
 
 			result = -1;
 		}
+		internal_file->file_io_handle_opened_in_library = 0;
+	}
+	if( internal_file->file_io_handle_created_in_library != 0 )
+	{
 		if( libbfio_handle_free(
 		     &( internal_file->file_io_handle ),
 		     error ) != 1 )
@@ -729,10 +741,23 @@ int libesedb_file_close(
 
 			result = -1;
 		}
+		internal_file->file_io_handle_created_in_library = 0;
 	}
-	internal_file->file_io_handle                    = NULL;
-	internal_file->file_io_handle_created_in_library = 0;
+	internal_file->file_io_handle = NULL;
 
+	if( libesedb_io_handle_clear(
+	     internal_file->io_handle,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to clear IO handle.",
+		 function );
+
+		result = -1;
+	}
 	if( libfdata_vector_free(
 	     &( internal_file->pages_vector ),
 	     error ) != 1 )
@@ -793,6 +818,7 @@ int libesedb_file_close(
  */
 int libesedb_file_open_read(
      libesedb_internal_file_t *internal_file,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_file_open_read";
@@ -807,7 +833,7 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid internal file.",
+		 "%s: invalid file.",
 		 function );
 
 		return( -1 );
@@ -818,7 +844,7 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -829,7 +855,7 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - pages vector already set.",
+		 "%s: invalid file - pages vector already set.",
 		 function );
 
 		return( -1 );
@@ -840,7 +866,7 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - pages cache already set.",
+		 "%s: invalid file - pages cache already set.",
 		 function );
 
 		return( -1 );
@@ -851,7 +877,7 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - database already set.",
+		 "%s: invalid file - database already set.",
 		 function );
 
 		return( -1 );
@@ -862,13 +888,13 @@ int libesedb_file_open_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid internal file - catalog already set.",
+		 "%s: invalid file - catalog already set.",
 		 function );
 
 		return( -1 );
 	}
 	if( libbfio_handle_get_size(
-	     internal_file->file_io_handle,
+	     file_io_handle,
 	     &file_size,
 	     error ) != 1 )
 	{
@@ -890,7 +916,7 @@ int libesedb_file_open_read(
 #endif
 	if( libesedb_io_handle_read_file_header(
 	     internal_file->io_handle,
-	     internal_file->file_io_handle,
+	     file_io_handle,
 	     0,
 	     error ) != 1 )
 	{
@@ -914,7 +940,7 @@ int libesedb_file_open_read(
 	{
 		result = libesedb_io_handle_read_file_header(
 		          internal_file->io_handle,
-		          internal_file->file_io_handle,
+		          file_io_handle,
 		          internal_file->io_handle->page_size,
 		          error );
 	}
@@ -938,7 +964,7 @@ int libesedb_file_open_read(
 
 			result = libesedb_io_handle_read_file_header(
 				  internal_file->io_handle,
-				  internal_file->file_io_handle,
+				  file_io_handle,
 				  file_offset,
 				  error );
 
@@ -1118,7 +1144,7 @@ int libesedb_file_open_read(
 		}
 		if( libesedb_database_read(
 		     internal_file->database,
-		     internal_file->file_io_handle,
+		     file_io_handle,
 		     internal_file->io_handle,
 		     internal_file->pages_vector,
 		     internal_file->pages_cache,
@@ -1155,7 +1181,7 @@ int libesedb_file_open_read(
 		}
 		if( libesedb_catalog_read(
 		     internal_file->catalog,
-		     internal_file->file_io_handle,
+		     file_io_handle,
 		     internal_file->io_handle,
 		     internal_file->pages_vector,
 		     internal_file->pages_cache,
@@ -1232,7 +1258,7 @@ int libesedb_file_get_type(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1284,7 +1310,7 @@ int libesedb_file_get_format_version(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1348,7 +1374,7 @@ int libesedb_file_get_creation_format_version(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1411,7 +1437,7 @@ int libesedb_file_get_page_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal file - missing IO handle.",
+		 "%s: invalid file - missing IO handle.",
 		 function );
 
 		return( -1 );

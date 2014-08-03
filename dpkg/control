@@ -10,8 +10,16 @@ Package: libesedb
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: libesedb-dbg
 Description: Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
  libesedb is a library to access the Extensible Storage Engine (ESE) Database File (EDB) format.
+
+Package: libesedb-dbg
+Architecture: any
+Section: debug
+Depends: libesedb (= ${Source-Version}), ${misc:Depends}
+Description: Debugging symbols for libesedb
+ Debugging symbols for libesedb.
 
 Package: libesedb-dev
 Section: libdevel
@@ -31,6 +39,14 @@ Package: libesedb-python
 Section: python
 Architecture: any
 Depends: libesedb (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Suggests: libesedb-python-dbg
 Description: Python bindings for libesedb
  Python bindings for libesedb.
+
+Package: libesedb-python-dbg
+Section: debug
+Architecture: any
+Depends: libesedb-python (= ${Source-Version})
+Description: Debugging symbols for libesedb-python
+ Debugging symbols for libesedb-python.
 

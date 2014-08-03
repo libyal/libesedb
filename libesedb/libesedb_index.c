@@ -392,7 +392,7 @@ int libesedb_index_get_utf8_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing IO handle.",
+		 "%s: invalid index - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -447,7 +447,7 @@ int libesedb_index_get_utf8_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing IO handle.",
+		 "%s: invalid index - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -502,7 +502,7 @@ int libesedb_index_get_utf16_name_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing IO handle.",
+		 "%s: invalid index - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -557,7 +557,7 @@ int libesedb_index_get_utf16_name(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid internal index - missing IO handle.",
+		 "%s: invalid index - missing IO handle.",
 		 function );
 
 		return( -1 );

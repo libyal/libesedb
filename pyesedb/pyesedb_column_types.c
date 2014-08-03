@@ -72,7 +72,7 @@ PyTypeObject pyesedb_column_types_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb column types object (wraps LIBESEDB_COLUMN_TYPES)",
@@ -145,146 +145,146 @@ int pyesedb_column_types_init_type(
 		return( -1 );
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "NULL",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_NULL ) ) != 0 )
+	     type_object->tp_dict,
+	     "NULL",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_NULL ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "BOOLEAN",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_BOOLEAN ) ) != 0 )
+	     type_object->tp_dict,
+	     "BOOLEAN",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_BOOLEAN ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_8BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_8BIT_UNSIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_16BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_16BIT_SIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_32BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_32BIT_SIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "CURRENCY",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_CURRENCY ) ) != 0 )
+	     type_object->tp_dict,
+	     "CURRENCY",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_CURRENCY ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "FLOAT_32BIT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_FLOAT_32BIT ) ) != 0 )
+	     type_object->tp_dict,
+	     "FLOAT_32BIT",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_FLOAT_32BIT ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "DOUBLE_64BIT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) ) != 0 )
+	     type_object->tp_dict,
+	     "DOUBLE_64BIT",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "DATE_TIME",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_DATE_TIME ) ) != 0 )
+	     type_object->tp_dict,
+	     "DATE_TIME",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_DATE_TIME ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "BINARY_DATA",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_BINARY_DATA ) ) != 0 )
+	     type_object->tp_dict,
+	     "BINARY_DATA",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_BINARY_DATA ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "TEXT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_TEXT ) ) != 0 )
+	     type_object->tp_dict,
+	     "TEXT",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_TEXT ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "LARGE_BINARY_DATA",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) ) != 0 )
+	     type_object->tp_dict,
+	     "LARGE_BINARY_DATA",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "LARGE_TEXT",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) ) != 0 )
+	     type_object->tp_dict,
+	     "LARGE_TEXT",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "SUPER_LARGE_VALUE",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE ) ) != 0 )
+	     type_object->tp_dict,
+	     "SUPER_LARGE_VALUE",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_32BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_32BIT_UNSIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_64BIT_SIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_64BIT_SIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "GUID",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_GUID ) ) != 0 )
+	     type_object->tp_dict,
+	     "GUID",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_GUID ) ) != 0 )
 	{
 		goto on_error;
 	}
 	if( PyDict_SetItemString(
-             type_object->tp_dict,
-             "INTEGER_16BIT_UNSIGNED",
-             PyInt_FromLong(
-              LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) ) != 0 )
+	     type_object->tp_dict,
+	     "INTEGER_16BIT_UNSIGNED",
+	     PyInt_FromLong(
+	      LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) ) != 0 )
 	{
 		goto on_error;
 	}

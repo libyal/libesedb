@@ -44,6 +44,10 @@
 #define SIZEOF_WCHAR_T			2
 #endif
 
+/* Enable the DllMain function
+ */
+#define HAVE_DLLMAIN			1
+
 /* Enable verbose output
 #define HAVE_VERBOSE_OUTPUT		1
  */

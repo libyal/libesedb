@@ -1,6 +1,6 @@
 dnl Functions for libcfile
 dnl
-dnl Version: 20130414
+dnl Version: 20140503
 
 dnl Function to detect if libcfile is available
 dnl ac_libcfile_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcfile],
-    [libcfile >= 20120526],
+    [libcfile >= 20140503],
     [ac_cv_libcfile=yes],
     [ac_cv_libcfile=no])
    ])

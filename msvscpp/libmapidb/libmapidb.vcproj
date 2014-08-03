@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="libcsystem"
-	ProjectGUID="{A2B861D5-6751-43A9-B085-8D48F8754AC5}"
-	RootNamespace="libcsystem"
+	Name="libmapidb"
+	ProjectGUID="{68F145F0-053E-47A6-8F8C-740A42F2C62B}"
+	RootNamespace="libmapidb"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -39,8 +39,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libclocale;..\..\libcnotify;..\..\libuna"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCSYSTEM"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcnotify"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBMAPIDB"
 				RuntimeLibrary="2"
 				WarningLevel="4"
 				CompileAs="1"
@@ -101,8 +101,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libclocale;..\..\libcnotify;..\..\libuna"
-				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCLOCALE;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBUNA;HAVE_LOCAL_LIBCSYSTEM"
+				AdditionalIncludeDirectories="..\..\include;..\..\common;..\..\libcstring;..\..\libcerror;..\..\libcnotify"
+				PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;HAVE_LOCAL_LIBCSTRING;HAVE_LOCAL_LIBCERROR;HAVE_LOCAL_LIBCNOTIFY;HAVE_LOCAL_LIBMAPIDB"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="true"
 				RuntimeLibrary="3"
@@ -151,23 +151,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_getopt.c"
+				RelativePath="..\..\libmapidb\libmapidb_database.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_glob.c"
+				RelativePath="..\..\libmapidb\libmapidb_error.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_signal.c"
+				RelativePath="..\..\libmapidb\libmapidb_folder.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_string.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_support.c"
+				RelativePath="..\..\libmapidb\libmapidb_support.c"
 				>
 			</File>
 		</Filter>
@@ -177,67 +173,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_definitions.h"
+				RelativePath="..\..\libmapidb\libmapidb_database.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_file_io.h"
+				RelativePath="..\..\libmapidb\libmapidb_definitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_file_stream.h"
+				RelativePath="..\..\libmapidb\libmapidb_error.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_find.h"
+				RelativePath="..\..\libmapidb\libmapidb_extern.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_getopt.h"
+				RelativePath="..\..\libmapidb\libmapidb_folder.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_glob.h"
+				RelativePath="..\..\libmapidb\libmapidb_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_i18n.h"
+				RelativePath="..\..\libmapidb\libmapidb_libcnotify.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_libcerror.h"
+				RelativePath="..\..\libmapidb\libmapidb_libcstring.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_libclocale.h"
+				RelativePath="..\..\libmapidb\libmapidb_support.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libcsystem\libcsystem_libcnotify.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_libcstring.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_libuna.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_signal.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_string.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_support.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libcsystem\libcsystem_unused.h"
+				RelativePath="..\..\libmapidb\libmapidb_types.h"
 				>
 			</File>
 		</Filter>

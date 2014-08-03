@@ -56,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfwnt.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfwnt.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -155,6 +155,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfwnt\libfwnt_bit_stream.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfwnt\libfwnt_debug.c"
 				>
 			</File>
@@ -164,6 +168,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libfwnt\libfwnt_locale_identifier.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_lznt1.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_lzxpress.c"
 				>
 			</File>
 			<File
@@ -186,6 +198,10 @@
 			>
 			<File
 				RelativePath="..\..\libfwnt\libfwnt_access_control_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_bit_stream.h"
 				>
 			</File>
 			<File
@@ -222,6 +238,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libfwnt\libfwnt_locale_identifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_lznt1.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_lzxpress.h"
 				>
 			</File>
 			<File

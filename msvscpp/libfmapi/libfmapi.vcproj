@@ -56,7 +56,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfmapi.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -121,7 +121,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)\libfmapi.lib"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
 				ModuleDefinitionFile=""
 				IgnoreAllDefaultLibraries="false"
 			/>
@@ -151,11 +151,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_class_identifier.c"
+				RelativePath="..\..\libfmapi\libfmapi_checksum.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_checksum.c"
+				RelativePath="..\..\libfmapi\libfmapi_class_identifier.c"
 				>
 			</File>
 			<File
@@ -201,11 +201,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_class_identifier.h"
+				RelativePath="..\..\libfmapi\libfmapi_checksum.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\libfmapi\libfmapi_checksum.h"
+				RelativePath="..\..\libfmapi\libfmapi_class_identifier.h"
 				>
 			</File>
 			<File
@@ -230,6 +230,18 @@
 			</File>
 			<File
 				RelativePath="..\..\libfmapi\libfmapi_guid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfmapi\libfmapi_libcerror.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfmapi\libfmapi_libcnotify.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfmapi\libfmapi_libcstring.h"
 				>
 			</File>
 			<File

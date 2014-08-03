@@ -130,7 +130,7 @@ PyTypeObject pyesedb_multi_value_type_object = {
 	0,
 	/* tp_as_buffer */
 	0,
-        /* tp_flags */
+	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
 	"pyesedb multi value object (wraps libesedb_multi_value_t)",
@@ -384,9 +384,9 @@ PyObject *pyesedb_multi_value_get_value_data(
 	     "i",
 	     keyword_list,
 	     &multi_value_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_multi_value_get_value_data_size(
@@ -508,9 +508,9 @@ PyObject *pyesedb_multi_value_get_value_data_as_floating_point(
 	     "i",
 	     keyword_list,
 	     &multi_value_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_multi_value_get_column_type(
@@ -630,9 +630,9 @@ PyObject *pyesedb_multi_value_get_value_data_as_integer(
 	     "i",
 	     keyword_list,
 	     &multi_value_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_multi_value_get_column_type(
@@ -827,9 +827,9 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 	     "i",
 	     keyword_list,
 	     &multi_value_index ) == 0 )
-        {
+	{
 		return( NULL );
-        }
+	}
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_multi_value_get_column_type(
