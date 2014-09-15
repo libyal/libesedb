@@ -967,7 +967,7 @@ int libesedb_io_handle_read_page(
 	     element_index,
 	     (intptr_t *) page,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_free,
-	     LIBFDATA_LIST_ELEMENT_VALUE_FLAG_MANAGED,
+	     LIBFDATA_VECTOR_ELEMENT_VALUE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

@@ -31,7 +31,7 @@
 #include "libesedb_libfdata.h"
 #include "libesedb_unused.h"
 
-/* Creates a values tree value
+/* Creates a data segment
  * Make sure the value data_segment is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
@@ -48,7 +48,7 @@ int libesedb_data_segment_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data segment.",
 		 function );
 
 		return( -1 );
@@ -59,7 +59,7 @@ int libesedb_data_segment_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid values tree value value already set.",
+		 "%s: invalid data segment value already set.",
 		 function );
 
 		return( -1 );
@@ -73,7 +73,7 @@ int libesedb_data_segment_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create values tree value.",
+		 "%s: unable to create data segment.",
 		 function );
 
 		goto on_error;
@@ -87,7 +87,7 @@ int libesedb_data_segment_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear values tree value.",
+		 "%s: unable to clear data segment.",
 		 function );
 
 		memory_free(
@@ -128,7 +128,7 @@ on_error:
 	return( -1 );
 }
 
-/* Frees a values tree value
+/* Frees a data segment
  * Returns 1 if successful or -1 on error
  */
 int libesedb_data_segment_free(
@@ -143,7 +143,7 @@ int libesedb_data_segment_free(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data segment.",
 		 function );
 
 		return( -1 );

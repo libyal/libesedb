@@ -31,7 +31,6 @@
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_table_definition.h"
-#include "libesedb_values_tree_value.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -98,41 +97,32 @@ int libesedb_page_tree_read_page(
      libbfio_handle_t *file_io_handle,
      off64_t page_offset,
      uint32_t page_number,
-     libfdata_tree_node_t *value_tree_node,
-     libesedb_values_tree_value_t *values_tree_value,
+     libfdata_btree_node_t *node,
      libcerror_error_t **error );
 
-int libesedb_page_tree_read_page_value(
+int libesedb_page_tree_read_node(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
-     off64_t page_offset,
-     uint32_t page_number,
-     uint16_t page_value_index,
-     libfdata_tree_node_t *value_tree_node,
-     libesedb_values_tree_value_t *values_tree_value,
-     libcerror_error_t **error );
-
-int libesedb_page_tree_read_node_value(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_btree_node_t *node,
      int node_data_file_index,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint32_t node_data_flags,
+     intptr_t *key_value,
      uint8_t read_flags,
      libcerror_error_t **error );
 
-int libesedb_page_tree_read_sub_nodes(
+int libesedb_page_tree_read_leaf_value(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
+     libfdata_btree_t *tree,
      libfcache_cache_t *cache,
-     int sub_nodes_data_file_index,
-     off64_t sub_nodes_data_offset,
-     size64_t sub_nodes_data_size,
-     uint32_t sub_nodes_data_flags,
+     int leaf_value_index,
+     int leaf_value_data_file_index,
+     off64_t leaf_value_data_offset,
+     size64_t leaf_value_data_size,
+     uint32_t leaf_value_data_flags,
+     intptr_t *key_value,
      uint8_t read_flags,
      libcerror_error_t **error );
 

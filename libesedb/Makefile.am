@@ -33,6 +33,7 @@ libesedb_la_SOURCES = \
 	libesedb_column.c libesedb_column.h \
 	libesedb_column_type.c libesedb_column_type.h \
 	libesedb_compression.c libesedb_compression.h \
+	libesedb_data_definition.c libesedb_data_definition.h \
 	libesedb_data_segment.c libesedb_data_segment.h \
 	libesedb_database.c libesedb_database.h \
 	libesedb_debug.c libesedb_debug.h \
@@ -43,6 +44,7 @@ libesedb_la_SOURCES = \
 	libesedb_i18n.c libesedb_i18n.h \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
+	libesedb_key.c libesedb_key.h \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_libbfio.h \
 	libesedb_libcdata.h \
@@ -65,9 +67,7 @@ libesedb_la_SOURCES = \
 	libesedb_table_definition.c libesedb_table_definition.h \
 	libesedb_types.h \
 	libesedb_unused.h \
-	libesedb_value_data_handle.c libesedb_value_data_handle.h \
-	libesedb_values_tree.c libesedb_values_tree.h \
-	libesedb_values_tree_value.c libesedb_values_tree_value.h
+	libesedb_value_data_handle.c libesedb_value_data_handle.h
 
 libesedb_la_LIBADD = \
 	@LIBCSTRING_LIBADD@ \

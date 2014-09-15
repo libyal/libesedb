@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libesedb_data_definition.h"
 #include "libesedb_extern.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
@@ -77,7 +78,7 @@ struct libesedb_internal_record
 
 	/* The long values tree
 	 */
-	libfdata_tree_t *long_values_tree;
+	libfdata_btree_t *long_values_tree;
 
 	/* The long values cache
 	 */
@@ -98,9 +99,8 @@ int libesedb_record_initialize(
      libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_node_t *values_tree_node,
-     libfcache_cache_t *values_cache,
-     libfdata_tree_t *long_values_tree,
+     libesedb_data_definition_t *data_definition,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      libcerror_error_t **error );
 

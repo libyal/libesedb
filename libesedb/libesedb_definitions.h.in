@@ -186,6 +186,25 @@ enum LIBESEDB_PAGE_KEY_FLAGS
 	LIBESEDB_PAGE_KEY_FLAG_TEST					= 0x80
 };
 
+/* The key type definitions
+ */
+enum LIBESEDB_KEY_TYPES
+{
+	LIBESEDB_KEY_TYPE_BRANCH					= (uint8_t) 'b',
+	LIBESEDB_KEY_TYPE_INDEX_VALUE					= (uint8_t) 'I',
+	LIBESEDB_KEY_TYPE_LEAF						= (uint8_t) 'l',
+	LIBESEDB_KEY_TYPE_LONG_VALUE					= (uint8_t) 'L',
+	LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT				= (uint8_t) 'S'
+};
+
+/* The tagged data type format definitions
+ */
+enum LIBESEDB_TAGGED_DATA_TYPES_FORMATS
+{
+	LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR,
+	LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX,
+};
+
 /* The file attribute flags
  */
 enum LIBESEDB_FILE_ATTRIBUTE_FLAGS

@@ -76,7 +76,7 @@ struct libesedb_internal_table
 
 	/* The table values tree
 	 */
-	libfdata_tree_t *table_values_tree;
+	libfdata_btree_t *table_values_tree;
 
 	/* The table values cache
 	 */
@@ -84,7 +84,7 @@ struct libesedb_internal_table
 
 	/* The long values tree
 	 */
-	libfdata_tree_t *long_values_tree;
+	libfdata_btree_t *long_values_tree;
 
 	/* The long values cache
 	 */

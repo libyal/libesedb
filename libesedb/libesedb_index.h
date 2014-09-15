@@ -81,7 +81,7 @@ struct libesedb_internal_index
 
 	/* The table values tree
 	 */
-	libfdata_tree_t *table_values_tree;
+	libfdata_btree_t *table_values_tree;
 
 	/* The table values cache
 	 */
@@ -89,7 +89,7 @@ struct libesedb_internal_index
 
 	/* The long values tree
 	 */
-	libfdata_tree_t *long_values_tree;
+	libfdata_btree_t *long_values_tree;
 
 	/* The long values cache
 	 */
@@ -97,7 +97,7 @@ struct libesedb_internal_index
 
 	/* The table values (data) tree
 	 */
-	libfdata_tree_t *index_values_tree;
+	libfdata_btree_t *index_values_tree;
 
 	/* The index values cache
 	 */
@@ -115,9 +115,9 @@ int libesedb_index_initialize(
      libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_t *table_values_tree,
+     libfdata_btree_t *table_values_tree,
      libfcache_cache_t *table_values_cache,
-     libfdata_tree_t *long_values_tree,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      libcerror_error_t **error );
 

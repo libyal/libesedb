@@ -1,5 +1,5 @@
 /*
- * Values tree value functions
+ * Data definition functions
  *
  * Copyright (C) 2010-2014, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,6 +25,7 @@
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_column_type.h"
+#include "libesedb_data_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
@@ -39,72 +40,65 @@
 #include "libesedb_page.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_value_data_handle.h"
-#include "libesedb_values_tree_value.h"
 
 #include "esedb_page_values.h"
 
-enum LIBESEDB_TAGGED_DATA_TYPES_FORMATS
-{
-	LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR,
-	LIBESEDB_TAGGED_DATA_TYPES_FORMAT_INDEX,
-};
-
-/* Creates a values tree value
- * Make sure the value values_tree_value is referencing, is set to NULL
+/* Creates a data definition
+ * Make sure the value data_definition is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_initialize(
-     libesedb_values_tree_value_t **values_tree_value,
+int libesedb_data_definition_initialize(
+     libesedb_data_definition_t **data_definition,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_values_tree_value_initialize";
+	static char *function = "libesedb_data_definition_initialize";
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( *values_tree_value != NULL )
+	if( *data_definition != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid values tree value value already set.",
+		 "%s: invalid data definition value already set.",
 		 function );
 
 		return( -1 );
 	}
-	*values_tree_value = memory_allocate_structure(
-	                      libesedb_values_tree_value_t );
+	*data_definition = memory_allocate_structure(
+	                    libesedb_data_definition_t );
 
-	if( *values_tree_value == NULL )
+	if( *data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create values tree value.",
+		 "%s: unable to create data definition.",
 		 function );
 
 		goto on_error;
 	}
 	if( memory_set(
-	     *values_tree_value,
+	     *data_definition,
 	     0,
-	     sizeof( libesedb_values_tree_value_t ) ) == NULL )
+	     sizeof( libesedb_data_definition_t ) ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear values tree value.",
+		 "%s: unable to clear data definition.",
 		 function );
 
 		goto on_error;
@@ -112,230 +106,42 @@ int libesedb_values_tree_value_initialize(
 	return( 1 );
 
 on_error:
-	if( *values_tree_value != NULL )
+	if( *data_definition != NULL )
 	{
 		memory_free(
-		 *values_tree_value );
+		 *data_definition );
 
-		*values_tree_value = NULL;
+		*data_definition = NULL;
 	}
 	return( -1 );
 }
 
-/* Frees a values tree value
+/* Frees a data definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_free(
-     libesedb_values_tree_value_t **values_tree_value,
+int libesedb_data_definition_free(
+     libesedb_data_definition_t **data_definition,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_values_tree_value_free";
+	static char *function = "libesedb_data_definition_free";
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( *values_tree_value != NULL )
-	{
-		if( ( *values_tree_value )->key != NULL )
-		{
-			memory_free(
-			 ( *values_tree_value )->key );
-		}
-		memory_free(
-		 *values_tree_value );
-
-		*values_tree_value = NULL;
-	}
-	return( 1 );
-}
-
-/* Sets the common part of the key in the values tree value
- * Returns 1 if successful or -1 on error
- */
-int libesedb_values_tree_value_set_key_common(
-     libesedb_values_tree_value_t *values_tree_value,
-     uint8_t *common_key,
-     size_t common_key_size,
-     libcerror_error_t **error )
-{
-	static char *function = "libesedb_values_tree_value_set_key_common";
-
-	if( values_tree_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->key != NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid values tree value - key already set.",
-		 function );
-
-		return( -1 );
-	}
-	if( common_key == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid common key.",
-		 function );
-
-		return( -1 );
-	}
-	if( common_key_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid common key size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( common_key_size > 0 )
-	{
-		values_tree_value->key = (uint8_t *) memory_allocate(
-		                                      sizeof( uint8_t ) * common_key_size );
-
-		if( values_tree_value->key == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to create key.",
-			 function );
-
-			goto on_error;
-		}
-		if( memory_copy(
-		     values_tree_value->key,
-		     common_key,
-		     sizeof( uint8_t ) * common_key_size ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy common key.",
-			 function );
-
-			goto on_error;
-		}
-		values_tree_value->key_size = common_key_size;
-	}
-	return( 1 );
-
-on_error:
-	if( values_tree_value->key != NULL )
+	if( *data_definition != NULL )
 	{
 		memory_free(
-		 values_tree_value->key );
+		 *data_definition );
 
-		values_tree_value->key = NULL;
-	}
-	return( -1 );
-}
-
-/* Sets the local part of the key in the values tree value
- * Returns 1 if successful or -1 on error
- */
-int libesedb_values_tree_value_set_key_local(
-     libesedb_values_tree_value_t *values_tree_value,
-     uint8_t *local_key,
-     size_t local_key_size,
-     libcerror_error_t **error )
-{
-	void *reallocation    = NULL;
-	static char *function = "libesedb_values_tree_value_set_key_local";
-
-	if( values_tree_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_key == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid local key.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_key_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid local key size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( local_key_size > 0 )
-	{
-		reallocation = memory_reallocate(
-		                values_tree_value->key,
-		                sizeof( uint8_t ) * ( values_tree_value->key_size + local_key_size ) );
-
-		if( reallocation == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-			 "%s: unable to resize key.",
-			 function );
-
-			return( -1 );
-		}
-		values_tree_value->key = (uint8_t *) reallocation;
-
-		if( memory_copy(
-		     &( values_tree_value->key[ values_tree_value->key_size ] ),
-		     local_key,
-		     sizeof( uint8_t ) * local_key_size ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
-			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy local key.",
-			 function );
-
-			return( -1 );
-		}
-		values_tree_value->key_size += local_key_size;
+		*data_definition = NULL;
 	}
 	return( 1 );
 }
@@ -343,8 +149,8 @@ int libesedb_values_tree_value_set_key_local(
 /* Reads the data
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_read_data(
-     libesedb_values_tree_value_t *values_tree_value,
+int libesedb_data_definition_read_data(
+     libesedb_data_definition_t *data_definition,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
@@ -355,30 +161,18 @@ int libesedb_values_tree_value_read_data(
 {
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_values_tree_value_read_data";
+	static char *function             = "libesedb_data_definition_read_data";
 	off64_t element_data_offset       = 0;
+	uint16_t data_offset              = 0;
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_INDEX )
-	 && ( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
-		 function,
-		 values_tree_value->type );
 
 		return( -1 );
 	}
@@ -419,7 +213,7 @@ int libesedb_values_tree_value_read_data(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
-	     values_tree_value->page_offset,
+	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -431,8 +225,8 @@ int libesedb_values_tree_value_read_data(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
-		 values_tree_value->page_number,
-		 values_tree_value->page_offset );
+		 data_definition->page_number,
+		 data_definition->page_offset );
 
 		return( -1 );
 	}
@@ -449,7 +243,7 @@ int libesedb_values_tree_value_read_data(
 	}
 	if( libesedb_page_get_value(
 	     page,
-	     values_tree_value->page_value_index,
+	     data_definition->page_value_index,
 	     &page_value,
 	     error ) != 1 )
 	{
@@ -459,7 +253,7 @@ int libesedb_values_tree_value_read_data(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -471,7 +265,7 @@ int libesedb_values_tree_value_read_data(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -486,19 +280,22 @@ int libesedb_values_tree_value_read_data(
 
 		return( -1 );
 	}
-	if( values_tree_value->data_offset > page_value->size )
+	data_offset = data_definition->data_offset - page_value->offset;
+
+	if( ( data_definition->data_offset < page_value->offset )
+	 || ( data_offset > page_value->size ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 "%s: invalid data definition - data offset value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
-	*data      = &( page_value->data[ values_tree_value->data_offset ] );
-	*data_size = (size_t) ( page_value->size - values_tree_value->data_offset );
+	*data      = &( page_value->data[ data_offset ] );
+	*data_size = (size_t) ( page_value->size - data_offset );
 
 	return( 1 );
 }
@@ -507,8 +304,8 @@ int libesedb_values_tree_value_read_data(
  * Uses the definition data in the catalog definitions
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_read_record(
-     libesedb_values_tree_value_t *values_tree_value,
+int libesedb_data_definition_read_record(
+     libesedb_data_definition_t *data_definition,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
@@ -526,10 +323,11 @@ int libesedb_values_tree_value_read_record(
 	libfvalue_value_t *record_value                                 = NULL;
 	uint8_t *record_data                                            = NULL;
 	uint8_t *tagged_data_type_offset_data                           = NULL;
-	static char *function                                           = "libesedb_values_tree_value_read_record";
+	static char *function                                           = "libesedb_data_definition_read_record";
 	off64_t element_data_offset                                     = 0;
 	size_t record_data_size                                         = 0;
 	size_t remaining_definition_data_size                           = 0;
+	uint16_t data_offset                                            = 0;
 	uint16_t fixed_size_data_type_value_offset                      = 0;
 	uint16_t previous_tagged_data_type_offset                       = 0;
 	uint16_t previous_variable_size_data_type_size                  = 0;
@@ -557,26 +355,14 @@ int libesedb_values_tree_value_read_record(
 	int record_value_codepage                                       = 0;
 	int result                                                      = 0;
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
-		 function,
-		 values_tree_value->type );
 
 		return( -1 );
 	}
@@ -640,7 +426,7 @@ int libesedb_values_tree_value_read_record(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
-	     values_tree_value->page_offset,
+	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -652,8 +438,8 @@ int libesedb_values_tree_value_read_record(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
-		 values_tree_value->page_number,
-		 values_tree_value->page_offset );
+		 data_definition->page_number,
+		 data_definition->page_offset );
 
 		goto on_error;
 	}
@@ -670,7 +456,7 @@ int libesedb_values_tree_value_read_record(
 	}
 	if( libesedb_page_get_value(
 	     page,
-	     values_tree_value->page_value_index,
+	     data_definition->page_value_index,
 	     &page_value,
 	     error ) != 1 )
 	{
@@ -680,7 +466,7 @@ int libesedb_values_tree_value_read_record(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		goto on_error;
 	}
@@ -692,7 +478,7 @@ int libesedb_values_tree_value_read_record(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		goto on_error;
 	}
@@ -707,19 +493,22 @@ int libesedb_values_tree_value_read_record(
 
 		goto on_error;
 	}
-	if( values_tree_value->data_offset > page_value->size )
+	data_offset = data_definition->data_offset - page_value->offset;
+
+	if( ( data_definition->data_offset < page_value->offset )
+	 || ( data_offset > page_value->size ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 "%s: invalid data definition - data offset value out of bounds.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	record_data      = &( page_value->data[ values_tree_value->data_offset ] );
-	record_data_size = page_value->size - values_tree_value->data_offset;
+	record_data      = &( page_value->data[ data_offset ] );
+	record_data_size = page_value->size - data_offset;
 
 	if( record_data_size < sizeof( esedb_data_definition_header_t ) )
 	{
@@ -1705,8 +1494,8 @@ on_error:
 /* Reads the long value
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_read_long_value(
-     libesedb_values_tree_value_t *values_tree_value,
+int libesedb_data_definition_read_long_value(
+     libesedb_data_definition_t *data_definition,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
@@ -1715,31 +1504,20 @@ int libesedb_values_tree_value_read_long_value(
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
 	uint8_t *long_value_data          = NULL;
-	static char *function             = "libesedb_values_tree_value_read_long_value";
+	static char *function             = "libesedb_data_definition_read_long_value";
 	size_t long_value_data_size       = 0;
 	off64_t element_data_offset       = 0;
 	uint32_t value_32bit              = 0;
+	uint16_t data_offset              = 0;
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_LONG_VALUE )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
-		 function,
-		 values_tree_value->type );
 
 		return( -1 );
 	}
@@ -1747,7 +1525,7 @@ int libesedb_values_tree_value_read_long_value(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
-	     values_tree_value->page_offset,
+	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1759,8 +1537,8 @@ int libesedb_values_tree_value_read_long_value(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
-		 values_tree_value->page_number,
-		 values_tree_value->page_offset );
+		 data_definition->page_number,
+		 data_definition->page_offset );
 
 		return( -1 );
 	}
@@ -1777,7 +1555,7 @@ int libesedb_values_tree_value_read_long_value(
 	}
 	if( libesedb_page_get_value(
 	     page,
-	     values_tree_value->page_value_index,
+	     data_definition->page_value_index,
 	     &page_value,
 	     error ) != 1 )
 	{
@@ -1787,7 +1565,7 @@ int libesedb_values_tree_value_read_long_value(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -1799,7 +1577,7 @@ int libesedb_values_tree_value_read_long_value(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -1814,19 +1592,22 @@ int libesedb_values_tree_value_read_long_value(
 
 		return( -1 );
 	}
-	if( values_tree_value->data_offset > page_value->size )
+	data_offset = data_definition->data_offset - page_value->offset;
+
+	if( ( data_definition->data_offset < page_value->offset )
+	 || ( data_offset > page_value->size ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 "%s: invalid data definition - data offset value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
-	long_value_data      = &( page_value->data[ values_tree_value->data_offset ] );
-	long_value_data_size = page_value->size - values_tree_value->data_offset;
+	long_value_data      = &( page_value->data[ data_offset ] );
+	long_value_data_size = page_value->size - data_offset;
 
 	if( long_value_data_size != 8 )
 	{
@@ -1891,8 +1672,8 @@ int libesedb_values_tree_value_read_long_value(
 /* Reads the long value segment
  * Returns 1 if successful or -1 on error
  */
-int libesedb_values_tree_value_read_long_value_segment(
-     libesedb_values_tree_value_t *values_tree_value,
+int libesedb_data_definition_read_long_value_segment(
+     libesedb_data_definition_t *data_definition,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libfdata_vector_t *pages_vector,
@@ -1903,33 +1684,22 @@ int libesedb_values_tree_value_read_long_value_segment(
 {
 	libesedb_page_t *page                  = NULL;
 	libesedb_page_value_t *page_value      = NULL;
-	static char *function                  = "libesedb_values_tree_value_read_long_value_segment";
+	static char *function                  = "libesedb_data_definition_read_long_value_segment";
 	off64_t element_data_offset            = 0;
 	off64_t long_value_segment_data_offset = 0;
 	size64_t data_size                     = 0;
 	size_t long_value_segment_data_size    = 0;
+	uint16_t data_offset                   = 0;
 	int element_index                      = 0;
 
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
+		 "%s: invalid data definition.",
 		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value->type != LIBESEDB_VALUES_TREE_VALUE_TYPE_LONG_VALUE )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported values tree value type: 0x%02" PRIx8 ".",
-		 function,
-		 values_tree_value->type );
 
 		return( -1 );
 	}
@@ -1937,7 +1707,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
 	     pages_cache,
-	     values_tree_value->page_offset,
+	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
 	     0,
@@ -1949,8 +1719,8 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
 		 function,
-		 values_tree_value->page_number,
-		 values_tree_value->page_offset );
+		 data_definition->page_number,
+		 data_definition->page_offset );
 
 		return( -1 );
 	}
@@ -1967,7 +1737,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 	}
 	if( libesedb_page_get_value(
 	     page,
-	     values_tree_value->page_value_index,
+	     data_definition->page_value_index,
 	     &page_value,
 	     error ) != 1 )
 	{
@@ -1977,7 +1747,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable to retrieve page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -1989,7 +1759,7 @@ int libesedb_values_tree_value_read_long_value_segment(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing page value: %" PRIu16 ".",
 		 function,
-		 values_tree_value->page_value_index );
+		 data_definition->page_value_index );
 
 		return( -1 );
 	}
@@ -2004,24 +1774,26 @@ int libesedb_values_tree_value_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( values_tree_value->data_offset > page_value->size )
+	data_offset = data_definition->data_offset - page_value->offset;
+
+	if( ( data_definition->data_offset < page_value->offset )
+	 || ( data_offset > page_value->size ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid values tree value - data offset exceeds page value size.",
+		 "%s: invalid data definition - data offset value out of bounds.",
 		 function );
 
 		return( -1 );
 	}
-	long_value_segment_data_size = page_value->size - values_tree_value->data_offset;
+	long_value_segment_data_size = page_value->size - data_offset;
 
 	/* Note that the data stream will point to the file offset
-	 * values_tree_value->page_offset contains the offset relative from the start of the page data
+	 * data_definition->data_offset contains the offset relative from the start of the page data
 	 */
-	long_value_segment_data_offset = io_handle->pages_data_offset + values_tree_value->page_offset
-	                               + values_tree_value->data_offset;
+	long_value_segment_data_offset = io_handle->pages_data_offset + data_definition->data_offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )

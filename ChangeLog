@@ -1,4 +1,8 @@
 TODO
+* move read of data definition into leaf value callback
+  - create separate callback for long values?
+* replace by fdata functions?
+  - libesedb_values_tree.c
 * refactor:
   - libesedb_multi_value_get_value what about value_type ?
   - clean up multi value calls to libfvalue
@@ -128,6 +132,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20140915
+* worked on libfdata btree refactot
 
 20140803
 * bug fix in Python-bindings

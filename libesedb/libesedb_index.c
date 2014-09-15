@@ -24,9 +24,11 @@
 #include <types.h>
 
 #include "libesedb_catalog_definition.h"
+#include "libesedb_data_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
+#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
@@ -35,7 +37,6 @@
 #include "libesedb_page_tree.h"
 #include "libesedb_record.h"
 #include "libesedb_types.h"
-#include "libesedb_values_tree.h"
 
 /* Creates an index
  * Make sure the value index is referencing, is set to NULL
@@ -52,9 +53,9 @@ int libesedb_index_initialize(
      libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_t *table_values_tree,
+     libfdata_btree_t *table_values_tree,
      libfcache_cache_t *table_values_cache,
-     libfdata_tree_t *long_values_tree,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      libcerror_error_t **error )
 {
@@ -161,14 +162,14 @@ int libesedb_index_initialize(
 	}
 	/* TODO clone function
 	 */
-	if( libfdata_tree_initialize(
+	if( libfdata_btree_initialize(
 	     &( internal_index->index_values_tree ),
 	     (intptr_t *) index_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -201,7 +202,7 @@ int libesedb_index_initialize(
 	node_data_offset  = index_catalog_definition->father_data_page_number - 1;
 	node_data_offset *= io_handle->page_size;
 
-	if( libfdata_tree_set_root_node(
+	if( libfdata_btree_set_root_node(
 	     internal_index->index_values_tree,
 	     0,
 	     node_data_offset,
@@ -247,7 +248,7 @@ on_error:
 		}
 		if( internal_index->index_values_tree != NULL )
 		{
-			libfdata_tree_free(
+			libfdata_btree_free(
 			 &( internal_index->index_values_tree ),
 			 NULL );
 		}
@@ -288,7 +289,7 @@ int libesedb_index_free(
 		 * index_catalog_definition, pages_vector, pages_cache, table_values_tree,
 		 * table_values_cache, long_values_tree and long_values_cache references are freed elsewhere
 		 */
-		if( libfdata_tree_free(
+		if( libfdata_btree_free(
 		     &( internal_index->index_values_tree ),
 		     error ) != 1 )
 		{
@@ -605,7 +606,7 @@ int libesedb_index_get_number_of_records(
 	}
 	internal_index = (libesedb_internal_index_t *) index;
 
-	if( libfdata_tree_get_number_of_leaf_nodes(
+	if( libfdata_btree_get_number_of_leaf_values(
 	     internal_index->index_values_tree,
 	     (intptr_t *) internal_index->file_io_handle,
 	     internal_index->index_values_cache,
@@ -617,7 +618,7 @@ int libesedb_index_get_number_of_records(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of leaf nodes from index values tree.",
+		 "%s: unable to retrieve number of leaf values from index values tree.",
 		 function );
 
 		return( -1 );
@@ -634,13 +635,13 @@ int libesedb_index_get_record(
      libesedb_record_t **record,
      libcerror_error_t **error )
 {
-	libfdata_tree_node_t *index_values_tree_node          = NULL;
-	libfdata_tree_node_t *record_values_tree_node         = NULL;
-	libesedb_internal_index_t *internal_index             = NULL;
-	libesedb_values_tree_value_t *index_values_tree_value = NULL;
-	uint8_t *index_data                                   = NULL;
-	static char *function                                 = "libesedb_index_get_record";
-	size_t index_data_size                                = 0;
+	libesedb_data_definition_t *index_data_definition  = NULL;
+	libesedb_data_definition_t *record_data_definition = NULL;
+	libesedb_internal_index_t *internal_index          = NULL;
+	libesedb_key_t *key                                = NULL;
+	uint8_t *index_data                                = NULL;
+	static char *function                              = "libesedb_index_get_record";
+	size_t index_data_size                             = 0;
 
 	if( index == NULL )
 	{
@@ -677,12 +678,12 @@ int libesedb_index_get_record(
 
 		return( -1 );
 	}
-	if( libfdata_tree_get_leaf_node_by_index(
+	if( libfdata_btree_get_leaf_value_by_index(
 	     internal_index->index_values_tree,
 	     (intptr_t *) internal_index->file_io_handle,
 	     internal_index->index_values_cache,
 	     record_entry,
-	     &index_values_tree_node,
+	     (intptr_t **) &index_data_definition,
 	     0,
 	     error ) != 1 )
 	{
@@ -690,31 +691,14 @@ int libesedb_index_get_record(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve leaf node: %d from index values tree.",
+		 "%s: unable to retrieve leaf value: %d from index values tree.",
 		 function,
 		 record_entry );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( libfdata_tree_node_get_node_value(
-	     index_values_tree_node,
-	     (intptr_t *) internal_index->file_io_handle,
-	     internal_index->index_values_cache,
-	     (intptr_t **) &index_values_tree_value,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve node value from index values tree node.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_values_tree_value_read_data(
-	     index_values_tree_value,
+	if( libesedb_data_definition_read_data(
+	     index_data_definition,
 	     internal_index->file_io_handle,
 	     internal_index->io_handle,
 	     internal_index->pages_vector,
@@ -727,30 +711,72 @@ int libesedb_index_get_record(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read index values tree value data.",
+		 "%s: unable to read index data definition data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-/* TODO remove LIBESEDB_PAGE_KEY_FLAG_TEST */
-	if( libesedb_values_tree_get_leaf_node_by_key(
-	     internal_index->table_values_tree,
-	     internal_index->file_io_handle,
-	     internal_index->table_values_cache,
+	if( libesedb_key_initialize(
+	     &key,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create key.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_key_set_data(
+	     key,
 	     index_data,
 	     index_data_size,
-	     &record_values_tree_node,
-	     LIBESEDB_PAGE_KEY_FLAG_TEST,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set index data in key.",
+		 function );
+
+		goto on_error;
+	}
+	key->type = LIBESEDB_KEY_TYPE_INDEX_VALUE;
+
+	if( libfdata_btree_get_leaf_value_by_key(
+	     internal_index->table_values_tree,
+	     (intptr_t *) internal_index->file_io_handle,
+	     internal_index->table_values_cache,
+	     (intptr_t *) key,
+	     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+	     (intptr_t **) &record_data_definition,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve record values tree node.",
+		 "%s: unable to retrieve leaf value by key.",
 		 function );
 
-		return( -1 );
+		goto on_error;
+	}
+	if( libesedb_key_free(
+	     &key,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free key.",
+		 function );
+
+		goto on_error;
 	}
 	if( libesedb_record_initialize(
 	     record,
@@ -762,8 +788,7 @@ int libesedb_index_get_record(
 	     internal_index->pages_cache,
 	     internal_index->long_values_pages_vector,
 	     internal_index->long_values_pages_cache,
-	     record_values_tree_node,
-	     internal_index->table_values_cache,
+	     record_data_definition,
 	     internal_index->long_values_tree,
 	     internal_index->long_values_cache,
 	     error ) != 1 )
@@ -775,8 +800,17 @@ int libesedb_index_get_record(
 		 "%s: unable to create record.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( key != NULL )
+	{
+		libesedb_key_free(
+		 &key,
+		 NULL );
+	}
+	return( -1 );
 }
 

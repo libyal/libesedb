@@ -23,8 +23,9 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libesedb_definitions.h"
 #include "libesedb_database.h"
+#include "libesedb_data_definition.h"
+#include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
@@ -146,17 +147,16 @@ int libesedb_database_read(
      libfcache_cache_t *pages_cache,
      libcerror_error_t **error )
 {
-	libesedb_page_tree_t *database_page_tree        = NULL;
-	libesedb_values_tree_value_t *values_tree_value = NULL;
-	libfcache_cache_t *database_values_cache        = NULL;
-	libfdata_tree_t *database_values_tree           = NULL;
-	libfdata_tree_node_t *database_values_tree_node = NULL;
-	uint8_t *data                                   = NULL;
-	static char *function                           = "libesedb_database_read";
-	off64_t node_data_offset                        = 0;
-	size_t data_size                                = 0;
-	int number_of_leaf_nodes                        = 0;
-	int leaf_node_index                             = 0;
+	libesedb_data_definition_t *data_definition = NULL;
+	libesedb_page_tree_t *database_page_tree    = NULL;
+	libfcache_cache_t *database_values_cache    = NULL;
+	libfdata_btree_t *database_values_tree      = NULL;
+	uint8_t *data                               = NULL;
+	static char *function                       = "libesedb_database_read";
+	off64_t node_data_offset                    = 0;
+	size_t data_size                            = 0;
+	int leaf_value_index                        = 0;
+	int number_of_leaf_values                   = 0;
 
 	if( database == NULL )
 	{
@@ -190,14 +190,14 @@ int libesedb_database_read(
 	}
 	/* TODO clone function
 	 */
-	if( libfdata_tree_initialize(
+	if( libfdata_btree_initialize(
 	     &database_values_tree,
 	     (intptr_t *) database_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -228,7 +228,7 @@ int libesedb_database_read(
 	node_data_offset  = LIBESEDB_PAGE_NUMBER_DATABASE - 1;
 	node_data_offset *= io_handle->page_size;
 
-	if( libfdata_tree_set_root_node(
+	if( libfdata_btree_set_root_node(
 	     database_values_tree,
 	     0,
 	     node_data_offset,
@@ -245,11 +245,11 @@ int libesedb_database_read(
 
 		goto on_error;
 	}
-	if( libfdata_tree_get_number_of_leaf_nodes(
+	if( libfdata_btree_get_number_of_leaf_values(
 	     database_values_tree,
 	     (intptr_t *) file_io_handle,
 	     database_values_cache,
-	     &number_of_leaf_nodes,
+	     &number_of_leaf_values,
 	     0,
 	     error ) != 1 )
 	{
@@ -257,21 +257,21 @@ int libesedb_database_read(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of leaf nodes from database values tree.",
+		 "%s: unable to retrieve number of leaf values from database values tree.",
 		 function );
 
 		goto on_error;
 	}
-	for( leaf_node_index = 0;
-	     leaf_node_index < number_of_leaf_nodes;
-	     leaf_node_index++ )
+	for( leaf_value_index = 0;
+	     leaf_value_index < number_of_leaf_values;
+	     leaf_value_index++ )
 	{
-		if( libfdata_tree_get_leaf_node_by_index(
+		if( libfdata_btree_get_leaf_value_by_index(
 		     database_values_tree,
 		     (intptr_t *) file_io_handle,
 		     database_values_cache,
-		     leaf_node_index,
-		     &database_values_tree_node,
+		     leaf_value_index,
+		     (intptr_t **) &data_definition,
 		     0,
 		     error ) != 1 )
 		{
@@ -279,31 +279,14 @@ int libesedb_database_read(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve leaf node: %d from database values tree.",
+			 "%s: unable to retrieve leaf value: %d from database values tree.",
 			 function,
-			 leaf_node_index );
+			 leaf_value_index );
 
 			goto on_error;
 		}
-		if( libfdata_tree_node_get_node_value(
-		     database_values_tree_node,
-		     (intptr_t *) file_io_handle,
-		     database_values_cache,
-		     (intptr_t **) &values_tree_value,
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve node value from values tree node.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_values_tree_value_read_data(
-		     values_tree_value,
+		if( libesedb_data_definition_read_data(
+		     data_definition,
 		     file_io_handle,
 		     io_handle,
 		     pages_vector,
@@ -316,7 +299,7 @@ int libesedb_database_read(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_IO,
 			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read values tree value data.",
+			 "%s: unable to read data definition data.",
 			 function );
 
 			goto on_error;
@@ -330,7 +313,7 @@ int libesedb_database_read(
 				libcnotify_printf(
 				 "%s: database value: %d data:\n",
 				 function,
-				 leaf_node_index );
+				 leaf_value_index );
 				libcnotify_print_data(
 				 data,
 				 data_size,
@@ -352,7 +335,7 @@ int libesedb_database_read(
 
 		goto on_error;
 	}
-	if( libfdata_tree_free(
+	if( libfdata_btree_free(
 	     &database_values_tree,
 	     error ) != 1 )
 	{
@@ -376,7 +359,7 @@ on_error:
 	}
 	if( database_values_tree != NULL )
 	{
-		libfdata_tree_free(
+		libfdata_btree_free(
 		 &database_values_tree,
 		 NULL );
 	}

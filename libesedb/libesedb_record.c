@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libesedb_compression.h"
+#include "libesedb_data_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
@@ -38,7 +39,6 @@
 #include "libesedb_record.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
-#include "libesedb_values_tree_value.h"
 
 /* Creates a record
  * Make sure the value record is referencing, is set to NULL
@@ -54,15 +54,13 @@ int libesedb_record_initialize(
      libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_node_t *values_tree_node,
-     libfcache_cache_t *values_cache,
-     libfdata_tree_t *long_values_tree,
+     libesedb_data_definition_t *data_definition,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      libcerror_error_t **error )
 {
-	libesedb_internal_record_t *internal_record     = NULL;
-	libesedb_values_tree_value_t *values_tree_value = NULL;
-	static char *function                           = "libesedb_record_initialize";
+	libesedb_internal_record_t *internal_record = NULL;
+	static char *function                       = "libesedb_record_initialize";
 
 	if( record == NULL )
 	{
@@ -153,25 +151,8 @@ int libesedb_record_initialize(
 
 		goto on_error;
 	}
-	if( libfdata_tree_node_get_node_value(
-	     values_tree_node,
-	     (intptr_t *) file_io_handle,
-	     values_cache,
-	     (intptr_t **) &values_tree_value,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve node value from values tree node.",
-		 function );
-
-		goto on_error;
-	}
-	if( libesedb_values_tree_value_read_record(
-	     values_tree_value,
+	if( libesedb_data_definition_read_record(
+	     data_definition,
 	     file_io_handle,
 	     io_handle,
 	     pages_vector,
@@ -185,7 +166,7 @@ int libesedb_record_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read values tree value record.",
+		 "%s: unable to read data definition record.",
 		 function );
 
 		goto on_error;

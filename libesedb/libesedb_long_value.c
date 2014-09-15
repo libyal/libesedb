@@ -24,15 +24,15 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_data_definition.h"
 #include "libesedb_data_segment.h"
 #include "libesedb_definitions.h"
+#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_long_value.h"
-#include "libesedb_values_tree.h"
-#include "libesedb_values_tree_value.h"
 
 /* Creates a long value
  * Make sure the value long_value is referencing, is set to NULL
@@ -45,7 +45,7 @@ int libesedb_long_value_initialize(
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_t *long_values_tree,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,
@@ -53,8 +53,9 @@ int libesedb_long_value_initialize(
 {
 	uint8_t long_value_segment_key[ 8 ];
 
+	libesedb_data_definition_t *data_definition         = NULL;
 	libesedb_internal_long_value_t *internal_long_value = NULL;
-	libesedb_values_tree_value_t *values_tree_value     = NULL;
+	libesedb_key_t *key                                 = NULL;
 	static char *function                               = "libesedb_long_value_initialize";
 	uint32_t long_value_segment_offset                  = 0;
 	int result                                          = 0;
@@ -179,27 +180,70 @@ int libesedb_long_value_initialize(
 
 		goto on_error;
 	}
-	if( libesedb_values_tree_get_value_by_key(
-	     long_values_tree,
-	     file_io_handle,
-	     long_values_cache,
+	if( libesedb_key_initialize(
+	     &key,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create key.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_key_set_data(
+	     key,
 	     long_value_key,
 	     long_value_key_size,
-	     &values_tree_value,
-	     LIBESEDB_PAGE_KEY_FLAG_REVERSED_KEY,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set long value key data in key.",
+		 function );
+
+		goto on_error;
+	}
+	key->type = LIBESEDB_KEY_TYPE_LONG_VALUE;
+
+	if( libfdata_btree_get_leaf_value_by_key(
+	     long_values_tree,
+	     (intptr_t *) file_io_handle,
+	     long_values_cache,
+	     (intptr_t *) key,
+	     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+	     (intptr_t **) &data_definition,
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve values tree value.",
+		 "%s: unable to retrieve leaf value by key.",
 		 function );
 
 		goto on_error;
 	}
-	if( libesedb_values_tree_value_read_long_value(
-	     values_tree_value,
+	if( libesedb_key_free(
+	     &key,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free key.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_data_definition_read_long_value(
+	     data_definition,
 	     file_io_handle,
 	     long_values_pages_vector,
 	     long_values_pages_cache,
@@ -209,12 +253,12 @@ int libesedb_long_value_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read values tree value long value.",
+		 "%s: unable to read data definition long value.",
 		 function );
 
 		goto on_error;
 	}
-	/* Reverse the reversed-key
+	/* Reverse the reversed long value key
 	 */
 	long_value_segment_key[ 0 ] = long_value_key[ 3 ];
 	long_value_segment_key[ 1 ] = long_value_key[ 2 ];
@@ -227,13 +271,43 @@ int libesedb_long_value_initialize(
 		 &( long_value_segment_key[ 4 ] ),
 		 long_value_segment_offset );
 
-		result = libesedb_values_tree_get_value_by_key(
+		if( libesedb_key_initialize(
+		     &key,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create key.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_key_set_data(
+		     key,
+		     long_value_segment_key,
+		     8,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set long value segment key data in key.",
+			 function );
+
+			goto on_error;
+		}
+		key->type = LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT;
+
+		result = libfdata_btree_get_leaf_value_by_key(
 			  long_values_tree,
-			  file_io_handle,
+			  (intptr_t *) file_io_handle,
 			  long_values_cache,
-			  long_value_segment_key,
-			  8,
-			  &values_tree_value,
+		          (intptr_t *) key,
+		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+		          (intptr_t **) &data_definition,
 			  0,
 			  error );
 
@@ -243,15 +317,28 @@ int libesedb_long_value_initialize(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve values tree value.",
+			 "%s: unable to retrieve leaf value by key.",
 			 function );
 
 			goto on_error;
 		}
-		else if( result != 0 )
+		if( libesedb_key_free(
+		     &key,
+		     error ) != 1 )
 		{
-			if( libesedb_values_tree_value_read_long_value_segment(
-			     values_tree_value,
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free key.",
+			 function );
+
+			goto on_error;
+		}
+		if( result != 0 )
+		{
+			if( libesedb_data_definition_read_long_value_segment(
+			     data_definition,
 			     file_io_handle,
 			     io_handle,
 			     long_values_pages_vector,
@@ -264,12 +351,12 @@ int libesedb_long_value_initialize(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_IO,
 				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read values tree value long value.",
+				 "%s: unable to read data definition long value segment.",
 				 function );
 
 				goto on_error;
 			}
-			long_value_segment_offset += values_tree_value->data_size;
+			long_value_segment_offset += data_definition->data_size;
 		}
 	}
 	while( result == 1 );
@@ -282,6 +369,12 @@ int libesedb_long_value_initialize(
 	return( 1 );
 
 on_error:
+	if( key != NULL )
+	{
+		libesedb_key_free(
+		 &key,
+		 NULL );
+	}
 	if( internal_long_value != NULL )
 	{
 		if( internal_long_value->data_segments_cache != NULL )

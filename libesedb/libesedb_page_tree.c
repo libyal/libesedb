@@ -24,9 +24,11 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_data_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
+#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
@@ -36,7 +38,6 @@
 #include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_unused.h"
-#include "libesedb_values_tree_value.h"
 
 #include "esedb_page_values.h"
 
@@ -351,7 +352,7 @@ int libesedb_page_tree_read_root_page(
 	 ( (esedb_root_page_header_t *) page_value->data )->space_tree_page_number,
 	 space_tree_page_number );
 
-	/* TODO handle the root page header */
+/* TODO handle the root page header */
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
@@ -396,7 +397,6 @@ int libesedb_page_tree_read_root_page(
 		 "\n" );
 	}
 #endif
-
 	/* Read the space tree pages
 	 */
 	if( extent_space > 0 )
@@ -691,8 +691,7 @@ int libesedb_page_tree_read_space_tree_page(
 			return( -1 );
 		}
 	}
-	/* TODO handle the space tree page header */
-
+/* TODO handle the space tree page header */
 	for( page_value_index = 1;
 	     page_value_index < number_of_page_values;
 	     page_value_index++ )
@@ -871,7 +870,7 @@ int libesedb_page_tree_read_space_tree_page(
 			}
 #endif
 #ifdef TODO
-			/* TODO handle parent space tree pages */
+/* TODO handle parent space tree pages */
 			if( libesedb_page_tree_read_space_tree_page(
 			     page_tree,
 			     file_io_handle,
@@ -914,23 +913,30 @@ int libesedb_page_tree_read_page(
      libbfio_handle_t *file_io_handle,
      off64_t page_offset,
      uint32_t page_number,
-     libfdata_tree_node_t *value_tree_node,
-     libesedb_values_tree_value_t *values_tree_value,
+     libfdata_btree_node_t *node,
      libcerror_error_t **error )
 {
-	libesedb_page_t *page             = NULL;
-	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_page_tree_read_page";
-	off64_t element_data_offset       = 0;
-	off64_t node_data_offset          = 0;
-	uint32_t supported_flags          = 0;
-	uint16_t number_of_page_values    = 0;
-	uint16_t page_value_index         = 0;
-	int sub_node_index                = 0;
+	libesedb_key_t *key                      = NULL;
+	libesedb_page_value_t *header_page_value = NULL;
+	libesedb_page_t *page                    = NULL;
+	libesedb_page_value_t *page_value        = NULL;
+	uint8_t *page_value_data                 = NULL;
+	static char *function                    = "libesedb_page_tree_read_page";
+	off64_t element_data_offset              = 0;
+	off64_t sub_node_data_offset             = 0;
+	uint32_t child_page_number               = 0;
+	uint32_t supported_flags                 = 0;
+	uint16_t common_key_size                 = 0;
+	uint16_t local_key_size                  = 0;
+	uint16_t number_of_page_values           = 0;
+	uint16_t page_value_index                = 0;
+	uint16_t page_value_offset               = 0;
+	uint16_t page_value_size                 = 0;
+	int element_index                        = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *page_key_data            = NULL;
-	size_t page_key_size              = 0;
+	uint8_t *page_key_data                   = NULL;
+	size_t page_key_size                     = 0;
 #endif
 
 	if( page_tree == NULL )
@@ -955,17 +961,6 @@ int libesedb_page_tree_read_page(
 
 		return( -1 );
 	}
-	if( values_tree_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid values tree value.",
-		 function );
-
-		return( -1 );
-	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     (intptr_t *) file_io_handle,
@@ -985,7 +980,7 @@ int libesedb_page_tree_read_page(
 		 page_number,
 		 page_offset );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( page == NULL )
 	{
@@ -996,7 +991,7 @@ int libesedb_page_tree_read_page(
 		 "%s: missing page.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
 	{
@@ -1023,12 +1018,71 @@ int libesedb_page_tree_read_page(
 		 function,
 		 page->flags );
 
-		return( -1 );
+		goto on_error;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
+	{
+/* TODO uncache the root page?
+ */
+		if( libesedb_page_tree_read_root_page(
+		     page_tree,
+		     file_io_handle,
+		     page_offset,
+		     page_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read root page: %" PRIu32 ".",
+			 function,
+			 page_number );
+
+			goto on_error;
+		}
+		/* Since the previous function reads the space tree
+		 * page can be cached out and we must be sure to re-read it.
+		 */
+		if( libfdata_vector_get_element_value_at_offset(
+		     page_tree->pages_vector,
+		     (intptr_t *) file_io_handle,
+		     page_tree->pages_cache,
+		     page_offset,
+		     &element_data_offset,
+		     (intptr_t **) &page,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
+			 function,
+			 page_number,
+			 page_offset );
+
+			goto on_error;
+		}
+		if( page == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing page.",
+			 function );
+
+			goto on_error;
+		}
+	}
+#endif
 	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 #ifdef TODO
-		/* TODO refactor */
+/* TODO refactor */
 			if( libcnotify_verbose != 0 )
 			{
 				if( page_value_index > 1 )
@@ -1091,7 +1145,7 @@ int libesedb_page_tree_read_page(
 			 function,
 			 page->previous_page_number );
 
-			return( -1 );
+			goto on_error;
 		}
 		if( page->next_page_number != 0 )
 		{
@@ -1103,7 +1157,7 @@ int libesedb_page_tree_read_page(
 			 function,
 			 page->next_page_number );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	if( libesedb_page_get_number_of_values(
@@ -1118,100 +1172,12 @@ int libesedb_page_tree_read_page(
 		 "%s: unable to retrieve number of page values.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( number_of_page_values == 0 )
 	{
 		return( 1 );
 	}
-	if( libesedb_page_get_value(
-	     page,
-	     page_value_index,
-	     &page_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page value: %" PRIu16 ".",
-		 function,
-		 page_value_index );
-
-		return( -1 );
-	}
-	if( page_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing page value: %" PRIu16 ".",
-		 function,
-		 page_value_index );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " value:\n",
-		 function,
-		 page_value_index );
-		libcnotify_print_data(
-		 page_value->data,
-		 (size_t) page_value->size,
-		 0 );
-
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
-		 function,
-		 page_value_index,
-		 page_value->flags );
-		libesedb_debug_print_page_tag_flags(
-		 page_value->flags );
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
-	{
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "\n" );
-		}
-#endif
-		/* TODO */
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	else if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " common page key\t\t: ",
-		 function,
-		 page_value_index );
-
-		page_key_data = page_value->data;
-		page_key_size = page_value->size;
-
-		while( page_key_size > 0 )
-		{
-			libcnotify_printf(
-			 "%02" PRIx8 " ",
-			 *page_key_data );
-
-			page_key_data++;
-			page_key_size--;
-		}
-		libcnotify_printf(
-		 "\n" );
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
 	for( page_value_index = 1;
 	     page_value_index < number_of_page_values;
 	     page_value_index++ )
@@ -1230,306 +1196,191 @@ int libesedb_page_tree_read_page(
 			 function,
 			 page_value_index );
 
-			return( -1 );
+			goto on_error;
 		}
-		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) == 0 )
+		if( page_value == NULL )
 		{
-			node_data_offset = page_offset + page_value->offset;
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing page value: %" PRIu16 ".",
+			 function,
+			 page_value_index );
 
-			if( libfdata_tree_node_append_sub_node(
-			     value_tree_node,
-			     &sub_node_index,
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: page value: %03" PRIu16 " data:\n",
+			 function,
+			 page_value_index );
+			libcnotify_print_data(
+			 page_value->data,
+			 (size_t) page_value->size,
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+
+			libcnotify_printf(
+			 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
+			 function,
+			 page_value_index,
+			 page_value->flags );
+			libesedb_debug_print_page_tag_flags(
+			 page_value->flags );
+
+			libcnotify_printf(
+			 "\n" );
+		}
+#endif
+		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_IS_DEFUNCT ) != 0 )
+		{
+			continue;
+		}
+/* TODO are defunct data definition of any value recovering
+ */
+		page_value_data   = page_value->data;
+		page_value_offset = page_value->offset;
+		page_value_size   = page_value->size;
+
+		if( libesedb_key_initialize(
+		     &key,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create key.",
+			 function );
+
+			goto on_error;
+		}
+		if( key == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing key.",
+			 function );
+
+			goto on_error;
+		}
+		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
+		{
+			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported page flags - root flag is set.",
+				 function );
+
+				goto on_error;
+			}
+			if( libesedb_page_get_value(
+			     page,
 			     0,
-			     node_data_offset,
-			     (size64_t) page_value_index,
-			     0,
+			     &header_page_value,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append page: %" PRIu32 " value: %" PRIu16 " as sub node.",
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve page value: 0.",
+				 function );
+
+				goto on_error;
+			}
+			if( header_page_value == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: missing page value: 0.",
+				 function );
+
+				goto on_error;
+			}
+			byte_stream_copy_to_uint16_little_endian(
+			 page_value_data,
+			 common_key_size );
+
+			page_value_data   += 2;
+			page_value_offset += 2;
+			page_value_size   -= 2;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " common key size\t\t: %" PRIu16 "\n",
 				 function,
-				 page_number,
+				 page_value_index,
+				 common_key_size );
+			}
+#endif
+			if( common_key_size > header_page_value->size )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: common key size exceeds header page value size.",
+				 function );
+
+				goto on_error;
+			}
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " common key value\t\t: ",
+				 function,
 				 page_value_index );
 
-				return( -1 );
+				page_key_data = header_page_value->data;
+				page_key_size = common_key_size;
+
+				while( page_key_size > 0 )
+				{
+					if( libcnotify_verbose != 0 )
+					{
+						libcnotify_printf(
+						 "%02" PRIx8 " ",
+						 *page_key_data );
+					}
+					page_key_data++;
+					page_key_size--;
+				}
+				libcnotify_printf(
+				 "\n" );
 			}
-		}
-		/* TODO are defunct data definition of any value recovering
-		 */
-	}
-	return( 1 );
-}
-
-/* Reads a page value
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_tree_read_page_value(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     off64_t page_offset,
-     uint32_t page_number,
-     uint16_t page_value_index,
-     libfdata_tree_node_t *value_tree_node,
-     libesedb_values_tree_value_t *values_tree_value,
-     libcerror_error_t **error )
-{
-	libesedb_page_value_t *header_page_value = NULL;
-	libesedb_page_t *page                    = NULL;
-	libesedb_page_value_t *page_value        = NULL;
-	uint8_t *page_value_data                 = NULL;
-	static char *function                    = "libesedb_page_tree_read_page_value";
-	off64_t element_data_offset              = 0;
-	off64_t sub_nodes_offset                 = 0;
-	uint32_t child_page_number               = 0;
-	uint16_t common_key_size                 = 0;
-	uint16_t local_key_size                  = 0;
-	uint16_t number_of_page_values           = 0;
-	uint16_t page_value_offset               = 0;
-	uint16_t page_value_size                 = 0;
-	int result                               = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *page_key_data                   = NULL;
-	size_t page_key_size                     = 0;
 #endif
+			if( libesedb_key_set_data(
+			     key,
+			     header_page_value->data,
+			     common_key_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+				 "%s: unable to set common key data in key.",
+				 function );
 
-	if( page_tree == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tree->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page tree - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( values_tree_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tree values.",
-		 function );
-
-		return( -1 );
-	}
-	if( libfdata_vector_get_element_value_at_offset(
-	     page_tree->pages_vector,
-	     (intptr_t *) file_io_handle,
-	     page_tree->pages_cache,
-	     page_offset,
-	     &element_data_offset,
-	     (intptr_t **) &page,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
-		 function,
-		 page_number,
-		 page_offset );
-
-		return( -1 );
-	}
-	if( page == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing page.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
-	{
-		if( libesedb_page_tree_read_root_page(
-		     page_tree,
-		     file_io_handle,
-		     page_offset,
-		     page_number,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read root page: %" PRIu32 ".",
-			 function,
-			 page_number );
-
-			return( -1 );
-		}
-		if( libfdata_vector_get_element_value_at_offset(
-		     page_tree->pages_vector,
-		     (intptr_t *) file_io_handle,
-		     page_tree->pages_cache,
-		     page_offset,
-		     &element_data_offset,
-		     (intptr_t **) &page,
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve page: %" PRIu32 " at offset: 0x%08" PRIx64 ".",
-			 function,
-			 page_number,
-			 page_offset );
-
-			return( -1 );
-		}
-		if( page == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing page.",
-			 function );
-
-			return( -1 );
-		}
-	}
-#endif
-	if( libesedb_page_get_number_of_values(
-	     page,
-	     &number_of_page_values,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of page values.",
-		 function );
-
-		return( -1 );
-	}
-	if( number_of_page_values == 0 )
-	{
-		return( 1 );
-	}
-	if( libesedb_page_get_value(
-	     page,
-	     page_value_index,
-	     &page_value,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page value: %" PRIu16 ".",
-		 function,
-		 page_value_index );
-
-		return( -1 );
-	}
-	if( page_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing page value: %" PRIu16 ".",
-		 function,
-		 page_value_index );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " data:\n",
-		 function,
-		 page_value_index );
-		libcnotify_print_data(
-		 page_value->data,
-		 (size_t) page_value->size,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " page tag flags\t\t: 0x%02" PRIx8 "",
-		 function,
-		 page_value_index,
-		 page_value->flags );
-		libesedb_debug_print_page_tag_flags(
-		 page_value->flags );
-
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	page_value_data = page_value->data;
-	page_value_size = page_value->size;
-
-	if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
-	{
-		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported page flags - root flag is set.",
-			 function );
-
-			return( -1 );
-		}
-		if( libesedb_page_get_value(
-		     page,
-		     0,
-		     &header_page_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve page value: 0.",
-			 function );
-
-			return( -1 );
-		}
-		if( header_page_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing page value: 0.",
-			 function );
-
-			return( -1 );
+				goto on_error;
+			}
 		}
 		byte_stream_copy_to_uint16_little_endian(
 		 page_value_data,
-		 common_key_size );
+		 local_key_size );
 
 		page_value_data   += 2;
 		page_value_offset += 2;
@@ -1539,33 +1390,33 @@ int libesedb_page_tree_read_page_value(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " common key size\t\t: %" PRIu16 "\n",
+			 "%s: page value: %03" PRIu16 " local key size\t\t: %" PRIu16 "\n",
 			 function,
 			 page_value_index,
-			 common_key_size );
+			 local_key_size );
 		}
 #endif
-		if( common_key_size > header_page_value->size )
+		if( local_key_size > page_value_size )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: common key size exceeds header page value size.",
+			 "%s: local key size exceeds page value size.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " common key value\t\t: ",
+			 "%s: page value: %03" PRIu16 " local key value\t\t: ",
 			 function,
 			 page_value_index );
 
-			page_key_data = header_page_value->data;
-			page_key_size = common_key_size;
+			page_key_data = page_value_data;
+			page_key_size = local_key_size;
 
 			while( page_key_size > 0 )
 			{
@@ -1582,278 +1433,219 @@ int libesedb_page_tree_read_page_value(
 			 "\n" );
 		}
 #endif
-		if( libesedb_values_tree_value_set_key_common(
-		     values_tree_value,
-		     header_page_value->data,
-		     common_key_size,
+		if( libesedb_key_append_data(
+		     key,
+		     page_value_data,
+		     local_key_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set common key in page tree values.",
+			 "%s: unable to append local key data to key.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
-	}
-	byte_stream_copy_to_uint16_little_endian(
-	 page_value_data,
-	 local_key_size );
-
-	page_value_data   += 2;
-	page_value_offset += 2;
-	page_value_size   -= 2;
+		page_value_data   += local_key_size;
+		page_value_offset += local_key_size;
+		page_value_size   -= local_key_size;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " local key size\t\t: %" PRIu16 "\n",
-		 function,
-		 page_value_index,
-		 local_key_size );
-	}
-#endif
-	if( local_key_size > page_value_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: local key size exceeds page value size.",
-		 function );
-
-		return( -1 );
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " local key value\t\t: ",
-		 function,
-		 page_value_index );
-
-		page_key_data = page_value_data;
-		page_key_size = local_key_size;
-
-		while( page_key_size > 0 )
+		if( libcnotify_verbose != 0 )
 		{
-			if( libcnotify_verbose != 0 )
+			libcnotify_printf(
+			 "%s: page value: %03" PRIu16 " key value\t\t\t: ",
+			 function,
+			 page_value_index );
+
+			page_key_data = key->data;
+			page_key_size = key->data_size;
+
+			while( page_key_size > 0 )
 			{
 				libcnotify_printf(
 				 "%02" PRIx8 " ",
 				 *page_key_data );
+
+				page_key_data++;
+				page_key_size--;
 			}
-			page_key_data++;
-			page_key_size--;
-		}
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	if( libesedb_values_tree_value_set_key_local(
-	     values_tree_value,
-	     page_value_data,
-	     local_key_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set local key in page tree values.",
-		 function );
-
-		return( -1 );
-	}
-	page_value_data   += local_key_size;
-	page_value_offset += local_key_size;
-	page_value_size   -= local_key_size;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page value: %03" PRIu16 " key value\t\t\t: ",
-		 function,
-		 page_value_index );
-
-		page_key_data = values_tree_value->key;
-		page_key_size = values_tree_value->key_size;
-
-		while( page_key_size > 0 )
-		{
-			libcnotify_printf(
-			 "%02" PRIx8 " ",
-			 *page_key_data );
-
-			page_key_data++;
-			page_key_size--;
-		}
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	values_tree_value->data_offset = page_value_offset;
-	values_tree_value->data_size   = page_value_size;
-
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
-	{
-		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_INDEX ) != 0 )
-		{
-			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_INDEX;
-		}
-		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LONG_VALUE ) != 0 )
-		{
-			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_LONG_VALUE;
-		}
-		else
-		{
-			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_RECORD;
-		}
-		if( libfdata_tree_node_set_leaf(
-		     value_tree_node,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to make value tree node a leaf.",
-			 function );
-
-			return( -1 );
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
 			libcnotify_printf(
 			 "\n" );
 		}
 #endif
-	}
-	else
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 page_value_data,
-		 child_page_number );
-
-		page_value_data += 4;
-		page_value_size -= 4;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
+		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 		{
-			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " child page number\t\t: %" PRIu32 "",
-			 function,
-			 page_value_index,
-			 child_page_number );
-
-			if( child_page_number == 0 )
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 " (invalid page number)\n" );
+				 "\n" );
 			}
-			else if( child_page_number > page_tree->io_handle->last_page_number )
-			{
-				libcnotify_printf(
-				 " (exceeds last page number: %" PRIu32 ")\n",
-				 page_tree->io_handle->last_page_number );
-			}
-			libcnotify_printf(
-			 "\n" );
-			libcnotify_printf(
-			 "\n" );
-		}
 #endif
-		if( ( child_page_number > 0 )
-		 && ( child_page_number <= page_tree->io_handle->last_page_number ) )
-		{
-			result = libfdata_tree_node_sub_nodes_data_range_is_set(
-			          value_tree_node,
-			          error );
+			key->type = LIBESEDB_KEY_TYPE_LEAF;
 
-			if( result == -1 )
+			if( libfdata_btree_node_append_leaf_value(
+			     node,
+			     &element_index,
+			     (int) page_value_index,
+			     page_offset + page_value_offset,
+			     (size64_t) page_value_size,
+			     0,
+			     (intptr_t *) key,
+			     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_key_free,
+			     LIBFDATA_KEY_VALUE_FLAG_MANAGED,
+			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to determine if sub nodes range of child page number: %" PRIu32 " is set.",
+				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+				 "%s: unable to append page: %" PRIu32 " value: %" PRIu16 " as leaf value.",
 				 function,
+				 page_number,
+				 page_value_index );
+
+				goto on_error;
+			}
+			key = NULL;
+		}
+		else
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 page_value_data,
+			 child_page_number );
+
+			page_value_data += 4;
+			page_value_size -= 4;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " child page number\t\t: %" PRIu32 "",
+				 function,
+				 page_value_index,
 				 child_page_number );
 
-				return( -1 );
+				if( child_page_number == 0 )
+				{
+					libcnotify_printf(
+					 " (invalid page number)\n" );
+				}
+				else if( child_page_number > page_tree->io_handle->last_page_number )
+				{
+					libcnotify_printf(
+					 " (exceeds last page number: %" PRIu32 ")\n",
+					 page_tree->io_handle->last_page_number );
+				}
+				libcnotify_printf(
+				 "\n" );
+				libcnotify_printf(
+				 "\n" );
 			}
-			else if( result == 0 )
+#endif
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( libcnotify_verbose != 0 )
+			 && ( page_value_size > 0 ) )
 			{
-				sub_nodes_offset  = child_page_number - 1;
-				sub_nodes_offset *= page_tree->io_handle->page_size;
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " trailing data:\n",
+				 function,
+				 page_value_index );
+				libcnotify_print_data(
+				 page_value_data,
+				 page_value_size,
+				 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+			}
+#endif
+			if( ( child_page_number > 0 )
+			 && ( child_page_number <= page_tree->io_handle->last_page_number ) )
+			{
+				sub_node_data_offset  = child_page_number - 1;
+				sub_node_data_offset *= page_tree->io_handle->page_size;
 
-				if( libfdata_tree_node_set_sub_nodes_data_range(
-				     value_tree_node,
+				key->type = LIBESEDB_KEY_TYPE_BRANCH;
+
+				if( libfdata_btree_node_append_sub_node(
+				     node,
+				     &element_index,
 				     0,
-				     sub_nodes_offset,
+				     sub_node_data_offset,
+				     (size64_t) page_tree->io_handle->page_size,
 				     0,
-				     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
+				     (intptr_t *) key,
+				     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_key_free,
+				     LIBFDATA_KEY_VALUE_FLAG_MANAGED,
 				     error ) != 1 )
 				{
 					libcerror_error_set(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-					 "%s: unable to set child page number: %" PRIu32 " as sub nodes range.",
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable to append page: %" PRIu32 " value: %" PRIu16 " as sub node.",
 					 function,
-					 child_page_number );
+					 page_number,
+					 page_value_index );
 
-					return( -1 );
+					goto on_error;
 				}
+				key = NULL;
 			}
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( ( libcnotify_verbose != 0 )
-		 && ( page_value_size > 0 ) )
+		if( key != NULL )
 		{
-			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " trailing data:\n",
-			 function,
-			 page_value_index );
-			libcnotify_print_data(
-			 page_value_data,
-			 page_value_size,
-			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+			if( libesedb_key_free(
+			     &key,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free key.",
+				 function );
+
+				goto on_error;
+			}
 		}
-#endif
-		values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
 	}
 	return( 1 );
+
+on_error:
+	if( key != NULL )
+	{
+		libesedb_key_free(
+		 &key,
+		 NULL );
+	}
+	return( -1 );
 }
 
-/* Reads a page tree node value
+/* Reads a page tree node
+ * Callback function for the page tree
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_node_value(
+int libesedb_page_tree_read_node(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
-     libfcache_cache_t *cache,
+     libfdata_btree_node_t *node,
      int node_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t node_data_offset,
      size64_t node_data_size,
      uint32_t node_data_flags LIBESEDB_ATTRIBUTE_UNUSED,
+     intptr_t *key_value LIBESEDB_ATTRIBUTE_UNUSED,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	libesedb_values_tree_value_t *values_tree_value = NULL;
-	static char *function                           = "libesedb_page_tree_read_node_value";
-	uint64_t page_number                            = 0;
-	int result                                      = 0;
+	static char *function = "libesedb_page_tree_read_node";
+	uint64_t page_number  = 0;
 
 	LIBESEDB_UNREFERENCED_PARAMETER( node_data_file_index );
 	LIBESEDB_UNREFERENCED_PARAMETER( node_data_flags );
+	LIBESEDB_UNREFERENCED_PARAMETER( key_value );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( page_tree == NULL )
@@ -1924,169 +1716,52 @@ int libesedb_page_tree_read_node_value(
 
 		return( -1 );
 	}
-	if( libesedb_values_tree_value_initialize(
-	     &values_tree_value,
+	if( libesedb_page_tree_read_page(
+	     page_tree,
+	     file_io_handle,
+	     node_data_offset,
+	     (uint32_t) page_number,
+	     node,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create values tree value.",
-		 function );
-
-		goto on_error;
-	}
-	if( values_tree_value == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing values tree value.",
-		 function );
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page: %" PRIu64 " at offset: 0x%08" PRIx64 ".",
+		 function,
+		 page_number,
+		 node_data_offset );
 
 		return( -1 );
 	}
-	values_tree_value->page_offset      = node_data_offset;
-	values_tree_value->page_number      = (uint32_t) page_number;
-	values_tree_value->page_value_index = (uint16_t) node_data_size;
-
-	result = libfdata_tree_node_is_root(
-	          node,
-	          error );
-
-	if( result == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if node is the root.",
-		 function );
-
-		goto on_error;
-	}
-	else if( result != 0 )
-	{
-		result = libfdata_tree_node_sub_nodes_data_range_is_set(
-		          node,
-		          error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to determine if sub nodes range of page: %" PRIu64 " is set.",
-			 function,
-			 page_number );
-
-			return( -1 );
-		}
-		else if( result == 0 )
-		{
-			/* The values tree root node is virtual
-			 */
-			if( libfdata_tree_node_set_sub_nodes_data_range(
-			     node,
-			     0,
-			     node_data_offset,
-			     0,
-			     LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable to set page: %" PRIu64 " as sub node range.",
-				 function,
-				 page_number );
-
-				goto on_error;
-			}
-			values_tree_value->type = LIBESEDB_VALUES_TREE_VALUE_TYPE_NODE;
-		}
-	}
-	else
-	{
-		/* node_data_size contains the page value index
-		 */
-		if( libesedb_page_tree_read_page_value(
-		     page_tree,
-		     file_io_handle,
-		     node_data_offset,
-		     (uint32_t) page_number,
-		     (uint16_t) node_data_size,
-		     node,
-		     values_tree_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read page: %" PRIu64 " value: %" PRIu64 ".",
-			 function,
-			 page_number,
-			 node_data_size );
-
-			goto on_error;
-		}
-	}
-	if( libfdata_tree_node_set_node_value(
-	     node,
-	     cache,
-	     (intptr_t *) values_tree_value,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_values_tree_value_free,
-	     LIBFDATA_TREE_NODE_VALUE_FLAG_MANAGED,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set values tree value as node value.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
-
-on_error:
-	if( values_tree_value != NULL )
-	{
-		libesedb_values_tree_value_free(
-		 &values_tree_value,
-		 NULL );
-	}
-	return( -1 );
 }
 
-/* Reads a page tree sub nodes
+/* Reads a page tree leaf value
+ * Callback function for the page tree
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_tree_read_sub_nodes(
+int libesedb_page_tree_read_leaf_value(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
-     libfdata_tree_node_t *node,
+     libfdata_btree_t *tree,
      libfcache_cache_t *cache,
-     int sub_nodes_data_file_index LIBESEDB_ATTRIBUTE_UNUSED,
-     off64_t sub_nodes_data_offset,
-     size64_t sub_nodes_data_size LIBESEDB_ATTRIBUTE_UNUSED,
-     uint32_t sub_nodes_data_flags LIBESEDB_ATTRIBUTE_UNUSED,
+     int leaf_value_index,
+     int leaf_value_data_file_index,
+     off64_t leaf_value_data_offset,
+     size64_t leaf_value_data_size,
+     uint32_t leaf_value_data_flags LIBESEDB_ATTRIBUTE_UNUSED,
+     intptr_t *key_value,
      uint8_t read_flags LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	libesedb_values_tree_value_t *values_tree_value = NULL;
-	static char *function                           = "libesedb_page_tree_read_sub_nodes";
-	uint64_t page_number                            = 0;
+	libesedb_data_definition_t *data_definition = NULL;
+	static char *function                       = "libesedb_page_tree_read_leaf_value";
+	off64_t page_offset                         = 0;
+	uint64_t page_number                        = 0;
 
-	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_file_index );
-	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_size );
-	LIBESEDB_UNREFERENCED_PARAMETER( sub_nodes_data_flags );
+	LIBESEDB_UNREFERENCED_PARAMETER( leaf_value_data_flags );
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags );
 
 	if( page_tree == NULL )
@@ -2122,18 +1797,42 @@ int libesedb_page_tree_read_sub_nodes(
 
 		return( -1 );
 	}
-	if( sub_nodes_data_offset < 0 )
+	if( leaf_value_data_file_index < 0 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
-		 "%s: invalid sub nodes data offset value less than zero.",
+		 "%s: invalid leaf value data file index value less than zero.",
 		 function );
 
 		return( -1 );
 	}
-	page_number = (uint64_t) ( ( sub_nodes_data_offset / page_tree->io_handle->page_size ) + 1 );
+	if( leaf_value_data_offset < 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
+		 "%s: invalid leaf value data offset value less than zero.",
+		 function );
+
+		return( -1 );
+	}
+	if( leaf_value_data_size > (off64_t) UINT16_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_LESS_THAN_ZERO,
+		 "%s: invalid leaf value data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	page_offset  = leaf_value_data_offset / page_tree->io_handle->page_size;
+	page_number  = (uint64_t) ( page_offset + 1 );
+	page_offset *= page_tree->io_handle->page_size;
 
 	if( page_number > (uint64_t) UINT32_MAX )
 	{
@@ -2146,54 +1845,65 @@ int libesedb_page_tree_read_sub_nodes(
 
 		return( -1 );
 	}
-	if( libfdata_tree_node_get_node_value(
-	     node,
-	     (intptr_t *) file_io_handle,
-	     cache,
-	     (intptr_t **) &values_tree_value,
-	     0,
+	if( libesedb_data_definition_initialize(
+	     &data_definition,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve node value.",
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data definition.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( values_tree_value == NULL )
+	if( data_definition == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing values tree value.",
+		 "%s: missing data definition.",
 		 function );
 
 		return( -1 );
 	}
-	if( libesedb_page_tree_read_page(
-	     page_tree,
-	     file_io_handle,
-	     sub_nodes_data_offset,
-	     (uint32_t) page_number,
-	     node,
-	     values_tree_value,
+	/* leaf_value_data_file_index contains the page value index
+	 */
+	data_definition->page_value_index = (uint16_t) leaf_value_data_file_index;
+	data_definition->page_offset      = leaf_value_data_offset;
+	data_definition->page_number      = (uint32_t) page_number;
+	data_definition->data_offset      = leaf_value_data_offset - page_offset;
+
+	if( libfdata_btree_set_leaf_value_by_index(
+	     tree,
+	     (intptr_t *) file_io_handle,
+	     cache,
+	     leaf_value_index,
+	     (intptr_t *) data_definition,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_data_definition_free,
+	     LIBFDATA_BTREE_LEAF_VALUE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page: %" PRIu64 " at offset: 0x%08" PRIx64 ".",
-		 function,
-		 page_number,
-		 sub_nodes_data_offset );
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+		 "%s: unable to set data definition as leaf value.",
+		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( data_definition != NULL )
+	{
+		libesedb_data_definition_free(
+		 &data_definition,
+		 NULL );
+	}
+	return( -1 );
 }
 

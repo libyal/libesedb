@@ -24,6 +24,7 @@
 #include <types.h>
 
 #include "libesedb_column.h"
+#include "libesedb_data_definition.h"
 #include "libesedb_definitions.h"
 #include "libesedb_index.h"
 #include "libesedb_io_handle.h"
@@ -37,7 +38,6 @@
 #include "libesedb_table.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
-#include "libesedb_values_tree_value.h"
 
 /* Creates a table
  * Make sure the value table is referencing, is set to NULL
@@ -154,7 +154,7 @@ int libesedb_table_initialize(
 	     NULL,
 	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
 	     NULL,
-	     LIBFDATA_FLAG_DATA_HANDLE_NON_MANAGED,
+	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -219,14 +219,14 @@ int libesedb_table_initialize(
 	}
 	/* TODO add clone function
 	 */
-	if( libfdata_tree_initialize(
+	if( libfdata_btree_initialize(
 	     &( internal_table->table_values_tree ),
 	     (intptr_t *) table_page_tree,
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
-	     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -259,7 +259,7 @@ int libesedb_table_initialize(
 	node_data_offset  = table_definition->table_catalog_definition->father_data_page_number - 1;
 	node_data_offset *= io_handle->page_size;
 
-	if( libfdata_tree_set_root_node(
+	if( libfdata_btree_set_root_node(
 	     internal_table->table_values_tree,
 	     0,
 	     node_data_offset,
@@ -271,7 +271,7 @@ int libesedb_table_initialize(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set root node in table values tree.",
+		 "%s: unable to set root node data range in table values tree.",
 		 function );
 
 		goto on_error;
@@ -288,7 +288,7 @@ int libesedb_table_initialize(
 		     NULL,
 		     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
 		     NULL,
-		     LIBFDATA_FLAG_DATA_HANDLE_NON_MANAGED,
+		     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -353,14 +353,14 @@ int libesedb_table_initialize(
 		}
 		/* TODO add clone function
 		 */
-		if( libfdata_tree_initialize(
+		if( libfdata_btree_initialize(
 		     &( internal_table->long_values_tree ),
 		     (intptr_t *) long_values_page_tree,
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 		     NULL,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node_value,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_tree_node_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_sub_nodes,
-		     LIBFDATA_FLAG_DATA_HANDLE_MANAGED,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -393,7 +393,7 @@ int libesedb_table_initialize(
 		node_data_offset  = table_definition->long_value_catalog_definition->father_data_page_number - 1;
 		node_data_offset *= io_handle->page_size;
 
-		if( libfdata_tree_set_root_node(
+		if( libfdata_btree_set_root_node(
 		     internal_table->long_values_tree,
 		     0,
 		     node_data_offset,
@@ -431,7 +431,7 @@ on_error:
 		}
 		if( internal_table->long_values_tree != NULL )
 		{
-			libfdata_tree_free(
+			libfdata_btree_free(
 			 &( internal_table->long_values_tree ),
 			 NULL );
 		}
@@ -455,7 +455,7 @@ on_error:
 		}
 		if( internal_table->table_values_tree != NULL )
 		{
-			libfdata_tree_free(
+			libfdata_btree_free(
 			 &( internal_table->table_values_tree ),
 			 NULL );
 		}
@@ -565,7 +565,7 @@ int libesedb_table_free(
 				result = -1;
 			}
 		}
-		if( libfdata_tree_free(
+		if( libfdata_btree_free(
 		     &( internal_table->table_values_tree ),
 		     error ) != 1 )
 		{
@@ -593,7 +593,7 @@ int libesedb_table_free(
 		}
 		if( internal_table->long_values_tree != NULL )
 		{
-			if( libfdata_tree_free(
+			if( libfdata_btree_free(
 			     &( internal_table->long_values_tree ),
 			     error ) != 1 )
 			{
@@ -1682,7 +1682,7 @@ int libesedb_table_get_number_of_records(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( libfdata_tree_get_number_of_leaf_nodes(
+	if( libfdata_btree_get_number_of_leaf_values(
 	     internal_table->table_values_tree,
 	     (intptr_t *) internal_table->file_io_handle,
 	     internal_table->table_values_cache,
@@ -1694,7 +1694,7 @@ int libesedb_table_get_number_of_records(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of leaf nodes from table values tree.",
+		 "%s: unable to retrieve number of leaf values from table values tree.",
 		 function );
 
 		return( -1 );
@@ -1711,9 +1711,10 @@ int libesedb_table_get_record(
      libesedb_record_t **record,
      libcerror_error_t **error )
 {
-	libfdata_tree_node_t *record_values_tree_node = NULL;
-	libesedb_internal_table_t *internal_table     = NULL;
-	static char *function                         = "libesedb_table_get_record";
+	libfdata_tree_node_t *record_values_tree_node      = NULL;
+	libesedb_data_definition_t *record_data_definition = NULL;
+	libesedb_internal_table_t *internal_table          = NULL;
+	static char *function                              = "libesedb_table_get_record";
 
 	if( table == NULL )
 	{
@@ -1750,12 +1751,12 @@ int libesedb_table_get_record(
 
 		return( -1 );
 	}
-	if( libfdata_tree_get_leaf_node_by_index(
+	if( libfdata_btree_get_leaf_value_by_index(
 	     internal_table->table_values_tree,
 	     (intptr_t *) internal_table->file_io_handle,
 	     internal_table->table_values_cache,
 	     record_entry,
-	     &record_values_tree_node,
+	     (intptr_t **) &record_data_definition,
 	     0,
 	     error ) != 1 )
 	{
@@ -1763,7 +1764,7 @@ int libesedb_table_get_record(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve leaf node: %d from table values tree.",
+		 "%s: unable to retrieve leaf value: %d from table values tree.",
 		 function,
 		 record_entry );
 
@@ -1779,8 +1780,7 @@ int libesedb_table_get_record(
 	     internal_table->pages_cache,
 	     internal_table->long_values_pages_vector,
 	     internal_table->long_values_pages_cache,
-	     record_values_tree_node,
-	     internal_table->table_values_cache,
+	     record_data_definition,
 	     internal_table->long_values_tree,
 	     internal_table->long_values_cache,
 	     error ) != 1 )

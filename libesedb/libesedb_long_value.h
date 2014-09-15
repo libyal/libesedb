@@ -52,7 +52,7 @@ struct libesedb_internal_long_value
 
 	/* The long values tree
 	 */
-	libfdata_tree_t *long_values_tree;
+	libfdata_btree_t *long_values_tree;
 
 	/* The long values cache
 	 */
@@ -74,7 +74,7 @@ int libesedb_long_value_initialize(
      libesedb_catalog_definition_t *column_catalog_definition,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_tree_t *long_values_tree,
+     libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      uint8_t *long_value_key,
      size_t long_value_key_size,

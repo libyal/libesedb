@@ -1,5 +1,5 @@
 /*
- * Column type functions
+ * Key functions
  *
  * Copyright (C) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,42 +19,59 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_COLUMN_TYPE_H )
-#define _LIBESEDB_COLUMN_TYPE_H
+#if !defined( _LIBESEDB_KEY_H )
+#define _LIBESEDB_KEY_H
 
 #include <common.h>
 #include <types.h>
+
+#include "libesedb_libcerror.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-#if defined( HAVE_DEBUG_OUTPUT )
+typedef struct libesedb_key libesedb_key_t;
 
-typedef struct libesedb_column_type libesedb_column_type_t;
-
-struct libesedb_column_type
+struct libesedb_key
 {
-	/* The column_type
+	/* The type
 	 */
-	uint32_t column_type;
+	uint8_t type;
 
-	/* The identifier
+	/* The data
 	 */
-	const char *identifier;
+	uint8_t *data;
 
-	/* The description
+	/* The data size
 	 */
-	const char *description;
+	size_t data_size;
 };
 
-const char *libesedb_column_type_get_identifier(
-             uint32_t column_type );
+int libesedb_key_initialize(
+     libesedb_key_t **key,
+     libcerror_error_t **error );
 
-const char *libesedb_column_type_get_description(
-             uint32_t column_type );
+int libesedb_key_free(
+     libesedb_key_t **key,
+     libcerror_error_t **error );
 
-#endif
+int libesedb_key_set_data(
+     libesedb_key_t *key,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libesedb_key_append_data(
+     libesedb_key_t *key,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+int libesedb_key_compare(
+     libesedb_key_t *first_key,
+     libesedb_key_t *second_key,
+     libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
