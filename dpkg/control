@@ -4,7 +4,7 @@ Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, python-dev
 Standards-Version: 3.8.3
-Homepage: http://code.google.com/p/libesedb/
+Homepage: https://github.com/libyal/libesedb/
 
 Package: libesedb
 Section: libs

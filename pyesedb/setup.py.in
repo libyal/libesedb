@@ -30,7 +30,7 @@ LIBRARY_VERSION = "@VERSION@"
 MODULE_NAME = "py%s" % (LIBRARY_NAME[3:])
 # bdist_msi does not support the library version, neither a date as a version.
 MODULE_VERSION = "@VERSION@.1"
-PROJECT_URL = "http://code.google.com/p/%s/" % (LIBRARY_NAME)
+PROJECT_URL = "https://github.com/libyal/%s/" % (LIBRARY_NAME)
 
 DIRECTORY_NAMES = [
 	"common",

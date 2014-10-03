@@ -28,7 +28,7 @@ BEGIN
       VALUE "OriginalFilename",		"libesedb.dll\0"
       VALUE "ProductName",		"libesedb\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"
-      VALUE "Comments",			"For more information visit http://code.google.com/p/libesedb/\0"
+      VALUE "Comments",			"For more information visit https://github.com/libyal/libesedb/\0"
     END
   END
   BLOCK "VarFileInfo"
