@@ -337,6 +337,7 @@ int libesedb_key_compare(
 	int16_t compare_result       = -1;
 	uint8_t first_key_data       = 0;
 	uint8_t is_flexible_match    = 0;
+	int result                   = -1;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *key_data            = NULL;
@@ -376,22 +377,11 @@ int libesedb_key_compare(
 
 		return( -1 );
 	}
-	if( second_key->data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid second key - missing data.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: first key\t: ",
+		 "%s: first key\t\t\t\t\t\t: ",
 		 function );
 
 		key_data      = first_key->data;
@@ -410,16 +400,98 @@ int libesedb_key_compare(
 		}
 		libcnotify_printf(
 		 "\n" );
+
+		libcnotify_printf(
+		 "%s: first key type\t\t\t\t\t: ",
+		 function );
+
+		switch( first_key->type )
+		{
+			case LIBESEDB_KEY_TYPE_INDEX_VALUE:
+				libcnotify_printf(
+				 "index value" );
+				break;
+
+			case LIBESEDB_KEY_TYPE_LONG_VALUE:
+				libcnotify_printf(
+				 "long value" );
+				break;
+
+			case LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT:
+				libcnotify_printf(
+				 "long value segment" );
+				break;
+
+			default:
+				libcnotify_printf(
+				 "invalid" );
+				break;
+		}
+		libcnotify_printf(
+		 "\n" );
+
+		libcnotify_printf(
+		 "%s: second key\t\t\t\t\t: ",
+		 function );
+
+		key_data      = second_key->data;
+		key_data_size = second_key->data_size;
+
+		while( key_data_size > 0 )
+		{
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%02" PRIx8 " ",
+				 *key_data );
+			}
+			key_data++;
+			key_data_size--;
+		}
+		libcnotify_printf(
+		 "\n" );
+
+		libcnotify_printf(
+		 "%s: second key type\t\t\t\t\t: ",
+		 function );
+
+		switch( second_key->type )
+		{
+			case LIBESEDB_KEY_TYPE_BRANCH:
+				libcnotify_printf(
+				 "branch" );
+				break;
+
+			case LIBESEDB_KEY_TYPE_LEAF:
+				libcnotify_printf(
+				 "leaf" );
+				break;
+
+			default:
+				libcnotify_printf(
+				 "invalid" );
+				break;
+		}
+		libcnotify_printf(
+		 "\n" );
 	}
 #endif
 	/* Check if the key is empty, therefore has no upper bound
+	 * and thus the first key will be greater than the second key
 	 */
-	if( second_key->data_size == 0 )
+	if( second_key->data_size > 0 )
 	{
-		compare_result = -1;
-	}
-	else
-	{
+		if( second_key->data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: invalid second key - missing data.",
+			 function );
+
+			return( -1 );
+		}
 		if( first_key->data_size <= second_key->data_size )
 		{
 			compare_data_size = first_key->data_size;
@@ -476,17 +548,27 @@ int libesedb_key_compare(
 	}
 	if( compare_result > 0 )
 	{
-		return( LIBFDATA_COMPARE_GREATER );
+		result = LIBFDATA_COMPARE_GREATER;
 	}
-	if( second_key->type == LIBESEDB_KEY_TYPE_BRANCH )
+	else if( second_key->type == LIBESEDB_KEY_TYPE_BRANCH )
 	{
-		/* If the key exactly matches the branch key, the leaf value
-		 * is either in the current or the next node
-		 */
-/* TODO make sure this works */
-		if( compare_result <= 0 )
+		if( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
 		{
-			return( LIBFDATA_COMPARE_EQUAL );
+			/* If the key exactly matches the branch key, the leaf value is in the next node
+			 */
+			if( compare_result == 0 )
+			{
+				result = LIBFDATA_COMPARE_GREATER;
+			}
+			else
+			{
+				result = LIBFDATA_COMPARE_EQUAL;
+			}
+		}
+		else
+		{
+/* TODO make sure this works */
+			result = LIBFDATA_COMPARE_EQUAL;
 		}
 	}
 	else if( second_key->type == LIBESEDB_KEY_TYPE_LEAF )
@@ -497,25 +579,57 @@ fprintf( stderr, "MARKER\n" );
 		}
 		if( compare_result < 0 )
 		{
-			return( LIBFDATA_COMPARE_LESS );
+			result = LIBFDATA_COMPARE_LESS;
 		}
-		if( first_key->data_size < second_key->data_size )
+		else if( first_key->data_size < second_key->data_size )
 		{
-			return( LIBFDATA_COMPARE_LESS );
+			result = LIBFDATA_COMPARE_LESS;
 		}
-		if( first_key->data_size > second_key->data_size )
+		else if( first_key->data_size > second_key->data_size )
 		{
-			return( LIBFDATA_COMPARE_GREATER );
+			result = LIBFDATA_COMPARE_GREATER;
 		}
-		return( LIBFDATA_COMPARE_EQUAL );
+		else
+		{
+			result = LIBFDATA_COMPARE_EQUAL;
+		}
 	}
-	libcerror_error_set(
-	 error,
-	 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-	 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-	 "%s: unsupported key type.",
-	 function );
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: result\t\t\t\t\t\t: ",
+		 function );
 
-	return( -1 );
+		switch( result )
+		{
+			case LIBFDATA_COMPARE_EQUAL:
+				libcnotify_printf(
+				 "equal" );
+				break;
+
+			case LIBFDATA_COMPARE_GREATER:
+				libcnotify_printf(
+				 "greater" );
+				break;
+
+			case LIBFDATA_COMPARE_LESS:
+				libcnotify_printf(
+				 "less" );
+				break;
+
+			default:
+				libcnotify_printf(
+				 "invalid" );
+				break;
+		}
+		libcnotify_printf(
+		 "\n" );
+
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
+	return( result );
 }
 

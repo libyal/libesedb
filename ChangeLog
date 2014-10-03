@@ -1,6 +1,8 @@
 TODO
+* create tool to analyze cache usage, hits and misses
 * move read of data definition into leaf value callback
   - create separate callback for long values?
+  - this will clean up data definition
 * replace by fdata functions?
   - libesedb_values_tree.c
 * refactor:
@@ -132,6 +134,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20141003
+* removed README.macosx
 
 20140915
 * worked on libfdata btree refactot

@@ -129,8 +129,6 @@ PyObject *pyesedb_get_version(
 	         errors ) );
 }
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-
 /* Checks if the file has a Personal Folder File (ESEDB) signature
  * Returns a Python object if successful or NULL on error
  */
@@ -147,17 +145,22 @@ PyObject *pyesedb_check_file_signature(
 	libcerror_error_t *error      = NULL;
 	static char *function         = "pyesedb_check_file_signature";
 	static char *keyword_list[]   = { "filename", NULL };
-	const wchar_t *filename_wide  = NULL;
 	const char *filename_narrow   = NULL;
 	char *error_string            = NULL;
 	int result                    = 0;
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	const wchar_t *filename_wide  = NULL;
+#else
+	PyObject *utf8_string_object  = NULL;
+#endif
 
 	PYESEDB_UNREFERENCED_PARAMETER( self )
 
 	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
 	 * On Windows the narrow character strings contains an extended ASCII string with a codepage. Hence we get a conversion
-	 * exception. We cannot use "u" here either since that does not allow us to pass non Unicode string objects and
-	 * Python (at least 2.7) does not seems to automatically upcast them.
+	 * exception. This will also fail if the default encoding is not set correctly. We cannot use "u" here either since that
+	 * does not allow us to pass non Unicode string objects and Python (at least 2.7) does not seems to automatically upcast them.
 	 */
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
@@ -211,6 +214,7 @@ PyObject *pyesedb_check_file_signature(
 	{
 		PyErr_Clear();
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
 		Py_BEGIN_ALLOW_THREADS
@@ -220,7 +224,57 @@ PyObject *pyesedb_check_file_signature(
 		          &error );
 
 		Py_END_ALLOW_THREADS
+#else
+		utf8_string_object = PyUnicode_AsUTF8String(
+		                      string_object );
 
+		if( utf8_string_object == NULL )
+		{
+			PyErr_Fetch(
+			 &exception_type,
+			 &exception_value,
+			 &exception_traceback );
+
+			exception_string = PyObject_Repr(
+					    exception_value );
+
+			error_string = PyString_AsString(
+					exception_string );
+
+			if( error_string != NULL )
+			{
+				PyErr_Format(
+				 PyExc_RuntimeError,
+				 "%s: unable to convert unicode string to UTF-8 with error: %s.",
+				 function,
+				 error_string );
+			}
+			else
+			{
+				PyErr_Format(
+				 PyExc_RuntimeError,
+				 "%s: unable to convert unicode string to UTF-8.",
+				 function );
+			}
+			Py_DecRef(
+			 exception_string );
+
+			return( NULL );
+		}
+		filename_narrow = PyString_AsString(
+				   utf8_string_object );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libesedb_check_file_signature(
+		          filename_narrow,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		Py_DecRef(
+		 utf8_string_object );
+#endif
 		if( result == -1 )
 		{
 			pyesedb_error_raise(
@@ -327,74 +381,11 @@ PyObject *pyesedb_check_file_signature(
 	}
 	PyErr_Format(
 	 PyExc_TypeError,
-	 "%s: unsupported string object type",
+	 "%s: unsupported string object type.",
 	 function );
 
 	return( NULL );
 }
-
-#else
-
-/* Checks if the file has a Personal Folder File (ESEDB) signature
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_check_file_signature(
-           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	libcerror_error_t *error    = NULL;
-	static char *function       = "pyesedb_check_file_signature";
-	static char *keyword_list[] = { "filename", NULL };
-	const char *filename        = NULL;
-	int result                  = 0;
-
-	PYESEDB_UNREFERENCED_PARAMETER( self )
-
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "|s",
-	     keyword_list,
-	     &filename ) == 0 )
-	{
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_check_file_signature(
-	          filename,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result == -1 )
-	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to check file signature.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-	if( result != 0 )
-	{
-		Py_IncRef(
-		 (PyObject *) Py_True );
-
-		return( Py_True );
-	}
-	Py_IncRef(
-	 (PyObject *) Py_False );
-
-	return( Py_False );
-}
-
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 /* Checks if the file has a Personal Folder File (ESEDB) file signature using a file-like object
  * Returns a Python object if successful or NULL on error

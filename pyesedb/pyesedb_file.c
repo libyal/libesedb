@@ -519,8 +519,6 @@ PyObject *pyesedb_file_signal_abort(
 	return( Py_None );
 }
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-
 /* Opens a file
  * Returns a Python object if successful or NULL on error
  */
@@ -537,10 +535,16 @@ PyObject *pyesedb_file_open(
 	libcerror_error_t *error      = NULL;
 	static char *function         = "pyesedb_file_open";
 	static char *keyword_list[]   = { "filename", "mode", NULL };
-	const wchar_t *filename_wide  = NULL;
 	const char *filename_narrow   = NULL;
 	char *error_string            = NULL;
+	char *mode                    = NULL;
 	int result                    = 0;
+
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	const wchar_t *filename_wide  = NULL;
+#else
+	PyObject *utf8_string_object  = NULL;
+#endif
 
 	if( pyesedb_file == NULL )
 	{
@@ -553,16 +557,28 @@ PyObject *pyesedb_file_open(
 	}
 	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
 	 * On Windows the narrow character strings contains an extended ASCII string with a codepage. Hence we get a conversion
-	 * exception. We cannot use "u" here either since that does not allow us to pass non Unicode string objects and
-	 * Python (at least 2.7) does not seems to automatically upcast them.
+	 * exception. This will also fail if the default encoding is not set correctly. We cannot use "u" here either since that
+	 * does not allow us to pass non Unicode string objects and Python (at least 2.7) does not seems to automatically upcast them.
 	 */
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
 	     "O|s",
 	     keyword_list,
-	     &string_object ) == 0 )
+	     &string_object,
+	     &mode ) == 0 )
 	{
+		return( NULL );
+	}
+	if( ( mode != NULL )
+	 && ( mode[ 0 ] != 'r' ) )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: unsupported mode: %s.",
+		 function,
+		 mode );
+
 		return( NULL );
 	}
 	PyErr_Clear();
@@ -608,6 +624,7 @@ PyObject *pyesedb_file_open(
 	{
 		PyErr_Clear();
 
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
 		filename_wide = (wchar_t *) PyUnicode_AsUnicode(
 		                             string_object );
 		Py_BEGIN_ALLOW_THREADS
@@ -619,7 +636,59 @@ PyObject *pyesedb_file_open(
 		          &error );
 
 		Py_END_ALLOW_THREADS
+#else
+		utf8_string_object = PyUnicode_AsUTF8String(
+		                      string_object );
 
+		if( utf8_string_object == NULL )
+		{
+			PyErr_Fetch(
+			 &exception_type,
+			 &exception_value,
+			 &exception_traceback );
+
+			exception_string = PyObject_Repr(
+					    exception_value );
+
+			error_string = PyString_AsString(
+					exception_string );
+
+			if( error_string != NULL )
+			{
+				PyErr_Format(
+				 PyExc_RuntimeError,
+				 "%s: unable to convert unicode string to UTF-8 with error: %s.",
+				 function,
+				 error_string );
+			}
+			else
+			{
+				PyErr_Format(
+				 PyExc_RuntimeError,
+				 "%s: unable to convert unicode string to UTF-8.",
+				 function );
+			}
+			Py_DecRef(
+			 exception_string );
+
+			return( NULL );
+		}
+		filename_narrow = PyString_AsString(
+				   utf8_string_object );
+
+		Py_BEGIN_ALLOW_THREADS
+
+		result = libesedb_file_open(
+		          pyesedb_file->file,
+	                  filename_narrow,
+		          LIBESEDB_OPEN_READ,
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		Py_DecRef(
+		 utf8_string_object );
+#endif
 		if( result != 1 )
 		{
 			pyesedb_error_raise(
@@ -714,92 +783,11 @@ PyObject *pyesedb_file_open(
 	}
 	PyErr_Format(
 	 PyExc_TypeError,
-	 "%s: unsupported string object type",
+	 "%s: unsupported string object type.",
 	 function );
 
 	return( NULL );
 }
-
-#else
-
-/* Opens a file
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_file_open(
-           pyesedb_file_t *pyesedb_file,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	libcerror_error_t *error    = NULL;
-	char *filename              = NULL;
-	char *mode                  = NULL;
-	static char *keyword_list[] = { "filename", "mode", NULL };
-	static char *function       = "pyesedb_file_open";
-	int result                  = 0;
-
-	if( pyesedb_file == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid file.",
-		 function );
-
-		return( NULL );
-	}
-	/* Note that PyArg_ParseTupleAndKeywords with "s" will force Unicode strings to be converted to narrow character string.
-	 * For systems that support UTF-8 this works for Unicode string objects as well.
-	 */
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "s|s",
-	     keyword_list,
-	     &filename,
-	     &mode ) == 0 )
-	{
-		return( NULL );
-	}
-	if( ( mode != NULL )
-	 && ( mode[ 0 ] != 'r' ) )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: unsupported mode: %s.",
-		 function,
-		 mode );
-
-		return( NULL );
-	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_file_open(
-	          pyesedb_file->file,
-	          filename,
-	          LIBESEDB_OPEN_READ,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
-	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to open file.",
-		 function );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-	Py_IncRef(
-	 Py_None );
-
-	return( Py_None );
-}
-
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 /* Opens a file using a file-like object
  * Returns a Python object if successful or NULL on error

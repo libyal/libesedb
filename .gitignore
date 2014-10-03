@@ -102,6 +102,8 @@ stamp-h1
 /libesedb/libesedb.rc
 /libesedb/libesedb_definitions.h
 /pyesedb/setup.py
+/esedbtools/esedbexport
+/esedbtools/esedbinfo
 /tests/esedb_test_open_close
 /tests/input
 /tests/tmp
@@ -115,6 +117,8 @@ stamp-h1
 /libcnotify
 /libcpath
 /libcsplit
+/libcstring
+/libcsystem
 /libcthreads
 /libfcache
 /libfdata
