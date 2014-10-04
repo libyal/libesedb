@@ -135,6 +135,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20141004
+* update Python-bindings tests
+
 20141003
 * removed README.macosx
 * changes for project site move

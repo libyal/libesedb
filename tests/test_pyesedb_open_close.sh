@@ -40,6 +40,24 @@ list_contains()
 	return ${EXIT_FAILURE};
 }
 
+test_open_close()
+{ 
+	INPUT_FILE=$1;
+
+	rm -rf tmp;
+	mkdir tmp;
+
+	echo "Testing open close of input: ${INPUT_FILE}";
+
+	PYTHONPATH=../pyesedb/.libs/ ${PYTHON} pyesedb_test_open_close.py ${INPUT_FILE};
+
+	rm -rf tmp;
+
+	RESULT=$?;
+
+	return ${RESULT};
+}
+
 PYTHON="/usr/bin/python";
 
 if ! test -x ${PYTHON};
@@ -70,9 +88,9 @@ then
 else
 	IGNORELIST="";
 
-	if test -f "input/.pyesedb/ignore";
+	if test -f "input/.libesedb/ignore";
 	then
-		IGNORELIST=`cat input/.pyesedb/ignore | sed '/^#/d'`;
+		IGNORELIST=`cat input/.libesedb/ignore | sed '/^#/d'`;
 	fi
 	for TESTDIR in input/*;
 	do
@@ -82,15 +100,17 @@ else
 
 			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
 			then
-				if test -f "input/.pyesedb/${DIRNAME}/files";
+				if test -f "input/.libesedb/${DIRNAME}/files";
 				then
-					TESTFILES=`cat input/.pyesedb/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
+					TEST_FILES=`cat input/.libesedb/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
 				else
-					TESTFILES=`ls ${TESTDIR}/*`;
+					TEST_FILES=`ls -1 ${TESTDIR}/* 2> /dev/null`;
 				fi
-				for TESTFILE in ${TESTFILES};
+				for TEST_FILE in ${TEST_FILES};
 				do
-					if ! PYTHONPATH=../pyesedb/.libs/ ${PYTHON} pyesedb_test_open_close.py ${TESTFILE};
+					BASENAME=`basename ${TEST_FILE}`;
+
+					if ! test_open_close "${TEST_FILE}";
 					then
 						exit ${EXIT_FAILURE};
 					fi
