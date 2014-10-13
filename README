@@ -1,5 +1,10 @@
 libesedb is a library to access the Extensible Storage Engine (ESE) Database File (EDB) format.
+
 The ESE database format is used in may different applications like Windows Search, Windows Mail, Exchange, Active Directory, etc.
+
+Project information:
+* Status: experimental
+* Licence: LGPLv3+
 
 Work in progress:
 * Refactor to allow libesedb handle +10G databases

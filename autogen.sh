@@ -1,63 +1,93 @@
 #!/bin/sh
 # Script to generate ./configure using the autotools
 #
-# Version: 20130509
+# Version: 20141007
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
-ACLOCAL="/usr/bin/aclocal";
-AUTOCONF="/usr/bin/autoconf";
-AUTOHEADER="/usr/bin/autoheader";
-AUTOMAKE="/usr/bin/automake";
-AUTOPOINT="/usr/bin/autopoint";
-AUTORECONF="/usr/bin/autoreconf";
-LIBTOOLIZE="/usr/bin/libtoolize";
+BINDIR="/usr/bin";
 
-if [ -x "${AUTORECONF}" ];
+if ! test -x "${BINDIR}/pkg-config";
+then
+	BINDIR="/usr/local/bin";
+fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	BINDIR="/usr/local/bin";
+fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	# Default location of MacPorts installed binaries.
+	BINDIR="/opt/local/bin";
+fi
+if ! test -x "${BINDIR}/pkg-config";
+then
+	# Default location of MSYS-MinGW installed binaries.
+	BINDIR="/mingw/bin";
+fi
+
+PKGCONFIG="${BINDIR}/pkg-config";
+
+if ! test -x "${PKGCONFIG}";
+then
+	echo "Unable to find: pkg-config";
+
+	exit ${EXIT_FAILURE};
+fi
+
+ACLOCAL="${BINDIR}/aclocal";
+AUTOCONF="${BINDIR}/autoconf";
+AUTOHEADER="${BINDIR}/autoheader";
+AUTOMAKE="${BINDIR}/automake";
+AUTOPOINT="${BINDIR}/autopoint";
+AUTORECONF="${BINDIR}/autoreconf";
+LIBTOOLIZE="${BINDIR}/libtoolize";
+
+if test -x "${AUTORECONF}";
 then
 	${AUTORECONF} --force --install
 else
-	if [ ! -x "${ACLOCAL}" ];
+	if ! test -x "${ACLOCAL}";
 	then
 		echo "Unable to find: aclocal";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
-	if [ ! -x "${AUTOCONF}" ];
+	if ! test -x "${AUTOCONF}";
 		then
 		echo "Unable to find: autoconf";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
-	if [ ! -x "${AUTOHEADER}" ];
+	if ! test -x "${AUTOHEADER}";
 	then
 		echo "Unable to find: autoheader";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
-	if [ ! -x "${AUTOMAKE}" ];
+	if ! test -x "${AUTOMAKE}";
 	then
 		echo "Unable to find: automake";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
-	if [ ! -x "${AUTOPOINT}" ];
+	if ! test -x "${AUTOPOINT}";
 	then
 		echo "Unable to find: autopoint";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
-	if [ ! -x "${LIBTOOLIZE}" ];
+	if ! test -x "${LIBTOOLIZE}";
 	then
 		echo "Unable to find: libtoolize";
 
-		echo ${EXIT_FAILURE};
+		exit ${EXIT_FAILURE};
 	fi
 
 	${AUTOPOINT} --force
