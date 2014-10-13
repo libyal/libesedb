@@ -102,6 +102,8 @@ stamp-h1
 /include/libesedb/types.h
 /libesedb/libesedb.rc
 /libesedb/libesedb_definitions.h
+/esedbtools/esedbexport
+/esedbtools/esedbinfo
 /pyesedb/setup.py
 /esedbtools/esedbexport
 /esedbtools/esedbinfo

@@ -1,4 +1,8 @@
 TODO
+* format notes:
+  - value of un-initialized page checksum: 0xdeadbeefbaadf00d
+    "ESE Super ECCXORChecksum"
+
 * create tool to analyze cache usage, hits and misses
 * move read of data definition into leaf value callback
   - create separate callback for long values?
@@ -140,6 +144,7 @@ Notes
 
 20141004
 * update Python-bindings tests
+* additional checks for out of bound page tags value offset and size values
 
 20141003
 * removed README.macosx

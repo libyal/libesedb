@@ -1300,6 +1300,50 @@ int libesedb_page_read_values(
 
 			goto on_error;
 		}
+		if( page_tags_value->offset > page->data_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: unsupported page tags value offset value out of bounds.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 "\n",
+				 function,
+				 page_tags_index,
+				 page_tags_value->offset,
+				 page_tags_value->size );
+			}
+#endif
+			goto on_error;
+		}
+		if( page_tags_value->size > ( page->data_size - page_tags_value->offset ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: unsupported page tags value size value out of bounds.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 "\n",
+				 function,
+				 page_tags_index,
+				 page_tags_value->offset,
+				 page_tags_value->size );
+			}
+#endif
+			goto on_error;
+		}
 		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 		 && ( io_handle->page_size >= 16384 ) )
 		{
@@ -1325,8 +1369,6 @@ int libesedb_page_read_values(
 			 "\n" );
 		}
 #endif
-		/* TODO check sanity of offset and size */
-
 		page_value->data   = &( page_values_data[ page_tags_value->offset ] );
 		page_value->offset = (uint16_t) ( page_values_data_offset + page_tags_value->offset );
 		page_value->size   = page_tags_value->size;
