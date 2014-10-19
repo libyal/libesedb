@@ -46,7 +46,7 @@ extern "C" {
 #define memory_allocate( size ) \
 	g_malloc( (gsize) size )
 
-#elif defined( HAVE_MALLOC ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
+#elif defined( HAVE_MALLOC ) || defined( WINAPI )
 #define memory_allocate( size ) \
 	malloc( size )
 
@@ -67,7 +67,7 @@ extern "C" {
 #define memory_reallocate( buffer, size ) \
 	g_realloc( (gpointer) buffer, (gsize) size )
 
-#elif defined( HAVE_REALLOC ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
+#elif defined( HAVE_REALLOC ) || defined( WINAPI )
 #define memory_reallocate( buffer, size ) \
 	realloc( (void *) buffer, size )
 
@@ -86,7 +86,7 @@ extern "C" {
 #define memory_free( buffer ) \
 	g_free( (gpointer) buffer )
 
-#elif defined( HAVE_FREE ) || ( defined( WINAPI ) && defined( USE_CRT_FUNCTIONS ) )
+#elif defined( HAVE_FREE ) || defined( WINAPI )
 #define memory_free( buffer ) \
 	free( (void *) buffer )
 

@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20141004
+# Version: 20141014
 
 # Generic auto-generated build files
 *~
@@ -27,6 +27,7 @@ stamp-h1
 /ABOUT-NLS
 /aclocal.m4
 /autom4te.cache/
+/compile
 /config.guess
 /config.log
 /config.rpath
@@ -38,6 +39,7 @@ stamp-h1
 /libtool
 /ltmain.sh
 /missing
+/test-driver
 /ylwrap
 /m4/codeset.m4
 /m4/fcntl-o.m4
