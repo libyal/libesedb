@@ -202,6 +202,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_data_definition.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_data_segment.c"
 				>
 			</File>
@@ -231,6 +235,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_io_handle.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_key.c"
 				>
 			</File>
 			<File
@@ -275,14 +283,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_value_data_handle.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_values_tree.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_values_tree_value.c"
 				>
 			</File>
 		</Filter>
@@ -332,6 +332,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_data_definition.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_data_segment.h"
 				>
 			</File>
@@ -369,6 +373,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_io_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_key.h"
 				>
 			</File>
 			<File
@@ -461,14 +469,6 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_value_data_handle.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_values_tree.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\libesedb\libesedb_values_tree_value.h"
 				>
 			</File>
 		</Filter>

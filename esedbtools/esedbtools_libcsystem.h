@@ -29,7 +29,6 @@
 
 #include <libcsystem_definitions.h>
 #include <libcsystem_file_io.h>
-#include <libcsystem_file_stream.h>
 #include <libcsystem_getopt.h>
 #include <libcsystem_glob.h>
 #include <libcsystem_i18n.h>

@@ -1028,9 +1028,15 @@ int export_handle_create_text_item_file(
 
 		return( 0 );
 	}
-	*item_file_stream = libcsystem_file_stream_open(
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+	*item_file_stream = file_stream_open_wide(
 	                     item_filename_path,
-	                     _LIBCSTRING_SYSTEM_STRING( "w" ) );
+	                     _LIBCSTRING_SYSTEM_STRING( FILE_STREAM_OPEN_WRITE ) );
+#else
+	*item_file_stream = file_stream_open(
+	                     item_filename_path,
+	                     FILE_STREAM_OPEN_WRITE );
+#endif
 
 	if( *item_file_stream == NULL )
 	{
@@ -1523,7 +1529,7 @@ int export_handle_export_table(
 			break;
 		}
 	}
-	if( libcsystem_file_stream_close(
+	if( file_stream_close(
 	     table_file_stream ) != 0 )
 	{
 		libcerror_error_set(
@@ -1584,7 +1590,7 @@ on_error:
 	}
 	if( table_file_stream != NULL )
 	{
-		libcsystem_file_stream_close(
+		file_stream_close(
 		 table_file_stream );
 	}
 	if( item_filename != NULL )
@@ -2247,7 +2253,7 @@ int export_handle_export_index(
 			goto on_error;
 		}
 	}
-	if( libcsystem_file_stream_close(
+	if( file_stream_close(
 	     index_file_stream ) != 0 )
 	{
 		libcerror_error_set(
@@ -2285,7 +2291,7 @@ on_error:
 #endif
 	if( index_file_stream != NULL )
 	{
-		libcsystem_file_stream_close(
+		file_stream_close(
 		 index_file_stream );
 	}
 	if( item_filename != NULL )
