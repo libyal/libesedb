@@ -617,7 +617,7 @@ int windows_search_decompress_byte_indexed_compressed_data(
 	{
 		total_nibble_count_table[ nibble_count_table_index ] = nibble_count_table[ nibble_count_table_index ];
 	}
-	/* TODO why this loop */
+/* TODO why this loop */
 	nibble_count = 0;
 
 	for( nibble_count_table_index = 15;
@@ -658,7 +658,6 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		 total_nibble_count_table[ 0 ] );
 	}
 #endif
-
 	for( nibble_count_table_index = 1;
 	     nibble_count_table_index < 16;
 	     nibble_count_table_index++ )
@@ -685,7 +684,6 @@ int windows_search_decompress_byte_indexed_compressed_data(
 		 "\n" );
 	}
 #endif
-
 	total_nibble_count = nibble_count;
 
 	/* Fill the compression value table
@@ -2335,14 +2333,12 @@ int windows_search_export_record_value_compressed_string(
 	uint8_t *multi_value_data           = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
-	size_t long_value_data_size         = 0;
+	size64_t long_value_data_size       = 0;
 	size_t multi_value_data_size        = 0;
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
 	uint8_t value_data_flags            = 0;
-	int long_value_segment_iterator     = 0;
 	int multi_value_iterator            = 0;
-	int number_of_long_value_segments   = 0;
 	int number_of_multi_values          = 0;
 
 	if( record == NULL )
@@ -2503,86 +2499,85 @@ int windows_search_export_record_value_compressed_string(
 
 			goto on_error;
 		}
-		if( libesedb_long_value_get_number_of_segments(
+		if( libesedb_long_value_get_data_size(
 		     long_value,
-		     &number_of_long_value_segments,
+		     &long_value_data_size,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve number of long value segments.",
+			 "%s: unable to retrieve long value data size.",
 			 function );
-
-			libesedb_long_value_free(
-			 &long_value,
-			 NULL );
 
 			goto on_error;
 		}
-		for( long_value_segment_iterator = 0;
-	 	     long_value_segment_iterator < number_of_long_value_segments;
-		     long_value_segment_iterator++ )
+		if( long_value_data_size > (size64_t) SSIZE_MAX )
 		{
-			if( libesedb_long_value_get_segment_data(
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid long value data size value exceeds maximum.",
+			 function );
+
+			goto on_error;
+		}
+		if( long_value_data_size > 0 )
+		{
+			/* Assume the data is compressed as a whole
+			 */
+			long_value_data = (uint8_t *) memory_allocate(
+			                               sizeof( uint8_t ) * (size_t) long_value_data_size );
+
+			if( value_data == NULL )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_MEMORY,
+				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+				 "%s: unable to create long value data.",
+				 function );
+
+				goto on_error;
+			}
+			if( libesedb_long_value_get_data(
 			     long_value,
-			     long_value_segment_iterator,
-			     &long_value_data,
-			     &long_value_data_size,
+			     long_value_data,
+			     (size_t) long_value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve long value segment: %d of record entry: %d.",
-				 function,
-				 long_value_segment_iterator,
-				 record_value_entry );
-
-				libesedb_long_value_free(
-				 &long_value,
-				 NULL );
+				 "%s: unable to retrieve long value data.",
+				 function );
 
 				goto on_error;
 			}
-#if defined( HAVE_DEBUG_OUTPUT )
-if( libcnotify_verbose != 0 )
-{
-	libcnotify_printf(
-	 "LONG VALUE DATA: %d out of %d\n",
-	 long_value_segment_iterator + 1,
-	 number_of_long_value_segments );
-}
-#endif
-
-			if( long_value_data != NULL )
+			if( windows_search_export_compressed_string_value(
+			     long_value_data,
+			     (size_t) long_value_data_size,
+			     ascii_codepage,
+			     record_file_stream,
+			     error ) != 1 )
 			{
-				/* TODO assume data is compressed per segment */
-				if( windows_search_export_compressed_string_value(
-				     long_value_data,
-				     long_value_data_size,
-				     ascii_codepage,
-				     record_file_stream,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GENERIC,
-					 "%s: unable to export compressed string of long value segment: %d of record entry: %d.",
-					 function,
-					 long_value_segment_iterator,
-					 record_value_entry );
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GENERIC,
+				 "%s: unable to export compressed string of long value data of record entry: %d.",
+				 function,
+				 record_value_entry );
 
-					libesedb_long_value_free(
-					 &long_value,
-					 NULL );
-
-					goto on_error;
-				}
+				goto on_error;
 			}
+			memory_free(
+			 long_value_data );
+
+			long_value_data = NULL;
 		}
 		if( libesedb_long_value_free(
 		     &long_value,
@@ -2598,7 +2593,7 @@ if( libcnotify_verbose != 0 )
 			goto on_error;
 		}
 	}
-	/* TODO handle 0x10 flag */
+/* TODO handle 0x10 flag */
 	else if( ( ( value_data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 	      && ( ( value_data_flags & 0x10 ) == 0 ) )
 	{
@@ -2687,8 +2682,7 @@ if( libcnotify_verbose != 0 )
 
 					goto on_error;
 				}
-				/* TODO what about non string multi values ?
-				 */
+/* TODO what about non string multi values ? */
 				if( windows_search_export_compressed_string_value(
 				     multi_value_data,
 				     multi_value_data_size,
@@ -2759,6 +2753,17 @@ on_error:
 	{
 		libesedb_multi_value_free(
 		 &multi_value,
+		 NULL );
+	}
+	if( long_value_data != NULL )
+	{
+		memory_free(
+		 long_value_data );
+	}
+	if( long_value != NULL )
+	{
+		libesedb_long_value_free(
+		 &long_value,
 		 NULL );
 	}
 	if( value_data != NULL )

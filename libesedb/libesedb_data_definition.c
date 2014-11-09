@@ -1780,6 +1780,17 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
@@ -1868,10 +1879,13 @@ int libesedb_data_definition_read_long_value_segment(
 	long_value_segment_data_size = page_value->size - data_offset;
 
 	/* Note that the data stream will point to the file offset
-	 * data_definition->page_offset contains the offset relative from the start of the file to the page
+	 * io_handle->pages_data_offset contains the offset relative from the start of the file to the page data
+	 * data_definition->page_offset contains the offset relative from the start of the page data
 	 * data_definition->data_offset contains the offset relative from the start of the page
 	 */
-	long_value_segment_data_offset = data_definition->page_offset + data_definition->data_offset;
+	long_value_segment_data_offset = io_handle->pages_data_offset
+	                               + data_definition->page_offset
+	                               + data_definition->data_offset;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )

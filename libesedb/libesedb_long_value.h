@@ -86,6 +86,42 @@ int libesedb_long_value_free(
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_size(
+     libesedb_long_value_t *long_value,
+     size64_t *data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data(
+     libesedb_long_value_t *long_value,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_number_of_data_segments(
+     libesedb_long_value_t *long_value,
+     int *number_of_data_segments,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_segment_size(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     size_t *data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_segment(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
+/* Deprecated */
+
+LIBESEDB_EXTERN \
 int libesedb_long_value_get_number_of_segments(
      libesedb_long_value_t *long_value,
      int *number_of_segments,

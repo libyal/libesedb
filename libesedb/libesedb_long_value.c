@@ -456,6 +456,363 @@ int libesedb_long_value_free(
 	return( result );
 }
 
+/* Retrieve the data size
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_data_size(
+     libesedb_long_value_t *long_value,
+     size64_t *data_size,
+     libcerror_error_t **error )
+{
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_data_size";
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( libfdata_list_get_size(
+	     internal_long_value->data_segments_list,
+	     data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size from data segments list.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieve the data
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_data(
+     libesedb_long_value_t *long_value,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error )
+{
+	libesedb_data_segment_t *data_segment               = NULL;
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_data";
+	size64_t data_segments_size                         = 0;
+	size_t data_offset                                  = 0;
+	int data_segment_index                              = 0;
+	int number_of_data_segments                         = 0;
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data.",
+		 function );
+
+		return( -1 );
+	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_list_get_size(
+	     internal_long_value->data_segments_list,
+	     &data_segments_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size from data segments list.",
+		 function );
+
+		return( -1 );
+	}
+	if( (size64_t) data_size < data_segments_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
+		 "%s: data size value too small.",
+		 function );
+
+		return( -1 );
+	}
+	if( libfdata_list_get_number_of_elements(
+	     internal_long_value->data_segments_list,
+	     &number_of_data_segments,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements from data segments list.",
+		 function );
+
+		return( -1 );
+	}
+	for( data_segment_index = 0;
+	     data_segment_index < number_of_data_segments;
+	     data_segment_index++ )
+	{
+		if( libfdata_list_get_element_value_by_index(
+		     internal_long_value->data_segments_list,
+		     (intptr_t *) internal_long_value->file_io_handle,
+		     internal_long_value->data_segments_cache,
+		     data_segment_index,
+		     (intptr_t **) &data_segment,
+		     0,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data segment: %d.",
+			 function,
+			 data_segment_index );
+
+			return( -1 );
+		}
+		if( data_segment == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing data segment: %d.",
+			 function,
+			 data_segment_index );
+
+			return( -1 );
+		}
+		if( memory_copy(
+		     &( data[ data_offset ] ),
+		     data_segment->data,
+		     data_segment->data_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+			 "%s: unable to copy data.",
+			 function );
+
+			return( -1 );
+		}
+		data_offset += data_segment->data_size;
+	}
+	return( 1 );
+}
+
+/* Retrieve the number of data segments
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_number_of_data_segments(
+     libesedb_long_value_t *long_value,
+     int *number_of_data_segments,
+     libcerror_error_t **error )
+{
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_number_of_data_segments";
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( libfdata_list_get_number_of_elements(
+	     internal_long_value->data_segments_list,
+	     number_of_data_segments,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of elements from data segments list.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieve the data segment size
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_data_segment_size(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     size_t *data_size,
+     libcerror_error_t **error )
+{
+	libesedb_data_segment_t *data_segment               = NULL;
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_data_segment_size";
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( libfdata_list_get_element_value_by_index(
+	     internal_long_value->data_segments_list,
+	     (intptr_t *) internal_long_value->file_io_handle,
+	     internal_long_value->data_segments_cache,
+	     data_segment_index,
+	     (intptr_t **) &data_segment,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data segment: %d.",
+		 function,
+		 data_segment_index );
+
+		return( -1 );
+	}
+	if( libesedb_data_segment_get_data_size(
+	     data_segment,
+	     data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data segment: %d data size.",
+		 function,
+		 data_segment_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieve the data segment
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_long_value_get_data_segment(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error )
+{
+	libesedb_data_segment_t *data_segment               = NULL;
+	libesedb_internal_long_value_t *internal_long_value = NULL;
+	static char *function                               = "libesedb_long_value_get_data_segment";
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	internal_long_value = (libesedb_internal_long_value_t *) long_value;
+
+	if( libfdata_list_get_element_value_by_index(
+	     internal_long_value->data_segments_list,
+	     (intptr_t *) internal_long_value->file_io_handle,
+	     internal_long_value->data_segments_cache,
+	     data_segment_index,
+	     (intptr_t **) &data_segment,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data segment: %d.",
+		 function,
+		 data_segment_index );
+
+		return( -1 );
+	}
+	if( libesedb_data_segment_get_data(
+	     data_segment,
+	     data,
+	     data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve data segment: %d data.",
+		 function,
+		 data_segment_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Deprecated */
+
 /* Retrieve the number of data segments
  * Returns 1 if successful or -1 on error
  */
@@ -503,8 +860,8 @@ int libesedb_long_value_get_number_of_segments(
 int libesedb_long_value_get_segment_data(
      libesedb_long_value_t *long_value,
      int data_segment_index,
-     uint8_t **segment_data,
-     size_t *segment_data_size,
+     uint8_t **data,
+     size_t *data_size,
      libcerror_error_t **error )
 {
 	libesedb_data_segment_t *data_segment               = NULL;
@@ -524,24 +881,24 @@ int libesedb_long_value_get_segment_data(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( segment_data == NULL )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid segment data.",
+		 "%s: invalid data.",
 		 function );
 
 		return( -1 );
 	}
-	if( segment_data_size == NULL )
+	if( data_size == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid segment data size.",
+		 "%s: invalid data size.",
 		 function );
 
 		return( -1 );
@@ -577,8 +934,8 @@ int libesedb_long_value_get_segment_data(
 
 		return( -1 );
 	}
-	*segment_data      = data_segment->data;
-	*segment_data_size = data_segment->data_size;
+	*data      = data_segment->data;
+	*data_size = data_segment->data_size;
 
 	return( 1 );
 }

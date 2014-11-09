@@ -3219,7 +3219,7 @@ int export_handle_export_record_value(
 		}
 		else
 		{
-			if( libesedb_long_value_get_number_of_segments(
+			if( libesedb_long_value_get_number_of_data_segments(
 			     long_value,
 			     &number_of_long_value_segments,
 			     error ) != 1 )
@@ -3228,7 +3228,7 @@ int export_handle_export_record_value(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve number of long value segments.",
+				 "%s: unable to retrieve number of long value data segments.",
 				 function );
 
 				goto on_error;

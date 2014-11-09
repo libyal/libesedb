@@ -977,9 +977,65 @@ int libesedb_long_value_free(
      libesedb_long_value_t **long_value,
      libesedb_error_t **error );
 
+/* Retrieve the data size
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_size(
+     libesedb_long_value_t *long_value,
+     size64_t *data_size,
+     libesedb_error_t **error );
+
+/* Retrieve the data
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data(
+     libesedb_long_value_t *long_value,
+     uint8_t *data,
+     size_t data_size,
+     libesedb_error_t **error );
+
 /* Retrieve the number of data segments
  * Returns 1 if successful or -1 on error
  */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_number_of_data_segments(
+     libesedb_long_value_t *long_value,
+     int *number_of_data_segments,
+     libesedb_error_t **error );
+
+/* Retrieve the data segment size
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_segment_size(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     size_t *data_size,
+     libesedb_error_t **error );
+
+/* Retrieve the data segment
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_data_segment(
+     libesedb_long_value_t *long_value,
+     int data_segment_index,
+     uint8_t *data_segment,
+     size_t data_size,
+     libesedb_error_t **error );
+
+/* -------------------------------------------------------------------------
+ * Long functions - deprecated
+ * ------------------------------------------------------------------------- */
+
+/* Retrieve the number of data segments
+ * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use the libesedb_long_value_get_number_of_data_segments functions instead.
+ */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN \
 int libesedb_long_value_get_number_of_segments(
      libesedb_long_value_t *long_value,
@@ -988,13 +1044,16 @@ int libesedb_long_value_get_number_of_segments(
 
 /* Retrieve the segment data
  * Returns 1 if successful or -1 on error
+ *
+ * This function is deprecated use the libesedb_long_value_get_data_segment functions instead.
  */
+LIBESEDB_DEPRECATED \
 LIBESEDB_EXTERN \
 int libesedb_long_value_get_segment_data(
      libesedb_long_value_t *long_value,
      int data_segment_index,
-     uint8_t **segment_data,
-     size_t *segment_data_size,
+     uint8_t **data,
+     size_t *data_size,
      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------

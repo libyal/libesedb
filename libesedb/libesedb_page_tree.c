@@ -1872,7 +1872,7 @@ int libesedb_page_tree_read_leaf_value(
 	/* leaf_value_data_file_index contains the page value index
 	 */
 	data_definition->page_value_index = (uint16_t) leaf_value_data_file_index;
-	data_definition->page_offset      = leaf_value_data_offset;
+	data_definition->page_offset      = page_offset;
 	data_definition->page_number      = (uint32_t) page_number;
 	data_definition->data_offset      = (uint16_t) ( leaf_value_data_offset - page_offset );
 	data_definition->data_size        = (uint16_t) leaf_value_data_size;

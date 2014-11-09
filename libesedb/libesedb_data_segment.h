@@ -56,6 +56,17 @@ int libesedb_data_segment_free(
      libesedb_data_segment_t **data_segment,
      libcerror_error_t **error );
 
+int libesedb_data_segment_get_data_size(
+     libesedb_data_segment_t *data_segment,
+     size_t *data_size,
+     libcerror_error_t **error );
+
+int libesedb_data_segment_get_data(
+     libesedb_data_segment_t *data_segment,
+     uint8_t *data,
+     size_t data_size,
+     libcerror_error_t **error );
+
 int libesedb_data_segment_read_element_data(
      intptr_t *data_handle,
      libbfio_handle_t *file_io_handle,

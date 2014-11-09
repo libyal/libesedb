@@ -1,5 +1,5 @@
 TODO
-* fix long value export
+* fix long value data read, wrong offset?
 
 * format notes:
   - value of un-initialized page checksum: 0xdeadbeefbaadf00d
@@ -35,6 +35,10 @@ API:
 * add function to retrieve database signature
   - can be used to match up EDB/STM pairs
 * add long value functions (string and binary data?)
+* remove
+  - libesedb_record_get_value
+  - libesedb_long_value_get_segment_data
+  - libesedb_multi_value_get_value
 
 * windows search
   - multi long value segment decryption/compression support
@@ -148,6 +152,7 @@ Notes
 20141109
 * worked on reading backup catalog
 * additional checks for out of bound page tags value offset and size values
+* worked on libfdata btree refactor
 
 20141026
 * changes for deployment
