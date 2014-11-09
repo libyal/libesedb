@@ -836,6 +836,7 @@ int libesedb_catalog_read(
      libesedb_catalog_t *catalog,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     uint32_t page_number,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      libcerror_error_t **error )
@@ -875,6 +876,17 @@ int libesedb_catalog_read(
 
 		return( -1 );
 	}
+	if( page_number == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_ZERO_OR_LESS,
+		 "%s: invalid page number value zero or less.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_initialize(
 	     &catalog_page_tree,
 	     io_handle,
@@ -892,7 +904,7 @@ int libesedb_catalog_read(
 		 "%s: unable to create catalog page tree.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	/* TODO add clone function
 	 */
@@ -931,8 +943,7 @@ int libesedb_catalog_read(
 
 		goto on_error;
 	}
-	node_data_offset  = LIBESEDB_PAGE_NUMBER_CATALOG - 1;
-	node_data_offset *= io_handle->page_size;
+	node_data_offset = ( (off64_t) page_number - 1 ) * io_handle->page_size;
 
 	if( libfdata_btree_set_root_node(
 	     catalog_values_tree,

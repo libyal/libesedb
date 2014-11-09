@@ -73,6 +73,10 @@ struct libesedb_internal_file
 	/* The catalog
 	 */
 	libesedb_catalog_t *catalog;
+
+	/* The backup catalog
+	 */
+	libesedb_catalog_t *backup_catalog;
 };
 
 LIBESEDB_EXTERN \

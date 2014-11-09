@@ -1022,6 +1022,17 @@ int libesedb_data_definition_read_record(
 #endif
 					if( ( tagged_data_type_size & 0x8000 ) != 0 )
 					{
+						if( tagged_data_type_value_offset >= record_data_size )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
@@ -1059,6 +1070,17 @@ int libesedb_data_definition_read_record(
 					{
 						if( tagged_data_type_size > 0 )
 						{
+							if( tagged_data_type_value_offset >= record_data_size )
+							{
+								libcerror_error_set(
+								 error,
+								 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+								 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+								 "%s: invalid tagged data type offset value out of bounds.",
+								 function );
+
+								goto on_error;
+							}
 							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
@@ -1079,6 +1101,17 @@ int libesedb_data_definition_read_record(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
+						if( tagged_data_type_value_offset >= record_data_size )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						if( tagged_data_type_size > remaining_definition_data_size )
 						{
 							libcerror_error_set(
@@ -1111,6 +1144,17 @@ int libesedb_data_definition_read_record(
 					}
 					if( remaining_definition_data_size > 0 )
 					{
+						if( tagged_data_type_value_offset >= record_data_size )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						byte_stream_copy_to_uint16_little_endian(
 						 &( record_data[ tagged_data_type_value_offset ] ),
 						 tagged_data_type_identifier );
@@ -1321,6 +1365,17 @@ int libesedb_data_definition_read_record(
 						  &&  ( io_handle->page_size >= 16384 ) )
 						 || ( ( previous_tagged_data_type_offset & 0x4000 ) != 0 ) )
 						{
+							if( tagged_data_type_value_offset >= record_data_size )
+							{
+								libcerror_error_set(
+								 error,
+								 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+								 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+								 "%s: invalid tagged data type offset value out of bounds.",
+								 function );
+
+								goto on_error;
+							}
 							if( libfvalue_data_handle_set_data_flags(
 							     value_data_handle,
 							     (uint32_t) record_data[ tagged_data_type_value_offset ],
@@ -1341,6 +1396,17 @@ int libesedb_data_definition_read_record(
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
+							if( tagged_data_type_value_offset >= record_data_size )
+							{
+								libcerror_error_set(
+								 error,
+								 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+								 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+								 "%s: invalid tagged data type offset value out of bounds.",
+								 function );
+
+								goto on_error;
+							}
 							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
@@ -1365,6 +1431,17 @@ int libesedb_data_definition_read_record(
 #endif
 					if( tagged_data_type_size > 0 )
 					{
+						if( tagged_data_type_value_offset >= record_data_size )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type offset value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						if( libfvalue_data_handle_set_data(
 						     value_data_handle,
 						     &( record_data[ tagged_data_type_value_offset ] ),

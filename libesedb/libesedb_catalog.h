@@ -90,6 +90,7 @@ int libesedb_catalog_read(
      libesedb_catalog_t *catalog,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
+     uint32_t page_number,
      libfdata_vector_t *pages_vector,
      libfcache_cache_t *pages_cache,
      libcerror_error_t **error );

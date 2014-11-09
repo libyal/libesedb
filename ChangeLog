@@ -1,4 +1,6 @@
 TODO
+* fix long value export
+
 * format notes:
   - value of un-initialized page checksum: 0xdeadbeefbaadf00d
     "ESE Super ECCXORChecksum"
@@ -28,8 +30,11 @@ TODO
 * add esedbtools header for: libfwnt, libfmapi
 * clean up and refactor info handle
 * export handle: fix creation of indexes directory
-* API: add function to retrieve database signature
+
+API:
+* add function to retrieve database signature
   - can be used to match up EDB/STM pairs
+* add long value functions (string and binary data?)
 
 * windows search
   - multi long value segment decryption/compression support
@@ -37,7 +42,6 @@ TODO
 
 * code clean up
   - change page value index and number of values into int
-  - rename LIBESEDB_ITEM_FLAG_NON_MANAGED_FILE_IO_HANDLE to LIBESEDB_ITEM_FLAG_FILE_IO_HANDLE_NON_MANAGED etc
   - clean up TODO's
   - refactor info handle
 * combine libesedb_io_handle_read_page with libesedb_page_read
@@ -49,7 +53,6 @@ TODO
   - libesedb_data_type_definition remove offset
 * handle default value
   - need database which uses default value
-* error tolerance probe test for the page size using the backup database header
 * parse variable types even when they are not part of the table catalog definition
 * add support for build in table number 1
 * implement cloning of items for improved asynchronous and multi threaded usage
@@ -77,8 +80,11 @@ libesedb:
 * default values
    - apply to data definition
 
+Error tolerance
+* probe test for the page size using the backup database header
+* use backup catalog
+
 Debug
-* print file type string
 * is function libesedb_debug_print_table_group_of_bits needed?
 * print value flags
 
@@ -139,6 +145,10 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20141109
+* worked on reading backup catalog
+* additional checks for out of bound page tags value offset and size values
+
 20141026
 * changes for deployment
 
@@ -157,7 +167,7 @@ Notes
 * changes for project site move
 
 20140915
-* worked on libfdata btree refactot
+* worked on libfdata btree refactor
 
 20140803
 * bug fix in Python-bindings

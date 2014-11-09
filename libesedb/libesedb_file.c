@@ -810,6 +810,19 @@ int libesedb_file_close(
 
 		result = -1;
 	}
+	if( libesedb_catalog_free(
+	     &( internal_file->backup_catalog ),
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free backup catalog.",
+		 function );
+
+		result = -1;
+	}
 	return( result );
 }
 
@@ -889,6 +902,17 @@ int libesedb_file_open_read(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid file - catalog already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( internal_file->backup_catalog != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid file - backup catalog already set.",
 		 function );
 
 		return( -1 );
@@ -1183,6 +1207,7 @@ int libesedb_file_open_read(
 		     internal_file->catalog,
 		     file_io_handle,
 		     internal_file->io_handle,
+		     LIBESEDB_PAGE_NUMBER_CATALOG,
 		     internal_file->pages_vector,
 		     internal_file->pages_cache,
 		     error ) != 1 )
@@ -1196,21 +1221,59 @@ int libesedb_file_open_read(
 
 			goto on_error;
 		}
-		/* TODO what about the backup of the catalog */
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "Reading the backup catalog:\n" );
+		}
+#endif
+		if( libesedb_catalog_initialize(
+		     &( internal_file->backup_catalog ),
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create backup catalog.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_catalog_read(
+		     internal_file->backup_catalog,
+		     file_io_handle,
+		     internal_file->io_handle,
+		     LIBESEDB_PAGE_NUMBER_CATALOG_BACKUP,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read backup catalog.",
+			 function );
+
+			goto on_error;
+		}
+/* TODO compare contents of catalogs ? */
 	}
 	return( 1 );
 
 on_error:
-	if( internal_file->pages_vector != NULL )
+	if( internal_file->backup_catalog != NULL )
 	{
-		libfdata_vector_free(
-		 &( internal_file->pages_vector ),
+		libesedb_catalog_free(
+		 &( internal_file->backup_catalog ),
 		 NULL );
 	}
-	if( internal_file->pages_cache != NULL )
+	if( internal_file->catalog != NULL )
 	{
-		libfcache_cache_free(
-		 &( internal_file->pages_cache ),
+		libesedb_catalog_free(
+		 &( internal_file->catalog ),
 		 NULL );
 	}
 	if( internal_file->database != NULL )
@@ -1219,10 +1282,16 @@ on_error:
 		 &( internal_file->database ),
 		 NULL );
 	}
-	if( internal_file->catalog != NULL )
+	if( internal_file->pages_cache != NULL )
 	{
-		libesedb_catalog_free(
-		 &( internal_file->catalog ),
+		libfcache_cache_free(
+		 &( internal_file->pages_cache ),
+		 NULL );
+	}
+	if( internal_file->pages_vector != NULL )
+	{
+		libfdata_vector_free(
+		 &( internal_file->pages_vector ),
 		 NULL );
 	}
 	return( -1 );
