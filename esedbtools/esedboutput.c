@@ -24,25 +24,14 @@
 #include <memory.h>
 #include <types.h>
 
-#if defined( HAVE_LOCAL_LIBBFIO )
-#include <libbfio_definitions.h>
-#elif defined( HAVE_LIBBFIO_H )
-#include <libbfio.h>
-#endif
-
-#if defined( HAVE_LOCAL_LIBFVALUE )
-#include <libfvalue_definitions.h>
-#elif defined( HAVE_LIBFVALUE_H )
-#include <libfvalue.h>
-#endif
-
 #include "esedboutput.h"
-/* TODO libcsystem is required for gettext */
+#include "esedbtools_libbfio.h"
 #include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libfguid.h"
 #include "esedbtools_libfmapi.h"
+#include "esedbtools_libfvalue.h"
 #include "esedbtools_libfwnt.h"
 #include "esedbtools_libuna.h"
 

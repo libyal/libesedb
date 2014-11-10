@@ -28,6 +28,7 @@ bin_PROGRAMS = \
 esedbexport_SOURCES = \
 	esedbexport.c \
 	esedboutput.c esedboutput.h \
+	esedbtools_libbfio.h \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcfile.h \
@@ -39,6 +40,7 @@ esedbexport_SOURCES = \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
 	esedbtools_libfmapi.h \
+	esedbtools_libfvalue.h \
 	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
 	export.c export.h \
@@ -69,6 +71,7 @@ esedbexport_LDADD = \
 esedbinfo_SOURCES = \
 	esedbinfo.c \
 	esedboutput.c esedboutput.h \
+	esedbtools_libbfio.h \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcnotify.h \
@@ -78,6 +81,8 @@ esedbinfo_SOURCES = \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
 	esedbtools_libfmapi.h \
+	esedbtools_libfvalue.h \
+	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
 	info_handle.c info_handle.h
 

@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\esedbtools\esedbtools_libbfio.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\esedbtools_libcerror.h"
 				>
 			</File>
@@ -259,6 +263,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\esedbtools_libfmapi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedbtools_libfvalue.h"
 				>
 			</File>
 			<File
