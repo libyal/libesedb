@@ -526,19 +526,19 @@ int libesedb_page_tree_read_space_tree_page(
 
 		return( -1 );
 	}
-	if( page_tree->object_identifier != page->father_data_page_object_identifier )
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: mismatch in father data page object identifier (tree: %" PRIu32 " != page: %" PRIu32 ").",
-		 function,
-		 page_tree->object_identifier,
-		 page->father_data_page_object_identifier );
-
-		return( -1 );
+		if( page_tree->object_identifier != page->father_data_page_object_identifier )
+		{
+			libcnotify_printf(
+			 "%s: mismatch in father data page object identifier (tree: %" PRIu32 " != page: %" PRIu32 ").",
+			 function,
+			 page_tree->object_identifier,
+			 page->father_data_page_object_identifier );
+		}
 	}
+#endif
 	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
 	               | LIBESEDB_PAGE_FLAG_IS_SPACE_TREE;
 

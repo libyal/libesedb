@@ -25,6 +25,7 @@
 #include <common.h>
 #include <byte_stream.h>
 
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
 #define LIBESEDB_ENDIAN_BIG						_BYTE_STREAM_ENDIAN_BIG

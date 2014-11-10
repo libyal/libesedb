@@ -61,10 +61,12 @@ int libesedb_check_file_signature(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBESEDB_EXTERN \
 int libesedb_check_file_signature_wide(
      const wchar_t *filename,
      libcerror_error_t **error );
+
 #endif
 
 LIBESEDB_EXTERN \

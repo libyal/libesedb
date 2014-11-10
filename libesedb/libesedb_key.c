@@ -27,6 +27,7 @@
 #include "libesedb_key.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
+#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 
 /* Creates a key
@@ -575,7 +576,13 @@ int libesedb_key_compare(
 	{
 		if( is_flexible_match != 0 )
 		{
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+/* TODO remove this after debugging */
 fprintf( stderr, "MARKER\n" );
+	}
+#endif
 		}
 		if( compare_result < 0 )
 		{

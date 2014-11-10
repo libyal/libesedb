@@ -1,5 +1,6 @@
 TODO
-* fix long value data read, wrong offset?
+* complete libfdata btree refactor
+  - libesedb_values_tree.c replace by fdata functions?
 
 * format notes:
   - value of un-initialized page checksum: 0xdeadbeefbaadf00d
@@ -9,8 +10,6 @@ TODO
 * move read of data definition into leaf value callback
   - create separate callback for long values?
   - this will clean up data definition
-* replace by fdata functions?
-  - libesedb_values_tree.c
 * refactor:
   - libesedb_multi_value_get_value what about value_type ?
   - clean up multi value calls to libfvalue
@@ -148,6 +147,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20141110
+* code clean up
 
 20141109
 * worked on reading backup catalog

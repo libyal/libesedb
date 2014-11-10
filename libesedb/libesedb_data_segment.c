@@ -163,7 +163,7 @@ int libesedb_data_segment_free(
 	return( 1 );
 }
 
-/* Retrieves the data size 
+/* Retrieves the data size
  * Returns 1 if successful or -1 on error
  */
 int libesedb_data_segment_get_data_size(

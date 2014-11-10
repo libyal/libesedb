@@ -102,12 +102,14 @@ int libesedb_file_open(
      libcerror_error_t **error );
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
+
 LIBESEDB_EXTERN \
 int libesedb_file_open_wide(
      libesedb_file_t *file,
      const wchar_t *filename,
      int access_flags,
      libcerror_error_t **error );
+
 #endif
 
 LIBESEDB_EXTERN \
