@@ -1,0 +1,10 @@
+language: c
+compiler:
+  - clang
+  - gcc
+before_install:
+  - sudo apt-get install autopoint
+install:
+  - ./synclibs.sh && ./autogen.sh
+script:
+  - ./configure && make && make check
