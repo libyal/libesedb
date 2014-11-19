@@ -7,4 +7,4 @@ before_install:
 install:
   - ./synclibs.sh && ./autogen.sh
 script:
-  - ./configure && make && make check
+  - ./configure --enable-python && make && make check
