@@ -73,7 +73,7 @@ int libesedb_set_codepage(
      int codepage,
      libesedb_error_t **error );
 
-/* Determines if a file is an EDB file (check for the EDB file signature)
+/* Determines if a file contains an ESEDB file signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -83,7 +83,7 @@ int libesedb_check_file_signature(
 
 #if defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE )
 
-/* Determines if a file is an EDB file (check for the EDB file signature)
+/* Determines if a file contains an ESEDB file signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -91,11 +91,11 @@ int libesedb_check_file_signature_wide(
      const wchar_t *filename,
      libesedb_error_t **error );
 
-#endif
+#endif /* defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE ) */
 
 #if defined( LIBESEDB_HAVE_BFIO )
 
-/* Determines if a file is an EDB file (check for the EDB file signature) using a Basic File IO (bfio) handle
+/* Determines if a file contains an ESEDB file signature using a Basic File IO (bfio) handle
  * Returns 1 if true, 0 if not or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -103,7 +103,7 @@ int libesedb_check_file_signature_file_io_handle(
      libbfio_handle_t *bfio_handle,
      libesedb_error_t **error );
 
-#endif
+#endif /* defined( LIBESEDB_HAVE_BFIO ) */
 
 /* -------------------------------------------------------------------------
  * Notify functions
@@ -236,7 +236,7 @@ int libesedb_file_open_wide(
      int access_flags,
      libesedb_error_t **error );
 
-#endif
+#endif /* defined( LIBESEDB_HAVE_WIDE_CHARACTER_TYPE ) */
 
 #if defined( LIBESEDB_HAVE_BFIO )
 
@@ -250,7 +250,7 @@ int libesedb_file_open_file_io_handle(
      int access_flags,
      libesedb_error_t **error );
 
-#endif
+#endif /* defined( LIBESEDB_HAVE_BFIO ) */
 
 /* Closes a file
  * Returns 0 if successful or -1 on error

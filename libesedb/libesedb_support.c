@@ -104,7 +104,7 @@ int libesedb_set_codepage(
 
 #endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 
-/* Determines if a file is an EDB file (check for the EDB file signature)
+/* Determines if a file contains an ESEDB file signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature(
@@ -211,7 +211,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Determines if a file is an EDB file (check for the EDB file signature)
+/* Determines if a file contains an ESEDB file signature
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature_wide(
@@ -318,7 +318,7 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Determines if a file is an EDB file (check for the EDB file signature) using a Basic File IO (bfio) handle
+/* Determines if a file contains an ESEDB file signature using a Basic File IO (bfio) handle
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_check_file_signature_file_io_handle(
