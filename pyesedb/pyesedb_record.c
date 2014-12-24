@@ -114,10 +114,8 @@ PyGetSetDef pyesedb_record_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyesedb_record_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.record",
 	/* tp_basicsize */
@@ -298,8 +296,9 @@ int pyesedb_record_init(
 void pyesedb_record_free(
       pyesedb_record_t *pyesedb_record )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyesedb_record_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_record_free";
 
 	if( pyesedb_record == NULL )
 	{
@@ -310,29 +309,32 @@ void pyesedb_record_free(
 
 		return;
 	}
-	if( pyesedb_record->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_record->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pyesedb_record->record == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid record - missing libesedb record.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pyesedb_record );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -355,7 +357,7 @@ void pyesedb_record_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_record->parent_object );
 	}
-	pyesedb_record->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_record );
 }
 
@@ -367,6 +369,7 @@ PyObject *pyesedb_record_get_number_of_values(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pyesedb_record_get_number_of_values";
 	int number_of_values     = 0;
 	int result               = 0;
@@ -404,8 +407,14 @@ PyObject *pyesedb_record_get_number_of_values(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_values ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_values );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_values );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves the column type
@@ -770,10 +779,15 @@ PyObject *pyesedb_record_get_value_data(
 
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_data,
+			 (Py_ssize_t) value_data_size );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_data,
 			 (Py_ssize_t) value_data_size );
-
+#endif
 	PyMem_Free(
 	 value_data );
 

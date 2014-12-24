@@ -56,10 +56,8 @@ PySequenceMethods pyesedb_records_sequence_methods = {
 };
 
 PyTypeObject pyesedb_records_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb._records",
 	/* tp_basicsize */
@@ -258,7 +256,8 @@ int pyesedb_records_init(
 void pyesedb_records_free(
       pyesedb_records_t *pyesedb_records )
 {
-	static char *function = "pyesedb_records_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_records_free";
 
 	if( pyesedb_records == NULL )
 	{
@@ -269,20 +268,23 @@ void pyesedb_records_free(
 
 		return;
 	}
-	if( pyesedb_records->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_records );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_records->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -292,7 +294,7 @@ void pyesedb_records_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_records->parent_object );
 	}
-	pyesedb_records->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_records );
 }
 

@@ -23,6 +23,7 @@
 #include <memory.h>
 #include <types.h>
 
+#include "pyesedb_error.h"
 #include "pyesedb_file_object_io_handle.h"
 #include "pyesedb_integer.h"
 #include "pyesedb_libbfio.h"
@@ -419,19 +420,14 @@ ssize_t pyesedb_file_object_read_buffer(
          size_t size,
          libcerror_error_t **error )
 {
-	PyObject *argument_size       = NULL;
-	PyObject *exception_string    = NULL;
-	PyObject *exception_traceback = NULL;
-	PyObject *exception_type      = NULL;
-	PyObject *exception_value     = NULL;
-	PyObject *method_name         = NULL;
-	PyObject *method_result       = NULL;
-	char *error_string            = NULL;
-	char *safe_buffer             = NULL;
-	static char *function         = "pyesedb_file_object_read_buffer";
-	Py_ssize_t safe_read_count    = 0;
-	ssize_t read_count            = 0;
-	int result                    = 0;
+	PyObject *argument_size    = NULL;
+	PyObject *method_name      = NULL;
+	PyObject *method_result    = NULL;
+	char *safe_buffer          = NULL;
+	static char *function      = "pyesedb_file_object_read_buffer";
+	Py_ssize_t safe_read_count = 0;
+	ssize_t read_count         = 0;
+	int result                 = 0;
 
 	if( file_object == NULL )
 	{
@@ -468,9 +464,13 @@ ssize_t pyesedb_file_object_read_buffer(
 	}
 	if( size > 0 )
 	{
+#if PY_MAJOR_VERSION >= 3
+		method_name = PyUnicode_FromString(
+			       "read" );
+#else
 		method_name = PyString_FromString(
 			       "read" );
-
+#endif
 		argument_size = PyLong_FromSize_t(
 				 size );
 
@@ -484,80 +484,76 @@ ssize_t pyesedb_file_object_read_buffer(
 
 		if( PyErr_Occurred() )
 		{
-			PyErr_Fetch(
-			 &exception_type,
-			 &exception_value,
-			 &exception_traceback );
-
-			exception_string = PyObject_Repr(
-					    exception_value );
-
-			error_string = PyString_AsString(
-					exception_string );
-
-			if( error_string != NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read from file object with error: %s.",
-				 function,
-				 error_string );
-			}
-			else
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read from file object.",
-				 function );
-			}
-			Py_DecRef(
-			 exception_string );
+			pyesedb_error_fetch(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read from file object.",
+			 function );
 
 			goto on_error;
 		}
+		if( method_result == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing method result.",
+			 function );
+
+			goto on_error;
+		}
+#if PY_MAJOR_VERSION >= 3
+		result = PyObject_IsInstance(
+		          method_result,
+		          (PyObject *) &PyBytes_Type );
+#else
+		result = PyObject_IsInstance(
+		          method_result,
+		          (PyObject *) &PyString_Type );
+#endif
+		if( result == -1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to determine if method result is a binary string object.",
+			 function );
+
+			goto on_error;
+		}
+		else if( result == 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: invalid method result value is not a binary string object.",
+			 function );
+
+			goto on_error;
+		}
+#if PY_MAJOR_VERSION >= 3
+		result = PyBytes_AsStringAndSize(
+			  method_result,
+			  &safe_buffer,
+			  &safe_read_count );
+#else
 		result = PyString_AsStringAndSize(
 			  method_result,
 			  &safe_buffer,
 			  &safe_read_count );
-
+#endif
 		if( result == -1 )
 		{
-			PyErr_Fetch(
-			 &exception_type,
-			 &exception_value,
-			 &exception_traceback );
-
-			exception_string = PyObject_Repr(
-					    exception_value );
-
-			error_string = PyString_AsString(
-					exception_string );
-
-			if( error_string != NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read from file object with error: %s.",
-				 function,
-				 error_string );
-			}
-			else
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read from file object.",
-				 function );
-			}
-			Py_DecRef(
-			 exception_string );
+			pyesedb_error_fetch(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read from file object.",
+			 function );
 
 			goto on_error;
 		}
@@ -683,15 +679,10 @@ ssize_t pyesedb_file_object_write_buffer(
          size_t size,
          libcerror_error_t **error )
 {
-	PyObject *argument_string     = NULL;
-	PyObject *exception_string    = NULL;
-	PyObject *exception_traceback = NULL;
-	PyObject *exception_type      = NULL;
-	PyObject *exception_value     = NULL;
-	PyObject *method_name         = NULL;
-	PyObject *method_result       = NULL;
-	char *error_string            = NULL;
-	static char *function         = "pyesedb_file_object_write_buffer";
+	PyObject *argument_string = NULL;
+	PyObject *method_name     = NULL;
+	PyObject *method_result   = NULL;
+	static char *function     = "pyesedb_file_object_write_buffer";
 
 	if( file_object == NULL )
 	{
@@ -732,13 +723,22 @@ ssize_t pyesedb_file_object_write_buffer(
 	}
 	if( size > 0 )
 	{
+#if PY_MAJOR_VERSION >= 3
+		method_name = PyUnicode_FromString(
+			       "write" );
+#else
 		method_name = PyString_FromString(
 			       "write" );
-
+#endif
+#if PY_MAJOR_VERSION >= 3
+		argument_string = PyBytes_FromStringAndSize(
+		                   (char *) buffer,
+		                   size );
+#else
 		argument_string = PyString_FromStringAndSize(
 		                   (char *) buffer,
 		                   size );
-
+#endif
 		PyErr_Clear();
 
 		method_result = PyObject_CallMethodObjArgs(
@@ -749,38 +749,23 @@ ssize_t pyesedb_file_object_write_buffer(
 
 		if( PyErr_Occurred() )
 		{
-			PyErr_Fetch(
-			 &exception_type,
-			 &exception_value,
-			 &exception_traceback );
+			pyesedb_error_fetch(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_WRITE_FAILED,
+			 "%s: unable to write to file object.",
+			 function );
 
-			exception_string = PyObject_Repr(
-					    exception_value );
-
-			error_string = PyString_AsString(
-					exception_string );
-
-			if( error_string != NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write from file object with error: %s.",
-				 function,
-				 error_string );
-			}
-			else
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_WRITE_FAILED,
-				 "%s: unable to write from file object.",
-				 function );
-			}
-			Py_DecRef(
-			 exception_string );
+			goto on_error;
+		}
+		if( method_result == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing method result.",
+			 function );
 
 			goto on_error;
 		}
@@ -879,16 +864,11 @@ int pyesedb_file_object_seek_offset(
      int whence,
      libcerror_error_t **error )
 {
-	PyObject *argument_offset     = NULL;
-	PyObject *argument_whence     = NULL;
-	PyObject *exception_string    = NULL;
-	PyObject *exception_traceback = NULL;
-	PyObject *exception_type      = NULL;
-	PyObject *exception_value     = NULL;
-	PyObject *method_name         = NULL;
-	PyObject *method_result       = NULL;
-	char *error_string            = NULL;
-	static char *function         = "pyesedb_file_object_seek_offset";
+	PyObject *argument_offset = NULL;
+	PyObject *argument_whence = NULL;
+	PyObject *method_name     = NULL;
+	PyObject *method_result   = NULL;
+	static char *function     = "pyesedb_file_object_seek_offset";
 
 	if( file_object == NULL )
 	{
@@ -929,9 +909,13 @@ int pyesedb_file_object_seek_offset(
 
 		return( -1 );
 	}
+#if PY_MAJOR_VERSION >= 3
+	method_name = PyUnicode_FromString(
+	               "seek" );
+#else
 	method_name = PyString_FromString(
 	               "seek" );
-
+#endif
 #if defined( HAVE_LONG_LONG )
 	argument_offset = PyLong_FromLongLong(
 	                   (PY_LONG_LONG) offset );
@@ -939,9 +923,13 @@ int pyesedb_file_object_seek_offset(
 	argument_offset = PyLong_FromLongLong(
 	                   (long) offset );
 #endif
+#if PY_MAJOR_VERSION >= 3
+	argument_whence = PyLong_FromLong(
+	                   (long) whence );
+#else
 	argument_whence = PyInt_FromLong(
 	                   (long) whence );
-
+#endif
 	PyErr_Clear();
 
 	method_result = PyObject_CallMethodObjArgs(
@@ -953,38 +941,23 @@ int pyesedb_file_object_seek_offset(
 
 	if( PyErr_Occurred() )
 	{
-		PyErr_Fetch(
-		 &exception_type,
-		 &exception_value,
-		 &exception_traceback );
+		pyesedb_error_fetch(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_SEEK_FAILED,
+		 "%s: unable to seek in file object.",
+		 function );
 
-		exception_string = PyObject_Repr(
-		                    exception_value );
-
-		error_string = PyString_AsString(
-		                exception_string );
-
-		if( error_string != NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek in file object with error: %s.",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_SEEK_FAILED,
-			 "%s: unable to seek in file object.",
-			 function );
-		}
-		Py_DecRef(
-		 exception_string );
+		goto on_error;
+	}
+	if( method_result == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing method result.",
+		 function );
 
 		goto on_error;
 	}
@@ -1035,15 +1008,10 @@ int pyesedb_file_object_get_offset(
      off64_t *offset,
      libcerror_error_t **error )
 {
-	PyObject *exception_string    = NULL;
-	PyObject *exception_traceback = NULL;
-	PyObject *exception_type      = NULL;
-	PyObject *exception_value     = NULL;
-	PyObject *method_name         = NULL;
-	PyObject *method_result       = NULL;
-	char *error_string            = NULL;
-	static char *function         = "pyesedb_file_object_get_offset";
-	int result                    = 0;
+	PyObject *method_name   = NULL;
+	PyObject *method_result = NULL;
+	static char *function   = "pyesedb_file_object_get_offset";
+	int result              = 0;
 
 	if( file_object == NULL )
 	{
@@ -1067,9 +1035,13 @@ int pyesedb_file_object_get_offset(
 
 		return( -1 );
 	}
+#if PY_MAJOR_VERSION >= 3
+	method_name = PyUnicode_FromString(
+	               "get_offset" );
+#else
 	method_name = PyString_FromString(
 	               "get_offset" );
-
+#endif
 	PyErr_Clear();
 
 	/* Determine if the file object has the get_offset method
@@ -1085,8 +1057,13 @@ int pyesedb_file_object_get_offset(
 
 		/* Fall back to the tell method
 		 */
+#if PY_MAJOR_VERSION >= 3
+		method_name = PyUnicode_FromString(
+		               "tell" );
+#else
 		method_name = PyString_FromString(
 		               "tell" );
+#endif
 	}
 	PyErr_Clear();
 
@@ -1097,38 +1074,23 @@ int pyesedb_file_object_get_offset(
 
 	if( PyErr_Occurred() )
 	{
-		PyErr_Fetch(
-		 &exception_type,
-		 &exception_value,
-		 &exception_traceback );
+		pyesedb_error_fetch(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve current offset in file object.",
+		 function );
 
-		exception_string = PyObject_Repr(
-		                    exception_value );
-
-		error_string = PyString_AsString(
-		                exception_string );
-
-		if( error_string != NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve current offset in file object with error: %s.",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve current offset in file object.",
-			 function );
-		}
-		Py_DecRef(
-		 exception_string );
+		goto on_error;
+	}
+	if( method_result == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing method result.",
+		 function );
 
 		goto on_error;
 	}
@@ -1306,14 +1268,9 @@ int pyesedb_file_object_get_size(
      size64_t *size,
      libcerror_error_t **error )
 {
-	PyObject *exception_string    = NULL;
-	PyObject *exception_traceback = NULL;
-	PyObject *exception_type      = NULL;
-	PyObject *exception_value     = NULL;
-	PyObject *method_name         = NULL;
-	PyObject *method_result       = NULL;
-	char *error_string            = NULL;
-	static char *function         = "pyesedb_file_object_get_size";
+	PyObject *method_name   = NULL;
+	PyObject *method_result = NULL;
+	static char *function   = "pyesedb_file_object_get_size";
 
 	if( file_object == NULL )
 	{
@@ -1337,9 +1294,13 @@ int pyesedb_file_object_get_size(
 
 		return( -1 );
 	}
+#if PY_MAJOR_VERSION >= 3
+	method_name = PyUnicode_FromString(
+	               "get_size" );
+#else
 	method_name = PyString_FromString(
 	               "get_size" );
-
+#endif
 	PyErr_Clear();
 
 	method_result = PyObject_CallMethodObjArgs(
@@ -1349,38 +1310,23 @@ int pyesedb_file_object_get_size(
 
 	if( PyErr_Occurred() )
 	{
-		PyErr_Fetch(
-		 &exception_type,
-		 &exception_value,
-		 &exception_traceback );
+		pyesedb_error_fetch(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve size of file object.",
+		 function );
 
-		exception_string = PyObject_Repr(
-		                    exception_value );
-
-		error_string = PyString_AsString(
-		                exception_string );
-
-		if( error_string != NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve size of file object with error: %s.",
-			 function,
-			 error_string );
-		}
-		else
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve size of file object.",
-			 function );
-		}
-		Py_DecRef(
-		 exception_string );
+		goto on_error;
+	}
+	if( method_result == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing method result.",
+		 function );
 
 		goto on_error;
 	}
@@ -1458,9 +1404,13 @@ int pyesedb_file_object_io_handle_get_size(
 	}
 	gil_state = PyGILState_Ensure();
 
+#if PY_MAJOR_VERSION >= 3
+	method_name = PyUnicode_FromString(
+	               "get_size" );
+#else
 	method_name = PyString_FromString(
 	               "get_size" );
-
+#endif
 	PyErr_Clear();
 
 	/* Determine if the file object has the get_size method

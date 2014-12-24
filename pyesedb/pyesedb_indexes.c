@@ -57,10 +57,8 @@ PySequenceMethods pyesedb_indexes_sequence_methods = {
 };
 
 PyTypeObject pyesedb_indexes_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb._indexes",
 	/* tp_basicsize */
@@ -259,7 +257,8 @@ int pyesedb_indexes_init(
 void pyesedb_indexes_free(
       pyesedb_indexes_t *pyesedb_indexes )
 {
-	static char *function = "pyesedb_indexes_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_indexes_free";
 
 	if( pyesedb_indexes == NULL )
 	{
@@ -270,20 +269,23 @@ void pyesedb_indexes_free(
 
 		return;
 	}
-	if( pyesedb_indexes->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_indexes );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_indexes->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -293,7 +295,7 @@ void pyesedb_indexes_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_indexes->table_object );
 	}
-	pyesedb_indexes->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_indexes );
 }
 

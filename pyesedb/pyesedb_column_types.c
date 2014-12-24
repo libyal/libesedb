@@ -32,10 +32,8 @@
 #include "pyesedb_unused.h"
 
 PyTypeObject pyesedb_column_types_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.column_types",
 	/* tp_basicsize */
@@ -134,6 +132,8 @@ PyTypeObject pyesedb_column_types_type_object = {
 int pyesedb_column_types_init_type(
      PyTypeObject *type_object )
 {
+	PyObject *value_object = NULL;
+
 	if( type_object == NULL )
 	{
 		return( -1 );
@@ -144,147 +144,255 @@ int pyesedb_column_types_init_type(
 	{
 		return( -1 );
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_NULL );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_NULL );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "NULL",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_NULL ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_BOOLEAN );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_BOOLEAN );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "BOOLEAN",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_BOOLEAN ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_8BIT_UNSIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_16BIT_SIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_32BIT_SIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_CURRENCY );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_CURRENCY );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "CURRENCY",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_CURRENCY ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_FLOAT_32BIT );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_FLOAT_32BIT );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "FLOAT_32BIT",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_FLOAT_32BIT ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "DOUBLE_64BIT",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_DATE_TIME );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_DATE_TIME );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "DATE_TIME",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_DATE_TIME ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_BINARY_DATA );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_BINARY_DATA );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "BINARY_DATA",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_BINARY_DATA ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_TEXT );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_TEXT );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "TEXT",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_TEXT ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "LARGE_BINARY_DATA",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_LARGE_TEXT );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_LARGE_TEXT );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "LARGE_TEXT",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "SUPER_LARGE_VALUE",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_SUPER_LARGE_VALUE ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_32BIT_UNSIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_64BIT_SIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_GUID );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_GUID );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "GUID",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_GUID ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "INTEGER_16BIT_UNSIGNED",
-	     PyInt_FromLong(
-	      LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
@@ -369,7 +477,8 @@ int pyesedb_column_types_init(
 void pyesedb_column_types_free(
       pyesedb_column_types_t *pyesedb_column_types )
 {
-	static char *function = "pyesedb_column_types_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_column_types_free";
 
 	if( pyesedb_column_types == NULL )
 	{
@@ -380,25 +489,28 @@ void pyesedb_column_types_free(
 
 		return;
 	}
-	if( pyesedb_column_types->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_column_types );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid column types - missing ob_type.",
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_column_types->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid column types - invalid ob_type - missing tp_free.",
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
 	}
-	pyesedb_column_types->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_column_types );
 }
 

@@ -57,10 +57,8 @@ PySequenceMethods pyesedb_tables_sequence_methods = {
 };
 
 PyTypeObject pyesedb_tables_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb._tables",
 	/* tp_basicsize */
@@ -259,7 +257,8 @@ int pyesedb_tables_init(
 void pyesedb_tables_free(
       pyesedb_tables_t *pyesedb_tables )
 {
-	static char *function = "pyesedb_tables_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_tables_free";
 
 	if( pyesedb_tables == NULL )
 	{
@@ -270,20 +269,23 @@ void pyesedb_tables_free(
 
 		return;
 	}
-	if( pyesedb_tables->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_tables );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - missing ob_type.",
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_tables->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid ob_type - missing tp_free.",
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -293,7 +295,7 @@ void pyesedb_tables_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_tables->file_object );
 	}
-	pyesedb_tables->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_tables );
 }
 

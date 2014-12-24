@@ -43,45 +43,53 @@ def pyesedb_test_single_open_close_file(filename, mode):
   else:
     filename_string = filename
 
-  print "Testing single open close of: {0:s} with access: {1:s}\t".format(
-      filename_string, get_mode_string(mode))
+  print("Testing single open close of: {0:s} with access: {1:s}\t".format(
+      filename_string, get_mode_string(mode)))
 
+  result = True
   try:
     esedb_file = pyesedb.file()
 
     esedb_file.open(filename, mode)
     esedb_file.close()
 
-  except TypeError, exception:
-    if (not filename and
-        exception.message == "pyesedb_file_open: unsupported string object type."):
+  except TypeError as exception:
+    expected_message = (
+        "{0:s}: unsupported string object type.").format(
+            "pyesedb_file_open")
+
+    if not filename and str(exception) == expected_message:
       pass
 
     else:
-      print "(FAIL)"
-      return False
+      print(str(exception))
+      result = False
 
-  except ValueError, exception:
-    if (mode == "w" and
-        exception.message == "pyesedb_file_open: unsupported mode: w."):
-      pass
+  except ValueError as exception:
+    expected_message = (
+        "{0:s}: unsupported mode: w.").format(
+            "pyesedb_file_open")
 
-    else:
-      print "(FAIL)"
-      return False
+    if mode != "w" or str(exception) != expected_message:
+      print(str(exception))
+      result = False
 
-  except:
-    print "(FAIL)"
-    return False
+  except Exception as exception:
+    print(str(exception))
+    result = False
 
-  print "(PASS)"
-  return True
+  if not result:
+    print("(FAIL)")
+  else:
+    print("(PASS)")
+  return result
 
 
 def pyesedb_test_multi_open_close_file(filename, mode):
-  print "Testing multi open close of: {0:s} with access: {1:s}\t".format(
-      filename, get_mode_string(mode))
+  print("Testing multi open close of: {0:s} with access: {1:s}\t".format(
+      filename, get_mode_string(mode)))
 
+  result = True
   try:
     esedb_file = pyesedb.file()
 
@@ -90,72 +98,89 @@ def pyesedb_test_multi_open_close_file(filename, mode):
     esedb_file.open(filename, mode)
     esedb_file.close()
 
-  except:
-    print "(FAIL)"
-    return False
+  except Exception as exception:
+    print(str(exception))
+    result = False
 
-  print "(PASS)"
-  return True
+  if not result:
+    print("(FAIL)")
+  else:
+    print("(PASS)")
+  return result
 
 
 def pyesedb_test_single_open_close_file_object(filename, mode):
-  print ("Testing single open close of file-like object of: {0:s} with access: "
-         "{1:s}\t").format(filename, get_mode_string(mode))
+  print(("Testing single open close of file-like object of: {0:s} "
+         "with access: {1:s}\t").format(filename, get_mode_string(mode)))
 
+  result = True
   try:
-    file_object = open(filename, mode)
+    file_object = open(filename, "rb")
     esedb_file = pyesedb.file()
 
     esedb_file.open_file_object(file_object, mode)
     esedb_file.close()
 
-  except:
-    print "(FAIL)"
-    return False
+  except Exception as exception:
+    print(str(exception))
+    result = False
 
-  print "(PASS)"
-  return True
+  if not result:
+    print("(FAIL)")
+  else:
+    print("(PASS)")
+  return result
 
 
 def pyesedb_test_single_open_close_file_object_with_dereference(
     filename, mode):
-  print ("Testing single open close of file-like object with dereference of: "
-         "{0:s} with access: {1:s}\t").format(filename, get_mode_string(mode))
+  print(("Testing single open close of file-like object with dereference "
+         "of: {0:s} with access: {1:s}\t").format(
+      filename, get_mode_string(mode)))
 
+  result = True
   try:
-    file_object = open(filename, mode)
+    file_object = open(filename, "rb")
     esedb_file = pyesedb.file()
 
     esedb_file.open_file_object(file_object, mode)
     del file_object
     esedb_file.close()
 
-  except:
-    print "(FAIL)"
-    return False
+  except Exception as exception:
+    print(str(exception))
+    result = False
 
-  print "(PASS)"
-  return True
+  if not result:
+    print("(FAIL)")
+  else:
+    print("(PASS)")
+  return result
 
 
 def pyesedb_test_multi_open_close_file_object(filename, mode):
-  print ("Testing multi open close of file-like object of: {0:s} with access: "
-         "{1:s}\t").format(filename, get_mode_string(mode))
+  print(("Testing multi open close of file-like object of: {0:s} "
+         "with access: {1:s}\t").format(filename, get_mode_string(mode)))
 
+  result = True
   try:
-    file_object = open(filename, mode)
+    file_object = open(filename, "rb")
     esedb_file = pyesedb.file()
 
     esedb_file.open_file_object(file_object, mode)
     esedb_file.close()
     esedb_file.open_file_object(file_object, mode)
     esedb_file.close()
-  except:
-    print "(FAIL)"
-    return False
 
-  print "(PASS)"
-  return True
+  except Exception as exception:
+    print(str(exception))
+    result = False
+
+  if not result:
+    print("(FAIL)")
+  else:
+    print("(PASS)")
+  return result
 
 
 def main():
@@ -169,10 +194,10 @@ def main():
   options = args_parser.parse_args()
 
   if not options.source:
-    print u"Source value is missing."
-    print u""
+    print("Source value is missing.")
+    print("")
     args_parser.print_help()
-    print u""
+    print("")
     return False
 
   if not pyesedb_test_single_open_close_file(options.source, "r"):
@@ -199,6 +224,7 @@ def main():
     return False
 
   return True
+
 
 if __name__ == "__main__":
   if not main():

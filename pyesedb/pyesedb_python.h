@@ -24,6 +24,8 @@
 
 #include <common.h>
 
+#if PY_MAJOR_VERSION < 3
+
 /* Fix defines in pyconfig.h
  */
 #undef _POSIX_C_SOURCE
@@ -39,8 +41,36 @@
 #undef HAVE_INT64_T
 #undef HAVE_UINT64_T
 
+#endif /* PY_MAJOR_VERSION < 3 */
+
 #include <Python.h>
-#include <structmember.h>
+
+/* Python compatibility macros
+ */
+#if !defined( PyMODINIT_FUNC )
+#if PY_MAJOR_VERSION >= 3
+#define PyMODINIT_FUNC PyObject *
+#else
+#define PyMODINIT_FUNC void
+#endif
+#endif /* !defined( PyMODINIT_FUNC ) */
+
+#if !defined( PyVarObject_HEAD_INIT )
+#define PyVarObject_HEAD_INIT( type, size ) \
+	PyObject_HEAD_INIT( type ) \
+	size,
+
+#endif /* !defined( PyVarObject_HEAD_INIT ) */
+
+#if PY_MAJOR_VERSION >= 3
+#define Py_TPFLAGS_HAVE_ITER		0
+#endif
+
+#if !defined( Py_TYPE )
+#define Py_TYPE( object ) \
+	( ( (PyObject *) object )->ob_type )
+
+#endif /* !defined( Py_TYPE ) */
 
 #endif
 

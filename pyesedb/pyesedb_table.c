@@ -150,10 +150,8 @@ PyGetSetDef pyesedb_table_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyesedb_table_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.table",
 	/* tp_basicsize */
@@ -334,8 +332,9 @@ int pyesedb_table_init(
 void pyesedb_table_free(
       pyesedb_table_t *pyesedb_table )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyesedb_table_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_table_free";
 
 	if( pyesedb_table == NULL )
 	{
@@ -346,29 +345,32 @@ void pyesedb_table_free(
 
 		return;
 	}
-	if( pyesedb_table->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid table - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_table->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid table - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pyesedb_table->table == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid table - missing libesedb table.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pyesedb_table );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -391,7 +393,7 @@ void pyesedb_table_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_table->file_object );
 	}
-	pyesedb_table->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_table );
 }
 
@@ -683,6 +685,7 @@ PyObject *pyesedb_table_get_number_of_columns(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pyesedb_table_get_number_of_columns";
 	int number_of_columns    = 0;
 	int result               = 0;
@@ -721,8 +724,14 @@ PyObject *pyesedb_table_get_number_of_columns(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_columns ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_columns );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_columns );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific column by index
@@ -897,6 +906,7 @@ PyObject *pyesedb_table_get_number_of_records(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pyesedb_table_get_number_of_records";
 	int number_of_records    = 0;
 	int result               = 0;
@@ -934,8 +944,14 @@ PyObject *pyesedb_table_get_number_of_records(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_records ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_records );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_records );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific record by index

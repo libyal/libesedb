@@ -109,10 +109,8 @@ PyGetSetDef pyesedb_index_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyesedb_index_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.index",
 	/* tp_basicsize */
@@ -293,8 +291,9 @@ int pyesedb_index_init(
 void pyesedb_index_free(
       pyesedb_index_t *pyesedb_index )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyesedb_index_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_index_free";
 
 	if( pyesedb_index == NULL )
 	{
@@ -305,20 +304,23 @@ void pyesedb_index_free(
 
 		return;
 	}
-	if( pyesedb_index->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_index );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid index - missing ob_type.",
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_index->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid index - invalid ob_type - missing tp_free.",
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -350,7 +352,7 @@ void pyesedb_index_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_index->file_object );
 	}
-	pyesedb_index->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_index );
 }
 
@@ -528,6 +530,7 @@ PyObject *pyesedb_index_get_number_of_records(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pyesedb_index_get_number_of_records";
 	int number_of_records    = 0;
 	int result               = 0;
@@ -565,8 +568,14 @@ PyObject *pyesedb_index_get_number_of_records(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_records ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_records );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_records );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves a specific record by index

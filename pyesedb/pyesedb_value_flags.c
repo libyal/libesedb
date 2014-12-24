@@ -32,10 +32,8 @@
 #include "pyesedb_unused.h"
 
 PyTypeObject pyesedb_value_flags_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.value_flags",
 	/* tp_basicsize */
@@ -134,6 +132,8 @@ PyTypeObject pyesedb_value_flags_type_object = {
 int pyesedb_value_flags_init_type(
      PyTypeObject *type_object )
 {
+	PyObject *value_object = NULL;
+
 	if( type_object == NULL )
 	{
 		return( -1 );
@@ -144,35 +144,59 @@ int pyesedb_value_flags_init_type(
 	{
 		return( -1 );
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_VALUE_FLAG_VARIABLE_SIZE );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_VALUE_FLAG_VARIABLE_SIZE );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "VARIABLE_SIZE",
-	     PyInt_FromLong(
-	      LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_VALUE_FLAG_COMPRESSED );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_VALUE_FLAG_COMPRESSED );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "COMPRESSED",
-	     PyInt_FromLong(
-	      LIBESEDB_VALUE_FLAG_COMPRESSED ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_VALUE_FLAG_LONG_VALUE );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_VALUE_FLAG_LONG_VALUE );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "LONG_VALUE",
-	     PyInt_FromLong(
-	      LIBESEDB_VALUE_FLAG_LONG_VALUE ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	value_object = PyLong_FromLong(
+	                LIBESEDB_VALUE_FLAG_MULTI_VALUE );
+#else
+	value_object = PyInt_FromLong(
+	                LIBESEDB_VALUE_FLAG_MULTI_VALUE );
+#endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
 	     "MULTI_VALUE",
-	     PyInt_FromLong(
-	      LIBESEDB_VALUE_FLAG_MULTI_VALUE ) ) != 0 )
+	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
@@ -257,7 +281,8 @@ int pyesedb_value_flags_init(
 void pyesedb_value_flags_free(
       pyesedb_value_flags_t *pyesedb_value_flags )
 {
-	static char *function = "pyesedb_value_flags_free";
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_value_flags_free";
 
 	if( pyesedb_value_flags == NULL )
 	{
@@ -268,25 +293,28 @@ void pyesedb_value_flags_free(
 
 		return;
 	}
-	if( pyesedb_value_flags->ob_type == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_value_flags );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid value flags - missing ob_type.",
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_value_flags->ob_type->tp_free == NULL )
+	if( ob_type->tp_free == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid value flags - invalid ob_type - missing tp_free.",
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
 	}
-	pyesedb_value_flags->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_value_flags );
 }
 

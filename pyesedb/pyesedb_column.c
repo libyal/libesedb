@@ -89,10 +89,8 @@ PyGetSetDef pyesedb_column_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyesedb_column_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.column",
 	/* tp_basicsize */
@@ -273,8 +271,9 @@ int pyesedb_column_init(
 void pyesedb_column_free(
       pyesedb_column_t *pyesedb_column )
 {
-	libcerror_error_t *error = NULL;
-	static char *function    = "pyesedb_column_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_column_free";
 
 	if( pyesedb_column == NULL )
 	{
@@ -285,29 +284,32 @@ void pyesedb_column_free(
 
 		return;
 	}
-	if( pyesedb_column->ob_type == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid column - missing ob_type.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_column->ob_type->tp_free == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid column - invalid ob_type - missing tp_free.",
-		 function );
-
-		return;
-	}
 	if( pyesedb_column->column == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
 		 "%s: invalid column - missing libesedb column.",
+		 function );
+
+		return;
+	}
+	ob_type = Py_TYPE(
+	           pyesedb_column );
+
+	if( ob_type == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
+		 function );
+
+		return;
+	}
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
 		 function );
 
 		return;
@@ -330,7 +332,7 @@ void pyesedb_column_free(
 		Py_DecRef(
 		 (PyObject *) pyesedb_column->table_object );
 	}
-	pyesedb_column->ob_type->tp_free(
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_column );
 }
 

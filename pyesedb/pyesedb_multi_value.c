@@ -90,10 +90,8 @@ PyGetSetDef pyesedb_multi_value_object_get_set_definitions[] = {
 };
 
 PyTypeObject pyesedb_multi_value_type_object = {
-	PyObject_HEAD_INIT( NULL )
+	PyVarObject_HEAD_INIT( NULL, 0 )
 
-	/* ob_size */
-	0,
 	/* tp_name */
 	"pyesedb.multi_value",
 	/* tp_basicsize */
@@ -270,7 +268,9 @@ int pyesedb_multi_value_init(
 void pyesedb_multi_value_free(
       pyesedb_multi_value_t *pyesedb_multi_value )
 {
-	static char *function = "pyesedb_multi_value_free";
+	libcerror_error_t *error    = NULL;
+	struct _typeobject *ob_type = NULL;
+	static char *function       = "pyesedb_multi_value_free";
 
 	if( pyesedb_multi_value == NULL )
 	{
@@ -281,25 +281,55 @@ void pyesedb_multi_value_free(
 
 		return;
 	}
-	if( pyesedb_multi_value->ob_type == NULL )
+	if( pyesedb_multi_value->multi_value == NULL )
 	{
 		PyErr_Format(
 		 PyExc_TypeError,
-		 "%s: invalid multi value - missing ob_type.",
+		 "%s: invalid multi value - missing libesedb multi value.",
 		 function );
 
 		return;
 	}
-	if( pyesedb_multi_value->ob_type->tp_free == NULL )
+	ob_type = Py_TYPE(
+	           pyesedb_multi_value );
+
+	if( ob_type == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid multi value - invalid ob_type - missing tp_free.",
+		 PyExc_ValueError,
+		 "%s: missing ob_type.",
 		 function );
 
 		return;
 	}
-	pyesedb_multi_value->ob_type->tp_free(
+	if( ob_type->tp_free == NULL )
+	{
+		PyErr_Format(
+		 PyExc_ValueError,
+		 "%s: invalid ob_type - missing tp_free.",
+		 function );
+
+		return;
+	}
+	if( libesedb_multi_value_free(
+	     &( pyesedb_multi_value->multi_value ),
+	     &error ) != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to free libesedb multi value.",
+		 function );
+
+		libcerror_error_free(
+		 &error );
+	}
+	if( pyesedb_multi_value->record_object != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyesedb_multi_value->record_object );
+	}
+	ob_type->tp_free(
 	 (PyObject*) pyesedb_multi_value );
 }
 
@@ -311,6 +341,7 @@ PyObject *pyesedb_multi_value_get_number_of_values(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
+	PyObject *integer_object = NULL;
 	static char *function    = "pyesedb_multi_value_get_number_of_values";
 	int number_of_values     = 0;
 	int result               = 0;
@@ -348,8 +379,14 @@ PyObject *pyesedb_multi_value_get_number_of_values(
 
 		return( NULL );
 	}
-	return( PyInt_FromLong(
-	         (long) number_of_values ) );
+#if PY_MAJOR_VERSION >= 3
+	integer_object = PyLong_FromLong(
+	                  (long) number_of_values );
+#else
+	integer_object = PyInt_FromLong(
+	                  (long) number_of_values );
+#endif
+	return( integer_object );
 }
 
 /* Retrieves the value data
@@ -457,10 +494,15 @@ PyObject *pyesedb_multi_value_get_value_data(
 
 		goto on_error;
 	}
+#if PY_MAJOR_VERSION >= 3
+	string_object = PyBytes_FromStringAndSize(
+			 (char *) value_data,
+			 (Py_ssize_t) value_data_size );
+#else
 	string_object = PyString_FromStringAndSize(
 			 (char *) value_data,
 			 (Py_ssize_t) value_data_size );
-
+#endif
 	PyMem_Free(
 	 value_data );
 

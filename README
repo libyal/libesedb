@@ -8,11 +8,10 @@ Project information:
 
 Work in progress:
 * Refactor to allow libesedb handle +10G databases
-* Python-bindings
+* Python-bindings (including Python 3 support)
 
 Planned:
 * Multi-threading support
-* Python 3 support
 
 Also see:
 * Forensic analysis of the Windows Search database: https://googledrive.com/host/0B3fBvzttpiiSN082cmxsbHB0anc/Forensic%20analysis%20of%20the%20Windows%20Search%20database.pdf
