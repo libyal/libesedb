@@ -129,8 +129,6 @@ Deployment:
   - improve libfwnt detection
 * update manuals
   - add esedbexport.1
-* create debian package files
-* add codegear files
 
 Performance
 * create data definition tree in page tree for faster lookup of keys
@@ -148,6 +146,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20150105
+* 2015 update
 
 20141224
 * worked on Python 3 support

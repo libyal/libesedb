@@ -88,7 +88,7 @@ endif
 
 .PHONY: override_dh_shlibdeps
 override_dh_shlibdeps:
-	dh_shlibdeps -Llibesedb -l${PWD}/debian/tmp/usr/lib
+	dh_shlibdeps -Llibesedb -l${CURDIR}/debian/tmp/usr/lib
 
 .PHONY: override_dh_makeshlibs
 override_dh_makeshlibs:

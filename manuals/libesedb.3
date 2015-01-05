@@ -1,4 +1,4 @@
-.Dd November 9, 2014
+.Dd January  5, 2015
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -13,7 +13,7 @@ Support functions
 .Ft const char *
 .Fn libesedb_get_version "void"
 .Ft int
-.Fn libesedb_get_access_flags_read
+.Fn libesedb_get_access_flags_read "void"
 .Ft int
 .Fn libesedb_get_codepage "int *codepage, libesedb_error_t **error"
 .Ft int
@@ -40,13 +40,13 @@ Notify functions
 .Fn libesedb_notify_stream_close "libesedb_error_t **error"
 .Pp
 Error functions
-.Ft void 
+.Ft void
 .Fn libesedb_error_free "libesedb_error_t **error"
 .Ft int
 .Fn libesedb_error_fprint "libesedb_error_t *error, FILE *stream"
 .Ft int
 .Fn libesedb_error_sprint "libesedb_error_t *error, char *string, size_t size"
-.Ft int 
+.Ft int
 .Fn libesedb_error_backtrace_fprint "libesedb_error_t *error, FILE *stream"
 .Ft int
 .Fn libesedb_error_backtrace_sprint "libesedb_error_t *error, char *string, size_t size"
@@ -57,7 +57,9 @@ File functions
 .Ft int
 .Fn libesedb_file_free "libesedb_file_t **file, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_open "libesedb_file_t *file, const char *filename, int flags, libesedb_error_t **error"
+.Fn libesedb_file_signal_abort "libesedb_file_t *file, libesedb_error_t **error"
+.Ft int
+.Fn libesedb_file_open "libesedb_file_t *file, const char *filename, int access_flags, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_file_close "libesedb_file_t *file, libesedb_error_t **error"
 .Ft int
@@ -79,11 +81,11 @@ File functions
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libesedb_file_open_wide "libesedb_file_t *file, const wchar_t *filename, int flags, libesedb_error_t **error"
+.Fn libesedb_file_open_wide "libesedb_file_t *file, const wchar_t *filename, int access_flags, libesedb_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libesedb_file_open_file_io_handle "libesedb_file_t *file, libbfio_handle_t *file_io_handle, int flags, libesedb_error_t **error"
+.Fn libesedb_file_open_file_io_handle "libesedb_file_t *file, libbfio_handle_t *file_io_handle, int access_flags, libesedb_error_t **error"
 .Pp
 Table functions
 .Ft int
@@ -153,7 +155,7 @@ Index functions
 .Ft int
 .Fn libesedb_index_get_record "libesedb_index_t *index, int record_entry, libesedb_record_t **record, libesedb_error_t **error"
 .Pp
-Record functions
+Record (row) functions
 .Ft int
 .Fn libesedb_record_free "libesedb_record_t **record, libesedb_error_t **error"
 .Ft int
@@ -221,7 +223,7 @@ Long value functions
 .Ft int
 .Fn libesedb_long_value_get_data_segment_size "libesedb_long_value_t *long_value, int data_segment_index, size_t *data_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_data_segment "libesedb_long_value_t *long_value, int data_segment_index, uint8_t *data, size_t data_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_data_segment "libesedb_long_value_t *long_value, int data_segment_index, uint8_t *data_segment, size_t data_size, libesedb_error_t **error"
 .Pp
 Multi value functions
 .Ft int
@@ -231,9 +233,9 @@ Multi value functions
 .Ft int
 .Fn libesedb_multi_value_get_number_of_values "libesedb_multi_value_t *multi_value, int *number_of_values, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_data_size "libesedb_multi_value_t *multi_value, int multi_value_index, size_t *value_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_data_size "libesedb_multi_value_t *multi_value, int value_entry, size_t *value_data_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_data "libesedb_multi_value_t *multi_value, int multi_value_index, uint8_t *value_data, size_t value_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_data "libesedb_multi_value_t *multi_value, int value_entry, uint8_t *value_data, size_t value_data_size, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_multi_value_get_value_8bit "libesedb_multi_value_t *multi_value, int multi_value_index, uint8_t *value_8bit, libesedb_error_t **error"
 .Ft int
@@ -265,42 +267,32 @@ The
 .Fn libesedb_get_version
 function is used to retrieve the library version.
 .Sh RETURN VALUES
-Most of the functions return NULL or -1 on error, dependent on the return type. For the actual return values refer to libesedb.h
+Most of the functions return NULL or \-1 on error, dependent on the return type.
+For the actual return values see "libesedb.h".
 .Sh ENVIRONMENT
 None
 .Sh FILES
 None
-.Sh NOTES
-libesedb uses mainly UTF-8 encoded strings except for filenames, but provides several UTF-16 functions.
+libesedb allows to be compiled with wide character support (wchar_t).
 
-ASCII strings in an EDB file contain an extended ASCII string using the codepage of the system it was created on. The function
-.Ar libesedb_set_ascii_codepage
- allows to set the required codepage for reading and writing. The default codepage is ASCII and replaces all extended characters to the Unicode replacement character (U+fffd) when reading and the ASCII substitude character (0x1a) when writing.
-
-libesedb allows to be compiled with wide character support.
-To compile libesedb with wide character support use
+To compile libesedb with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes
-or pass the definition
-.Ar HAVE_WIDE_CHARACTER_TYPE
- to the compiler (i.e. in case of Microsoft Visual Studio (MSVS) C++).
+ or define:
+.Ar _UNICODE
+ or
+.Ar UNICODE
+ during compilation.
 
-To have other code to determine if libesedb was compiled with wide character support it defines
-.Ar LIBESEDB_HAVE_WIDE_CHARACTER_TYPE
- in libesedb/features.h.
-
-libesedb allows to be compiled with chained IO support using libbfio.
-libesedb will automatically detect if a compatible version of libbfio is available.
-
-To have other code to determine if libesedb was compiled with libbfio support it defines
-.Ar LIBESEDB_HAVE_BFIO
- in libesedb/features.h.
-
+.Ar LIBESEDB_WIDE_CHARACTER_TYPE
+ in libesedb/features.h can be used to determine if libesedb was compiled with wide character support.
 .Sh BUGS
-Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
-https://github.com/libyal/libesedb/
+Please report bugs of any kind on the project issue tracker: https://github.com/libyal/libesedb/issues
 .Sh AUTHOR
-These man pages were written by Joachim Metz.
+These man pages are generated from "libesedb.h".
 .Sh COPYRIGHT
-Copyright 2009-2014, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>.
+
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO
 the libesedb.h include file

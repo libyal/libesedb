@@ -1,7 +1,7 @@
 /*
  * Python bindings module for libesedb (pyesedb)
  *
- * Copyright (c) 2009-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -471,6 +471,14 @@ PyMODINIT_FUNC initpyesedb(
 	PyTypeObject *tables_type_object       = NULL;
 	PyTypeObject *value_flags_type_object  = NULL;
 	PyGILState_STATE gil_state             = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	libesedb_notify_set_stream(
+	 stderr,
+	 NULL );
+	libesedb_notify_set_verbose(
+	 1 );
+#endif
 
 	/* Create the module
 	 * This function must be called before grabbing the GIL

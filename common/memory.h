@@ -1,7 +1,7 @@
 /*
  * Memory functions
  *
- * Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -46,13 +46,13 @@ extern "C" {
 #define memory_allocate( size ) \
 	g_malloc( (gsize) size )
 
-#elif defined( HAVE_MALLOC ) || defined( WINAPI )
-#define memory_allocate( size ) \
-	malloc( size )
-
 #elif defined( WINAPI )
 #define memory_allocate( size ) \
 	HeapAlloc( GetProcessHeap(), 0, (SIZE_T) size )
+
+#elif defined( HAVE_MALLOC )
+#define memory_allocate( size ) \
+	malloc( size )
 #endif
 
 #define memory_allocate_structure( type ) \
@@ -67,10 +67,6 @@ extern "C" {
 #define memory_reallocate( buffer, size ) \
 	g_realloc( (gpointer) buffer, (gsize) size )
 
-#elif defined( HAVE_REALLOC ) || defined( WINAPI )
-#define memory_reallocate( buffer, size ) \
-	realloc( (void *) buffer, size )
-
 #elif defined( WINAPI )
 /* HeapReAlloc does not allocate empty (NULL) buffers as realloc does
  */
@@ -78,6 +74,10 @@ extern "C" {
 	( buffer == NULL ) ? \
 	HeapAlloc( GetProcessHeap(), 0, (SIZE_T) size ) : \
 	HeapReAlloc( GetProcessHeap(), 0, (LPVOID) buffer, (SIZE_T) size )
+
+#elif defined( HAVE_REALLOC )
+#define memory_reallocate( buffer, size ) \
+	realloc( (void *) buffer, size )
 #endif
 
 /* Memory free
@@ -86,13 +86,13 @@ extern "C" {
 #define memory_free( buffer ) \
 	g_free( (gpointer) buffer )
 
-#elif defined( HAVE_FREE ) || defined( WINAPI )
-#define memory_free( buffer ) \
-	free( (void *) buffer )
-
 #elif defined( WINAPI )
 #define memory_free( buffer ) \
 	HeapFree( GetProcessHeap(), 0, (LPVOID) buffer )
+
+#elif defined( HAVE_FREE )
+#define memory_free( buffer ) \
+	free( (void *) buffer )
 #endif
 
 /* Memory compare

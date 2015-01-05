@@ -1,7 +1,7 @@
 /*
  * FILE stream functions
  *
- * Copyright (c) 2006-2014, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2006-2015, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -132,6 +132,8 @@ extern "C" {
 #define file_stream_vfprintf( stream, format, ... ) \
 	g_vfprintf( stream, format, __VA_ARGS__ )
 
+/* Borland BCC previous to version 5.6.0 cannot handle the macro form: MACRO( ... )
+ */
 #elif defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
 #define file_stream_vfprintf \
 	vfprintf

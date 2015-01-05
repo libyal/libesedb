@@ -1,27 +1,33 @@
 # Files to ignore by git
 #
-# Version: 20141014
+# Version: 20141227
 
 # Generic auto-generated build files
 *~
 *.a
 *.la
 *.lai
+*.lib
 *.lineno
 *.lo
+*.log
 *.Plo
 *.Po
 *.o
+*.obj
 *.so
 *.so.[0-9][0-9]*
 *.so.[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*
+*.swp
+*.trs
 *.Tpo
 .deps
 .libs
 INSTALL
 Makefile
+Makefile.bcc
 Makefile.in
-stamp-h1
+stamp-h[1-9]
 
 # Specific auto-generated build files
 /ABOUT-NLS

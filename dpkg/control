@@ -1,13 +1,12 @@
 Source: libesedb
-Section: unknown
+Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 7), autotools-dev, python-dev
-Standards-Version: 3.8.3
+Standards-Version: 3.9.5
 Homepage: https://github.com/libyal/libesedb/
 
 Package: libesedb
-Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: libesedb-dbg
@@ -17,28 +16,28 @@ Description: Library to access the Extensible Storage Engine (ESE) Database File
 Package: libesedb-dbg
 Architecture: any
 Section: debug
-Depends: libesedb (= ${Source-Version}), ${misc:Depends}
+Depends: libesedb (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libesedb
  Debugging symbols for libesedb.
 
 Package: libesedb-dev
 Section: libdevel
 Architecture: any
-Depends: libesedb (= ${Source-Version})
+Depends: libesedb (= ${binary:Version}), ${misc:Depends}
 Description: Header files and libraries for developing applications for libesedb
  Header files and libraries for developing applications for libesedb.
 
 Package: libesedb-tools
 Section: utils
 Architecture: any
-Depends: libesedb (= ${Source-Version}), ${shlibs:Depends}
+Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
  Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB).
 
 Package: libesedb-python
 Section: python
 Architecture: any
-Depends: libesedb (= ${Source-Version}), ${shlibs:Depends}, ${python:Depends}
+Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: libesedb-python-dbg
 Description: Python bindings for libesedb
  Python bindings for libesedb.
@@ -46,7 +45,7 @@ Description: Python bindings for libesedb
 Package: libesedb-python-dbg
 Section: debug
 Architecture: any
-Depends: libesedb-python (= ${Source-Version})
+Depends: libesedb-python (= ${binary:Version}), ${misc:Depends}
 Description: Debugging symbols for libesedb-python
  Debugging symbols for libesedb-python.
 
