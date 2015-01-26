@@ -10,12 +10,12 @@ configuration:
   - Release
 
 install:
-  - cmd: git clone https://github.com/libyal/libyal
+  - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
 
 before_build:
   - ps: .\synclibs.ps1
   - ps: .\autogen.ps1
-  - cmd: C:\Python27\python.exe libyal\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln
+  - cmd: C:\Python27\python.exe ..\libyal\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln
 
 build:
   project: vs2010\libesedb.sln
