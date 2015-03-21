@@ -566,6 +566,18 @@ int libesedb_key_compare(
 				result = LIBFDATA_COMPARE_EQUAL;
 			}
 		}
+		else if( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT )
+		{
+			if( ( compare_result == 0 )
+			 && ( first_key->data_size > second_key->data_size ) )
+			{
+				result = LIBFDATA_COMPARE_GREATER;
+			}
+			else
+			{
+				result = LIBFDATA_COMPARE_EQUAL;
+			}
+		}
 		else
 		{
 /* TODO make sure this works */

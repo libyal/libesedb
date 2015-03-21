@@ -27,7 +27,6 @@ TODO
 * esedbexport -t /root creates /root.export ?
 * esedbexport skip table on error
 * check Win2K ntds.dit support
-* add esedbtools header for: libfwnt, libfmapi
 * clean up and refactor info handle
 * export handle: fix creation of indexes directory
 
@@ -146,6 +145,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20150321
+* worked on libfdata btree refactor
+* changes for long value key compare
 
 20150105
 * 2015 update

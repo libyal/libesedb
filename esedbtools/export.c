@@ -21,9 +21,12 @@
 
 #include <common.h>
 #include <file_stream.h>
+#include <memory.h>
 #include <types.h>
 
 #include "esedbtools_libcstring.h"
+#include "esedbtools_libcerror.h"
+#include "esedbtools_libesedb.h"
 #include "export.h"
 
 /* Exports binary data
@@ -162,5 +165,133 @@ void export_text(
 			string_size -= 1;
 		}
 	}
+}
+
+/* Retrieves the long value data from a long value
+ * Returns 1 if successful or -1 on error
+ */
+int export_get_long_value_data(
+     libesedb_long_value_t *long_value,
+     uint8_t **long_value_data,
+     size_t *long_value_data_size,
+     libcerror_error_t **error )
+{
+	static char *function              = "export_get_long_value_data";
+	size64_t safe_long_value_data_size = 0;
+
+	if( long_value == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value data.",
+		 function );
+
+		return( -1 );
+	}
+	if( *long_value_data != NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid long value data value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( long_value_data_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid long value data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_long_value_get_data_size(
+	     long_value,
+	     &safe_long_value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value data size.",
+		 function );
+
+		goto on_error;
+	}
+	if( safe_long_value_data_size > (size64_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid long value data size value exceeds maximum.",
+		 function );
+
+		goto on_error;
+	}
+	if( safe_long_value_data_size == 0 )
+	{
+		*long_value_data      = NULL;
+		*long_value_data_size = 0;
+	}
+	*long_value_data = (uint8_t *) memory_allocate(
+	                                sizeof( uint8_t ) * (size_t) safe_long_value_data_size );
+
+	if( *long_value_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create long value data.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_long_value_get_data(
+	     long_value,
+	     *long_value_data,
+	     (size_t) safe_long_value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value data.",
+		 function );
+
+		goto on_error;
+	}
+	*long_value_data_size = (size_t) safe_long_value_data_size;
+
+	return( 1 );
+
+on_error:
+	if( long_value_data != NULL )
+	{
+		memory_free(
+		 long_value_data );
+	}
+	return( -1 );
 }
 

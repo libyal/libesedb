@@ -2421,9 +2421,7 @@ int export_handle_export_record_value(
 	uint16_t value_16bit                        = 0;
 	uint8_t value_8bit                          = 0;
 	uint8_t value_data_flags                    = 0;
-	int long_value_segment_iterator             = 0;
 	int multi_value_iterator                    = 0;
-	int number_of_long_value_segments           = 0;
 	int number_of_multi_values                  = 0;
 	int result                                  = 0;
 
@@ -3219,55 +3217,21 @@ int export_handle_export_record_value(
 		}
 		else
 		{
-			if( libesedb_long_value_get_number_of_data_segments(
+			if( export_get_long_value_data(
 			     long_value,
-			     &number_of_long_value_segments,
+			     &value_data,
+			     &value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve number of long value data segments.",
-				 function );
+				 "%s: unable to retrieve long value data of record entry: %d.",
+				 function,
+				 record_value_entry );
 
 				goto on_error;
-			}
-			for( long_value_segment_iterator = 0;
-			     long_value_segment_iterator < number_of_long_value_segments;
-			     long_value_segment_iterator++ )
-			{
-				if( libesedb_long_value_get_segment_data(
-				     long_value,
-				     long_value_segment_iterator,
-				     &value_data,
-				     &value_data_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve long value segment: %d of record entry: %d.",
-					 function,
-					 long_value_segment_iterator,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				if( value_data != NULL )
-				{
-#if defined( HAVE_DEBUG_OUTPUT ) && defined( LONG_VALUE_TEST )
-libcnotify_printf(
- "LONG VALUE DATA: %d out of %d\n",
- long_value_segment_iterator + 1,
- number_of_long_value_segments );
-libcnotify_print_data(
- value_data,
- value_data_size,
- 0 );
-#endif
-				}
 			}
 			if( libesedb_long_value_free(
 			     &long_value,
@@ -3284,13 +3248,12 @@ libcnotify_print_data(
 			}
 		}
 	}
-	/* TODO handle 0x10 flags */
+/* TODO handle 0x10 flags */
 	else if( ( ( value_data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
 	      && ( ( value_data_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
 	      && ( ( value_data_flags & 0x10 ) == 0 ) )
 	{
-		/* TODO what about non string multi values ?
-		 */
+/* TODO what about non string multi values ? */
 		if( libesedb_record_get_multi_value(
 		     record,
 		     record_value_entry,

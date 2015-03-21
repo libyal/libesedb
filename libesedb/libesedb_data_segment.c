@@ -290,7 +290,6 @@ int libesedb_data_segment_read_element_data(
 {
 	libesedb_data_segment_t *data_segment = NULL;
 	static char *function                 = "libesedb_data_segment_read_element_data";
-	off64_t file_offset                   = 0;
 	ssize_t read_count                    = 0;
 
 	LIBESEDB_UNREFERENCED_PARAMETER( data_handle )
@@ -315,8 +314,8 @@ int libesedb_data_segment_read_element_data(
 		libcnotify_printf(
 		 "%s: reading data segment at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
 		 function,
-		 file_offset,
-		 file_offset );
+		 element_offset,
+		 element_offset );
 	}
 #endif
 	if( libbfio_handle_seek_offset(

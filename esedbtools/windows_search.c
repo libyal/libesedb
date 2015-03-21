@@ -2333,7 +2333,7 @@ int windows_search_export_record_value_compressed_string(
 	uint8_t *multi_value_data           = NULL;
 	uint8_t *value_data                 = NULL;
 	static char *function               = "windows_search_export_record_value_compressed_string";
-	size64_t long_value_data_size       = 0;
+	size_t long_value_data_size         = 0;
 	size_t multi_value_data_size        = 0;
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
@@ -2499,8 +2499,9 @@ int windows_search_export_record_value_compressed_string(
 
 			goto on_error;
 		}
-		if( libesedb_long_value_get_data_size(
+		if( export_get_long_value_data(
 		     long_value,
+		     &long_value_data,
 		     &long_value_data_size,
 		     error ) != 1 )
 		{
@@ -2508,58 +2509,16 @@ int windows_search_export_record_value_compressed_string(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve long value data size.",
-			 function );
-
-			goto on_error;
-		}
-		if( long_value_data_size > (size64_t) SSIZE_MAX )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-			 "%s: invalid long value data size value exceeds maximum.",
+			 "%s: unable to retrieve long value data.",
 			 function );
 
 			goto on_error;
 		}
 		if( long_value_data_size > 0 )
 		{
-			/* Assume the data is compressed as a whole
-			 */
-			long_value_data = (uint8_t *) memory_allocate(
-			                               sizeof( uint8_t ) * (size_t) long_value_data_size );
-
-			if( value_data == NULL )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_MEMORY,
-				 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-				 "%s: unable to create long value data.",
-				 function );
-
-				goto on_error;
-			}
-			if( libesedb_long_value_get_data(
-			     long_value,
-			     long_value_data,
-			     (size_t) long_value_data_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve long value data.",
-				 function );
-
-				goto on_error;
-			}
 			if( windows_search_export_compressed_string_value(
 			     long_value_data,
-			     (size_t) long_value_data_size,
+			     long_value_data_size,
 			     ascii_codepage,
 			     record_file_stream,
 			     error ) != 1 )

@@ -47,6 +47,12 @@ void export_text(
       size_t string_size,
       FILE *stream );
 
+int export_get_long_value_data(
+     libesedb_long_value_t *long_value,
+     uint8_t **long_value_data,
+     size_t *long_value_data_size,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif
