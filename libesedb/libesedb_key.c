@@ -520,8 +520,10 @@ int libesedb_key_compare(
 		{
 			first_key_data = first_key->data[ first_key_data_index ];
 
-			if( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
+			if( ( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
+			 && ( second_key->type == LIBESEDB_KEY_TYPE_LEAF ) )
 			{
+/* TODO does not hold for branch keys in Win XP search database */
 				if( ( first_key_data_index == 1 )
 				 && ( ( first_key_data & 0x80 ) != 0 )
 				 && ( ( first_key_data & 0x7f ) == second_key->data[ second_key_data_index ] ) )
@@ -555,7 +557,8 @@ int libesedb_key_compare(
 	{
 		if( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
 		{
-			/* If the key exactly matches the branch key, the leaf value is in the next node
+			/* If the key exactly matches the branch key,
+			 * the leaf value is in the next branch node
 			 */
 			if( compare_result == 0 )
 			{
@@ -568,6 +571,9 @@ int libesedb_key_compare(
 		}
 		else if( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT )
 		{
+			/* If the key matches the branch key but is longer,
+			 * the leaf value is in the next branch node
+			 */
 			if( ( compare_result == 0 )
 			 && ( first_key->data_size > second_key->data_size ) )
 			{

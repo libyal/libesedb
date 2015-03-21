@@ -90,6 +90,7 @@ Error tolerance
 Debug
 * is function libesedb_debug_print_table_group_of_bits needed?
 * print value flags
+* print part of keys as strings
 
 Tools
 * esedbinfo
