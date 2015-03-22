@@ -1,0 +1,832 @@
+= Extensible Storage Engine (ESE) Database File (EDB) format specification
+Analysis of the Extensible Storage Engine (ESE) Database File (EDB) format
+
+:numbered!:
+[abstract]
+== Summary
+The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
+Microsoft application to store data such as Windows Mail, Windows Search, 
+Active Directory and Exchange. This specification is based on some available 
+documentation but mainly on reverse engineering of the file format.
+
+This document is intended as a working document for the Extensible Storage 
+Engine (ESE) Database File (EDB) format specification. Which should allow 
+existing Open Source forensic tooling to be able to process this file type.
+
+[preface]
+== Document information
+[cols="1,5"]
+|===
+| Author(s): | Joachim Metz <joachim.metz@gmail.com>
+| Abstract: | This document contains information about the Extensible Storage Engine Database File format
+| Classification: | Public
+| Keywords: | Extensible Storage Engine, ESE, ESENT, EDB
+|===
+
+[preface]
+== License
+....
+Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>.
+Permission is granted to copy, distribute and/or modify this document under the 
+terms of the GNU Free Documentation License, Version 1.3 or any later version 
+published by the Free Software Foundation; with no Invariant Sections, no 
+Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included 
+in the section entitled "GNU Free Documentation License".
+....
+
+[preface]
+== Revision history
+
+[cols="1,1,1,5",options="header"]
+|===
+| Version | Author | Date | Comments
+| 0.0.1 | J.B. Metz | September 2009 +
+October 2009 | Worked on initial version.
+| 0.0.2 | J.B. Metz | October 2009 | Added information about page B+-trees.
+| 0.0.3 | J.B. Metz | October 2009 | Added information about tagged data types for EDB revision 2.
+| 0.0.4 | J.B. Metz | November 2009 | Additional information about indexes, page flags, MSysDefrag2 table.
+| 0.0.5 | J.B. Metz | February 2010 | Additional Windows 7 Search information.
+| 0.0.6 | J.B. Metz | May 2010 | Change amount of in number of. +
+Additional information about long value.
+| 0.0.7 | J.B. Metz | May 2010 | Additional common page key information.
+| 0.0.8 | J.B. Metz | May 2010 | Additional information about template tables (thanks to J. Aloysius), root and branch pages.
+| 0.0.9 | J.B. Metz | June 2010 | Additional multi value information.
+| 0.0.10 | J.B. Metz | July 2010 | Additional index leaf page entry information.
+| 0.0.11 | J.B. Metz | September 2010 | Windows 7 seems to use extended page format for 32 KiB pages, but not for 4 KiB pages. Currently assumed that 16 KiB pages also use the extended format.
+| 0.0.12 | J.B. Metz | November 2010 | Additional information about streaming file.
+| 0.0.13 | J.B. Metz | December 2010 | License version update
+| 0.0.14 | J.B. Metz | August 2011 | Small addition to page value flags.
+| 0.0.15 | J.B. Metz | September 2011 | Addition to page flags and 7-bit Unicode compression.
+| 0.0.16 | J.B. Metz | October 2011 | Updates for space tree leaf page entry, 7-bit and XPRESS compression, scrubbed page flags.
+| 0.0.17 | J.B. Metz | October 2011 | Textual changes.
+| 0.0.18 | J.B. Metz | May 2012 | Updates for Windows 8 Consumer Preview.
+| 0.0.19 | J.B. Metz | July 2012 | Email update.
+| 0.0.20 | J.B. Metz | March 2013 | Textual changes.
+| 0.0.21 | J.B. Metz | February 2014 | Additional information regarding LCMAP flags.
+| 0.0.22 | J.B. Metz | April 2014 | Additional findings.
+| 0.0.23 | J.B. Metz | March 2015 | Switched to asciidoc format.
+|===
+
+:numbered:
+== Overview
+The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
+Microsoft application to store data such as Windows Mail, Windows Search, 
+Active Directory and Exchange. The The Extensible Storage Engine (ESE) is also 
+known as JET Blue.
+
+There are multiple types of ESE:
+
+[cols="1,5",options="header"]
+|===
+| Name | Usage
+| ESENT | The database engine for Active Directory and many Microsoft Windows components. Unlike other versions of ESE (which use 5-MiB log files and 4-KiB page sizes), the Active Directory implementation of ESENT uses 10-MiB log files and 8-KiB pages.
+| ESE97 | The database engine in Exchange Server 5.5.
+| ESE98 | The database engine in Exchange 2000 Server, Exchange Server 2003, and Exchange Server 2007. Exchange 2000 and 2003 use 4-KiB page sizes and 2007 8‑KiB.
+|===
+
+ESE is used to store data for various Microsoft applications like:
+
+* Active Directory (NTDS)
+* File Replication service (FRS)
+* Windows Internet Name service (WINS)
+* DHCP
+* Security Configuration Engine (SCE)
+* Certificate Server
+* Terminal Services Session folder
+* Terminal Services Licensing service
+* Catalog database
+* Help and Support Services
+* Directory Synchronization service (MSDSS)
+* Remote Storage (RSS)
+* Phone Book service
+* Single Instance Store (SIS) Groveler
+* Windows NT Backup/Restore
+* Exchange store
+* Microsoft Exchange folder (SRS and DXA)
+* Key Management service (KMS)
+* Instant Messaging
+* Content Indexing
+
+=== Test version
+The following version of programs were used to test the information within this 
+document:
+
+* Exchange 2003, 2007; with corresponding eseutil
+* Windows Search XP, Vista, 7 and 8; with corresponding esentutl
+
+=== File structure
+An ESE database (EDB) file consist of the following distinguishable elements:
+
+* file header
+* fixed size pages
+
+[cols="1,5",options="header"]
+|===
+| Characteristics | Description
+| Byte order | little-endian
+| Date and time values | FILETIME in UTC
+| Character strings | ASCII strings are Single Byte Character (SBC) or Multi Byte Character (MBC) string stored with a codepage. Sometimes referred to as ANSI string representation. +
+Though technically maybe incorrect, this document will use term (extended) ASCII string. +
+Unicode strings are stored in UTF-16 little-endian without the byte order mark (BOM).
+|===
+
+The pages contain the database, which basically consists of tables and indexes.
+
+A table is made up out of:
+
+* rows (also referred to as records)
+* columns
+
+An EDB contains several metadata tables, these are tables needed for 
+maintaining the database. The metadata tables are:
+
+* the space tree
+* the catalog and the backup catalog
+
+Because ESE stores the database data in fixed size pages, long values are used 
+to store values that are larger than the page size.
+
+== (Database) file header
+
+*TODO migrate remaining documentation*
+
+=== [[file_type]]File type
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0 | | Database +
+Contains a hierarchical page-based storage
+| 1 | | Streaming file +
+Contains streamed data.
+|===
+
+[NOTE]
+The rest of the format specification largely applies to the database file type.
+
+=== File format version and revision
+According to `[MSDN]` the file format version and revision consist of the 
+following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Version | Revision | Description
+| 0x00000620 | 0x00000000 | Original operating system Beta format (4/22/97).
+| 0x00000620 | 0x00000001 | Add columns in the catalog for conditional indexing and OLD (5/29/97).
+| 0x00000620 | 0x00000002 | Add the fLocalizedText flag in IDB (6/5/97).
+| 0x00000620 | 0x00000003 | Add SPLIT_BUFFER to space tree root pages (10/30/97).
+| 0x00000620 | 0x00000002 | Revert revision in order for ESE97 to remain forward-compatible (1/28/98).
+| 0x00000620 | 0x00000003 | Add new tagged columns to catalog ("CallbackData" and "CallbackDependencies").
+| 0x00000620 | 0x00000004 | Super Long Value (SLV) support: signSLV, fSLVExists in db header (5/5/98).
+| 0x00000620 | 0x00000005 | New SLV space tree (5/29/98).
+| 0x00000620 | 0x00000006 | SLV space map (10/12/98).
+| 0x00000620 | 0x00000007 | 4-byte IDXSEG (12/10/98).
+| 0x00000620 | 0x00000008 | New template column format (1/25/99).
+| 0x00000620 | 0x00000009 | Sorted template columns (6/24/99). +
+Used in Windows XP SP3
+| | | 
+| 0x00000620 | 0x0000000b | Contains the page header with the ECC checksum +
+Used in Exchange
+| 0x00000620 | 0x0000000c | Used in Windows Vista (SP0)
+| | | 
+| 0x00000620 | 0x00000011 | Support for 2 KiB, 16 KiB and 32 KiB pages. +
+Extended page header with additional ECC checksums. +
+Column compression. +
+Space hints. +
+Used in Windows 7 (SP0)
+| | | 
+| 0x00000623 | 0x00000000 | New Space Manager (5/15/99).
+|===
+
+=== [[database_state]]Database state
+The database state consist of the following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 1 | JET_dbstateJustCreated | The database was just created.
+| 2 | JET_dbstateDirtyShutdown | The database requires hard or soft recovery to be run in order to become usable or movable. One should not try to move databases in this state.
+| 3 | JET_dbstateCleanShutdown | The database is in a clean state. The database can be attached without any log files.
+| 4 | JET_dbstateBeingConverted | The database is being upgraded.
+| 5 | JET_dbstateForceDetach | Internal. +
+This value is introduced in Windows XP
+|===
+
+== Hierarchical page-based storage
+
+*TODO migrate remaining documentation*
+
+== [[data_definitions]]Data definitions
+
+*TODO migrate remaining documentation*
+
+== Database
+=== [[database_signature]]Database signature
+The database signature (JET_SIGNATURE) is 28 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | A randomly assigned number
+| 4 | 8 | | Creation date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 12 | 16 | | The NetBIOS computer name +
+[yellow-background]*Contains an ASCII string terminated by a end-of-string character* +
+Unused bytes are filled with 0
+|===
+
+==== [[database_time]]Database time
+The database time (DBTIME) is 8 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | Hours +
+Value should be [0 - 23]
+| 2 | 2 | | Minutes +
+Value should be [0 - 59]
+| 4 | 2 | | Seconds +
+Value should be [0 – 59]
+| 6 | 2 | 0 | Padding
+|===
+
+== Columns
+
+*TODO migrate remaining documentation*
+
+== Backup
+
+=== [[backup_information]]Backup information
+The backup information (JET_BKINFO) is 24 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 8 | | The backup position +
+Consists of a log position +
+See section: <<log_position,Log position>> +
+Contains [yellow-background]*an identifier* of the backup
+| 8 | 8 | | The backup creation date and time +
+Consists of a backup log time +
+See section: <<log_time,log time>>
+| 16 | 4 | | Generation lower number +
+The lower log generation number associated with the backup.
+| 20 | 4 | | Generation upper number +
+The upper log generation number associated with the backup.
+|===
+
+== Transaction log
+=== [[log_information]]Log information
+The log position (JET_LOGINFO) is 16 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | 16 | Size of the structure
+| 4 | 4 | | Generation lower number +
+The lower log generation number associated with the transaction.
+| 8 | 4 | | Generation upper number +
+The upper log generation number associated with the transaction.
+| 12 | 4 | | Log filename prefix +
+The prefix used to name the transaction log files.
+|===
+
+Transaction log files are named according to the instance base name and the 
+generation number of the log file. The name is of the format BBBXXXXX.LOG. 
+Where BBB corresponds to the base name for the log file and is always three 
+characters in length. XXXXX corresponds to the generation number of the log 
+file in zero padded hexadecimal and is always five characters in length. LOG is 
+the file extension that is always given to transaction log files by the engine.
+
+=== [[log_position]]Log position
+The log position (JET_LGPOS) is 8 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | [yellow-background]*block*
+| 2 | 2 | | [yellow-background]*sector*
+| 4 | 4 | | [yellow-background]*generation*
+|===
+
+=== [[log_time]](Backup) log time
+The log time and backup log time (JET_LOGTIME and JET_BKLOGTIME) are 8 bytes of 
+size and consist of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | | Seconds +
+Value should be [0 - 60]
+| 1 | 1 | | Minutes +
+Value should be [0 - 60]
+| 2 | 1 | | Hours +
+Value should be [0 - 24]
+| 3 | 1 | | Days +
+Value should be [0 - 31]
+| 4 | 1 | | Months +
+Value should be [0 - 12]
+| 5 | 1 | | Years +
+The year 0 represents 1900.
+| 6 | 1 | 0 | Filler byte
+| 7 | 1 | 0 | Filler byte
+|===
+
+In a backup log time the LSB of the second filler byte can be overloaded to 
+contains the backup type bit. The backup type bit consists of one of the 
+following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0 | | streaming backup
+| 1 | | snapshot backup
+|===
+
+The backup log time was introduced in Windows Vista.
+
+== Tables
+
+*TODO migrate remaining documentation*
+
+== Indexes
+The FDP value in the catalog definition of an index, refers to the FDP of an 
+index page B+-tree except for the first index (Id). It will point to the parent 
+table and does not contain index page values. [yellow-background]*It is 
+assumed that this index is build-in.*
+
+=== Index flags (group of bits)
+The column flags consist of the following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | JET_bitIndexUnique | Duplicate index entries (keys) are disallowed. This is enforced when JetUpdate is called, not when JetSetColumn is called.
+| 0x00000002 | JET_bitIndexPrimary | The index is a primary (clustered) index. Every table must have exactly one primary index. If no primary index is explicitly defined over a table, then the database engine will create its own primary index.
+| 0x00000004 | JET_bitIndexDisallowNull | None of the columns over which the index is created may contain a NULL value.
+| 0x00000008 | JET_bitIndexIgnoreNull | Do not add an index entry for a row if all of the columns being indexed are NULL.
+| 0x00000010 | | [yellow-background]*Unknown* +
+[yellow-background]*Set if the index contains 3 column identifiers?*
+| 0x00000020 | JET_bitIndexIgnoreAnyNull | Do not add an index entry for a row if any of the columns being indexed are NULL.
+| 0x00000040 | JET_bitIndexIgnoreFirstNull | Do not add an index entry for a row if the first column being indexed is NULL.
+| 0x00000080 | JET_bitIndexLazyFlush | Specifies that the index operations will be logged lazily. +
+JET_bitIndexLazyFlush does not affect the laziness of data updates. If the indexing operations is interrupted by process termination, Soft Recovery will still be able to able to get the database to a consistent state, but the index may not be present.
+| 0x00000100 | JET_bitIndexEmpty | Do not attempt to build the index, because all entries would evaluate to NULL. grbit MUST also specify JET_bitIgnoreAnyNull when JET_bitIndexEmpty is passed. This is a performance enhancement. For example if a new column is added to a table, then an index is created over this newly added column, all of the records in the table would be scanned even though they would never get added to the index anyway. Specifying JET_bitIndexEmpty skips the scanning of the table, which could potentially take a long time.
+| 0x00000200 | JET_bitIndexUnversioned | JET_bitIndexUnversioned causes index creation to be visible to other transactions. Normally a session in a transaction will not be able to see an index creation operation in another session. This flag can be useful if another transaction is likely to create the same index, so that the second index-create will simply fail instead of potentially causing many unnecessary database operations. The second transaction may not be able to use the index immediately. The index creation operation needs to complete before it is usable. The session must not currently be in a transaction to create an index without version information.
+| 0x00000400 | JET_bitIndexSortNullsHigh | Specifying this flag causes NULL values to be sorted after data for all columns in the index.
+| 0x00000800 | JET_bitIndexUnicode | Specifying this flag affects the interpretation of the lcid/pidxunicde union field in the structure. Setting the bit means that the pidxunicode field actually points to a JET_UNICODEINDEX structure. See JET_UNICODEINDEX. JET_bitIndexUnicode is not required to index Unicode data. It is only needed to customize the normalization of Unicode data.
+3+| _Values introduced in Windows XP_
+| 0x00001000 | JET_bitIndexTuples | Specifies that the index is a tuple index. See JET_TUPLELIMITS for a description of a tuple index.
+3+| _Values introduced in Windows 2003_
+| 0x00002000 | JET_bitIndexTupleLimits | Specifying this flag affects the interpretation of the cbVarSegMac/ptuplelimits union field in the structure. Setting this bit means that the ptuplelimits field actually points to a JET_TUPLELIMITS struct to allow custom tuple index limits (implies JET_bitIndexTuples). See JET_TUPLELIMITS.
+3+| _Values introduced in Windows Vista_
+| 0x00004000 | JET_bitIndexCrossProduct | Specifying this flag for an index that has more than one key column that is a multi-valued column will result in an index entry being created for each result of a cross product of all the values in those key columns. Otherwise, the index would only have one entry for each multi-value in the most significant key column that is a multi-valued column and each of those index entries would use the first multi-value from any other key columns that are multi-valued columns. +
+For example, if you specified this flag for an index over column A that has the values "red" and "blue" and over column B that has the values "1" and "2" then the following index entries would be created: "red", "1"; "red", "2"; "blue", "1"; "blue", "2". Otherwise, the following index entries would be created: "red", "1"; "blue", "1".
+| 0x00008000 | JET_bitIndexKeyMost | Specifying this flag will cause the index to use the maximum key size specified in the cbKeyMost field in the structure. Otherwise, the index will use JET_cbKeyMost (255) as its maximum key size.
+| 0x00010000 | JET_bitIndexDisallowTruncation | Specifying this flag will cause any update to the index that would result in a truncated key to fail with JET_errKeyTruncated. Otherwise, keys will be silently truncated. For more information on key truncation, see the JetMakeKey function.
+|===
+
+== Notes
+=== The database metadata table
+The database metadata table contains [yellow-background]*space tree information 
+about the database*. The database metadata table is [yellow-background]*always 
+stored as FDP object identifier 1 with parent FDP page number 1*.
+
+=== Key behavior
+Search XP
+
+record:
+....
+7f 80 00 00 02 7f 80 01 7f 4d 53 59 53 4f 42 4a 45 43 54 53 00
+7f 80 00 00 02 7f 80 01 7f MSYSOBJECTS 00
+....
+
+....
+parent: 7f fb 30 cf db 7f 43 
+key :7f f4 a6 a7 72 7f 57 00 49 00 4e 00 44 00 09 4f 00 57 00 53 00 20 00 09 4c 00 49 00 56 00 45 00 09 20 00 43 00 41 00 4c 00 09 4c 00 2e 00 4c 00 4e 00 09 4b 00 00 00 00 00 00 00 04 7f 80 00 05 6b
+7f f4 a6 a7 72 7f WINDOWS LIVE.LNK 09 4b 00 00 00 00 00 00 00 04 7f 80 00 05 6b
+....
+
+long value:
+
+....
+branch with key: 00 00 00 a7 00
+* contains leaf with key: 00 00 00 a7
+* leaf with key: 00 00 00 a7 00 00 00 00 is stored in next branch
+....
+
+index:
+
+Seen in Windows 8 search database:
+Should the index keys "7f 80 00 00 02 7f 80 01 7f 80 00 00 02" and "7f 00 00 00 02 7f 80 01 7f 80 00 00 02" match?
+Is this for leaf values only? or 0x80 only?
+
+:numbered!:
+[appendix]
+== References
+
+`[MSDN]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | Microsoft Developer Network
+| URL: | http://technet.microsoft.com/en-us/library/bb310772%28EXCHG.80%29.aspx +
+http://technet.microsoft.com/en-us/library/cc961824.aspx +
+http://msdn.microsoft.com/en-us/library/dd207764(v=PROT.13).aspx +
+http://msdn.microsoft.com/en-us/library/ee441458(v=PROT.13).aspx 
+|===
+
+`[MSDN-WIN7]`
+
+[cols="1,5",options="header"]
+|===
+| Title: | 6 New ESENT features in Windows 7
+| URL: | http://blogs.msdn.com/b/laurionb/archive/2009/08/18/6-new-esent-features-in-windows-7.aspx
+|===
+
+`[NTLCID]`
+
+[cols="1,5",options="header"]
+|===
+| Tile: | Language Code identifiers
+| URL: | https://github.com/libyal/libfwnt/wiki/Language-Code-identifiers
+|===
+
+[appendix]
+== GNU Free Documentation License
+Version 1.3, 3 November 2008
+Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc. 
+<http://fsf.org/>
+
+Everyone is permitted to copy and distribute verbatim copies of this license 
+document, but changing it is not allowed.
+
+=== 0. PREAMBLE
+The purpose of this License is to make a manual, textbook, or other functional 
+and useful document "free" in the sense of freedom: to assure everyone the 
+effective freedom to copy and redistribute it, with or without modifying it, 
+either commercially or noncommercially. Secondarily, this License preserves for 
+the author and publisher a way to get credit for their work, while not being 
+considered responsible for modifications made by others.
+
+This License is a kind of "copyleft", which means that derivative works of the 
+document must themselves be free in the same sense. It complements the GNU 
+General Public License, which is a copyleft license designed for free software.
+
+We have designed this License in order to use it for manuals for free software, 
+because free software needs free documentation: a free program should come with 
+manuals providing the same freedoms that the software does. But this License is 
+not limited to software manuals; it can be used for any textual work, 
+regardless of subject matter or whether it is published as a printed book. We 
+recommend this License principally for works whose purpose is instruction or 
+reference.
+
+=== 1. APPLICABILITY AND DEFINITIONS
+This License applies to any manual or other work, in any medium, that contains 
+a notice placed by the copyright holder saying it can be distributed under the 
+terms of this License. Such a notice grants a world-wide, royalty-free license, 
+unlimited in duration, to use that work under the conditions stated herein. The 
+"Document", below, refers to any such manual or work. Any member of the public 
+is a licensee, and is addressed as "you". You accept the license if you copy, 
+modify or distribute the work in a way requiring permission under copyright law.
+
+A "Modified Version" of the Document means any work containing the Document or 
+a portion of it, either copied verbatim, or with modifications and/or 
+translated into another language.
+
+A "Secondary Section" is a named appendix or a front-matter section of the 
+Document that deals exclusively with the relationship of the publishers or 
+authors of the Document to the Document's overall subject (or to related 
+matters) and contains nothing that could fall directly within that overall 
+subject. (Thus, if the Document is in part a textbook of mathematics, a 
+Secondary Section may not explain any mathematics.) The relationship could be a 
+matter of historical connection with the subject or with related matters, or of 
+legal, commercial, philosophical, ethical or political position regarding them.
+
+The "Invariant Sections" are certain Secondary Sections whose titles are 
+designated, as being those of Invariant Sections, in the notice that says that 
+the Document is released under this License. If a section does not fit the 
+above definition of Secondary then it is not allowed to be designated as 
+Invariant. The Document may contain zero Invariant Sections. If the Document 
+does not identify any Invariant Sections then there are none.
+
+The "Cover Texts" are certain short passages of text that are listed, as 
+Front-Cover Texts or Back-Cover Texts, in the notice that says that the 
+Document is released under this License. A Front-Cover Text may be at most 5 
+words, and a Back-Cover Text may be at most 25 words.
+
+A "Transparent" copy of the Document means a machine-readable copy, represented 
+in a format whose specification is available to the general public, that is 
+suitable for revising the document straightforwardly with generic text editors 
+or (for images composed of pixels) generic paint programs or (for drawings) 
+some widely available drawing editor, and that is suitable for input to text 
+formatters or for automatic translation to a variety of formats suitable for 
+input to text formatters. A copy made in an otherwise Transparent file format 
+whose markup, or absence of markup, has been arranged to thwart or discourage 
+subsequent modification by readers is not Transparent. An image format is not 
+Transparent if used for any substantial amount of text. A copy that is not 
+"Transparent" is called "Opaque".
+
+Examples of suitable formats for Transparent copies include plain ASCII without 
+markup, Texinfo input format, LaTeX input format, SGML or XML using a publicly 
+available DTD, and standard-conforming simple HTML, PostScript or PDF designed 
+for human modification. Examples of transparent image formats include PNG, XCF 
+and JPG. Opaque formats include proprietary formats that can be read and edited 
+only by proprietary word processors, SGML or XML for which the DTD and/or 
+processing tools are not generally available, and the machine-generated HTML, 
+PostScript or PDF produced by some word processors for output purposes only.
+
+The "Title Page" means, for a printed book, the title page itself, plus such 
+following pages as are needed to hold, legibly, the material this License 
+requires to appear in the title page. For works in formats which do not have 
+any title page as such, "Title Page" means the text near the most prominent 
+appearance of the work's title, preceding the beginning of the body of the text.
+
+The "publisher" means any person or entity that distributes copies of the 
+Document to the public.
+
+A section "Entitled XYZ" means a named subunit of the Document whose title 
+either is precisely XYZ or contains XYZ in parentheses following text that 
+translates XYZ in another language. (Here XYZ stands for a specific section 
+name mentioned below, such as "Acknowledgements", "Dedications", 
+"Endorsements", or "History".) To "Preserve the Title" of such a section when 
+you modify the Document means that it remains a section "Entitled XYZ" 
+according to this definition.
+
+The Document may include Warranty Disclaimers next to the notice which states 
+that this License applies to the Document. These Warranty Disclaimers are 
+considered to be included by reference in this License, but only as regards 
+disclaiming warranties: any other implication that these Warranty Disclaimers 
+may have is void and has no effect on the meaning of this License.
+
+=== 2. VERBATIM COPYING
+You may copy and distribute the Document in any medium, either commercially or 
+noncommercially, provided that this License, the copyright notices, and the 
+license notice saying this License applies to the Document are reproduced in 
+all copies, and that you add no other conditions whatsoever to those of this 
+License. You may not use technical measures to obstruct or control the reading 
+or further copying of the copies you make or distribute. However, you may 
+accept compensation in exchange for copies. If you distribute a large enough 
+number of copies you must also follow the conditions in section 3.
+
+You may also lend copies, under the same conditions stated above, and you may 
+publicly display copies.
+
+=== 3. COPYING IN QUANTITY
+If you publish printed copies (or copies in media that commonly have printed 
+covers) of the Document, numbering more than 100, and the Document's license 
+notice requires Cover Texts, you must enclose the copies in covers that carry, 
+clearly and legibly, all these Cover Texts: Front-Cover Texts on the front 
+cover, and Back-Cover Texts on the back cover. Both covers must also clearly 
+and legibly identify you as the publisher of these copies. The front cover must 
+present the full title with all words of the title equally prominent and 
+visible. You may add other material on the covers in addition. Copying with 
+changes limited to the covers, as long as they preserve the title of the 
+Document and satisfy these conditions, can be treated as verbatim copying in 
+other respects.
+
+If the required texts for either cover are too voluminous to fit legibly, you 
+should put the first ones listed (as many as fit reasonably) on the actual 
+cover, and continue the rest onto adjacent pages.
+
+If you publish or distribute Opaque copies of the Document numbering more than 
+100, you must either include a machine-readable Transparent copy along with 
+each Opaque copy, or state in or with each Opaque copy a computer-network 
+location from which the general network-using public has access to download 
+using public-standard network protocols a complete Transparent copy of the 
+Document, free of added material. If you use the latter option, you must take 
+reasonably prudent steps, when you begin distribution of Opaque copies in 
+quantity, to ensure that this Transparent copy will remain thus accessible at 
+the stated location until at least one year after the last time you distribute 
+an Opaque copy (directly or through your agents or retailers) of that edition 
+to the public.
+
+It is requested, but not required, that you contact the authors of the Document 
+well before redistributing any large number of copies, to give them a chance to 
+provide you with an updated version of the Document.
+
+=== 4. MODIFICATIONS
+You may copy and distribute a Modified Version of the Document under the 
+conditions of sections 2 and 3 above, provided that you release the Modified 
+Version under precisely this License, with the Modified Version filling the 
+role of the Document, thus licensing distribution and modification of the 
+Modified Version to whoever possesses a copy of it. In addition, you must do 
+these things in the Modified Version:
+
+A. Use in the Title Page (and on the covers, if any) a title distinct from that 
+of the Document, and from those of previous versions (which should, if there 
+were any, be listed in the History section of the Document). You may use the 
+same title as a previous version if the original publisher of that version 
+gives permission. 
+
+B. List on the Title Page, as authors, one or more persons or entities 
+responsible for authorship of the modifications in the Modified Version, 
+together with at least five of the principal authors of the Document (all of 
+its principal authors, if it has fewer than five), unless they release you from 
+this requirement. 
+
+C. State on the Title page the name of the publisher of the Modified Version, 
+as the publisher. 
+
+D. Preserve all the copyright notices of the Document. 
+
+E. Add an appropriate copyright notice for your modifications adjacent to the 
+other copyright notices. 
+
+F. Include, immediately after the copyright notices, a license notice giving 
+the public permission to use the Modified Version under the terms of this 
+License, in the form shown in the Addendum below. 
+
+G. Preserve in that license notice the full lists of Invariant Sections and 
+required Cover Texts given in the Document's license notice. 
+
+H. Include an unaltered copy of this License. 
+
+I. Preserve the section Entitled "History", Preserve its Title, and add to it 
+an item stating at least the title, year, new authors, and publisher of the 
+Modified Version as given on the Title Page. If there is no section Entitled 
+"History" in the Document, create one stating the title, year, authors, and 
+publisher of the Document as given on its Title Page, then add an item 
+describing the Modified Version as stated in the previous sentence. 
+
+J. Preserve the network location, if any, given in the Document for public 
+access to a Transparent copy of the Document, and likewise the network 
+locations given in the Document for previous versions it was based on. These 
+may be placed in the "History" section. You may omit a network location for a 
+work that was published at least four years before the Document itself, or if 
+the original publisher of the version it refers to gives permission. 
+
+K. For any section Entitled "Acknowledgements" or "Dedications", Preserve the 
+Title of the section, and preserve in the section all the substance and tone of 
+each of the contributor acknowledgements and/or dedications given therein. 
+
+L. Preserve all the Invariant Sections of the Document, unaltered in their text 
+and in their titles. Section numbers or the equivalent are not considered part 
+of the section titles. 
+
+M. Delete any section Entitled "Endorsements". Such a section may not be 
+included in the Modified Version. 
+
+N. Do not retitle any existing section to be Entitled "Endorsements" or to 
+conflict in title with any Invariant Section. 
+
+O. Preserve any Warranty Disclaimers. 
+
+If the Modified Version includes new front-matter sections or appendices that 
+qualify as Secondary Sections and contain no material copied from the Document, 
+you may at your option designate some or all of these sections as invariant. To 
+do this, add their titles to the list of Invariant Sections in the Modified 
+Version's license notice. These titles must be distinct from any other section 
+titles.
+
+You may add a section Entitled "Endorsements", provided it contains nothing but 
+endorsements of your Modified Version by various parties—for example, 
+statements of peer review or that the text has been approved by an organization 
+as the authoritative definition of a standard.
+
+You may add a passage of up to five words as a Front-Cover Text, and a passage 
+of up to 25 words as a Back-Cover Text, to the end of the list of Cover Texts 
+in the Modified Version. Only one passage of Front-Cover Text and one of 
+Back-Cover Text may be added by (or through arrangements made by) any one 
+entity. If the Document already includes a cover text for the same cover, 
+previously added by you or by arrangement made by the same entity you are 
+acting on behalf of, you may not add another; but you may replace the old one, 
+on explicit permission from the previous publisher that added the old one.
+
+The author(s) and publisher(s) of the Document do not by this License give 
+permission to use their names for publicity for or to assert or imply 
+endorsement of any Modified Version.
+
+=== 5. COMBINING DOCUMENTS
+You may combine the Document with other documents released under this License, 
+under the terms defined in section 4 above for modified versions, provided that 
+you include in the combination all of the Invariant Sections of all of the 
+original documents, unmodified, and list them all as Invariant Sections of your 
+combined work in its license notice, and that you preserve all their Warranty 
+Disclaimers.
+
+The combined work need only contain one copy of this License, and multiple 
+identical Invariant Sections may be replaced with a single copy. If there are 
+multiple Invariant Sections with the same name but different contents, make the 
+title of each such section unique by adding at the end of it, in parentheses, 
+the name of the original author or publisher of that section if known, or else 
+a unique number. Make the same adjustment to the section titles in the list of 
+Invariant Sections in the license notice of the combined work.
+
+In the combination, you must combine any sections Entitled "History" in the 
+various original documents, forming one section Entitled "History"; likewise 
+combine any sections Entitled "Acknowledgements", and any sections Entitled 
+"Dedications". You must delete all sections Entitled "Endorsements".
+
+=== 6. COLLECTIONS OF DOCUMENTS
+You may make a collection consisting of the Document and other documents 
+released under this License, and replace the individual copies of this License 
+in the various documents with a single copy that is included in the collection, 
+provided that you follow the rules of this License for verbatim copying of each 
+of the documents in all other respects.
+
+You may extract a single document from such a collection, and distribute it 
+individually under this License, provided you insert a copy of this License 
+into the extracted document, and follow this License in all other respects 
+regarding verbatim copying of that document.
+
+=== 7. AGGREGATION WITH INDEPENDENT WORKS
+A compilation of the Document or its derivatives with other separate and 
+independent documents or works, in or on a volume of a storage or distribution 
+medium, is called an "aggregate" if the copyright resulting from the 
+compilation is not used to limit the legal rights of the compilation's users 
+beyond what the individual works permit. When the Document is included in an 
+aggregate, this License does not apply to the other works in the aggregate 
+which are not themselves derivative works of the Document.
+
+If the Cover Text requirement of section 3 is applicable to these copies of the 
+Document, then if the Document is less than one half of the entire aggregate, 
+the Document's Cover Texts may be placed on covers that bracket the Document 
+within the aggregate, or the electronic equivalent of covers if the Document is 
+in electronic form. Otherwise they must appear on printed covers that bracket 
+the whole aggregate.
+
+=== 8. TRANSLATION
+Translation is considered a kind of modification, so you may distribute 
+translations of the Document under the terms of section 4. Replacing Invariant 
+Sections with translations requires special permission from their copyright 
+holders, but you may include translations of some or all Invariant Sections in 
+addition to the original versions of these Invariant Sections. You may include 
+a translation of this License, and all the license notices in the Document, and 
+any Warranty Disclaimers, provided that you also include the original English 
+version of this License and the original versions of those notices and 
+disclaimers. In case of a disagreement between the translation and the original 
+version of this License or a notice or disclaimer, the original version will 
+prevail.
+
+If a section in the Document is Entitled "Acknowledgements", "Dedications", or 
+"History", the requirement (section 4) to Preserve its Title (section 1) will 
+typically require changing the actual title.
+
+=== 9. TERMINATION
+You may not copy, modify, sublicense, or distribute the Document except as 
+expressly provided under this License. Any attempt otherwise to copy, modify, 
+sublicense, or distribute it is void, and will automatically terminate your 
+rights under this License.
+
+However, if you cease all violation of this License, then your license from a 
+particular copyright holder is reinstated (a) provisionally, unless and until 
+the copyright holder explicitly and finally terminates your license, and (b) 
+permanently, if the copyright holder fails to notify you of the violation by 
+some reasonable means prior to 60 days after the cessation.
+
+Moreover, your license from a particular copyright holder is reinstated 
+permanently if the copyright holder notifies you of the violation by some 
+reasonable means, this is the first time you have received notice of violation 
+of this License (for any work) from that copyright holder, and you cure the 
+violation prior to 30 days after your receipt of the notice.
+
+Termination of your rights under this section does not terminate the licenses 
+of parties who have received copies or rights from you under this License. If 
+your rights have been terminated and not permanently reinstated, receipt of a 
+copy of some or all of the same material does not give you any rights to use it.
+
+=== 10. FUTURE REVISIONS OF THIS LICENSE
+The Free Software Foundation may publish new, revised versions of the GNU Free 
+Documentation License from time to time. Such new versions will be similar in 
+spirit to the present version, but may differ in detail to address new problems 
+or concerns. See http://www.gnu.org/copyleft/.
+
+Each version of the License is given a distinguishing version number. If the 
+Document specifies that a particular numbered version of this License "or any 
+later version" applies to it, you have the option of following the terms and 
+conditions either of that specified version or of any later version that has 
+been published (not as a draft) by the Free Software Foundation. If the 
+Document does not specify a version number of this License, you may choose any 
+version ever published (not as a draft) by the Free Software Foundation. If the 
+Document specifies that a proxy can decide which future versions of this 
+License can be used, that proxy's public statement of acceptance of a version 
+permanently authorizes you to choose that version for the Document.
+
+=== 11. RELICENSING
+"Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide 
+Web server that publishes copyrightable works and also provides prominent 
+facilities for anybody to edit those works. A public wiki that anybody can edit 
+is an example of such a server. A "Massive Multiauthor Collaboration" (or 
+"MMC") contained in the site means any set of copyrightable works thus 
+published on the MMC site.
+
+"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0 license 
+published by Creative Commons Corporation, a not-for-profit corporation with a 
+principal place of business in San Francisco, California, as well as future 
+copyleft versions of that license published by that same organization.
+
+"Incorporate" means to publish or republish a Document, in whole or in part, as 
+part of another Document.
+
+An MMC is "eligible for relicensing" if it is licensed under this License, and 
+if all works that were first published under this License somewhere other than 
+this MMC, and subsequently incorporated in whole or in part into the MMC, (1) 
+had no cover texts or invariant sections, and (2) were thus incorporated prior 
+to November 1, 2008.
+
+The operator of an MMC Site may republish an MMC contained in the site under 
+CC-BY-SA on the same site at any time before August 1, 2009, provided the MMC 
+is eligible for relicensing.
+
