@@ -101,6 +101,16 @@ PyObject *pyesedb_record_get_value_data_as_string(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pyesedb_record_is_long_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_is_multi_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
 #if defined( __cplusplus )
 }
 #endif

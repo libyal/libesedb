@@ -932,6 +932,24 @@ int libesedb_record_get_value_binary_data(
      size_t binary_data_size,
      libesedb_error_t **error );
 
+/* Determines if a specific entry is a long value
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_record_is_long_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libesedb_error_t **error );
+
+/* Determines if a specific entry is a multi value
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_record_is_multi_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libesedb_error_t **error );
+
 /* Retrieves the long value of a specific entry
  * Creates a new long value
  * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
@@ -1032,6 +1050,50 @@ int libesedb_long_value_get_data_segment(
      int data_segment_index,
      uint8_t *data_segment,
      size_t data_size,
+     libesedb_error_t **error );
+
+/* Retrieves the size of the data as an UTF-8 encoded string
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf8_string_size(
+     libesedb_long_value_t *long_value,
+     size_t *utf8_string_size,
+     libesedb_error_t **error );
+
+/* Retrieves the data as an UTF-8 encoded string
+ * The function uses the codepage in the column definition if necessary
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf8_string(
+     libesedb_long_value_t *long_value,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libesedb_error_t **error );
+
+/* Retrieves the size of the data as an UTF-16 encoded string
+ * The returned size includes the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf16_string_size(
+     libesedb_long_value_t *long_value,
+     size_t *utf16_string_size,
+     libesedb_error_t **error );
+
+/* Retrieves the data as an UTF-16 encoded string
+ * The function uses the codepage in the column definition if necessary
+ * The size should include the end of string character
+ * Returns 1 if successful, 0 if value is NULL or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf16_string(
+     libesedb_long_value_t *long_value,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libesedb_error_t **error );
 
 /* -------------------------------------------------------------------------

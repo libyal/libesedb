@@ -36,6 +36,8 @@
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libcstring.h"
 #include "pyesedb_libesedb.h"
+#include "pyesedb_long_value.h"
+#include "pyesedb_multi_value.h"
 #include "pyesedb_python.h"
 #include "pyesedb_record.h"
 #include "pyesedb_records.h"
@@ -465,6 +467,8 @@ PyMODINIT_FUNC initpyesedb(
 	PyTypeObject *column_types_type_object = NULL;
 	PyTypeObject *columns_type_object      = NULL;
 	PyTypeObject *file_type_object         = NULL;
+	PyTypeObject *long_value_type_object   = NULL;
+	PyTypeObject *multi_value_type_object  = NULL;
 	PyTypeObject *record_type_object       = NULL;
 	PyTypeObject *records_type_object      = NULL;
 	PyTypeObject *table_type_object        = NULL;
@@ -637,6 +641,44 @@ PyMODINIT_FUNC initpyesedb(
 	 module,
 	 "record",
 	 (PyObject *) record_type_object );
+
+	/* Setup the long value type object
+	 */
+	pyesedb_long_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_long_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_long_value_type_object );
+
+	long_value_type_object = &pyesedb_long_value_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "long_value",
+	 (PyObject *) long_value_type_object );
+
+	/* Setup the multi value type object
+	 */
+	pyesedb_multi_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_multi_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_multi_value_type_object );
+
+	multi_value_type_object = &pyesedb_multi_value_type_object;
+
+	PyModule_AddObject(
+	 module,
+	 "multi_value",
+	 (PyObject *) multi_value_type_object );
 
 	/* Setup the column types type object
 	 */

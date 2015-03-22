@@ -270,6 +270,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_record_value.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_support.c"
 				>
 			</File>
@@ -445,6 +449,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_record.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_record_value.h"
 				>
 			</File>
 			<File

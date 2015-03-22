@@ -214,6 +214,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pyesedb\pyesedb_long_value.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pyesedb\pyesedb_multi_value.c"
 				>
 			</File>
@@ -305,6 +309,10 @@
 			</File>
 			<File
 				RelativePath="..\..\pyesedb\pyesedb_libesedb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\pyesedb\pyesedb_long_value.h"
 				>
 			</File>
 			<File

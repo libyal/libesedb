@@ -32,6 +32,7 @@
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_libfvalue.h"
 #include "libesedb_types.h"
 
 #if defined( __cplusplus )
@@ -45,6 +46,10 @@ struct libesedb_internal_long_value
 	/* The file IO handle
 	 */
 	libbfio_handle_t *file_io_handle;
+
+	/* The IO handle
+	 */
+	libesedb_io_handle_t *io_handle;
 
 	/* The column catalog definition
 	 */
@@ -65,6 +70,10 @@ struct libesedb_internal_long_value
 	/* The data segments cache
 	 */
 	libfcache_cache_t *data_segments_cache;
+
+	/* The record value
+	 */
+	libfvalue_value_t *record_value;
 };
 
 int libesedb_long_value_initialize(
@@ -98,6 +107,11 @@ int libesedb_long_value_get_data(
      size_t data_size,
      libcerror_error_t **error );
 
+int libesedb_long_value_get_record_value(
+     libesedb_internal_long_value_t *internal_long_value,
+     libfvalue_value_t **record_value,
+     libcerror_error_t **error );
+
 LIBESEDB_EXTERN \
 int libesedb_long_value_get_number_of_data_segments(
      libesedb_long_value_t *long_value,
@@ -117,6 +131,32 @@ int libesedb_long_value_get_data_segment(
      int data_segment_index,
      uint8_t *data,
      size_t data_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf8_string_size(
+     libesedb_long_value_t *long_value,
+     size_t *utf8_string_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf8_string(
+     libesedb_long_value_t *long_value,
+     uint8_t *utf8_string,
+     size_t utf8_string_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf16_string_size(
+     libesedb_long_value_t *long_value,
+     size_t *utf16_string_size,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_long_value_get_utf16_string(
+     libesedb_long_value_t *long_value,
+     uint16_t *utf16_string,
+     size_t utf16_string_size,
      libcerror_error_t **error );
 
 /* Deprecated */

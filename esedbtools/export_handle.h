@@ -197,6 +197,20 @@ int export_handle_export_record_value(
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
+int export_handle_export_basic_record_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *record_file_stream,
+     log_handle_t *log_handle,
+     libcerror_error_t **error );
+
+int export_handle_export_long_record_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *record_file_stream,
+     log_handle_t *log_handle,
+     libcerror_error_t **error );
+
 int export_handle_export_file(
      export_handle_t *export_handle,
      const libcstring_system_character_t *export_table_name,

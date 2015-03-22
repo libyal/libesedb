@@ -299,6 +299,18 @@ int libesedb_record_get_value_binary_data(
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
+int libesedb_record_is_long_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
+int libesedb_record_is_multi_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
 int libesedb_record_get_long_value(
      libesedb_record_t *record,
      int value_entry,

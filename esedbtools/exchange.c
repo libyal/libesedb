@@ -34,8 +34,8 @@
 #include "esedbtools_libfmapi.h"
 #include "esedbtools_libfwnt.h"
 #include "esedbtools_libuna.h"
+#include "exchange.h"
 #include "export.h"
-#include "export_exchange.h"
 #include "export_handle.h"
 
 enum EXPORT_EXCHANGE_KNOWN_COLUMN_TYPES
@@ -55,14 +55,14 @@ enum EXPORT_EXCHANGE_KNOWN_COLUMN_TYPES
 /* Exports a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_binary_data(
+int exchange_export_record_binary_data(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "export_exchange_record_binary_data";
+	static char *function  = "exchange_export_record_binary_data";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 
@@ -235,7 +235,7 @@ on_error:
 /* Exports a 32-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_32bit(
+int exchange_export_record_value_32bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -243,7 +243,7 @@ int export_exchange_record_value_32bit(
      libcerror_error_t **error )
 {
 	uint8_t *value_data      = NULL;
-	static char *function    = "export_exchange_record_value_32bit";
+	static char *function    = "exchange_export_record_value_32bit";
 	size_t value_data_size   = 0;
 	uint32_t column_type     = 0;
 	uint32_t value_32bit     = 0;
@@ -436,7 +436,7 @@ on_error:
 /* Exports a 64-bit value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_64bit(
+int exchange_export_record_value_64bit(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -444,7 +444,7 @@ int export_exchange_record_value_64bit(
      libcerror_error_t **error )
 {
 	uint8_t *value_data      = NULL;
-	static char *function    = "export_exchange_record_value_64bit";
+	static char *function    = "exchange_export_record_value_64bit";
 	size_t value_data_size   = 0;
 	uint64_t value_64bit     = 0;
 	uint32_t column_type     = 0;
@@ -639,7 +639,7 @@ on_error:
 /* Exports a filetime value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_filetime(
+int exchange_export_record_value_filetime(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -650,7 +650,7 @@ int export_exchange_record_value_filetime(
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
-	static char *function             = "export_exchange_record_value_filetime";
+	static char *function             = "exchange_export_record_value_filetime";
 	size_t value_data_size            = 0;
 	uint32_t column_type              = 0;
 	uint8_t value_data_flags          = 0;
@@ -893,7 +893,7 @@ on_error:
 /* Exports a GUID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_guid(
+int exchange_export_record_value_guid(
      libesedb_record_t *record,
      int record_value_entry,
      uint8_t byte_order,
@@ -904,7 +904,7 @@ int export_exchange_record_value_guid(
 
 	libfguid_identifier_t *guid = NULL;
 	uint8_t *value_data         = NULL;
-	static char *function       = "export_exchange_record_value_guid";
+	static char *function       = "exchange_export_record_value_guid";
 	size_t value_data_size      = 0;
 	uint32_t column_type        = 0;
 	uint8_t value_data_flags    = 0;
@@ -1144,14 +1144,14 @@ on_error:
 /* Exports a MAPI ENTRYID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_mapi_entryid(
+int exchange_export_record_value_mapi_entryid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
 	uint8_t *value_data      = NULL;
-	static char *function    = "export_exchange_record_value_mapi_entryid";
+	static char *function    = "exchange_export_record_value_mapi_entryid";
 	size_t value_data_size   = 0;
 	uint32_t column_type     = 0;
 	uint8_t value_data_flags = 0;
@@ -1372,7 +1372,7 @@ on_error:
 /* Exports a MAPI multi value value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_mapi_multi_value(
+int exchange_export_record_value_mapi_multi_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
@@ -1381,7 +1381,7 @@ int export_exchange_record_value_mapi_multi_value(
 	libesedb_multi_value_t *multi_value = NULL;
 	uint8_t *multi_value_data           = NULL;
 	uint8_t *value_data                 = NULL;
-	static char *function               = "export_exchange_record_value_mapi_multi_value";
+	static char *function               = "exchange_export_record_value_mapi_multi_value";
 	size_t multi_value_data_size        = 0;
 	size_t value_data_size              = 0;
 	uint32_t column_type                = 0;
@@ -1699,7 +1699,7 @@ on_error:
 /* Exports a SID value in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_sid(
+int exchange_export_record_value_sid(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
@@ -1709,7 +1709,7 @@ int export_exchange_record_value_sid(
 
 	libfwnt_security_identifier_t *sid = NULL;
 	uint8_t *value_data                = NULL;
-	static char *function              = "export_exchange_record_value_sid";
+	static char *function              = "exchange_export_record_value_sid";
 	size_t sid_string_size             = 0;
 	size_t value_data_size             = 0;
 	uint32_t column_type               = 0;
@@ -1971,14 +1971,14 @@ on_error:
 /* Exports a string in a binary data table record value
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_value_string(
+int exchange_export_record_value_string(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
 	uint8_t *value_data    = NULL;
-	static char *function  = "export_exchange_record_value_string";
+	static char *function  = "exchange_export_record_value_string";
 	size_t value_data_size = 0;
 	uint32_t column_type   = 0;
 
@@ -2106,7 +2106,7 @@ on_error:
 /* Exports the values in a Folders table record
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_folders(
+int exchange_export_record_folders(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
@@ -2114,7 +2114,7 @@ int export_exchange_record_folders(
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "export_exchange_record_folders";
+	static char *function   = "exchange_export_record_folders";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2383,7 +2383,7 @@ int export_exchange_record_folders(
 		}
 		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = export_exchange_record_value_32bit(
+			result = exchange_export_record_value_32bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2392,7 +2392,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = export_exchange_record_value_64bit(
+			result = exchange_export_record_value_64bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2401,7 +2401,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = export_exchange_record_value_filetime(
+			result = exchange_export_record_value_filetime(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2410,7 +2410,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = export_exchange_record_value_guid(
+			result = exchange_export_record_value_guid(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2419,7 +2419,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_ENTRYID )
 		{
-			result = export_exchange_record_value_mapi_entryid(
+			result = exchange_export_record_value_mapi_entryid(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2427,7 +2427,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = export_exchange_record_value_sid(
+			result = exchange_export_record_value_sid(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2435,7 +2435,7 @@ int export_exchange_record_folders(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = export_exchange_record_value_string(
+			result = exchange_export_record_value_string(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2481,7 +2481,7 @@ int export_exchange_record_folders(
 /* Exports the values in a Global table record
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_global(
+int exchange_export_record_global(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
@@ -2489,7 +2489,7 @@ int export_exchange_record_global(
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "export_exchange_record_global";
+	static char *function   = "exchange_export_record_global";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -2708,7 +2708,7 @@ int export_exchange_record_global(
 		}
 		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_BINARY_DATA )
 		{
-			result = export_exchange_record_binary_data(
+			result = exchange_export_record_binary_data(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2716,7 +2716,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = export_exchange_record_value_32bit(
+			result = exchange_export_record_value_32bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2725,7 +2725,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = export_exchange_record_value_64bit(
+			result = exchange_export_record_value_64bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2734,7 +2734,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = export_exchange_record_value_filetime(
+			result = exchange_export_record_value_filetime(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2743,7 +2743,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = export_exchange_record_value_guid(
+			result = exchange_export_record_value_guid(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -2752,7 +2752,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_MAPI_MULTI_VALUE )
 		{
-			result = export_exchange_record_value_mapi_multi_value(
+			result = exchange_export_record_value_mapi_multi_value(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2760,7 +2760,7 @@ int export_exchange_record_global(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = export_exchange_record_value_string(
+			result = exchange_export_record_value_string(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -2807,7 +2807,7 @@ int export_exchange_record_global(
 /* Exports the values in a Mailbox table record
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_mailbox(
+int exchange_export_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
@@ -2815,7 +2815,7 @@ int export_exchange_record_mailbox(
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "export_exchange_record_mailbox";
+	static char *function   = "exchange_export_record_mailbox";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -3016,7 +3016,7 @@ int export_exchange_record_mailbox(
 		}
 		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = export_exchange_record_value_32bit(
+			result = exchange_export_record_value_32bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3025,7 +3025,7 @@ int export_exchange_record_mailbox(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = export_exchange_record_value_64bit(
+			result = exchange_export_record_value_64bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3034,7 +3034,7 @@ int export_exchange_record_mailbox(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = export_exchange_record_value_filetime(
+			result = exchange_export_record_value_filetime(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3043,7 +3043,7 @@ int export_exchange_record_mailbox(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = export_exchange_record_value_guid(
+			result = exchange_export_record_value_guid(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3052,7 +3052,7 @@ int export_exchange_record_mailbox(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = export_exchange_record_value_sid(
+			result = exchange_export_record_value_sid(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -3060,7 +3060,7 @@ int export_exchange_record_mailbox(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = export_exchange_record_value_string(
+			result = exchange_export_record_value_string(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -3106,7 +3106,7 @@ int export_exchange_record_mailbox(
 /* Exports the values in a Msg table record
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_msg(
+int exchange_export_record_msg(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
@@ -3114,7 +3114,7 @@ int export_exchange_record_msg(
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "export_exchange_record_msg";
+	static char *function   = "exchange_export_record_msg";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -3308,7 +3308,7 @@ int export_exchange_record_msg(
 		}
 		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_32BIT )
 		{
-			result = export_exchange_record_value_32bit(
+			result = exchange_export_record_value_32bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3317,7 +3317,7 @@ int export_exchange_record_msg(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = export_exchange_record_value_64bit(
+			result = exchange_export_record_value_64bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3326,7 +3326,7 @@ int export_exchange_record_msg(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = export_exchange_record_value_filetime(
+			result = exchange_export_record_value_filetime(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3335,7 +3335,7 @@ int export_exchange_record_msg(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = export_exchange_record_value_guid(
+			result = exchange_export_record_value_guid(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3344,7 +3344,7 @@ int export_exchange_record_msg(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_SID )
 		{
-			result = export_exchange_record_value_sid(
+			result = exchange_export_record_value_sid(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -3352,7 +3352,7 @@ int export_exchange_record_msg(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_STRING )
 		{
-			result = export_exchange_record_value_string(
+			result = exchange_export_record_value_string(
 				  record,
 				  value_entry,
 				  record_file_stream,
@@ -3398,7 +3398,7 @@ int export_exchange_record_msg(
 /* Exports the values in a PerUserRead table record
  * Returns 1 if successful or -1 on error
  */
-int export_exchange_record_per_user_read(
+int exchange_export_record_per_user_read(
      libesedb_record_t *record,
      FILE *record_file_stream,
      log_handle_t *log_handle,
@@ -3406,7 +3406,7 @@ int export_exchange_record_per_user_read(
 {
 	libcstring_system_character_t column_name[ 256 ];
 
-	static char *function   = "export_exchange_record_per_user_read";
+	static char *function   = "exchange_export_record_per_user_read";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	uint8_t byte_order      = _BYTE_STREAM_ENDIAN_LITTLE;
@@ -3591,7 +3591,7 @@ int export_exchange_record_per_user_read(
 		}
 		if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_INTEGER_64BIT )
 		{
-			result = export_exchange_record_value_64bit(
+			result = exchange_export_record_value_64bit(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3600,7 +3600,7 @@ int export_exchange_record_per_user_read(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_FILETIME )
 		{
-			result = export_exchange_record_value_filetime(
+			result = exchange_export_record_value_filetime(
 				  record,
 				  value_entry,
 				  byte_order,
@@ -3609,7 +3609,7 @@ int export_exchange_record_per_user_read(
 		}
 		else if( known_column_type == EXPORT_EXCHANGE_KNOWN_COLUMN_TYPE_GUID )
 		{
-			result = export_exchange_record_value_guid(
+			result = exchange_export_record_value_guid(
 				  record,
 				  value_entry,
 				  byte_order,

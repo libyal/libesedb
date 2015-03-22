@@ -37,6 +37,7 @@
 #include "libesedb_long_value.h"
 #include "libesedb_multi_value.h"
 #include "libesedb_record.h"
+#include "libesedb_record_value.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
@@ -171,8 +172,8 @@ int libesedb_record_initialize(
 
 		goto on_error;
 	}
-	internal_record->io_handle                 = io_handle;
 	internal_record->file_io_handle            = file_io_handle;
+	internal_record->io_handle                 = io_handle;
 	internal_record->table_definition          = table_definition;
 	internal_record->template_table_definition = template_table_definition;
 	internal_record->pages_vector              = pages_vector;
@@ -895,7 +896,6 @@ int libesedb_record_get_value_data_flags(
 	libfvalue_value_t *record_value             = NULL;
 	static char *function                       = "libesedb_record_get_value_data_flags";
 	uint32_t data_flags                         = 0;
-	int encoding                                = 0;
 
 	if( record == NULL )
 	{
@@ -2081,12 +2081,8 @@ int libesedb_record_get_value_utf8_string_size(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
-	uint8_t *entry_data                                      = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf8_string_size";
-	size_t entry_data_size                                   = 0;
 	uint32_t column_type                                     = 0;
-	uint32_t data_flags                                      = 0;
-	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2160,8 +2156,9 @@ int libesedb_record_get_value_utf8_string_size(
 
 		return( -1 );
 	}
-	result = libfvalue_value_has_data(
+	result = libesedb_record_value_get_utf8_string_size(
 	          record_value,
+	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -2170,85 +2167,11 @@ int libesedb_record_get_value_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if value: %d has data.",
+		 "%s: unable to retrieve UTF-8 string size from value: %d.",
 		 function,
 		 value_entry );
 
 		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		if( libfvalue_value_get_data_flags(
-		     record_value,
-		     &data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value: %d data flags.",
-			 function,
-			 value_entry );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value flags: 0x%02" PRIx32 ".",
-			 function,
-			 data_flags );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-		{
-			if( libfvalue_value_get_entry_data(
-			     record_value,
-			     0,
-			     &entry_data,
-			     &entry_data_size,
-			     &encoding,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve record value entry data.",
-				 function );
-
-				return( -1 );
-			}
-			result = libesedb_compression_get_utf8_string_size(
-			          entry_data,
-			          entry_data_size,
-			          utf8_string_size,
-			          error );
-		}
-		else
-		{
-			result = libfvalue_value_get_utf8_string_size(
-			          record_value,
-			          0,
-			          utf8_string_size,
-			          error );
-		}
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable retrieve UTF-8 string size.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	return( result );
 }
@@ -2268,12 +2191,8 @@ int libesedb_record_get_value_utf8_string(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
-	uint8_t *entry_data                                      = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf8_string";
-	size_t entry_data_size                                   = 0;
 	uint32_t column_type                                     = 0;
-	uint32_t data_flags                                      = 0;
-	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2347,8 +2266,10 @@ int libesedb_record_get_value_utf8_string(
 
 		return( -1 );
 	}
-	result = libfvalue_value_has_data(
+	result = libesedb_record_value_get_utf8_string(
 	          record_value,
+	          utf8_string,
+	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -2357,87 +2278,11 @@ int libesedb_record_get_value_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if value: %d has data.",
+		 "%s: unable to retrieve UTF-8 string from value: %d.",
 		 function,
 		 value_entry );
 
 		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		if( libfvalue_value_get_data_flags(
-		     record_value,
-		     &data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value: %d data flags.",
-			 function,
-			 value_entry );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value flags: 0x%02" PRIx32 ".",
-			 function,
-			 data_flags );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-		{
-			if( libfvalue_value_get_entry_data(
-			     record_value,
-			     0,
-			     &entry_data,
-			     &entry_data_size,
-			     &encoding,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve record value entry data.",
-				 function );
-
-				return( -1 );
-			}
-			result = libesedb_compression_copy_to_utf8_string(
-			          entry_data,
-			          entry_data_size,
-			          utf8_string,
-			          utf8_string_size,
-			          error );
-		}
-		else
-		{
-			result = libfvalue_value_copy_to_utf8_string(
-			          record_value,
-			          0,
-			          utf8_string,
-			          utf8_string_size,
-			          error );
-		}
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy value to UTF-8 string.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	return( result );
 }
@@ -2455,12 +2300,8 @@ int libesedb_record_get_value_utf16_string_size(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
-	uint8_t *entry_data                                      = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf16_string_size";
-	size_t entry_data_size                                   = 0;
 	uint32_t column_type                                     = 0;
-	uint32_t data_flags                                      = 0;
-	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2534,8 +2375,9 @@ int libesedb_record_get_value_utf16_string_size(
 
 		return( -1 );
 	}
-	result = libfvalue_value_has_data(
+	result = libesedb_record_value_get_utf16_string_size(
 	          record_value,
+	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -2544,85 +2386,11 @@ int libesedb_record_get_value_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if value: %d has data.",
+		 "%s: unable to retrieve UTF-16 string size from value: %d.",
 		 function,
 		 value_entry );
 
 		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		if( libfvalue_value_get_data_flags(
-		     record_value,
-		     &data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value: %d data flags.",
-			 function,
-			 value_entry );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value flags: 0x%02" PRIx32 ".",
-			 function,
-			 data_flags );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-		{
-			if( libfvalue_value_get_entry_data(
-			     record_value,
-			     0,
-			     &entry_data,
-			     &entry_data_size,
-			     &encoding,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve record value entry data.",
-				 function );
-
-				return( -1 );
-			}
-			result = libesedb_compression_get_utf16_string_size(
-			          entry_data,
-			          entry_data_size,
-			          utf16_string_size,
-			          error );
-		}
-		else
-		{
-			result = libfvalue_value_get_utf16_string_size(
-			          record_value,
-			          0,
-			          utf16_string_size,
-			          error );
-		}
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable retrieve UTF-16 string size.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	return( result );
 }
@@ -2642,12 +2410,8 @@ int libesedb_record_get_value_utf16_string(
 	libesedb_catalog_definition_t *column_catalog_definition = NULL;
 	libesedb_internal_record_t *internal_record              = NULL;
 	libfvalue_value_t *record_value                          = NULL;
-	uint8_t *entry_data                                      = NULL;
 	static char *function                                    = "libesedb_record_get_value_utf16_string";
-	size_t entry_data_size                                   = 0;
 	uint32_t column_type                                     = 0;
-	uint32_t data_flags                                      = 0;
-	int encoding                                             = 0;
 	int result                                               = 0;
 
 	if( record == NULL )
@@ -2721,8 +2485,10 @@ int libesedb_record_get_value_utf16_string(
 
 		return( -1 );
 	}
-	result = libfvalue_value_has_data(
+	result = libesedb_record_value_get_utf16_string(
 	          record_value,
+	          utf16_string,
+	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -2731,87 +2497,11 @@ int libesedb_record_get_value_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to determine if value: %d has data.",
+		 "%s: unable to retrieve UTF-16 string from value: %d.",
 		 function,
 		 value_entry );
 
 		return( -1 );
-	}
-	else if( result != 0 )
-	{
-		if( libfvalue_value_get_data_flags(
-		     record_value,
-		     &data_flags,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value: %d data flags.",
-			 function,
-			 value_entry );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported value flags: 0x%02" PRIx32 ".",
-			 function,
-			 data_flags );
-
-			return( -1 );
-		}
-		if( ( data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
-		{
-			if( libfvalue_value_get_entry_data(
-			     record_value,
-			     0,
-			     &entry_data,
-			     &entry_data_size,
-			     &encoding,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve record value entry data.",
-				 function );
-
-				return( -1 );
-			}
-			result = libesedb_compression_copy_to_utf16_string(
-			          entry_data,
-			          entry_data_size,
-			          utf16_string,
-			          utf16_string_size,
-			          error );
-		}
-		else
-		{
-			result = libfvalue_value_copy_to_utf16_string(
-			          record_value,
-			          0,
-			          utf16_string,
-			          utf16_string_size,
-			          error );
-		}
-		if( result != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-			 "%s: unable to copy value to UTF-16 string.",
-			 function );
-
-			return( -1 );
-		}
 	}
 	return( result );
 }
@@ -3164,6 +2854,126 @@ int libesedb_record_get_value_binary_data(
 	return( result );
 }
 
+/* Determines if a specific entry is a long value
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+int libesedb_record_is_long_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libcerror_error_t **error )
+{
+	libesedb_internal_record_t *internal_record = NULL;
+	static char *function                       = "libesedb_record_is_long_value";
+	libfvalue_value_t *record_value             = NULL;
+	uint32_t data_flags                         = 0;
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( libcdata_array_get_entry_by_index(
+	     internal_record->values_array,
+	     value_entry,
+	     (intptr_t **) &record_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d from values array.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( libfvalue_value_get_data_flags(
+	     record_value,
+	     &data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	return( ( data_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 );
+}
+
+/* Determines if a specific entry is a multi value
+ * Returns 1 if true, 0 if not or -1 on error
+ */
+int libesedb_record_is_multi_value(
+     int value_entry,
+     libesedb_record_t *record,
+     libcerror_error_t **error )
+{
+	libesedb_internal_record_t *internal_record = NULL;
+	static char *function                       = "libesedb_record_is_multi_value";
+	libfvalue_value_t *record_value             = NULL;
+	uint32_t data_flags                         = 0;
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	internal_record = (libesedb_internal_record_t *) record;
+
+	if( libcdata_array_get_entry_by_index(
+	     internal_record->values_array,
+	     value_entry,
+	     (intptr_t **) &record_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d from values array.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	if( libfvalue_value_get_data_flags(
+	     record_value,
+	     &data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 value_entry );
+
+		return( -1 );
+	}
+	return( ( data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) != 0 );
+}
+
 /* Retrieves the long value of a specific entry
  * Creates a new long value
  * Returns 1 if successful, 0 if the item does not contain such value or -1 on error
@@ -3271,7 +3081,7 @@ int libesedb_record_get_long_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value flags: 0x%02" PRIx32 ".",
+		 "%s: unsupported data flags: 0x%02" PRIx32 ".",
 		 function,
 		 data_flags );
 
@@ -3283,7 +3093,7 @@ int libesedb_record_get_long_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value flags: 0x%02" PRIx32 ".",
+		 "%s: unsupported data flags: 0x%02" PRIx32 ".",
 		 function,
 		 data_flags );
 
@@ -3474,7 +3284,7 @@ int libesedb_record_get_multi_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value flags: 0x%02" PRIx32 ".",
+		 "%s: unsupported data flags: 0x%02" PRIx32 ".",
 		 function,
 		 data_flags );
 
@@ -3487,7 +3297,7 @@ int libesedb_record_get_multi_value(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported value flags: 0x%02" PRIx32 ".",
+		 "%s: unsupported data flags: 0x%02" PRIx32 ".",
 		 function,
 		 data_flags );
 

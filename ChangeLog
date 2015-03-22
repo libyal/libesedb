@@ -1,4 +1,8 @@
 TODO
+* pyesedb
+  - long value: add data size support
+* refactor libesedb_record_get_value_binary_data_size and
+  libesedb_record_get_value_binary_data
 * complete libfdata btree refactor
   - libesedb_values_tree.c replace by fdata functions?
   - fix is_flexible_match for xp_search.edb indexes
@@ -146,6 +150,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20150322
+* worked on Python bindings
 
 20150321
 * worked on libfdata btree refactor

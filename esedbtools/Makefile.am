@@ -43,10 +43,11 @@ esedbexport_SOURCES = \
 	esedbtools_libfvalue.h \
 	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
+	exchange.c exchange.h \
 	export.c export.h \
-	export_exchange.c export_exchange.h \
 	export_handle.c export_handle.h \
 	log_handle.c log_handle.h \
+	webcache.c webcache.h \
 	windows_search.c windows_search.h \
 	windows_security.c windows_security.h
 

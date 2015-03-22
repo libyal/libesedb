@@ -184,11 +184,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.c"
+				RelativePath="..\..\esedbtools\exchange.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_exchange.c"
+				RelativePath="..\..\esedbtools\export.c"
 				>
 			</File>
 			<File
@@ -197,6 +197,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\log_handle.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\webcache.c"
 				>
 			</File>
 			<File
@@ -278,11 +282,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export.h"
+				RelativePath="..\..\esedbtools\exchange.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\esedbtools\export_exchange.h"
+				RelativePath="..\..\esedbtools\export.h"
 				>
 			</File>
 			<File
@@ -291,6 +295,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\log_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\webcache.h"
 				>
 			</File>
 			<File

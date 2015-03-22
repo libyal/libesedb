@@ -30,6 +30,7 @@ pyesedb_la_SOURCES = \
 	pyesedb_libclocale.h \
 	pyesedb_libcstring.h \
 	pyesedb_libesedb.h \
+	pyesedb_long_value.c pyesedb_long_value.h \
 	pyesedb_multi_value.c pyesedb_multi_value.h \
 	pyesedb_python.h \
 	pyesedb_record.c pyesedb_record.h \

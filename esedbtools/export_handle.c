@@ -33,9 +33,10 @@
 #include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
+#include "exchange.h"
 #include "export.h"
-#include "export_exchange.h"
 #include "export_handle.h"
+#include "webcache.h"
 #include "windows_search.h"
 #include "windows_security.h"
 
@@ -1362,7 +1363,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = export_exchange_record_msg(
+				result = exchange_export_record_msg(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -1378,7 +1379,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = export_exchange_record_global(
+				result = exchange_export_record_global(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -1394,7 +1395,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = export_exchange_record_folders(
+				result = exchange_export_record_folders(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -1407,7 +1408,23 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = export_exchange_record_mailbox(
+				result = exchange_export_record_mailbox(
+				          record,
+				          table_file_stream,
+				          log_handle,
+				          error );
+			}
+		}
+		else if( table_name_length == 10 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "Containers" ),
+			     10 ) == 0 )
+			{
+				known_table = 1;
+
+				result = webcache_export_record_containers(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -1423,7 +1440,7 @@ int export_handle_export_table(
 			{
 				known_table = 1;
 
-				result = export_exchange_record_per_user_read(
+				result = exchange_export_record_per_user_read(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -1486,6 +1503,22 @@ int export_handle_export_table(
 				known_table = 1;
 
 				result = windows_search_export_record_systemindex_gthr(
+				          record,
+				          table_file_stream,
+				          log_handle,
+				          error );
+			}
+		}
+		if( table_name_length >= 10 )
+		{
+			if( libcstring_system_string_compare(
+			     table_name,
+			     _LIBCSTRING_SYSTEM_STRING( "Container_" ),
+			     10 ) == 0 )
+			{
+				known_table = 1;
+
+				result = webcache_export_record_container(
 				          record,
 				          table_file_stream,
 				          log_handle,
@@ -2398,12 +2431,8 @@ int export_handle_export_record_value(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filetime_string[ 32 ];
-
 	libcstring_system_character_t *value_string = NULL;
-        libesedb_long_value_t *long_value           = NULL;
         libesedb_multi_value_t *multi_value         = NULL;
-	libfdatetime_filetime_t *filetime           = NULL;
 	uint8_t *binary_data                        = NULL;
 	uint8_t *multi_value_data                   = NULL;
 	uint8_t *value_data                         = NULL;
@@ -2412,14 +2441,8 @@ int export_handle_export_record_value(
 	size_t multi_value_data_size                = 0;
 	size_t value_data_size                      = 0;
 	size_t value_string_size                    = 0;
-	double value_double                         = 0.0;
-	float value_float                           = 0.0;
-	uint64_t value_64bit                        = 0;
 	uint32_t column_identifier                  = 0;
 	uint32_t column_type                        = 0;
-	uint32_t value_32bit                        = 0;
-	uint16_t value_16bit                        = 0;
-	uint8_t value_8bit                          = 0;
 	uint8_t value_data_flags                    = 0;
 	int multi_value_iterator                    = 0;
 	int number_of_multi_values                  = 0;
@@ -2497,495 +2520,22 @@ int export_handle_export_record_value(
 	}
 	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
 	{
-		switch( column_type )
+		if( export_handle_export_basic_record_value(
+		     record,
+		     record_value_entry,
+		     record_file_stream,
+		     log_handle,
+		     error ) != 1 )
 		{
-			case LIBESEDB_COLUMN_TYPE_BOOLEAN:
-				result = libesedb_record_get_value_boolean(
-					  record,
-					  record_value_entry,
-					  &value_8bit,
-					  error );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export basic record value: %d.",
+			 function,
+			 record_value_entry );
 
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve boolean value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					if( value_8bit == 0 )
-					{
-						fprintf(
-						 record_file_stream,
-						 "false" );
-					}
-					else
-					{
-						fprintf(
-						 record_file_stream,
-						 "true" );
-					}
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
-				result = libesedb_record_get_value_8bit(
-					  record,
-					  record_value_entry,
-					  &value_8bit,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve 8-bit value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					fprintf(
-					 record_file_stream,
-					 "%" PRIu8 "",
-					 value_8bit );
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
-			case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
-				result = libesedb_record_get_value_16bit(
-					  record,
-					  record_value_entry,
-					  &value_16bit,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve 16-bit value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIi16 "",
-						 (int16_t) value_16bit );
-					}
-					else
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIu16 "",
-						 value_16bit );
-					}
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
-			case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
-				result = libesedb_record_get_value_32bit(
-					  record,
-					  record_value_entry,
-					  &value_32bit,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve 32-bit value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIi32 "",
-						 (int32_t) value_32bit );
-					}
-					else
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIu32 "",
-						 value_32bit );
-					}
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_CURRENCY:
-			case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
-				result = libesedb_record_get_value_64bit(
-					  record,
-					  record_value_entry,
-					  &value_64bit,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve 64-bit value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIi64 "",
-						 (int64_t) value_64bit );
-					}
-					else
-					{
-						fprintf(
-						 record_file_stream,
-						 "%" PRIu64 "",
-						 value_64bit );
-					}
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_DATE_TIME:
-				result = libesedb_record_get_value_filetime(
-					  record,
-					  record_value_entry,
-					  &value_64bit,
-					  error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve filetime value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					if( libfdatetime_filetime_initialize(
-					     &filetime,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-						 "%s: unable to create filetime.",
-						 function );
-
-						goto on_error;
-					}
-					if( libfdatetime_filetime_copy_from_64bit(
-					     filetime,
-					     value_64bit,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-						 "%s: unable to copy filetime from 64-bit value.",
-						 function );
-
-						goto on_error;
-					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-					result = libfdatetime_filetime_copy_to_utf16_string(
-					          filetime,
-					          (uint16_t *) filetime_string,
-					          32,
-					          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
-					          error );
-#else
-					result = libfdatetime_filetime_copy_to_utf8_string(
-					          filetime,
-					          (uint8_t *) filetime_string,
-					          32,
-					          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
-					          error );
-#endif
-					if( result != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-						 "%s: unable to copy filetime to string.",
-						 function );
-
-						goto on_error;
-					}
-					if( libfdatetime_filetime_free(
-					     &filetime,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-						 "%s: unable to free filetime.",
-						 function );
-
-						goto on_error;
-					}
-					fprintf(
-					 record_file_stream,
-					 "%" PRIs_LIBCSTRING_SYSTEM "",
-					 filetime_string );
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
-				result = libesedb_record_get_value_floating_point_32bit(
-				          record,
-				          record_value_entry,
-				          &value_float,
-				          error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve single precision floating point value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					fprintf(
-					 record_file_stream,
-					 "%f",
-					 value_float );
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
-				result = libesedb_record_get_value_floating_point_64bit(
-				          record,
-				          record_value_entry,
-				          &value_double,
-				          error );
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve double precision floating point value: %d.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				else if( result != 0 )
-				{
-					fprintf(
-					 record_file_stream,
-					 "%f",
-					 value_double );
-				}
-				break;
-
-			case LIBESEDB_COLUMN_TYPE_TEXT:
-			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libesedb_record_get_value_utf16_string_size(
-					  record,
-					  record_value_entry,
-					  &value_string_size,
-					  error );
-#else
-				result = libesedb_record_get_value_utf8_string_size(
-					  record,
-					  record_value_entry,
-					  &value_string_size,
-					  error );
-#endif
-
-				if( result == -1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
-					 function,
-					 record_value_entry,
-					 column_identifier );
-
-					goto on_error;
-				}
-				if( result != 0 )
-				{
-					if( value_string_size == 0 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-						 "%s: missing value string.",
-						 function );
-
-						goto on_error;
-					}
-					value_string = libcstring_system_string_allocate(
-					                value_string_size );
-
-					if( value_string == NULL )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_MEMORY,
-						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to create value string.",
-						 function );
-
-						goto on_error;
-					}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-					result = libesedb_record_get_value_utf16_string(
-					          record,
-					          record_value_entry,
-					          (uint16_t *) value_string,
-					          value_string_size,
-					          error );
-#else
-					result = libesedb_record_get_value_utf8_string(
-					          record,
-					          record_value_entry,
-					          (uint8_t *) value_string,
-					          value_string_size,
-					          error );
-#endif
-					if( result != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve value string: %d.",
-						 function,
-						 record_value_entry );
-
-						goto on_error;
-					}
-					export_text(
-					 value_string,
-					 value_string_size,
-					 record_file_stream );
-
-					memory_free(
-					 value_string );
-
-					value_string = NULL;
-				}
-				break;
-
-			default:
-				if( libesedb_record_get_value_data_size(
-				     record,
-				     record_value_entry,
-				     &value_data_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value: %d data size.",
-					 function,
-					 record_value_entry );
-
-					goto on_error;
-				}
-				if( value_data_size > 0 )
-				{
-					value_data = (uint8_t *) memory_allocate(
-								  sizeof( uint8_t ) * value_data_size );
-
-					if( value_data == NULL )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_MEMORY,
-						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to create value data.",
-						 function );
-
-						goto on_error;
-					}
-					if( libesedb_record_get_value_data(
-					     record,
-					     record_value_entry,
-					     value_data,
-					     value_data_size,
-					     error ) != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve value: %d data.",
-						 function,
-						 record_value_entry );
-
-						goto on_error;
-					}
-					export_binary_data(
-					 value_data,
-					 value_data_size,
-					 record_file_stream );
-
-					memory_free(
-					 value_data );
-
-					value_data = NULL;
-				}
-				break;
+			return( -1 );
 		}
 	}
 	else if( ( ( value_data_flags & LIBESEDB_VALUE_FLAG_COMPRESSED ) != 0 )
@@ -3176,76 +2726,24 @@ int export_handle_export_record_value(
 	else if( ( ( value_data_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
 	      && ( ( value_data_flags & LIBESEDB_VALUE_FLAG_MULTI_VALUE ) == 0 ) )
 	{
-		result = libesedb_record_get_long_value(
+		result = export_handle_export_long_record_value(
 		          record,
 		          record_value_entry,
-		          &long_value,
+		          record_file_stream,
+		          log_handle,
 		          error );
 
-		if( result != 1 )
+		if( result == -1 )
 		{
-			log_handle_printf(
-			 log_handle,
-			 "Unable to retrieve long value of record entry: %d.\n",
-			 record_value_entry );
-
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: unable to retrieve long value of record entry: %d.",
-				 function,
-				 record_value_entry );
-			}
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve long value of record entry: %d.",
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export long record value: %d.",
 			 function,
 			 record_value_entry );
 
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( error != NULL )
-			 && ( *error != NULL ) )
-			{
-				libcnotify_print_error_backtrace(
-				 *error );
-			}
-#endif
-			libcerror_error_free(
-			 error );
-		}
-		else
-		{
-			if( export_get_long_value_data(
-			     long_value,
-			     &value_data,
-			     &value_data_size,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve long value data of record entry: %d.",
-				 function,
-				 record_value_entry );
-
-				goto on_error;
-			}
-			if( libesedb_long_value_free(
-			     &long_value,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free long value.",
-				 function );
-
-				goto on_error;
-			}
+			return( -1 );
 		}
 	}
 /* TODO handle 0x10 flags */
@@ -3481,12 +2979,6 @@ on_error:
 		 &multi_value,
 		 NULL );
 	}
-	if( long_value != NULL )
-	{
-		libesedb_long_value_free(
-		 &long_value,
-		 NULL );
-	}
 	if( binary_data != NULL )
 	{
 		memory_free(
@@ -3497,11 +2989,988 @@ on_error:
 		memory_free(
 		 value_string );
 	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
+}
+
+/* Exports a basic record value
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_export_basic_record_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *record_file_stream,
+     log_handle_t *log_handle,
+     libcerror_error_t **error )
+{
+	libcstring_system_character_t filetime_string[ 32 ];
+
+	libcstring_system_character_t *value_string = NULL;
+	libfdatetime_filetime_t *filetime           = NULL;
+	uint8_t *value_data                         = NULL;
+	static char *function                       = "export_handle_export_basic_record_value";
+	size_t value_data_size                      = 0;
+	size_t value_string_size                    = 0;
+	double value_double                         = 0.0;
+	float value_float                           = 0.0;
+	uint64_t value_64bit                        = 0;
+	uint32_t column_identifier                  = 0;
+	uint32_t column_type                        = 0;
+	uint32_t value_32bit                        = 0;
+	uint16_t value_16bit                        = 0;
+	uint8_t value_8bit                          = 0;
+	uint8_t value_data_flags                    = 0;
+	int result                                  = 0;
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_file_stream == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_identifier(
+	     record,
+	     record_value_entry,
+	     &column_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column identifier of value: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value: %d data flags: 0x%02" PRIx32 ".",
+		 function,
+		 record_value_entry,
+		 value_data_flags );
+
+		goto on_error;
+	}
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
+			result = libesedb_record_get_value_boolean(
+				  record,
+				  record_value_entry,
+				  &value_8bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve boolean value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( value_8bit == 0 )
+				{
+					fprintf(
+					 record_file_stream,
+					 "false" );
+				}
+				else
+				{
+					fprintf(
+					 record_file_stream,
+					 "true" );
+				}
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_8BIT_UNSIGNED:
+			result = libesedb_record_get_value_8bit(
+				  record,
+				  record_value_entry,
+				  &value_8bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 8-bit value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				fprintf(
+				 record_file_stream,
+				 "%" PRIu8 "",
+				 value_8bit );
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED:
+		case LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_UNSIGNED:
+			result = libesedb_record_get_value_16bit(
+				  record,
+				  record_value_entry,
+				  &value_16bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 16-bit value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_16BIT_SIGNED )
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIi16 "",
+					 (int16_t) value_16bit );
+				}
+				else
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIu16 "",
+					 value_16bit );
+				}
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED:
+		case LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_UNSIGNED:
+			result = libesedb_record_get_value_32bit(
+				  record,
+				  record_value_entry,
+				  &value_32bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 32-bit value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIi32 "",
+					 (int32_t) value_32bit );
+				}
+				else
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIu32 "",
+					 value_32bit );
+				}
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_CURRENCY:
+		case LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED:
+			result = libesedb_record_get_value_64bit(
+				  record,
+				  record_value_entry,
+				  &value_64bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve 64-bit value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIi64 "",
+					 (int64_t) value_64bit );
+				}
+				else
+				{
+					fprintf(
+					 record_file_stream,
+					 "%" PRIu64 "",
+					 value_64bit );
+				}
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_DATE_TIME:
+			result = libesedb_record_get_value_filetime(
+				  record,
+				  record_value_entry,
+				  &value_64bit,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve filetime value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				if( libfdatetime_filetime_initialize(
+				     &filetime,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create filetime.",
+					 function );
+
+					goto on_error;
+				}
+				if( libfdatetime_filetime_copy_from_64bit(
+				     filetime,
+				     value_64bit,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+					 "%s: unable to copy filetime from 64-bit value.",
+					 function );
+
+					goto on_error;
+				}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libfdatetime_filetime_copy_to_utf16_string(
+					  filetime,
+					  (uint16_t *) filetime_string,
+					  32,
+					  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+					  error );
+#else
+				result = libfdatetime_filetime_copy_to_utf8_string(
+					  filetime,
+					  (uint8_t *) filetime_string,
+					  32,
+					  LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
+					  error );
+#endif
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+					 "%s: unable to copy filetime to string.",
+					 function );
+
+					goto on_error;
+				}
+				if( libfdatetime_filetime_free(
+				     &filetime,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+					 "%s: unable to free filetime.",
+					 function );
+
+					goto on_error;
+				}
+				fprintf(
+				 record_file_stream,
+				 "%" PRIs_LIBCSTRING_SYSTEM "",
+				 filetime_string );
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_FLOAT_32BIT:
+			result = libesedb_record_get_value_floating_point_32bit(
+				  record,
+				  record_value_entry,
+				  &value_float,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve single precision floating point value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				fprintf(
+				 record_file_stream,
+				 "%f",
+				 value_float );
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_DOUBLE_64BIT:
+			result = libesedb_record_get_value_floating_point_64bit(
+				  record,
+				  record_value_entry,
+				  &value_double,
+				  error );
+
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve double precision floating point value: %d.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			else if( result != 0 )
+			{
+				fprintf(
+				 record_file_stream,
+				 "%f",
+				 value_double );
+			}
+			break;
+
+		case LIBESEDB_COLUMN_TYPE_TEXT:
+		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_record_get_value_utf16_string_size(
+				  record,
+				  record_value_entry,
+				  &value_string_size,
+				  error );
+#else
+			result = libesedb_record_get_value_utf8_string_size(
+				  record,
+				  record_value_entry,
+				  &value_string_size,
+				  error );
+#endif
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
+				 function,
+				 record_value_entry,
+				 column_identifier );
+
+				goto on_error;
+			}
+			if( result != 0 )
+			{
+				if( value_string_size == 0 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+					 "%s: missing value string.",
+					 function );
+
+					goto on_error;
+				}
+				value_string = libcstring_system_string_allocate(
+				                value_string_size );
+
+				if( value_string == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create value string.",
+					 function );
+
+					goto on_error;
+				}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libesedb_record_get_value_utf16_string(
+					  record,
+					  record_value_entry,
+					  (uint16_t *) value_string,
+					  value_string_size,
+					  error );
+#else
+				result = libesedb_record_get_value_utf8_string(
+					  record,
+					  record_value_entry,
+					  (uint8_t *) value_string,
+					  value_string_size,
+					  error );
+#endif
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value string: %d.",
+					 function,
+					 record_value_entry );
+
+					goto on_error;
+				}
+				export_text(
+				 value_string,
+				 value_string_size,
+				 record_file_stream );
+
+				memory_free(
+				 value_string );
+
+				value_string = NULL;
+			}
+			break;
+
+		default:
+			if( libesedb_record_get_value_data_size(
+			     record,
+			     record_value_entry,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value: %d data size.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			if( value_data_size > 0 )
+			{
+				value_data = (uint8_t *) memory_allocate(
+				                          sizeof( uint8_t ) * value_data_size );
+
+				if( value_data == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create value data.",
+					 function );
+
+					goto on_error;
+				}
+				if( libesedb_record_get_value_data(
+				     record,
+				     record_value_entry,
+				     value_data,
+				     value_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value: %d data.",
+					 function,
+					 record_value_entry );
+
+					goto on_error;
+				}
+				export_binary_data(
+				 value_data,
+				 value_data_size,
+				 record_file_stream );
+
+				memory_free(
+				 value_data );
+
+				value_data = NULL;
+			}
+			break;
+	}
+	return( 1 );
+
+on_error:
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
+	}
 	if( filetime != NULL )
 	{
 		libfdatetime_filetime_free(
 		 &filetime,
 		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
+}
+
+/* Exports a long record value
+ * Returns 1 if successful, 0 if not or -1 on error
+ */
+int export_handle_export_long_record_value(
+     libesedb_record_t *record,
+     int record_value_entry,
+     FILE *record_file_stream,
+     log_handle_t *log_handle,
+     libcerror_error_t **error )
+{
+	libcstring_system_character_t *value_string = NULL;
+        libesedb_long_value_t *long_value           = NULL;
+	uint8_t *value_data                         = NULL;
+	static char *function                       = "export_handle_export_long_record_value";
+	size64_t value_data_size                    = 0;
+	size_t value_string_size                    = 0;
+	uint32_t column_identifier                  = 0;
+	uint32_t column_type                        = 0;
+	uint8_t value_data_flags                    = 0;
+	int result                                  = 0;
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_file_stream == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_identifier(
+	     record,
+	     record_value_entry,
+	     &column_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column identifier of value: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported value: %d data flags: 0x%02" PRIx32 ".",
+		 function,
+		 record_value_entry,
+		 value_data_flags );
+
+		goto on_error;
+	}
+	result = libesedb_record_get_long_value(
+	          record,
+	          record_value_entry,
+	          &long_value,
+	          error );
+
+	if( result != 1 )
+	{
+		log_handle_printf(
+		 log_handle,
+		 "Unable to retrieve long value of record entry: %d.\n",
+		 record_value_entry );
+
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: unable to retrieve long value of record entry: %d.",
+			 function,
+			 record_value_entry );
+		}
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value of record entry: %d.",
+		 function,
+		 record_value_entry );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( ( error != NULL )
+		 && ( *error != NULL ) )
+		{
+			libcnotify_print_error_backtrace(
+			 *error );
+		}
+#endif
+		libcerror_error_free(
+		 error );
+
+		return( 0 );
+	}
+	if( export_get_long_value_data(
+	     long_value,
+	     &value_data,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve long value data of record entry: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_TEXT:
+		case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libesedb_long_value_get_utf16_string_size(
+				  long_value,
+				  &value_string_size,
+				  error );
+#else
+			result = libesedb_long_value_get_utf8_string_size(
+				  long_value,
+				  &value_string_size,
+				  error );
+#endif
+			if( result == -1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve size of value string: %d (%" PRIu32 ").",
+				 function,
+				 record_value_entry,
+				 column_identifier );
+
+				goto on_error;
+			}
+			if( result != 0 )
+			{
+				if( value_string_size == 0 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+					 "%s: missing value string.",
+					 function );
+
+					goto on_error;
+				}
+				value_string = libcstring_system_string_allocate(
+				                value_string_size );
+
+				if( value_string == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create value string.",
+					 function );
+
+					goto on_error;
+				}
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+				result = libesedb_long_value_get_utf16_string(
+					  long_value,
+					  (uint16_t *) value_string,
+					  value_string_size,
+					  error );
+#else
+				result = libesedb_long_value_get_utf8_string(
+					  long_value,
+					  (uint8_t *) value_string,
+					  value_string_size,
+					  error );
+#endif
+				if( result != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value string: %d.",
+					 function,
+					 record_value_entry );
+
+					goto on_error;
+				}
+				export_text(
+				 value_string,
+				 value_string_size,
+				 record_file_stream );
+
+				memory_free(
+				 value_string );
+
+				value_string = NULL;
+			}
+			break;
+
+		default:
+			if( libesedb_long_value_get_data_size(
+			     long_value,
+			     &value_data_size,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve value: %d data size.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			if( value_data_size > (size64_t) SSIZE_MAX )
+			{	
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid value: %d data size value out of bounds.",
+				 function,
+				 record_value_entry );
+
+				goto on_error;
+			}
+			if( value_data_size > 0 )
+			{
+				value_data = (uint8_t *) memory_allocate(
+				                          sizeof( uint8_t ) * value_data_size );
+
+				if( value_data == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create value data.",
+					 function );
+
+					goto on_error;
+				}
+				if( libesedb_long_value_get_data(
+				     long_value,
+				     value_data,
+				     (size_t) value_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to retrieve value: %d data.",
+					 function,
+					 record_value_entry );
+
+					goto on_error;
+				}
+				export_binary_data(
+				 value_data,
+				 value_data_size,
+				 record_file_stream );
+
+				memory_free(
+				 value_data );
+
+				value_data = NULL;
+			}
+			break;
+	}
+	if( libesedb_long_value_free(
+	     &long_value,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free long value.",
+		 function );
+
+		goto on_error;
+	}
+	return( 1 );
+
+on_error:
+	if( long_value != NULL )
+	{
+		libesedb_long_value_free(
+		 &long_value,
+		 NULL );
+	}
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
 	}
 	if( value_data != NULL )
 	{
