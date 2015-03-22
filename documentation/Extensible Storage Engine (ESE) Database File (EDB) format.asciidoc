@@ -290,6 +290,9 @@ This column type is obsolete.
 | 17 | JET_coltypUnsignedShort | Integer 16-bit unsigned
 |===
 
+[yellow-background]*JET_coltypNil seems to be able to contain data. It is
+unknown if this data is considered valid or remnant data.*
+
 [yellow-background]*TODO: determine why some documentation refers to 
 JET_coltypDateTime as a double-precision (8-byte) floating point number that 
 represents a date in fractional days since the year 1900. This column type is 
@@ -323,8 +326,89 @@ completely ignored.
 ....
 
 === [[column_flags]]Column flags (group of bits)
+The column flags consist of the following values:
 
-*TODO migrate remaining documentation*
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | JET_bitColumnFixed | Is fixed size +
+The column will always use the same size (within the row) regardless of how much data is stored in the column.
+| 0x00000002 | JET_bitColumnTagged | Is tagged +
+The column is tagged. A tagged columns does not take up any space in the database if it does not contain data.
+| 0x00000004 | JET_bitColumnNotNULL | Not empty +
+The column is not allow to be set to an empty value (NULL).
+| 0x00000008 | JET_bitColumnVersion | Is version column +
+The column is a version column that specifies the version of the row.
+| 0x00000010 | JET_bitColumnAutoincrement | The column will automatically be incremented. The number is an increasing number, and is guaranteed to be unique within a table. The numbers, however, might not be continuous. For example, if five rows are inserted into a table, the "autoincrement" column could contain the values { 1, 2, 6, 7, 8 }. This bit can only be used on columns of type JET_coltypLong or JET_coltypCurrency.
+| 0x00000020 | JET_bitColumnUpdatable | This bit is valid only on calls to  JetGetColumnInfo.
+| 0x00000040 | JET_bitColumnTTKey | This bit is valid only on calls to  JetOpenTable.
+| 0x00000080 | JET_bitColumnTTDescending | This bit is valid only on calls to  JetOpenTempTable.
+| | | 
+| 0x00000400 | JET_bitColumnMultiValued | The column can be multi-valued. A multi-valued column can have zero, one, or more values associated with it. The various values in a multi-valued column are identified by a number called the itagSequence member, which belongs to various structures, including:  JET_RETINFO,  JET_SETINFO,  JET_SETCOLUMN,  JET_RETRIEVECOLUMN, and  JET_ENUMCOLUMNVALUE. Multi-valued columns must be tagged columns; that is, they cannot be fixed-length or variable-length columns.
+| 0x00000800 | JET_bitColumnEscrowUpdate | Specifies that a column is an escrow update column. An escrow update column can be updated concurrently by different sessions with  JetEscrowUpdate and will maintain transactional consistency. An escrow update column must also meet the following conditions: +
+An escrow update column can be created only when the table is empty. +
+An escrow update column must be of type JET_coltypLong. +
+An escrow update column must have a default value (that is cbDefault must be positive).
+JET_bitColumnEscrowUpdate cannot be used in conjunction with JET_bitColumnTagged, JET_bitColumnVersion, or JET_bitColumnAutoincrement.
+| 0x00001000 | JET_bitColumnUnversioned | The column will be created in an without version information. This means that other transactions that attempt to add a column with the same name will fail. This bit is only useful with  JetAddColumn. It cannot be used within a transaction.
+3+| _Values introduced in Windows 2003_
+| 0x00002000 | JET_bitColumnDeleteOnZero | The column is an escrow update column, and when it reaches zero, the record will be deleted. A common use for a column that can be finalized is to use it as a reference count field, and when the field reaches zero the record gets deleted. JET_bitColumnDeleteOnZero is related to JET_bitColumnFinalize. A Delete-on-zero column must be an escrow update column. JET_bitColumnDeleteOnZero cannot be used with JET_bitColumnFinalize. JET_bitColumnDeleteOnZero cannot be used with user defined default columns.
+3+| _Values introduced in Windows XP_
+| 0x00002000 | JET_bitColumnMaybeNull | Reserved for future use.
+| 0x00004000 | JET_bitColumnFinalize | Use JET_bitColumnDeleteOnZero instead of JET_bitColumnFinalize. JET_bitColumnFinalize that a column can be finalized. When a column that can be finalized has an escrow update column that reaches zero, the row will be deleted. Future versions might invoke a callback function instead (For more information, see  JET_CALLBACK). A column that can be finalized must be an escrow update column. JET_bitColumnFinalize cannot be used with JET_bitColumnUserDefinedDefault.
+| 0x00008000 | JET_bitColumnUserDefinedDefault | The default value for a column will be provided by a callback function. See JET_CALLBACK. A column that has a user-defined default must be a tagged column. Specifying JET_bitColumnUserDefinedDefault means that pvDefault must point to a  JET_USERDEFINEDDEFAULT structure, and cbDefault must be set to sizeof( JET_USERDEFINEDDEFAULT ). +
+JET_bitColumnUserDefinedDefault cannot be used in conjunction with JET_bitColumnFixed, JET_bitColumnNotNULL, JET_bitColumnVersion, JET_bitColumnAutoincrement, JET_bitColumnUpdatable, JET_bitColumnEscrowUpdate, JET_bitColumnFinalize, JET_bitColumnDeleteOnZero, or JET_bitColumnMaybeNull.
+|===
+
+=== Compression
+As of Windows 7 the column types JET_coltypLongBinary and JET_coltypLongText 
+can be compressed [MSDN-WIN7].
+
+The first byte in the data indicates which compression is used. If the value is 
+0x18 the data is XPRESS compressed. The data is 7-bit compressed for any other 
+value.
+
+==== 7-bit compression
+7-bit compression is used for columns with less than 1 KiB (1024 bytes) 
+uncompressed data that consists of only 7-bit values. These are stored as a 
+continuous stream of 7-bit values.
+
+To decompress:
+
+1. check if the leading byte does not contain 0x18.
+  a. [yellow-background]*If the column type is the JET_coltypLongText*
+    i) [yellow-background]*If the lead byte contains 0x10 and the data is ASCII text*
+    ii) [yellow-background]*Otherwise the data is either ASCII or UTF16 little-endian*
+  b. start reading at offset 1
+  c. while not at end of stream
+    i) read a 7-bit value from the stream and convert it into an 8-bit value
+
+If the column type is JET_coltypLongText the uncompressed data either contains 
+an ASCII or an UTF-16 little-endian string.
+
+[yellow-background]*Notes: Contains unicode 0x09, 0x0b, 0x0d, 0x0f on Win7 but 
+not in Exchange 2010*
+
+==== XPRESS compression
+Microsoft XPRESS compression is used for columns with more than 1 KiB (1024 
+bytes) uncompressed data. This compression method is a combination of the LZ77 
+and DIRECT2 algorithms. The compression method is similar to the LZNT1, which 
+is used in NTFS compression.
+
+The compressed data is variable in size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | 0x18 | Leading byte
+| 1 | 2 | | Uncompressed data size
+| 3 | ... | | XPRESS compressed data
+|===
+
+If the column type is JET_coltypLongText the uncompressed data either contains 
+an ASCII or an UTF-16 little-endian string.
+
+[yellow-background]*TODO: what about data > 2^16?*
 
 == Backup
 

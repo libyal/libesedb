@@ -1,5 +1,6 @@
 TODO
 * pyesedb
+  - null value support
   - long value: add data size support
 * refactor libesedb_record_get_value_binary_data_size and
   libesedb_record_get_value_binary_data
@@ -155,6 +156,7 @@ Notes
 * worked on Python bindings
 * worked on long value support
 * worked on long value error tolerance
+* worked on NULL value support (JET_coltypNil)
 
 20150321
 * worked on libfdata btree refactor

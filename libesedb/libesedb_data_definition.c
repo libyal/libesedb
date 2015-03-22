@@ -737,8 +737,8 @@ int libesedb_data_definition_read_record(
 		switch( column_catalog_definition->column_type )
 		{
 			case LIBESEDB_COLUMN_TYPE_NULL:
-/* TODO handle this value type */
-				record_value_type = LIBFVALUE_VALUE_TYPE_UNDEFINED;
+				/* JET_coltypNil seems to be able to contain data */
+				record_value_type = LIBFVALUE_VALUE_TYPE_BINARY_DATA;
 				break;
 
 			case LIBESEDB_COLUMN_TYPE_BOOLEAN:
