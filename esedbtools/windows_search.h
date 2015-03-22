@@ -101,6 +101,7 @@ int windows_search_export_record_value_compressed_string(
      int record_value_entry,
      int ascii_codepage,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      libcerror_error_t **error );
 
 int windows_search_export_record_value_utf16_string(

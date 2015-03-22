@@ -24,10 +24,8 @@
 #include <memory.h>
 #include <types.h>
 
-#include "libesedb_data_definition.h"
 #include "libesedb_data_segment.h"
 #include "libesedb_definitions.h"
-#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
@@ -45,22 +43,11 @@ int libesedb_long_value_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
-     libfdata_vector_t *long_values_pages_vector,
-     libfcache_cache_t *long_values_pages_cache,
-     libfdata_btree_t *long_values_tree,
-     libfcache_cache_t *long_values_cache,
-     uint8_t *long_value_key,
-     size_t long_value_key_size,
+     libfdata_list_t *data_segments_list,
      libcerror_error_t **error )
 {
-	uint8_t long_value_segment_key[ 8 ];
-
-	libesedb_data_definition_t *data_definition         = NULL;
 	libesedb_internal_long_value_t *internal_long_value = NULL;
-	libesedb_key_t *key                                 = NULL;
 	static char *function                               = "libesedb_long_value_initialize";
-	uint32_t long_value_segment_offset                  = 0;
-	int result                                          = 0;
 
 	if( long_value == NULL )
 	{
@@ -95,26 +82,14 @@ int libesedb_long_value_initialize(
 
 		return( -1 );
 	}
-	if( long_value_key == NULL )
+	if( data_segments_list == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid long value key.",
+		 "%s: invalid data segments list.",
 		 function );
-
-		return( -1 );
-	}
-	if( long_value_key_size != 4 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupport long value key size: %" PRIzd ".",
-		 function,
-		 long_value_key_size );
 
 		return( -1 );
 	}
@@ -149,25 +124,6 @@ int libesedb_long_value_initialize(
 
 		return( -1 );
 	}
-	if( libfdata_list_initialize(
-	     &( internal_long_value->data_segments_list ),
-	     NULL,
-	     NULL,
-	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
-	     NULL,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data segments list.",
-		 function );
-
-		goto on_error;
-	}
 	if( libfcache_cache_initialize(
 	     &( internal_long_value->data_segments_cache ),
 	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES_DATA,
@@ -182,214 +138,22 @@ int libesedb_long_value_initialize(
 
 		goto on_error;
 	}
-	if( libesedb_key_initialize(
-	     &key,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create key.",
-		 function );
-
-		goto on_error;
-	}
-	if( libesedb_key_set_data(
-	     key,
-	     long_value_key,
-	     long_value_key_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set long value key data in key.",
-		 function );
-
-		goto on_error;
-	}
-	key->type = LIBESEDB_KEY_TYPE_LONG_VALUE;
-
-	if( libfdata_btree_get_leaf_value_by_key(
-	     long_values_tree,
-	     (intptr_t *) file_io_handle,
-	     long_values_cache,
-	     (intptr_t *) key,
-	     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
-	     (intptr_t **) &data_definition,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve leaf value by key.",
-		 function );
-
-		goto on_error;
-	}
-	if( libesedb_key_free(
-	     &key,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free key.",
-		 function );
-
-		goto on_error;
-	}
-	if( libesedb_data_definition_read_long_value(
-	     data_definition,
-	     file_io_handle,
-	     long_values_pages_vector,
-	     long_values_pages_cache,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read data definition long value.",
-		 function );
-
-		goto on_error;
-	}
-	/* Reverse the reversed long value key
-	 */
-	long_value_segment_key[ 0 ] = long_value_key[ 3 ];
-	long_value_segment_key[ 1 ] = long_value_key[ 2 ];
-	long_value_segment_key[ 2 ] = long_value_key[ 1 ];
-	long_value_segment_key[ 3 ] = long_value_key[ 0 ];
-
-	do
-	{
-		byte_stream_copy_from_uint32_big_endian(
-		 &( long_value_segment_key[ 4 ] ),
-		 long_value_segment_offset );
-
-		if( libesedb_key_initialize(
-		     &key,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create key.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_key_set_data(
-		     key,
-		     long_value_segment_key,
-		     8,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set long value segment key data in key.",
-			 function );
-
-			goto on_error;
-		}
-		key->type = LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT;
-
-		result = libfdata_btree_get_leaf_value_by_key(
-			  long_values_tree,
-			  (intptr_t *) file_io_handle,
-			  long_values_cache,
-		          (intptr_t *) key,
-		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
-		          (intptr_t **) &data_definition,
-			  0,
-			  error );
-
-		if( result == -1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve leaf value by key.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_key_free(
-		     &key,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free key.",
-			 function );
-
-			goto on_error;
-		}
-		if( result != 0 )
-		{
-			if( libesedb_data_definition_read_long_value_segment(
-			     data_definition,
-			     file_io_handle,
-			     io_handle,
-			     long_values_pages_vector,
-			     long_values_pages_cache,
-			     long_value_segment_offset,
-			     internal_long_value->data_segments_list,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read data definition long value segment.",
-				 function );
-
-				goto on_error;
-			}
-			long_value_segment_offset += data_definition->data_size;
-		}
-	}
-	while( result == 1 );
-
 	internal_long_value->file_io_handle            = file_io_handle;
 	internal_long_value->io_handle                 = io_handle;
 	internal_long_value->column_catalog_definition = column_catalog_definition;
+	internal_long_value->data_segments_list        = data_segments_list;
 
 	*long_value = (libesedb_long_value_t *) internal_long_value;
 
 	return( 1 );
 
 on_error:
-	if( key != NULL )
-	{
-		libesedb_key_free(
-		 &key,
-		 NULL );
-	}
 	if( internal_long_value != NULL )
 	{
 		if( internal_long_value->data_segments_cache != NULL )
 		{
 			libfcache_cache_free(
 			 &( internal_long_value->data_segments_cache ),
-			 NULL );
-		}
-		if( internal_long_value->data_segments_list != NULL )
-		{
-			libfdata_list_free(
-			 &( internal_long_value->data_segments_list ),
 			 NULL );
 		}
 		memory_free(

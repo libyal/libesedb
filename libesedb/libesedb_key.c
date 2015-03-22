@@ -143,7 +143,7 @@ int libesedb_key_free(
  */
 int libesedb_key_set_data(
      libesedb_key_t *key,
-     uint8_t *data,
+     const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
@@ -245,7 +245,7 @@ on_error:
  */
 int libesedb_key_append_data(
      libesedb_key_t *key,
-     uint8_t *data,
+     const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {

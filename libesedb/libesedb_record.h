@@ -310,6 +310,13 @@ int libesedb_record_is_multi_value(
      libesedb_record_t *record,
      libcerror_error_t **error );
 
+int libesedb_record_get_long_value_data_segments_list(
+     libesedb_internal_record_t *internal_record,
+     const uint8_t *long_value_key,
+     size_t long_value_key_size,
+     libfdata_list_t **data_segments_list,
+     libcerror_error_t **error );
+
 LIBESEDB_EXTERN \
 int libesedb_record_get_long_value(
      libesedb_record_t *record,

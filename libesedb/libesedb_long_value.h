@@ -81,12 +81,7 @@ int libesedb_long_value_initialize(
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
      libesedb_catalog_definition_t *column_catalog_definition,
-     libfdata_vector_t *long_values_pages_vector,
-     libfcache_cache_t *long_values_pages_cache,
-     libfdata_btree_t *long_values_tree,
-     libfcache_cache_t *long_values_cache,
-     uint8_t *long_value_key,
-     size_t long_value_key_size,
+     libfdata_list_t *data_segments_list,
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \

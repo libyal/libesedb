@@ -153,6 +153,8 @@ Notes
 
 20150322
 * worked on Python bindings
+* worked on long value support
+* worked on long value error tolerance
 
 20150321
 * worked on libfdata btree refactor

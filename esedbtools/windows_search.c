@@ -2325,6 +2325,7 @@ int windows_search_export_record_value_compressed_string(
      int record_value_entry,
      int ascii_codepage,
      FILE *record_file_stream,
+     log_handle_t *log_handle,
      libcerror_error_t **error )
 {
 	libesedb_long_value_t *long_value   = NULL;
@@ -2340,6 +2341,7 @@ int windows_search_export_record_value_compressed_string(
 	uint8_t value_data_flags            = 0;
 	int multi_value_iterator            = 0;
 	int number_of_multi_values          = 0;
+	int result                          = 0;
 
 	if( record == NULL )
 	{
@@ -2483,12 +2485,26 @@ int windows_search_export_record_value_compressed_string(
 	}
 	else if( ( value_data_flags & LIBESEDB_VALUE_FLAG_LONG_VALUE ) != 0 )
 	{
-		if( libesedb_record_get_long_value(
-		     record,
-		     record_value_entry,
-		     &long_value,
-		     error ) != 1 )
+		result = libesedb_record_get_long_value(
+		          record,
+		          record_value_entry,
+		          &long_value,
+		          error );
+
+		if( result != 1 )
 		{
+			log_handle_printf(
+			 log_handle,
+			 "Unable to retrieve long value of record entry: %d.\n",
+			 record_value_entry );
+
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: unable to retrieve long value of record entry: %d.",
+				 function,
+				 record_value_entry );
+			}
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
@@ -2497,59 +2513,71 @@ int windows_search_export_record_value_compressed_string(
 			 function,
 			 record_value_entry );
 
-			goto on_error;
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( ( error != NULL )
+			 && ( *error != NULL ) )
+			{
+				libcnotify_print_error_backtrace(
+				 *error );
+			}
+#endif
+			libcerror_error_free(
+			 error );
 		}
-		if( export_get_long_value_data(
-		     long_value,
-		     &long_value_data,
-		     &long_value_data_size,
-		     error ) != 1 )
+		else
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve long value data.",
-			 function );
-
-			goto on_error;
-		}
-		if( long_value_data_size > 0 )
-		{
-			if( windows_search_export_compressed_string_value(
-			     long_value_data,
-			     long_value_data_size,
-			     ascii_codepage,
-			     record_file_stream,
+			if( export_get_long_value_data(
+			     long_value,
+			     &long_value_data,
+			     &long_value_data_size,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GENERIC,
-				 "%s: unable to export compressed string of long value data of record entry: %d.",
-				 function,
-				 record_value_entry );
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve long value data.",
+				 function );
 
 				goto on_error;
 			}
-			memory_free(
-			 long_value_data );
+			if( long_value_data_size > 0 )
+			{
+				if( windows_search_export_compressed_string_value(
+				     long_value_data,
+				     long_value_data_size,
+				     ascii_codepage,
+				     record_file_stream,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GENERIC,
+					 "%s: unable to export compressed string of long value data of record entry: %d.",
+					 function,
+					 record_value_entry );
 
-			long_value_data = NULL;
-		}
-		if( libesedb_long_value_free(
-		     &long_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free long value.",
-			 function );
+					goto on_error;
+				}
+				memory_free(
+				 long_value_data );
 
-			goto on_error;
+				long_value_data = NULL;
+			}
+			if( libesedb_long_value_free(
+			     &long_value,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long value.",
+				 function );
+
+				goto on_error;
+			}
 		}
 	}
 /* TODO handle 0x10 flag */
@@ -3837,6 +3865,7 @@ int windows_search_export_record_systemindex_0a(
 				  value_iterator,
 				  ascii_codepage,
 				  record_file_stream,
+				  log_handle,
 				  error );
 		}
 		else if( known_column_type == WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_UNDEFINED )
