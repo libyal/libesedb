@@ -147,8 +147,182 @@ Because ESE stores the database data in fixed size pages, long values are used
 to store values that are larger than the page size.
 
 == (Database) file header
+The (database) file header is stored in the first database page. The byte value 
+in the remainder of the page are set to 0. A copy of the (database) file header 
+is stored in the second page.
 
-*TODO migrate remaining documentation*
+The (database) file header is (at least) 668 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | Checksum +
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to offset 4096. The value 0x89abcdef is used as the initial value.
+| 4 | 4 | "\xef\xcd\xab\x89" | The signature
+| 8 | 4 | | File format version
+| 12 | 4 | | File type +
+See section: <<file_type,File type>>
+| 16 | 8 | | Database time +
+Consists of a database time +
+See section: <<database_time,Database time>>
+| 24 | 28 | | Database signature +
+Consists of a database signature +
+See section: <<database_signature,Database signature>>
+| 52 | 4 | | Database state +
+See section: <<database_state,Database state>>
+| 56 | 8 | | Consistent position +
+Consists of a log position +
+See section: <<log_position,Log position>> +
+This is the log position that was used when the database was last brought to a clean shutdown state or NULL if the database is in a dirty state.
+| 64 | 8 | | Consistent date and time +
+Consists of a log time +
+See section: <<log_time,log time>> +
+This is the time when the database was last brought to a clean shutdown state or NULL if the database is in a dirty state.
+| 72 | 8 | | Attach date and time +
+Consists of a log time +
+See section: <<log_time,log time>> +
+The date and time when the database was last attached.
+| 80 | 8 | | Attach position +
+Consists of a log position +
+See section: <<log_position,Log position>> +
+The log position that was used the last time the database was attached.
+| 88 | 8 | | Detach date and time +
+Consists of a log time +
+See section: <<log_time,log time>> +
+The date and time when the database was last detached.
+| 96 | 8 | | Detach position +
+Consists of a log position +
+See section: <<log_position,Log position>> +
+The log position that was used the last time the database was detached.
+| 104 | 28 | | Log signature +
+Consists of a database signature +
+See section: <<database_signature,Database signature>>
+| 132 | 4 | 0 | [yellow-background]*Unknown (Empty value)*
+| 136 | 24 | | Previous full backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 160 | 24 | | Previous incremental backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 184 | 24 | | Current full backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 208 | 4 | | Shadowing disabled
+| 212 | 4 | | Last object identifier +
+The last object identifier in the database
+| 216 | 4 | | Major version +
+Represents the Windows NT major version when the databases indexes were updated.
+| 220 | 4 | | Minor version +
+Represents the Windows NT minor version when the databases indexes were updated.
+| 224 | 4 | | Build number +
+Represents the Windows NT build number when the databases indexes were updated.
+| 228 | 4 | | Service pack number +
+Represents the Windows NT service pack number when the databases indexes were updated.
+| 232 | 4 | | File format revision
+| 236 | 4 | | Page size +
+Value in bytes
+| 240 | 4 | | Repair count
+| 244 | 8 | | Repair date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 252 | 28 | 0 | [yellow-background]*Unknown2* +
+[yellow-background]*See notes below*
+| 280 | 8 | | Scrub database time +
+Consists of a database time +
+See section: <<database_time,Database time>>
+| 288 | 8 | | Scrub date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 296 | 8 | | [yellow-background]*Required log* +
+[yellow-background]*Consists of 2x 32-bit values*
+| 304 | 4 | | Upgrade Exchange 5.5 format
+| 308 | 4 | | Upgrade Free Pages
+| 312 | 4 | | Upgrade Space Map Pages
+| 316 | 24 | | Current shadow copy backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 340 | 4 | | Creation file format version
+| 344 | 4 | | Creation file format revision
+| 348 | 16 | | [yellow-background]*Unknown3* +
+[yellow-background]*See notes below*
+| 364 | 4 | | Old repair count
+| 368 | 4 | | ECC fix success count
+| 372 | 8 | | Last ECC fix success date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 380 | 4 | | Old ECC fix success count
+| 384 | 4 | | ECC fix error count
+| 388 | 8 | | Last ECC fix error date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 396 | 4 | | Old ECC fix error count
+| 400 | 4 | | Bad checksum error count
+| 404 | 8 | | Last bad checksum error date and time +
+Consists of a log time +
+See section: <<log_time,log time>>
+| 412 | 4 | | Old bad checksum error count
+| 416 | 4 | | [yellow-background]*Committed log* +
+[yellow-background]*Consists of the lower 32-bit value*
+| 420 | 24 | | Previous (shadow) copy backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 444 | 24 | | Previous differential backup +
+Consists of a backup information +
+See section: <<backup_information,Backup information>>
+| 468 | 40 | | [yellow-background]*Unknown (Empty values)*
+| 508 | 4 | | [yellow-background]*NLS major version* +
+[yellow-background]*Introduced in Windows 7 part of OS version*
+| 512 | 4 | | [yellow-background]*NLS minor version* +
+[yellow-background]*Introduced in Windows 7 part of OS version*
+| 516 | 148 | | [yellow-background]*Unknown (Empty values)*
+| 664 | 4 | | [yellow-background]*Unknown flags* +
+*See notes below*
+|===
+
+Some of the values in the file header corresponds correspond with those in the 
+miscellaneous database information (JET_DBINFOMISC).
+
+=== Notes
+....
+unknown2: 
+00000000: a4 88 3d 00 14 07 0f 07  03 6a 00 00 00 00 00 00   ..=..... .j...... 
+00000010: 00 00 00 00 00 00 00 00  00 00 00 00               ........ .... 
+
+found in stm
+....
+
+....
+unknown3:
+00000000: 2f 1d 07 0d 09 6b 00 00  00 00 00 00 00 00 00 00   /....k.. ........
+
+found in tmp.edb
+....
+
+Unknown flags
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x01000000 | | [yellow-background]*If not set the ECC and checksum counts and date and time values are not shown by eseutil, could be some extended data flag*
+| 0x02000000 | | [yellow-background]*Found in STM*
+|===
+
+....
+Find location of:
+fUpgradeDb value at offset 132?
+
+   Streaming File: No (implied by file type)
+             Dbid: 1
+
+signSLV, fSLVExists
+
+  Last checksum finish Date: 00/00/1900 00:00:00
+Current checksum start Date: 00/00/1900 00:00:00
+      Current checksum page: 0
+....
+
+[yellow-background]*In a clean database the consistent position, date and time 
+matches the detach position, date and time.*
 
 === [[file_type]]File type
 
@@ -213,12 +387,355 @@ This value is introduced in Windows XP
 |===
 
 == Hierarchical page-based storage
+The EDB file uses a fixed size page to store data. The size of the page is 
+defined in the file header.
+
+In a database file these pages are ordered in a B+-tree. The pages can B+-tree 
+references to other pages or data. These page B+-trees make up the database 
+tables and indexes. 
+
+Every page B+-tree refers to a 'Father of the Data Page' (FDP) object 
+identifier, which is basically a unique number for the specific page B+-tree.
+
+A page consists of:
+
+* a page header
+* the page values
+* the page tags (page value index)
+
+The page (file) offset and number can be calculated as following:
+....
+page offset = ( page number x page size ) + page size
+            = ( page number + 1 ) x page size
+....
+
+....
+page number = ( page offset -  page size ) / page size
+            = ( page offset / page size ) - 1
+....
+
+=== Page header
 
 *TODO migrate remaining documentation*
 
 == [[data_definitions]]Data definitions
+In ESE there are multiple categories of table data definitions, each category 
+uses different data type identifiers.
+
+[cols="1,1,1,5",options="header"]
+|===
+| Data type identifiers | Amount | Category | Description
+| 0x0001 – 0x007f | 126 | Fixed size | Fixed size data types (columns) use a defined number of space, even if no value is defined.
+| 0x0080 - 0x00ff | 127 | Variable size | Variable size data types (columns) can contain up to 256 bytes of data. +
+An offset array is stored in the record with the highest variable size data type set. Each array entry requires two bytes.
+| 0x0100 - 0xfffff | 64993 | Tagged | Tagged data types (columns) are data types that occur rarely or have multiple occurrences. Tagged data types have an unlimited data size. The data type identifier and size are stored with the data. When a tagged data type does not contain data no information about it stored.
+|===
+
+The data definitions are stored in (data definition) records. Such a data 
+definition records contains the values of a table row.
+
+[yellow-background]*According to `[MSDN]` data type identifiers 10 and 11 can 
+be defined as variable columns*
+
+=== Data definition header
+The data definition header is 4 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | | Last fixed size data type
+| 1 | 1 | | Last variable size data types
+| 2 | 2 | | The offset to the variable size data types +
+The offset is relative from the start of the data definition header
+|===
+
+=== Data type definitions
+The data type definitions is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | Fixed size data type definitions
+| ... | ... | | [yellow-background]*Unknown trailing data* +
+[yellow-background]*used to handle tagged data type definitions?*
+| ... | ... | | The variable size data types size array
+| ... | ... | | The variable size data types data array +
+Contains data for a variable data type
+| ... | ... | | The tagged data type definitions
+|===
+
+Although the corresponding table definition does not contain fixed size and/or 
+variable size data type definitions the data type definition still can contain 
+them. They need to be handled to find the offset of the tagged data type 
+definitions.
+
+The data type definitions will contain temple table tagged data type 
+identifiers before table tagged data type identifiers. Also see section: 
+<<template_tables,Template tables>>.
+
+==== Variable size data type size array entry
+The variable size data type size array entry is 2 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The variable size data type identifier +
+Contains a 2 byte size value for every variable data type. The MSB signifies that the variable size data type is empty. Also the size of the previous variable size data type needs to be subtracted from the current size.
+|===
+
+==== The tagged data type definitions - format revision 2
+For EDB format revision 2 the tagged data type definitions consist of multiple 
+entries.
+
+A tagged data type definitions entry is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The tagged data type identifier
+| 2 | 2 | | Size of the tagged data type data +
+The offset is relative from the start of the tagged data type offset array +
+[yellow-background]*flag bits:* +
+[yellow-background]*0x8000 (?)*
+| 4 | 1 | | Tagged data type flags +
+Currently only 0x00 values have been seen
+| 5 | ... | | Value
+|===
+
+[yellow-background]*When the 0x8000 flag bit is set the tagged data type offset 
+array entry is directly followed by the value data. The size of the tagged data 
+type data contains the size of the value data. The value is seems to be 
+preceded by the tagged data type flags?*
+
+==== The tagged data type definitions - format revision 9 and later
+For format revision 9 and later the tagged data type definitions consist of an 
+an offset and data array.
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | The tagged data types offset array
+| ... | ... | | The tagged data types data array
+|===
+
+===== Tagged data type offset array entry - format revision 9 and later
+The tagged data type offset array entry is 4 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | | The tagged data type identifier
+| 2 | 2 | | Size or offset of the tagged data type data +
+The offset is relative from the start of the tagged data type offset array +
+[yellow-background]*flag bits:* +
+[yellow-background]*0x4000 (tagged data type flags present)* +
+[yellow-background]*0x8000 (?)*
+|===
+
+[yellow-background]*What does a size of 0 indicate: that the value is empty or 
+contains the default value?*
+
+[yellow-background]*The number of tagged data types is deduced from the first 
+tagged data type data offset?*
+
+If the bit 0x4000 is set in the size the value is preceded by the tagged data 
+type flags. The size cannot be greater equal than 0x4000.
+
+[NOTE]
+As of Windows 7 and later (version 0x620 revision 0x11), for pages of 16 KiB 
+and 32 KiB, the tagged data type flags are always present in database and no 
+longer controlled by the flag bits. The size can be greater equal than 0x4000.
+
+===== Tagged data type flags
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x01 | | [yellow-background]*Variable size value*
+| 0x02 | | Data is compressed
+| 0x04 | | Data is stored in a long value +
+The data type definition contains a long value identifier, which is the key of the long value in reverse
+| 0x08 | | Data contains a multi value +
+See section: <<multi_values,Multi values>>
+| 0x10 | | [yellow-background]*Multi value contains size definition instead of offset definitions*
+|===
+
+====== Notes
+[yellow-background]*Are multi long values used?*
+
+Tag data type flags:
+....
+0x01 => unicode value or single value (not the sparse flag)
+0x05 => Long value (4 byte long value identifier or page key)
+0x08 => (fixed size type?) multi value
+0x09 => (variable size type?) multi value
+0x0b => compressed multi value (see below)
+0x18 => (fixed size type?) multi value (with size definition)
+....
+
+....
+column definition name                                   : System_Kind
+column definition type                                   : Text (extended ASCII or Unicode string) (JET_coltypText)
+(450) tagged data type identifier                        : 450
+(450) tagged data type offset                            : 0x4244 (580)
+(450) tagged data type size                              : 24
+(450) tag byte                                           : 0x18
+(450) tagged data type:
+00000000: 08 6c 00 69 00 6e 00 6b  00 70 00 72 00 6f 00 67   .l.i.n.k .p.r.o.g
+00000010: 00 72 00 61 00 6d 00                               .r.a.m.
+
+byte size of first value?
+....
+
+....
+(457) tagged data type flags            : 0x0b 
+        Is variable size 
+        Is compressed 
+        Is multi value 
+
+(457) tagged data type: 
+00000000: 04 00 09 00 13 ec b4 7b  0d 70 00 72 00 6f 00 67   .......{ .p.r.o.g 
+00000010: 00 72 00 61 00 6d 00                               .r.a.m. 
+
+Why is only the first entry is compressed?
+....
+
+=== Example: the catalog (data type) definition
 
 *TODO migrate remaining documentation*
+
+=== [[long_values]]Long Values
+The actual long values are stored in a separate page tree. The corresponding 
+page key of the long value is the long value identifier in reverse byte order. 
+E.g. a long value identifier of: 0xa7000000 relates to a page key of 
+0x000000a7. In version 0x620 and revision 0x0c the page key contains the 
+leading 0 values in revision 0x09 these leading 0 values are not present.
+
+The long value page key refers to a page value in the long value page tree 
+corresponding to the table page tree as defined in the catalog.
+
+This page value contains the long value header. The long value header is 8 
+bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | [yellow-background]*Unknown* +
+[yellow-background]*Seen 1* +
+[yellow-background]*Seen 0 in some defunct long values*
+| 4 | 4 | | [yellow-background]*Unknown (Last segment offset)*
+|===
+
+[yellow-background]*Hypothesis: the total long value size, holds for a lot of 
+single segment long values but not for some multi segment long values Largest 
+segment size?*
+
+The corresponding segments can be found by combining the long value page key 
+with a 4 byte segment offset, starting with offset 0. E.g. the first segment 
+for the long value identifier 0xa7000000 is the page key 0x000000a7 followed by 
+the segment offset 0x00000fae (4014), therefore 0x000000a7000000fae.
+
+[yellow-background]*One long value page tree per table?*
+
+[yellow-background]*Inverse key stored in data type definition*
+
+[yellow-background]*The offset (+ data size) of the last segment can exceed the 
+total long value size?*
+
+=== [[multi_values]]Multi values
+The multi value is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | Value offset array +
+Consists of 16-bit offset values +
+The offset is relative to the start of the multi value +
+[yellow-background]*flag bits:* +
+[yellow-background]*0x8000 (?)*
+| ... | ... | | Value data array
+|===
+
+==== Notes
+....
+column definition identifier                             : 625
+column definition name                                   : ML827a
+column definition type                                   : Integer 32-bit signed (JET_coltypLong)
+(625) tagged data type identifier                        : 625
+(625) tagged data type offset                            : 0x43cb (971)
+(625) tagged data type size                              : 31
+(625) tag byte                                           : 0x08
+(625) tagged data type:
+00000000: 0a 00 0e 00 12 00 16 00  1a 00 17 80 00 00 37 80   ........ ......7.
+00000010: 00 00 16 3a 00 00 19 80  00 00 18 80 00 00         ...:.... ......
+
+00000000: 06 00 0a 00 0e 00 80 80  00 00 90 80 00 00 a0 80   ........ ........
+00000010: 00 00                                              ..
+
+2 byte offset(s)
+fixed size value(s)
+....
+
+....
+column definition identifier                             : 318
+column definition name                                   : MN667f
+column definition type                                   : Large binary data (JET_coltypLongBinary)
+(318) tagged data type identifier                        : 318
+(318) tagged data type offset                            : 0x4173 (371)
+(318) tagged data type size                              : 45
+(318) tag byte                                           : 0x09
+(318) tagged data type:
+00000000: 04 00 18 00 44 0d 4a ae  39 18 8f 40 a0 0d be 80   ....D.J. 9..@....
+00000010: cb bf cd ad 00 00 00 00  5a 1f 4f 36 67 80 6b 4f   ........ Z.O6g.kO
+00000020: a1 81 89 f2 bb 7e 6b 39  00 00 00 00               .....~k9 ....
+
+2 byte offset(s)
+variable size value(s)
+....
+
+....
+column definition identifier            : 296
+column definition name                  : MS8053
+column definition type                  : Large text (extended ASCII or Unicode string) (JET_coltypLongText)
+(296) tagged data type identifier       : 296
+(296) tagged data type offset           : 0x429b (667)
+(296) tagged data type size             : 3019
+(296) tagged data type flags            : 0x09
+        Is variable size
+        Is multi value
+
+(296) tagged data type:
+00000000: 42 00 9e 00 f8 00 58 01  bc 01 1c 02 7a 02 d8 02   B.....X. ....z...
+00000010: 40 03 a8 03 0c 04 72 04  d4 04 2e 05 98 05 f6 05   @.....r. ........
+00000020: 64 06 d6 06 30 07 8a 07  ee 07 52 08 c6 08 26 09   d...0... ..R...&.
+00000030: 88 09 e8 09 44 0a a2 0a  02 0b 64 0b be 8b c2 8b   ....D... ..d.....
+00000040: c6 8b 75 00 72 00 6e 00  3a 00 73 00 63 00 68 00   ..u.r.n. :.s.c.h.
+
+MSB contains some flag (defunct?)
+....
+
+....
+0x8000 flag
+
+00000000: 42 00 9e 00 f8 00 58 01  bc 01 1c 02 7a 02 d8 02   B.....X. ....z...
+00000010: 40 03 a8 03 0c 04 72 04  d4 04 2e 05 98 05 f6 05   @.....r. ........
+00000020: 64 06 d6 06 30 07 8a 07  ee 07 52 08 c6 08 26 09   d...0... ..R...&.
+00000030: 88 09 e8 09 44 0a a2 0a  02 0b 64 0b be 8b c2 8b   ....D... ..d.....
+00000040: c6 8b                                              ..
+
+00000040:       75 00 72 00 6e 00  3a 00 73 00 63 00 68 00     u.r.n. :.s.c.h.
+00000050: 65 00 6d 00 61 00 73 00  2d 00 6d 00 69 00 63 00   e.m.a.s. -.m.i.c.
+00000060: 72 00 6f 00 73 00 6f 00  66 00 74 00 2d 00 63 00   r.o.s.o. f.t.-.c.
+00000070: 6f 00 6d 00 3a 00 6f 00  66 00 66 00 69 00 63 00   o.m.:.o. f.f.i.c.
+00000080: 65 00 3a 00 6f 00 66 00  66 00 69 00 63 00 65 00   e.:.o.f. f.i.c.e.
+00000090: 23 00 41 00 75 00 74 00  68 00 6f 00 72 00         #.A.u.t. h.o.r.
+
+00000090:                                            75 00                  u.
+000000a0: 72 00 6e 00 3a 00 73 00  63 00 68 00 65 00 6d 00   r.n.:.s. c.h.e.m.
+
+00000bb0: 65 00 23 00 54 00 69 00  74 00 6c 00 65 00 43 00   e.#.T.i. t.l.e.C.
+00000bc0: 00 00 44 00 00 00 45 00  00 00                     ..D...E. ..
+....
 
 == Database
 === [[database_signature]]Database signature
