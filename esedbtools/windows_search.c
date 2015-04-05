@@ -2501,7 +2501,7 @@ int windows_search_export_record_value_compressed_string(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: unable to retrieve long value of record entry: %d.",
+				 "%s: unable to retrieve long value of record entry: %d.\n",
 				 function,
 				 record_value_entry );
 			}

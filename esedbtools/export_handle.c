@@ -3740,7 +3740,7 @@ int export_handle_export_long_record_value(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: unable to retrieve long value of record entry: %d.",
+			 "%s: unable to retrieve long value of record entry: %d.\n",
 			 function,
 			 record_value_entry );
 		}

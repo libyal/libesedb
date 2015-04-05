@@ -324,7 +324,8 @@ int libesedb_key_append_data(
 }
 
 /* Compares two keys
- * Returns return LIBFDATA_COMPARE_LESS, LIBFDATA_COMPARE_EQUAL, LIBFDATA_COMPARE_GREATER if successful or -1 on error
+ * Returns LIBFDATA_COMPARE_LESS, LIBFDATA_COMPARE_EQUAL, LIBFDATA_COMPARE_GREATER,
+ * LIBFDATA_COMPARE_GREATER_EQUAL if successful or -1 on error
  */
 int libesedb_key_compare(
      libesedb_key_t *first_key,
@@ -569,7 +570,8 @@ int libesedb_key_compare(
 				result = LIBFDATA_COMPARE_EQUAL;
 			}
 		}
-		else if( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT )
+		else if( ( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
+		      || ( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT ) )
 		{
 			/* If the key matches the branch key but is longer,
 			 * the leaf value is in the next branch node
@@ -581,7 +583,11 @@ int libesedb_key_compare(
 			}
 			else
 			{
-				result = LIBFDATA_COMPARE_EQUAL;
+				/* If the key matches the branch key,
+				 * the leaf value can be in the current or next branch node.
+				 * The latter could be a side effect of dirty databases.
+				 */
+				result = LIBFDATA_COMPARE_GREATER_EQUAL;
 			}
 		}
 		else

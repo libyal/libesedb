@@ -157,6 +157,7 @@ Notes
 20150405
 * changes for handling tagged data types in version 0x620 revision 0x14
   database
+* changes for long value key compare
 
 20150322
 * worked on Python bindings

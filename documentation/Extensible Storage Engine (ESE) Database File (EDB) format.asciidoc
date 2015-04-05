@@ -1398,15 +1398,41 @@ key :7f f4 a6 a7 72 7f 57 00 49 00 4e 00 44 00 09 4f 00 57 00 53 00 20 00 09 4c 
 7f f4 a6 a7 72 7f WINDOWS LIVE.LNK 09 4b 00 00 00 00 00 00 00 04 7f 80 00 05 6b
 ....
 
-long value:
-
+==== Long value
 ....
 branch with key: 00 00 00 a7 00
 * contains leaf with key: 00 00 00 a7
-* leaf with key: 00 00 00 a7 00 00 00 00 is stored in next branch
+* leaf with key: 00 00 00 a7 00 00 00 00 is stored in next branch node
 ....
 
-index:
+Vista Update (0x620, 0x0c)
+
+....
+branch with key: 00 00 01 8e
+* contains leaf with key: 00 00 01 8e
+....
+
+Vista Search (0x620, 0x0c)
+
+....
+* dirty database
+branch with key: 00 00 4b da
+* does not contain leaf with key: 00 00 4b da
+* leaf with key: 00 00 4b da is stored in next branch node
+....
+
+Exchange 2013 (0x620, 0x14)
+
+....
+* dirty database
+branch with key: 00 00 00 2d
+* does not contain leaf with key: 00 00 00 2d
+* leaf with key: 00 00 00 2d is stored in next branch node
+....
+
+[yellow-background]*The most fruitful approach seems to search both branch nodes.*
+
+==== Indexed value
 
 Seen in Windows 8 search database:
 Should the index keys "7f 80 00 00 02 7f 80 01 7f 80 00 00 02" and "7f 00 00 00 02 7f 80 01 7f 80 00 00 02" match?
