@@ -313,6 +313,7 @@ int libesedb_data_definition_read_record(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libcdata_array_t *values_array,
+     uint8_t *record_flags,
      libcerror_error_t **error )
 {
 	libcdata_list_element_t *column_catalog_definition_list_element = NULL;
@@ -329,11 +330,14 @@ int libesedb_data_definition_read_record(
 	size_t remaining_definition_data_size                           = 0;
 	uint16_t data_offset                                            = 0;
 	uint16_t fixed_size_data_type_value_offset                      = 0;
+	uint16_t masked_previous_tagged_data_type_offset                = 0;
+	uint16_t masked_tagged_data_type_offset                         = 0;
 	uint16_t previous_tagged_data_type_offset                       = 0;
 	uint16_t previous_variable_size_data_type_size                  = 0;
 	uint16_t tagged_data_type_offset_data_size                      = 0;
 	uint16_t tagged_data_type_identifier                            = 0;
 	uint16_t tagged_data_type_offset                                = 0;
+	uint16_t tagged_data_type_offset_bitmask                        = 0x3fff;
 	uint16_t tagged_data_type_size                                  = 0;
 	uint16_t tagged_data_types_offset                               = 0;
 	uint16_t tagged_data_type_value_offset                          = 0;
@@ -418,6 +422,17 @@ int libesedb_data_definition_read_record(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid values array.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_flags == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
+		 "%s: invalid record flags.",
 		 function );
 
 		return( -1 );
@@ -526,6 +541,11 @@ int libesedb_data_definition_read_record(
 	{
 		tagged_data_types_format = LIBESEDB_TAGGED_DATA_TYPES_FORMAT_LINEAR;
 	}
+	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+	 && ( io_handle->page_size >= 16384 ) )
+	{
+		tagged_data_type_offset_bitmask = 0x7fff;
+	}
 	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) record_data )->last_fixed_size_data_type;
 	last_variable_size_data_type = ( (esedb_data_definition_header_t *) record_data )->last_variable_size_data_type;
 
@@ -537,7 +557,7 @@ int libesedb_data_definition_read_record(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: last fixed size data type\t\t: %" PRIu8 "\n",
+		 "%s: last fixed size data type\t\t\t: %" PRIu8 "\n",
 		 function,
 		 last_fixed_size_data_type );
 
@@ -1008,7 +1028,7 @@ int libesedb_data_definition_read_record(
 					if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: (%03" PRIu16 ") tagged data type identifier\t: %" PRIu16 "\n",
+						 "%s: (%03" PRIu16 ") tagged data type identifier\t\t: %" PRIu16 "\n",
 						 function,
 						 column_catalog_definition->identifier,
 						 tagged_data_type_identifier );
@@ -1070,25 +1090,23 @@ int libesedb_data_definition_read_record(
 					{
 						if( tagged_data_type_size > 0 )
 						{
-							if( tagged_data_type_value_offset >= record_data_size )
-							{
-								libcerror_error_set(
-								 error,
-								 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-								 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-								 "%s: invalid tagged data type offset value out of bounds.",
-								 function );
-
-								goto on_error;
-							}
 							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
 							 column_catalog_definition->identifier );
-							libcnotify_print_data(
-							 &( record_data[ tagged_data_type_value_offset ] ),
-							 tagged_data_type_size,
-							 0 );
+
+							if( tagged_data_type_value_offset < record_data_size )
+							{
+								libcnotify_print_data(
+								 &( record_data[ tagged_data_type_value_offset ] ),
+								 tagged_data_type_size,
+								 0 );
+							}
+							else
+							{
+								libcnotify_printf(
+								 "<NULL>\n\n" );
+							}
 						}
 						else
 						{
@@ -1212,7 +1230,7 @@ int libesedb_data_definition_read_record(
 						if( libcnotify_verbose != 0 )
 						{
 							libcnotify_printf(
-							 "%s: tagged data type offset data size\t: %" PRIu16 "\n",
+							 "%s: tagged data type offset data size\t\t: %" PRIu16 "\n",
 							 function,
 							 tagged_data_type_offset_data_size );
 							libcnotify_printf(
@@ -1233,30 +1251,17 @@ int libesedb_data_definition_read_record(
 					if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: (%03" PRIu16 ") tagged data type identifier\t: %" PRIu16 "\n",
+						 "%s: (%03" PRIu16 ") tagged data type identifier\t\t: %" PRIu16 "\n",
 						 function,
 						 column_catalog_definition->identifier,
 						 tagged_data_type_identifier );
 
-						if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-						 && ( io_handle->page_size >= 16384 ) )
-						{
-							libcnotify_printf(
-							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-							 function,
-							 column_catalog_definition->identifier,
-							 tagged_data_type_offset,
-							 tagged_data_type_offset );
-						}
-						else
-						{
-							libcnotify_printf(
-							 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
-							 function,
-							 column_catalog_definition->identifier,
-							 tagged_data_type_offset,
-							 tagged_data_type_offset & 0x3fff );
-						}
+						libcnotify_printf(
+						 "%s: (%03" PRIu16 ") tagged data type offset\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+						 function,
+						 column_catalog_definition->identifier,
+						 tagged_data_type_offset,
+						 tagged_data_type_offset & tagged_data_type_offset_bitmask );
 					}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
@@ -1279,50 +1284,27 @@ int libesedb_data_definition_read_record(
 						tagged_data_type_offset_data_size -= 4;
 						remaining_definition_data_size    -= 4;
 					}
-					if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-					 && ( io_handle->page_size >= 16384 ) )
-					{
-						if( previous_tagged_data_type_offset > tagged_data_type_offset )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
-							 function );
+					masked_previous_tagged_data_type_offset = previous_tagged_data_type_offset & tagged_data_type_offset_bitmask;
+					masked_tagged_data_type_offset          = tagged_data_type_offset & tagged_data_type_offset_bitmask;
 
-							goto on_error;
-						}
-						if( tagged_data_type_offset > previous_tagged_data_type_offset )
-						{
-							tagged_data_type_size = tagged_data_type_offset - previous_tagged_data_type_offset;
-						}
-						else
-						{
-							tagged_data_type_size = (uint16_t) remaining_definition_data_size;
-						}
+					if( masked_previous_tagged_data_type_offset > masked_tagged_data_type_offset )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
+						 function );
+
+						goto on_error;
+					}
+					if( masked_tagged_data_type_offset > masked_previous_tagged_data_type_offset )
+					{
+						tagged_data_type_size = masked_tagged_data_type_offset - masked_previous_tagged_data_type_offset;
 					}
 					else
 					{
-						if( ( previous_tagged_data_type_offset & 0x3fff ) > ( tagged_data_type_offset & 0x3fff ) )
-						{
-							libcerror_error_set(
-							 error,
-							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-							 "%s: invalid tagged data type offset value exceeds next tagged data type offset.",
-							 function );
-
-							goto on_error;
-						}
-						if( ( tagged_data_type_offset & 0x3fff ) > ( previous_tagged_data_type_offset & 0x3fff ) )
-						{
-							tagged_data_type_size = ( tagged_data_type_offset & 0x3fff ) - ( previous_tagged_data_type_offset & 0x3fff );
-						}
-						else
-						{
-							tagged_data_type_size = (uint16_t) remaining_definition_data_size;
-						}
+						tagged_data_type_size = (uint16_t) remaining_definition_data_size;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
@@ -1334,17 +1316,7 @@ int libesedb_data_definition_read_record(
 						 tagged_data_type_size );
 					}
 #endif
-					if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-					 && ( io_handle->page_size >= 16384 ) )
-					{
-						tagged_data_type_value_offset = tagged_data_types_offset
-						                              + previous_tagged_data_type_offset;
-					}
-					else
-					{
-						tagged_data_type_value_offset = tagged_data_types_offset
-						                              + ( previous_tagged_data_type_offset & 0x3fff );
-					}
+					tagged_data_type_value_offset = tagged_data_types_offset + masked_previous_tagged_data_type_offset;
 
 					if( tagged_data_type_size > 0 )
 					{
@@ -1396,25 +1368,23 @@ int libesedb_data_definition_read_record(
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
-							if( tagged_data_type_value_offset >= record_data_size )
-							{
-								libcerror_error_set(
-								 error,
-								 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-								 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
-								 "%s: invalid tagged data type offset value out of bounds.",
-								 function );
-
-								goto on_error;
-							}
 							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") tagged data type:\n",
 							 function,
 							 column_catalog_definition->identifier );
-							libcnotify_print_data(
-							 &( record_data[ tagged_data_type_value_offset ] ),
-							 tagged_data_type_size,
-							 0 );
+
+							if( tagged_data_type_value_offset < record_data_size )
+							{
+								libcnotify_print_data(
+								 &( record_data[ tagged_data_type_value_offset ] ),
+								 tagged_data_type_size,
+								 0 );
+							}
+							else
+							{
+								libcnotify_printf(
+								 "<NULL>\n\n" );
+							}
 						}
 #endif
 					}

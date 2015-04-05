@@ -65,6 +65,7 @@ Additional information about long value.
 | 0.0.21 | J.B. Metz | February 2014 | Additional information regarding LCMAP flags.
 | 0.0.22 | J.B. Metz | April 2014 | Additional findings.
 | 0.0.23 | J.B. Metz | March 2015 | Switched to asciidoc format.
+| 0.0.24 | J.B. Metz | April 2015 | Textual changes and additional findings regarding Exchange 2013.
 |===
 
 :numbered:
@@ -369,6 +370,8 @@ Column compression. +
 Space hints. +
 Used in Windows 7 (SP0)
 | | | 
+| 0x00000620 | 0x00000014 | Used in Exchange 2013.
+| | | 
 | 0x00000623 | 0x00000000 | New Space Manager (5/15/99).
 |===
 
@@ -494,13 +497,15 @@ A tagged data type definitions entry is variable of size and consists of:
 | Offset | Size | Value | Description
 | 0 | 2 | | The tagged data type identifier
 | 2 | 2 | | Size of the tagged data type data +
-The offset is relative from the start of the tagged data type offset array +
 [yellow-background]*flag bits:* +
 [yellow-background]*0x8000 (?)*
 | 4 | 1 | | Tagged data type flags +
 Currently only 0x00 values have been seen
 | 5 | ... | | Value
 |===
+
+[yellow-background]*What does a size of 0 indicate: that the value is empty or 
+contains the default value?*
 
 [yellow-background]*When the 0x8000 flag bit is set the tagged data type offset 
 array entry is directly followed by the value data. The size of the tagged data 
@@ -525,26 +530,26 @@ The tagged data type offset array entry is 4 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 2 | | The tagged data type identifier
-| 2 | 2 | | Size or offset of the tagged data type data +
+| 2 | 2 | | Offset of the tagged data type data +
 The offset is relative from the start of the tagged data type offset array +
 [yellow-background]*flag bits:* +
 [yellow-background]*0x4000 (tagged data type flags present)* +
 [yellow-background]*0x8000 (?)*
 |===
 
-[yellow-background]*What does a size of 0 indicate: that the value is empty or 
-contains the default value?*
-
 [yellow-background]*The number of tagged data types is deduced from the first 
 tagged data type data offset?*
 
-If the bit 0x4000 is set in the size the value is preceded by the tagged data 
-type flags. The size cannot be greater equal than 0x4000.
+If the tagged data type offset is greater equal the record data size it appears 
+the value is empty ([yellow-background]*or maybe the default value if set?*).
 
-[NOTE]
-As of Windows 7 and later (version 0x620 revision 0x11), for pages of 16 KiB 
-and 32 KiB, the tagged data type flags are always present in database and no 
-longer controlled by the flag bits. The size can be greater equal than 0x4000.
+If the bit 0x4000 is set in the size the value is preceded by the tagged data 
+type flags. The size cannot be greater equal than 16 KiB (0x4000).
+
+However for Windows 7 (version 0x620 revision 0x11) and later, for pages of 
+16 KiB and 32 KiB, the tagged data type flags are always present in database 
+and no longer controlled by the flag bits. For such databases the size cannot 
+be greater equal than 32 KiB (0x8000).
 
 ===== Tagged data type flags
 

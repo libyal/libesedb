@@ -89,6 +89,7 @@ int libesedb_data_definition_read_record(
      libesedb_table_definition_t *table_definition,
      libesedb_table_definition_t *template_table_definition,
      libcdata_array_t *values_array,
+     uint8_t *record_flags,
      libcerror_error_t **error );
 
 int libesedb_data_definition_read_long_value(

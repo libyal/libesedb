@@ -163,6 +163,7 @@ int libesedb_record_initialize(
 	     table_definition,
 	     template_table_definition,
 	     internal_record->values_array,
+	     &( internal_record->flags ),
 	     error ) != 1 )
 	{
 		libcerror_error_set(

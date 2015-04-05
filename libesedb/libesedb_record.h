@@ -85,8 +85,12 @@ struct libesedb_internal_record
 	libfcache_cache_t *long_values_cache;
 
 	/* The values array
-	*/
+	 */
 	libcdata_array_t *values_array;
+
+	/* The (record) flags 
+	 */
+	uint8_t flags;
 };
 
 int libesedb_record_initialize(

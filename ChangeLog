@@ -7,6 +7,8 @@ TODO
 * complete libfdata btree refactor
   - libesedb_values_tree.c replace by fdata functions?
   - fix is_flexible_match for xp_search.edb indexes
+* record flags
+  - add indication of corrupt records
 
 * format notes:
   - value of un-initialized page checksum: 0xdeadbeefbaadf00d
@@ -151,6 +153,10 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20150405
+* changes for handling tagged data types in version 0x620 revision 0x14
+  database
 
 20150322
 * worked on Python bindings
