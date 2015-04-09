@@ -1,4 +1,7 @@
 TODO
+* libfdata next search keep going on a key match?
+
+* fix flaky test for System_Search_AutoSummary (one byte off?)
 * pyesedb
   - null value support
   - long value: add data size support
@@ -153,6 +156,9 @@ Notes
   - no
 * read catalog data type defintions and convert them into column definitions?
   - no
+
+20150409
+* changes for long value look up in dirty databases
 
 20150405
 * changes for handling tagged data types in version 0x620 revision 0x14

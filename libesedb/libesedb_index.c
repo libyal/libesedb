@@ -752,6 +752,7 @@ int libesedb_index_get_record(
 	     internal_index->table_values_cache,
 	     (intptr_t *) key,
 	     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+	     LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
 	     (intptr_t **) &record_data_definition,
 	     0,
 	     error ) != 1 )

@@ -583,11 +583,7 @@ int libesedb_key_compare(
 			}
 			else
 			{
-				/* If the key matches the branch key,
-				 * the leaf value can be in the current or next branch node.
-				 * The latter could be a side effect of dirty databases.
-				 */
-				result = LIBFDATA_COMPARE_GREATER_EQUAL;
+				result = LIBFDATA_COMPARE_LESS_EQUAL;
 			}
 		}
 		else
@@ -644,9 +640,19 @@ fprintf( stderr, "MARKER\n" );
 				 "greater" );
 				break;
 
+			case LIBFDATA_COMPARE_GREATER_EQUAL:
+				libcnotify_printf(
+				 "greater equal" );
+				break;
+
 			case LIBFDATA_COMPARE_LESS:
 				libcnotify_printf(
 				 "less" );
+				break;
+
+			case LIBFDATA_COMPARE_LESS_EQUAL:
+				libcnotify_printf(
+				 "less equal" );
 				break;
 
 			default:

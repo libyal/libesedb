@@ -1399,38 +1399,51 @@ key :7f f4 a6 a7 72 7f 57 00 49 00 4e 00 44 00 09 4f 00 57 00 53 00 20 00 09 4c 
 ....
 
 ==== Long value
-....
-branch with key: 00 00 00 a7 00
-* contains leaf with key: 00 00 00 a7
-* leaf with key: 00 00 00 a7 00 00 00 00 is stored in next branch node
-....
-
+===== Normal behavior?
 Vista Update (0x620, 0x0c)
-
 ....
 branch with key: 00 00 01 8e
 * contains leaf with key: 00 00 01 8e
 ....
 
-Vista Search (0x620, 0x0c)
+TODO
+....
+branch with key: 00 00 00 a7 00
+* contains leaf with key: 00 00 00 a7
+* leaf with key: 00 00 00 a7 00 00 00 00 is stored in next leaf node
+....
 
+[yellow-background]*Normal behavior search the leaf node.*
+
+===== Behavior in dirty databases
+Vista Search (0x620, 0x0c)
 ....
 * dirty database
 branch with key: 00 00 4b da
 * does not contain leaf with key: 00 00 4b da
-* leaf with key: 00 00 4b da is stored in next branch node
+* leaf with key: 00 00 4b da is stored in next leaf node
 ....
 
 Exchange 2013 (0x620, 0x14)
-
 ....
 * dirty database
 branch with key: 00 00 00 2d
 * does not contain leaf with key: 00 00 00 2d
-* leaf with key: 00 00 00 2d is stored in next branch node
+* leaf with key: 00 00 00 2d is stored in next leaf node
 ....
 
-[yellow-background]*The most fruitful approach seems to search both branch nodes.*
+[yellow-background]*Also search the next leaf node. If the key matches?*
+
+Vista Search (0x620, 0x0c)
+
+....
+* dirty database
+branch with key: 00 00 3b 8f
+* does not contain leaf with key: 00 00 3b 8f
+* leaf with key: 00 00 3b 8f is stored in next branch node
+....
+
+[yellow-background]*Also search the next branch node. If the key matches?*
 
 ==== Indexed value
 

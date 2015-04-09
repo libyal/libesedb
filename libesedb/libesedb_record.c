@@ -3096,6 +3096,7 @@ int libesedb_record_get_long_value_data_segments_list(
 	          internal_record->long_values_cache,
 	          (intptr_t *) key,
 	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+	          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
 	          (intptr_t **) &data_definition,
 	          0,
 	          error );
@@ -3193,6 +3194,7 @@ int libesedb_record_get_long_value_data_segments_list(
 			  internal_record->long_values_cache,
 		          (intptr_t *) key,
 		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
+		          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
 		          (intptr_t **) &data_definition,
 			  0,
 			  error );
