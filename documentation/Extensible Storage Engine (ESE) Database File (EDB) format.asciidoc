@@ -427,8 +427,424 @@ page number = ( page offset -  page size ) / page size
 ....
 
 === Page header
+The page header is 40 or 80 bytes of size and consists of:
 
-*TODO migrate remaining documentation*
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+4+| _Before Exchange 2003 SP1 and Windows Vista_
+| 0 | 4 | | The XOR checksum +
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 4 to the end of the page. +
+The value 0x89abcdef is used as the initial value.
+| 4 | 4 | | Page number +
+Used for the XOR checksum
+4+| _Exchange 2003 SP1 and Windows Vista and later_ +
+_(As of version 0x620 revision 0x0b)_ +
+_The new record format page flag must be set)_
+| 0 | 4 | | The XOR checksum +
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to the end of the page. +
+The page number is used as the initial value.
+| 4 | 4 | | The ECC checksum +
+[yellow-background]*TODO*
+4+| _Windows 7 and later_ +
+_(As of version 0x620 revision 0x11)_
+| 0 | 8 | | Checksum +
+[yellow-background]*TODO*
+4+| _Common_
+| 8 | 8 | | Database last modification time +
+Consists of a database time +
+See section: <<database_time,Database time>> +
+This value indicates the database time the page was last modified.
+| 16 | 4 | | Previous page number +
+This value indicates the page number of the adjacent left page on the leaf.
+| 20 | 4 | | Next page number +
+This value indicates the page number of the adjacent right page on the leaf.
+| 24 | 4 | | Father Data Page (FDP) object identifier +
+This value indicates which page B+-tree this page belongs to.
+| 28 | 2 | | Available data size +
+The number of bytes available within the page.
+| 30 | 2 | | Available uncommitted data size +
+The number of uncommitted bytes  within the page. +
+Uncommitted bytes are free but available for reclaim by rollback on the page.
+| 32 | 2 | | (First) available data offset +
+The offset is relative from the end of the page header
+| 34 | 2 | | (First) available page tag
+| 36 | 4 | | Page flags +
+See section: <<page_flags,Page flags>>
+4+| _Extended page header Windows 7 and later_ +
+_(As of version 0x620 revision 0x11)_ +
+[yellow-background]*Only for pages of 16 KiB and 32 KiB ?*
+| 40 | 8 | | Extended checksum 1 +
+[yellow-background]*TODO*
+| 48 | 8 | | Extended checksum 2 +
+[yellow-background]*TODO*
+| 56 | 8 | | Extended checksum 3 +
+[yellow-background]*TODO*
+| 64 | 8 | | Page number +
+| 72 | 8 | | [yellow-background]*Unknown (Empty values)*
+|===
+
+==== Changes in Exchange 2003 SP1
+According to `[MSDN]` Exchange Server 2003 Service Pack 1 (SP1) introduces a 
+new feature named Error Correcting Code (ECC) Checksum. ECC Checksum is a new 
+checksum format that enables the correction of single-bit errors in database 
+pages (in the .edb file, .stm file, and transaction log files). This new 
+checksum format uses 64-bits, whereas the earlier checksum format uses 32-bits. 
+Earlier format databases can be used with the new code, but current format 
+databases cannot be used with earlier versions of ESE. After the database 
+engine is updated, all pages that are written to the database have the new 
+checksum format. Pages that are read and not modified do not have their 
+checksum format upgraded.
+
+Database pages with the earlier-format checksum start with a 32-bit checksum, 
+followed by a 32-bit page number, which is used to verify that the requested 
+page is actually read off disk.
+
+The new checksum format removes the 32-bit page number and instead starts with 
+an eight-byte checksum. The page number is used as an input parameter in 
+calculating the checksum. Therefore, if the wrong page is read off disk, there 
+will be a checksum mismatch.
+
+The current checksum format actually consists of two 32-bit checksums. The 
+first is an XOR checksum, calculated much like the earlier format checksum. The 
+page number is used as a seed in the calculation of this checksum. The second 
+32-bit checksum is an ECC checksum, which allows for the correction of 
+single-bit errors on the page.
+
+==== Changes in Windows 7
+In Windows 7, for pages of 16 KiB and 32 KiB, the page header was extended with 
+mainly additional error recovery checksums.
+
+==== [[page_flags]]Page flags
+The page flags consist of the following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x00000001 | | The page is a root page
+| 0x00000002 | | The page is a leaf page
+| 0x00000004 | | The page is a parent page
+| 0x00000008 | | The page is empty
+| | | 
+| 0x00000020 | | The page is a space tree page
+| 0x00000040 | | The page is an index page
+| 0x00000080 | | The page is a long value page
+| | | 
+| 0x00000400 | | [yellow-background]*Unknown*
+| 0x00000800 | | [yellow-background]*Unknown* +
+[yellow-background]*Does not seems to be the primary page flags?* +
+[yellow-background]*Flag for unique keys?*
+| | | 
+| 0x00002000 | | New record format +
+New checksum format
+| 0x00004000 | | [yellow-background]*Is scrubbed (was zero-ed)*
+| 0x00008000 | | [yellow-background]*Unknown*
+|===
+
+[yellow-background]*Index page unique keys/non-unique keys*
+[yellow-background]*PageFlushType = 1 (0x8000) ?*
+
+=== Page tags
+The page tags are stored at the end of the the page. The page tags are stored 
+back to front. The page header indicates the first unused page tag.
+
+[NOTE]
+There can be more page tags in the page than being used.
+
+==== Page tag - format revision 12 and earlier
+A page tag is 4 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0.0  | 13 bits | | Value offset +
+The offset is relative after the page header
+| 1.5 | 3 bits | | Page tag flags +
+See section: <<page_tag_flags,Page tag flags>>
+| 2.0  | 13 bits | | Value size
+| 2.5 | 3 bits | | [yellow-background]*Unknown* +
+[yellow-background]*Seen 2nd MSB set*
+|===
+
+==== Page tag - format revision 17 and later
+In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the page 
+tags were changed, to support these page sizes. For these page sizes the page 
+tag flags have been moved to the first 16-value in the leaf page entry.
+
+A page tag is 4 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0.0  | 15 bits | | Value offset +
+The offset is relative after the extended page header
+| 3.7 | 1 bit | | [yellow-background]*Unknown* +
+[yellow-background]*Sometimes set*
+| 2 | 15 bits | | Value size
+| 3.6 | 1 bit | | [yellow-background]*Unknown* +
+[yellow-background]*Sometimes set*
+|===
+
+==== Page tag flags
+The page tag flags consist of the following values:
+
+[cols="1,1,5",options="header"]
+|===
+| Value | Identifier | Description
+| 0x0001 | v | [yellow-background]*Unknown (Value)* +
+[yellow-background]*The page value contains variable sized data types?*
+| 0x0002 | d | Defunct +
+The page value is no longer used
+| 0x0004 | c | Common key +
+The page value contains a common page key size
+|===
+
+=== Page B+-tree
+In the B+-tree hierarchy there are multiple types of pages:
+
+* root page
+* branch page
+* leaf page
+
+These different type of pages contain different types of page values.
+
+==== Empty page
+Although empty pages can contain data they are ignored when creating a page 
+B+-tree.
+
+==== Root page
+The root page is identified by the 'is root' flag.
+
+The root page contains different types of values:
+
+* the root page header
+* branch or leaf page entries
+
+===== Root page header
+The root page header is the first page tag within the page.
+
+The root page header is 16 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The initial number of pages +
+The number of pages when the object was first created in the page tree.
+| 4 | 4 | | The parent Father Data Page (FDP) number
+| 8 | 4 | | Extent space +
+0x00000000 => single +
+0x00000001 => multiple
+| 12 | 4 | | The space tree page number +
+0 if not set +
+[yellow-background]*masks 0xff000000 if not set* +
+[yellow-background]*(pgnoOE)*
+|===
+
+The FDP flag in the eseutil seems to be implied if the parent Father Data Page 
+(FDP) number (pgnoFDP) is set.
+
+The primary extent represents the the initial number of pages followed by a 
+dash and a letter after the that indicates whether the space for the B-Tree is 
+currently represented using multiple pages ("m") or a single page ("s").
+
+[yellow-background]*The space tree page number is valid when the extent space > 0.*
+
+==== Branch page
+The branch page not identified by any flags, the 'is leaf' flag should not be 
+set. The branch page can contain the 'is parent' flag.
+
+[yellow-background]*What is the significance of the 'is parent' flag?*
+
+Both the branch page contains different types of values:
+
+* the branch page header
+* branch page entries
+
+===== Branch page header
+The branch page header is the first page tag within the page.
+
+If the branch page has no 'is root' flag the branch page header is variable of 
+size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | Common page key
+|===
+
+===== Branch page entry
+The branch page entry is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+4+| _If page tag flag 0x04 is set_
+| 0 | 2 | | Common page key size
+4+| _Common for all page flags_
+| 0 | 2 | | Local page key size
+| 2 | (size) | | The local page key +
+The highest page key in the page B+‑tree branch +
+Note that the last father data page entry contains an empty page key
+| ... | 4 | | Child page number +
+The child page number is invalid if it exceeds the last page in the file
+|===
+
+The actual page key of the page entry is a combination of the part of the 
+common page key, which is stored in the page header, specified by the size of 
+the common page key size value, followed by the local page key stored in the 
+page entry.
+
+==== Leaf page values
+The leaf page is identified by the 'is leaf' flag.
+
+The leaf page contains different types of values:
+
+* the leaf page header
+* leaf page entries
+
+There are multiple types of leaf pages:
+
+* index leaf pages; identified by the 'is index' page flag
+* long value leaf pages; identified by the 'is long value' page flag
+* table leaf pages
+
+Every type of leaf page has a different type of leaf page entry.
+
+===== Leaf page header
+The leaf page header is the first page tag within the page.
+
+If the leaf page has no 'is root' flag the leaf page header is variable of size 
+and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | Common page key
+|===
+
+If there is no leaf page header the size of the corresponding page tag is 0.
+
+===== Leaf page entry
+The leaf page entries for the different types of leaf pages use a similar entry structure.
+
+[NOTE]
+The 3 MSB of the first 2 bytes can contain the page tag flags, see format revision 17.
+
+The leaf page entry is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+4+| _If page tag flag 0x04 is set_
+| 0 | 2 | | Common page key size
+4+| _Common for all page flags_
+| 2 | 2 | | Local page key size
+| 4 | ... | | Local page key
+| ... | ... | | Entry data
+|===
+
+The actual page key of the page entry is a combination of the part of the 
+common page key, which is stored in the page header, specified by the size of 
+the common page key size value, followed by the local page key stored in the 
+page entry.
+
+====== Leaf page entry - format revision 17 and later
+In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the size 
+of the page key in the leaf page entry was changed.
+
+The upper 3-bits of the first 16-bit value (either the key type or the size of 
+the page key) contain the page tag flags (See section: <<page_tag_flags,Page tag flags>>).
+
+=== Page values
+==== Space tree page values
+The space tree page is identified by the following flags:
+
+* is space tree
+
+[yellow-background]*Is the root flag always set?*
+
+Space tree branch pages are similar to branch pages.
+
+The space tree leaf page contains different types of values:
+
+* the space tree page header
+* space tree page entries
+
+The primary space tree page referenced from the father data page contains 
+information about the owned pages. The secondary space tree page which is the 
+primary space tree page number + 1 contains information about the available 
+pages.
+
+===== Space tree leaf page header
+The space tree page header is the first page value within the page.
+
+The space tree page header is 16 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 16 | | [yellow-background]*Unknown* +
+[yellow-background]*Seen: 0*
+|===
+
+When the space tree page was referenced from the father data page the space 
+tree page header contains 0 bytes.
+
+The space tree header can also be empty (have a page value size of 0).
+[yellow-background]*related to root flag value?*
+
+[yellow-background]*TODO*
+....
+00000000: 44 03 00 00 01 00 00 00  c6 03 00 00 04 00 00 00   D....... ........
+....
+
+===== Space tree leaf page entry
+The space tree page entry is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 2 | 4 | Size of the page key
+| 2 | ... | | Page key value
+| ... | 4 | | number of pages
+|===
+
+[cols="1,5"]
+|===
+| Owned space | The number of pages of all the space tree page entries in the primary space tree page make up the number of owned space.
+| Available space | The number of page of all the space tree page entries make up the number of available space.
+|===
+
+[NOTE]
+Space tree entries with the defunct page flag (0x02) are not included.
+
+==== Index page values
+The index page is identified by the following flags:
+
+* is index
+
+Index branch pages are similar to branch pages.
+
+===== Index leaf page entry data
+The index leaf page entry data is variable of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | ... | | Record page key
+|===
+
+==== Long value page values
+The long value pages are identified by the following flags:
+
+* is long value
+
+For the format of the long value data definitions see section: <<long_values,Long Values>>.
+
+==== Table page values
+The table page values are not identified by a flag. So basically if none of the 
+previously mentioned flags is defined the page contains table value data 
+definitions. See section: <<data_definitions,Data definitions>> for more information.
 
 == [[data_definitions]]Data definitions
 In ESE there are multiple categories of table data definitions, each category 
@@ -439,8 +855,12 @@ uses different data type identifiers.
 | Data type identifiers | Amount | Category | Description
 | 0x0001 – 0x007f | 126 | Fixed size | Fixed size data types (columns) use a defined number of space, even if no value is defined.
 | 0x0080 - 0x00ff | 127 | Variable size | Variable size data types (columns) can contain up to 256 bytes of data. +
-An offset array is stored in the record with the highest variable size data type set. Each array entry requires two bytes.
-| 0x0100 - 0xfffff | 64993 | Tagged | Tagged data types (columns) are data types that occur rarely or have multiple occurrences. Tagged data types have an unlimited data size. The data type identifier and size are stored with the data. When a tagged data type does not contain data no information about it stored.
+An offset array is stored in the record with the highest variable size data type set. +
+Each array entry requires two bytes.
+| 0x0100 - 0xfffff | 64993 | Tagged | Tagged data types (columns) are data types that occur rarely or have multiple occurrences. +
+Tagged data types have an unlimited data size. +
+The data type identifier and size are stored with the data. +
+When a tagged data type does not contain data no information about it stored.
 |===
 
 The data definitions are stored in (data definition) records. Such a data 
@@ -492,7 +912,9 @@ The variable size data type size array entry is 2 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 2 | | The variable size data type identifier +
-Contains a 2 byte size value for every variable data type. The MSB signifies that the variable size data type is empty. Also the size of the previous variable size data type needs to be subtracted from the current size.
+Contains a 2 byte size value for every variable data type. +
+The MSB signifies that the variable size data type is empty. +
+Also the size of the previous variable size data type needs to be subtracted from the current size.
 |===
 
 ==== The tagged data type definitions - format revision 2
@@ -615,8 +1037,72 @@ Why is only the first entry is compressed?
 ....
 
 === Example: the catalog (data type) definition
+The data below is an example of the catalog (data type) definition. Also see 
+section: <<catalog,Catalog (MSysObjects and MSysObjectsShadow)>>
 
-*TODO migrate remaining documentation*
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+4+| _Fixed size data type definitions_
+| 0 | 4 | | The Father Data Page (FDP) object identifier
+| 4 | 2 | | Catalog type +
+See section: <<catalog_types,Catalog types>>
+| 6 | 4 | | The identifier +
+4+| _If data definition type is 0x0002 (column)_
+| 10 | 4 | | Column type +
+See section: <<column_type,Column type>>
+4+| _ther data definition types_
+| 10 | 4 | | The Father Data Page (FDP) number
+4+| _If data definition type is 0x0001 (table)_
+| 14 | 4 | | Space usage +
+The number of pages used by the table
+| 18 | 4 | | Flags (or group of bits)
+| 22 | 4 | | The (initial) number of pages
+4+| _If data definition type is 0x0002 (column)_
+| 14 | 4 | | Space usage +
+The number of bytes used by the column
+| 18 | 4 | | Flags (or group of bits) +
+See section: <<column_flags,Column flags (group of bits)>>
+| 22 | 4 | | Codepage
+4+| _If data definition type is 0x0003 (index)_
+| 14 | 4 | | Space usage +
+The number of pages used by the index
+| 18 | 4 | | Flags (or group of bits)
+| 22 | 4 | | The locale identifier (LCID) +
+See: https://github.com/libyal/libfwnt/wiki/Language-Code-identifiers[NTLCID] +
+The LCID is used for normalizing the string when JET_bitIndexUnicode is not specified in the index flags (group of bits).
+4+| _If data definition type is 0x0004 (long value)_
+| 14 | 4 | | Space usage +
+The number of pages used by the long value
+| 18 | 4 | | Flags (or group of bits) +
+0x00000000 => single extent +
+0x00000001 => multiple extent
+| 22 | 4 | | The (initial) number of pages
+4+| _If data definition type is 0x0005 (callback)_
+| | | | [yellow-background]*TODO: add description*
+4+| _All data definition types_
+| 26 | 1 | | The root flag
+| 27 | 2 | | The record offset +
+The offset of the data type within the record
+| 29 | 4 | | The LC map flags
+| 33 | 2 | | Key most
+| 35 | ... | | [yellow-background]*Unknown trailing data* +
+[yellow-background]*used to handle tagged data type definitions?*
+| ... | ... | | The variable data types size array
+| ... | ... | | The variable data types data array +
+| Contains data for a variable data type
+4+| _If more data is present_
+| ... | ... | | The tagged data types offset array
+4+| _If present in the tagged types offset array_
+| ... | ... | The tagged data types data array | Contains data for a tagged data type
+|===
+
+For data definition type is 0x0001 (table) the variable data type 
+'TemplateTable' is used to store the name of the table used as its template. 
+See section: <<template_tables,Template tables>>.
+
+For data definition type is 0x0005 (callback) the variable data type 
+'TemplateTable' is used to store the name of the DLL and function to call.
 
 === [[long_values]]Long Values
 The actual long values are stored in a separate page tree. The corresponding 
