@@ -2861,8 +2861,8 @@ int libesedb_record_get_value_binary_data(
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_record_is_long_value(
-     int value_entry,
      libesedb_record_t *record,
+     int value_entry,
      libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
@@ -2921,8 +2921,8 @@ int libesedb_record_is_long_value(
  * Returns 1 if true, 0 if not or -1 on error
  */
 int libesedb_record_is_multi_value(
-     int value_entry,
      libesedb_record_t *record,
+     int value_entry,
      libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;

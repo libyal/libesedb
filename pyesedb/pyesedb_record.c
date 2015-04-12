@@ -31,6 +31,7 @@
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libcstring.h"
 #include "pyesedb_libesedb.h"
+#include "pyesedb_long_value.h"
 #include "pyesedb_python.h"
 #include "pyesedb_record.h"
 #include "pyesedb_unused.h"
@@ -67,6 +68,20 @@ PyMethodDef pyesedb_record_object_methods[] = {
 	  "\n"
 	  "Retrieves the value data flags." },
 
+	{ "is_long_value",
+	  (PyCFunction) pyesedb_record_is_long_value,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "is_long_value(value_entry) -> Boolean\n"
+	  "\n"
+	  "Determines if the value is a long value." },
+
+	{ "is_multi_value",
+	  (PyCFunction) pyesedb_record_is_multi_value,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "is_multi_value(value_entry) -> Boolean\n"
+	  "\n"
+	  "Determines if the value is a multi value." },
+
 	{ "get_value_data",
 	  (PyCFunction) pyesedb_record_get_value_data,
 	  METH_VARARGS | METH_KEYWORDS,
@@ -95,19 +110,12 @@ PyMethodDef pyesedb_record_object_methods[] = {
 	  "\n"
 	  "Retrieves the value data as a string." },
 
-	{ "is_long_value",
-	  (PyCFunction) pyesedb_record_is_long_value,
+	{ "get_value_data_as_long_value",
+	  (PyCFunction) pyesedb_record_get_value_data_as_long_value,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "is_long_value(value_entry) -> Boolean\n"
+	  "get_value_data_as_long_value(value_entry) -> pyesedb.long_value or None\n"
 	  "\n"
-	  "Determines if the value is a long value." },
-
-	{ "is_multi_value",
-	  (PyCFunction) pyesedb_record_is_multi_value,
-	  METH_VARARGS | METH_KEYWORDS,
-	  "is_multi_value(value_entry) -> Boolean\n"
-	  "\n"
-	  "Determines if the value is a multi value." },
+	  "Retrieves the value data as a long value." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -684,6 +692,142 @@ PyObject *pyesedb_record_get_value_data_flags(
 	                  (uint64_t) value_data_flags );
 
 	return( integer_object );
+}
+
+/* Determines if a specific entry is a long value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_is_long_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pyesedb_record_is_long_value";
+	static char *keyword_list[] = { "value_entry", NULL };
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_is_long_value(
+	          pyesedb_record->record,
+	          value_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to determine if value: %d is a long value.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
+		return( Py_True );
+	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
+	return( Py_False );
+}
+
+/* Determines if a specific entry is a multi value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_is_multi_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pyesedb_record_is_multi_value";
+	static char *keyword_list[] = { "value_entry", NULL };
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_is_multi_value(
+	          pyesedb_record->record,
+	          value_entry,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to determine if value: %d is a multi value.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result != 0 )
+	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
+		return( Py_True );
+	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
+	return( Py_False );
 }
 
 /* Retrieves the value data
@@ -1299,21 +1443,22 @@ on_error:
 	return( NULL );
 }
 
-/* Determines if a specific entry is a long value
+/* Retrieves the value data represented as a long value
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyesedb_record_is_long_value(
+PyObject *pyesedb_record_get_value_data_as_long_value(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments,
            PyObject *keywords )
 {
-	libcerror_error_t *error    = NULL;
-	PyObject *integer_object    = NULL;
-	static char *function       = "pyesedb_record_is_long_value";
-	static char *keyword_list[] = { "value_entry", NULL };
-	uint8_t value_data_flags    = 0;
-	int result                  = 0;
-	int value_entry             = 0;
+	libcerror_error_t *error                = NULL;
+	libesedb_long_value_t *long_value       = NULL;
+	pyesedb_long_value_t *long_value_object = NULL;
+	const char *errors                      = NULL;
+	static char *keyword_list[]             = { "value_entry", NULL };
+	static char *function                   = "pyesedb_record_get_value_data_as_long_value";
+	int result                              = 0;
+	int value_entry                         = 0;
 
 	if( pyesedb_record == NULL )
 	{
@@ -1335,9 +1480,10 @@ PyObject *pyesedb_record_is_long_value(
 	}
 	Py_BEGIN_ALLOW_THREADS
 
-	result = libesedb_record_is_long_value(
+	result = libesedb_record_get_long_value(
 	          pyesedb_record->record,
 	          value_entry,
+	          &long_value,
 	          &error );
 
 	Py_END_ALLOW_THREADS
@@ -1347,95 +1493,44 @@ PyObject *pyesedb_record_is_long_value(
 		pyesedb_error_raise(
 		 error,
 		 PyExc_IOError,
-		 "%s: unable to determine if value: %d is a long value.",
+		 "%s: unable to retrieve long value: %d.",
 		 function,
 		 value_entry );
 
 		libcerror_error_free(
 		 &error );
 
-		return( NULL );
+		goto on_error;
 	}
-	if( result != 0 )
+	else if( result == 0 )
 	{
 		Py_IncRef(
-		 (PyObject *) Py_True );
+		 Py_None );
 
-		return( Py_True );
+		return( Py_None );
 	}
-	Py_IncRef(
-	 (PyObject *) Py_False );
+	long_value_object = pyesedb_long_value_new(
+	                     long_value,
+	                     pyesedb_record );
 
-	return( Py_False );
-}
-
-/* Determines if a specific entry is a multi value
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_record_is_multi_value(
-           pyesedb_record_t *pyesedb_record,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	libcerror_error_t *error    = NULL;
-	PyObject *integer_object    = NULL;
-	static char *function       = "pyesedb_record_is_multi_value";
-	static char *keyword_list[] = { "value_entry", NULL };
-	uint8_t value_data_flags    = 0;
-	int result                  = 0;
-	int value_entry             = 0;
-
-	if( pyesedb_record == NULL )
+	if( long_value_object == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record.",
+		 PyExc_MemoryError,
+		 "%s: unable to create long value object.",
 		 function );
 
-		return( NULL );
+		goto on_error;
 	}
-	if( PyArg_ParseTupleAndKeywords(
-	     arguments,
-	     keywords,
-	     "i",
-	     keyword_list,
-	     &value_entry ) == 0 )
+	return( long_value_object );
+
+on_error:
+	if( long_value != NULL )
 	{
-		return( NULL );
+		libesedb_long_value_free(
+		 &long_value,
+		 NULL );
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_record_is_multi_value(
-	          pyesedb_record->record,
-	          value_entry,
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result == -1 )
-	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to determine if value: %d is a multi value.",
-		 function,
-		 value_entry );
-
-		libcerror_error_free(
-		 &error );
-
-		return( NULL );
-	}
-	if( result != 0 )
-	{
-		Py_IncRef(
-		 (PyObject *) Py_True );
-
-		return( Py_True );
-	}
-	Py_IncRef(
-	 (PyObject *) Py_False );
-
-	return( Py_False );
+	return( NULL );
 }
 

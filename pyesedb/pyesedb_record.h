@@ -81,6 +81,16 @@ PyObject *pyesedb_record_get_value_data_flags(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pyesedb_record_is_long_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
+PyObject *pyesedb_record_is_multi_value(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pyesedb_record_get_value_data(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments,
@@ -101,12 +111,7 @@ PyObject *pyesedb_record_get_value_data_as_string(
            PyObject *arguments,
            PyObject *keywords );
 
-PyObject *pyesedb_record_is_long_value(
-           pyesedb_record_t *pyesedb_record,
-           PyObject *arguments,
-           PyObject *keywords );
-
-PyObject *pyesedb_record_is_multi_value(
+PyObject *pyesedb_record_get_value_data_as_long_value(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments,
            PyObject *keywords );

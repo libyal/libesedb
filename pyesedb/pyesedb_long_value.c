@@ -169,7 +169,7 @@ PyTypeObject pyesedb_long_value_type_object = {
  */
 PyObject *pyesedb_long_value_new(
            libesedb_long_value_t *long_value,
-           PyObject *record_object )
+           pyesedb_record_t *record_object )
 {
 	pyesedb_long_value_t *pyesedb_long_value = NULL;
 	static char *function                    = "pyesedb_long_value_new";

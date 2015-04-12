@@ -937,8 +937,8 @@ int libesedb_record_get_value_binary_data(
  */
 LIBESEDB_EXTERN \
 int libesedb_record_is_long_value(
-     int value_entry,
      libesedb_record_t *record,
+     int value_entry,
      libesedb_error_t **error );
 
 /* Determines if a specific entry is a multi value
@@ -946,8 +946,8 @@ int libesedb_record_is_long_value(
  */
 LIBESEDB_EXTERN \
 int libesedb_record_is_multi_value(
-     int value_entry,
      libesedb_record_t *record,
+     int value_entry,
      libesedb_error_t **error );
 
 /* Retrieves the long value of a specific entry

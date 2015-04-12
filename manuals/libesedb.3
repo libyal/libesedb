@@ -1,4 +1,4 @@
-.Dd March 22, 2015
+.Dd April 12, 2015
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
@@ -207,9 +207,9 @@ Record (row) functions
 .Ft int
 .Fn libesedb_record_get_value_binary_data "libesedb_record_t *record, int value_entry, uint8_t *binary_data, size_t binary_data_size, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_is_long_value "int value_entry, libesedb_record_t *record, libesedb_error_t **error"
+.Fn libesedb_record_is_long_value "libesedb_record_t *record, int value_entry, libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_is_multi_value "int value_entry, libesedb_record_t *record, libesedb_error_t **error"
+.Fn libesedb_record_is_multi_value "libesedb_record_t *record, int value_entry, libesedb_error_t **error"
 .Ft int
 .Fn libesedb_record_get_long_value "libesedb_record_t *record, int value_entry, libesedb_long_value_t **long_value, libesedb_error_t **error"
 .Ft int
