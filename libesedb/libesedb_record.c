@@ -3436,7 +3436,7 @@ int libesedb_record_get_long_value(
 		  &data_segments_list,
 		  error );
 
-	if( result != 1 )
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
