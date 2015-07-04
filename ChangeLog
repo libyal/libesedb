@@ -157,6 +157,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20150704
+* code clean up
+
 20150409
 * changes for long value look up in dirty databases
 
