@@ -1635,6 +1635,7 @@ int libesedb_record_get_value_64bit(
 		return( -1 );
 	}
 	if( ( column_type != LIBESEDB_COLUMN_TYPE_CURRENCY )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
 	 && ( column_type != LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED ) )
 	{
 		libcerror_error_set(

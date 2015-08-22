@@ -114,9 +114,6 @@ stamp-h[1-9]
 /libesedb/libesedb_definitions.h
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
-/pyesedb/setup.py
-/esedbtools/esedbexport
-/esedbtools/esedbinfo
 /tests/esedb_test_open_close
 /tests/input
 /tests/tmp*
