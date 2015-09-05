@@ -157,6 +157,9 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20150905
+* updated dependencies
+
 20150822
 * worked on setup.py
 

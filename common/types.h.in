@@ -258,6 +258,16 @@
 #endif
 #endif
 
+/* The maximum unsigned 64-bit integer is 18446744073709551615 (0xffffffffffffffff)
+ */
+#if !defined( UINT64_MAX )
+#if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
+#define UINT64_MAX (0xffffffffffffffffUL)
+#else
+#define UINT64_MAX (0xffffffffffffffffULL)
+#endif
+#endif
+
 /* The maximum signed integer
  */
 #if !defined( INT_MAX )

@@ -1711,7 +1711,6 @@ int libesedb_table_get_record(
      libesedb_record_t **record,
      libcerror_error_t **error )
 {
-	libfdata_tree_node_t *record_values_tree_node      = NULL;
 	libesedb_data_definition_t *record_data_definition = NULL;
 	libesedb_internal_table_t *internal_table          = NULL;
 	static char *function                              = "libesedb_table_get_record";

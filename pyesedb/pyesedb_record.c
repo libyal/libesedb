@@ -1451,14 +1451,13 @@ PyObject *pyesedb_record_get_value_data_as_long_value(
            PyObject *arguments,
            PyObject *keywords )
 {
-	libcerror_error_t *error                = NULL;
-	libesedb_long_value_t *long_value       = NULL;
-	pyesedb_long_value_t *long_value_object = NULL;
-	const char *errors                      = NULL;
-	static char *keyword_list[]             = { "value_entry", NULL };
-	static char *function                   = "pyesedb_record_get_value_data_as_long_value";
-	int result                              = 0;
-	int value_entry                         = 0;
+	libcerror_error_t *error          = NULL;
+	libesedb_long_value_t *long_value = NULL;
+	PyObject *long_value_object       = NULL;
+	static char *keyword_list[]       = { "value_entry", NULL };
+	static char *function             = "pyesedb_record_get_value_data_as_long_value";
+	int result                        = 0;
+	int value_entry                   = 0;
 
 	if( pyesedb_record == NULL )
 	{
