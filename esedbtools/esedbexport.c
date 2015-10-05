@@ -423,11 +423,6 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-/* TODO
-	fprintf(
-	 stdout,
-	 "Exporting aliases.\n" );
-*/
 	result = export_handle_export_file(
 	          esedbexport_export_handle,
 	          option_table_name,
@@ -505,7 +500,23 @@ int main( int argc, char * const argv[] )
 
 		return( EXIT_FAILURE );
 	}
-/* TODO export FAILED ? */
+	if( result == 0 )
+	{
+		if( option_table_name != NULL )
+		{
+			fprintf(
+			 stdout,
+			 "Export failed no such table: %s.\n",
+                         option_table_name );
+		}
+		else
+		{
+			fprintf(
+			 stdout,
+			 "Export failed.\n" );
+		}
+		return( EXIT_FAILURE );
+	}
 	fprintf(
 	 stdout,
 	 "Export completed.\n" );

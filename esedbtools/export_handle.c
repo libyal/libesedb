@@ -3996,6 +3996,7 @@ int export_handle_export_file(
 	size_t table_name_size                    = 0;
 	int number_of_tables                      = 0;
 	int result                                = 0;
+	int table_exported                        = 0;
 	int table_index                           = 0;
 
 	if( export_handle == NULL )
@@ -4027,31 +4028,6 @@ int export_handle_export_file(
 	{
 		return( 0 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcpath_path_make_directory_wide(
-	     export_handle->items_export_path,
-	     error ) != 1 )
-#else
-	if( libcpath_path_make_directory(
-	     export_handle->items_export_path,
-	     error ) != 1 )
-#endif
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_WRITE_FAILED,
-		 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
-		 function,
-		 export_handle->items_export_path );
-
-		goto on_error;
-	}
-	log_handle_printf(
-	 log_handle,
-	 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
-	 export_handle->items_export_path );
-
 	for( table_index = 0;
 	     table_index < number_of_tables;
 	     table_index++ )
@@ -4150,6 +4126,33 @@ int export_handle_export_file(
 		         export_table_name,
 		         export_table_name_length ) == 0 ) ) )
 		{
+			if( table_exported == 0 )
+			{
+#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+				if( libcpath_path_make_directory_wide(
+				     export_handle->items_export_path,
+				     error ) != 1 )
+#else
+				if( libcpath_path_make_directory(
+				     export_handle->items_export_path,
+				     error ) != 1 )
+#endif
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_IO,
+					 LIBCERROR_IO_ERROR_WRITE_FAILED,
+					 "%s: unable to make directory: %" PRIs_LIBCSTRING_SYSTEM ".",
+					 function,
+					 export_handle->items_export_path );
+
+					goto on_error;
+				}
+				log_handle_printf(
+				 log_handle,
+				 "Created directory: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+				 export_handle->items_export_path );
+			}
 			fprintf(
 			 export_handle->notify_stream,
 			 "Exporting table %d (%" PRIs_LIBCSTRING_SYSTEM ")",
@@ -4209,6 +4212,7 @@ int export_handle_export_file(
 
 				goto on_error;
 			}
+			table_exported = 1;
 		}
 		memory_free(
 		 table_name );
@@ -4230,7 +4234,7 @@ int export_handle_export_file(
 			goto on_error;
 		}
 	}
-	return( 1 );
+	return( table_exported );
 
 on_error:
 	if( table_name != NULL )
