@@ -1,6 +1,6 @@
 dnl Functions for common
 dnl
-dnl Version: 20120406
+dnl Version: 20120524
 
 dnl Function to test if a certain feature was enabled
 AC_DEFUN([AX_COMMON_ARG_ENABLE],

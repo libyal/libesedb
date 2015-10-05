@@ -1,6 +1,6 @@
 dnl Functions for libfcache
 dnl
-dnl Version: 20140601
+dnl Version: 20140912
 
 dnl Function to detect if libfcache is available
 dnl ac_libfcache_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBFCACHE_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libfcache],
-    [libfcache >= 20140601],
+    [libfcache >= 20140912],
     [ac_cv_libfcache=yes],
     [ac_cv_libfcache=no])
    ])
@@ -91,6 +91,11 @@ AC_DEFUN([AX_LIBFCACHE_CHECK_LIB],
      [ac_cv_libfcache=no])
 
     dnl Cache value functions
+    AC_CHECK_LIB(
+     fcache,
+     libfcache_cache_value_clear,
+     [ac_cv_libfcache_dummy=yes],
+     [ac_cv_libfcache=no])
     AC_CHECK_LIB(
      fcache,
      libfcache_cache_value_get_identifier,

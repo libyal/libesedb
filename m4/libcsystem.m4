@@ -1,6 +1,6 @@
 dnl Functions for libcsystem
 dnl
-dnl Version: 20141018
+dnl Version: 20150629
 
 dnl Function to detect if libcsystem is available
 dnl ac_libcsystem_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCSYSTEM_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcsystem],
-    [libcsystem >= 20141018],
+    [libcsystem >= 20150629],
     [ac_cv_libcsystem=yes],
     [ac_cv_libcsystem=no])
    ])
@@ -41,12 +41,6 @@ AC_DEFUN([AX_LIBCSYSTEM_CHECK_LIB],
     [ac_cv_libcsystem=no],
     [dnl Check for the individual functions
     ac_cv_libcsystem=yes
-
-    AC_CHECK_LIB(
-     csystem,
-     libcsystem_get_version,
-     [ac_cv_libcsystem_dummy=yes],
-     [ac_cv_libcsystem=no])
 
     dnl Support functions
     AC_CHECK_LIB(
