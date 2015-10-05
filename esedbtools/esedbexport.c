@@ -506,7 +506,7 @@ int main( int argc, char * const argv[] )
 		{
 			fprintf(
 			 stdout,
-			 "Export failed no such table: %s.\n",
+			 "Export failed no such table: %" PRIs_LIBCSTRING_SYSTEM ".\n",
                          option_table_name );
 		}
 		else
