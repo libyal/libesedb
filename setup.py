@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20150725
+# Version: 20151005
 
 import glob
 import platform
@@ -62,11 +62,11 @@ class custom_sdist(sdist):
 
   def run(self):
     if self.formats != ["gztar"]:
-      print("'setup.py bdist_sdist' unsupported format.")
+      print("'setup.py sdist' unsupported format.")
       sys.exit(1)
 
     if glob.glob("*.tar.gz"):
-      print("'setup.py bdist_sdist' remove existing *.tar.gz files from source directory.")
+      print("'setup.py sdist' remove existing *.tar.gz files from source directory.")
       sys.exit(1)
 
     command = "make dist"
@@ -78,13 +78,16 @@ class custom_sdist(sdist):
       os.mkdir("dist")
 
     source_package_file = glob.glob("*.tar.gz")[0]
-    python_module_file = "py{0:s}".format(source_package_file[3:])
-    python_module_file = os.path.join("dist", python_module_file)
-    os.rename(source_package_file, python_module_file)
+    source_package_prefix, _, source_package_suffix = (
+        source_package_file.partition("-"))
+    sdist_package_file = "{0:s}-python-{1:s}".format(
+        source_package_prefix, source_package_suffix)
+    sdist_package_file = os.path.join("dist", sdist_package_file)
+    os.rename(source_package_file, sdist_package_file)
 
     # Inform distutils what files were created.
     dist_files = getattr(self.distribution, "dist_files", [])
-    dist_files.append(("sdist", "", python_module_file))
+    dist_files.append(("sdist", "", sdist_package_file))
 
 
 class ProjectInformation(object):
@@ -112,8 +115,13 @@ class ProjectInformation(object):
     return "py{0:s}".format(self.library_name[3:])
 
   @property
-  def project_description(self):
-    """The project description."""
+  def package_name(self):
+    """The package name."""
+    return "{0:s}-python".format(self.library_name)
+
+  @property
+  def package_description(self):
+    """The package description."""
     return "Python bindings module for {0:s}".format(self.library_name)
 
   @property
@@ -238,11 +246,11 @@ LIBRARY_DATA_FILES = [license_file]
 # TODO: what about description and platform in egg file
 
 setup(
-    name=project_information.module_name,
+    name=project_information.package_name,
     url=project_information.project_url,
     version=MODULE_VERSION,
-    description=project_information.project_description,
-    long_description=project_information.project_description,
+    description=project_information.package_description,
+    long_description=project_information.package_description,
     author="Joachim Metz",
     author_email="joachim.metz@gmail.com",
     license="GNU Lesser General Public License v3 or later (LGPLv3+)",
