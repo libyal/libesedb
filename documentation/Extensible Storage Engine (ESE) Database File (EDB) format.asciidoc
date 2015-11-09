@@ -2,8 +2,6 @@
 Analysis of the Extensible Storage Engine (ESE) Database File (EDB) format
 
 :toc:
-:toc-placement: manual
-:toc-title: 
 :toclevels: 4
 
 :numbered!:
@@ -38,10 +36,6 @@ published by the Free Software Foundation; with no Invariant Sections, no
 Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included 
 in the section entitled "GNU Free Documentation License".
 ....
-
-[preface]
-== Table of contents
-toc::[]
 
 [preface]
 == Revision history
