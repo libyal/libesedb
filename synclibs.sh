@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that synchronizes the local library dependencies
 #
-# Version: 20141004
+# Version: 20150507
 
 GIT_URL_PREFIX="https://github.com/libyal";
 LOCAL_LIBS="libbfio libcdata libcerror libcfile libclocale libcnotify libcpath libcsplit libcstring libcsystem libcthreads libfcache libfdata libfdatetime libfguid libfmapi libfvalue libfwnt libmapidb libuna";
@@ -89,7 +89,7 @@ SED_SCRIPT="/^$/ {
 			rm -f ${LOCAL_LIB}/${LOCAL_LIB}.c;
 
 			cp ${LOCAL_LIB}-$$/${LOCAL_LIB}/${LOCAL_LIB}_definitions.h.in ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
-			sed -i'~' 's/@VERSION@/${LOCAL_LIB_VERSION}/' ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
+			sed -i'~' "s/@VERSION@/${LOCAL_LIB_VERSION}/" ${LOCAL_LIB}/${LOCAL_LIB}_definitions.h;
 		fi
 		rm -rf ${LOCAL_LIB}-$$;
 	fi

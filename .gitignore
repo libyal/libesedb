@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20150725
+# Version: 20150927
 
 # Generic auto-generated build files
 *~
@@ -11,6 +11,7 @@
 *.lineno
 *.lo
 *.log
+*.loT
 *.Plo
 *.Po
 *.o

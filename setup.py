@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20151005
+# Version: 20151205
 
 import glob
 import platform
@@ -216,6 +216,7 @@ SOURCES = []
 # TODO: replace by detection of MSC
 DEFINE_MACROS = []
 if platform.system() == "Windows":
+  DEFINE_MACROS.append(("WINVER", "0x0501"))
   # TODO: determine how to handle third party DLLs.
   for library_name in project_information.library_names:
     if library_name != project_information.library_name:
