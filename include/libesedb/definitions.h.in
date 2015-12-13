@@ -50,10 +50,6 @@ enum LIBESEDB_ACCESS_FLAGS
 /* Reserved: not supported yet */
 #define LIBESEDB_OPEN_READ_WRITE					( LIBESEDB_ACCESS_FLAG_READ | LIBESEDB_ACCESS_FLAG_WRITE )
 
-/* TODO deprecated remove after a while */
-#define LIBESEDB_FLAG_READ						LIBESEDB_ACCESS_FLAG_READ
-#define LIBESEDB_FLAG_WRITE						LIBESEDB_ACCESS_FLAG_WRITE
-
 /* The file types
  */
 enum LIBESEDB_FILE_TYPES

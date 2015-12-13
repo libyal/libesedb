@@ -268,7 +268,8 @@ int libesedb_page_tree_read_root_page(
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
 	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
-	                | LIBESEDB_PAGE_FLAG_0x8000;
+	                | LIBESEDB_PAGE_FLAG_0x8000
+	                | LIBESEDB_PAGE_FLAG_0x10000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
 	{
@@ -567,7 +568,8 @@ int libesedb_page_tree_read_space_tree_page(
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
 	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
-	                | LIBESEDB_PAGE_FLAG_0x8000;
+	                | LIBESEDB_PAGE_FLAG_0x8000
+	                | LIBESEDB_PAGE_FLAG_0x10000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
 	{
@@ -1006,7 +1008,8 @@ int libesedb_page_tree_read_page(
 	                | LIBESEDB_PAGE_FLAG_0x0800
 	                | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
 	                | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
-	                | LIBESEDB_PAGE_FLAG_0x8000;
+	                | LIBESEDB_PAGE_FLAG_0x8000
+	                | LIBESEDB_PAGE_FLAG_0x10000;
 
 	if( ( page->flags & ~supported_flags ) != 0 )
 	{

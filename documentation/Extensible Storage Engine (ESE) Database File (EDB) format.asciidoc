@@ -69,6 +69,7 @@ Additional information about long value.
 | 0.0.22 | J.B. Metz | April 2014 | Additional findings.
 | 0.0.23 | J.B. Metz | March 2015 | Switched to asciidoc format.
 | 0.0.24 | J.B. Metz | April 2015 | Textual changes and additional findings regarding Exchange 2013.
+| 0.0.25 | J.B. Metz | December 2015 | Additional information regarding page flags (thanks to R. Priyashantha).
 |===
 
 :numbered:
@@ -533,6 +534,8 @@ The page flags consist of the following values:
 New checksum format
 | 0x00004000 | | [yellow-background]*Is scrubbed (was zero-ed)*
 | 0x00008000 | | [yellow-background]*Unknown*
+| | | 
+| 0x00010000 | | [yellow-background]*Unknown*
 |===
 
 [yellow-background]*Index page unique keys/non-unique keys*

@@ -157,6 +157,10 @@ Notes
 * read catalog data type defintions and convert them into column definitions?
   - no
 
+20151213
+* worked on support for newly discovered unknown page flag
+* removed LIBESEDB_FLAG_READ and LIBESEDB_FLAG_WRITE
+
 20151205
 * worked on Python bindings
 
