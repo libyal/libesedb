@@ -141,11 +141,17 @@ class ProjectInformation(object):
     for line in file_object.readlines():
       line = line.strip()
       if found_library_name:
-        self.library_version = line[1:-2].decode("utf-8")
+        library_version = line[1:-2]
+        if sys.version_info[0] >= 3:
+          library_version = library_version.decode("utf-8")
+        self.library_version = library_version
         break
 
       elif found_ac_init:
-        self.library_name = line[1:-2].decode("utf-8")
+        library_name = line[1:-2]
+        if sys.version_info[0] >= 3:
+          library_name = library_name.decode("utf-8")
+        self.library_name = library_name
         found_library_name = True
 
       elif line.startswith(b"AC_INIT"):
@@ -171,7 +177,8 @@ class ProjectInformation(object):
       line = line.strip()
       if found_subdirs:
         library_name, _, _ = line.partition(b" ")
-        library_name = library_name.decode("utf-8")
+        if sys.version_info[0] >= 3:
+          library_name = library_name.decode("utf-8")
 
         self.include_directories.append(library_name)
 
