@@ -1,12 +1,12 @@
 #!/bin/sh
 # Script that runs the tests
 #
-# Version: 20141218
+# Version: 20151219
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
-run_tests()
+run_configure_make_tests()
 {
 	CONFIGURE_OPTIONS=$1;
 
@@ -53,13 +53,45 @@ run_tests()
 	return ${EXIT_SUCCESS};
 }
 
+run_setup_py_tests()
+{
+	PYTHON=$1;
+
+	${PYTHON} setup.py build
+
+	if test $? -ne ${EXIT_SUCCESS};
+	then
+		echo "Running: 'setup.py build' failed";
+
+		return ${EXIT_FAILURE};
+	fi
+	return ${EXIT_SUCCESS};
+}
+
+./configure --help | grep -- '--with-openssl' > /dev/null;
+
+HAVE_WITH_OPENSSL=$?;
+
+if test ${HAVE_WITH_OPENSSL} -eq 0;
+then
+	if ! run_configure_make_tests "--with-openssl=no";
+	then
+		exit ${EXIT_FAILURE};
+	fi
+
+	if ! run_configure_make_tests "--enable-openssl-evp-cipher=no --enable-openssl-evp-md=no";
+	then
+		exit ${EXIT_FAILURE};
+	fi
+fi
+
 ./configure --help | grep -- '--enable-python' > /dev/null;
 
 HAVE_ENABLE_PYTHON=$?;
 
 if test ${HAVE_ENABLE_PYTHON} -ne 0;
 then
-	if ! run_tests;
+	if ! run_configure_make_tests;
 	then
 		exit ${EXIT_FAILURE};
 	fi
@@ -72,11 +104,16 @@ else
 	then
 		export PYTHON_VERSION=2;
 
-		if ! run_tests "--enable-python";
+		if ! run_configure_make_tests "--enable-python";
 		then
 			exit ${EXIT_FAILURE};
 		fi
 		export PYTHON_VERSION=;
+
+		if ! run_setup_py_tests ${PYTHON2};
+		then
+			exit ${EXIT_FAILURE};
+		fi
 	fi
 
 	# Test with Python 3.
@@ -87,17 +124,29 @@ else
 	then
 		export PYTHON_VERSION=3;
 
-		if ! run_tests "--enable-python";
+		if ! run_configure_make_tests "--enable-python";
 		then
 			exit ${EXIT_FAILURE};
 		fi
 		export PYTHON_VERSION=;
+
+		if ! run_setup_py_tests ${PYTHON3};
+		then
+			exit ${EXIT_FAILURE};
+		fi
 	fi
 
 	# Test with the default Python version.
 	if test -z ${PYTHON2} && test -z ${PYTHON3};
 	then
-		if ! run_tests "--enable-python";
+		if ! run_configure_make_tests "--enable-python";
+		then
+			exit ${EXIT_FAILURE};
+		fi
+
+		PYTHON=`which python 2> /dev/null`;
+
+		if ! run_setup_py_tests ${PYTHON};
 		then
 			exit ${EXIT_FAILURE};
 		fi
