@@ -10,7 +10,7 @@ Upstream Author(s):
 
 Copyright:
 
-    Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>
+    Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
 
 License:
 
@@ -33,7 +33,7 @@ Public License can be found in `/usr/share/common-licenses/LGPL-3'.
 
 The Debian packaging is:
 
-    Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>
+    Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
 
 and is licensed under the GNU Lesser General Public License,
 see `/usr/share/common-licenses/LGPL-3'.

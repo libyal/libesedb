@@ -8,7 +8,7 @@
 # When CHECK_WITH_GDB is set to a non-empty value the executable
 # is run with gdb, otherwise it is run without.
 #
-# Copyright (C) 2009-2015, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #

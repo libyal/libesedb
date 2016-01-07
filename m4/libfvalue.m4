@@ -1,6 +1,6 @@
 dnl Functions for libfvalue
 dnl
-dnl Version: 20150322
+dnl Version: 20151226
 
 dnl Function to detect if libfvalue available
 dnl ac_libfvalue_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libfvalue],
-    [libfvalue >= 20150322],
+    [libfvalue >= 20151226],
     [ac_cv_libfvalue=yes],
     [ac_cv_libfvalue=no])
    ])
@@ -309,6 +309,11 @@ AC_DEFUN([AX_LIBFVALUE_CHECK_LIB],
     AC_CHECK_LIB(
      fvalue,
      libfvalue_value_clone,
+     [ac_cv_libfvalue_dummy=yes],
+     [ac_cv_libfvalue=no])
+    AC_CHECK_LIB(
+     fvalue,
+     libfvalue_value_clear,
      [ac_cv_libfvalue_dummy=yes],
      [ac_cv_libfvalue=no])
 
