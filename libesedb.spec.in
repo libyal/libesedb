@@ -31,27 +31,36 @@ Requires: libesedb = %{version}-%{release} @ax_libcsystem_spec_requires@ @ax_lib
 Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
 
 %package python
-Summary: Python bindings for libesedb
+Summary: Python 2 bindings for libesedb
 Group: System Environment/Libraries
 Requires: libesedb = %{version}-%{release} python
 BuildRequires: python-devel
 
 %description python
-Python bindings for libesedb
+Python 2 bindings for libesedb
+
+%package python3
+Summary: Python 3 bindings for libesedb
+Group: System Environment/Libraries
+Requires: libesedb = %{version}-%{release} python3
+BuildRequires: python3-devel
+
+%description python3
+Python 3 bindings for libesedb
 
 %prep
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python2 --enable-python3
 make %{?_smp_mflags}
 
 %install
-rm -rf ${RPM_BUILD_ROOT}
-make DESTDIR=${RPM_BUILD_ROOT} install
+rm -rf %{buildroot}
+%make_install
 
 %clean
-rm -rf ${RPM_BUILD_ROOT}
+rm -rf %{buildroot}
 
 %post -p /sbin/ldconfig
 
@@ -81,9 +90,15 @@ rm -rf ${RPM_BUILD_ROOT}
 
 %files python
 %defattr(644,root,root,755)
-%{_libdir}/python*/site-packages/*.a
-%{_libdir}/python*/site-packages/*.la
-%{_libdir}/python*/site-packages/*.so
+%{_libdir}/python2*/site-packages/*.a
+%{_libdir}/python2*/site-packages/*.la
+%{_libdir}/python2*/site-packages/*.so
+
+%files python3
+%defattr(644,root,root,755)
+%{_libdir}/python3*/site-packages/*.a
+%{_libdir}/python3*/site-packages/*.la
+%{_libdir}/python3*/site-packages/*.so
 
 %changelog
 * @SPEC_DATE@ Joachim Metz <joachim.metz@gmail.com> @VERSION@-1

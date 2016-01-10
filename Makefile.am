@@ -26,6 +26,8 @@ SUBDIRS = \
 	libcsystem \
 	esedbtools \
 	pyesedb \
+	pyesedb2 \
+	pyesedb3 \
 	po \
 	manuals \
 	tests \
@@ -39,8 +41,10 @@ DPKG_FILES = \
 	dpkg/copyright \
 	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libesedb-dev.docs \
 	dpkg/libesedb.docs \
+	dpkg/libesedb-dev.docs \
+	dpkg/libesedb-python.docs \
+	dpkg/libesedb-python3.docs \
 	dpkg/libesedb-tools.docs \
 	dpkg/source/format
 

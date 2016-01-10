@@ -12,7 +12,7 @@ export DH_OPTIONS
 
 .PHONY: override_dh_auto_configure
 override_dh_auto_configure:
-	dh_auto_configure -- --enable-python CFLAGS="-g"
+	dh_auto_configure -- --enable-python2 --enable-python3 CFLAGS="-g"
 
 .PHONY: override_dh_auto_test
 override_dh_auto_test:
@@ -33,8 +33,11 @@ override_dh_install:
 	dh_install "debian/tmp/usr/bin/*" -p libesedb-tools
 	dh_install "debian/tmp/usr/share/man/man1/*" -p libesedb-tools
 	# Create the libesedb-python package.
-	dh_install -X"*_d.so" "debian/tmp/usr/lib/python*/*" -p libesedb-python
-	# The libesedb-dbg and libesedb-python-dbg packages are created by dh_strip.
+	dh_install -X"*_d.so" "debian/tmp/usr/lib/python2*/*" -p libesedb-python
+	# Create the libesedb-python3 package.
+	dh_install -X"*_d.so" "debian/tmp/usr/lib/python3*/*" -p libesedb-python3
+	# The libesedb-dbg, libesedb-python-dbg and libesedb-python3-dbg packages
+	# are created by dh_strip.
 	dh_install
 
 .PHONY: override_dh_installmenu
@@ -84,6 +87,7 @@ override_dh_strip:
 ifeq (,$(filter nostrip,$(DEB_BUILD_OPTIONS)))
 	dh_strip -plibesedb --dbg-package=libesedb-dbg
 	dh_strip -plibesedb-python --dbg-package=libesedb-python-dbg
+	dh_strip -plibesedb-python3 --dbg-package=libesedb-python3-dbg
 endif
 
 .PHONY: override_dh_shlibdeps

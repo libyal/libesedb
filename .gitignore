@@ -113,6 +113,7 @@ stamp-h[1-9]
 /include/libesedb/types.h
 /libesedb/libesedb.rc
 /libesedb/libesedb_definitions.h
+/pyesedb[23]/*.[ch]
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
 /tests/esedb_test_open_close

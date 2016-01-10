@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that runs the tests
 #
-# Version: 20151219
+# Version: 20160106
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -110,7 +110,12 @@ else
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_setup_py_tests ${PYTHON2};
+		if ! run_configure_make_tests "--enable-python2";
+		then
+			exit ${EXIT_FAILURE};
+		fi
+
+		if test -f "setup.py" && ! run_setup_py_tests ${PYTHON2};
 		then
 			exit ${EXIT_FAILURE};
 		fi
@@ -130,7 +135,12 @@ else
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_setup_py_tests ${PYTHON3};
+		if ! run_configure_make_tests "--enable-python3";
+		then
+			exit ${EXIT_FAILURE};
+		fi
+
+		if test -f "setup.py" && ! run_setup_py_tests ${PYTHON3};
 		then
 			exit ${EXIT_FAILURE};
 		fi
@@ -146,7 +156,7 @@ else
 
 		PYTHON=`which python 2> /dev/null`;
 
-		if ! run_setup_py_tests ${PYTHON};
+		if test -f "setup.py" && ! run_setup_py_tests ${PYTHON};
 		then
 			exit ${EXIT_FAILURE};
 		fi

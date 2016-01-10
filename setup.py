@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20151228
+# Version: 20160107
 
 from __future__ import print_function
 import glob
@@ -91,6 +91,8 @@ class custom_build_ext(build_ext):
           print_line = True
 
         if print_line:
+          if sys.version_info[0] >= 3:
+            line = line.decode("ascii")
           print(line)
 
       self.define = [
