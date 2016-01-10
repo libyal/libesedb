@@ -26,8 +26,8 @@ SUBDIRS = \
 	libcsystem \
 	esedbtools \
 	pyesedb \
-	pyesedb2 \
-	pyesedb3 \
+	pyesedb-python2 \
+	pyesedb-python3 \
 	po \
 	manuals \
 	tests \
