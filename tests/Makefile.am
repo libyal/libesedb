@@ -13,7 +13,7 @@ AM_CPPFLAGS = \
 	@LIBBFIO_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
-if HAVE_PYTHON
+if HAVE_PYTHON_TESTS
 TESTS_PYESEDB  = \
 	test_pyesedb_open_close.sh
 endif

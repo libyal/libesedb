@@ -151,6 +151,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\libfdata\libfdata_area.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_btree.c"
 				>
 			</File>
@@ -195,6 +199,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfdata\libfdata_segments_array.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfdata\libfdata_stream.c"
 				>
 			</File>
@@ -220,6 +228,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\libfdata\libfdata_area.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_btree.h"
 				>
@@ -290,6 +302,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfdata\libfdata_range_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfdata\libfdata_segments_array.h"
 				>
 			</File>
 			<File

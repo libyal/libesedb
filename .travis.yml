@@ -7,7 +7,7 @@ compiler:
   - gcc
 before_install:
   - if test `uname -s` = 'Darwin'; then brew update && brew install gettext && brew link --force gettext; fi
-  - if test `uname -s` = 'Linux'; then sudo apt-get update && sudo apt-mark hold postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" -y upgrade && sudo apt-get install autopoint; fi
+  - if test `uname -s` = 'Linux'; then sudo apt-get update && sudo apt-mark hold postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" -y upgrade && sudo apt-get install gettext; fi
 install:
   - ./synclibs.sh && ./autogen.sh
 script:

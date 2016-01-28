@@ -1,6 +1,6 @@
 dnl Functions for libbfio
 dnl
-dnl Version: 20130409
+dnl Version: 20160108
 
 dnl Function to detect if libbfio is available
 AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
@@ -23,7 +23,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libbfio],
-    [libbfio >= 20120426],
+    [libbfio >= 20160108],
     [ac_cv_libbfio=yes],
     [ac_cv_libbfio=no])
    ])
@@ -172,6 +172,43 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_pool_clone,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
+
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_get_number_of_handles,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_get_handle,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_set_handle,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_append_handle,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_remove_handle,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_get_maximum_number_of_open_handles,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+    AC_CHECK_LIB(
+     bfio,
+     libbfio_pool_set_maximum_number_of_open_handles,
+     [ac_cv_libbfio_dummy=yes],
+     [ac_cv_libbfio=no])
+
     AC_CHECK_LIB(
      bfio,
      libbfio_pool_open,
@@ -207,27 +244,6 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
      libbfio_pool_seek_offset,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
-
-    AC_CHECK_LIB(
-     bfio,
-     libbfio_pool_get_number_of_handles,
-     [ac_cv_libbfio_dummy=yes],
-     [ac_cv_libbfio=no])
-    AC_CHECK_LIB(
-     bfio,
-     libbfio_pool_get_handle,
-     [ac_cv_libbfio_dummy=yes],
-     [ac_cv_libbfio=no])
-    AC_CHECK_LIB(
-     bfio,
-     libbfio_pool_set_handle,
-     [ac_cv_libbfio_dummy=yes],
-     [ac_cv_libbfio=no])
-    AC_CHECK_LIB(
-     bfio,
-     libbfio_pool_append_handle,
-     [ac_cv_libbfio_dummy=yes],
-     [ac_cv_libbfio=no])
     AC_CHECK_LIB(
      bfio,
      libbfio_pool_get_offset,
@@ -236,11 +252,6 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
     AC_CHECK_LIB(
      bfio,
      libbfio_pool_get_size,
-     [ac_cv_libbfio_dummy=yes],
-     [ac_cv_libbfio=no])
-    AC_CHECK_LIB(
-     bfio,
-     libbfio_pool_set_maximum_number_of_open_handles,
      [ac_cv_libbfio_dummy=yes],
      [ac_cv_libbfio=no])
 

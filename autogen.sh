@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script to generate ./configure using the autotools
 #
-# Version: 20141007
+# Version: 20160106
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -47,6 +47,10 @@ LIBTOOLIZE="${BINDIR}/libtoolize";
 if test -x "${AUTORECONF}";
 then
 	${AUTORECONF} --force --install
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
 else
 	if ! test -x "${ACLOCAL}";
 	then
@@ -90,12 +94,42 @@ else
 		exit ${EXIT_FAILURE};
 	fi
 
-	${AUTOPOINT} --force
-	${ACLOCAL} --force -I m4
-	${LIBTOOLIZE} --force
-	${AUTOHEADER} --force
-	${AUTOCONF} --force
-	${AUTOMAKE} --force --add-missing
+	${AUTOPOINT} --force;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
+	${ACLOCAL} --force -I m4;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
+	${LIBTOOLIZE} --force;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
+	${AUTOHEADER} --force;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
+	${AUTOCONF} --force;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
+	${AUTOMAKE} --force --add-missing;
+	if test $? -ne 0;
+	then
+		exit $?;
+	fi
+
 fi
 
 exit ${EXIT_SUCCESS};

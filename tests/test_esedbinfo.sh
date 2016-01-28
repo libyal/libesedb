@@ -1,37 +1,27 @@
 #!/bin/bash
+# Info tool testing script
 #
-# esedbinfo tool testing script
-#
-# Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
-#
-# Refer to AUTHORS for acknowledgements.
-#
-# This software is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This software is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this software.  If not, see <http://www.gnu.org/licenses/>.
-#
+# Version: 20160126
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
+
+TEST_PREFIX=`pwd`;
+TEST_PREFIX=`dirname ${TEST_PREFIX}`;
+TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib//'`;
+
+OPTION_SETS="";
+INPUT_GLOB="*";
 
 list_contains()
 {
 	LIST=$1;
 	SEARCH=$2;
 
-	for LINE in $LIST;
+	for LINE in ${LIST};
 	do
-		if test $LINE = $SEARCH;
+		if test ${LINE} = ${SEARCH};
 		then
 			return ${EXIT_SUCCESS};
 		fi
@@ -40,33 +30,70 @@ list_contains()
 	return ${EXIT_FAILURE};
 }
 
-test_info()
+run_test()
 { 
-	DIRNAME=$1;
-	INPUT_FILE=$2;
-	BASENAME=`basename ${INPUT_FILE}`;
+	TEST_SET_DIR=$1;
+	TEST_DESCRIPTION=$2;
+	TEST_EXECUTABLE=$3;
+	INPUT_FILE=$4;
+	OPTION_SET=$5;
 
-	rm -rf tmp;
-	mkdir tmp;
+	TEST_RUNNER="tests/test_runner.sh";
 
-	${TEST_RUNNER} ${ESEDBINFO} ${INPUT_FILE} | sed '1,2d' > tmp/${BASENAME}.log;
+	if ! test -x "${TEST_RUNNER}";
+	then
+		TEST_RUNNER="./test_runner.sh";
+	fi
+
+	if ! test -x "${TEST_RUNNER}";
+	then
+		echo "Missing test runner: ${TEST_RUNNER}";
+
+		return ${EXIT_FAILURE};
+	fi
+
+	INPUT_NAME=`basename ${INPUT_FILE}`;
+
+	if test -z "${OPTION_SET}";
+	then
+		OPTIONS="";
+		TEST_OUTPUT="${INPUT_NAME}";
+	else
+		OPTIONS=`cat "${TEST_SET_DIR}/${INPUT_NAME}.${OPTION_SET}" | head -n 1 | sed 's/[\r\n]*$//'`;
+		TEST_OUTPUT="${INPUT_NAME}-${OPTION_SET}";
+	fi
+	TMPDIR="tmp$$";
+
+	rm -rf ${TMPDIR};
+	mkdir ${TMPDIR};
+
+	STORED_TEST_RESULTS="${TEST_SET_DIR}/${TEST_OUTPUT}.log.gz";
+	TEST_RESULTS="${TMPDIR}/${TEST_OUTPUT}.log";
+
+	# Note that options should not contain spaces otherwise the test_runner
+	# will fail parsing the arguments.
+	${TEST_RUNNER} ${TMPDIR} ${TEST_EXECUTABLE} ${OPTIONS} ${INPUT_FILE} | sed '1,2d' > ${TEST_RESULTS};
 
 	RESULT=$?;
 
-	if test -f "input/.esedbinfo/${DIRNAME}/${BASENAME}.log.gz";
+	if test -f "${STORED_TEST_RESULTS}";
 	then
-		zdiff "input/.esedbinfo/${DIRNAME}/${BASENAME}.log.gz" "tmp/${BASENAME}.log";
+		zdiff ${STORED_TEST_RESULTS} ${TEST_RESULTS};
 
 		RESULT=$?;
 	else
-		mv "tmp/${BASENAME}.log" "input/.esedbinfo/${DIRNAME}";
+		gzip ${TEST_RESULTS};
 
-		gzip "input/.esedbinfo/${DIRNAME}/${BASENAME}.log";
+		mv "${TEST_RESULTS}.gz" ${TEST_SET_DIR};
 	fi
+	rm -rf ${TMPDIR};
 
-	rm -rf tmp;
-
-	echo -n "Testing esedbinfo of input: ${INPUT_FILE} ";
+	if test -z "${OPTION_SET}";
+	then
+		echo -n "Testing ${TEST_DESCRIPTION} with input: ${INPUT_FILE}";
+	else
+		echo -n "Testing ${TEST_DESCRIPTION} with option: ${OPTION_SET} and input: ${INPUT_FILE}";
+	fi
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
@@ -77,96 +104,128 @@ test_info()
 	return ${RESULT};
 }
 
-ESEDBINFO="../esedbtools/esedbinfo";
+run_tests()
+{
+	TEST_PROFILE=$1;
+	TEST_DESCRIPTION=$2;
+	TEST_EXECUTABLE=$3;
 
-if ! test -x ${ESEDBINFO};
+	if ! test -d "input";
+	then
+		echo "No input directory found.";
+
+		return ${EXIT_IGNORE};
+	fi
+	RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
+
+	if test ${RESULT} -eq 0;
+	then
+		echo "No files or directories found in the input directory.";
+
+		return ${EXIT_IGNORE};
+	fi
+	TEST_PROFILE_DIR="input/.${TEST_PROFILE}";
+
+	if ! test -d "${TEST_PROFILE_DIR}";
+	then
+		mkdir ${TEST_PROFILE_DIR};
+	fi
+	IGNORE_FILE="${TEST_PROFILE_DIR}/ignore";
+	IGNORE_LIST="";
+
+	if test -f "${IGNORE_FILE}";
+	then
+		IGNORE_LIST=`cat ${IGNORE_FILE} | sed '/^#/d'`;
+	fi
+
+	for INPUT_DIR in input/*;
+	do
+		if ! test -d "${INPUT_DIR}";
+		then
+			continue
+		fi
+		INPUT_NAME=`basename ${INPUT_DIR}`;
+
+		if list_contains "${IGNORE_LIST}" "${INPUT_NAME}";
+		then
+			continue
+		fi
+		TEST_SET_DIR="${TEST_PROFILE_DIR}/${INPUT_NAME}";
+
+		if ! test -d "${TEST_SET_DIR}";
+		then
+			mkdir "${TEST_SET_DIR}";
+		fi
+
+		if test -f "${TEST_SET_DIR}/files";
+		then
+			INPUT_FILES=`cat ${TEST_SET_DIR}/files | sed "s?^?${INPUT_DIR}/?"`;
+		else
+			INPUT_FILES=`ls ${INPUT_DIR}/${INPUT_GLOB}`;
+		fi
+
+		for INPUT_FILE in ${INPUT_FILES};
+		do
+			TESTED_WITH_OPTIONS=0;
+			INPUT_NAME=`basename ${INPUT_FILE}`;
+
+			for OPTION_SET in `echo ${OPTION_SETS} | tr ' ' '\n'`;
+			do
+				OPTION_FILE="${TEST_SET_DIR}/${INPUT_NAME}.${OPTION_SET}";
+
+				if ! test -f "${OPTION_FILE}";
+				then
+					continue
+				fi
+
+				if ! run_test "${TEST_SET_DIR}" "${TEST_DESCRIPTION}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTION_SET}";
+				then
+					return ${EXIT_FAILURE};
+				fi
+				TESTED_WITH_OPTIONS=1;
+			done
+
+			if test ${TESTED_WITH_OPTIONS} -eq 0;
+			then
+				if ! run_test "${TEST_SET_DIR}" "${TEST_DESCRIPTION}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "";
+				then
+					return ${EXIT_FAILURE};
+				fi
+			fi
+		done
+	done
+
+	return ${EXIT_SUCCESS};
+}
+
+if ! test -z ${SKIP_TOOLS_TESTS};
 then
-	ESEDBINFO="../esedbtools/esedbinfo.exe";
-fi
-
-if ! test -x ${ESEDBINFO};
-then
-	echo "Missing executable: ${ESEDBINFO}";
-
-	exit ${EXIT_FAILURE};
-fi
-
-TEST_RUNNER="tests/test_runner.sh";
-
-if ! test -x ${TEST_RUNNER};
-then
-	TEST_RUNNER="./test_runner.sh";
-fi
-
-if ! test -x ${TEST_RUNNER};
-then
-	echo "Missing test runner: ${TEST_RUNNER}";
-
-	exit ${EXIT_FAILURE};
-fi
-
-if ! test -d "input";
-then
-	echo "No input directory found.";
-
 	exit ${EXIT_IGNORE};
+fi
+
+INFO_TOOL="../${TEST_PREFIX}tools/${TEST_PREFIX}info";
+
+if ! test -x "${INFO_TOOL}";
+then
+	INFO_TOOL="../${TEST_PREFIX}tools/${TEST_PREFIX}info";
+fi
+
+if ! test -x "${INFO_TOOL}";
+then
+	echo "Missing executable: ${INFO_TOOL}";
+
+	exit ${EXIT_FAILURE};
 fi
 
 OLDIFS=${IFS};
 IFS="
 ";
 
-RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
+run_tests "${TEST_PREFIX}info" "${TEST_PREFIX}info" "${INFO_TOOL}";
 
-if test ${RESULT} -eq 0;
-then
-	echo "No files or directories found in the input directory.";
-
-	EXIT_RESULT=${EXIT_IGNORE};
-else
-	IGNORELIST="";
-
-	if ! test -d "input/.esedbinfo";
-	then
-		mkdir "input/.esedbinfo";
-	fi
-	if test -f "input/.esedbinfo/ignore";
-	then
-		IGNORELIST=`cat input/.esedbinfo/ignore | sed '/^#/d'`;
-	fi
-	for TESTDIR in input/*;
-	do
-		if test -d "${TESTDIR}";
-		then
-			DIRNAME=`basename ${TESTDIR}`;
-
-			if ! list_contains "${IGNORELIST}" "${DIRNAME}";
-			then
-				if ! test -d "input/.esedbinfo/${DIRNAME}";
-				then
-					mkdir "input/.esedbinfo/${DIRNAME}";
-				fi
-				if test -f "input/.esedbinfo/${DIRNAME}/files";
-				then
-					TESTFILES=`cat input/.esedbinfo/${DIRNAME}/files | sed "s?^?${TESTDIR}/?"`;
-				else
-					TESTFILES=`ls ${TESTDIR}/*`;
-				fi
-				for TESTFILE in ${TESTFILES};
-				do
-					if ! test_info "${DIRNAME}" "${TESTFILE}";
-					then
-						exit ${EXIT_FAILURE};
-					fi
-				done
-			fi
-		fi
-	done
-
-	EXIT_RESULT=${EXIT_SUCCESS};
-fi
+RESULT=$?;
 
 IFS=${OLDIFS};
 
-exit ${EXIT_RESULT};
+exit ${RESULT};
 

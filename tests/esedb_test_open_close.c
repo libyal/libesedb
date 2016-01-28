@@ -20,12 +20,11 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
-
-#include <stdio.h>
 
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libcstring.h"
@@ -40,7 +39,7 @@ int esedb_test_single_open_close_file(
      int expected_result )
 {
 	libcerror_error_t *error = NULL;
-	libesedb_file_t *file     = NULL;
+	libesedb_file_t *file    = NULL;
 	static char *function    = "esedb_test_single_open_close_file";
 	int result               = 0;
 
@@ -140,7 +139,7 @@ int esedb_test_multi_open_close_file(
      int expected_result )
 {
 	libcerror_error_t *error = NULL;
-	libesedb_file_t *file     = NULL;
+	libesedb_file_t *file    = NULL;
 	static char *function    = "esedb_test_multi_open_close_file";
 	int result               = 0;
 

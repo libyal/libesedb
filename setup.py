@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20160107
+# Version: 20160121
 
 from __future__ import print_function
 import glob
@@ -80,6 +80,8 @@ class custom_build_ext(build_ext):
           configure_arguments.append("{0:s}=no".format(line))
         elif line == b"--with-openssl":
           configure_arguments.append("--with-openssl=no")
+        elif line == b"--with-zlib":
+          configure_arguments.append("--with-zlib=no")
 
       command = "sh configure {0:s}".format(" ".join(configure_arguments))
       output = self._RunCommand(command)
@@ -149,11 +151,6 @@ class ProjectInformation(object):
 
     self._ReadConfigureAc()
     self._ReadMakefileAm()
-
-  @property
-  def dll_filename(self):
-    """The DLL filename."""
-    return "{0:s}.dll".format(self.library_name)
 
   @property
   def module_name(self):

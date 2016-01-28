@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20160110],
+ [20160128],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -131,6 +131,10 @@ AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
 AX_PYTHON2_CHECK_ENABLE
 AX_PYTHON3_CHECK_ENABLE
+
+AM_CONDITIONAL(
+ HAVE_PYTHON_TESTS,
+ [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
 
 dnl Headers included in various places
 AC_CHECK_HEADERS([stdarg.h varargs.h])
