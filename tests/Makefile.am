@@ -14,7 +14,7 @@ AM_CPPFLAGS = \
 	@LIBESEDB_DLL_IMPORT@
 
 if HAVE_PYTHON_TESTS
-TESTS_PYESEDB  = \
+TESTS_PYESEDB = \
 	test_pyesedb_open_close.sh
 endif
 
@@ -35,7 +35,7 @@ check_SCRIPTS = \
 EXTRA_DIST = \
 	$(check_SCRIPTS)
 
-check_PROGRAMS =  \
+check_PROGRAMS = \
 	esedb_test_open_close
 
 esedb_test_open_close_SOURCES = \
