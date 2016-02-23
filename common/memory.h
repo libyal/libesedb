@@ -1,7 +1,7 @@
 /*
  * Memory functions
  *
- * Copyright (C) 2006-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -120,5 +120,5 @@ extern "C" {
 }
 #endif
 
-#endif
+#endif /* !defined( _MEMORY_H ) */
 

@@ -28,7 +28,7 @@
 #include "pyesedb_libcerror.h"
 #include "pyesedb_python.h"
 
-#define PYESEDB_ERROR_STRING_SIZE		2048
+#define PYESEDB_ERROR_STRING_SIZE	2048
 
 #if defined( __cplusplus )
 extern "C" {
@@ -56,5 +56,5 @@ void pyesedb_error_raise(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_ERROR_H ) */
 

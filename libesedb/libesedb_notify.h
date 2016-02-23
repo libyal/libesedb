@@ -23,9 +23,8 @@
 #define _LIBESEDB_NOTIFY_H
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
-
-#include <stdio.h>
 
 #include "libesedb_extern.h"
 #include "libesedb_libcerror.h"
@@ -54,11 +53,11 @@ LIBESEDB_EXTERN \
 int libesedb_notify_stream_close(
      libcerror_error_t **error );
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_NOTIFY_H ) */
 

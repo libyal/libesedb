@@ -1,7 +1,7 @@
 /*
  * Configuration for the Microsoft Visual Studio C++ compiler
  *
- * Copyright (C) 2006-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,5 +30,5 @@
  */
 #pragma warning( disable : 4201 )
 
-#endif
+#endif /* !defined( _CONFIG_MSC_H ) */
 

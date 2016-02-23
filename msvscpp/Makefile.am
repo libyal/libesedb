@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	esedb_test_open_close/esedb_test_open_close.vcproj \
 	esedbexport/esedbexport.vcproj \
 	esedbinfo/esedbinfo.vcproj \
 	libbfio/libbfio.vcproj \

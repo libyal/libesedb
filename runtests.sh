@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that runs the tests
 #
-# Version: 20160124
+# Version: 20160130
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -158,7 +158,7 @@ then
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_configure_make_check_python "--enable-python2";
+		if ! run_configure_make "--enable-python2";
 		then
 			exit ${EXIT_FAILURE};
 		fi
@@ -183,7 +183,7 @@ then
 		fi
 		export PYTHON_VERSION=;
 
-		if ! run_configure_make_check_python "--enable-python3";
+		if ! run_configure_make "--enable-python3";
 		then
 			exit ${EXIT_FAILURE};
 		fi

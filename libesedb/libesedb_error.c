@@ -20,9 +20,8 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
 #include <types.h>
-
-#include <stdio.h>
 
 #include "libesedb_error.h"
 #include "libesedb_libcerror.h"
@@ -92,5 +91,5 @@ int libesedb_error_backtrace_sprint(
 	         size ) );
 }
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

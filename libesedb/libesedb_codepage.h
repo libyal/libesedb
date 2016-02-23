@@ -112,5 +112,5 @@ const char *libesedb_codepage_get_description(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INTERNAL_CODEPAGE_H ) */
 
