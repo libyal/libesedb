@@ -1,5 +1,6 @@
 /*
- * The internal libcpath header
+ * Library for system independent implementation of functionality
+ * for programs
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,30 +20,35 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDBTOOLS_LIBCPATH_H )
-#define _ESEDBTOOLS_LIBCPATH_H
+#if !defined( _ESEDB_TEST_LIBCSYSTEM_H )
+#define _ESEDB_TEST_LIBCSYSTEM_H
 
-#include <common.h>
-
-/* Define HAVE_LOCAL_LIBCPATH for local use of libcpath
+/* Define HAVE_LOCAL_LIBCSYSTEM for local use of libcsystem
  */
-#if defined( HAVE_LOCAL_LIBCPATH )
+#if defined( HAVE_LOCAL_LIBCSYSTEM )
 
-#include <libcpath_definitions.h>
-#include <libcpath_path.h>
+#include <libcsystem_definitions.h>
+#include <libcsystem_file_io.h>
+#include <libcsystem_getopt.h>
+#include <libcsystem_glob.h>
+#include <libcsystem_i18n.h>
+#include <libcsystem_signal.h>
+#include <libcsystem_string.h>
+#include <libcsystem_support.h>
+#include <libcsystem_unused.h>
 
 #else
 
-/* If libtool DLL support is enabled set LIBCPATH_DLL_IMPORT
- * before including libcpath.h
+/* If libtool DLL support is enabled set LIBCSYSTEM_DLL_IMPORT
+ * before including libcsystem.h
  */
 #if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBCPATH_DLL_IMPORT
+#define LIBCSYSTEM_DLL_IMPORT
 #endif
 
-#include <libcpath.h>
+#include <libcsystem.h>
 
-#endif /* defined( HAVE_LOCAL_LIBCPATH ) */
+#endif /* defined( HAVE_LOCAL_LIBCSYSTEM ) */
 
-#endif /* !defined( _ESEDBTOOLS_LIBCPATH_H ) */
+#endif /* !defined( _ESEDB_TEST_LIBCSYSTEM_H ) */
 

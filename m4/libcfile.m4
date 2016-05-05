@@ -1,6 +1,6 @@
 dnl Functions for libcfile
 dnl
-dnl Version: 20140503
+dnl Version: 20160409
 
 dnl Function to detect if libcfile is available
 dnl ac_libcfile_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcfile],
-    [libcfile >= 20140503],
+    [libcfile >= 20160409],
     [ac_cv_libcfile=yes],
     [ac_cv_libcfile=no])
    ])
@@ -149,66 +149,15 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
       [ac_cv_libcfile=no])
      ])
 
-    dnl File stream functions
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_initialize,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_free,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_open,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_close,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_read_buffer,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_write_buffer,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_seek_offset,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_get_offset,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-    AC_CHECK_LIB(
-     cfile,
-     libcfile_stream_get_size,
-     [ac_cv_libcfile_dummy=yes],
-     [ac_cv_libcfile=no])
-
-    AS_IF(
-     [test "x$ac_cv_enable_wide_character_type" != xno],
-     [AC_CHECK_LIB(
-      cfile,
-      libcfile_stream_open_wide,
-      [ac_cv_libcfile_dummy=yes],
-      [ac_cv_libcfile=no])
-     ])
-
     dnl Support functions
     AC_CHECK_LIB(
      cfile,
      libcfile_file_exists,
+     [ac_cv_libcfile_dummy=yes],
+     [ac_cv_libcfile=no])
+    AC_CHECK_LIB(
+     cfile,
+     libcfile_file_remove,
      [ac_cv_libcfile_dummy=yes],
      [ac_cv_libcfile=no])
 
@@ -217,6 +166,11 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LIB],
      [AC_CHECK_LIB(
       cfile,
       libcfile_file_exists_wide,
+      [ac_cv_libcfile_dummy=yes],
+      [ac_cv_libcfile=no])
+     AC_CHECK_LIB(
+      cfile,
+      libcfile_file_remove_wide,
       [ac_cv_libcfile_dummy=yes],
       [ac_cv_libcfile=no])
      ])
@@ -286,7 +240,7 @@ posix_fadvise( 0, 0, 0, POSIX_FADV_SEQUENTIAL )]] )],
 
 dnl Function to detect if libcfile dependencies are available
 AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
- [dnl Headers included in libcfile/libcfile_file.c, libcfile/libcfile_stream.c and libcfile/libcfile_support.c
+ [dnl Headers included in libcfile/libcfile_file.c and libcfile/libcfile_support.c
  AC_CHECK_HEADERS([errno.h stdio.h sys/stat.h])
 
  dnl Headers included in libcfile/libcfile_file.c
@@ -356,65 +310,20 @@ AC_DEFUN([AX_LIBCFILE_CHECK_LOCAL],
    [1])
   ])
 
- dnl File stream functions used in libcfile/libcfile_stream.c
- AC_CHECK_FUNCS([fclose feof fileno fopen fread fseeko fseeko64 ftello ftello64 fwrite])
-
- AS_IF(
-  [test "x$ac_cv_func_fclose" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: fclose],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_feof" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: feof],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_fopen" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: fopen],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_fread" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: fread],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_fseeko" != xyes && test "x$ac_cv_func_fseeko64" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: fseeko and fseeko64],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_ftello" != xyes && test "x$ac_cv_func_ftello64" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: ftello and ftello64],
-   [1])
-  ])
-
- AS_IF(
-  [test "x$ac_cv_func_fwrite" != xyes],
-  [AC_MSG_FAILURE(
-   [Missing function: fwrite],
-   [1])
-  ])
-
  dnl File input/output functions used in libcfile/libcfile_support.c
- AC_CHECK_FUNCS([stat])
+ AC_CHECK_FUNCS([stat unlink])
 
  AS_IF(
   [test "x$ac_cv_func_stat" != xyes],
   [AC_MSG_FAILURE(
    [Missing function: stat],
+   [1])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_func_unlink" != xyes],
+  [AC_MSG_FAILURE(
+   [Missing function: unlink],
    [1])
   ])
 

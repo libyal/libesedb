@@ -1,6 +1,6 @@
 dnl Functions for libcthreads
 dnl
-dnl Version: 20130509
+dnl Version: 20160404
 
 dnl Function to detect if libcthreads is available
 dnl ac_libcthreads_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -24,7 +24,7 @@ AC_DEFUN([AX_LIBCTHREADS_CHECK_LIB],
    [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
    [PKG_CHECK_MODULES(
     [libcthreads],
-    [libcthreads >= 20130509],
+    [libcthreads >= 20160404],
     [ac_cv_libcthreads=yes],
     [ac_cv_libcthreads=no])
    ])
@@ -193,12 +193,27 @@ AC_DEFUN([AX_LIBCTHREADS_CHECK_LIB],
      [ac_cv_libcthreads=no])
     AC_CHECK_LIB(
      cthreads,
+     libcthreads_queue_type_pop,
+     [ac_cv_libcthreads_dummy=yes],
+     [ac_cv_libcthreads=no])
+    AC_CHECK_LIB(
+     cthreads,
      libcthreads_queue_pop,
      [ac_cv_libcthreads_dummy=yes],
      [ac_cv_libcthreads=no])
     AC_CHECK_LIB(
      cthreads,
+     libcthreads_queue_try_push,
+     [ac_cv_libcthreads_dummy=yes],
+     [ac_cv_libcthreads=no])
+    AC_CHECK_LIB(
+     cthreads,
      libcthreads_queue_push,
+     [ac_cv_libcthreads_dummy=yes],
+     [ac_cv_libcthreads=no])
+    AC_CHECK_LIB(
+     cthreads,
+     libcthreads_queue_push_sorted,
      [ac_cv_libcthreads_dummy=yes],
      [ac_cv_libcthreads=no])
 
@@ -211,6 +226,11 @@ AC_DEFUN([AX_LIBCTHREADS_CHECK_LIB],
     AC_CHECK_LIB(
      cthreads,
      libcthreads_thread_pool_push,
+     [ac_cv_libcthreads_dummy=yes],
+     [ac_cv_libcthreads=no])
+    AC_CHECK_LIB(
+     cthreads,
+     libcthreads_thread_pool_push_sorted,
      [ac_cv_libcthreads_dummy=yes],
      [ac_cv_libcthreads=no])
     AC_CHECK_LIB(

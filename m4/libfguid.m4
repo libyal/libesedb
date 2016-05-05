@@ -1,6 +1,6 @@
 dnl Functions for libfguid
 dnl
-dnl Version: 20130409
+dnl Version: 20160417
 
 dnl Function to detect if libfguid is available
 dnl ac_libfguid_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -48,7 +48,7 @@ AC_DEFUN([AX_LIBFGUID_CHECK_LIB],
      [ac_cv_libfguid_dummy=yes],
      [ac_cv_libfguid=no])
 
-    dnl identifier functions
+    dnl Identifier functions
     AC_CHECK_LIB(
      fguid,
      libfguid_identifier_initialize,

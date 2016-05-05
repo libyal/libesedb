@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20160121
+# Version: 20160316
 
 from __future__ import print_function
 import glob
@@ -13,12 +13,11 @@ import subprocess
 import sys
 
 from distutils import sysconfig
-from distutils import util
 from distutils.ccompiler import new_compiler
 from distutils.command.build_ext import build_ext
 from distutils.command.bdist import bdist
 from distutils.command.sdist import sdist
-from distutils.core import Command, Extension, setup
+from distutils.core import Extension, setup
 
 
 class custom_bdist_rpm(bdist):
@@ -114,7 +113,8 @@ class custom_sdist(sdist):
       sys.exit(1)
 
     if glob.glob("*.tar.gz"):
-      print("'setup.py sdist' remove existing *.tar.gz files from source directory.")
+      print("'setup.py sdist' remove existing *.tar.gz files from "
+            "source directory.")
       sys.exit(1)
 
     command = "make dist"

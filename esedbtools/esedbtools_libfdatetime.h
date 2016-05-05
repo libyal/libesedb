@@ -1,5 +1,5 @@
 /*
- * The internal libfdatetime header
+ * The libfdatetime header wrapper
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -49,7 +49,7 @@
 
 #include <libfdatetime.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBFDATETIME ) */
 
-#endif
+#endif /* !defined( _ESEDBTOOLS_LIBFDATETIME_H ) */
 

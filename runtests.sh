@@ -1,40 +1,43 @@
 #!/bin/sh
 # Script that runs the tests
 #
-# Version: 20160130
+# Version: 20160422
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 
 run_configure_make()
 {
-	CONFIGURE_OPTIONS=$1;
+	local CONFIGURE_OPTIONS=$1;
 
 	./configure ${CONFIGURE_OPTIONS};
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: './configure' failed";
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 
 	make clean > /dev/null;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: 'make clean' failed";
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 
 	make > /dev/null;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: 'make' failed";
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 	return ${EXIT_SUCCESS};
 }
@@ -42,15 +45,17 @@ run_configure_make()
 run_configure_make_check()
 {
 	run_configure_make $1;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
-		return $?;
+		return ${RESULT};
 	fi
 
 	make check;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: 'make check' failed";
 
@@ -59,7 +64,7 @@ run_configure_make_check()
 			cat tests/test-suite.log;
 		fi
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 	return ${EXIT_SUCCESS};
 }
@@ -67,15 +72,17 @@ run_configure_make_check()
 run_configure_make_check_python()
 {
 	run_configure_make $1;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
-		return $?;
+		return ${RESULT};
 	fi
 
 	make check SKIP_LIBRARY_TESTS=1 SKIP_TOOLS_TESTS=1;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: 'make check' failed";
 
@@ -84,7 +91,7 @@ run_configure_make_check_python()
 			cat tests/test-suite.log;
 		fi
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 	return ${EXIT_SUCCESS};
 }
@@ -93,13 +100,14 @@ run_setup_py_tests()
 {
 	PYTHON=$1;
 
-	${PYTHON} setup.py build
+	${PYTHON} setup.py build;
+	RESULT=$?;
 
-	if test $? -ne ${EXIT_SUCCESS};
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
 	then
 		echo "Running: 'setup.py build' failed";
 
-		return ${EXIT_FAILURE};
+		return ${RESULT};
 	fi
 	return ${EXIT_SUCCESS};
 }

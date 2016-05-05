@@ -28,7 +28,13 @@
  */
 #if defined( HAVE_LOCAL_LIBFWNT )
 
+#include <libfwnt_access_control_entry.h>
+#include <libfwnt_access_control_list.h>
 #include <libfwnt_definitions.h>
+#include <libfwnt_locale_identifier.h>
+#include <libfwnt_lznt1.h>
+#include <libfwnt_lzxpress.h>
+#include <libfwnt_security_descriptor.h>
 #include <libfwnt_security_identifier.h>
 #include <libfwnt_types.h>
 
@@ -43,7 +49,7 @@
 
 #include <libfwnt.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBFWNT ) */
 
-#endif
+#endif /* !defined( _ESEDBTOOLS_LIBFWNT_H ) */
 

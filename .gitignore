@@ -119,6 +119,7 @@ stamp-h[1-9]
 /pyesedb-python[23]/*.[ch]
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
+/tests/esedb_test_get_version
 /tests/esedb_test_open_close
 /tests/input
 /tests/tmp*

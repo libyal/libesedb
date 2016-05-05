@@ -69,7 +69,7 @@ struct export_handle
 	 */
 	size_t items_export_path_size;
 
-	/* The nofication output stream
+	/* The notification output stream
 	 */
 	FILE *notify_stream;
 

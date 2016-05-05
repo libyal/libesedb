@@ -3,8 +3,6 @@
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
- * Refer to AUTHORS for acknowledgements.
- *
  * This software is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -38,6 +36,7 @@
 #include <libuna_utf16_string.h>
 #include <libuna_utf32_stream.h>
 #include <libuna_utf32_string.h>
+#include <libuna_utf7_stream.h>
 #include <libuna_utf8_stream.h>
 #include <libuna_utf8_string.h>
 #include <libuna_types.h>
@@ -53,7 +52,7 @@
 
 #include <libuna.h>
 
-#endif
+#endif /* defined( HAVE_LOCAL_LIBUNA ) */
 
-#endif
+#endif /* !defined( _LIBESEDB_LIBUNA_H ) */
 

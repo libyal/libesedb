@@ -1,5 +1,5 @@
 /*
- * The internal libcpath header
+ * The unused definition
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,30 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDBTOOLS_LIBCPATH_H )
-#define _ESEDBTOOLS_LIBCPATH_H
+#if !defined( _ESEDB_TEST_UNUSED_H )
+#define _ESEDB_TEST_UNUSED_H
 
 #include <common.h>
 
-/* Define HAVE_LOCAL_LIBCPATH for local use of libcpath
- */
-#if defined( HAVE_LOCAL_LIBCPATH )
+#if !defined( ESEDB_TEST_ATTRIBUTE_UNUSED )
 
-#include <libcpath_definitions.h>
-#include <libcpath_path.h>
+#if defined( __GNUC__ ) && __GNUC__ >= 3
+#define ESEDB_TEST_ATTRIBUTE_UNUSED	__attribute__ ((__unused__))
 
 #else
+#define ESEDB_TEST_ATTRIBUTE_UNUSED
 
-/* If libtool DLL support is enabled set LIBCPATH_DLL_IMPORT
- * before including libcpath.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBCPATH_DLL_IMPORT
-#endif
+#endif /* defined( __GNUC__ ) && __GNUC__ >= 3 */
 
-#include <libcpath.h>
+#endif /* !defined( ESEDB_TEST_ATTRIBUTE_UNUSED ) */
 
-#endif /* defined( HAVE_LOCAL_LIBCPATH ) */
+#if defined( _MSC_VER )
+#define ESEDB_TEST_UNREFERENCED_PARAMETER( parameter ) \
+	UNREFERENCED_PARAMETER( parameter );
 
-#endif /* !defined( _ESEDBTOOLS_LIBCPATH_H ) */
+#else
+#define ESEDB_TEST_UNREFERENCED_PARAMETER( parameter ) \
+	/* parameter */
+
+#endif /* defined( _MSC_VER ) */
+
+#endif /* !defined( _ESEDB_TEST_UNUSED_H ) */
 

@@ -159,6 +159,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libcnotify\libcnotify_support.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libcnotify\libcnotify_verbose.c"
 				>
 			</File>
@@ -190,6 +194,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libcnotify\libcnotify_stream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcnotify\libcnotify_support.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcnotify\libcnotify_types.h"
 				>
 			</File>
 			<File

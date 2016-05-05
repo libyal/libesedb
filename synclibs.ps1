@@ -1,6 +1,6 @@
 # Script that synchronizes the local library dependencies
 #
-# Version: 20160212
+# Version: 20160318
 
 $GitUrlPrefix = "https://github.com/libyal"
 $LocalLibs = @("libbfio","libcdata","libcerror","libcfile","libclocale","libcnotify","libcpath","libcsplit","libcstring","libcsystem","libcthreads","libfcache","libfdata","libfdatetime","libfguid","libfmapi","libfvalue","libfwnt","libmapidb","libuna")
@@ -23,7 +23,7 @@ foreach (${LocalLib} in ${LocalLibs})
 
 		if (Test-Path ${LocalLib})
 		{
-			Copy-Item -Path ${LocalLib}-${pid}\${LocalLib}\*.[ch] -Destination ${LocalLib}\
+			Copy-Item -Path ${LocalLib}-${pid}\${LocalLib}\*.[chly] -Destination ${LocalLib}\
 			Get-Content -Path ${LocalLib}-${pid}\${LocalLib}\${LocalLib}_definitions.h.in | % { $_ -Replace "@VERSION@",${LocalLibVersion} } > ${LocalLib}\${LocalLib}_definitions.h
 		}
 		Remove-Item -Path ${LocalLib}-${pid} -Force -Recurse

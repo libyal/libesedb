@@ -1,204 +1,65 @@
 #!/bin/bash
 # Export tool testing script
 #
-# Version: 20160126
+# Version: 20160411
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-TEST_PREFIX=`pwd`;
-TEST_PREFIX=`dirname ${TEST_PREFIX}`;
-TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib//'`;
+TEST_PREFIX=`dirname ${PWD}`;
+TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\)/\1/'`;
+TEST_SUFFIX="export";
 
+TEST_PROFILE="${TEST_PREFIX}${TEST_SUFFIX}";
+TEST_DESCRIPTION="${TEST_PREFIX}${TEST_SUFFIX}";
 OPTION_SETS="";
-INPUT_GLOB="*";
 
-list_contains()
+TEST_TOOL_DIRECTORY="../${TEST_PREFIX}tools";
+TEST_TOOL="${TEST_PREFIX}${TEST_SUFFIX}";
+INPUT_DIRECTORY="input";
+INPUT_GLOB="*.[Ees]*01";
+
+test_callback()
 {
-	LIST=$1;
-	SEARCH=$2;
+	local TMPDIR=$1;
+	local TEST_SET_DIRECTORY=$2;
+	local TEST_OUTPUT=$3;
+	local TEST_EXECUTABLE=$4;
+	local TEST_INPUT=$5;
+	shift 5;
+	local ARGUMENTS=$@;
 
-	for LINE in ${LIST};
-	do
-		if test ${LINE} = ${SEARCH};
-		then
-			return ${EXIT_SUCCESS};
-		fi
-	done
+	TEST_EXECUTABLE=`readlink -f ${TEST_EXECUTABLE}`;
+	INPUT_FILE_FULL_PATH=`readlink -f "${INPUT_FILE}"`;
 
-	return ${EXIT_FAILURE};
-}
+	(cd ${TMPDIR} && run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE_FULL_PATH}" ${ARGUMENTS[@]} ${OPTIONS[@]});
+	local RESULT=$?;
 
-run_test()
-{ 
-	TEST_SET_DIR=$1;
-	TEST_DESCRIPTION=$2;
-	TEST_EXECUTABLE=$3;
-	INPUT_FILE=$4;
-	OPTION_SET=$5;
+	local TEST_LOG="${TEST_OUTPUT}.log";
 
-	TEST_RUNNER="tests/test_runner.sh";
-
-	if ! test -x "${TEST_RUNNER}";
+	if test "${PLATFORM}" = "Darwin";
 	then
-		TEST_RUNNER="./test_runner.sh";
-	fi
-
-	if ! test -x "${TEST_RUNNER}";
-	then
-		echo "Missing test runner: ${TEST_RUNNER}";
-
-		return ${EXIT_FAILURE};
-	fi
-
-	INPUT_NAME=`basename ${INPUT_FILE}`;
-
-	if test -z "${OPTION_SET}";
-	then
-		OPTIONS="";
-		TEST_OUTPUT="${INPUT_NAME}";
+		(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5 {} \; | sort -k 2 > "${TEST_LOG}");
 	else
-		OPTIONS=`cat "${TEST_SET_DIR}/${INPUT_NAME}.${OPTION_SET}" | head -n 1 | sed 's/[\r\n]*$//'`;
-		TEST_OUTPUT="${INPUT_NAME}-${OPTION_SET}";
+		(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5sum {} \; | sort -k 2 > "${TEST_LOG}");
 	fi
-	TMPDIR="tmp$$";
 
-	rm -rf ${TMPDIR};
-	mkdir ${TMPDIR};
-
-	STORED_TEST_RESULTS="${TEST_SET_DIR}/${TEST_OUTPUT}.log.gz";
-	TEST_RESULTS="${TMPDIR}/${TEST_OUTPUT}.log";
-
-	# Note that options should not contain spaces otherwise the test_runner
-	# will fail parsing the arguments.
-	${TEST_RUNNER} ${TMPDIR} ${TEST_EXECUTABLE} -t ${TMPDIR}/${INPUT_NAME} ${OPTIONS} ${INPUT_FILE} > /dev/null;
-
-	RESULT=$?;
-
-	# TODO: check if adding .export is correct.
-	(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5sum {} \; | sort -k 2 > ${TEST_OUTPUT}.log);
+	local TEST_RESULTS="${TMPDIR}/${TEST_LOG}";
+	local STORED_TEST_RESULTS="${TEST_SET_DIRECTORY}/${TEST_LOG}.gz";
 
 	if test -f "${STORED_TEST_RESULTS}";
 	then
-		zdiff ${STORED_TEST_RESULTS} ${TEST_RESULTS};
-
+		# Using zcat here since zdiff has issues on Mac OS X.
+		# Note that zcat on Mac OS X requires the input from stdin.
+		zcat < "${STORED_TEST_RESULTS}" | diff "${TEST_RESULTS}" -;
 		RESULT=$?;
 	else
 		gzip ${TEST_RESULTS};
 
-		mv "${TEST_RESULTS}.gz" ${TEST_SET_DIR};
-	fi
-	rm -rf ${TMPDIR};
-
-	if test -z "${OPTION_SET}";
-	then
-		echo -n "Testing ${TEST_DESCRIPTION} with input: ${INPUT_FILE}";
-	else
-		echo -n "Testing ${TEST_DESCRIPTION} with option: ${OPTION_SET} and input: ${INPUT_FILE}";
-	fi
-
-	if test ${RESULT} -ne ${EXIT_SUCCESS};
-	then
-		echo " (FAIL)";
-	else
-		echo " (PASS)";
+		mv "${TEST_RESULTS}.gz" ${TEST_SET_DIRECTORY};
 	fi
 	return ${RESULT};
-}
-
-run_tests()
-{
-	TEST_PROFILE=$1;
-	TEST_DESCRIPTION=$2;
-	TEST_EXECUTABLE=$3;
-
-	if ! test -d "input";
-	then
-		echo "No input directory found.";
-
-		return ${EXIT_IGNORE};
-	fi
-	RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
-
-	if test ${RESULT} -eq 0;
-	then
-		echo "No files or directories found in the input directory.";
-
-		return ${EXIT_IGNORE};
-	fi
-	TEST_PROFILE_DIR="input/.${TEST_PROFILE}";
-
-	if ! test -d "${TEST_PROFILE_DIR}";
-	then
-		mkdir ${TEST_PROFILE_DIR};
-	fi
-	IGNORE_FILE="${TEST_PROFILE_DIR}/ignore";
-	IGNORE_LIST="";
-
-	if test -f "${IGNORE_FILE}";
-	then
-		IGNORE_LIST=`cat ${IGNORE_FILE} | sed '/^#/d'`;
-	fi
-
-	for INPUT_DIR in input/*;
-	do
-		if ! test -d "${INPUT_DIR}";
-		then
-			continue
-		fi
-		INPUT_NAME=`basename ${INPUT_DIR}`;
-
-		if list_contains "${IGNORE_LIST}" "${INPUT_NAME}";
-		then
-			continue
-		fi
-		TEST_SET_DIR="${TEST_PROFILE_DIR}/${INPUT_NAME}";
-
-		if ! test -d "${TEST_SET_DIR}";
-		then
-			mkdir "${TEST_SET_DIR}";
-		fi
-
-		if test -f "${TEST_SET_DIR}/files";
-		then
-			INPUT_FILES=`cat ${TEST_SET_DIR}/files | sed "s?^?${INPUT_DIR}/?"`;
-		else
-			INPUT_FILES=`ls ${INPUT_DIR}/${INPUT_GLOB}`;
-		fi
-
-		for INPUT_FILE in ${INPUT_FILES};
-		do
-			TESTED_WITH_OPTIONS=0;
-			INPUT_NAME=`basename ${INPUT_FILE}`;
-
-			for OPTION_SET in `echo ${OPTION_SETS} | tr ' ' '\n'`;
-			do
-				OPTION_FILE="${TEST_SET_DIR}/${INPUT_NAME}.${OPTION_SET}";
-
-				if ! test -f "${OPTION_FILE}";
-				then
-					continue
-				fi
-
-				if ! run_test "${TEST_SET_DIR}" "${TEST_DESCRIPTION}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTION_SET}";
-				then
-					return ${EXIT_FAILURE};
-				fi
-				TESTED_WITH_OPTIONS=1;
-			done
-
-			if test ${TESTED_WITH_OPTIONS} -eq 0;
-			then
-				if ! run_test "${TEST_SET_DIR}" "${TEST_DESCRIPTION}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "";
-				then
-					return ${EXIT_FAILURE};
-				fi
-			fi
-		done
-	done
-
-	return ${EXIT_SUCCESS};
 }
 
 if ! test -z ${SKIP_TOOLS_TESTS};
@@ -206,29 +67,49 @@ then
 	exit ${EXIT_IGNORE};
 fi
 
-EXPORT_TOOL="../${TEST_PREFIX}tools/${TEST_PREFIX}export";
+TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}";
 
-if ! test -x "${EXPORT_TOOL}";
+if ! test -x "${TEST_EXECUTABLE}";
 then
-	EXPORT_TOOL="../${TEST_PREFIX}tools/${TEST_PREFIX}export";
+	TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}.exe";
 fi
 
-if ! test -x "${EXPORT_TOOL}";
+if ! test -x "${TEST_EXECUTABLE}";
 then
-	echo "Missing executable: ${EXPORT_TOOL}";
+	echo "Missing test executable: ${TEST_EXECUTABLE}";
 
 	exit ${EXIT_FAILURE};
 fi
 
-OLDIFS=${IFS};
-IFS="
-";
+TEST_RUNNER="tests/test_runner.sh";
 
-run_tests "${TEST_PREFIX}export" "${TEST_PREFIX}export" "${EXPORT_TOOL}";
+if ! test -f "${TEST_RUNNER}";
+then
+	TEST_RUNNER="./test_runner.sh";
+fi
 
+if ! test -f "${TEST_RUNNER}";
+then
+	echo "Missing test runner: ${TEST_RUNNER}";
+
+	exit ${EXIT_FAILURE};
+fi
+
+PLATFORM=`uname -s`;
+
+source ${TEST_RUNNER};
+
+assert_availability_binary find;
+
+if test "${PLATFORM}" = "Darwin";
+then
+	assert_availability_binary md5;
+else
+	assert_availability_binary md5sum;
+fi
+
+run_test_on_input_directory "${TEST_PROFILE}" "${TEST_DESCRIPTION}" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_DIRECTORY}" "${INPUT_GLOB}";
 RESULT=$?;
-
-IFS=${OLDIFS};
 
 exit ${RESULT};
 

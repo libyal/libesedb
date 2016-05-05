@@ -212,6 +212,10 @@
 				RelativePath="..\..\libmapidb\libmapidb_types.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\libmapidb\libmapidb_unused.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
