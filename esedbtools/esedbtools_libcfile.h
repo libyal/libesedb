@@ -38,7 +38,7 @@
 /* If libtool DLL support is enabled set LIBCFILE_DLL_IMPORT
  * before including libcfile.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBCFILE_DLL_IMPORT
 #endif
 

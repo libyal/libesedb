@@ -1408,6 +1408,11 @@ on_error:
 		 &page_value,
 		 NULL );
 	}
+	libcdata_array_empty(
+	 page->values_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
+	 NULL );
+
 	return( -1 );
 }
 

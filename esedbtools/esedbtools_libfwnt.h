@@ -43,7 +43,7 @@
 /* If libtool DLL support is enabled set LIBFWNT_DLL_IMPORT
  * before including libfwnt.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBFWNT_DLL_IMPORT
 #endif
 

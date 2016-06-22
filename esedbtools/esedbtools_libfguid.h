@@ -37,7 +37,7 @@
 /* If libtool DLL support is enabled set LIBFGUID_DLL_IMPORT
  * before including libfguid.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBFGUID_DLL_IMPORT
 #endif
 

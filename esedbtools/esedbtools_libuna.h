@@ -46,7 +46,7 @@
 /* If libtool DLL support is enabled set LIBUNA_DLL_IMPORT
  * before including libuna.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBUNA_DLL_IMPORT
 #endif
 

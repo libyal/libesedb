@@ -1,10 +1,13 @@
 # Files to ignore by git
 #
-# Version: 20151228
+# Version: 20160507
 
 # Generic auto-generated build files
 *~
 *.a
+*.gcda
+*.gcno
+*.gcov
 *.la
 *.lai
 *.lib

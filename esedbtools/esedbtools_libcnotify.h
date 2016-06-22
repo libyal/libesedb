@@ -38,7 +38,7 @@
 /* If libtool DLL support is enabled set LIBCNOTIFY_DLL_IMPORT
  * before including libcnotify.h
  */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#if defined( _WIN32 ) && defined( DLL_IMPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
 #define LIBCNOTIFY_DLL_IMPORT
 #endif
 
