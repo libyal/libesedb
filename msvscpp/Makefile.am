@@ -1,4 +1,5 @@
 MSVSCPP_FILES = \
+	esedb_test_error/esedb_test_error.vcproj \
 	esedb_test_get_version/esedb_test_get_version.vcproj \
 	esedb_test_open_close/esedb_test_open_close.vcproj \
 	esedbexport/esedbexport.vcproj \

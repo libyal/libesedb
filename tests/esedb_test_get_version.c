@@ -20,7 +20,6 @@
  */
 
 #include <common.h>
-#include <file_stream.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -28,6 +27,7 @@
 
 #include "esedb_test_libcstring.h"
 #include "esedb_test_libesedb.h"
+#include "esedb_test_macros.h"
 #include "esedb_test_unused.h"
 
 /* Tests retrieving the library version
@@ -46,11 +46,15 @@ int esedb_test_get_version(
 	          LIBESEDB_VERSION_STRING,
 	          9 );
 
-	if( result != 0 )
-	{
-		return( 0 );
-	}
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
 	return( 1 );
+
+on_error:
+	return( 0 );
 }
 
 /* The main program
@@ -68,10 +72,13 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
-	if( esedb_test_get_version() != 1 )
-	{
-		return( EXIT_FAILURE );
-	}
+	ESEDB_TEST_RUN(
+	 "libesedb_get_version",
+	 esedb_test_get_version() )
+
 	return( EXIT_SUCCESS );
+
+on_error:
+	return( EXIT_FAILURE );
 }
 

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedb_test_get_version"
-	ProjectGUID="{684AA161-541E-4CB8-BE49-31D3A63FE497}"
-	RootNamespace="esedb_test_get_version"
+	Name="esedb_test_error"
+	ProjectGUID="{7858071B-74A6-46C8-8A4C-DF4E1916A644}"
+	RootNamespace="esedb_test_error"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\esedb_test_get_version.c"
+				RelativePath="..\..\tests\esedb_test_error.c"
 				>
 			</File>
 		</Filter>

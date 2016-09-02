@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20160426
+# Version: 20160831
 #
 # When CHECK_WITH_GDB is set to a non-empty value the test executable
 # is run with gdb, otherwise it is run without.
@@ -75,7 +75,7 @@ find_binary_executable()
 {
 	local TEST_EXECUTABLE=$1;
 
-	TEST_EXECUTABLE=`readlink -f ${TEST_EXECUTABLE}`;
+	TEST_EXECUTABLE=$( readlink_f "${TEST_EXECUTABLE}" );
 
 	# Note that the behavior of `file -bi` is not helpful on Mac OS X.
 	local EXECUTABLE_TYPE=`file -b ${TEST_EXECUTABLE}`;
@@ -259,6 +259,32 @@ get_test_set_directory()
 		mkdir "${TEST_SET_DIRECTORY}";
 	fi
 	echo "${TEST_SET_DIRECTORY}";
+}
+
+# Provides a cross-platform variant of "readlink -f"
+#
+# Arguments:
+#   a string containing a path
+#
+# Returns:
+#   a string containing the path with all symbolic links resolved
+#
+readlink_f() {
+	local TARGET="$1"
+
+	if test -f "${TARGET}";
+	then
+		while test -L "${TARGET}";
+		do
+			TARGET=`readlink "${TARGET}"`;
+		done
+	fi
+	local BASENAME=`basename "${TARGET}"`;
+	local DIRNAME=`dirname "${TARGET}"`;
+
+	DIRNAME=`(cd "${DIRNAME}" && pwd -P)`;
+
+	echo "${DIRNAME}/${BASENAME}";
 }
 
 # Reads the test profile ignore file if it exists.
@@ -767,7 +793,7 @@ run_test_on_input_file()
 
 	elif test "${TEST_MODE}" = "with_stdout_reference";
 	then
-		TEST_EXECUTABLE=`readlink -f ${TEST_EXECUTABLE}`;
+		TEST_EXECUTABLE=$( readlink_f "${TEST_EXECUTABLE}" );
 
 		if ! test -x ${TEST_EXECUTABLE};
 		then
@@ -776,7 +802,7 @@ run_test_on_input_file()
 
 			return ${EXIT_FAILURE};
 		fi
-		local INPUT_FILE_FULL_PATH=`readlink -f "${INPUT_FILE}"`;
+		local INPUT_FILE_FULL_PATH=$( readlink_f "${INPUT_FILE}" );
 		local TEST_LOG="${TEST_OUTPUT}.log";
 
 		(cd ${TMPDIR} && run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE_FULL_PATH}" ${ARGUMENTS[@]} ${OPTIONS[@]} | sed '1,2d' > "${TEST_LOG}");

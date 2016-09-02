@@ -38,13 +38,26 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	esedb_test_error \
 	esedb_test_get_version \
 	esedb_test_open_close
+
+esedb_test_error_SOURCES = \
+	esedb_test_error.c \
+	esedb_test_libcstring.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_unused.h
+
+esedb_test_error_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCSTRING_LIBADD@
 
 esedb_test_get_version_SOURCES = \
 	esedb_test_get_version.c \
 	esedb_test_libcstring.h \
 	esedb_test_libesedb.h \
+	esedb_test_macros.h \
 	esedb_test_unused.h
 
 esedb_test_get_version_LDADD = \
