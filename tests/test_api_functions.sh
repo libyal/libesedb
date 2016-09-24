@@ -1,7 +1,7 @@
 #!/bin/bash
 # Library API functions testing script
 #
-# Version: 20160420
+# Version: 20160918
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -26,7 +26,6 @@ test_api_function()
 	local OPTION_SETS=$3;
 
 	local TEST_TOOL="${TEST_PREFIX}_test_${TEST_FUNCTION}";
-
 	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
@@ -56,8 +55,8 @@ test_api_function_with_input()
 	local OPTION_SETS=$3;
 	local INPUT_DIRECTORY=$4;
 	local INPUT_GLOB=$5;
-	local TEST_TOOL="${TEST_PREFIX}_test_${TEST_FUNCTION}";
 
+	local TEST_TOOL="${TEST_PREFIX}_test_${TEST_FUNCTION}";
 	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_TOOL}";
 
 	if ! test -x "${TEST_EXECUTABLE}";

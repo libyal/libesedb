@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that synchronizes the local library dependencies
 #
-# Version: 20160320
+# Version: 20160912
 
 GIT_URL_PREFIX="https://github.com/libyal";
 LOCAL_LIBS="libbfio libcdata libcerror libcfile libclocale libcnotify libcpath libcsplit libcstring libcsystem libcthreads libfcache libfdata libfdatetime libfguid libfmapi libfvalue libfwnt libmapidb libuna";
@@ -101,6 +101,24 @@ SED_SCRIPT="/^$/ {
 	echo "${SED_SCRIPT}" >> ${LOCAL_LIB}-$$.sed;
 	sed -i'~' -f ${LOCAL_LIB}-$$.sed ${LOCAL_LIB_MAKEFILE_AM};
 	rm -f ${LOCAL_LIB}-$$.sed;
+
+	# Make the necessary changes to libcfile/Makefile.am
+	if test ${LOCAL_LIB} = "libcfile";
+	then
+		if ! test -f "m4/libuna.m4";
+		then
+			sed -i'~' 's?@LIBUNA_CPPFLAGS@?-I$(top_srcdir)/libuna?' ${LOCAL_LIB_MAKEFILE_AM};
+		fi
+	fi
+
+	# Make the necessary changes to libcsystem/Makefile.am
+	if test ${LOCAL_LIB} = "libcsystem";
+	then
+		if ! test -f "m4/libuna.m4";
+		then
+			sed -i'~' 's?@LIBUNA_CPPFLAGS@?-I$(top_srcdir)/libuna?' ${LOCAL_LIB_MAKEFILE_AM};
+		fi
+	fi
 
 	# Make the necessary changes to libfvalue/Makefile.am
 	if test ${LOCAL_LIB} = "libfvalue";
