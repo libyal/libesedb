@@ -423,8 +423,8 @@ int libesedb_check_file_signature_file_io_handle(
 		}
 	}
 	if( memory_compare(
-	     &( esedb_file_signature[ 4 ] ),
-	     signature,
+	     esedb_file_signature,
+	     &( signature[ 4 ] ),
 	     4 ) == 0 )
 	{
 		return( 1 );
