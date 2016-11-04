@@ -1,5 +1,5 @@
 /*
- * Library error functions test program
+ * Library notification functions test program
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -30,78 +30,60 @@
 #include "esedb_test_macros.h"
 #include "esedb_test_unused.h"
 
-/* Tests the libesedb_error_free function
+/* Tests the libesedb_notify_set_verbose function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_free(
+int esedb_test_notify_set_verbose(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libesedb_error_free(
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_fprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_sprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_sprint(
-	 NULL,
-	 NULL,
+	libesedb_notify_set_verbose(
 	 0 );
 
 	return( 1 );
 }
 
-/* Tests the libesedb_error_backtrace_fprint function
+/* Tests the libesedb_notify_set_stream function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_backtrace_fprint(
+int esedb_test_notify_set_stream(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libesedb_error_backtrace_fprint(
+	libesedb_notify_set_stream(
 	 NULL,
 	 NULL );
 
 	return( 1 );
 }
 
-/* Tests the libesedb_error_backtrace_sprint function
+/* Tests the libesedb_notify_stream_open function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_backtrace_sprint(
+int esedb_test_notify_stream_open(
      void )
 {
 	/* Test invocation of function only
 	 */
-	libesedb_error_backtrace_sprint(
+	libesedb_notify_stream_open(
 	 NULL,
-	 NULL,
-	 0 );
+	 NULL );
+
+	return( 1 );
+}
+
+/* Tests the libesedb_notify_stream_close function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_notify_stream_close(
+     void )
+{
+	/* Test invocation of function only
+	 */
+	libesedb_notify_stream_close(
+	 NULL );
 
 	return( 1 );
 }
@@ -122,24 +104,20 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_free",
-	 esedb_test_error_free );
+	 "libesedb_notify_set_verbose",
+	 esedb_test_notify_set_verbose )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_fprint",
-	 esedb_test_error_fprint );
+	 "libesedb_notify_set_stream",
+	 esedb_test_notify_set_stream )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_sprint",
-	 esedb_test_error_sprint );
+	 "libesedb_notify_stream_open",
+	 esedb_test_notify_stream_open )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_fprint",
-	 esedb_test_error_backtrace_fprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_sprint",
-	 esedb_test_error_backtrace_sprint );
+	 "libesedb_notify_stream_close",
+	 esedb_test_notify_stream_close )
 
 	return( EXIT_SUCCESS );
 

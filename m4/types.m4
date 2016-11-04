@@ -1,6 +1,6 @@
 dnl Functions for type definitions
 dnl
-dnl Version: 20150413
+dnl Version: 20161004
 
 dnl Function to detect if type definitions are available
 AC_DEFUN([AX_TYPES_CHECK_LOCAL],
@@ -20,12 +20,9 @@ AC_DEFUN([AX_TYPES_CHECK_LOCAL],
   [AC_SUBST(
    [HAVE_WIDE_CHARACTER_TYPE],
    [0])
-  AC_SUBST(
-   [HAVE_WCHAR_H],
-   [0])
   ])
 
- AC_CHECK_HEADERS([sys/types.h inttypes.h stdint.h])
+ AC_CHECK_HEADERS([sys/types.h inttypes.h stdint.h wchar.h])
 
  AS_IF(
   [test "x$ac_cv_header_sys_types_h" = xyes],
@@ -54,6 +51,16 @@ AC_DEFUN([AX_TYPES_CHECK_LOCAL],
    [1])],
   [AC_SUBST(
    [HAVE_STDINT_H],
+   [0])
+  ])
+
+ AS_IF(
+  [test "x$ac_cv_header_wchar_h" = xyes],
+  [AC_SUBST(
+   [HAVE_WCHAR_H],
+   [1]) ],
+  [AC_SUBST(
+   [HAVE_WCHAR_H],
    [0])
   ])
 
@@ -117,24 +124,9 @@ AC_DEFUN([AX_TYPES_CHECK_LOCAL],
  AC_CHECK_SIZEOF([int])
  AC_CHECK_SIZEOF([off_t])
  AC_CHECK_SIZEOF([size_t])
-
- AS_IF(
-  [test "x$ac_cv_enable_wide_character_type" != xno],
-  [AC_CHECK_HEADERS(
-   [wchar.h],
-   [AC_DEFINE(
-    [HAVE_WCHAR_H],
-    [1],
-    [Define to 1 if you have the <wchar.h> header file.])
-   AC_SUBST(
-    [HAVE_WCHAR_H],
-    [1]) ],
-   [AC_MSG_FAILURE(
-    [Missing header: wchar.h],
-    [1]) ])
  
-  AC_CHECK_SIZEOF([wchar_t])
-  ])
-
+ AS_IF(
+  [test "x$ac_cv_header_wchar_h" = xyes],
+  [AC_CHECK_SIZEOF([wchar_t])])
  ])
 

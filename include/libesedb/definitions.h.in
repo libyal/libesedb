@@ -99,5 +99,5 @@ enum LIBESEDB_VALUE_FLAGS
 	LIBESEDB_VALUE_FLAG_MULTI_VALUE					= 0x08,
 };
 
-#endif
+#endif /* !defined( _LIBESEDB_DEFINITIONS_H ) */
 

@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20160507
+# Version: 20161030
 
 # Generic auto-generated build files
 *~
@@ -57,6 +57,7 @@ stamp-h[1-9]
 /test-driver
 /ylwrap
 /m4/codeset.m4
+/m4/extern-inline.m4
 /m4/fcntl-o.m4
 /m4/gettext.m4
 /m4/glibc2.m4
@@ -122,9 +123,17 @@ stamp-h[1-9]
 /pyesedb-python[23]/*.[ch]
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
+/tests/esedb_test_column
 /tests/esedb_test_error
-/tests/esedb_test_get_version
+/tests/esedb_test_file
+/tests/esedb_test_index
+/tests/esedb_test_long_value
+/tests/esedb_test_multi_value
+/tests/esedb_test_notify
 /tests/esedb_test_open_close
+/tests/esedb_test_record
+/tests/esedb_test_support
+/tests/esedb_test_table
 /tests/input
 /tests/tmp*
 

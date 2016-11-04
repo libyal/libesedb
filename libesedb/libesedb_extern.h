@@ -24,6 +24,10 @@
 
 #include <common.h>
 
+/* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
+ */
+#if !defined( HAVE_LOCAL_LIBESEDB )
+
 /* If libtool DLL support is enabled set LIBESEDB_DLL_EXPORT
  * before including libesedb/extern.h
  */
@@ -33,5 +37,10 @@
 
 #include <libesedb/extern.h>
 
+#else
+#define LIBESEDB_EXTERN	extern
+
 #endif
+
+#endif /* !defined( _LIBESEDB_INTERNAL_EXTERN_H ) */
 

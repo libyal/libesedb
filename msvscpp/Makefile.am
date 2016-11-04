@@ -1,7 +1,15 @@
 MSVSCPP_FILES = \
+	esedb_test_column/esedb_test_column.vcproj \
 	esedb_test_error/esedb_test_error.vcproj \
-	esedb_test_get_version/esedb_test_get_version.vcproj \
+	esedb_test_file/esedb_test_file.vcproj \
+	esedb_test_index/esedb_test_index.vcproj \
+	esedb_test_long_value/esedb_test_long_value.vcproj \
+	esedb_test_multi_value/esedb_test_multi_value.vcproj \
+	esedb_test_notify/esedb_test_notify.vcproj \
 	esedb_test_open_close/esedb_test_open_close.vcproj \
+	esedb_test_record/esedb_test_record.vcproj \
+	esedb_test_support/esedb_test_support.vcproj \
+	esedb_test_table/esedb_test_table.vcproj \
 	esedbexport/esedbexport.vcproj \
 	esedbinfo/esedbinfo.vcproj \
 	libbfio/libbfio.vcproj \

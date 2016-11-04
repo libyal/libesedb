@@ -13,6 +13,7 @@ before_install:
 install:
   - if test `uname -s` = 'Darwin'; then export SED="/usr/local/bin/gsed"; fi
   - ./synclibs.sh && ./autogen.sh
+  - if test -x 'synctestdata.sh'; then ./synctestdata.sh; fi
 script:
   - if test `uname -s` = 'Linux'; then export PATH=$(echo $PATH | tr ":" "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s/::/:/g"); fi
   - ./runtests.sh

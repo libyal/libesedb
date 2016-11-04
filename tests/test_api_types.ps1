@@ -1,4 +1,4 @@
-# Library API functions testing script
+# Library API type testing script
 #
 # Version: 20160912
 
@@ -10,22 +10,22 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestFunctions = "error notify support" -split " "
+$TestTypes = "file table column index record long_value multi_value" -split " "
 
 $TestToolDirectory = "..\vs2010\Release"
 
-Function TestAPIFunction
+Function TestAPIType
 {
-	param( [string]$TestFunction, [string[]]$Options, [string]$Profile )
+	param( [string]$TestType )
 
-	$TestExecutable = "${TestToolDirectory}\${TestPrefix}_test_${TestFunction}.exe"
+	$TestExecutable = "${TestToolDirectory}\${TestPrefix}_test_${TestType}.exe"
 
 	Invoke-Expression ${TestExecutable}
 }
 
-Foreach (${TestFunction} in ${TestFunctions})
+Foreach (${TestType} in ${TestTypes})
 {
-	TestAPIFunction ${TestFunction}
+	TestAPIType ${TestType}
 
 	if (${LastExitCode} -ne ${ExitSuccess})
 	{

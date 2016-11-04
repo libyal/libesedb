@@ -57,6 +57,13 @@
 		goto on_error; \
 	}
 
+#define ESEDB_TEST_ASSERT_EQUAL_SIZE( name, value, expected_value ) \
+	if( value != expected_value ) \
+	{ \
+		fprintf( stdout, "%s:%d %s != %" PRIzd "\n", __FILE__, __LINE__, name, expected_value ); \
+		goto on_error; \
+	}
+
 #define ESEDB_TEST_ASSERT_EQUAL_SSIZE( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
@@ -121,7 +128,7 @@
 	}
 
 #define ESEDB_TEST_RUN( name, function ) \
-	if( function != 1 ) \
+	if( function() != 1 ) \
 	{ \
 		fprintf( stdout, "Unable to run test: %s\n", name ); \
 		goto on_error; \
@@ -137,6 +144,9 @@
 	}
 
 #endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
+#define ESEDB_TEST_FPRINT_ERROR( error ) \
+	libcerror_error_backtrace_fprint( error, stdout );
 
 #endif /* !defined( _ESEDB_TEST_MACROS_H ) */
 

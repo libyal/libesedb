@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20160924],
+ [20161104],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -93,10 +93,10 @@ AX_LIBFCACHE_CHECK_ENABLE
 dnl Check for enabling libfdata for file data types support
 AX_LIBFDATA_CHECK_ENABLE
 
-dnl Check for enabling libfdatetime for file date and time support
+dnl Check for enabling libfdatetime for date and time formats support
 AX_LIBFDATETIME_CHECK_ENABLE
 
-dnl Check for enabling libfguid for file GUID/UUID support
+dnl Check for enabling libfguid for GUID/UUID format support
 AX_LIBFGUID_CHECK_ENABLE
 
 dnl Check for enabling libfvalue for file value support

@@ -39,7 +39,7 @@ enum LIBESEDB_ERROR_DOMAINS
 	LIBESEDB_ERROR_DOMAIN_INPUT			= (int) 'i',
 	LIBESEDB_ERROR_DOMAIN_MEMORY			= (int) 'm',
 	LIBESEDB_ERROR_DOMAIN_OUTPUT			= (int) 'o',
-	LIBESEDB_ERROR_DOMAIN_RUNTIME			= (int) 'r',
+	LIBESEDB_ERROR_DOMAIN_RUNTIME			= (int) 'r'
 };
 
 /* The argument error codes
@@ -208,6 +208,17 @@ enum LIBESEDB_MEMORY_ERROR
 	LIBESEDB_MEMORY_ERROR_SET_FAILED		= 3
 };
 
+/* The output error codes
+ */
+enum LIBESEDB_OUTPUT_ERROR
+{
+	LIBESEDB_OUTPUT_ERROR_GENERIC			= 0,
+
+	/* There is insuficient space to write the output
+	 */
+	LIBESEDB_OUTPUT_ERROR_INSUFFICIENT_SPACE	= 1
+};
+
 /* The runtime error codes
  * to signify errors regarding runtime processing
  */
@@ -276,16 +287,5 @@ enum LIBESEDB_RUNTIME_ERROR
 	LIBESEDB_RUNTIME_ERROR_ABORT_REQUESTED		= 15
 };
 
-/* The output error codes
- */
-enum LIBESEDB_OUTPUT_ERROR
-{
-	LIBESEDB_OUTPUT_ERROR_GENERIC			= 0,
-
-	/* There is insuficient space to write the output
-	 */
-	LIBESEDB_OUTPUT_ERROR_INSUFFICIENT_SPACE	= 1
-};
-
-#endif
+#endif /* !defined( _LIBESEDB_ERROR_H ) */
 

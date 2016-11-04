@@ -1,5 +1,5 @@
 /*
- * Library get version test program
+ * Library index type testing program
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -20,40 +20,55 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
+#include "esedb_test_libcerror.h"
 #include "esedb_test_libcstring.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
+#include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
-/* Tests retrieving the library version
+/* Tests the libesedb_index_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_get_version(
+int esedb_test_index_free(
      void )
 {
-	const char *version_string = NULL;
-	int result                 = 0;
+	libcerror_error_t *error = NULL;
+	int result               = 0;
 
-	version_string = libesedb_get_version();
-
-	result = libcstring_narrow_string_compare(
-	          version_string,
-	          LIBESEDB_VERSION_STRING,
-	          9 );
+	/* Test error cases
+	 */
+	result = libesedb_index_free(
+	          NULL,
+	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
+
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
 on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
 	return( 0 );
 }
 
@@ -73,8 +88,8 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_get_version",
-	 esedb_test_get_version() )
+	 "libesedb_index_free",
+	 esedb_test_index_free );
 
 	return( EXIT_SUCCESS );
 

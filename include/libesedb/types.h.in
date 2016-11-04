@@ -201,17 +201,17 @@ typedef int64_t off64_t;
 
 /* The following type definitions hide internal data structures
  */
-typedef intptr_t libesedb_file_t;
-typedef intptr_t libesedb_table_t;
 typedef intptr_t libesedb_column_t;
+typedef intptr_t libesedb_file_t;
 typedef intptr_t libesedb_index_t;
-typedef intptr_t libesedb_record_t;
 typedef intptr_t libesedb_long_value_t;
 typedef intptr_t libesedb_multi_value_t;
+typedef intptr_t libesedb_record_t;
+typedef intptr_t libesedb_table_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_TYPES_H ) */
 

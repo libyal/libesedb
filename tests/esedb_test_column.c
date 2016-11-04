@@ -1,5 +1,5 @@
 /*
- * Library error functions test program
+ * Library column type testing program
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -20,90 +20,56 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
 #endif
 
 #include "esedb_test_libcerror.h"
+#include "esedb_test_libcstring.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
+#include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
-/* Tests the libesedb_error_free function
+/* Tests the libesedb_column_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_free(
+int esedb_test_column_free(
      void )
 {
-	/* Test invocation of function only
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
 	 */
-	libesedb_error_free(
-	 NULL );
+	result = libesedb_column_free(
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
-}
 
-/* Tests the libesedb_error_fprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_sprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_sprint(
-	 NULL,
-	 NULL,
-	 0 );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_backtrace_fprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_backtrace_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_backtrace_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_backtrace_sprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_backtrace_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_backtrace_sprint(
-	 NULL,
-	 NULL,
-	 0 );
-
-	return( 1 );
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
 }
 
 /* The main program
@@ -122,24 +88,8 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_free",
-	 esedb_test_error_free );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_fprint",
-	 esedb_test_error_fprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_sprint",
-	 esedb_test_error_sprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_fprint",
-	 esedb_test_error_backtrace_fprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_sprint",
-	 esedb_test_error_backtrace_sprint );
+	 "libesedb_column_free",
+	 esedb_test_column_free );
 
 	return( EXIT_SUCCESS );
 

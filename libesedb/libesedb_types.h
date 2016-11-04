@@ -34,22 +34,22 @@
 /* The following type definitions hide internal data structures
  */
 #if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
-typedef struct libesedb_file {}	libesedb_file_t;
-typedef struct libesedb_table {}	libesedb_table_t;
 typedef struct libesedb_column {}	libesedb_column_t;
+typedef struct libesedb_file {}	libesedb_file_t;
 typedef struct libesedb_index {}	libesedb_index_t;
-typedef struct libesedb_record {}	libesedb_record_t;
 typedef struct libesedb_long_value {}	libesedb_long_value_t;
 typedef struct libesedb_multi_value {}	libesedb_multi_value_t;
+typedef struct libesedb_record {}	libesedb_record_t;
+typedef struct libesedb_table {}	libesedb_table_t;
 
 #else
-typedef intptr_t libesedb_file_t;
-typedef intptr_t libesedb_table_t;
 typedef intptr_t libesedb_column_t;
+typedef intptr_t libesedb_file_t;
 typedef intptr_t libesedb_index_t;
-typedef intptr_t libesedb_record_t;
 typedef intptr_t libesedb_long_value_t;
 typedef intptr_t libesedb_multi_value_t;
+typedef intptr_t libesedb_record_t;
+typedef intptr_t libesedb_table_t;
 
 #endif /* defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI ) */
 

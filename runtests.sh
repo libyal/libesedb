@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20160824
+# Version: 20161018
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -72,6 +72,7 @@ run_configure_make_check()
 run_configure_make_check_with_coverage()
 {
 	# Disable optimization so we can hook malloc and realloc.
+	export CPPFLAGS="-DOPTIMIZATION_DISABLED";
 	export CFLAGS="--coverage -O0";
 	export LDFLAGS="--coverage";
 
@@ -79,6 +80,7 @@ run_configure_make_check_with_coverage()
 	run_configure_make_check "--enable-shared=no --enable-wide-character-type";
 	RESULT=$?;
 
+	export CPPFLAGS=;
 	export CFLAGS=;
 	export LDFLAGS=;
 

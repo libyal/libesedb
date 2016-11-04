@@ -1,6 +1,6 @@
 # Script that runs the tests
 #
-# Version: 20160913
+# Version: 20161025
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -29,11 +29,13 @@ Try
 			{
 				${Line} = ${Line}.Substring(0, ${Line}.Length - 2)
 			}
-			If (${Line}.EndsWith(".sh"))
+			If (-Not (${Line}.EndsWith(".sh")))
 			{
-				${Line} = ${Line}.Substring(0, ${Line}.Length - 3)
-				${Line} = ".\${Line}.ps1"
+				Continue
 			}
+			${Line} = ${Line}.Substring(0, ${Line}.Length - 3)
+			${Line} = ".\${Line}.ps1"
+
 			Invoke-Expression ${Line}
 
 			if (${LastExitCode} -ne ${ExitSuccess})
