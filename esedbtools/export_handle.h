@@ -27,7 +27,6 @@
 #include <types.h>
 
 #include "esedbtools_libcerror.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "log_handle.h"
 
@@ -55,7 +54,7 @@ struct export_handle
 
 	/* The target path
 	 */
-	libcstring_system_character_t *target_path;
+	system_character_t *target_path;
 
 	/* The target path size
 	 */
@@ -63,7 +62,7 @@ struct export_handle
 
 	/* The items export path
 	 */
-	libcstring_system_character_t *items_export_path;
+	system_character_t *items_export_path;
 
 	/* The items export path size
 	 */
@@ -96,26 +95,26 @@ int export_handle_signal_abort(
 
 int export_handle_set_export_mode(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int export_handle_set_ascii_codepage(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int export_handle_set_target_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *target_path,
+     const system_character_t *target_path,
      libcerror_error_t **error );
 
 int export_handle_set_export_path(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *base_path,
+     const system_character_t *base_path,
      size_t base_path_length,
-     const libcstring_system_character_t *suffix,
+     const system_character_t *suffix,
      size_t suffix_length,
-     libcstring_system_character_t **export_path,
+     system_character_t **export_path,
      size_t *export_path_size,
      libcerror_error_t **error );
 
@@ -125,7 +124,7 @@ int export_handle_create_items_export_path(
 
 int export_handle_open(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error );
 
 int export_handle_close(
@@ -137,17 +136,17 @@ int export_handle_close(
 int export_handle_create_item_filename(
      export_handle_t *export_handle,
      int item_index,
-     const libcstring_system_character_t *item_name,
+     const system_character_t *item_name,
      size_t item_name_length,
-     libcstring_system_character_t **item_filename,
+     system_character_t **item_filename,
      size_t *item_filename_size,
      libcerror_error_t **error );
 
 int export_handle_create_text_item_file(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *item_filename,
+     const system_character_t *item_filename,
      size_t item_filename_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      FILE **item_file_stream,
      libcerror_error_t **error );
@@ -156,9 +155,9 @@ int export_handle_export_table(
      export_handle_t *export_handle,
      libesedb_table_t *table,
      int table_index,
-     const libcstring_system_character_t *table_name,
+     const system_character_t *table_name,
      size_t table_name_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -166,9 +165,9 @@ int export_handle_export_table(
 int export_handle_export_indexes(
      export_handle_t *export_handle,
      libesedb_table_t *table,
-     const libcstring_system_character_t *table_name,
+     const system_character_t *table_name,
      size_t table_name_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -177,9 +176,9 @@ int export_handle_export_index(
      export_handle_t *export_handle,
      libesedb_index_t *index,
      int index_iterator,
-     const libcstring_system_character_t *index_name,
+     const system_character_t *index_name,
      size_t index_name_length,
-     const libcstring_system_character_t *export_path,
+     const system_character_t *export_path,
      size_t export_path_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -213,7 +212,7 @@ int export_handle_export_long_record_value(
 
 int export_handle_export_file(
      export_handle_t *export_handle,
-     const libcstring_system_character_t *export_table_name,
+     const system_character_t *export_table_name,
      size_t export_table_name_length,
      log_handle_t *log_handle,
      libcerror_error_t **error );
@@ -222,5 +221,5 @@ int export_handle_export_file(
 }
 #endif
 
-#endif
+#endif /* !defined( _EXPORT_HANDLE_H ) */
 

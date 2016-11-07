@@ -23,21 +23,21 @@
 #define _COMMON_H
 
 #if defined( HAVE_CONFIG_H )
-#include <config.h>
+#include "config.h"
 #endif
 
 /* Include the Borland/CodeGear C++ Builder compiler specific configuration
  */
 #if defined( __BORLANDC__ )
-#include <config_borlandc.h>
+#include "config_borlandc.h"
 
 /* Include the Microsoft Visual Studio C++ compiler specific configuration
  */
 #elif defined( _MSC_VER )
-#include <config_msc.h>
+#include "config_msc.h"
 #endif
 
-#include <config_winapi.h>
+#include "config_winapi.h"
 
 #endif /* !defined( _COMMON_H ) */
 

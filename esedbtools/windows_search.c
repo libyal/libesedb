@@ -23,11 +23,13 @@
 #include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libcnotify.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libuna.h"
@@ -1115,18 +1117,18 @@ int windows_search_export_compressed_string_value(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *value_string = NULL;
-	uint8_t *decoded_value_data                 = NULL;
-	uint8_t *decompressed_value_data            = NULL;
-	uint8_t *narrow_value_string                = NULL;
-	uint8_t *value_utf16_stream                 = NULL;
-	static char *function                       = "windows_search_export_compressed_string_value";
-	size_t decoded_value_data_size              = 0;
-	size_t decompressed_value_data_size         = 0;
-	size_t value_string_size                    = 0;
-	size_t value_utf16_stream_size              = 0;
-	uint8_t compression_type                    = 0;
-	int result                                  = 0;
+	system_character_t *value_string    = NULL;
+	uint8_t *decoded_value_data         = NULL;
+	uint8_t *decompressed_value_data    = NULL;
+	uint8_t *narrow_value_string        = NULL;
+	uint8_t *value_utf16_stream         = NULL;
+	static char *function               = "windows_search_export_compressed_string_value";
+	size_t decoded_value_data_size      = 0;
+	size_t decompressed_value_data_size = 0;
+	size_t value_string_size            = 0;
+	size_t value_utf16_stream_size      = 0;
+	uint8_t compression_type            = 0;
+	int result                          = 0;
 
 	if( value_data == NULL )
 	{
@@ -1427,7 +1429,7 @@ int windows_search_export_compressed_string_value(
 			memory_free(
 			 decoded_value_data );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_size_from_utf16_stream(
 				  value_utf16_stream,
 				  value_utf16_stream_size,
@@ -1456,7 +1458,7 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 					value_string_size );
 
 			if( value_string == NULL )
@@ -1473,7 +1475,7 @@ int windows_search_export_compressed_string_value(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_copy_from_utf16_stream(
 				  (uint16_t *) value_string,
 				  value_string_size,
@@ -2074,7 +2076,7 @@ int windows_search_export_record_value_filetime(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filetime_string[ 32 ];
+	system_character_t filetime_string[ 32 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -2245,7 +2247,7 @@ int windows_search_export_record_value_filetime(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
@@ -2286,7 +2288,7 @@ int windows_search_export_record_value_filetime(
 			}
 			fprintf(
 			 record_file_stream,
-			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 "%" PRIs_SYSTEM "",
 			 filetime_string );
 		}
 	}
@@ -2771,14 +2773,14 @@ int windows_search_export_record_value_utf16_string(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *value_string = NULL;
-	uint8_t *value_data                         = NULL;
-	static char *function                       = "windows_search_export_record_value_utf16_string";
-	size_t value_data_size                      = 0;
-	size_t value_string_size                    = 0;
-	uint32_t column_type                        = 0;
-	uint8_t value_data_flags                    = 0;
-	int result                                  = 0;
+	system_character_t *value_string = NULL;
+	uint8_t *value_data              = NULL;
+	static char *function            = "windows_search_export_record_value_utf16_string";
+	size_t value_data_size           = 0;
+	size_t value_string_size         = 0;
+	uint32_t column_type             = 0;
+	uint8_t value_data_flags         = 0;
+	int result                       = 0;
 
 	if( record == NULL )
 	{
@@ -2901,7 +2903,7 @@ int windows_search_export_record_value_utf16_string(
 	{
 		if( value_data != NULL )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_size_from_utf16_stream(
 			          value_data,
 			          value_data_size,
@@ -2928,7 +2930,7 @@ int windows_search_export_record_value_utf16_string(
 
 				goto on_error;
 			}
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 			                value_string_size );
 
 			if( value_string == NULL )
@@ -2942,7 +2944,7 @@ int windows_search_export_record_value_utf16_string(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_copy_from_utf16_stream(
 			          (uint16_t *) value_string,
 			          value_string_size,
@@ -3014,7 +3016,7 @@ int windows_search_export_record_systemindex_0a(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "windows_search_export_record_systemindex_0a";
 	size_t column_name_size = 0;
@@ -3066,7 +3068,7 @@ int windows_search_export_record_systemindex_0a(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -3106,7 +3108,7 @@ int windows_search_export_record_systemindex_0a(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -3153,9 +3155,9 @@ int windows_search_export_record_systemindex_0a(
 
 		if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_32BIT_SIGNED )
 		{
-			if( libcstring_system_string_compare(
+			if( system_string_compare(
 			     column_name,
-			     _LIBCSTRING_SYSTEM_STRING( "__SDID" ),
+			     _SYSTEM_STRING( "__SDID" ),
 			     6 ) == 0 )
 			{
 				/* The byte order is set because the SystemIndex_0A table in the
@@ -3173,9 +3175,9 @@ int windows_search_export_record_systemindex_0a(
 		{
 			if( column_name_size == 24 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_ThumbnailCacheId" ),
+				     _SYSTEM_STRING( "System_ThumbnailCacheId" ),
 				     23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -3191,9 +3193,9 @@ int windows_search_export_record_systemindex_0a(
 		{
 			if( column_name_size == 7 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "__SDID" ),
+				     _SYSTEM_STRING( "__SDID" ),
 				     6 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_32BIT;
@@ -3201,16 +3203,16 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 12 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Kind" ),
+				     _SYSTEM_STRING( "System_Kind" ),
 				     11 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Size" ),
+				          _SYSTEM_STRING( "System_Size" ),
 				          11 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_INTEGER_64BIT;
@@ -3219,9 +3221,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 13 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Title" ),
+				     _SYSTEM_STRING( "System_Title" ),
 				     12 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3229,9 +3231,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 14 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Author" ),
+				     _SYSTEM_STRING( "System_Author" ),
 				     13 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3239,37 +3241,37 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 15 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Comment" ),
+				     _SYSTEM_STRING( "System_Comment" ),
 				     14 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_DueDate" ),
+				          _SYSTEM_STRING( "System_DueDate" ),
 				          14 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_EndDate" ),
+				          _SYSTEM_STRING( "System_EndDate" ),
 				          14 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemUrl" ),
+				          _SYSTEM_STRING( "System_ItemUrl" ),
 				          14 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Subject" ),
+				          _SYSTEM_STRING( "System_Subject" ),
 				          14 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3277,51 +3279,51 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 16 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_FileName" ),
+				     _SYSTEM_STRING( "System_FileName" ),
 				     15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Identity" ),
+				          _SYSTEM_STRING( "System_Identity" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemDate" ),
+				          _SYSTEM_STRING( "System_ItemDate" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemName" ),
+				          _SYSTEM_STRING( "System_ItemName" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemType" ),
+				          _SYSTEM_STRING( "System_ItemType" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING(  "System_KindText" ),
+				          _SYSTEM_STRING(  "System_KindText" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_MIMEType" ),
+				          _SYSTEM_STRING( "System_MIMEType" ),
 				          15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3329,16 +3331,16 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 17 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Copyright" ),
+				     _SYSTEM_STRING( "System_Copyright" ),
 				     16 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_FileOwner" ),
+				          _SYSTEM_STRING( "System_FileOwner" ),
 				          16 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3346,16 +3348,16 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 18 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Media_MCDI" ),
+				     _SYSTEM_STRING( "System_Media_MCDI" ),
 				     17 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_RatingText" ),
+				          _SYSTEM_STRING( "System_RatingText" ),
 				          17 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3363,30 +3365,30 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 19 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_DateCreated" ),
+				     _SYSTEM_STRING( "System_DateCreated" ),
 				     18 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemAuthors" ),
+				          _SYSTEM_STRING( "System_ItemAuthors" ),
 				          18 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_Genre" ),
+				          _SYSTEM_STRING( "System_Music_Genre" ),
 				          18 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ParsingName" ),
+				          _SYSTEM_STRING( "System_ParsingName" ),
 				          18 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3394,58 +3396,58 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 20 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_ComputerName" ),
+				     _SYSTEM_STRING( "System_ComputerName" ),
 				     19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_DateAccessed" ),
+				          _SYSTEM_STRING( "System_DateAccessed" ),
 				          19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_DateAcquired" ),
+				          _SYSTEM_STRING( "System_DateAcquired" ),
 				          19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 					  column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_DateImported" ),
+				          _SYSTEM_STRING( "System_DateImported" ),
 					  19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 					  column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_DateModified" ),
+				          _SYSTEM_STRING( "System_DateModified" ),
 					  19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemTypeText" ),
+				          _SYSTEM_STRING( "System_ItemTypeText" ),
 				          19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_Artist" ),
+				          _SYSTEM_STRING( "System_Music_Artist" ),
 				          19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Search_Store" ),
+				          _SYSTEM_STRING( "System_Search_Store" ),
 				          19 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3453,16 +3455,16 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 21 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_FileExtension" ),
+				     _SYSTEM_STRING( "System_FileExtension" ),
 				     20 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_Store" ),
+				          _SYSTEM_STRING( "System_Message_Store" ),
 				          20 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3470,44 +3472,44 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 22 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_FlagStatusText" ),
+				     _SYSTEM_STRING( "System_FlagStatusText" ),
 				     21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ImportanceText" ),
+				          _SYSTEM_STRING( "System_ImportanceText" ),
 				          21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemNamePrefix" ),
+				          _SYSTEM_STRING( "System_ItemNamePrefix" ),
 				          21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_SubTitle" ),
+				          _SYSTEM_STRING( "System_Media_SubTitle" ),
 				          21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_ToName" ),
+				          _SYSTEM_STRING( "System_Message_ToName" ),
 				          21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_Composer" ),
+				          _SYSTEM_STRING( "System_Music_Composer" ),
 				          21 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3515,44 +3517,44 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 23 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_ItemNameDisplay" ),
+				     _SYSTEM_STRING( "System_ItemNameDisplay" ),
 				     22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemPathDisplay" ),
+				          _SYSTEM_STRING( "System_ItemPathDisplay" ),
 				          22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_ContentID" ),
+				          _SYSTEM_STRING( "System_Media_ContentID" ),
 				          22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_Publisher" ),
+				          _SYSTEM_STRING( "System_Media_Publisher" ),
 				          22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_PartOfSet" ),
+				          _SYSTEM_STRING( "System_Music_PartOfSet" ),
 				          22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Photo_DateTaken" ),
+				          _SYSTEM_STRING( "System_Photo_DateTaken" ),
 				          22 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
@@ -3560,37 +3562,37 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 24 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Image_Dimensions" ),
+				     _SYSTEM_STRING( "System_Image_Dimensions" ),
 				     23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemParticipants" ),
+				          _SYSTEM_STRING( "System_ItemParticipants" ),
 				          23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_DateSent" ),
+				          _SYSTEM_STRING( "System_Message_DateSent" ),
 				          23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_FromName" ),
+				          _SYSTEM_STRING( "System_Message_FromName" ),
 				          23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_AlbumTitle" ),
+				          _SYSTEM_STRING( "System_Music_AlbumTitle" ),
 				          23 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3598,44 +3600,44 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 25 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Calendar_Location" ),
+				     _SYSTEM_STRING( "System_Calendar_Location" ),
 				     24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_DateEncoded" ),
+				          _SYSTEM_STRING( "System_Media_DateEncoded" ),
 				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_CcAddress" ),
+				          _SYSTEM_STRING( "System_Message_CcAddress" ),
 				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_ToAddress" ),
+				          _SYSTEM_STRING( "System_Message_ToAddress" ),
 				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Music_AlbumArtist" ),
+				          _SYSTEM_STRING( "System_Music_AlbumArtist" ),
 				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Search_GatherTime" ),
+				          _SYSTEM_STRING( "System_Search_GatherTime" ),
 				          24 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
@@ -3643,37 +3645,37 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 26 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Document_DateSaved" ),
+				     _SYSTEM_STRING( "System_Document_DateSaved" ),
 				     25 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_CollectionID" ),
+				          _SYSTEM_STRING( "System_Media_CollectionID" ),
 				          25 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_DateReleased" ),
+				          _SYSTEM_STRING( "System_Media_DateReleased" ),
 				          25 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_SenderName" ),
+				          _SYSTEM_STRING( "System_Message_SenderName" ),
 				          25 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Search_AutoSummary" ),
+				          _SYSTEM_STRING( "System_Search_AutoSummary" ),
 				          25 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3681,9 +3683,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 27 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Message_FromAddress" ),
+				     _SYSTEM_STRING( "System_Message_FromAddress" ),
 				     26 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3691,30 +3693,30 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 28 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Document_DateCreated" ),
+				     _SYSTEM_STRING( "System_Document_DateCreated" ),
 				     27 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_ClassPrimaryID" ),
+				          _SYSTEM_STRING( "System_Media_ClassPrimaryID" ),
 				          27 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_DateReceived" ),
+				          _SYSTEM_STRING( "System_Message_DateReceived" ),
 				          27 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_MessageClass" ),
+				          _SYSTEM_STRING( "System_Message_MessageClass" ),
 				          27 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3722,30 +3724,30 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 29 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_ItemFolderNameDisplay" ),
+				     _SYSTEM_STRING( "System_ItemFolderNameDisplay" ),
 				     28 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemFolderPathDisplay" ),
+				          _SYSTEM_STRING( "System_ItemFolderPathDisplay" ),
 				          28 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_ItemPathDisplayNarrow" ),
+				          _SYSTEM_STRING( "System_ItemPathDisplayNarrow" ),
 				          28 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_SenderAddress" ),
+				          _SYSTEM_STRING( "System_Message_SenderAddress" ),
 				          28 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3753,30 +3755,30 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 30 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Link_TargetParsingPath" ),
+				     _SYSTEM_STRING( "System_Link_TargetParsingPath" ),
 				     29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_ClassSecondaryID" ),
+				          _SYSTEM_STRING( "System_Media_ClassSecondaryID" ),
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Message_ConversationID" ),
+				          _SYSTEM_STRING( "System_Message_ConversationID" ),
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_RecordedTV_EpisodeName" ),
+				          _SYSTEM_STRING( "System_RecordedTV_EpisodeName" ),
 				          29 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3784,16 +3786,16 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 31 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_Calendar_ShowTimeAsText" ),
+				     _SYSTEM_STRING( "System_Calendar_ShowTimeAsText" ),
 				     30 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "System_Media_CollectionGroupID" ),
+				          _SYSTEM_STRING( "System_Media_CollectionGroupID" ),
 				          30 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3801,9 +3803,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 32 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_RecordedTV_RecordingTime" ),
+				     _SYSTEM_STRING( "System_RecordedTV_RecordingTime" ),
 				     31 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;
@@ -3811,9 +3813,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 35 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_ItemFolderPathDisplayNarrow" ),
+				     _SYSTEM_STRING( "System_ItemFolderPathDisplayNarrow" ),
 				     34 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3821,9 +3823,9 @@ int windows_search_export_record_systemindex_0a(
 			}
 			else if( column_name_size == 37 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "System_RecordedTV_ProgramDescription" ),
+				     _SYSTEM_STRING( "System_RecordedTV_ProgramDescription" ),
 				     36 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_COMPRESSED;
@@ -3914,7 +3916,7 @@ int windows_search_export_record_systemindex_gthr(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "windows_search_export_record_systemindex_gthr";
 	size_t column_name_size = 0;
@@ -3965,7 +3967,7 @@ int windows_search_export_record_systemindex_gthr(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -4005,7 +4007,7 @@ int windows_search_export_record_systemindex_gthr(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -4058,16 +4060,16 @@ int windows_search_export_record_systemindex_gthr(
 		{
 			if( column_name_size == 10 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "FileName1" ),
+				     _SYSTEM_STRING( "FileName1" ),
 				     9 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 					 column_name,
-					 _LIBCSTRING_SYSTEM_STRING( "FileName2" ),
+					 _SYSTEM_STRING( "FileName2" ),
 					 9 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
@@ -4075,9 +4077,9 @@ int windows_search_export_record_systemindex_gthr(
 			}
 			else if( column_name_size == 13 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "LastModified" ),
+				     _SYSTEM_STRING( "LastModified" ),
 				     12 ) == 0 )
 				{
 					known_column_type = WINDOWS_SEARCH_KNOWN_COLUMN_TYPE_FILETIME;

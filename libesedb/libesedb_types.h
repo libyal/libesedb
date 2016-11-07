@@ -35,7 +35,7 @@
  */
 #if defined( HAVE_DEBUG_OUTPUT ) && !defined( WINAPI )
 typedef struct libesedb_column {}	libesedb_column_t;
-typedef struct libesedb_file {}	libesedb_file_t;
+typedef struct libesedb_file {}		libesedb_file_t;
 typedef struct libesedb_index {}	libesedb_index_t;
 typedef struct libesedb_long_value {}	libesedb_long_value_t;
 typedef struct libesedb_multi_value {}	libesedb_multi_value_t;

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20160831
+# Version: 20161105
 #
 # When CHECK_WITH_GDB is set to a non-empty value the test executable
 # is run with gdb, otherwise it is run without.
@@ -32,6 +32,37 @@ assert_availability_binary()
 		echo "";
 
 		exit ${EXIT_FAILURE};
+	fi
+}
+
+# Checks the availability of binaries and exits if not available.
+#
+# Globals:
+#   CHECK_WITH_GDB
+#   CHECK_WITH_VALGRIND
+#
+assert_availability_binaries()
+{
+	assert_availability_binary cat;
+	assert_availability_binary cut;
+	assert_availability_binary diff;
+	assert_availability_binary file;
+	assert_availability_binary gzip;
+	assert_availability_binary ls;
+	assert_availability_binary readlink;
+	assert_availability_binary sed;
+	assert_availability_binary tr;
+	assert_availability_binary uname;
+	assert_availability_binary wc;
+	assert_availability_binary zcat;
+
+	if test -n "${CHECK_WITH_GDB}";
+	then
+		assert_availability_binary gdb;
+
+	elif test -n "${CHECK_WITH_VALGRIND}";
+	then
+		assert_availability_binary valgrind;
 	fi
 }
 
@@ -341,6 +372,7 @@ read_option_file()
 #   PYTHON_VERSION
 #
 # Arguments:
+#   a string containing the test description
 #   a string containing the path of the test executable
 #   an array containing the arguments for the test executable
 #
@@ -349,8 +381,9 @@ read_option_file()
 #
 run_test_with_arguments()
 {
-	local TEST_EXECUTABLE=$1;
-	shift 1;
+	local TEST_DESCRIPTION=$1;
+	local TEST_EXECUTABLE=$2;
+	shift 2;
 	local ARGUMENTS=$@;
 
 	if ! test -f "${TEST_EXECUTABLE}";
@@ -384,7 +417,7 @@ run_test_with_arguments()
 	fi
 	local RESULT=0;
 
-	if ! test -z ${CHECK_WITH_GDB};
+	if test -n "${CHECK_WITH_GDB}";
 	then
 		local TEST_EXECUTABLE=$( find_binary_executable ${TEST_EXECUTABLE} );
 		local LIBRARY_PATH=$( find_binary_library_path ${TEST_EXECUTABLE} );
@@ -411,7 +444,7 @@ run_test_with_arguments()
 			fi
 		fi
 
-	elif ! test -z ${CHECK_WITH_VALGRIND};
+	elif test -n "${CHECK_WITH_VALGRIND}";
 	then
 		local TEST_EXECUTABLE=$( find_binary_executable ${TEST_EXECUTABLE} );
 		local LIBRARY_PATH=$( find_binary_library_path ${TEST_EXECUTABLE} );
@@ -496,7 +529,7 @@ run_test_with_arguments()
 
 		if test "${PLATFORM}" = "Darwin";
 		then
-			if ! test -z ${CHECK_WITH_STDERR};
+			if test -n "${CHECK_WITH_STDERR}";
 			then
 				DYLD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "${TEST_EXECUTABLE}" ${ARGUMENTS[@]};
 				RESULT=$?;
@@ -505,7 +538,7 @@ run_test_with_arguments()
 				RESULT=$?;
 			fi
 		else
-			if ! test -z ${CHECK_WITH_STDERR};
+			if test -n "${CHECK_WITH_STDERR}";
 			then
 				LD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "${TEST_EXECUTABLE}" ${ARGUMENTS[@]};
 				RESULT=$?;
@@ -523,13 +556,24 @@ run_test_with_arguments()
 			return ${EXIT_FAILURE};
 		fi
 
-		if ! test -z ${CHECK_WITH_STDERR};
+		if test -n "${CHECK_WITH_STDERR}";
 		then
 			${TEST_EXECUTABLE} ${ARGUMENTS[@]};
 			RESULT=$?;
 		else
 			${TEST_EXECUTABLE} ${ARGUMENTS[@]} 2> /dev/null;
 			RESULT=$?;
+		fi
+	fi
+	if test -n "${TEST_DESCRIPTION}";
+	then
+		echo -n "${TEST_DESCRIPTION} ";
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			echo " (FAIL)";
+		else
+			echo " (PASS)";
 		fi
 	fi
 	return ${RESULT};
@@ -589,7 +633,7 @@ run_test_with_input_and_arguments()
 	fi
 	local RESULT=0;
 
-	if ! test -z ${CHECK_WITH_GDB};
+	if test -n "${CHECK_WITH_GDB}";
 	then
 		local TEST_EXECUTABLE=$( find_binary_executable ${TEST_EXECUTABLE} );
 		local LIBRARY_PATH=$( find_binary_library_path ${TEST_EXECUTABLE} );
@@ -616,7 +660,7 @@ run_test_with_input_and_arguments()
 			fi
 		fi
 
-	elif ! test -z ${CHECK_WITH_VALGRIND};
+	elif test -n "${CHECK_WITH_VALGRIND}";
 	then
 		local TEST_EXECUTABLE=$( find_binary_executable ${TEST_EXECUTABLE} );
 		local LIBRARY_PATH=$( find_binary_library_path ${TEST_EXECUTABLE} );
@@ -701,7 +745,7 @@ run_test_with_input_and_arguments()
 
 		if test "${PLATFORM}" = "Darwin";
 		then
-			if ! test -z ${CHECK_WITH_STDERR};
+			if test -n "${CHECK_WITH_STDERR}";
 			then
 				DYLD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "${TEST_EXECUTABLE}" ${ARGUMENTS[@]} "${INPUT_FILE}";
 				RESULT=$?;
@@ -710,7 +754,7 @@ run_test_with_input_and_arguments()
 				RESULT=$?;
 			fi
 		else
-			if ! test -z ${CHECK_WITH_STDERR};
+			if test -n "${CHECK_WITH_STDERR}";
 			then
 				LD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "${TEST_EXECUTABLE}" ${ARGUMENTS[@]} "${INPUT_FILE}";
 				RESULT=$?;
@@ -728,7 +772,7 @@ run_test_with_input_and_arguments()
 			return ${EXIT_FAILURE};
 		fi
 
-		if ! test -z ${CHECK_WITH_STDERR};
+		if test -n "${CHECK_WITH_STDERR}";
 		then
 			${TEST_EXECUTABLE} ${ARGUMENTS[@]} "${INPUT_FILE}";
 			RESULT=$?;
@@ -772,7 +816,7 @@ run_test_on_input_file()
 	local OPTIONS=();
 	local TEST_OUTPUT="${INPUT_NAME}";
 
-	if ! test -z "${OPTION_SET}";
+	if test -n "${OPTION_SET}";
 	then
 		OPTIONS_STRING=$(read_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
 		IFS=" " read -a OPTIONS <<< "${OPTIONS_STRING}";
@@ -830,18 +874,79 @@ run_test_on_input_file()
 
 	rm -rf ${TMPDIR};
 
-	if test -z "${OPTION_SET}";
+	if test -n "${TEST_DESCRIPTION}";
 	then
-		echo -n "Testing ${TEST_DESCRIPTION} with input: ${INPUT_FILE}";
-	else
-		echo -n "Testing ${TEST_DESCRIPTION} with option: ${OPTION_SET} and input: ${INPUT_FILE}";
-	fi
+		if test -z "${OPTION_SET}";
+		then
+			echo -n "${TEST_DESCRIPTION} with input: ${INPUT_FILE}";
+		else
+			echo -n "${TEST_DESCRIPTION} with option: ${OPTION_SET} and input: ${INPUT_FILE}";
+		fi
 
-	if test ${RESULT} -ne ${EXIT_SUCCESS};
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			echo " (FAIL)";
+		else
+			echo " (PASS)";
+		fi
+	fi
+	return ${RESULT};
+}
+
+# Runs the test with options on the input file.
+#
+# Note that this function is not intended to be directly invoked
+# from outside the test runner script.
+#
+# Arguments:
+#   a string containing the path of the test set directory
+#   a string containing the description of the test
+#   a string containing the test mode
+#   a string containing the name of the option sets
+#   a string containing the path of the test executable
+#   a string containing the path of the test input file
+#   an array containing the arguments for the test executable
+#
+# Returns:
+#   an integer containg the exit status of the test executable
+#
+run_test_on_input_file_with_options()
+{
+	local TEST_SET_DIRECTORY=$1;
+	local TEST_DESCRIPTION=$2;
+	local TEST_MODE=$3;
+	local OPTION_SETS=$4;
+	local TEST_EXECUTABLE=$5;
+	local INPUT_FILE=$6;
+	shift 6;
+	local ARGUMENTS=$@;
+
+	local RESULT=${EXIT_SUCCESS};
+	local TESTED_WITH_OPTIONS=0;
+
+	for OPTION_SET in `echo ${OPTION_SETS} | tr ' ' '\n'`;
+	do
+		local OPTION_FILE=$(get_testion_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+
+		if ! test -f ${OPTION_FILE};
+		then
+			continue
+		fi
+
+		run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+		RESULT=$?;
+
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			break;
+		fi
+		TESTED_WITH_OPTIONS=1;
+	done
+
+	if test ${RESULT} -eq ${EXIT_SUCCESS} && test ${TESTED_WITH_OPTIONS} -eq 0;
 	then
-		echo " (FAIL)";
-	else
-		echo " (PASS)";
+		run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+		RESULT=$?;
 	fi
 	return ${RESULT};
 }
@@ -865,7 +970,7 @@ run_test_on_input_file()
 #                            to stdout, except for the first 2 lines, should
 #                            be compared to a reference file, if available.
 #     Note the globals override the test mode.
-#   a string containing the name of the option set
+#   a string containing the name of the option sets
 #   a string containing the path of the test executable
 #   a string containing the path of the test input directory
 #   a string containing the input glob
@@ -886,27 +991,7 @@ run_test_on_input_directory()
 	shift 7;
 	local ARGUMENTS=$@;
 
-	assert_availability_binary cat;
-	assert_availability_binary cut;
-	assert_availability_binary diff;
-	assert_availability_binary file;
-	assert_availability_binary gzip;
-	assert_availability_binary ls;
-	assert_availability_binary readlink;
-	assert_availability_binary sed;
-	assert_availability_binary tr;
-	assert_availability_binary uname;
-	assert_availability_binary wc;
-	assert_availability_binary zcat;
-
-	if ! test -z ${CHECK_WITH_GDB};
-	then
-		assert_availability_binary gdb;
-
-	elif ! test -z ${CHECK_WITH_VALGRIND};
-	then
-		assert_availability_binary valgrind;
-	fi
+	assert_availability_binaries;
 
 	if ! test "${TEST_MODE}" = "default" && test "${TEST_MODE}" != "with_callback" && ! test "${TEST_MODE}" = "with_stdout_reference";
 	then
@@ -961,45 +1046,25 @@ run_test_on_input_directory()
 		local INPUT_FILES="";
 		if test -f "${TEST_SET_DIRECTORY}/files";
 		then
-			INPUT_FILES=`cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
+			while read -r INPUT_FILE;
+			do
+				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+				if test ${RESULT} -ne ${EXIT_SUCCESS};
+				then
+					return ${RESULT};
+				fi
+			done < <(cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?");
 		else
-			INPUT_FILES="${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}";
+			while read -r INPUT_FILE;
+			do
+				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+				if test ${RESULT} -ne ${EXIT_SUCCESS};
+				then
+					return ${RESULT};
+				fi
+			done < <(ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB});
 		fi
 
-		while read -r INPUT_FILE;
-		do
-			local TESTED_WITH_OPTIONS=0;
-
-			for OPTION_SET in `echo ${OPTION_SETS} | tr ' ' '\n'`;
-			do
-				local OPTION_FILE=$(get_testion_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
-
-				if ! test -f ${OPTION_FILE};
-				then
-					continue
-				fi
-
-				run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
-				RESULT=$?;
-
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
-				then
-					return ${RESULT};
-				fi
-				TESTED_WITH_OPTIONS=1;
-			done
-
-			if test ${RESULT} -eq ${EXIT_SUCCESS} && test ${TESTED_WITH_OPTIONS} -eq 0;
-			then
-				run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
-				RESULT=$?;
-
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
-				then
-					return ${RESULT};
-				fi
-			fi
-		done < <(ls -1 ${INPUT_FILES});
 	done
 
 	return ${RESULT};

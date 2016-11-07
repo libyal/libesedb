@@ -22,7 +22,10 @@
 #include <common.h>
 #include <byte_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libesedb_catalog_definition.h"
 #include "libesedb_codepage.h"
@@ -32,7 +35,6 @@
 #include "libesedb_lcid.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
-#include "libesedb_libcstring.h"
 #include "libesedb_libuna.h"
 #include "libesedb_unused.h"
 
@@ -188,7 +190,7 @@ int libesedb_catalog_definition_read(
 	uint8_t variable_size_data_type_iterator            = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	libcstring_system_character_t *value_string         = 0;
+	system_character_t *value_string                    = 0;
 	size_t value_string_size                            = 0;
 	uint32_t value_32bit                                = 0;
 	uint16_t record_offset                              = 0;
@@ -667,7 +669,7 @@ int libesedb_catalog_definition_read(
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_size_from_byte_stream(
 							          catalog_definition->name,
 							          catalog_definition->name_size,
@@ -694,7 +696,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							catalog_definition->name_string = libcstring_system_string_allocate(
+							catalog_definition->name_string = system_string_allocate(
 							                                   value_string_size );
 
 							if( catalog_definition->name_string == NULL )
@@ -708,7 +710,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_copy_from_byte_stream(
 							          (libuna_utf16_character_t *) catalog_definition->name_string,
 							          value_string_size,
@@ -743,7 +745,7 @@ int libesedb_catalog_definition_read(
 								return( -1 );
 							}
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %" PRIs_SYSTEM "\n",
 							 function,
 							 data_type_number,
 							 catalog_definition->name_string );
@@ -835,7 +837,7 @@ int libesedb_catalog_definition_read(
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_size_from_byte_stream(
 							          catalog_definition->template_name,
 							          catalog_definition->template_name_size,
@@ -862,7 +864,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-							value_string = libcstring_system_string_allocate(
+							value_string = system_string_allocate(
 							                value_string_size );
 
 							if( value_string == NULL )
@@ -876,7 +878,7 @@ int libesedb_catalog_definition_read(
 
 								return( -1 );
 							}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 							result = libuna_utf16_string_copy_from_byte_stream(
 							          (libuna_utf16_character_t *) value_string,
 							          value_string_size,
@@ -909,7 +911,7 @@ int libesedb_catalog_definition_read(
 								return( -1 );
 							}
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %" PRIs_SYSTEM "\n",
 							 function,
 							 data_type_number,
 							 value_string );

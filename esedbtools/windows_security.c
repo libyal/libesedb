@@ -23,10 +23,12 @@
 #include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "esedbtools_libcerror.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libuna.h"
@@ -51,7 +53,7 @@ int windows_security_export_record_value_filetime(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filetime_string[ 32 ];
+	system_character_t filetime_string[ 32 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -222,7 +224,7 @@ int windows_security_export_record_value_filetime(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
@@ -263,7 +265,7 @@ int windows_security_export_record_value_filetime(
 			}
 			fprintf(
 			 record_file_stream,
-			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 "%" PRIs_SYSTEM "",
 			 filetime_string );
 		}
 	}
@@ -304,14 +306,14 @@ int windows_security_export_record_value_utf16_string(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t *value_string = NULL;
-	uint8_t *value_data                         = NULL;
-	static char *function                       = "windows_security_export_record_value_utf16_string";
-	size_t value_data_size                      = 0;
-	size_t value_string_size                    = 0;
-	uint32_t column_type                        = 0;
-	uint8_t value_data_flags                    = 0;
-	int result                                  = 0;
+	system_character_t *value_string = NULL;
+	uint8_t *value_data              = NULL;
+	static char *function            = "windows_security_export_record_value_utf16_string";
+	size_t value_data_size           = 0;
+	size_t value_string_size         = 0;
+	uint32_t column_type             = 0;
+	uint8_t value_data_flags         = 0;
+	int result                       = 0;
 
 	if( record == NULL )
 	{
@@ -434,7 +436,7 @@ int windows_security_export_record_value_utf16_string(
 	{
 		if( value_data != NULL )
 		{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_size_from_utf16_stream(
 			          value_data,
 			          value_data_size,
@@ -461,8 +463,8 @@ int windows_security_export_record_value_utf16_string(
 
 				goto on_error;
 			}
-			value_string = (libcstring_system_character_t *) memory_allocate(
-						                          sizeof( libcstring_system_character_t ) * value_string_size );
+			value_string = system_string_allocate(
+			                value_string_size );
 
 			if( value_string == NULL )
 			{
@@ -475,7 +477,7 @@ int windows_security_export_record_value_utf16_string(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_copy_from_utf16_stream(
 			          (uint16_t *) value_string,
 			          value_string_size,
@@ -546,7 +548,7 @@ int windows_security_export_record_smtblversion(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "windows_security_export_record_smtblversion";
 	size_t column_name_size = 0;
@@ -597,7 +599,7 @@ int windows_security_export_record_smtblversion(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -637,7 +639,7 @@ int windows_security_export_record_smtblversion(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -690,9 +692,9 @@ int windows_security_export_record_smtblversion(
 		{
 			if( column_name_size == 16 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "ConfigTimeStamp" ),
+				     _SYSTEM_STRING( "ConfigTimeStamp" ),
 				     15 ) == 0 )
 				{
 					known_column_type = WINDOWS_SECURITY_KNOWN_COLUMN_TYPE_FILETIME;
@@ -700,9 +702,9 @@ int windows_security_export_record_smtblversion(
 			}
 			else if( column_name_size == 17 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "AnalyzeTimeStamp" ),
+				     _SYSTEM_STRING( "AnalyzeTimeStamp" ),
 				     16 ) == 0 )
 				{
 					known_column_type = WINDOWS_SECURITY_KNOWN_COLUMN_TYPE_FILETIME;
@@ -710,9 +712,9 @@ int windows_security_export_record_smtblversion(
 			}
 			else if( column_name_size == 19 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "ProfileDescription" ),
+				     _SYSTEM_STRING( "ProfileDescription" ),
 				     18 ) == 0 )
 				{
 					known_column_type = WINDOWS_SECURITY_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;
@@ -783,7 +785,7 @@ int windows_security_export_record_smtblsection(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "windows_security_export_record_smtblsection";
 	size_t column_name_size = 0;
@@ -834,7 +836,7 @@ int windows_security_export_record_smtblsection(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -874,7 +876,7 @@ int windows_security_export_record_smtblsection(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -927,9 +929,9 @@ int windows_security_export_record_smtblsection(
 		{
 			if( column_name_size == 5 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "Name" ),
+				     _SYSTEM_STRING( "Name" ),
 				     4 ) == 0 )
 				{
 					known_column_type = WINDOWS_SECURITY_KNOWN_COLUMN_TYPE_STRING_UTF16_LITTLE_ENDIAN;

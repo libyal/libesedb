@@ -146,7 +146,6 @@ stamp-h[1-9]
 /libcnotify
 /libcpath
 /libcsplit
-/libcstring
 /libcsystem
 /libcthreads
 /libfcache

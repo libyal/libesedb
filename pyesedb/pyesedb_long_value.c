@@ -29,7 +29,6 @@
 #include "pyesedb_error.h"
 #include "pyesedb_integer.h"
 #include "pyesedb_libcerror.h"
-#include "pyesedb_libcstring.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_long_value.h"
 #include "pyesedb_python.h"

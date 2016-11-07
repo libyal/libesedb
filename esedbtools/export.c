@@ -22,9 +22,9 @@
 #include <common.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
@@ -114,7 +114,7 @@ void export_narrow_text(
  * Converts \\, \t, \n, \r, \0 into their string representation
  */
 void export_text(
-      const libcstring_system_character_t *string,
+      const system_character_t *string,
       size_t string_size,
       FILE *stream )
 {
@@ -131,25 +131,25 @@ void export_text(
 					 "\\0" );
 				}
 			}
-			else if( *string == (libcstring_system_character_t) '\\' )
+			else if( *string == (system_character_t) '\\' )
 			{
 				fprintf(
 				 stream,
 				 "\\\\" );
 			}
-			else if( *string == (libcstring_system_character_t) '\n' )
+			else if( *string == (system_character_t) '\n' )
 			{
 				fprintf(
 				 stream,
 				 "\\n" );
 			}
-			else if( *string == (libcstring_system_character_t) '\r' )
+			else if( *string == (system_character_t) '\r' )
 			{
 				fprintf(
 				 stream,
 				 "\\r" );
 			}
-			else if( *string == (libcstring_system_character_t) '\t' )
+			else if( *string == (system_character_t) '\t' )
 			{
 				fprintf(
 				 stream,
@@ -159,7 +159,7 @@ void export_text(
 			{
 				fprintf(
 				 stream,
-				 "%" PRIc_LIBCSTRING_SYSTEM "",
+				 "%" PRIc_SYSTEM "",
 				 *string );
 			}
 			string      += 1;
@@ -178,7 +178,7 @@ int export_filetime(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t filetime_string[ 32 ];
+	system_character_t filetime_string[ 32 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -351,7 +351,7 @@ int export_filetime(
 
 				goto on_error;
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
 			          (uint16_t *) filetime_string,
@@ -392,7 +392,7 @@ int export_filetime(
 			}
 			fprintf(
 			 record_file_stream,
-			 "%" PRIs_LIBCSTRING_SYSTEM "",
+			 "%" PRIs_SYSTEM "",
 			 filetime_string );
 		}
 	}

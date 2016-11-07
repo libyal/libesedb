@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <memory.h>
+#include <system_string.h>
 #include <types.h>
 
 #include "libesedb_catalog_definition.h"
@@ -33,7 +34,6 @@
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
-#include "libesedb_libcstring.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
@@ -740,7 +740,7 @@ int libesedb_data_definition_read_record(
 			 function,
 			 column_catalog_definition->identifier );
 			libcnotify_printf(
-			 "%s: column definition name\t\t\t: %" PRIs_LIBCSTRING_SYSTEM "\n",
+			 "%s: column definition name\t\t\t: %" PRIs_SYSTEM "\n",
 			 function,
 			 column_catalog_definition->name_string );
 			libcnotify_printf(

@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "libesedb_libcerror.h"
-#include "libesedb_libcstring.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -82,7 +81,7 @@ struct libesedb_catalog_definition
 #if defined( HAVE_DEBUG_OUTPUT )
 	/* The name string
 	 */
-	libcstring_system_character_t *name_string;
+	system_character_t *name_string;
 #endif
 
 	/* The template name

@@ -27,7 +27,6 @@
 #include <types.h>
 
 #include "esedbtools_libcerror.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 
 #if defined( __cplusplus )
@@ -72,12 +71,12 @@ int info_handle_signal_abort(
 
 int info_handle_set_ascii_codepage(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error );
 
 int info_handle_open(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error );
 
 int info_handle_close(
@@ -92,5 +91,5 @@ int info_handle_file_fprint(
 }
 #endif
 
-#endif
+#endif /* !defined( _INFO_HANDLE_H ) */
 

@@ -20,6 +20,10 @@
  */
 
 #include <common.h>
+#include <file_stream.h>
+#include <narrow_string.h>
+#include <system_string.h>
+#include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
 #include <stdlib.h>
@@ -27,7 +31,6 @@
 
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libclocale.h"
-#include "esedb_test_libcstring.h"
 #include "esedb_test_libcsystem.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_libuna.h"
@@ -38,7 +41,7 @@
  * Returns 1 if successful or -1 on error
  */
 int esedb_test_support_get_narrow_source(
-     const libcstring_system_character_t *source,
+     const system_character_t *source,
      char *narrow_string,
      size_t narrow_string_size,
      libcerror_error_t **error )
@@ -47,7 +50,7 @@ int esedb_test_support_get_narrow_source(
 	size_t narrow_source_size = 0;
 	size_t source_length      = 0;
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result                = 0;
 #endif
 
@@ -84,7 +87,7 @@ int esedb_test_support_get_narrow_source(
 
 		return( -1 );
 	}
-	source_length = libcstring_system_string_length(
+	source_length = system_string_length(
 	                 source );
 
 	if( source_length > (size_t) ( SSIZE_MAX - 1 ) )
@@ -98,7 +101,7 @@ int esedb_test_support_get_narrow_source(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -147,7 +150,7 @@ int esedb_test_support_get_narrow_source(
 #else
 	narrow_source_size = source_length + 1;
 
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	if( narrow_string_size < narrow_source_size )
 	{
@@ -160,7 +163,7 @@ int esedb_test_support_get_narrow_source(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libclocale_codepage == 0 )
 	{
 #if SIZEOF_WCHAR_T == 4
@@ -211,7 +214,7 @@ int esedb_test_support_get_narrow_source(
 		return( -1 );
 	}
 #else
-	if( libcstring_system_string_copy(
+	if( system_string_copy(
 	     narrow_string,
 	     source,
 	     source_length ) == NULL )
@@ -227,7 +230,7 @@ int esedb_test_support_get_narrow_source(
 	}
 	narrow_string[ source_length ] = 0;
 
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	return( 1 );
 }
@@ -238,7 +241,7 @@ int esedb_test_support_get_narrow_source(
  * Returns 1 if successful or -1 on error
  */
 int esedb_test_support_get_wide_source(
-     const libcstring_system_character_t *source,
+     const system_character_t *source,
      wchar_t *wide_string,
      size_t wide_string_size,
      libcerror_error_t **error )
@@ -247,7 +250,7 @@ int esedb_test_support_get_wide_source(
 	size_t wide_source_size = 0;
 	size_t source_length    = 0;
 
-#if !defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result              = 0;
 #endif
 
@@ -284,7 +287,7 @@ int esedb_test_support_get_wide_source(
 
 		return( -1 );
 	}
-	source_length = libcstring_system_string_length(
+	source_length = system_string_length(
 	                 source );
 
 	if( source_length > (size_t) ( SSIZE_MAX - 1 ) )
@@ -298,7 +301,7 @@ int esedb_test_support_get_wide_source(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	wide_source_size = source_length + 1;
 #else
 	if( libclocale_codepage == 0 )
@@ -347,7 +350,7 @@ int esedb_test_support_get_wide_source(
 		return( -1 );
 	}
 
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	if( wide_string_size < wide_source_size )
 	{
@@ -360,8 +363,8 @@ int esedb_test_support_get_wide_source(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
-	if( libcstring_system_string_copy(
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	if( system_string_copy(
 	     wide_string,
 	     source,
 	     source_length ) == NULL )
@@ -427,7 +430,7 @@ int esedb_test_support_get_wide_source(
 		return( -1 );
 	}
 
-#endif /* defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER ) */
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	return( 1 );
 }
@@ -445,7 +448,7 @@ int esedb_test_get_version(
 
 	version_string = libesedb_get_version();
 
-	result = libcstring_narrow_string_compare(
+	result = narrow_string_compare(
 	          version_string,
 	          LIBESEDB_VERSION_STRING,
 	          9 );
@@ -589,7 +592,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int esedb_test_check_file_signature(
-     const libcstring_system_character_t *source )
+     const system_character_t *source )
 {
 	char narrow_source[ 256 ];
 
@@ -663,7 +666,7 @@ on_error:
  * Returns 1 if successful or 0 if not
  */
 int esedb_test_check_file_signature_wide(
-     const libcstring_system_character_t *source )
+     const system_character_t *source )
 {
 	wchar_t wide_source[ 256 ];
 
@@ -735,7 +738,7 @@ on_error:
 
 /* The main program
  */
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 int wmain(
      int argc,
      wchar_t * const argv[] )
@@ -745,21 +748,21 @@ int main(
      char * const argv[] )
 #endif
 {
-	libcstring_system_character_t *source = NULL;
-	libcstring_system_integer_t option    = 0;
+	system_character_t *source = NULL;
+	system_integer_t option    = 0;
 
 	while( ( option = libcsystem_getopt(
 	                   argc,
 	                   argv,
-	                   _LIBCSTRING_SYSTEM_STRING( "" ) ) ) != (libcstring_system_integer_t) -1 )
+	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
-			case (libcstring_system_integer_t) '?':
+			case (system_integer_t) '?':
 			default:
 				fprintf(
 				 stderr,
-				 "Invalid argument: %" PRIs_LIBCSTRING_SYSTEM ".\n",
+				 "Invalid argument: %" PRIs_SYSTEM ".\n",
 				 argv[ optind - 1 ] );
 
 				return( EXIT_FAILURE );

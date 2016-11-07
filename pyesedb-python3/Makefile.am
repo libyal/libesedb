@@ -8,7 +8,6 @@ if HAVE_PYTHON3
 AM_CFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -34,7 +33,6 @@ BUILT_SOURCES = \
 	pyesedb_libbfio.h \
 	pyesedb_libcerror.h \
 	pyesedb_libclocale.h \
-	pyesedb_libcstring.h \
 	pyesedb_libesedb.h \
 	pyesedb_long_value.c pyesedb_long_value.h \
 	pyesedb_multi_value.c pyesedb_multi_value.h \
@@ -51,8 +49,7 @@ pyexec_LTLIBRARIES = pyesedb.la
 nodist_pyesedb_la_SOURCES = $(BUILT_SOURCES)
 
 pyesedb_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
-	@LIBCERROR_LIBADD@ \
+	@LIBCERROR_LIBADD@
 	../libesedb/libesedb.la \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

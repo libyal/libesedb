@@ -1,6 +1,6 @@
 # Script that runs the tests
 #
-# Version: 20161025
+# Version: 20161106
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -8,54 +8,61 @@ $ExitIgnore = 77
 
 Set-Location -Path "tests"
 
-Try
+$Result = ${ExitSuccess}
+
+$Lines = Get-Content "Makefile.am"
+$InTests = $FALSE
+
+Foreach (${Line} in ${Lines})
 {
-	$Lines = Get-Content "Makefile.am"
-	$InTests = $FALSE
-
-	foreach (${Line} in ${Lines})
+	If (${InTests})
 	{
-		If (${InTests})
+		If (-Not ${Line})
 		{
-			If (-Not ${Line})
-			{
-				${InTests} = $FALSE
+			${InTests} = $FALSE
 
-				Continue
-			}
-			${Line} = ${Line}.TrimStart()
+			Continue
+		}
+		${Line} = ${Line}.TrimStart()
 
-			If (${Line}.EndsWith(" \"))
-			{
-				${Line} = ${Line}.Substring(0, ${Line}.Length - 2)
-			}
-			If (-Not (${Line}.EndsWith(".sh")))
-			{
-				Continue
-			}
-			${Line} = ${Line}.Substring(0, ${Line}.Length - 3)
-			${Line} = ".\${Line}.ps1"
+		If (${Line}.EndsWith(" \"))
+		{
+			${Line} = ${Line}.Substring(0, ${Line}.Length - 2)
+		}
+		If (-Not (${Line}.EndsWith(".sh")))
+		{
+			Continue
+		}
+		${Line} = ${Line}.Substring(0, ${Line}.Length - 3)
+		${Line} = ".\${Line}.ps1"
 
+		Try
+		{
 			Invoke-Expression ${Line}
 
-			if (${LastExitCode} -ne ${ExitSuccess})
+			If (${LastExitCode} -ne ${ExitSuccess})
 			{
-				Break
+				$Result = ${ExitFailure}
+
+				Write-Host "FAIL" -foreground Red -nonewline
+			}
+			Else
+			{
+				Write-Host "PASS" -foreground Green -nonewline
 			}
 		}
-		ElseIf (${Line}.StartsWith("TESTS = "))
+		Catch
 		{
-			${InTests} = $TRUE
+			Write-Host "SKIP" -foreground Cyan -nonewline
 		}
+		Write-Host ": ${Line}"
+	}
+	ElseIf (${Line}.StartsWith("TESTS = "))
+	{
+		${InTests} = $TRUE
 	}
 }
-Catch
-{
-	${LastExitCode} = ${ExitFailure}
-}
-Finally
-{
-	Set-Location -Path ".."
-}
 
-Exit ${LastExitCode}
+Set-Location -Path ".."
+
+Exit ${Result}

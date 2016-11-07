@@ -22,11 +22,13 @@
 #include <common.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libclocale.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libesedb.h"
 #include "info_handle.h"
@@ -277,7 +279,7 @@ int info_handle_signal_abort(
  */
 int info_handle_set_ascii_codepage(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *string,
+     const system_character_t *string,
      libcerror_error_t **error )
 {
 	static char *function  = "info_handle_set_ascii_codepage";
@@ -299,10 +301,10 @@ int info_handle_set_ascii_codepage(
 	feature_flags = LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_KOI8
 	              | LIBCLOCALE_CODEPAGE_FEATURE_FLAG_HAVE_WINDOWS;
 
-	string_length = libcstring_system_string_length(
+	string_length = system_string_length(
 	                 string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	result = libclocale_codepage_copy_from_string_wide(
 	          &( info_handle->ascii_codepage ),
 	          string,
@@ -336,7 +338,7 @@ int info_handle_set_ascii_codepage(
  */
 int info_handle_open(
      info_handle_t *info_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error )
 {
 	static char *function = "info_handle_open";
@@ -352,7 +354,7 @@ int info_handle_open(
 
 		return( -1 );
 	}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	if( libesedb_file_open_wide(
 	     info_handle->input_file,
 	     filename,
@@ -421,27 +423,27 @@ int info_handle_file_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error )
 {
-	libesedb_column_t *column                   = NULL;
-	libesedb_index_t *index                     = NULL;
-	libesedb_table_t *table                     = NULL;
-	libcstring_system_character_t *value_string = NULL;
-	static char *function                       = "esedbinfo_file_info_fprint";
-	size_t value_string_size                    = 0;
-	uint32_t file_type                          = 0;
-	uint32_t format_revision                    = 0;
-	uint32_t format_version                     = 0;
-	uint32_t column_identifier                  = 0;
-	uint32_t column_type                        = 0;
-	uint32_t index_identifier                   = 0;
-	uint32_t table_identifier                   = 0;
-	uint32_t page_size                          = 0;
-	int column_iterator                         = 0;
-	int index_iterator                          = 0;
-	int number_of_columns                       = 0;
-	int number_of_indexes                       = 0;
-	int number_of_tables                        = 0;
-	int result                                  = 0;
-	int table_iterator                          = 0;
+	libesedb_column_t *column        = NULL;
+	libesedb_index_t *index          = NULL;
+	libesedb_table_t *table          = NULL;
+	system_character_t *value_string = NULL;
+	static char *function            = "esedbinfo_file_info_fprint";
+	size_t value_string_size         = 0;
+	uint32_t file_type               = 0;
+	uint32_t format_revision         = 0;
+	uint32_t format_version          = 0;
+	uint32_t column_identifier       = 0;
+	uint32_t column_type             = 0;
+	uint32_t index_identifier        = 0;
+	uint32_t table_identifier        = 0;
+	uint32_t page_size               = 0;
+	int column_iterator              = 0;
+	int index_iterator               = 0;
+	int number_of_columns            = 0;
+	int number_of_indexes            = 0;
+	int number_of_tables             = 0;
+	int result                       = 0;
+	int table_iterator               = 0;
 
 	if( info_handle == NULL )
 	{
@@ -633,7 +635,7 @@ int info_handle_file_fprint(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_table_get_utf16_name_size(
 		          table,
 		          &value_string_size,
@@ -675,7 +677,7 @@ int info_handle_file_fprint(
 
 			return( -1 );
 		}
-		value_string = libcstring_system_string_allocate(
+		value_string = system_string_allocate(
 		                value_string_size );
 
 		if( value_string == NULL )
@@ -693,7 +695,7 @@ int info_handle_file_fprint(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_table_get_utf16_name(
 		          table,
 		          (uint16_t *) value_string,
@@ -725,7 +727,7 @@ int info_handle_file_fprint(
 		}
 		fprintf(
 		 info_handle->notify_stream,
-		 "Table: %d\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%d)\n",
+		 "Table: %d\t\t\t%" PRIs_SYSTEM " (%d)\n",
 		 table_iterator + 1,
 		 value_string,
 		 table_identifier );
@@ -733,7 +735,7 @@ int info_handle_file_fprint(
 		memory_free(
 		 value_string );
 
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_table_get_utf16_template_name_size(
 		          table,
 		          &value_string_size,
@@ -761,7 +763,7 @@ int info_handle_file_fprint(
 		}
 		if( value_string_size > 0 )
 		{
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 			                value_string_size );
 
 			if( value_string == NULL )
@@ -779,7 +781,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_table_get_utf16_template_name(
 			          table,
 			          (uint16_t *) value_string,
@@ -913,7 +915,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_column_get_utf16_name_size(
 			          column,
 			          &value_string_size,
@@ -960,7 +962,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 			                value_string_size );
 
 			if( value_string == NULL )
@@ -981,7 +983,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_column_get_utf16_name(
 			          column,
 			          (uint16_t *) value_string,
@@ -1016,7 +1018,7 @@ int info_handle_file_fprint(
 			}
 			fprintf(
 			 info_handle->notify_stream,
-			 "\t%d\t%" PRIu32 "\t%" PRIs_LIBCSTRING_SYSTEM "\t%s\n",
+			 "\t%d\t%" PRIu32 "\t%" PRIs_SYSTEM "\t%s\n",
 			 column_iterator + 1,
 			 column_identifier,
 			 value_string,
@@ -1117,7 +1119,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_index_get_utf16_name_size(
 			          index,
 			          &value_string_size,
@@ -1164,7 +1166,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 			                value_string_size );
 
 			if( value_string == NULL )
@@ -1185,7 +1187,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_index_get_utf16_name(
 			          index,
 			          (uint16_t *) value_string,
@@ -1220,7 +1222,7 @@ int info_handle_file_fprint(
 			}
 			fprintf(
 			 info_handle->notify_stream,
-			 "\tIndex: %d\t\t%" PRIs_LIBCSTRING_SYSTEM " (%" PRIu32 ")\n",
+			 "\tIndex: %d\t\t%" PRIs_SYSTEM " (%" PRIu32 ")\n",
 			 index_iterator + 1,
 			 value_string,
 			 index_identifier );
@@ -1296,7 +1298,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_index_get_utf16_name_size(
 			          index,
 			          &value_string_size,
@@ -1343,7 +1345,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-			value_string = libcstring_system_string_allocate(
+			value_string = system_string_allocate(
 			                value_string_size );
 
 			if( value_string == NULL )
@@ -1364,7 +1366,7 @@ int info_handle_file_fprint(
 
 				return( -1 );
 			}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libesedb_index_get_utf16_name(
 			          index,
 			          (uint16_t *) value_string,
@@ -1399,7 +1401,7 @@ int info_handle_file_fprint(
 			}
 			fprintf(
 			 info_handle->notify_stream,
-			 "Index: %d\t\t\t%" PRIs_LIBCSTRING_SYSTEM " (%d)\n",
+			 "Index: %d\t\t\t%" PRIs_SYSTEM " (%d)\n",
 			 index_iterator + 1,
 			 value_string,
 			 index_identifier );

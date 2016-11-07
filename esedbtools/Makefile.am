@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -34,7 +33,6 @@ esedbexport_SOURCES = \
 	esedbtools_libcfile.h \
 	esedbtools_libcnotify.h \
 	esedbtools_libcpath.h \
-	esedbtools_libcstring.h \
 	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
@@ -66,7 +64,6 @@ esedbexport_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 esedbinfo_SOURCES = \
@@ -76,7 +73,6 @@ esedbinfo_SOURCES = \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcnotify.h \
-	esedbtools_libcstring.h \
 	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
@@ -93,7 +89,6 @@ esedbinfo_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
 	@LIBINTL@
 
 MAINTAINERCLEANFILES = \

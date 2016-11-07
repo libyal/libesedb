@@ -27,7 +27,6 @@
 
 #include "pyesedb_libbfio.h"
 #include "pyesedb_libcerror.h"
-#include "pyesedb_libcstring.h"
 #include "pyesedb_python.h"
 
 #if defined( __cplusplus )

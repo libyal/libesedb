@@ -1,7 +1,6 @@
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -63,25 +62,21 @@ esedb_test_column_SOURCES = \
 
 esedb_test_column_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_error_SOURCES = \
 	esedb_test_error.c \
-	esedb_test_libcstring.h \
 	esedb_test_libesedb.h \
 	esedb_test_macros.h \
 	esedb_test_unused.h
 
 esedb_test_error_LDADD = \
-	../libesedb/libesedb.la \
-	@LIBCSTRING_LIBADD@
+	../libesedb/libesedb.la
 
 esedb_test_file_SOURCES = \
 	esedb_test_file.c \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
-	esedb_test_libcstring.h \
 	esedb_test_libcsystem.h \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
@@ -93,8 +88,7 @@ esedb_test_file_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCTHREADS_LIBADD@ \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@ \
+	@LIBCERROR_LIBADD@
 	@PTHREAD_LIBADD@
 
 esedb_test_index_SOURCES = \
@@ -108,8 +102,7 @@ esedb_test_index_SOURCES = \
 
 esedb_test_index_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_long_value_SOURCES = \
 	esedb_test_libcerror.h \
@@ -122,8 +115,7 @@ esedb_test_long_value_SOURCES = \
 
 esedb_test_long_value_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_multi_value_SOURCES = \
 	esedb_test_libcerror.h \
@@ -136,23 +128,19 @@ esedb_test_multi_value_SOURCES = \
 
 esedb_test_multi_value_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_notify_SOURCES = \
-	esedb_test_libcstring.h \
 	esedb_test_libesedb.h \
 	esedb_test_macros.h \
 	esedb_test_notify.c \
 	esedb_test_unused.h
 
 esedb_test_notify_LDADD = \
-	../libesedb/libesedb.la \
-	@LIBCSTRING_LIBADD@
+	../libesedb/libesedb.la
 
 esedb_test_open_close_SOURCES = \
 	esedb_test_libcerror.h \
-	esedb_test_libcstring.h \
 	esedb_test_libcsystem.h \
 	esedb_test_libesedb.h \
 	esedb_test_open_close.c
@@ -160,8 +148,7 @@ esedb_test_open_close_SOURCES = \
 esedb_test_open_close_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_record_SOURCES = \
 	esedb_test_libcerror.h \
@@ -174,13 +161,11 @@ esedb_test_record_SOURCES = \
 
 esedb_test_record_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_support_SOURCES = \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
-	esedb_test_libcstring.h \
 	esedb_test_libcsystem.h \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
@@ -195,8 +180,7 @@ esedb_test_support_LDADD = \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 esedb_test_table_SOURCES = \
 	esedb_test_libcerror.h \
@@ -209,8 +193,7 @@ esedb_test_table_SOURCES = \
 
 esedb_test_table_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@ \
-	@LIBCSTRING_LIBADD@
+	@LIBCERROR_LIBADD@
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

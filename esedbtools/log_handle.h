@@ -27,7 +27,6 @@
 #include <types.h>
 
 #include "esedbtools_libcerror.h"
-#include "esedbtools_libcstring.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -52,7 +51,7 @@ int log_handle_free(
 
 int log_handle_open(
      log_handle_t *log_handle,
-     const libcstring_system_character_t *filename,
+     const system_character_t *filename,
      libcerror_error_t **error );
 
 int log_handle_close(
@@ -68,5 +67,5 @@ void log_handle_printf(
 }
 #endif
 
-#endif
+#endif /* !defined( _LOG_HANDLE_H ) */
 

@@ -9,8 +9,11 @@ EXTRA_DIST = \
 	config_winapi.h \
 	file_stream.h \
 	memory.h \
+	narrow_string.h \
+	system_string.h \
 	types.h \
-	types.h.in
+	types.h.in \
+	wide_string.h
 
 MAINTAINERCLEANFILES = \
 	Makefile.in

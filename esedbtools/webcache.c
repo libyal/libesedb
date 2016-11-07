@@ -23,11 +23,13 @@
 #include <byte_stream.h>
 #include <file_stream.h>
 #include <memory.h>
+#include <narrow_string.h>
+#include <system_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libcnotify.h"
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_libuna.h"
@@ -50,7 +52,7 @@ int webcache_export_record_container(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "webcache_export_record_container";
 	size_t column_name_size = 0;
@@ -101,7 +103,7 @@ int webcache_export_record_container(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -141,7 +143,7 @@ int webcache_export_record_container(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -190,9 +192,9 @@ int webcache_export_record_container(
 		{
 			if( column_name_size == 9 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "SyncTime" ),
+				     _SYSTEM_STRING( "SyncTime" ),
 				     8 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
@@ -200,9 +202,9 @@ int webcache_export_record_container(
 			}
 			else if( column_name_size == 11 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "ExpiryTime" ),
+				     _SYSTEM_STRING( "ExpiryTime" ),
 				     10 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
@@ -210,23 +212,23 @@ int webcache_export_record_container(
 			}
 			else if( column_name_size == 13 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "AccessedTime" ),
+				     _SYSTEM_STRING( "AccessedTime" ),
 				     12 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				        _LIBCSTRING_SYSTEM_STRING( "CreationTime" ),
+				        _SYSTEM_STRING( "CreationTime" ),
 				        12 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				        column_name,
-				        _LIBCSTRING_SYSTEM_STRING( "ModifiedTime" ),
+				        _SYSTEM_STRING( "ModifiedTime" ),
 				        12 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
@@ -288,7 +290,7 @@ int webcache_export_record_containers(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	libcstring_system_character_t column_name[ 256 ];
+	system_character_t column_name[ 256 ];
 
 	static char *function   = "webcache_export_record_containers";
 	size_t column_name_size = 0;
@@ -339,7 +341,7 @@ int webcache_export_record_containers(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
 		          value_iterator,
@@ -379,7 +381,7 @@ int webcache_export_record_containers(
 
 			return( -1 );
 		}
-#if defined( LIBCSTRING_HAVE_WIDE_SYSTEM_CHARACTER )
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name(
 		          record,
 		          value_iterator,
@@ -428,16 +430,16 @@ int webcache_export_record_containers(
 		{
 			if( column_name_size == 15 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "LastAccessTime" ),
+				     _SYSTEM_STRING( "LastAccessTime" ),
 				     14 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
-				else if( libcstring_system_string_compare(
+				else if( system_string_compare(
 				          column_name,
-				          _LIBCSTRING_SYSTEM_STRING( "RequestHeaders" ),
+				          _SYSTEM_STRING( "RequestHeaders" ),
 				          14 ) == 0 )
 				{
 /* TODO */
@@ -445,9 +447,9 @@ int webcache_export_record_containers(
 			}
 			else if( column_name_size == 16 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "ResponseHeaders" ),
+				     _SYSTEM_STRING( "ResponseHeaders" ),
 				     15 ) == 0 )
 				{
 /* TODO contains property sheets for History table */
@@ -456,9 +458,9 @@ int webcache_export_record_containers(
 			}
 			else if( column_name_size == 17 )
 			{
-				if( libcstring_system_string_compare(
+				if( system_string_compare(
 				     column_name,
-				     _LIBCSTRING_SYSTEM_STRING( "LastScavengeTime" ),
+				     _SYSTEM_STRING( "LastScavengeTime" ),
 				     16 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;

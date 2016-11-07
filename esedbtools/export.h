@@ -26,7 +26,6 @@
 #include <file_stream.h>
 #include <types.h>
 
-#include "esedbtools_libcstring.h"
 #include "esedbtools_libesedb.h"
 
 #if defined( __cplusplus )
@@ -44,7 +43,7 @@ void export_narrow_text(
       FILE *stream );
 
 void export_text(
-      const libcstring_system_character_t *string,
+      const system_character_t *string,
       size_t string_size,
       FILE *stream );
 
@@ -65,5 +64,5 @@ int export_get_long_value_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _EXPORT_H ) */
 

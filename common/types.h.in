@@ -33,6 +33,32 @@
  */
 #include <@PACKAGE@/types.h>
 
+#if defined( WINAPI ) && ( defined( _UNICODE ) || defined( UNICODE ) )
+
+#define HAVE_WIDE_SYSTEM_CHARACTER 1
+
+/* The system character type is wide
+ * A system string contains either UTF-16 or UTF-32
+ */
+typedef wchar_t system_character_t;
+typedef wint_t system_integer_t;
+
+#define PRIc_SYSTEM "lc"
+#define PRIs_SYSTEM "ls"
+
+#else
+
+/* The system character type is narrow
+ * A system string contains either UTF-8 or extended ASCII with a codepage
+ */
+typedef char system_character_t;
+typedef int system_integer_t;
+
+#define PRIc_SYSTEM "c"
+#define PRIs_SYSTEM "s"
+
+#endif /* defined( WINAPI ) && ( defined( _UNICODE ) || defined( UNICODE ) ) */
+
 /* Fix for systems without PRI definitions
  */
 #if !defined( PRId8 )

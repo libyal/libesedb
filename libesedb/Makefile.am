@@ -2,7 +2,6 @@ AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(datadir)/locale\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/common \
-	@LIBCSTRING_CPPFLAGS@ \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -51,7 +50,6 @@ libesedb_la_SOURCES = \
 	libesedb_libcerror.h \
 	libesedb_libclocale.h \
 	libesedb_libcnotify.h \
-	libesedb_libcstring.h \
 	libesedb_libfcache.h \
 	libesedb_libfdata.h \
 	libesedb_libfvalue.h \
@@ -71,7 +69,6 @@ libesedb_la_SOURCES = \
 	libesedb_value_data_handle.c libesedb_value_data_handle.h
 
 libesedb_la_LIBADD = \
-	@LIBCSTRING_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

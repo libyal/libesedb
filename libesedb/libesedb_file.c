@@ -21,7 +21,9 @@
 
 #include <common.h>
 #include <memory.h>
+#include <narrow_string.h>
 #include <types.h>
+#include <wide_string.h>
 
 #include "libesedb_catalog.h"
 #include "libesedb_database.h"
@@ -33,7 +35,6 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
-#include "libesedb_libcstring.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
@@ -260,6 +261,7 @@ int libesedb_file_open(
 	libbfio_handle_t *file_io_handle        = NULL;
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_open";
+	size_t filename_length                  = 0;
 
 	if( file == NULL )
 	{
@@ -337,11 +339,13 @@ int libesedb_file_open(
 		goto on_error;
 	}
 #endif
+	filename_length = narrow_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name(
 	     file_io_handle,
 	     filename,
-	     libcstring_narrow_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
@@ -397,6 +401,7 @@ int libesedb_file_open_wide(
 	libbfio_handle_t *file_io_handle        = NULL;
 	libesedb_internal_file_t *internal_file = NULL;
 	static char *function                   = "libesedb_file_open_wide";
+	size_t filename_length                  = 0;
 
 	if( file == NULL )
 	{
@@ -474,11 +479,13 @@ int libesedb_file_open_wide(
 		goto on_error;
 	}
 #endif
+	filename_length = wide_string_length(
+	                   filename );
+
 	if( libbfio_file_set_name_wide(
 	     file_io_handle,
 	     filename,
-	     libcstring_wide_string_length(
-	      filename ) + 1,
+	     filename_length + 1,
 	     error ) != 1 )
 	{
                 libcerror_error_set(
