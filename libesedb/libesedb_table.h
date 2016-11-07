@@ -207,5 +207,5 @@ int libesedb_table_get_record(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_TABLE_H ) */
 

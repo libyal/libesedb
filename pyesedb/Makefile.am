@@ -39,7 +39,7 @@ pyesedb_la_SOURCES = \
 	pyesedb_value_flags.c pyesedb_value_flags.h
 
 pyesedb_la_LIBADD = \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \

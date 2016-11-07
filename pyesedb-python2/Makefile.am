@@ -49,7 +49,7 @@ pyexec_LTLIBRARIES = pyesedb.la
 nodist_pyesedb_la_SOURCES = $(BUILT_SOURCES)
 
 pyesedb_la_LIBADD = \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCDATA_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
