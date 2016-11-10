@@ -142,5 +142,5 @@ struct esedb_extended_page_header
 }
 #endif
 
-#endif
+#endif /* !defined( _ESEDB_PAGE_H ) */
 

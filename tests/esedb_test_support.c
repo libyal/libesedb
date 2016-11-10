@@ -808,7 +808,7 @@ int main(
 
 #if defined( LIBESEDB_HAVE_BFIO )
 
-		/* TODO add test for libesedb_file_open_file_io_handle */
+		/* TODO add test for libesedb_check_file_file_io_handle */
 
 #endif /* defined( LIBESEDB_HAVE_BFIO ) */
 	}

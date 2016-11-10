@@ -51,5 +51,5 @@ int libesedb_i18n_initialize(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_I18N_H ) */
 

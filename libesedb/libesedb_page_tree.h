@@ -130,5 +130,5 @@ int libesedb_page_tree_read_leaf_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_PAGE_TREE_H ) */
 

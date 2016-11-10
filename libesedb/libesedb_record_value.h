@@ -57,5 +57,5 @@ int libesedb_record_value_get_utf16_string(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_RECORD_VALUE_H ) */
 

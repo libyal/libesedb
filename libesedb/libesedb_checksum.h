@@ -51,5 +51,5 @@ int libesedb_checksum_calculate_little_endian_xor32(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_CHECKSUM_H ) */
 

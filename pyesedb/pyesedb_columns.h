@@ -92,5 +92,5 @@ PyObject *pyesedb_columns_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_COLUMNS_H ) */
 

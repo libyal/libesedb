@@ -188,5 +188,5 @@ int libesedb_file_get_table_by_utf16_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INTERNAL_FILE_H ) */
 

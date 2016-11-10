@@ -176,5 +176,5 @@ int libesedb_page_get_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_PAGE_H ) */
 

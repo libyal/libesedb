@@ -92,5 +92,5 @@ PyObject *pyesedb_tables_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_TABLES_H ) */
 

@@ -63,5 +63,5 @@ int libesedb_database_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_DATABASE_H ) */
 

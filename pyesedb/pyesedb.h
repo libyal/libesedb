@@ -57,5 +57,5 @@ PyMODINIT_FUNC initpyesedb(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_H ) */
 

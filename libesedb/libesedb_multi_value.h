@@ -209,5 +209,5 @@ int libesedb_multi_value_get_value_binary_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INTERNAL_MULTI_VALUE_H ) */
 

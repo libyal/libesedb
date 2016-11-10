@@ -81,5 +81,5 @@ int libesedb_debug_print_read_offsets(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_DEBUG_H ) */
 

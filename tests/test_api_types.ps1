@@ -1,6 +1,6 @@
 # Library API type testing script
 #
-# Version: 20161107
+# Version: 20161110
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -10,8 +10,8 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestTypes = "column file index long_value multi_value record table"
-$TestTypes = ${TestTypes} -split " "
+$TestTypes = "catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page record table"
+$TestTypesWithInput = "file"
 
 $TestToolDirectory = "..\msvscpp\Release"
 
@@ -55,7 +55,17 @@ If (-Not (Test-Path ${TestToolDirectory}))
 
 $Result = ${ExitIgnore}
 
-Foreach (${TestType} in ${TestTypes})
+Foreach (${TestType} in ${TestTypes} -split " ")
+{
+	$Result = TestAPIType ${TestType}
+
+	If (${Result} -ne ${ExitSuccess})
+	{
+		Break
+	}
+}
+
+Foreach (${TestType} in ${TestTypesWithInput} -split " ")
 {
 	$Result = TestAPIType ${TestType}
 

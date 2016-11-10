@@ -78,5 +78,5 @@ int libesedb_check_file_signature_file_io_handle(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_SUPPORT_H ) */
 

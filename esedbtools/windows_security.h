@@ -64,5 +64,5 @@ int windows_security_export_record_smtblsection(
 }
 #endif
 
-#endif
+#endif /* !defined( _WINDOWS_SECURITY_H ) */
 

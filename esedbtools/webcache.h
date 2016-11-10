@@ -50,5 +50,5 @@ int webcache_export_record_containers(
 }
 #endif
 
-#endif
+#endif /* !defined( _WEBCACHE_H ) */
 

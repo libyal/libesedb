@@ -75,5 +75,5 @@ PyObject *pyesedb_long_value_get_data_as_string(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_LONG_VALUE_H ) */
 

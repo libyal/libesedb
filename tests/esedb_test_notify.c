@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #endif
 
-#include "esedb_test_libcerror.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_unused.h"

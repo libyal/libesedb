@@ -92,5 +92,5 @@ PyObject *pyesedb_indexes_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_INDEXES_H ) */
 

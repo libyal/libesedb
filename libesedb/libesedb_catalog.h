@@ -99,5 +99,5 @@ int libesedb_catalog_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_CATALOG_H ) */
 

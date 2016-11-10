@@ -175,5 +175,5 @@ int libesedb_index_get_record(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INDEX_H ) */
 

@@ -113,5 +113,5 @@ PyObject *pyesedb_table_get_records(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_TABLE_H ) */
 

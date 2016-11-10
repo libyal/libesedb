@@ -77,5 +77,5 @@ int libesedb_key_compare(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_KEY_H ) */
 

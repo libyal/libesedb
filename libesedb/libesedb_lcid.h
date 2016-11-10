@@ -60,5 +60,5 @@ const char *libesedb_lcid_language_tag_get_description(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_LCID_H ) */
 

@@ -126,5 +126,5 @@ int exchange_export_record_per_user_read(
 }
 #endif
 
-#endif
+#endif /* !defined( _EXPORT_EXCHANGE_H ) */
 

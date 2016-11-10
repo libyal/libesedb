@@ -348,5 +348,5 @@ struct esedb_file_header
 }
 #endif
 
-#endif
+#endif /* !defined( _ESEDB_FILE_HEADER_H ) */
 

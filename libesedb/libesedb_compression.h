@@ -100,5 +100,5 @@ int libesedb_compression_copy_to_utf16_string(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_COMPRESSION_H ) */
 

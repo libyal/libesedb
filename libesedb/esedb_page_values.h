@@ -229,5 +229,5 @@ struct esedb_data_definition
 }
 #endif
 
-#endif
+#endif /* !defined( _ESEDB_PAGE_VALUES_H ) */
 

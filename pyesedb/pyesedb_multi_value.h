@@ -89,5 +89,5 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_MULTI_VALUE_H ) */
 

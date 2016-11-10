@@ -113,5 +113,5 @@ int libesedb_data_definition_read_long_value_segment(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_DATA_DEFINITION_H ) */
 

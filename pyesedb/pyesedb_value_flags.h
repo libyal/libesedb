@@ -59,5 +59,5 @@ void pyesedb_value_flags_free(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_VALUE_FLAGS_H ) */
 

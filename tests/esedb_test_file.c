@@ -1195,11 +1195,6 @@ int main(
 	         error );
 
 		ESEDB_TEST_RUN_WITH_ARGS(
-		 "libesedb_file_open",
-		 esedb_test_file_open,
-		 file );
-
-		ESEDB_TEST_RUN_WITH_ARGS(
 		 "libesedb_file_get_number_of_tables",
 		 esedb_test_file_get_number_of_tables,
 		 file );

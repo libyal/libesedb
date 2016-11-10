@@ -91,5 +91,5 @@ int libesedb_table_definition_append_index_catalog_definition(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_TABLE_DEFINITION_H ) */
 

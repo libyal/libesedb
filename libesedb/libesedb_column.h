@@ -101,5 +101,5 @@ int libesedb_column_get_utf16_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_COLUMN_H ) */
 

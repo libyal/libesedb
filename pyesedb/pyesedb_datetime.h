@@ -44,5 +44,5 @@ PyObject *pyesedb_datetime_new_from_posix_time(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_DATETIME_H ) */
 

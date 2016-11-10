@@ -1,5 +1,6 @@
 /*
  * The extern definition
+ *
  * This header should be included in header files that export or import
  * library functions
  *
@@ -39,5 +40,5 @@
 
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_EXTERN_H ) */
 

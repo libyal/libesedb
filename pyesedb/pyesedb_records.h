@@ -91,5 +91,5 @@ PyObject *pyesedb_records_iternext(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_RECORDS_H ) */
 

@@ -133,5 +133,5 @@ PyObject *pyesedb_file_get_table_by_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_FILE_H ) */
 

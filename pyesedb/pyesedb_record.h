@@ -120,5 +120,5 @@ PyObject *pyesedb_record_get_value_data_as_long_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_RECORD_H ) */
 

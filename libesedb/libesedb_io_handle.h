@@ -125,5 +125,5 @@ int libesedb_io_handle_read_page(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_IO_HANDLE_H ) */
 

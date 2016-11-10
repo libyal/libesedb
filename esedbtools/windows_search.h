@@ -128,5 +128,5 @@ int windows_search_export_record_systemindex_gthr(
 }
 #endif
 
-#endif
+#endif /* !defined( _WINDOWS_SEARCH_H ) */
 

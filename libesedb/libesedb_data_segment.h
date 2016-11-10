@@ -83,5 +83,5 @@ int libesedb_data_segment_read_element_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_DATA_SEGMENT_H ) */
 

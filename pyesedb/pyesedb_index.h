@@ -92,5 +92,5 @@ PyObject *pyesedb_index_get_records(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_INDEX_H ) */
 

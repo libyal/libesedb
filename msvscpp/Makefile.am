@@ -1,12 +1,20 @@
 MSVSCPP_FILES = \
+	esedb_test_catalog/esedb_test_catalog.vcproj \
+	esedb_test_catalog_definition/esedb_test_catalog_definition.vcproj \
 	esedb_test_column/esedb_test_column.vcproj \
+	esedb_test_column_type/esedb_test_column_type.vcproj \
+	esedb_test_data_definition/esedb_test_data_definition.vcproj \
+	esedb_test_data_segment/esedb_test_data_segment.vcproj \
+	esedb_test_database/esedb_test_database.vcproj \
 	esedb_test_error/esedb_test_error.vcproj \
 	esedb_test_file/esedb_test_file.vcproj \
 	esedb_test_index/esedb_test_index.vcproj \
+	esedb_test_io_handle/esedb_test_io_handle.vcproj \
+	esedb_test_key/esedb_test_key.vcproj \
 	esedb_test_long_value/esedb_test_long_value.vcproj \
 	esedb_test_multi_value/esedb_test_multi_value.vcproj \
 	esedb_test_notify/esedb_test_notify.vcproj \
-	esedb_test_open_close/esedb_test_open_close.vcproj \
+	esedb_test_page/esedb_test_page.vcproj \
 	esedb_test_record/esedb_test_record.vcproj \
 	esedb_test_support/esedb_test_support.vcproj \
 	esedb_test_table/esedb_test_table.vcproj \

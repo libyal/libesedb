@@ -174,5 +174,5 @@ int libesedb_long_value_get_segment_data(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INTERNAL_LONG_VALUE_H ) */
 

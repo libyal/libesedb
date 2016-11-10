@@ -339,5 +339,5 @@ int libesedb_record_get_multi_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_INTERNAL_RECORD_H ) */
 

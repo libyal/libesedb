@@ -59,5 +59,5 @@ void pyesedb_column_types_free(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_COLUMN_TYPES_H ) */
 

@@ -60,5 +60,5 @@ const char *libesedb_column_type_get_description(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_COLUMN_TYPE_H ) */
 

@@ -79,5 +79,5 @@ PyObject *pyesedb_column_get_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _PYESEDB_COLUMN_H ) */
 

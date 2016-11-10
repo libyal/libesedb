@@ -45,5 +45,5 @@ int libesedb_value_data_handle_read_value_entries(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_VALUE_DATA_HANDLE_H ) */
 

@@ -182,5 +182,5 @@ int libesedb_catalog_definition_get_utf16_template_name(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_CATALOG_DEFINITION_H ) */
 
