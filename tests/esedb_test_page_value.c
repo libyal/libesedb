@@ -1,5 +1,5 @@
 /*
- * Library data_definition type testing program
+ * Library page_value type testing program
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,30 +33,30 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
-#include "../libesedb/libesedb_data_definition.h"
+#include "../libesedb/libesedb_page_value.h"
 
 #if defined( __GNUC__ )
 
-/* Tests the libesedb_data_definition_initialize function
+/* Tests the libesedb_page_value_initialize function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_data_definition_initialize(
+int esedb_test_page_value_initialize(
      void )
 {
-	libcerror_error_t *error                    = NULL;
-	libesedb_data_definition_t *data_definition = NULL;
-	int result                                  = 0;
+	libcerror_error_t *error          = NULL;
+	libesedb_page_value_t *page_value = NULL;
+	int result                        = 0;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
-	int number_of_malloc_fail_tests             = 1;
-	int number_of_memset_fail_tests             = 1;
-	int test_number                             = 0;
+	int number_of_malloc_fail_tests   = 1;
+	int number_of_memset_fail_tests   = 1;
+	int test_number                   = 0;
 #endif
 
 	/* Test regular cases
 	 */
-	result = libesedb_data_definition_initialize(
-	          &data_definition,
+	result = libesedb_page_value_initialize(
+	          &page_value,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -65,15 +65,15 @@ int esedb_test_data_definition_initialize(
 	 1 );
 
         ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "data_definition",
-         data_definition );
+         "page_value",
+         page_value );
 
         ESEDB_TEST_ASSERT_IS_NULL(
          "error",
          error );
 
-	result = libesedb_data_definition_free(
-	          &data_definition,
+	result = libesedb_page_value_free(
+	          &page_value,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -82,8 +82,8 @@ int esedb_test_data_definition_initialize(
 	 1 );
 
         ESEDB_TEST_ASSERT_IS_NULL(
-         "data_definition",
-         data_definition );
+         "page_value",
+         page_value );
 
         ESEDB_TEST_ASSERT_IS_NULL(
          "error",
@@ -91,7 +91,7 @@ int esedb_test_data_definition_initialize(
 
 	/* Test error cases
 	 */
-	result = libesedb_data_definition_initialize(
+	result = libesedb_page_value_initialize(
 	          NULL,
 	          &error );
 
@@ -107,10 +107,10 @@ int esedb_test_data_definition_initialize(
 	libcerror_error_free(
 	 &error );
 
-	data_definition = (libesedb_data_definition_t *) 0x12345678UL;
+	page_value = (libesedb_page_value_t *) 0x12345678UL;
 
-	result = libesedb_data_definition_initialize(
-	          &data_definition,
+	result = libesedb_page_value_initialize(
+	          &page_value,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -125,7 +125,7 @@ int esedb_test_data_definition_initialize(
 	libcerror_error_free(
 	 &error );
 
-	data_definition = NULL;
+	page_value = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
@@ -133,22 +133,22 @@ int esedb_test_data_definition_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libesedb_data_definition_initialize with malloc failing
+		/* Test libesedb_page_value_initialize with malloc failing
 		 */
 		esedb_test_malloc_attempts_before_fail = test_number;
 
-		result = libesedb_data_definition_initialize(
-		          &data_definition,
+		result = libesedb_page_value_initialize(
+		          &page_value,
 		          &error );
 
 		if( esedb_test_malloc_attempts_before_fail != -1 )
 		{
 			esedb_test_malloc_attempts_before_fail = -1;
 
-			if( data_definition != NULL )
+			if( page_value != NULL )
 			{
-				libesedb_data_definition_free(
-				 &data_definition,
+				libesedb_page_value_free(
+				 &page_value,
 				 NULL );
 			}
 		}
@@ -160,8 +160,8 @@ int esedb_test_data_definition_initialize(
 			 -1 );
 
 			ESEDB_TEST_ASSERT_IS_NULL(
-			 "data_definition",
-			 data_definition );
+			 "page_value",
+			 page_value );
 
 			ESEDB_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -175,22 +175,22 @@ int esedb_test_data_definition_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libesedb_data_definition_initialize with memset failing
+		/* Test libesedb_page_value_initialize with memset failing
 		 */
 		esedb_test_memset_attempts_before_fail = test_number;
 
-		result = libesedb_data_definition_initialize(
-		          &data_definition,
+		result = libesedb_page_value_initialize(
+		          &page_value,
 		          &error );
 
 		if( esedb_test_memset_attempts_before_fail != -1 )
 		{
 			esedb_test_memset_attempts_before_fail = -1;
 
-			if( data_definition != NULL )
+			if( page_value != NULL )
 			{
-				libesedb_data_definition_free(
-				 &data_definition,
+				libesedb_page_value_free(
+				 &page_value,
 				 NULL );
 			}
 		}
@@ -202,8 +202,8 @@ int esedb_test_data_definition_initialize(
 			 -1 );
 
 			ESEDB_TEST_ASSERT_IS_NULL(
-			 "data_definition",
-			 data_definition );
+			 "page_value",
+			 page_value );
 
 			ESEDB_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -223,19 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( data_definition != NULL )
+	if( page_value != NULL )
 	{
-		libesedb_data_definition_free(
-		 &data_definition,
+		libesedb_page_value_free(
+		 &page_value,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libesedb_data_definition_free function
+/* Tests the libesedb_page_value_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_data_definition_free(
+int esedb_test_page_value_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -243,7 +243,7 @@ int esedb_test_data_definition_free(
 
 	/* Test error cases
 	 */
-	result = libesedb_data_definition_free(
+	result = libesedb_page_value_free(
 	          NULL,
 	          &error );
 
@@ -290,20 +290,12 @@ int main(
 #if defined( __GNUC__ )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_data_definition_initialize",
-	 esedb_test_data_definition_initialize );
+	 "libesedb_page_value_initialize",
+	 esedb_test_page_value_initialize );
 
 	ESEDB_TEST_RUN(
-	 "libesedb_data_definition_free",
-	 esedb_test_data_definition_free );
-
-	/* TODO: add tests for libesedb_data_definition_read_data */
-
-	/* TODO: add tests for libesedb_data_definition_read_record */
-
-	/* TODO: add tests for libesedb_data_definition_read_long_value */
-
-	/* TODO: add tests for libesedb_data_definition_read_long_value_segment */
+	 "libesedb_page_value_free",
+	 esedb_test_page_value_free );
 
 #endif /* defined( __GNUC__ ) */
 

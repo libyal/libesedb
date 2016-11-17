@@ -233,6 +233,8 @@ int libesedb_file_signal_abort(
 
 		return( -1 );
 	}
+	internal_file = (libesedb_internal_file_t *) file;
+
 	if( internal_file->io_handle == NULL )
 	{
 		libcerror_error_set(

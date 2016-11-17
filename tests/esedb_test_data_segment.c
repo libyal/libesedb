@@ -305,6 +305,13 @@ int main(
 
 #endif /* defined( __GNUC__ ) */
 
+	/* TODO: add tests for libesedb_data_segment_get_data_size */
+
+	/* TODO: add tests for libesedb_data_segment_get_data */
+
+	/* TODO: add tests for libesedb_data_segment_read_element_data */
+
+
 	return( EXIT_SUCCESS );
 
 on_error:

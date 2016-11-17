@@ -33,6 +33,8 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
+#include "../libesedb/libesedb_long_value.h"
+
 /* Tests the libesedb_long_value_free function
  * Returns 1 if successful or 0 if not
  */
@@ -86,9 +88,43 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_long_value_initialize */
+
+#endif /* defined( __GNUC__ ) */
+
 	ESEDB_TEST_RUN(
 	 "libesedb_long_value_free",
 	 esedb_test_long_value_free );
+
+	/* TODO: add tests for libesedb_long_value_get_data_size */
+
+	/* TODO: add tests for libesedb_long_value_get_data */
+
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_long_value_get_record_value */
+
+#endif /* defined( __GNUC__ ) */
+
+	/* TODO: add tests for libesedb_long_value_get_number_of_data_segments */
+
+	/* TODO: add tests for libesedb_long_value_get_data_segment_size */
+
+	/* TODO: add tests for libesedb_long_value_get_data_segment */
+
+	/* TODO: add tests for libesedb_long_value_get_utf8_string_size */
+
+	/* TODO: add tests for libesedb_long_value_get_utf8_string */
+
+	/* TODO: add tests for libesedb_long_value_get_utf16_string_size */
+
+	/* TODO: add tests for libesedb_long_value_get_utf16_string */
+
+	/* TODO: add tests for libesedb_long_value_get_number_of_segments */
+
+	/* TODO: add tests for libesedb_long_value_get_segment_data */
 
 	return( EXIT_SUCCESS );
 

@@ -11,7 +11,7 @@ TEST_PREFIX=`dirname ${PWD}`;
 TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\).*$/\1/'`;
 
 TEST_PROFILE="lib${TEST_PREFIX}";
-TEST_TYPES="catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page record table";
+TEST_TYPES="catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page page_tree page_value record table";
 TEST_TYPES_WITH_INPUT="file";
 OPTION_SETS="";
 

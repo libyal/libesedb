@@ -182,5 +182,5 @@ extern "C" {
 }
 #endif
 
-#endif /* defined( _NARROW_STRING_H ) */
+#endif /* !defined( _NARROW_STRING_H ) */
 

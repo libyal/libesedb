@@ -1,5 +1,5 @@
 /*
- * Library column type testing program
+ * Library page_tree type testing program
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,12 +33,14 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
-#include "../libesedb/libesedb_column.h"
+#include "../libesedb/libesedb_page_tree.h"
 
-/* Tests the libesedb_column_free function
+#if defined( __GNUC__ )
+
+/* Tests the libesedb_page_tree_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_column_free(
+int esedb_test_page_tree_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -46,7 +48,7 @@ int esedb_test_column_free(
 
 	/* Test error cases
 	 */
-	result = libesedb_column_free(
+	result = libesedb_page_tree_free(
 	          NULL,
 	          &error );
 
@@ -73,6 +75,8 @@ on_error:
 	return( 0 );
 }
 
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -90,25 +94,23 @@ int main(
 
 #if defined( __GNUC__ )
 
-	/* TODO: add tests for libesedb_column_initialize */
-
-#endif /* defined( __GNUC__ ) */
+	/* TODO: add tests for libesedb_page_tree_initialize */
 
 	ESEDB_TEST_RUN(
-	 "libesedb_column_free",
-	 esedb_test_column_free );
+	 "libesedb_page_tree_free",
+	 esedb_test_page_tree_free );
 
-	/* TODO: add tests for libesedb_column_get_identifier */
+	/* TODO: add tests for libesedb_page_tree_read_root_page */
 
-	/* TODO: add tests for libesedb_column_get_type */
+	/* TODO: add tests for libesedb_page_tree_read_space_tree_page */
 
-	/* TODO: add tests for libesedb_column_get_utf8_name_size */
+	/* TODO: add tests for libesedb_page_tree_read_page */
 
-	/* TODO: add tests for libesedb_column_get_utf8_name */
+	/* TODO: add tests for libesedb_page_tree_read_node */
 
-	/* TODO: add tests for libesedb_column_get_utf16_name_size */
+	/* TODO: add tests for libesedb_page_tree_read_leaf_value */
 
-	/* TODO: add tests for libesedb_column_get_utf16_name */
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

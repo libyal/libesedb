@@ -10,7 +10,7 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestTypes = "catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page record table"
+$TestTypes = "catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page page_tree page_value record table"
 $TestTypesWithInput = "file"
 
 $TestToolDirectory = "..\msvscpp\Release"

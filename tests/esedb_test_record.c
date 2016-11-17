@@ -33,6 +33,8 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
+#include "../libesedb/libesedb_record.h"
+
 /* Tests the libesedb_record_free function
  * Returns 1 if successful or 0 if not
  */
@@ -86,9 +88,85 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_record_initialize */
+
+#endif /* defined( __GNUC__ ) */
+
 	ESEDB_TEST_RUN(
 	 "libesedb_record_free",
 	 esedb_test_record_free );
+
+	/* TODO: add tests for libesedb_record_get_number_of_values */
+
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_record_get_column_catalog_definition */
+
+#endif /* defined( __GNUC__ ) */
+
+	/* TODO: add tests for libesedb_record_get_column_identifier */
+
+	/* TODO: add tests for libesedb_record_get_column_type */
+
+	/* TODO: add tests for libesedb_record_get_utf8_column_name_size */
+
+	/* TODO: add tests for libesedb_record_get_utf8_column_name */
+
+	/* TODO: add tests for libesedb_record_get_utf16_column_name_size */
+
+	/* TODO: add tests for libesedb_record_get_utf16_column_name */
+
+	/* TODO: add tests for libesedb_record_get_value */
+
+	/* TODO: add tests for libesedb_record_get_value_data_size */
+
+	/* TODO: add tests for libesedb_record_get_value_data */
+
+	/* TODO: add tests for libesedb_record_get_value_data_flags */
+
+	/* TODO: add tests for libesedb_record_get_value_boolean */
+
+	/* TODO: add tests for libesedb_record_get_value_8bit */
+
+	/* TODO: add tests for libesedb_record_get_value_16bit */
+
+	/* TODO: add tests for libesedb_record_get_value_32bit */
+
+	/* TODO: add tests for libesedb_record_get_value_64bit */
+
+	/* TODO: add tests for libesedb_record_get_value_filetime */
+
+	/* TODO: add tests for libesedb_record_get_value_floating_point_32bit */
+
+	/* TODO: add tests for libesedb_record_get_value_floating_point_64bit */
+
+	/* TODO: add tests for libesedb_record_get_value_utf8_string_size */
+
+	/* TODO: add tests for libesedb_record_get_value_utf8_string */
+
+	/* TODO: add tests for libesedb_record_get_value_utf16_string_size */
+
+	/* TODO: add tests for libesedb_record_get_value_utf16_string */
+
+	/* TODO: add tests for libesedb_record_get_value_binary_data_size */
+
+	/* TODO: add tests for libesedb_record_get_value_binary_data */
+
+	/* TODO: add tests for libesedb_record_is_long_value */
+
+	/* TODO: add tests for libesedb_record_is_multi_value */
+
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_record_get_long_value_data_segments_list */
+
+#endif /* defined( __GNUC__ ) */
+
+	/* TODO: add tests for libesedb_record_get_long_value */
+
+	/* TODO: add tests for libesedb_record_get_multi_value */
 
 	return( EXIT_SUCCESS );
 

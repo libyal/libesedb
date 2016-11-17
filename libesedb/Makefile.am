@@ -16,7 +16,8 @@ AM_CPPFLAGS = \
 	@LIBFDATETIME_CPPFLAGS@ \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFVALUE_CPPFLAGS@ \
-	@LIBFWNT_CPPFLAGS@
+	@LIBFWNT_CPPFLAGS@ \
+	@PTHREAD_CPPFLAGS@
 
 lib_LTLIBRARIES = libesedb.la
 
@@ -59,6 +60,7 @@ libesedb_la_SOURCES = \
 	libesedb_notify.c libesedb_notify.h \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
+	libesedb_page_value.c libesedb_page_value.h \
 	libesedb_record.c libesedb_record.h \
 	libesedb_record_value.c libesedb_record_value.h \
 	libesedb_support.c libesedb_support.h \
@@ -83,7 +85,8 @@ libesedb_la_LIBADD = \
 	@LIBFDATETIME_LIBADD@ \
 	@LIBFGUID_LIBADD@ \
 	@LIBFVALUE_LIBADD@ \
-	@LIBFWNT_LIBADD@
+	@LIBFWNT_LIBADD@ \
+	@PTHREAD_LIBADD@
 
 libesedb_la_LDFLAGS = -no-undefined -version-info 1:0:0
 

@@ -33,6 +33,8 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
+#include "../libesedb/libesedb_index.h"
+
 /* Tests the libesedb_index_free function
  * Returns 1 if successful or 0 if not
  */
@@ -86,9 +88,29 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_index_initialize */
+
+#endif /* defined( __GNUC__ ) */
+
 	ESEDB_TEST_RUN(
 	 "libesedb_index_free",
 	 esedb_test_index_free );
+
+	/* TODO: add tests for libesedb_index_get_identifier */
+
+	/* TODO: add tests for libesedb_index_get_utf8_name_size */
+
+	/* TODO: add tests for libesedb_index_get_utf8_name */
+
+	/* TODO: add tests for libesedb_index_get_utf16_name_size */
+
+	/* TODO: add tests for libesedb_index_get_utf16_name */
+
+	/* TODO: add tests for libesedb_index_get_number_of_records */
+
+	/* TODO: add tests for libesedb_index_get_record */
 
 	return( EXIT_SUCCESS );
 

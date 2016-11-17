@@ -29,6 +29,7 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
+#include "libesedb_page_value.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -45,27 +46,6 @@ struct libesedb_page_tags_value
 	/* The size of the value
 	 */
 	uint16_t size;
-
-	/* The flags of the value
-	 */
-	uint8_t flags;
-};
-
-typedef struct libesedb_page_value libesedb_page_value_t;
-
-struct libesedb_page_value
-{
-	/* The reference to the page value data
-	 */
-	uint8_t *data;
-
-	/* The page value size
-	 */
-	uint16_t size;
-
-	/* The offset of the page value
-	 */
-	uint16_t offset;
 
 	/* The flags of the value
 	 */
@@ -112,14 +92,6 @@ struct libesedb_page
 	 */
 	libcdata_array_t *values_array;
 };
-
-int libesedb_page_value_initialize(
-     libesedb_page_value_t **page_value,
-     libcerror_error_t **error );
-
-int libesedb_page_value_free(
-     libesedb_page_value_t **page_value,
-     libcerror_error_t **error );
 
 int libesedb_page_tags_value_initialize(
      libesedb_page_tags_value_t **page_tags_value,

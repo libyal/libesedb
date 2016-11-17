@@ -37,185 +37,6 @@
 
 #if defined( __GNUC__ )
 
-/* Tests the libesedb_table_definition_initialize function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_table_definition_initialize(
-     void )
-{
-	libcerror_error_t *error                      = NULL;
-	libesedb_table_definition_t *table_definition = NULL;
-	int result                                    = 0;
-
-	/* Test table_definition initialization
-	 */
-	result = libesedb_table_definition_initialize(
-	          &table_definition,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "table_definition",
-         table_definition );
-
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
-
-	result = libesedb_table_definition_free(
-	          &table_definition,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "table_definition",
-         table_definition );
-
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
-
-	/* Test error cases
-	 */
-	result = libesedb_table_definition_initialize(
-	          NULL,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	table_definition = (libesedb_table_definition_t *) 0x12345678UL;
-
-	result = libesedb_table_definition_initialize(
-	          &table_definition,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	table_definition = NULL;
-
-#if defined( HAVE_ESEDB_TEST_MEMORY )
-
-	/* Test libesedb_table_definition_initialize with malloc failing
-	 */
-	esedb_test_malloc_attempts_before_fail = 0;
-
-	result = libesedb_table_definition_initialize(
-	          &table_definition,
-	          &error );
-
-	if( esedb_test_malloc_attempts_before_fail != -1 )
-	{
-		esedb_test_malloc_attempts_before_fail = -1;
-
-		if( table_definition != NULL )
-		{
-			libesedb_table_definition_free(
-			 &table_definition,
-			 NULL );
-		}
-	}
-	else
-	{
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		ESEDB_TEST_ASSERT_IS_NULL(
-		 "table_definition",
-		 table_definition );
-
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Test libesedb_table_definition_initialize with memset failing
-	 */
-	esedb_test_memset_attempts_before_fail = 0;
-
-	result = libesedb_table_definition_initialize(
-	          &table_definition,
-	          &error );
-
-	if( esedb_test_memset_attempts_before_fail != -1 )
-	{
-		esedb_test_memset_attempts_before_fail = -1;
-
-		if( table_definition != NULL )
-		{
-			libesedb_table_definition_free(
-			 &table_definition,
-			 NULL );
-		}
-	}
-	else
-	{
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		ESEDB_TEST_ASSERT_IS_NULL(
-		 "table_definition",
-		 table_definition );
-
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	if( table_definition != NULL )
-	{
-		libesedb_table_definition_free(
-		 &table_definition,
-		 NULL );
-	}
-	return( 0 );
-}
-
 /* Tests the libesedb_table_definition_free function
  * Returns 1 if successful or 0 if not
  */
@@ -273,13 +94,19 @@ int main(
 
 #if defined( __GNUC__ )
 
-	ESEDB_TEST_RUN(
-	 "libesedb_table_definition_initialize",
-	 esedb_test_table_definition_initialize );
+	/* TODO: add tests for libesedb_table_definition_initialize */
 
 	ESEDB_TEST_RUN(
 	 "libesedb_table_definition_free",
 	 esedb_test_table_definition_free );
+
+	/* TODO: add tests for libesedb_table_definition_set_long_value_catalog_definition */
+
+	/* TODO: add tests for libesedb_table_definition_set_callback_catalog_definition */
+
+	/* TODO: add tests for libesedb_table_definition_append_column_catalog_definition */
+
+	/* TODO: add tests for libesedb_table_definition_append_index_catalog_definition */
 
 #endif /* defined( __GNUC__ ) */
 

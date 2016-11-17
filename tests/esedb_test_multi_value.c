@@ -33,6 +33,8 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
+#include "../libesedb/libesedb_multi_value.h"
+
 /* Tests the libesedb_multi_value_free function
  * Returns 1 if successful or 0 if not
  */
@@ -86,9 +88,51 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( __GNUC__ )
+
+	/* TODO: add tests for libesedb_multi_value_initialize */
+
+#endif /* defined( __GNUC__ ) */
+
 	ESEDB_TEST_RUN(
 	 "libesedb_multi_value_free",
 	 esedb_test_multi_value_free );
+
+	/* TODO: add tests for libesedb_multi_value_get_column_type */
+
+	/* TODO: add tests for libesedb_multi_value_get_number_of_values */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_data_size */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_data */
+
+	/* TODO: add tests for libesedb_multi_value_get_value */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_8bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_16bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_32bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_64bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_floating_point_32bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_floating_point_64bit */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_filetime */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_utf8_string_size */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_utf8_string */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_utf16_string_size */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_utf16_string */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_binary_data_size */
+
+	/* TODO: add tests for libesedb_multi_value_get_value_binary_data */
 
 	return( EXIT_SUCCESS );
 

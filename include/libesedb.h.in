@@ -1337,5 +1337,5 @@ int libesedb_multi_value_get_value(
 }
 #endif
 
-#endif
+#endif /* !defined( _LIBESEDB_H ) */
 

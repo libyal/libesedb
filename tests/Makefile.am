@@ -62,9 +62,12 @@ check_PROGRAMS = \
 	esedb_test_multi_value \
 	esedb_test_notify \
 	esedb_test_page \
+	esedb_test_page_tree \
+	esedb_test_page_value \
 	esedb_test_record \
 	esedb_test_support \
-	esedb_test_table
+	esedb_test_table \
+	esedb_test_table_definition
 
 esedb_test_catalog_SOURCES = \
 	esedb_test_catalog.c \
@@ -208,6 +211,7 @@ esedb_test_key_SOURCES = \
 	esedb_test_key.c \
 	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
+	esedb_test_libfdata.h \
 	esedb_test_macros.h \
 	esedb_test_memory.c esedb_test_memory.h \
 	esedb_test_unused.h
@@ -261,6 +265,30 @@ esedb_test_page_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
+esedb_test_page_tree_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_page_tree.c \
+	esedb_test_unused.h
+
+esedb_test_page_tree_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_page_value_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_page_value.c \
+	esedb_test_unused.h
+
+esedb_test_page_value_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
 esedb_test_record_SOURCES = \
 	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
@@ -274,6 +302,7 @@ esedb_test_record_LDADD = \
 	@LIBCERROR_LIBADD@
 
 esedb_test_support_SOURCES = \
+	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
 	esedb_test_libcsystem.h \
@@ -284,6 +313,9 @@ esedb_test_support_SOURCES = \
 
 esedb_test_support_LDADD = \
 	@LIBCSYSTEM_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
@@ -300,6 +332,18 @@ esedb_test_table_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_table_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_table_definition_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_table_definition.c \
+	esedb_test_unused.h
+
+esedb_test_table_definition_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 

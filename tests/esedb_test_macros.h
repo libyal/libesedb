@@ -32,84 +32,84 @@
 #define ESEDB_TEST_ASSERT_EQUAL_INT( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %d\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%d) != %d\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_NOT_EQUAL_INT( name, value, expected_value ) \
 	if( value == expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s == %d\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%d) == %d\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_GREATER_THAN_INT( name, value, expected_value ) \
 	if( value <= expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s <= %d\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%d) <= %d\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_LESS_THAN_INT( name, value, expected_value ) \
 	if( value >= expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s >= %d\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%d) >= %d\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_SIZE( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIzd "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIzd ") != %" PRIzd "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_SSIZE( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIzd "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIzd ") != %" PRIzd "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_INT32( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIi32 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIi32 ") != %" PRIi32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_UINT32( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIu32 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIi32 ") != %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_LESS_THAN_UINT32( name, value, expected_value ) \
 	if( value >= expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s >= %" PRIu32 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIi32 ") >= %" PRIu32 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_INT64( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIi64 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIi64 ") != %" PRIi64 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_EQUAL_UINT64( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s != %" PRIu64 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIu64 ") != %" PRIu64 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 
 #define ESEDB_TEST_ASSERT_LESS_THAN_UINT64( name, value, expected_value ) \
 	if( value >= expected_value ) \
 	{ \
-		fprintf( stdout, "%s:%d %s >= %" PRIu64 "\n", __FILE__, __LINE__, name, expected_value ); \
+		fprintf( stdout, "%s:%d %s (%" PRIu64 ") >= %" PRIu64 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 

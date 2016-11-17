@@ -38,7 +38,7 @@
 #include "esedb_test_macros.h"
 #include "esedb_test_memory.h"
 
-#if SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER ) && SIZEOF_WCHAR_T != 2 && SIZEOF_WCHAR_T != 4
 #error Unsupported size of wchar_t
 #endif
 
@@ -256,8 +256,8 @@ int esedb_test_file_get_wide_source(
      libcerror_error_t **error )
 {
 	static char *function   = "esedb_test_file_get_wide_source";
-	size_t wide_source_size = 0;
 	size_t source_length    = 0;
+	size_t wide_source_size = 0;
 
 #if !defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	int result              = 0;
@@ -584,11 +584,17 @@ int esedb_test_file_close_source(
 int esedb_test_file_initialize(
      void )
 {
-	libcerror_error_t *error = NULL;
-	libesedb_file_t *file    = NULL;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libesedb_file_t *file           = NULL;
+	int result                      = 0;
 
-	/* Test libesedb_file_initialize
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Test regular cases
 	 */
 	result = libesedb_file_initialize(
 	          &file,
@@ -664,79 +670,89 @@ int esedb_test_file_initialize(
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
-	/* Test libesedb_file_initialize with malloc failing
-	 */
-	esedb_test_malloc_attempts_before_fail = 0;
-
-	result = libesedb_file_initialize(
-	          &file,
-	          &error );
-
-	if( esedb_test_malloc_attempts_before_fail != -1 )
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
 	{
-		esedb_test_malloc_attempts_before_fail = -1;
+		/* Test libesedb_file_initialize with malloc failing
+		 */
+		esedb_test_malloc_attempts_before_fail = test_number;
 
-		if( file != NULL )
+		result = libesedb_file_initialize(
+		          &file,
+		          &error );
+
+		if( esedb_test_malloc_attempts_before_fail != -1 )
 		{
-			libesedb_file_free(
-			 &file,
-			 NULL );
+			esedb_test_malloc_attempts_before_fail = -1;
+
+			if( file != NULL )
+			{
+				libesedb_file_free(
+				 &file,
+				 NULL );
+			}
+		}
+		else
+		{
+			ESEDB_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			ESEDB_TEST_ASSERT_IS_NULL(
+			 "file",
+			 file );
+
+			ESEDB_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
 		}
 	}
-	else
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
 	{
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		/* Test libesedb_file_initialize with memset failing
+		 */
+		esedb_test_memset_attempts_before_fail = test_number;
 
-		ESEDB_TEST_ASSERT_IS_NULL(
-		 "file",
-		 file );
+		result = libesedb_file_initialize(
+		          &file,
+		          &error );
 
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Test libesedb_file_initialize with memset failing
-	 */
-	esedb_test_memset_attempts_before_fail = 0;
-
-	result = libesedb_file_initialize(
-	          &file,
-	          &error );
-
-	if( esedb_test_memset_attempts_before_fail != -1 )
-	{
-		esedb_test_memset_attempts_before_fail = -1;
-
-		if( file != NULL )
+		if( esedb_test_memset_attempts_before_fail != -1 )
 		{
-			libesedb_file_free(
-			 &file,
-			 NULL );
+			esedb_test_memset_attempts_before_fail = -1;
+
+			if( file != NULL )
+			{
+				libesedb_file_free(
+				 &file,
+				 NULL );
+			}
 		}
-	}
-	else
-	{
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+		else
+		{
+			ESEDB_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
 
-		ESEDB_TEST_ASSERT_IS_NULL(
-		 "file",
-		 file );
+			ESEDB_TEST_ASSERT_IS_NULL(
+			 "file",
+			 file );
 
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+			ESEDB_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
 
-		libcerror_error_free(
-		 &error );
+			libcerror_error_free(
+			 &error );
+		}
 	}
 #endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
 
@@ -795,7 +811,7 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libesedb_file_open functions
+/* Tests the libesedb_file_open function
  * Returns 1 if successful or 0 if not
  */
 int esedb_test_file_open(
@@ -858,21 +874,28 @@ int esedb_test_file_open(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libesedb_file_close(
+	result = libesedb_file_open(
 	          file,
+	          narrow_source,
+	          LIBESEDB_OPEN_READ,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libesedb_file_free(
 	          &file,
 	          &error );
@@ -909,7 +932,7 @@ on_error:
 
 #if defined( HAVE_WIDE_CHARACTER_TYPE )
 
-/* Tests the libesedb_file_open_wide functions
+/* Tests the libesedb_file_open_wide function
  * Returns 1 if successful or 0 if not
  */
 int esedb_test_file_open_wide(
@@ -972,21 +995,28 @@ int esedb_test_file_open_wide(
          "error",
          error );
 
-	/* Clean up
+	/* Test error cases
 	 */
-	result = libesedb_file_close(
+	result = libesedb_file_open_wide(
 	          file,
+	          wide_source,
+	          LIBESEDB_OPEN_READ,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 0 );
+	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
          "error",
          error );
 
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
 	result = libesedb_file_free(
 	          &file,
 	          &error );
@@ -1023,51 +1053,18 @@ on_error:
 
 #endif /* defined( HAVE_WIDE_CHARACTER_TYPE ) */
 
-/* Tests the libesedb_file_get_number_of_tables functions
+/* Tests the libesedb_file_close function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_file_get_number_of_tables(
-     libesedb_file_t *file )
+int esedb_test_file_close(
+     void )
 {
 	libcerror_error_t *error = NULL;
-	int number_of_tables     = 0;
 	int result               = 0;
-
-	result = libesedb_file_get_number_of_tables(
-	          file,
-	          &number_of_tables,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
 
 	/* Test error cases
 	 */
-	result = libesedb_file_get_number_of_tables(
-	          NULL,
-	          &number_of_tables,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
-
-	libcerror_error_free(
-	 &error );
-
-	result = libesedb_file_get_number_of_tables(
-	          file,
+	result = libesedb_file_close(
 	          NULL,
 	          &error );
 
@@ -1094,6 +1091,434 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_file_open and libesedb_file_close functions
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_file_open_close(
+     const system_character_t *source )
+{
+	libcerror_error_t *error = NULL;
+	libesedb_file_t *file    = NULL;
+	int result               = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_file_initialize(
+	          &file,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
+         "file",
+         file );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libesedb_file_open_wide(
+	          file,
+	          source,
+	          LIBESEDB_OPEN_READ,
+	          &error );
+#else
+	result = libesedb_file_open(
+	          file,
+	          source,
+	          LIBESEDB_OPEN_READ,
+	          &error );
+#endif
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libesedb_file_close(
+	          file,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test open and close a second time to validate clean up on close
+	 */
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+	result = libesedb_file_open_wide(
+	          file,
+	          source,
+	          LIBESEDB_OPEN_READ,
+	          &error );
+#else
+	result = libesedb_file_open(
+	          file,
+	          source,
+	          LIBESEDB_OPEN_READ,
+	          &error );
+#endif
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	result = libesedb_file_close(
+	          file,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Clean up
+	 */
+	result = libesedb_file_free(
+	          &file,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "file",
+         file );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( file != NULL )
+	{
+		libesedb_file_free(
+		 &file,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_file_signal_abort function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_file_signal_abort(
+     libesedb_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_file_signal_abort(
+	          file,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+        ESEDB_TEST_ASSERT_IS_NULL(
+         "error",
+         error );
+
+	/* Test error cases
+	 */
+	result = libesedb_file_signal_abort(
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+        ESEDB_TEST_ASSERT_IS_NOT_NULL(
+         "error",
+         error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_file_get_type function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_file_get_type(
+     libesedb_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t type            = 0;
+	int result               = 0;
+	int type_is_set          = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_file_get_type(
+	          file,
+	          &type,
+	          &error );
+
+	ESEDB_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	type_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libesedb_file_get_type(
+	          NULL,
+	          &type,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( type_is_set != 0 )
+	{
+		result = libesedb_file_get_type(
+		          file,
+		          NULL,
+		          &error );
+
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_file_get_page_size function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_file_get_page_size(
+     libesedb_file_t *file )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t page_size       = 0;
+	int page_size_is_set     = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_file_get_page_size(
+	          file,
+	          &page_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	page_size_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libesedb_file_get_page_size(
+	          NULL,
+	          &page_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( page_size_is_set != 0 )
+	{
+		result = libesedb_file_get_page_size(
+		          file,
+		          NULL,
+		          &error );
+
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_file_get_number_of_tables function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_file_get_number_of_tables(
+     libesedb_file_t *file )
+{
+	libcerror_error_t *error    = NULL;
+	int number_of_tables        = 0;
+	int number_of_tables_is_set = 0;
+	int result                  = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_file_get_number_of_tables(
+	          file,
+	          &number_of_tables,
+	          &error );
+
+	ESEDB_TEST_ASSERT_NOT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	number_of_tables_is_set = result;
+
+	/* Test error cases
+	 */
+	result = libesedb_file_get_number_of_tables(
+	          NULL,
+	          &number_of_tables,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	if( number_of_tables_is_set != 0 )
+	{
+		result = libesedb_file_get_number_of_tables(
+		          file,
+		          NULL,
+		          &error );
+
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -1107,8 +1532,8 @@ int main(
 #endif
 {
 	libcerror_error_t *error   = NULL;
-	system_character_t *source = NULL;
 	libesedb_file_t *file      = NULL;
+	system_character_t *source = NULL;
 	system_integer_t option    = 0;
 	int result                 = 0;
 
@@ -1172,7 +1597,14 @@ int main(
 
 #endif /* defined( LIBESEDB_HAVE_BFIO ) */
 
-		/* TODO add test for libesedb_file_close */
+		ESEDB_TEST_RUN(
+		 "libesedb_file_close",
+		 esedb_test_file_close );
+
+		ESEDB_TEST_RUN_WITH_ARGS(
+		 "libesedb_file_open_close",
+		 esedb_test_file_open_close,
+		 source );
 
 		/* Initialize test
 		 */
@@ -1195,9 +1627,40 @@ int main(
 	         error );
 
 		ESEDB_TEST_RUN_WITH_ARGS(
+		 "libesedb_file_signal_abort",
+		 esedb_test_file_signal_abort,
+		 file );
+
+#if defined( __GNUC__ )
+
+		/* TODO: add tests for libesedb_file_open_read */
+
+#endif /* defined( __GNUC__ ) */
+
+		ESEDB_TEST_RUN_WITH_ARGS(
+		 "libesedb_file_get_type",
+		 esedb_test_file_get_type,
+		 file );
+
+		/* TODO: add tests for libesedb_file_get_format_version */
+
+		/* TODO: add tests for libesedb_file_get_creation_format_version */
+
+		ESEDB_TEST_RUN_WITH_ARGS(
+		 "libesedb_file_get_page_size",
+		 esedb_test_file_get_page_size,
+		 file );
+
+		ESEDB_TEST_RUN_WITH_ARGS(
 		 "libesedb_file_get_number_of_tables",
 		 esedb_test_file_get_number_of_tables,
 		 file );
+
+		/* TODO: add tests for libesedb_file_get_table */
+
+		/* TODO: add tests for libesedb_file_get_table_by_utf8_name */
+
+		/* TODO: add tests for libesedb_file_get_table_by_utf16_name */
 
 		/* Clean up
 		 */

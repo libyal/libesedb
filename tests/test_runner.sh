@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20161105
+# Version: 20161115
 #
 # When CHECK_WITH_GDB is set to a non-empty value the test executable
 # is run with gdb, otherwise it is run without.
@@ -1049,6 +1049,8 @@ run_test_on_input_directory()
 			while read -r INPUT_FILE;
 			do
 				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+				RESULT=$?;
+
 				if test ${RESULT} -ne ${EXIT_SUCCESS};
 				then
 					return ${RESULT};
@@ -1058,6 +1060,8 @@ run_test_on_input_directory()
 			while read -r INPUT_FILE;
 			do
 				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
+				RESULT=$?;
+
 				if test ${RESULT} -ne ${EXIT_SUCCESS};
 				then
 					return ${RESULT};
