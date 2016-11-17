@@ -21,6 +21,7 @@ pyesedb_la_SOURCES = \
 	pyesedb_error.c pyesedb_error.h \
 	pyesedb_file.c pyesedb_file.h \
 	pyesedb_file_object_io_handle.c pyesedb_file_object_io_handle.h \
+	pyesedb_file_types.c pyesedb_file_types.h \
 	pyesedb_index.c pyesedb_index.h \
 	pyesedb_indexes.c pyesedb_indexes.h \
 	pyesedb_integer.c pyesedb_integer.h \

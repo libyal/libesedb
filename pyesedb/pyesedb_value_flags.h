@@ -50,10 +50,10 @@ PyObject *pyesedb_value_flags_new(
            void );
 
 int pyesedb_value_flags_init(
-     pyesedb_value_flags_t *pyesedb_value_flags );
+     pyesedb_value_flags_t *definitions_object );
 
 void pyesedb_value_flags_free(
-      pyesedb_value_flags_t *pyesedb_value_flags );
+      pyesedb_value_flags_t *definitions_object );
 
 #if defined( __cplusplus )
 }

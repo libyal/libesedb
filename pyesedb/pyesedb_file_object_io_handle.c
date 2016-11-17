@@ -211,8 +211,8 @@ int pyesedb_file_object_io_handle_free(
      pyesedb_file_object_io_handle_t **file_object_io_handle,
      libcerror_error_t **error )
 {
-	PyGILState_STATE gil_state = 0;
 	static char *function      = "pyesedb_file_object_io_handle_free";
+	PyGILState_STATE gil_state = 0;
 
 	if( file_object_io_handle == NULL )
 	{
@@ -422,8 +422,8 @@ ssize_t pyesedb_file_object_read_buffer(
 	PyObject *argument_size    = NULL;
 	PyObject *method_name      = NULL;
 	PyObject *method_result    = NULL;
-	char *safe_buffer          = NULL;
 	static char *function      = "pyesedb_file_object_read_buffer";
+	char *safe_buffer          = NULL;
 	Py_ssize_t safe_read_count = 0;
 	ssize_t read_count         = 0;
 	int result                 = 0;
@@ -1375,8 +1375,8 @@ int pyesedb_file_object_io_handle_get_size(
 {
 	PyObject *method_name      = NULL;
 	static char *function      = "pyesedb_file_object_io_handle_get_size";
-	off64_t current_offset     = 0;
 	PyGILState_STATE gil_state = 0;
+	off64_t current_offset     = 0;
 	int result                 = 0;
 
 	if( file_object_io_handle == NULL )

@@ -50,10 +50,10 @@ PyObject *pyesedb_column_types_new(
            void );
 
 int pyesedb_column_types_init(
-     pyesedb_column_types_t *pyesedb_column_types );
+     pyesedb_column_types_t *definitions_object );
 
 void pyesedb_column_types_free(
-      pyesedb_column_types_t *pyesedb_column_types );
+      pyesedb_column_types_t *definitions_object );
 
 #if defined( __cplusplus )
 }

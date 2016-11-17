@@ -1,5 +1,5 @@
 /*
- * The libbfio header wrapper
+ * Python object definition of the libesedb file types
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,36 +19,45 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYESEDB_LIBBFIO_H )
-#define _PYESEDB_LIBBFIO_H
+#if !defined( _PYESEDB_FILE_TYPES_H )
+#define _PYESEDB_FILE_TYPES_H
 
 #include <common.h>
+#include <types.h>
 
-/* Define HAVE_LOCAL_LIBBFIO for local use of libbfio
- */
-#if defined( HAVE_LOCAL_LIBBFIO )
+#include "pyesedb_libesedb.h"
+#include "pyesedb_python.h"
 
-#include <libbfio_definitions.h>
-#include <libbfio_file.h>
-#include <libbfio_file_pool.h>
-#include <libbfio_file_range.h>
-#include <libbfio_handle.h>
-#include <libbfio_memory_range.h>
-#include <libbfio_pool.h>
-#include <libbfio_types.h>
-
-#else
-
-/* If libtool DLL support is enabled set LIBBFIO_DLL_IMPORT
- * before including libbfio.h
- */
-#if defined( _WIN32 ) && defined( DLL_IMPORT )
-#define LIBBFIO_DLL_IMPORT
+#if defined( __cplusplus )
+extern "C" {
 #endif
 
-#include <libbfio.h>
+typedef struct pyesedb_file_types pyesedb_file_types_t;
 
-#endif /* defined( HAVE_LOCAL_LIBBFIO ) */
+struct pyesedb_file_types
+{
+	/* Python object initialization
+	 */
+	PyObject_HEAD
+};
 
-#endif /* !defined( _PYESEDB_LIBBFIO_H ) */
+extern PyTypeObject pyesedb_file_types_type_object;
+
+int pyesedb_file_types_init_type(
+     PyTypeObject *type_object );
+
+PyObject *pyesedb_file_types_new(
+           void );
+
+int pyesedb_file_types_init(
+     pyesedb_file_types_t *definitions_object );
+
+void pyesedb_file_types_free(
+      pyesedb_file_types_t *definitions_object );
+
+#if defined( __cplusplus )
+}
+#endif
+
+#endif /* !defined( _PYESEDB_FILE_TYPES_H ) */
 

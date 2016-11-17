@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb value flags
+ * Python object definition of the libesedb file types
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,22 +26,22 @@
 #include <stdlib.h>
 #endif
 
-#include "pyesedb_value_flags.h"
+#include "pyesedb_file_types.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 #include "pyesedb_unused.h"
 
-PyTypeObject pyesedb_value_flags_type_object = {
+PyTypeObject pyesedb_file_types_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pyesedb.value_flags",
+	"pyesedb.file_types",
 	/* tp_basicsize */
-	sizeof( pyesedb_value_flags_t ),
+	sizeof( pyesedb_file_types_t ),
 	/* tp_itemsize */
 	0,
 	/* tp_dealloc */
-	(destructor) pyesedb_value_flags_free,
+	(destructor) pyesedb_file_types_free,
 	/* tp_print */
 	0,
 	/* tp_getattr */
@@ -73,7 +73,7 @@ PyTypeObject pyesedb_value_flags_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT,
 	/* tp_doc */
-	"pyesedb value flags object (wraps LIBESEDB_VALUE_FLAGS)",
+	"pyesedb file types object (wraps LIBESEDB_FILE_TYPES)",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -103,7 +103,7 @@ PyTypeObject pyesedb_value_flags_type_object = {
 	/* tp_dictoffset */
 	0,
 	/* tp_init */
-	(initproc) pyesedb_value_flags_init,
+	(initproc) pyesedb_file_types_init,
 	/* tp_alloc */
 	0,
 	/* tp_new */
@@ -129,7 +129,7 @@ PyTypeObject pyesedb_value_flags_type_object = {
 /* Initializes the type object
  * Returns 1 if successful or -1 on error
  */
-int pyesedb_value_flags_init_type(
+int pyesedb_file_types_init_type(
      PyTypeObject *type_object )
 {
 	PyObject *value_object = NULL;
@@ -146,56 +146,28 @@ int pyesedb_value_flags_init_type(
 	}
 #if PY_MAJOR_VERSION >= 3
 	value_object = PyLong_FromLong(
-	                LIBESEDB_VALUE_FLAG_VARIABLE_SIZE );
+	                LIBESEDB_FILE_TYPE_DATABASE );
 #else
 	value_object = PyInt_FromLong(
-	                LIBESEDB_VALUE_FLAG_VARIABLE_SIZE );
+	                LIBESEDB_FILE_TYPE_DATABASE );
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "VARIABLE_SIZE",
+	     "DATABASE",
 	     value_object ) != 0 )
 	{
 		goto on_error;
 	}
 #if PY_MAJOR_VERSION >= 3
 	value_object = PyLong_FromLong(
-	                LIBESEDB_VALUE_FLAG_COMPRESSED );
+	                LIBESEDB_FILE_TYPE_STREAMING_FILE );
 #else
 	value_object = PyInt_FromLong(
-	                LIBESEDB_VALUE_FLAG_COMPRESSED );
+	                LIBESEDB_FILE_TYPE_STREAMING_FILE );
 #endif
 	if( PyDict_SetItemString(
 	     type_object->tp_dict,
-	     "COMPRESSED",
-	     value_object ) != 0 )
-	{
-		goto on_error;
-	}
-#if PY_MAJOR_VERSION >= 3
-	value_object = PyLong_FromLong(
-	                LIBESEDB_VALUE_FLAG_LONG_VALUE );
-#else
-	value_object = PyInt_FromLong(
-	                LIBESEDB_VALUE_FLAG_LONG_VALUE );
-#endif
-	if( PyDict_SetItemString(
-	     type_object->tp_dict,
-	     "LONG_VALUE",
-	     value_object ) != 0 )
-	{
-		goto on_error;
-	}
-#if PY_MAJOR_VERSION >= 3
-	value_object = PyLong_FromLong(
-	                LIBESEDB_VALUE_FLAG_MULTI_VALUE );
-#else
-	value_object = PyInt_FromLong(
-	                LIBESEDB_VALUE_FLAG_MULTI_VALUE );
-#endif
-	if( PyDict_SetItemString(
-	     type_object->tp_dict,
-	     "MULTI_VALUE",
+	     "STREAMING_FILE",
 	     value_object ) != 0 )
 	{
 		goto on_error;
@@ -213,18 +185,18 @@ on_error:
 	return( -1 );
 }
 
-/* Creates a new value flags object
+/* Creates a new file types object
  * Returns a Python object if successful or NULL on error
  */
-PyObject *pyesedb_value_flags_new(
+PyObject *pyesedb_file_types_new(
            void )
 {
-	pyesedb_value_flags_t *definitions_object = NULL;
-	static char *function                     = "pyesedb_value_flags_new";
+	pyesedb_file_types_t *definitions_object = NULL;
+	static char *function                    = "pyesedb_file_types_new";
 
 	definitions_object = PyObject_New(
-	                      struct pyesedb_value_flags,
-	                      &pyesedb_value_flags_type_object );
+	                      struct pyesedb_file_types,
+	                      &pyesedb_file_types_type_object );
 
 	if( definitions_object == NULL )
 	{
@@ -235,7 +207,7 @@ PyObject *pyesedb_value_flags_new(
 
 		goto on_error;
 	}
-	if( pyesedb_value_flags_init(
+	if( pyesedb_file_types_init(
 	     definitions_object ) != 0 )
 	{
 		PyErr_Format(
@@ -256,13 +228,13 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a value flags object
+/* Intializes a file types object
  * Returns 0 if successful or -1 on error
  */
-int pyesedb_value_flags_init(
-     pyesedb_value_flags_t *definitions_object )
+int pyesedb_file_types_init(
+     pyesedb_file_types_t *definitions_object )
 {
-	static char *function = "pyesedb_value_flags_init";
+	static char *function = "pyesedb_file_types_init";
 
 	if( definitions_object == NULL )
 	{
@@ -276,13 +248,13 @@ int pyesedb_value_flags_init(
 	return( 0 );
 }
 
-/* Frees a value flags object
+/* Frees a file types object
  */
-void pyesedb_value_flags_free(
-      pyesedb_value_flags_t *definitions_object )
+void pyesedb_file_types_free(
+      pyesedb_file_types_t *definitions_object )
 {
 	struct _typeobject *ob_type = NULL;
-	static char *function       = "pyesedb_value_flags_free";
+	static char *function       = "pyesedb_file_types_free";
 
 	if( definitions_object == NULL )
 	{

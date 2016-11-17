@@ -1,5 +1,5 @@
 /*
- * Python object definition of the tables sequence and iterator
+ * Python object definition of the sequence and iterator object of tables
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pyesedb_file.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 
@@ -41,19 +40,19 @@ struct pyesedb_tables
 	 */
 	PyObject_HEAD
 
-	/* The file object
+	/* The parent object
 	 */
-	pyesedb_file_t *file_object;
+	PyObject *parent_object;
 
 	/* The get table by index callback function
 	 */
 	PyObject* (*get_table_by_index)(
-	             pyesedb_file_t *file_object,
-	             int table_entry );
+	             PyObject *parent_object,
+	             int table_index );
 
-	/* The (current) table entry
+	/* The (current) table index
 	 */
-	int table_entry;
+	int table_index;
 
 	/* The number of tables
 	 */
@@ -63,10 +62,10 @@ struct pyesedb_tables
 extern PyTypeObject pyesedb_tables_type_object;
 
 PyObject *pyesedb_tables_new(
-           pyesedb_file_t *file_object,
+           PyObject *parent_object,
            PyObject* (*get_table_by_index)(
-                        pyesedb_file_t *file_object,
-                        int table_entry ),
+                        PyObject *parent_object,
+                        int table_index ),
            int number_of_tables );
 
 int pyesedb_tables_init(

@@ -267,7 +267,7 @@ void VARARGS(
 	 &exception_traceback );
 
 	string_object = PyObject_Repr(
-			    exception_value );
+	                 exception_value );
 
 #if PY_MAJOR_VERSION >= 3
 	utf8_string_object = PyUnicode_AsUTF8String(

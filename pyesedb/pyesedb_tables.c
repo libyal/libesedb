@@ -1,5 +1,5 @@
 /*
- * Python object definition of the tables sequence and iterator
+ * Python object definition of the sequence and iterator object of tables
  *
  * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #endif
 
-#include "pyesedb_file.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
@@ -98,7 +97,7 @@ PyTypeObject pyesedb_tables_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyesedb tables sequence and iterator object",
+	"pyesedb internal sequence and iterator object of tables",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,20 +154,20 @@ PyTypeObject pyesedb_tables_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_tables_new(
-           pyesedb_file_t *file_object,
+           PyObject *parent_object,
            PyObject* (*get_table_by_index)(
-                        pyesedb_file_t *file_object,
-                        int table_entry ),
+                        PyObject *parent_object,
+                        int table_index ),
            int number_of_tables )
 {
 	pyesedb_tables_t *pyesedb_tables = NULL;
 	static char *function            = "pyesedb_tables_new";
 
-	if( file_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid file object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
@@ -207,12 +206,12 @@ PyObject *pyesedb_tables_new(
 
 		goto on_error;
 	}
-	pyesedb_tables->file_object        = file_object;
+	pyesedb_tables->parent_object      = parent_object;
 	pyesedb_tables->get_table_by_index = get_table_by_index;
 	pyesedb_tables->number_of_tables   = number_of_tables;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_tables->file_object );
+	 (PyObject *) pyesedb_tables->parent_object );
 
 	return( (PyObject *) pyesedb_tables );
 
@@ -244,9 +243,9 @@ int pyesedb_tables_init(
 	}
 	/* Make sure the tables values are initialized
 	 */
-	pyesedb_tables->file_object        = NULL;
+	pyesedb_tables->parent_object      = NULL;
 	pyesedb_tables->get_table_by_index = NULL;
-	pyesedb_tables->table_entry        = 0;
+	pyesedb_tables->table_index        = 0;
 	pyesedb_tables->number_of_tables   = 0;
 
 	return( 0 );
@@ -290,10 +289,10 @@ void pyesedb_tables_free(
 
 		return;
 	}
-	if( pyesedb_tables->file_object != NULL )
+	if( pyesedb_tables->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_tables->file_object );
+		 (PyObject *) pyesedb_tables->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_tables );
@@ -325,7 +324,7 @@ PyObject *pyesedb_tables_getitem(
            Py_ssize_t item_index )
 {
 	PyObject *table_object = NULL;
-	static char *function   = "pyesedb_tables_getitem";
+	static char *function  = "pyesedb_tables_getitem";
 
 	if( pyesedb_tables == NULL )
 	{
@@ -365,7 +364,7 @@ PyObject *pyesedb_tables_getitem(
 		return( NULL );
 	}
 	table_object = pyesedb_tables->get_table_by_index(
-	                pyesedb_tables->file_object,
+	                pyesedb_tables->parent_object,
 	                (int) item_index );
 
 	return( table_object );
@@ -419,11 +418,11 @@ PyObject *pyesedb_tables_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_entry < 0 )
+	if( pyesedb_tables->table_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid table entry.",
+		 "%s: invalid tables - invalid table index.",
 		 function );
 
 		return( NULL );
@@ -437,7 +436,7 @@ PyObject *pyesedb_tables_iternext(
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_entry >= pyesedb_tables->number_of_tables )
+	if( pyesedb_tables->table_index >= pyesedb_tables->number_of_tables )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
@@ -445,12 +444,12 @@ PyObject *pyesedb_tables_iternext(
 		return( NULL );
 	}
 	table_object = pyesedb_tables->get_table_by_index(
-	                pyesedb_tables->file_object,
-	                pyesedb_tables->table_entry );
+	                pyesedb_tables->parent_object,
+	                pyesedb_tables->table_index );
 
 	if( table_object != NULL )
 	{
-		pyesedb_tables->table_entry++;
+		pyesedb_tables->table_index++;
 	}
 	return( table_object );
 }
