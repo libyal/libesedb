@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -97,6 +101,8 @@ int main(
 	ESEDB_TEST_RUN(
 	 "libesedb_multi_value_free",
 	 esedb_test_multi_value_free );
+
+#if defined( __GNUC__ )
 
 	/* TODO: add tests for libesedb_multi_value_get_column_type */
 
@@ -133,6 +139,8 @@ int main(
 	/* TODO: add tests for libesedb_multi_value_get_value_binary_data_size */
 
 	/* TODO: add tests for libesedb_multi_value_get_value_binary_data */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

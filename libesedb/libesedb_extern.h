@@ -38,9 +38,9 @@
 #include <libesedb/extern.h>
 
 #else
-#define LIBESEDB_EXTERN	extern
+#define LIBESEDB_EXTERN	/* extern */
 
-#endif
+#endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 
 #endif /* !defined( _LIBESEDB_INTERNAL_EXTERN_H ) */
 

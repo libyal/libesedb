@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -98,6 +102,8 @@ int main(
 	 "libesedb_index_free",
 	 esedb_test_index_free );
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libesedb_index_get_identifier */
 
 	/* TODO: add tests for libesedb_index_get_utf8_name_size */
@@ -111,6 +117,8 @@ int main(
 	/* TODO: add tests for libesedb_index_get_number_of_records */
 
 	/* TODO: add tests for libesedb_index_get_record */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

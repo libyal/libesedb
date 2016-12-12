@@ -3,23 +3,73 @@ environment:
 
 # TODO: add x64, fix issue: LNK1158: cannot run 'cvtres.exe'
 platform:
-  - Win32
+- Win32
 
 # TODO: add VSDebug
 configuration:
-  - Release
+- Release
 
 install:
-  - cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
+- cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
 
 before_build:
-  - ps: .\synclibs.ps1
-  - ps: .\autogen.ps1
-  - cmd: C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln
+- cmd: xcopy /q /s C:\projects\libesedb C:\cygwin\home\appveyor\
+- cmd: xcopy /q /s C:\projects\libesedb C:\msys64\home\appveyor\
 
-build:
-  project: vs2010\libesedb.sln
+build_script:
+- ps: .\synclibs.ps1
+- ps: .\autogen.ps1
+- cmd: >-
+    rem Prepare Visual Studio 2010 build
+
+    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln
+
+    rem Build with Visual Studio 2010
+
+    msbuild vs2010\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    rem Prepare Visual Studio 2012 build
+
+    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2012 msvscpp\libesedb.sln
+
+    rem Build with Visual Studio 2012
+
+    msbuild vs2012\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    rem Prepare Visual Studio 2013 build
+
+    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2013 msvscpp\libesedb.sln
+
+    rem Build with Visual Studio 2013
+
+    msbuild vs2013\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+    rem Prepare Cygwin build
+
+    C:\cygwin\bin\bash -e -l -c "cd libesedb"
+
+    C:\cygwin\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh"
+
+    rem Build with Cygwin
+
+    C:\cygwin\bin\bash -e -l -c "./configure && make -j4"
+
+    rem Prepare MinGW build
+
+    C:\msys64\usr\bin\bash -e -l -c "cd libesedb"
+
+    C:\msys64\usr\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh"
+
+    rem Build with MinGW 32-bit
+
+    C:\msys64\usr\bin\bash -e -l -c "./configure --host=i686-w64-mingw32 && make -j4"
+
+    rem Build with MinGW 64-bit
+
+    C:\msys64\usr\bin\bash -e -l -c "./configure --host=x86_64-w64-mingw32 && make -j4"
+
+    rem Run tests
 
 test_script:
-  - ps: .\runtests.ps1
+- ps: .\runtests.ps1
 

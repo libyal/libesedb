@@ -80,7 +80,7 @@ extern "C" {
 #define narrow_string_compare_no_case( string1, string2, size ) \
 	_strnicmp( string1, string2, size )
 
-#elif defined( WINAPI ) || defined( HAVE_STRNICMP )
+#elif ( defined( WINAPI ) && !defined( __CYGWIN__ ) ) || defined( HAVE_STRNICMP )
 #define narrow_string_compare_no_case( string1, string2, size ) \
 	strnicmp( string1, string2, size )
 

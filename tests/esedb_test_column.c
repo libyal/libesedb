@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -98,6 +102,8 @@ int main(
 	 "libesedb_column_free",
 	 esedb_test_column_free );
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libesedb_column_get_identifier */
 
 	/* TODO: add tests for libesedb_column_get_type */
@@ -109,6 +115,8 @@ int main(
 	/* TODO: add tests for libesedb_column_get_utf16_name_size */
 
 	/* TODO: add tests for libesedb_column_get_utf16_name */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

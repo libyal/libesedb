@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -98,15 +102,13 @@ int main(
 	 "libesedb_long_value_free",
 	 esedb_test_long_value_free );
 
+#if defined( __GNUC__ )
+
 	/* TODO: add tests for libesedb_long_value_get_data_size */
 
 	/* TODO: add tests for libesedb_long_value_get_data */
 
-#if defined( __GNUC__ )
-
 	/* TODO: add tests for libesedb_long_value_get_record_value */
-
-#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libesedb_long_value_get_number_of_data_segments */
 
@@ -125,6 +127,8 @@ int main(
 	/* TODO: add tests for libesedb_long_value_get_number_of_segments */
 
 	/* TODO: add tests for libesedb_long_value_get_segment_data */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 

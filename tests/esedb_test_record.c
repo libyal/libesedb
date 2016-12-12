@@ -73,6 +73,10 @@ on_error:
 	return( 0 );
 }
 
+#if defined( __GNUC__ )
+
+#endif /* defined( __GNUC__ ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -98,13 +102,11 @@ int main(
 	 "libesedb_record_free",
 	 esedb_test_record_free );
 
-	/* TODO: add tests for libesedb_record_get_number_of_values */
-
 #if defined( __GNUC__ )
 
-	/* TODO: add tests for libesedb_record_get_column_catalog_definition */
+	/* TODO: add tests for libesedb_record_get_number_of_values */
 
-#endif /* defined( __GNUC__ ) */
+	/* TODO: add tests for libesedb_record_get_column_catalog_definition */
 
 	/* TODO: add tests for libesedb_record_get_column_identifier */
 
@@ -158,15 +160,13 @@ int main(
 
 	/* TODO: add tests for libesedb_record_is_multi_value */
 
-#if defined( __GNUC__ )
-
 	/* TODO: add tests for libesedb_record_get_long_value_data_segments_list */
-
-#endif /* defined( __GNUC__ ) */
 
 	/* TODO: add tests for libesedb_record_get_long_value */
 
 	/* TODO: add tests for libesedb_record_get_multi_value */
+
+#endif /* defined( __GNUC__ ) */
 
 	return( EXIT_SUCCESS );
 
