@@ -1,7 +1,7 @@
 /*
- * Python object definition of the indexes sequence and iterator
+ * Python object definition of the sequence and iterator object of indexes
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,52 +40,52 @@ struct pyesedb_indexes
 	 */
 	PyObject_HEAD
 
-	/* The table object
+	/* The parent object
 	 */
-	pyesedb_table_t *table_object;
+	PyObject *parent_object;
 
-	/* The get index by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_index_by_index)(
-	             pyesedb_table_t *table_object,
-	             int index_entry );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) index entry
+	/* The current index
 	 */
-	int index_entry;
+	int current_index;
 
-	/* The number of indexes
+	/* The number of items
 	 */
-	int number_of_indexes;
+	int number_of_items;
 };
 
 extern PyTypeObject pyesedb_indexes_type_object;
 
 PyObject *pyesedb_indexes_new(
-           pyesedb_table_t *table_object,
-           PyObject* (*get_index_by_index)(
-                        pyesedb_table_t *table_object,
-                        int index_entry ),
-           int number_of_indexes );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyesedb_indexes_init(
-     pyesedb_indexes_t *pyesedb_indexes );
+     pyesedb_indexes_t *indexes_object );
 
 void pyesedb_indexes_free(
-      pyesedb_indexes_t *pyesedb_indexes );
+      pyesedb_indexes_t *indexes_object );
 
 Py_ssize_t pyesedb_indexes_len(
-            pyesedb_indexes_t *pyesedb_indexes );
+            pyesedb_indexes_t *indexes_object );
 
 PyObject *pyesedb_indexes_getitem(
-           pyesedb_indexes_t *pyesedb_indexes,
+           pyesedb_indexes_t *indexes_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_indexes_iter(
-           pyesedb_indexes_t *pyesedb_indexes );
+           pyesedb_indexes_t *indexes_object );
 
 PyObject *pyesedb_indexes_iternext(
-           pyesedb_indexes_t *pyesedb_indexes );
+           pyesedb_indexes_t *indexes_object );
 
 #if defined( __cplusplus )
 }

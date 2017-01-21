@@ -1,7 +1,7 @@
 /*
- * Common output functions for the esedbtools
+ * The internal libcnotify header
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,31 +19,32 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _ESEDBOUTPUT_H )
-#define _ESEDBOUTPUT_H
+#if !defined( _ESEDB_TEST_LIBCNOTIFY_H )
+#define _ESEDB_TEST_LIBCNOTIFY_H
 
 #include <common.h>
-#include <file_stream.h>
-#include <types.h>
 
-#if defined( __cplusplus )
-extern "C" {
+/* Define HAVE_LOCAL_LIBCNOTIFY for local use of libcnotify
+ */
+#if defined( HAVE_LOCAL_LIBCNOTIFY )
+
+#include <libcnotify_definitions.h>
+#include <libcnotify_print.h>
+#include <libcnotify_stream.h>
+#include <libcnotify_verbose.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBCNOTIFY_DLL_IMPORT
+ * before including libcnotify.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCNOTIFY_DLL_IMPORT
 #endif
 
-void esedboutput_copyright_fprint(
-      FILE *stream );
+#include <libcnotify.h>
 
-void esedboutput_version_fprint(
-      FILE *stream,
-      const char *program );
+#endif /* defined( HAVE_LOCAL_LIBCNOTIFY ) */
 
-void esedboutput_version_detailed_fprint(
-      FILE *stream,
-      const char *program );
-
-#if defined( __cplusplus )
-}
-#endif
-
-#endif /* !defined( _ESEDBOUTPUT_H ) */
+#endif /* !defined( _ESEDB_TEST_LIBCNOTIFY_H ) */
 

@@ -1,7 +1,7 @@
 /*
  * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -33,13 +33,15 @@
 #include <stdlib.h>
 #endif
 
-#include "esedboutput.h"
+#include "esedbtools_getopt.h"
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libclocale.h"
 #include "esedbtools_libcnotify.h"
 #include "esedbtools_libcpath.h"
-#include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
+#include "esedbtools_output.h"
+#include "esedbtools_signal.h"
+#include "esedbtools_unused.h"
 #include "export_handle.h"
 #include "log_handle.h"
 
@@ -83,12 +85,12 @@ void usage_fprint(
 /* Signal handler for esedbexport
  */
 void esedbexport_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      esedbtools_signal_t signal ESEDBTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "esedbexport_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	ESEDBTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	esedbexport_abort = 1;
 
@@ -110,8 +112,13 @@ void esedbexport_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -159,13 +166,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	if( libcsystem_initialize(
+	if( esedbtools_output_initialize(
              _IONBF,
 	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -173,7 +180,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = esedbtools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "c:hl:m:t:T:vV" ) ) ) != (system_integer_t) -1 )
@@ -397,7 +404,7 @@ int main( int argc, char * const argv[] )
 	 "Opening file.\n" );
 
 #ifdef TODO_SIGNAL_ABORT
-	if( libcsystem_signal_attach(
+	if( esedbtools_signal_attach(
 	     esedbexport_signal_handler,
 	     &error ) != 1 )
 	{
@@ -439,7 +446,7 @@ int main( int argc, char * const argv[] )
 		goto on_error;
 	}
 #ifdef TODO_SIGNAL_ABORT
-	if( libcsystem_signal_detach(
+	if( esedbtools_signal_detach(
 	     &error ) != 1 )
 	{
 		fprintf(

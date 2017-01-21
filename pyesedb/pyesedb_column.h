@@ -1,7 +1,7 @@
 /*
- * Python object definition of the libesedb column
+ * Python object wrapper of libesedb_column_t
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -45,17 +44,18 @@ struct pyesedb_column
 	 */
 	libesedb_column_t *column;
 
-	/* The table object
+	/* The parent object
 	 */
-	pyesedb_table_t *table_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pyesedb_column_object_methods[];
 extern PyTypeObject pyesedb_column_type_object;
 
 PyObject *pyesedb_column_new(
+           PyTypeObject *type_object,
            libesedb_column_t *column,
-           pyesedb_table_t *table_object );
+           PyObject *parent_object );
 
 int pyesedb_column_init(
      pyesedb_column_t *pyesedb_column );

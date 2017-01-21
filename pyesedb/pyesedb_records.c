@@ -1,7 +1,7 @@
 /*
- * Python object definition of the records sequence and iterator
+ * Python object definition of the sequence and iterator object of records
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -97,7 +97,7 @@ PyTypeObject pyesedb_records_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyesedb records sequence and iterator object",
+	"pyesedb internal sequence and iterator object of records",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,13 +155,13 @@ PyTypeObject pyesedb_records_type_object = {
  */
 PyObject *pyesedb_records_new(
            PyObject *parent_object,
-           PyObject* (*get_record_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_entry ),
-           int number_of_records )
+                        int index ),
+           int number_of_items )
 {
-	pyesedb_records_t *pyesedb_records = NULL;
-	static char *function              = "pyesedb_records_new";
+	pyesedb_records_t *records_object = NULL;
+	static char *function             = "pyesedb_records_new";
 
 	if( parent_object == NULL )
 	{
@@ -172,54 +172,54 @@ PyObject *pyesedb_records_new(
 
 		return( NULL );
 	}
-	if( get_record_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get record by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the records values are initialized
 	 */
-	pyesedb_records = PyObject_New(
-	                   struct pyesedb_records,
-	                   &pyesedb_records_type_object );
+	records_object = PyObject_New(
+	                  struct pyesedb_records,
+	                  &pyesedb_records_type_object );
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize records.",
+		 "%s: unable to create records object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyesedb_records_init(
-	     pyesedb_records ) != 0 )
+	     records_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize records.",
+		 "%s: unable to initialize records object.",
 		 function );
 
 		goto on_error;
 	}
-	pyesedb_records->parent_object       = parent_object;
-	pyesedb_records->get_record_by_index = get_record_by_index;
-	pyesedb_records->number_of_records   = number_of_records;
+	records_object->parent_object     = parent_object;
+	records_object->get_item_by_index = get_item_by_index;
+	records_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_records->parent_object );
+	 (PyObject *) records_object->parent_object );
 
-	return( (PyObject *) pyesedb_records );
+	return( (PyObject *) records_object );
 
 on_error:
-	if( pyesedb_records != NULL )
+	if( records_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_records );
+		 (PyObject *) records_object );
 	}
 	return( NULL );
 }
@@ -228,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_records_init(
-     pyesedb_records_t *pyesedb_records )
+     pyesedb_records_t *records_object )
 {
 	static char *function = "pyesedb_records_init";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the records values are initialized
 	 */
-	pyesedb_records->parent_object       = NULL;
-	pyesedb_records->get_record_by_index = NULL;
-	pyesedb_records->record_entry        = 0;
-	pyesedb_records->number_of_records   = 0;
+	records_object->parent_object     = NULL;
+	records_object->get_item_by_index = NULL;
+	records_object->current_index     = 0;
+	records_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -254,22 +254,22 @@ int pyesedb_records_init(
 /* Frees a records object
  */
 void pyesedb_records_free(
-      pyesedb_records_t *pyesedb_records )
+      pyesedb_records_t *records_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_records_free";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyesedb_records );
+	           records_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +289,72 @@ void pyesedb_records_free(
 
 		return;
 	}
-	if( pyesedb_records->parent_object != NULL )
+	if( records_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_records->parent_object );
+		 (PyObject *) records_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyesedb_records );
+	 (PyObject*) records_object );
 }
 
 /* The records len() function
  */
 Py_ssize_t pyesedb_records_len(
-            pyesedb_records_t *pyesedb_records )
+            pyesedb_records_t *records_object )
 {
 	static char *function = "pyesedb_records_len";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyesedb_records->number_of_records );
+	return( (Py_ssize_t) records_object->number_of_items );
 }
 
 /* The records getitem() function
  */
 PyObject *pyesedb_records_getitem(
-           pyesedb_records_t *pyesedb_records,
+           pyesedb_records_t *records_object,
            Py_ssize_t item_index )
 {
 	PyObject *record_object = NULL;
 	static char *function   = "pyesedb_records_getitem";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->get_record_by_index == NULL )
+	if( records_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - missing get record by index function.",
+		 "%s: invalid records object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->number_of_records < 0 )
+	if( records_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - invalid number of records.",
+		 "%s: invalid records object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyesedb_records->number_of_records ) )
+	 || ( item_index >= (Py_ssize_t) records_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +363,8 @@ PyObject *pyesedb_records_getitem(
 
 		return( NULL );
 	}
-	record_object = pyesedb_records->get_record_by_index(
-	                 pyesedb_records->parent_object,
+	record_object = records_object->get_item_by_index(
+	                 records_object->parent_object,
 	                 (int) item_index );
 
 	return( record_object );
@@ -373,83 +373,83 @@ PyObject *pyesedb_records_getitem(
 /* The records iter() function
  */
 PyObject *pyesedb_records_iter(
-           pyesedb_records_t *pyesedb_records )
+           pyesedb_records_t *records_object )
 {
 	static char *function = "pyesedb_records_iter";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyesedb_records );
+	 (PyObject *) records_object );
 
-	return( (PyObject *) pyesedb_records );
+	return( (PyObject *) records_object );
 }
 
 /* The records iternext() function
  */
 PyObject *pyesedb_records_iternext(
-           pyesedb_records_t *pyesedb_records )
+           pyesedb_records_t *records_object )
 {
 	PyObject *record_object = NULL;
 	static char *function   = "pyesedb_records_iternext";
 
-	if( pyesedb_records == NULL )
+	if( records_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records.",
+		 "%s: invalid records object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->get_record_by_index == NULL )
+	if( records_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - missing get record by index function.",
+		 "%s: invalid records object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->record_entry < 0 )
+	if( records_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - invalid record entry.",
+		 "%s: invalid records object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->number_of_records < 0 )
+	if( records_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid records - invalid number of records.",
+		 "%s: invalid records object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_records->record_entry >= pyesedb_records->number_of_records )
+	if( records_object->current_index >= records_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	record_object = pyesedb_records->get_record_by_index(
-	                 pyesedb_records->parent_object,
-	                 pyesedb_records->record_entry );
+	record_object = records_object->get_item_by_index(
+	                 records_object->parent_object,
+	                 records_object->current_index );
 
 	if( record_object != NULL )
 	{
-		pyesedb_records->record_entry++;
+		records_object->current_index++;
 	}
 	return( record_object );
 }

@@ -1,7 +1,7 @@
 /*
- * Python object definition of the indexes sequence and iterator
+ * Python object definition of the sequence and iterator object of indexes
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -26,12 +26,11 @@
 #include <stdlib.h>
 #endif
 
+#include "pyesedb_index.h"
+#include "pyesedb_indexes.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_index.h"
-#include "pyesedb_indexes.h"
-#include "pyesedb_table.h"
 
 PySequenceMethods pyesedb_indexes_sequence_methods = {
 	/* sq_length */
@@ -98,7 +97,7 @@ PyTypeObject pyesedb_indexes_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyesedb indexes sequence and iterator object",
+	"pyesedb internal sequence and iterator object of indexes",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,122 +154,122 @@ PyTypeObject pyesedb_indexes_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_indexes_new(
-           pyesedb_table_t *table_object,
-           PyObject* (*get_index_by_index)(
-                        pyesedb_table_t *table_object,
-                        int index_entry ),
-           int number_of_indexes )
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items )
 {
-	pyesedb_indexes_t *pyesedb_indexes = NULL;
-	static char *function              = "pyesedb_indexes_new";
+	pyesedb_indexes_t *indexes_object = NULL;
+	static char *function             = "pyesedb_indexes_new";
 
-	if( table_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid table object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
 	}
-	if( get_index_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get index by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the indexes values are initialized
 	 */
-	pyesedb_indexes = PyObject_New(
-	                   struct pyesedb_indexes,
-	                   &pyesedb_indexes_type_object );
+	indexes_object = PyObject_New(
+	                  struct pyesedb_indexes,
+	                  &pyesedb_indexes_type_object );
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize indexes.",
+		 "%s: unable to create indexes object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyesedb_indexes_init(
-	     pyesedb_indexes ) != 0 )
+	     indexes_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize indexes.",
+		 "%s: unable to initialize indexes object.",
 		 function );
 
 		goto on_error;
 	}
-	pyesedb_indexes->table_object       = table_object;
-	pyesedb_indexes->get_index_by_index = get_index_by_index;
-	pyesedb_indexes->number_of_indexes  = number_of_indexes;
+	indexes_object->parent_object     = parent_object;
+	indexes_object->get_item_by_index = get_item_by_index;
+	indexes_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_indexes->table_object );
+	 (PyObject *) indexes_object->parent_object );
 
-	return( (PyObject *) pyesedb_indexes );
+	return( (PyObject *) indexes_object );
 
 on_error:
-	if( pyesedb_indexes != NULL )
+	if( indexes_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_indexes );
+		 (PyObject *) indexes_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a indexes object
+/* Intializes an indexes object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_indexes_init(
-     pyesedb_indexes_t *pyesedb_indexes )
+     pyesedb_indexes_t *indexes_object )
 {
 	static char *function = "pyesedb_indexes_init";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the indexes values are initialized
 	 */
-	pyesedb_indexes->table_object       = NULL;
-	pyesedb_indexes->get_index_by_index = NULL;
-	pyesedb_indexes->index_entry        = 0;
-	pyesedb_indexes->number_of_indexes  = 0;
+	indexes_object->parent_object     = NULL;
+	indexes_object->get_item_by_index = NULL;
+	indexes_object->current_index     = 0;
+	indexes_object->number_of_items   = 0;
 
 	return( 0 );
 }
 
-/* Frees a indexes object
+/* Frees an indexes object
  */
 void pyesedb_indexes_free(
-      pyesedb_indexes_t *pyesedb_indexes )
+      pyesedb_indexes_t *indexes_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_indexes_free";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyesedb_indexes );
+	           indexes_object );
 
 	if( ob_type == NULL )
 	{
@@ -290,72 +289,72 @@ void pyesedb_indexes_free(
 
 		return;
 	}
-	if( pyesedb_indexes->table_object != NULL )
+	if( indexes_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_indexes->table_object );
+		 (PyObject *) indexes_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyesedb_indexes );
+	 (PyObject*) indexes_object );
 }
 
 /* The indexes len() function
  */
 Py_ssize_t pyesedb_indexes_len(
-            pyesedb_indexes_t *pyesedb_indexes )
+            pyesedb_indexes_t *indexes_object )
 {
 	static char *function = "pyesedb_indexes_len";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyesedb_indexes->number_of_indexes );
+	return( (Py_ssize_t) indexes_object->number_of_items );
 }
 
 /* The indexes getitem() function
  */
 PyObject *pyesedb_indexes_getitem(
-           pyesedb_indexes_t *pyesedb_indexes,
+           pyesedb_indexes_t *indexes_object,
            Py_ssize_t item_index )
 {
 	PyObject *index_object = NULL;
 	static char *function  = "pyesedb_indexes_getitem";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->get_index_by_index == NULL )
+	if( indexes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - missing get index by index function.",
+		 "%s: invalid indexes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->number_of_indexes < 0 )
+	if( indexes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - invalid number of indexes.",
+		 "%s: invalid indexes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyesedb_indexes->number_of_indexes ) )
+	 || ( item_index >= (Py_ssize_t) indexes_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -364,8 +363,8 @@ PyObject *pyesedb_indexes_getitem(
 
 		return( NULL );
 	}
-	index_object = pyesedb_indexes->get_index_by_index(
-	                pyesedb_indexes->table_object,
+	index_object = indexes_object->get_item_by_index(
+	                indexes_object->parent_object,
 	                (int) item_index );
 
 	return( index_object );
@@ -374,83 +373,83 @@ PyObject *pyesedb_indexes_getitem(
 /* The indexes iter() function
  */
 PyObject *pyesedb_indexes_iter(
-           pyesedb_indexes_t *pyesedb_indexes )
+           pyesedb_indexes_t *indexes_object )
 {
 	static char *function = "pyesedb_indexes_iter";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyesedb_indexes );
+	 (PyObject *) indexes_object );
 
-	return( (PyObject *) pyesedb_indexes );
+	return( (PyObject *) indexes_object );
 }
 
 /* The indexes iternext() function
  */
 PyObject *pyesedb_indexes_iternext(
-           pyesedb_indexes_t *pyesedb_indexes )
+           pyesedb_indexes_t *indexes_object )
 {
 	PyObject *index_object = NULL;
 	static char *function  = "pyesedb_indexes_iternext";
 
-	if( pyesedb_indexes == NULL )
+	if( indexes_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes.",
+		 "%s: invalid indexes object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->get_index_by_index == NULL )
+	if( indexes_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - missing get index by index function.",
+		 "%s: invalid indexes object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->index_entry < 0 )
+	if( indexes_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - invalid index entry.",
+		 "%s: invalid indexes object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->number_of_indexes < 0 )
+	if( indexes_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes - invalid number of indexes.",
+		 "%s: invalid indexes object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_indexes->index_entry >= pyesedb_indexes->number_of_indexes )
+	if( indexes_object->current_index >= indexes_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	index_object = pyesedb_indexes->get_index_by_index(
-	                pyesedb_indexes->table_object,
-	                pyesedb_indexes->index_entry );
+	index_object = indexes_object->get_item_by_index(
+	                indexes_object->parent_object,
+	                indexes_object->current_index );
 
 	if( index_object != NULL )
 	{
-		pyesedb_indexes->index_entry++;
+		indexes_object->current_index++;
 	}
 	return( index_object );
 }

@@ -1,7 +1,7 @@
 /*
  * Python object definition of the libesedb file types
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -202,7 +202,7 @@ PyObject *pyesedb_file_types_new(
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create new definitions object.",
+		 "%s: unable to create definitions object.",
 		 function );
 
 		goto on_error;

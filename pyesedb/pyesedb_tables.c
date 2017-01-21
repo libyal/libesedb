@@ -1,7 +1,7 @@
 /*
  * Python object definition of the sequence and iterator object of tables
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -155,13 +155,13 @@ PyTypeObject pyesedb_tables_type_object = {
  */
 PyObject *pyesedb_tables_new(
            PyObject *parent_object,
-           PyObject* (*get_table_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int table_index ),
-           int number_of_tables )
+                        int index ),
+           int number_of_items )
 {
-	pyesedb_tables_t *pyesedb_tables = NULL;
-	static char *function            = "pyesedb_tables_new";
+	pyesedb_tables_t *tables_object = NULL;
+	static char *function           = "pyesedb_tables_new";
 
 	if( parent_object == NULL )
 	{
@@ -172,54 +172,54 @@ PyObject *pyesedb_tables_new(
 
 		return( NULL );
 	}
-	if( get_table_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get table by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the tables values are initialized
 	 */
-	pyesedb_tables = PyObject_New(
-	                  struct pyesedb_tables,
-	                  &pyesedb_tables_type_object );
+	tables_object = PyObject_New(
+	                 struct pyesedb_tables,
+	                 &pyesedb_tables_type_object );
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize tables.",
+		 "%s: unable to create tables object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyesedb_tables_init(
-	     pyesedb_tables ) != 0 )
+	     tables_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize tables.",
+		 "%s: unable to initialize tables object.",
 		 function );
 
 		goto on_error;
 	}
-	pyesedb_tables->parent_object      = parent_object;
-	pyesedb_tables->get_table_by_index = get_table_by_index;
-	pyesedb_tables->number_of_tables   = number_of_tables;
+	tables_object->parent_object     = parent_object;
+	tables_object->get_item_by_index = get_item_by_index;
+	tables_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_tables->parent_object );
+	 (PyObject *) tables_object->parent_object );
 
-	return( (PyObject *) pyesedb_tables );
+	return( (PyObject *) tables_object );
 
 on_error:
-	if( pyesedb_tables != NULL )
+	if( tables_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_tables );
+		 (PyObject *) tables_object );
 	}
 	return( NULL );
 }
@@ -228,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_tables_init(
-     pyesedb_tables_t *pyesedb_tables )
+     pyesedb_tables_t *tables_object )
 {
 	static char *function = "pyesedb_tables_init";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the tables values are initialized
 	 */
-	pyesedb_tables->parent_object      = NULL;
-	pyesedb_tables->get_table_by_index = NULL;
-	pyesedb_tables->table_index        = 0;
-	pyesedb_tables->number_of_tables   = 0;
+	tables_object->parent_object     = NULL;
+	tables_object->get_item_by_index = NULL;
+	tables_object->current_index     = 0;
+	tables_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -254,22 +254,22 @@ int pyesedb_tables_init(
 /* Frees a tables object
  */
 void pyesedb_tables_free(
-      pyesedb_tables_t *pyesedb_tables )
+      pyesedb_tables_t *tables_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_tables_free";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyesedb_tables );
+	           tables_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +289,72 @@ void pyesedb_tables_free(
 
 		return;
 	}
-	if( pyesedb_tables->parent_object != NULL )
+	if( tables_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_tables->parent_object );
+		 (PyObject *) tables_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyesedb_tables );
+	 (PyObject*) tables_object );
 }
 
 /* The tables len() function
  */
 Py_ssize_t pyesedb_tables_len(
-            pyesedb_tables_t *pyesedb_tables )
+            pyesedb_tables_t *tables_object )
 {
 	static char *function = "pyesedb_tables_len";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyesedb_tables->number_of_tables );
+	return( (Py_ssize_t) tables_object->number_of_items );
 }
 
 /* The tables getitem() function
  */
 PyObject *pyesedb_tables_getitem(
-           pyesedb_tables_t *pyesedb_tables,
+           pyesedb_tables_t *tables_object,
            Py_ssize_t item_index )
 {
 	PyObject *table_object = NULL;
 	static char *function  = "pyesedb_tables_getitem";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->get_table_by_index == NULL )
+	if( tables_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - missing get table by index function.",
+		 "%s: invalid tables object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->number_of_tables < 0 )
+	if( tables_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid number of tables.",
+		 "%s: invalid tables object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyesedb_tables->number_of_tables ) )
+	 || ( item_index >= (Py_ssize_t) tables_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +363,8 @@ PyObject *pyesedb_tables_getitem(
 
 		return( NULL );
 	}
-	table_object = pyesedb_tables->get_table_by_index(
-	                pyesedb_tables->parent_object,
+	table_object = tables_object->get_item_by_index(
+	                tables_object->parent_object,
 	                (int) item_index );
 
 	return( table_object );
@@ -373,83 +373,83 @@ PyObject *pyesedb_tables_getitem(
 /* The tables iter() function
  */
 PyObject *pyesedb_tables_iter(
-           pyesedb_tables_t *pyesedb_tables )
+           pyesedb_tables_t *tables_object )
 {
 	static char *function = "pyesedb_tables_iter";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyesedb_tables );
+	 (PyObject *) tables_object );
 
-	return( (PyObject *) pyesedb_tables );
+	return( (PyObject *) tables_object );
 }
 
 /* The tables iternext() function
  */
 PyObject *pyesedb_tables_iternext(
-           pyesedb_tables_t *pyesedb_tables )
+           pyesedb_tables_t *tables_object )
 {
 	PyObject *table_object = NULL;
 	static char *function  = "pyesedb_tables_iternext";
 
-	if( pyesedb_tables == NULL )
+	if( tables_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables.",
+		 "%s: invalid tables object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->get_table_by_index == NULL )
+	if( tables_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - missing get table by index function.",
+		 "%s: invalid tables object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_index < 0 )
+	if( tables_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid table index.",
+		 "%s: invalid tables object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->number_of_tables < 0 )
+	if( tables_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables - invalid number of tables.",
+		 "%s: invalid tables object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_tables->table_index >= pyesedb_tables->number_of_tables )
+	if( tables_object->current_index >= tables_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	table_object = pyesedb_tables->get_table_by_index(
-	                pyesedb_tables->parent_object,
-	                pyesedb_tables->table_index );
+	table_object = tables_object->get_item_by_index(
+	                tables_object->parent_object,
+	                tables_object->current_index );
 
 	if( table_object != NULL )
 	{
-		pyesedb_tables->table_index++;
+		tables_object->current_index++;
 	}
 	return( table_object );
 }

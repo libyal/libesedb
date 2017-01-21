@@ -1,7 +1,7 @@
 /*
- * Python object definition of the records sequence and iterator
+ * Python object definition of the sequence and iterator object of records
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -40,52 +40,52 @@ struct pyesedb_records
 	 */
 	PyObject_HEAD
 
-	/* The parent (table or index) object
+	/* The parent object
 	 */
 	PyObject *parent_object;
 
-	/* The get record by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_record_by_index)(
+	PyObject* (*get_item_by_index)(
 	             PyObject *parent_object,
-	             int record_entry );
+	             int index );
 
-	/* The (current) record entry
+	/* The current index
 	 */
-	int record_entry;
+	int current_index;
 
-	/* The number of records
+	/* The number of items
 	 */
-	int number_of_records;
+	int number_of_items;
 };
 
 extern PyTypeObject pyesedb_records_type_object;
 
 PyObject *pyesedb_records_new(
            PyObject *parent_object,
-           PyObject* (*get_record_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int record_entry ),
-           int number_of_records );
+                        int index ),
+           int number_of_items );
 
 int pyesedb_records_init(
-     pyesedb_records_t *pyesedb_records );
+     pyesedb_records_t *records_object );
 
 void pyesedb_records_free(
-      pyesedb_records_t *pyesedb_records );
+      pyesedb_records_t *records_object );
 
 Py_ssize_t pyesedb_records_len(
-            pyesedb_records_t *pyesedb_records );
+            pyesedb_records_t *records_object );
 
 PyObject *pyesedb_records_getitem(
-           pyesedb_records_t *pyesedb_records,
+           pyesedb_records_t *records_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_records_iter(
-           pyesedb_records_t *pyesedb_records );
+           pyesedb_records_t *records_object );
 
 PyObject *pyesedb_records_iternext(
-           pyesedb_records_t *pyesedb_records );
+           pyesedb_records_t *records_object );
 
 #if defined( __cplusplus )
 }

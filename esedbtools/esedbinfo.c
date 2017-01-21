@@ -1,7 +1,7 @@
 /*
  * Shows information obtained from an Extensible Storage Engine (ESE) Database (EDB) file
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -33,12 +33,14 @@
 #include <stdlib.h>
 #endif
 
-#include "esedboutput.h"
+#include "esedbtools_getopt.h"
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libclocale.h"
 #include "esedbtools_libcnotify.h"
-#include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
+#include "esedbtools_output.h"
+#include "esedbtools_signal.h"
+#include "esedbtools_unused.h"
 #include "info_handle.h"
 
 info_handle_t *esedbinfo_info_handle = NULL;
@@ -68,12 +70,12 @@ void usage_fprint(
 /* Signal handler for esedbinfo
  */
 void esedbinfo_signal_handler(
-      libcsystem_signal_t signal LIBCSYSTEM_ATTRIBUTE_UNUSED )
+      esedbtools_signal_t signal ESEDBTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
 	static char *function   = "esedbinfo_signal_handler";
 
-	LIBCSYSTEM_UNREFERENCED_PARAMETER( signal )
+	ESEDBTOOLS_UNREFERENCED_PARAMETER( signal )
 
 	esedbinfo_abort = 1;
 
@@ -95,8 +97,13 @@ void esedbinfo_signal_handler(
 	}
 	/* Force stdin to close otherwise any function reading it will remain blocked
 	 */
-	if( libcsystem_file_io_close(
+#if defined( WINAPI ) && !defined( __CYGWIN__ )
+	if( _close(
 	     0 ) != 0 )
+#else
+	if( close(
+	     0 ) != 0 )
+#endif
 	{
 		libcnotify_printf(
 		 "%s: unable to close stdin.\n",
@@ -134,13 +141,13 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( libcsystem_initialize(
+        if( esedbtools_output_initialize(
              _IONBF,
              &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to initialize system values.\n" );
+		 "Unable to initialize output settings.\n" );
 
 		goto on_error;
 	}
@@ -148,7 +155,7 @@ int main( int argc, char * const argv[] )
 	 stdout,
 	 program );
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = esedbtools_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "hvV" ) ) ) != (system_integer_t) -1 )

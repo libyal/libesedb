@@ -1,7 +1,7 @@
 /*
- * Python object definition of the libesedb index
+ * Python object wrapper of libesedb_index_t
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pyesedb_file.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 
@@ -45,17 +44,18 @@ struct pyesedb_index
 	 */
 	libesedb_index_t *index;
 
-	/* The file object
+	/* The parent object
 	 */
-	pyesedb_file_t *file_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pyesedb_index_object_methods[];
 extern PyTypeObject pyesedb_index_type_object;
 
 PyObject *pyesedb_index_new(
+           PyTypeObject *type_object,
            libesedb_index_t *index,
-           pyesedb_file_t *file_object );
+           PyObject *parent_object );
 
 int pyesedb_index_init(
      pyesedb_index_t *pyesedb_index );
@@ -76,7 +76,7 @@ PyObject *pyesedb_index_get_number_of_records(
            PyObject *arguments );
 
 PyObject *pyesedb_index_get_record_by_index(
-           pyesedb_index_t *pyesedb_index,
+           PyObject *pyesedb_index,
            int record_index );
 
 PyObject *pyesedb_index_get_record(

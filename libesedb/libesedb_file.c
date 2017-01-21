@@ -1,7 +1,7 @@
 /*
  * File functions
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -657,8 +657,6 @@ on_error:
 
 		internal_file->file_io_handle_opened_in_library = 0;
 	}
-	internal_file->file_io_handle = NULL;
-
 	return( -1 );
 }
 

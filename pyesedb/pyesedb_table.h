@@ -1,7 +1,7 @@
 /*
  * Python object definition of the libesedb table
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -47,7 +47,7 @@ struct pyesedb_table
 
 	/* The file object
 	 */
-	pyesedb_file_t *file_object;
+	PyObject *file_object;
 };
 
 extern PyMethodDef pyesedb_table_object_methods[];
@@ -55,7 +55,7 @@ extern PyTypeObject pyesedb_table_type_object;
 
 PyObject *pyesedb_table_new(
            libesedb_table_t *table,
-           pyesedb_file_t *file_object );
+           PyObject *file_object );
 
 int pyesedb_table_init(
      pyesedb_table_t *pyesedb_table );
@@ -80,7 +80,7 @@ PyObject *pyesedb_table_get_number_of_columns(
            PyObject *arguments );
 
 PyObject *pyesedb_table_get_column_by_index(
-           pyesedb_table_t *pyesedb_table,
+           PyObject *pyesedb_table,
            int column_index );
 
 PyObject *pyesedb_table_get_column(
@@ -97,7 +97,7 @@ PyObject *pyesedb_table_get_number_of_records(
            PyObject *arguments );
 
 PyObject *pyesedb_table_get_record_by_index(
-           pyesedb_table_t *pyesedb_table,
+           PyObject *pyesedb_table,
            int record_index );
 
 PyObject *pyesedb_table_get_record(

@@ -1,7 +1,7 @@
 #!/bin/bash
-# Library API type testing script
+# Tests C library functions and types.
 #
-# Version: 20161110
+# Version: 20170115
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -11,38 +11,39 @@ TEST_PREFIX=`dirname ${PWD}`;
 TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\).*$/\1/'`;
 
 TEST_PROFILE="lib${TEST_PREFIX}";
-TEST_TYPES="catalog catalog_definition column column_type data_definition data_segment database index io_handle key long_value multi_value page page_tree page_value record table";
-TEST_TYPES_WITH_INPUT="file";
+LIBRARY_TESTS="catalog catalog_definition column column_type data_definition data_segment database error index io_handle key long_value multi_value notify page page_tree page_value record table table_definition";
+LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 
 TEST_TOOL_DIRECTORY=".";
 INPUT_DIRECTORY="input";
 INPUT_GLOB="*";
 
-test_api_type()
+run_test()
 {
-	local TEST_TYPE=$1;
+	local TEST_NAME=$1;
 
-	local TEST_DESCRIPTION="Testing API type: ${TEST_TYPE}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_TYPE}";
+	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
+	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
 		TEST_EXECUTABLE="${TEST_EXECUTABLE}.exe";
 	fi
 
+	# TODO: add support for TEST_PROFILE and OPTION_SETS?
 	run_test_with_arguments "${TEST_DESCRIPTION}" "${TEST_EXECUTABLE}";
 	local RESULT=$?;
 
 	return ${RESULT};
 }
 
-test_api_type_with_input()
+run_test_with_input()
 {
-	local TEST_TYPE=$1;
+	local TEST_NAME=$1;
 
-	local TEST_DESCRIPTION="Testing API type: ${TEST_TYPE}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_TYPE}";
+	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
+	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -78,9 +79,9 @@ source ${TEST_RUNNER};
 
 RESULT=${EXIT_IGNORE};
 
-for TEST_TYPE in ${TEST_TYPES};
+for TEST_NAME in ${LIBRARY_TESTS};
 do
-	test_api_type "${TEST_TYPE}";
+	run_test "${TEST_NAME}";
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -94,14 +95,14 @@ then
 	exit ${RESULT};
 fi
 
-for TEST_TYPE in ${TEST_TYPES_WITH_INPUT};
+for TEST_NAME in ${LIBRARY_TESTS_WITH_INPUT};
 do
 	if test -d ${INPUT_DIRECTORY};
 	then
-		test_api_type_with_input "${TEST_TYPE}";
+		run_test_with_input "${TEST_NAME}";
 		RESULT=$?;
 	else
-		test_api_type "${TEST_TYPE}";
+		run_test "${TEST_NAME}";
 		RESULT=$?;
 	fi
 

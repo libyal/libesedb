@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# Python-bindings get version test program
+# Python-bindings support functions test script
 #
-# Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #
@@ -19,28 +19,21 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import sys
+import unittest
 
 import pyesedb
 
 
-def main():
-  args_parser = argparse.ArgumentParser(
-      description="Tests get_version.")
+class SupportFunctionsTests(unittest.TestCase):
+  """Tests the support functions."""
 
-  options = args_parser.parse_args()
+  def test_get_version(self):
+    """Tests the get_version function."""
+    version = pyesedb.get_version()
 
-  try:
-    pyesedb.get_version()
-  except Exception:
-    return False
-
-  return True
+    # TODO: check version.
+    # self.assertEqual(version, "00000000")
 
 
 if __name__ == "__main__":
-  if not main():
-    sys.exit(1)
-  else:
-    sys.exit(0)
+  unittest.main(verbosity=2)

@@ -1,7 +1,7 @@
 /*
  * Macros for testing
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -96,6 +96,13 @@
 	if( value != expected_value ) \
 	{ \
 		fprintf( stdout, "%s:%d %s (%" PRIi64 ") != %" PRIi64 "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		goto on_error; \
+	}
+
+#define ESEDB_TEST_ASSERT_NOT_EQUAL_INT64( name, value, expected_value ) \
+	if( value == expected_value ) \
+	{ \
+		fprintf( stdout, "%s:%d %s (%" PRIi64 ") == %" PRIi64 "\n", __FILE__, __LINE__, name, value, expected_value ); \
 		goto on_error; \
 	}
 

@@ -1,7 +1,7 @@
 /*
- * Python object definition of the columns sequence and iterator
+ * Python object definition of the sequence and iterator object of columns
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -31,7 +31,6 @@
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 PySequenceMethods pyesedb_columns_sequence_methods = {
 	/* sq_length */
@@ -98,7 +97,7 @@ PyTypeObject pyesedb_columns_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"internal pyesedb columns sequence and iterator object",
+	"pyesedb internal sequence and iterator object of columns",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -155,72 +154,72 @@ PyTypeObject pyesedb_columns_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_columns_new(
-           pyesedb_table_t *table_object,
-           PyObject* (*get_column_by_index)(
-                        pyesedb_table_t *table_object,
-                        int column_entry ),
-           int number_of_columns )
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items )
 {
-	pyesedb_columns_t *pyesedb_columns = NULL;
-	static char *function              = "pyesedb_columns_new";
+	pyesedb_columns_t *columns_object = NULL;
+	static char *function             = "pyesedb_columns_new";
 
-	if( table_object == NULL )
+	if( parent_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid table object.",
+		 "%s: invalid parent object.",
 		 function );
 
 		return( NULL );
 	}
-	if( get_column_by_index == NULL )
+	if( get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid get column by index function.",
+		 "%s: invalid get item by index function.",
 		 function );
 
 		return( NULL );
 	}
 	/* Make sure the columns values are initialized
 	 */
-	pyesedb_columns = PyObject_New(
+	columns_object = PyObject_New(
 	                  struct pyesedb_columns,
 	                  &pyesedb_columns_type_object );
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize columns.",
+		 "%s: unable to create columns object.",
 		 function );
 
 		goto on_error;
 	}
 	if( pyesedb_columns_init(
-	     pyesedb_columns ) != 0 )
+	     columns_object ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to initialize columns.",
+		 "%s: unable to initialize columns object.",
 		 function );
 
 		goto on_error;
 	}
-	pyesedb_columns->table_object        = table_object;
-	pyesedb_columns->get_column_by_index = get_column_by_index;
-	pyesedb_columns->number_of_columns   = number_of_columns;
+	columns_object->parent_object     = parent_object;
+	columns_object->get_item_by_index = get_item_by_index;
+	columns_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) pyesedb_columns->table_object );
+	 (PyObject *) columns_object->parent_object );
 
-	return( (PyObject *) pyesedb_columns );
+	return( (PyObject *) columns_object );
 
 on_error:
-	if( pyesedb_columns != NULL )
+	if( columns_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_columns );
+		 (PyObject *) columns_object );
 	}
 	return( NULL );
 }
@@ -229,25 +228,25 @@ on_error:
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_columns_init(
-     pyesedb_columns_t *pyesedb_columns )
+     pyesedb_columns_t *columns_object )
 {
 	static char *function = "pyesedb_columns_init";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the columns values are initialized
 	 */
-	pyesedb_columns->table_object        = NULL;
-	pyesedb_columns->get_column_by_index = NULL;
-	pyesedb_columns->column_entry        = 0;
-	pyesedb_columns->number_of_columns   = 0;
+	columns_object->parent_object     = NULL;
+	columns_object->get_item_by_index = NULL;
+	columns_object->current_index     = 0;
+	columns_object->number_of_items   = 0;
 
 	return( 0 );
 }
@@ -255,22 +254,22 @@ int pyesedb_columns_init(
 /* Frees a columns object
  */
 void pyesedb_columns_free(
-      pyesedb_columns_t *pyesedb_columns )
+      pyesedb_columns_t *columns_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_columns_free";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           pyesedb_columns );
+	           columns_object );
 
 	if( ob_type == NULL )
 	{
@@ -290,82 +289,82 @@ void pyesedb_columns_free(
 
 		return;
 	}
-	if( pyesedb_columns->table_object != NULL )
+	if( columns_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_columns->table_object );
+		 (PyObject *) columns_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) pyesedb_columns );
+	 (PyObject*) columns_object );
 }
 
 /* The columns len() function
  */
 Py_ssize_t pyesedb_columns_len(
-            pyesedb_columns_t *pyesedb_columns )
+            pyesedb_columns_t *columns_object )
 {
 	static char *function = "pyesedb_columns_len";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) pyesedb_columns->number_of_columns );
+	return( (Py_ssize_t) columns_object->number_of_items );
 }
 
 /* The columns getitem() function
  */
 PyObject *pyesedb_columns_getitem(
-           pyesedb_columns_t *pyesedb_columns,
+           pyesedb_columns_t *columns_object,
            Py_ssize_t item_index )
 {
 	PyObject *column_object = NULL;
 	static char *function   = "pyesedb_columns_getitem";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->get_column_by_index == NULL )
+	if( columns_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - missing get column by index function.",
+		 "%s: invalid columns object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->number_of_columns < 0 )
+	if( columns_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - invalid number of columns.",
+		 "%s: invalid columns object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) pyesedb_columns->number_of_columns ) )
+	 || ( item_index >= (Py_ssize_t) columns_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid invalid item index column out of bounds.",
+		 "%s: invalid invalid item index value out of bounds.",
 		 function );
 
 		return( NULL );
 	}
-	column_object = pyesedb_columns->get_column_by_index(
-	                 pyesedb_columns->table_object,
+	column_object = columns_object->get_item_by_index(
+	                 columns_object->parent_object,
 	                 (int) item_index );
 
 	return( column_object );
@@ -374,83 +373,83 @@ PyObject *pyesedb_columns_getitem(
 /* The columns iter() function
  */
 PyObject *pyesedb_columns_iter(
-           pyesedb_columns_t *pyesedb_columns )
+           pyesedb_columns_t *columns_object )
 {
 	static char *function = "pyesedb_columns_iter";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) pyesedb_columns );
+	 (PyObject *) columns_object );
 
-	return( (PyObject *) pyesedb_columns );
+	return( (PyObject *) columns_object );
 }
 
 /* The columns iternext() function
  */
 PyObject *pyesedb_columns_iternext(
-           pyesedb_columns_t *pyesedb_columns )
+           pyesedb_columns_t *columns_object )
 {
 	PyObject *column_object = NULL;
 	static char *function   = "pyesedb_columns_iternext";
 
-	if( pyesedb_columns == NULL )
+	if( columns_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns.",
+		 "%s: invalid columns object.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->get_column_by_index == NULL )
+	if( columns_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - missing get column by index function.",
+		 "%s: invalid columns object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->column_entry < 0 )
+	if( columns_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - invalid column entry.",
+		 "%s: invalid columns object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->number_of_columns < 0 )
+	if( columns_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns - invalid number of columns.",
+		 "%s: invalid columns object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( pyesedb_columns->column_entry >= pyesedb_columns->number_of_columns )
+	if( columns_object->current_index >= columns_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	column_object = pyesedb_columns->get_column_by_index(
-	                 pyesedb_columns->table_object,
-	                 pyesedb_columns->column_entry );
+	column_object = columns_object->get_item_by_index(
+	                 columns_object->parent_object,
+	                 columns_object->current_index );
 
 	if( column_object != NULL )
 	{
-		pyesedb_columns->column_entry++;
+		columns_object->current_index++;
 	}
 	return( column_object );
 }

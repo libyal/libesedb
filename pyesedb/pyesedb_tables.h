@@ -1,7 +1,7 @@
 /*
  * Python object definition of the sequence and iterator object of tables
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -44,48 +44,48 @@ struct pyesedb_tables
 	 */
 	PyObject *parent_object;
 
-	/* The get table by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_table_by_index)(
+	PyObject* (*get_item_by_index)(
 	             PyObject *parent_object,
-	             int table_index );
+	             int index );
 
-	/* The (current) table index
+	/* The current index
 	 */
-	int table_index;
+	int current_index;
 
-	/* The number of tables
+	/* The number of items
 	 */
-	int number_of_tables;
+	int number_of_items;
 };
 
 extern PyTypeObject pyesedb_tables_type_object;
 
 PyObject *pyesedb_tables_new(
            PyObject *parent_object,
-           PyObject* (*get_table_by_index)(
+           PyObject* (*get_item_by_index)(
                         PyObject *parent_object,
-                        int table_index ),
-           int number_of_tables );
+                        int index ),
+           int number_of_items );
 
 int pyesedb_tables_init(
-     pyesedb_tables_t *pyesedb_tables );
+     pyesedb_tables_t *tables_object );
 
 void pyesedb_tables_free(
-      pyesedb_tables_t *pyesedb_tables );
+      pyesedb_tables_t *tables_object );
 
 Py_ssize_t pyesedb_tables_len(
-            pyesedb_tables_t *pyesedb_tables );
+            pyesedb_tables_t *tables_object );
 
 PyObject *pyesedb_tables_getitem(
-           pyesedb_tables_t *pyesedb_tables,
+           pyesedb_tables_t *tables_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_tables_iter(
-           pyesedb_tables_t *pyesedb_tables );
+           pyesedb_tables_t *tables_object );
 
 PyObject *pyesedb_tables_iternext(
-           pyesedb_tables_t *pyesedb_tables );
+           pyesedb_tables_t *tables_object );
 
 #if defined( __cplusplus )
 }

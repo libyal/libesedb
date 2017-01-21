@@ -1,7 +1,7 @@
 /*
  * Python object definition of the libesedb table
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -248,7 +248,7 @@ PyTypeObject pyesedb_table_type_object = {
  */
 PyObject *pyesedb_table_new(
            libesedb_table_t *table,
-           pyesedb_file_t *file_object )
+           PyObject *file_object )
 {
 	pyesedb_table_t *pyesedb_table = NULL;
 	static char *function          = "pyesedb_table_new";
@@ -737,7 +737,7 @@ PyObject *pyesedb_table_get_number_of_columns(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_table_get_column_by_index(
-           pyesedb_table_t *pyesedb_table,
+           PyObject *pyesedb_table,
            int column_index )
 {
 	libcerror_error_t *error  = NULL;
@@ -758,7 +758,7 @@ PyObject *pyesedb_table_get_column_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_table_get_column(
-	          pyesedb_table->table,
+	          ( (pyesedb_table_t *) pyesedb_table )->table,
 	          column_index,
 	          &column,
 	          0,
@@ -781,6 +781,7 @@ PyObject *pyesedb_table_get_column_by_index(
 		goto on_error;
 	}
 	column_object = pyesedb_column_new(
+	                 &pyesedb_column_type_object,
 	                 column,
 	                 pyesedb_table );
 
@@ -827,7 +828,7 @@ PyObject *pyesedb_table_get_column(
 		return( NULL );
 	}
 	column_object = pyesedb_table_get_column_by_index(
-	                 pyesedb_table,
+	                 (PyObject *) pyesedb_table,
 	                 column_index );
 
 	return( column_object );
@@ -881,7 +882,7 @@ PyObject *pyesedb_table_get_columns(
 		return( NULL );
 	}
 	columns_object = pyesedb_columns_new(
-	                  pyesedb_table,
+	                  (PyObject *) pyesedb_table,
 	                  &pyesedb_table_get_column_by_index,
 	                  number_of_columns );
 
@@ -957,7 +958,7 @@ PyObject *pyesedb_table_get_number_of_records(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_table_get_record_by_index(
-           pyesedb_table_t *pyesedb_table,
+           PyObject *pyesedb_table,
            int record_index )
 {
 	libcerror_error_t *error  = NULL;
@@ -978,7 +979,7 @@ PyObject *pyesedb_table_get_record_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_table_get_record(
-	          pyesedb_table->table,
+	           ( (pyesedb_table_t *) pyesedb_table )->table,
 	          record_index,
 	          &record,
 	          &error );
@@ -1046,7 +1047,7 @@ PyObject *pyesedb_table_get_record(
 		return( NULL );
 	}
 	record_object = pyesedb_table_get_record_by_index(
-	                 pyesedb_table,
+	                 (PyObject *) pyesedb_table,
 	                 record_index );
 
 	return( record_object );
@@ -1100,7 +1101,7 @@ PyObject *pyesedb_table_get_records(
 	}
 	records_object = pyesedb_records_new(
 	                  (PyObject *) pyesedb_table,
-	                  (PyObject *(*)(PyObject *, int)) &pyesedb_table_get_record_by_index,
+	                  &pyesedb_table_get_record_by_index,
 	                  number_of_records );
 
 	if( records_object == NULL )

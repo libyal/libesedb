@@ -31,7 +31,6 @@ MSVSCPP_FILES = \
 	libcnotify/libcnotify.vcproj \
 	libcpath/libcpath.vcproj \
 	libcsplit/libcsplit.vcproj \
-	libcsystem/libcsystem.vcproj \
 	libcthreads/libcthreads.vcproj \
 	libesedb/libesedb.vcproj \
 	libfcache/libfcache.vcproj \

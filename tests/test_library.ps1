@@ -1,6 +1,6 @@
-# Library API functions testing script
+# Tests C library functions and types.
 #
-# Version: 20161110
+# Version: 20170115
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -10,17 +10,17 @@ $TestPrefix = Split-Path -path ${Pwd}.Path -parent
 $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 
-$TestFunctions = "error notify"
-$TestFunctionsWithInput = "support"
+$LibraryTests = "catalog catalog_definition column column_type data_definition data_segment database error index io_handle key long_value multi_value notify page page_tree page_value record table table_definition"
+$LibraryTestsWithInput = "file support"
 
 $TestToolDirectory = "..\msvscpp\Release"
 
-Function TestAPIFunction
+Function RunTest
 {
-	param( [string]$TestFunction, [string[]]$Options, [string]$Profile )
+	param( [string]$TestType )
 
-	$TestDescription = "Testing API functions: ${TestFunction}"
-	$TestExecutable = "${TestToolDirectory}\${TestPrefix}_test_${TestFunction}.exe"
+	$TestDescription = "Testing: ${TestName}"
+	$TestExecutable = "${TestToolDirectory}\${TestPrefix}_test_${TestName}.exe"
 
 	$Output = Invoke-Expression ${TestExecutable}
 	$Result = ${LastExitCode}
@@ -55,9 +55,9 @@ If (-Not (Test-Path ${TestToolDirectory}))
 
 $Result = ${ExitIgnore}
 
-Foreach (${TestFunction} in ${TestFunctions} -split " ")
+Foreach (${TestName} in ${LibraryTests} -split " ")
 {
-	$Result = TestAPIFunction ${TestFunction}
+	$Result = RunTest ${TestName}
 
 	If (${Result} -ne ${ExitSuccess})
 	{
@@ -65,9 +65,10 @@ Foreach (${TestFunction} in ${TestFunctions} -split " ")
 	}
 }
 
-Foreach (${TestFunction} in ${TestFunctionsWithInput} -split " ")
+Foreach (${TestName} in ${LibraryTestsWithInput} -split " ")
 {
-	$Result = TestAPIFunction ${TestFunction}
+	# TODO: add RunTestWithInput
+	$Result = RunTest ${TestName}
 
 	If (${Result} -ne ${ExitSuccess})
 	{

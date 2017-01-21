@@ -15,7 +15,6 @@ AM_CPPFLAGS = \
 	@LIBFVALUE_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
 	@LIBFMAPI_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
 AM_LDFLAGS = @STATIC_LDFLAGS@
@@ -26,14 +25,14 @@ bin_PROGRAMS = \
 
 esedbexport_SOURCES = \
 	esedbexport.c \
-	esedboutput.c esedboutput.h \
+	esedbtools_getopt.c esedbtools_getopt.h \
+	esedbtools_i18n.h \
 	esedbtools_libbfio.h \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcfile.h \
 	esedbtools_libcnotify.h \
 	esedbtools_libcpath.h \
-	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
@@ -41,6 +40,10 @@ esedbexport_SOURCES = \
 	esedbtools_libfvalue.h \
 	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
+	esedbtools_output.c esedbtools_output.h \
+	esedbtools_signal.c esedbtools_signal.h \
+	esedbtools_system_string.c esedbtools_system_string.h \
+	esedbtools_unused.h \
 	exchange.c exchange.h \
 	export.c export.h \
 	export_handle.c export_handle.h \
@@ -50,7 +53,6 @@ esedbexport_SOURCES = \
 	windows_security.c windows_security.h
 
 esedbexport_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBFMAPI_LIBADD@ \
 	@LIBFVALUE_LIBADD@ \
 	@LIBFWNT_LIBADD@ \
@@ -60,20 +62,20 @@ esedbexport_LDADD = \
 	@LIBCPATH_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCSPLIT_LIBADD@ \
-	../libesedb/libesedb.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@
 
 esedbinfo_SOURCES = \
 	esedbinfo.c \
-	esedboutput.c esedboutput.h \
+	esedbtools_getopt.c esedbtools_getopt.h \
+	esedbtools_i18n.h \
 	esedbtools_libbfio.h \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcnotify.h \
-	esedbtools_libcsystem.h \
 	esedbtools_libesedb.h \
 	esedbtools_libfdatetime.h \
 	esedbtools_libfguid.h \
@@ -81,13 +83,15 @@ esedbinfo_SOURCES = \
 	esedbtools_libfvalue.h \
 	esedbtools_libfwnt.h \
 	esedbtools_libuna.h \
+	esedbtools_output.c esedbtools_output.h \
+	esedbtools_signal.c esedbtools_signal.h \
+	esedbtools_unused.h \
 	info_handle.c info_handle.h
 
 esedbinfo_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
-	../libesedb/libesedb.la \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@
 

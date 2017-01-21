@@ -1,7 +1,7 @@
 /*
  * Export handle
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -32,9 +32,9 @@
 #include "esedbtools_libcnotify.h"
 #include "esedbtools_libcfile.h"
 #include "esedbtools_libcpath.h"
-#include "esedbtools_libcsystem.h"
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
+#include "esedbtools_system_string.h"
 #include "exchange.h"
 #include "export.h"
 #include "export_handle.h"
@@ -902,7 +902,7 @@ int export_handle_create_item_filename(
 	}
 	( *item_filename )[ item_name_length++ ] = (system_character_t) '.';
 
-	if( libcsystem_string_decimal_copy_from_64_bit(
+	if( esedbtools_system_string_copy_from_64_bit_in_decimal(
 	     *item_filename,
 	     *item_filename_size,
 	     &item_name_length,
@@ -913,7 +913,7 @@ int export_handle_create_item_filename(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-		 "%s: unable to copy item index.",
+		 "%s: unable to copy item index to string.",
 		 function );
 
 		goto on_error;

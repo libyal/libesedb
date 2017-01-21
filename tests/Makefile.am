@@ -16,30 +16,26 @@ AM_CPPFLAGS = \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFVALUE_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
-	@LIBCSYSTEM_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
 if HAVE_PYTHON_TESTS
 TESTS_PYESEDB = \
-	test_python_functions.sh
+	test_python_module.sh
 endif
 
 TESTS = \
-	test_api_functions.sh \
-	test_api_types.sh \
+	test_library.sh \
 	test_esedbinfo.sh \
 	test_esedbexport.sh \
 	$(TESTS_PYESEDB)
 
 check_SCRIPTS = \
-	pyesedb_test_get_version.py \
-	pyesedb_test_open_close.py \
-	test_api_functions.sh \
-	test_api_types.sh \
+	pyesedb_test_support.py \
 	test_esedbexport.sh \
 	test_esedbinfo.sh \
-	test_python_functions.sh \
+	test_library.sh \
+	test_python_module.sh \
 	test_runner.sh
 
 EXTRA_DIST = \
@@ -164,16 +160,16 @@ esedb_test_error_LDADD = \
 
 esedb_test_file_SOURCES = \
 	esedb_test_file.c \
+	esedb_test_getopt.c esedb_test_getopt.h \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
-	esedb_test_libcsystem.h \
+	esedb_test_libcnotify.h \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
 	esedb_test_macros.h \
 	esedb_test_memory.c esedb_test_memory.h
 
 esedb_test_file_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBUNA_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
@@ -302,17 +298,17 @@ esedb_test_record_LDADD = \
 	@LIBCERROR_LIBADD@
 
 esedb_test_support_SOURCES = \
+	esedb_test_getopt.c esedb_test_getopt.h \
 	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
-	esedb_test_libcsystem.h \
+	esedb_test_libcnotify.h \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
 	esedb_test_macros.h \
 	esedb_test_support.c
 
 esedb_test_support_LDADD = \
-	@LIBCSYSTEM_LIBADD@ \
 	@LIBBFIO_LIBADD@ \
 	@LIBCPATH_LIBADD@ \
 	@LIBCFILE_LIBADD@ \

@@ -22,7 +22,6 @@ SUBDIRS = \
 	libesedb \
 	libfmapi \
 	libmapidb \
-	libcsystem \
 	esedbtools \
 	pyesedb \
 	pyesedb-python2 \
@@ -135,7 +134,6 @@ splint:
 	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/libmapidb && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsystem && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/pyesedb && $(MAKE) splint $(AM_MAKEFLAGS))
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))

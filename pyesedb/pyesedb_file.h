@@ -1,7 +1,7 @@
 /*
- * Python object definition of the libesedb file
+ * Python object wrapper of libesedb_file_t
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -26,7 +26,6 @@
 #include <types.h>
 
 #include "pyesedb_libbfio.h"
-#include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 
@@ -112,7 +111,7 @@ PyObject *pyesedb_file_get_number_of_tables(
            PyObject *arguments );
 
 PyObject *pyesedb_file_get_table_by_index(
-           pyesedb_file_t *pyesedb_file,
+           PyObject *pyesedb_file,
            int table_index );
 
 PyObject *pyesedb_file_get_table(

@@ -1,7 +1,7 @@
 /*
- * Library file type testing program
+ * Library file type test program
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -30,9 +30,9 @@
 #include <stdlib.h>
 #endif
 
+#include "esedb_test_getopt.h"
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libclocale.h"
-#include "esedb_test_libcsystem.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_libuna.h"
 #include "esedb_test_macros.h"
@@ -1537,7 +1537,7 @@ int main(
 	system_integer_t option    = 0;
 	int result                 = 0;
 
-	while( ( option = libcsystem_getopt(
+	while( ( option = esedb_test_getopt(
 	                   argc,
 	                   argv,
 	                   _SYSTEM_STRING( "" ) ) ) != (system_integer_t) -1 )

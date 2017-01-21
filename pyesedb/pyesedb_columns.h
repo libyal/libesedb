@@ -1,7 +1,7 @@
 /*
- * Python object definition of the columns sequence and iterator
+ * Python object definition of the sequence and iterator object of columns
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_table.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,52 +40,52 @@ struct pyesedb_columns
 	 */
 	PyObject_HEAD
 
-	/* The table object
+	/* The parent object
 	 */
-	pyesedb_table_t *table_object;
+	PyObject *parent_object;
 
-	/* The get column by index callback function
+	/* The get item by index callback function
 	 */
-	PyObject* (*get_column_by_index)(
-	             pyesedb_table_t *table_object,
-	             int column_entry );
+	PyObject* (*get_item_by_index)(
+	             PyObject *parent_object,
+	             int index );
 
-	/* The (current) column entry
+	/* The current index
 	 */
-	int column_entry;
+	int current_index;
 
-	/* The number of columns
+	/* The number of items
 	 */
-	int number_of_columns;
+	int number_of_items;
 };
 
 extern PyTypeObject pyesedb_columns_type_object;
 
 PyObject *pyesedb_columns_new(
-           pyesedb_table_t *table_object,
-           PyObject* (*get_column_by_index)(
-                        pyesedb_table_t *table_object,
-                        int column_entry ),
-           int number_of_columns );
+           PyObject *parent_object,
+           PyObject* (*get_item_by_index)(
+                        PyObject *parent_object,
+                        int index ),
+           int number_of_items );
 
 int pyesedb_columns_init(
-     pyesedb_columns_t *pyesedb_columns );
+     pyesedb_columns_t *columns_object );
 
 void pyesedb_columns_free(
-      pyesedb_columns_t *pyesedb_columns );
+      pyesedb_columns_t *columns_object );
 
 Py_ssize_t pyesedb_columns_len(
-            pyesedb_columns_t *pyesedb_columns );
+            pyesedb_columns_t *columns_object );
 
 PyObject *pyesedb_columns_getitem(
-           pyesedb_columns_t *pyesedb_columns,
+           pyesedb_columns_t *columns_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_columns_iter(
-           pyesedb_columns_t *pyesedb_columns );
+           pyesedb_columns_t *columns_object );
 
 PyObject *pyesedb_columns_iternext(
-           pyesedb_columns_t *pyesedb_columns );
+           pyesedb_columns_t *columns_object );
 
 #if defined( __cplusplus )
 }

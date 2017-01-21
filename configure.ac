@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20161212],
+ [20170121],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -111,17 +111,8 @@ AX_LIBFMAPI_CHECK_ENABLE
 dnl Check for enabling libmapidb for MAPI database support
 AX_LIBMAPIDB_CHECK_ENABLE
 
-dnl Check for enabling libcsystem for cross-platform C generic system functions
-AX_LIBCSYSTEM_CHECK_ENABLE
-
-dnl Check if esedbtools should be build as static executables
-AX_COMMON_CHECK_ENABLE_STATIC_EXECUTABLES
-
-dnl Check if libesedb should be build with verbose output
-AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
-
-dnl Check if libesedb should be build with debug output
-AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
+dnl Check for esedbtools function support
+AX_ESEDBTOOLS_CHECK_LOCAL
 
 dnl Check if libesedb python bindings (pyesedb) should be build
 AX_PYTHON_CHECK_PYPREFIX
@@ -146,29 +137,6 @@ AS_IF(
 dnl Check for test function support
 AX_TESTS_CHECK_LOCAL
 
-dnl Check if DLL support is needed
-AS_IF(
- [test "x$enable_shared" = xyes],
- [AS_CASE(
-  [$host],
-  [*cygwin* | *mingw*],
-  [AC_DEFINE(
-   [HAVE_DLLMAIN],
-   [1],
-   [Define to 1 to enable the DllMain function.])
-  AC_SUBST(
-   [HAVE_DLLMAIN],
-   [1])
-
-  AS_IF(
-   [test "x$ac_cv_enable_static_executables" = xno],
-   [AC_SUBST(
-    [LIBESEDB_DLL_IMPORT],
-    ["-DLIBESEDB_DLL_IMPORT"])
-   ])
-  ])
- ])
-
 dnl Set additional compiler flags
 CFLAGS="$CFLAGS -Wall";
 
@@ -184,7 +152,7 @@ AS_IF(
  ])
 
 AS_IF(
- [test "x$ac_cv_libfmapi" = xyes || test "x$ac_cv_libmapidb" = xyes || test "x$ac_cv_libcsystem" = xyes],
+ [test "x$ac_cv_libfmapi" = xyes || test "x$ac_cv_libmapidb" = xyes],
  [AC_SUBST(
   [libesedb_spec_tools_build_requires],
   [BuildRequires:])
@@ -228,7 +196,6 @@ AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libmapidb/Makefile])
-AC_CONFIG_FILES([libcsystem/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([pyesedb/Makefile])
 AC_CONFIG_FILES([pyesedb-python2/Makefile])
@@ -277,7 +244,6 @@ Building:
    libfwnt support:                            $ac_cv_libfwnt
    libfmapi support:                           $ac_cv_libfmapi
    libmapidb support:                          $ac_cv_libmapidb
-   libcsystem support:                         $ac_cv_libcsystem
 
 Features:
    Multi-threading support:                    $ac_cv_libcthreads_multi_threading

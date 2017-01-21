@@ -1,7 +1,7 @@
 /*
- * Python object definition of the libesedb file
+ * Python object wrapper of libesedb_file_t
  *
- * Copyright (C) 2009-2016, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -31,6 +31,7 @@
 #include "pyesedb_file.h"
 #include "pyesedb_file_object_io_handle.h"
 #include "pyesedb_integer.h"
+#include "pyesedb_libbfio.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libclocale.h"
 #include "pyesedb_libesedb.h"
@@ -40,13 +41,15 @@
 #include "pyesedb_unused.h"
 
 #if !defined( LIBESEDB_HAVE_BFIO )
+
 LIBESEDB_EXTERN \
 int libesedb_file_open_file_io_handle(
      libesedb_file_t *file,
      libbfio_handle_t *file_io_handle,
      int access_flags,
      libesedb_error_t **error );
-#endif
+
+#endif /* !defined( LIBESEDB_HAVE_BFIO ) */
 
 PyMethodDef pyesedb_file_object_methods[] = {
 
@@ -772,6 +775,16 @@ PyObject *pyesedb_file_open_file_object(
 
 		return( NULL );
 	}
+	if( pyesedb_file->file_io_handle != NULL )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: invalid file - file IO handle already set.",
+		 function );
+
+		goto on_error;
+	}
 	if( pyesedb_file_object_initialize(
 	     &( pyesedb_file->file_io_handle ),
 	     file_object,
@@ -1171,7 +1184,7 @@ PyObject *pyesedb_file_get_number_of_tables(
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_file_get_table_by_index(
-           pyesedb_file_t *pyesedb_file,
+           PyObject *pyesedb_file,
            int table_entry )
 {
 	libcerror_error_t *error = NULL;
@@ -1192,7 +1205,7 @@ PyObject *pyesedb_file_get_table_by_index(
 	Py_BEGIN_ALLOW_THREADS
 
 	result = libesedb_file_get_table(
-	          pyesedb_file->file,
+	          ( (pyesedb_file_t *) pyesedb_file )->file,
 	          table_entry,
 	          &table,
 	          &error );
@@ -1260,7 +1273,7 @@ PyObject *pyesedb_file_get_table(
 		return( NULL );
 	}
 	table_object = pyesedb_file_get_table_by_index(
-	                pyesedb_file,
+	                (PyObject *) pyesedb_file,
 	                table_entry );
 
 	return( table_object );
@@ -1313,7 +1326,7 @@ PyObject *pyesedb_file_get_tables(
 		return( NULL );
 	}
 	tables_object = pyesedb_tables_new(
-	                 pyesedb_file,
+	                 (PyObject *) pyesedb_file,
 	                 &pyesedb_file_get_table_by_index,
 	                 number_of_tables );
 
@@ -1402,7 +1415,7 @@ PyObject *pyesedb_file_get_table_by_name(
 	}
 	table_object = pyesedb_table_new(
 	                table,
-	                pyesedb_file );
+	                (PyObject *) pyesedb_file );
 
 	if( table_object == NULL )
 	{
