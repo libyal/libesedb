@@ -64,6 +64,17 @@ int libesedb_data_segment_initialize(
 
 		return( -1 );
 	}
+	if( data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid data size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
 	*data_segment = memory_allocate_structure(
 	                 libesedb_data_segment_t );
 
