@@ -25,13 +25,15 @@
 #include <stdlib.h>
 #endif
 
-#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( __clang__ )
+#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ )
 #define __USE_GNU
 #include <dlfcn.h>
 #undef __USE_GNU
 #endif
 
-#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( __clang__ )
+#include "esedb_test_memory.h"
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
 
 static void *(*esedb_test_real_malloc)(size_t)                 = NULL;
 static void *(*esedb_test_real_memcpy)(void *, void *, size_t) = NULL;
@@ -171,5 +173,5 @@ void *realloc(
 	return( ptr );
 }
 
-#endif /* defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( __clang__ ) */
+#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
 

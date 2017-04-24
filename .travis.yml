@@ -8,14 +8,14 @@ compiler:
   - clang
   - gcc
 before_install:
-  - if test `uname -s` = 'Darwin'; then brew update && brew install gettext gnu-sed && brew link --force gettext; fi
-  - if test `uname -s` = 'Linux'; then sudo apt-get update && sudo apt-mark hold postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y && sudo apt-get install -y autopoint; fi
+  - if test ${TRAVIS_OS_NAME} = "osx"; then brew update && brew install gettext gnu-sed && brew link --force gettext; fi
+  - if test ${TRAVIS_OS_NAME} = "linux"; then sudo apt-get update && sudo apt-mark hold postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y && sudo apt-get install -y autopoint; fi
 install:
-  - if test `uname -s` = 'Darwin'; then export SED="/usr/local/bin/gsed"; fi
+  - if test ${TRAVIS_OS_NAME} = "osx"; then export SED="/usr/local/bin/gsed"; fi
   - ./synclibs.sh && ./autogen.sh
-  - if test -x 'synctestdata.sh'; then ./synctestdata.sh; fi
+  - if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
 script:
-  - if test `uname -s` = 'Linux'; then export PATH=$(echo $PATH | tr ":" "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s/::/:/g"); fi
+  - if test ${TRAVIS_OS_NAME} = "linux"; then export PATH=$(echo $PATH | tr ":" "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s/::/:/g"); fi
   - ./runtests.sh
 after_success:
-  - if test `uname -s` = 'Linux' && test "$CC" = "gcc"; then curl -o codecov.sh -s https://codecov.io/bash && /bin/bash ./codecov.sh; fi
+  - if test ${TRAVIS_OS_NAME} = "linux" && test ${CC} = "gcc"; then curl -o codecov.sh -s https://codecov.io/bash && /bin/bash ./codecov.sh; fi

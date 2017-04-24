@@ -1,10 +1,10 @@
 Source: libesedb
-Section: libs
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
-Build-Depends: debhelper (>= 7), autotools-dev, python-all-dev, python3-all-dev
+Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python-dev, python3-dev
 Standards-Version: 3.9.5
-Homepage: https://github.com/libyal/libesedb/
+Section: libs
+Homepage: https://github.com/libyal/libesedb
 
 Package: libesedb
 Architecture: any
@@ -33,6 +33,13 @@ Architecture: any
 Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
  Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB).
+
+Package: libesedb-tools-dbg
+Section: debug
+Architecture: any
+Depends: libesedb-tools (= ${binary:Version}), ${misc:Depends}
+Description: Debugging symbols for libesedb-tools
+ Debugging symbols for libesedb-tools.
 
 Package: libesedb-python
 Section: python

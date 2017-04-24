@@ -37,13 +37,12 @@ DPKG_FILES = \
 	dpkg/compat \
 	dpkg/control \
 	dpkg/copyright \
-	dpkg/copyright.in \
 	dpkg/rules \
-	dpkg/libesedb.docs \
-	dpkg/libesedb-dev.docs \
-	dpkg/libesedb-python.docs \
-	dpkg/libesedb-python3.docs \
-	dpkg/libesedb-tools.docs \
+	dpkg/libesedb.install \
+	dpkg/libesedb-dev.install \
+	dpkg/libesedb-python.install \
+	dpkg/libesedb-python3.install \
+	dpkg/libesedb-tools.install \
 	dpkg/source/format
 
 GETTEXT_FILES = \
