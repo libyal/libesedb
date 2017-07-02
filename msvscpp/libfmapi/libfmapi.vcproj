@@ -171,6 +171,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfmapi\libfmapi_error.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfmapi\libfmapi_guid.c"
 				>
 			</File>
@@ -226,6 +230,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfmapi\libfmapi_entry_identifier.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfmapi\libfmapi_error.h"
 				>
 			</File>
 			<File
