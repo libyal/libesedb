@@ -11,10 +11,33 @@ $TestPrefix = Split-Path -path ${TestPrefix} -leaf
 $TestPrefix = ${TestPrefix}.Substring(3)
 $TestSuffix = "info"
 
-$TestToolDirectory = "..\vs2010\Release"
+$TestToolDirectory = "..\msvscpp\Release"
 $TestTool = "${TestPrefix}${TestSuffix}"
 $InputDirectory = "input"
 $InputGlob = "*"
+
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2010\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2012\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2013\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2015\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	Write-Host "Missing test tool directory." -foreground Red
+
+	Exit ${ExitFailure}
+}
 
 $TestExecutable = "${TestToolDirectory}\${TestTool}.exe"
 

@@ -48,6 +48,18 @@ If (-Not (Test-Path ${TestToolDirectory}))
 }
 If (-Not (Test-Path ${TestToolDirectory}))
 {
+	$TestToolDirectory = "..\vs2012\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2013\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2015\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
 	Write-Host "Missing test tool directory." -foreground Red
 
 	Exit ${ExitFailure}
