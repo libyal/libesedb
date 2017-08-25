@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20161018
+# Version: 20170826
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -52,7 +52,7 @@ run_configure_make_check()
 		return ${RESULT};
 	fi
 
-	make check;
+	make check CHECK_WITH_STDERR=1;
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -67,6 +67,64 @@ run_configure_make_check()
 		return ${RESULT};
 	fi
 	return ${EXIT_SUCCESS};
+}
+
+run_configure_make_check_with_asan()
+{
+	local LDCONFIG=`which ldconfig 2> /dev/null`;
+
+	if test -z ${LDCONFIG} || test ! -x ${LDCONFIG};
+	then
+		return ${EXIT_SUCCESS};
+	fi
+	local LIBASAN=`ldconfig -p | grep libasan | sed 's/^.* => //'`;
+
+	if test -z ${LIBASAN} || test ! -f ${LIBASAN};
+	then
+		return ${EXIT_SUCCESS};
+	fi
+	# Using libasan is platform dependent.
+	if test ${LIBASAN} != "/lib64/libasan.so.4";
+	then
+		return ${EXIT_SUCCESS};
+	fi
+
+	export CPPFLAGS="-DHAVE_ASAN";
+	export CFLAGS="-fno-omit-frame-pointer -fsanitize=address -g";
+	export LDFLAGS="-fsanitize=address -g";
+
+	if test -z ${CC} || test ${CC} != "clang";
+	then
+		LDFLAGS="${LDFLAGS} -lasan";
+	fi
+
+	run_configure_make $@;
+	RESULT=$?;
+
+	export CPPFLAGS=;
+	export CFLAGS=;
+	export LDFLAGS=;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
+	then
+		return ${RESULT};
+	fi
+
+	make check CHECK_WITH_ASAN=1 CHECK_WITH_STDERR=1;
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
+	then
+		echo "Running: 'make check' failed";
+
+		if test -f tests/test-suite.log;
+		then
+			cat tests/test-suite.log;
+		fi
+
+		return ${RESULT};
+	fi
+	return ${RESULT};
 }
 
 run_configure_make_check_with_coverage()
@@ -97,7 +155,7 @@ run_configure_make_check_python()
 		return ${RESULT};
 	fi
 
-	make check SKIP_LIBRARY_TESTS=1 SKIP_TOOLS_TESTS=1;
+	make check CHECK_WITH_STDERR=1 SKIP_LIBRARY_TESTS=1 SKIP_TOOLS_TESTS=1;
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -180,7 +238,9 @@ fi
 
 HAVE_ENABLE_PYTHON=$?;
 
-if test ${HAVE_ENABLE_PYTHON} -eq 0;
+PYTHON_CONFIG=`whereis python-config | sed 's/^.*:[ ]*//' 2> /dev/null`;
+
+if test ${HAVE_ENABLE_PYTHON} -eq 0 && test -n "${PYTHON_CONFIG}";
 then
 	# Test with Python 2.
 	PYTHON2=`which python2 2> /dev/null`;
@@ -262,6 +322,23 @@ then
 			exit ${EXIT_FAILURE};
 		fi
 	fi
+fi
+
+if test ${HAVE_ENABLE_PYTHON} -eq 0 && test -n "${PYTHON_CONFIG}";
+then
+	# Issue with running the python bindings with asan disabled for now.
+	# CONFIGURE_OPTIONS="--enable-python";
+	CONFIGURE_OPTIONS="";
+else
+	CONFIGURE_OPTIONS="";
+fi
+
+run_configure_make_check_with_asan ${CONFIGURE_OPTIONS};
+RESULT=$?;
+
+if test ${RESULT} -ne ${EXIT_SUCCESS};
+then
+	exit ${EXIT_FAILURE};
 fi
 
 run_configure_make_check_with_coverage;

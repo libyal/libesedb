@@ -1,6 +1,6 @@
 # Script that synchronizes the local library dependencies
 #
-# Version: 20161110
+# Version: 20170722
 
 $GitUrlPrefix = "https://github.com/libyal"
 $LocalLibs = "libbfio libcdata libcerror libcfile libclocale libcnotify libcpath libcsplit libcthreads libfcache libfdata libfdatetime libfguid libfmapi libfvalue libfwnt libmapidb libuna"
@@ -12,6 +12,11 @@ $WinBison = "..\win_flex_bison\win_bison.exe"
 
 ForEach (${LocalLib} in ${LocalLibs})
 {
+	# Split will return an array of a single empty string when LocalLibs is empty.
+	If (-Not (${LocalLib}))
+	{
+		Continue
+	}
 	# PowerShell will raise NativeCommandError if git writes to stdout or stderr
 	# therefore 2>&1 is added and the output is stored in a variable.
 	$Output = Invoke-Expression -Command "${Git} clone ${GitUrlPrefix}/${LocalLib}.git ${LocalLib}-${pid} 2>&1"

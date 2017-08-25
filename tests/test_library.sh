@@ -1,22 +1,16 @@
 #!/bin/bash
 # Tests C library functions and types.
 #
-# Version: 20170115
+# Version: 20170722
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-TEST_PREFIX=`dirname ${PWD}`;
-TEST_PREFIX=`basename ${TEST_PREFIX} | sed 's/^lib\([^-]*\).*$/\1/'`;
-
-TEST_PROFILE="lib${TEST_PREFIX}";
 LIBRARY_TESTS="catalog catalog_definition column column_type data_definition data_segment database error index io_handle key long_value multi_value notify page page_tree page_value record table table_definition";
 LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 
-TEST_TOOL_DIRECTORY=".";
-INPUT_DIRECTORY="input";
 INPUT_GLOB="*";
 
 run_test()
@@ -24,7 +18,7 @@ run_test()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./esedb_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -43,14 +37,14 @@ run_test_with_input()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="${TEST_TOOL_DIRECTORY}/${TEST_PREFIX}_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./esedb_test_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
 		TEST_EXECUTABLE="${TEST_EXECUTABLE}.exe";
 	fi
 
-	run_test_on_input_directory "${TEST_PROFILE}" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_DIRECTORY}" "${INPUT_GLOB}";
+	run_test_on_input_directory "libesedb" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "input" "${INPUT_GLOB}";
 	local RESULT=$?;
 
 	return ${RESULT};
@@ -97,7 +91,7 @@ fi
 
 for TEST_NAME in ${LIBRARY_TESTS_WITH_INPUT};
 do
-	if test -d ${INPUT_DIRECTORY};
+	if test -d "input";
 	then
 		run_test_with_input "${TEST_NAME}";
 		RESULT=$?;

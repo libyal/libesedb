@@ -3,32 +3,41 @@ environment:
   - TARGET: vs2008
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
     VisualStudioVersion: 9.0
+    platform: Win32
+    configuration: Release
   - TARGET: vs2010
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
     VisualStudioVersion: 10.0
+    platform: Win32
+    configuration: VSDebug
   - TARGET: vs2012
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
     VisualStudioVersion: 11.0
+    platform: x64
+    configuration: Release
   - TARGET: vs2013
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
     VisualStudioVersion: 12.0
+    platform: Win32
+    configuration: Release
   - TARGET: vs2015
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     VisualStudioVersion: 14.0
+    platform: Win32
+    configuration: Release
+  - TARGET: python27
+  - TARGET: python36
   - TARGET: cygwin
-  - TARGET: mingw32
-  - TARGET: mingw64
-
-# TODO: add x64, fix issue: LNK1158: cannot run 'cvtres.exe'
-platform:
-- Win32
-
-# TODO: add VSDebug
-configuration:
-- Release
+  - TARGET: cygwin64
+  - TARGET: mingw
+  - TARGET: mingw-w64
 
 install:
-- cmd: git clone https://github.com/libyal/libyal.git && move libyal ..\
+- cmd: git clone https://github.com/libyal/vstools.git && move vstools ..\
+- cmd: if [%TARGET%]==[cygwin] (
+    C:\cygwin\setup-x86.exe -qgnNdO -l C:\cygwin\var\cache\setup -R c:\cygwin -s http://cygwin.mirror.constant.com -P python2-devel -P python3-devel )
+- cmd: if [%TARGET%]==[cygwin64] (
+    C:\cygwin64\setup-x86_64.exe -qgnNdO -l C:\cygwin64\var\cache\setup -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P python2-devel -P python3-devel )
 
 build_script:
 - ps: .\synclibs.ps1
@@ -36,32 +45,42 @@ build_script:
 - cmd: if [%TARGET%]==[vs2008] (
     msbuild msvscpp\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2010] (
-    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln &&
+    set PYTHONPATH=..\vstools &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln &&
     msbuild vs2010\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2012] (
-    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2012 msvscpp\libesedb.sln &&
+    set PYTHONPATH=..\vstools &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2012 msvscpp\libesedb.sln &&
     msbuild vs2012\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2013] (
-    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2013 msvscpp\libesedb.sln &&
+    set PYTHONPATH=..\vstools &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2013 msvscpp\libesedb.sln &&
     msbuild vs2013\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2015] (
-    C:\Python27\python.exe ..\libyal\scripts\msvscpp-convert.py --to 2015 msvscpp\libesedb.sln &&
+    set PYTHONPATH=..\vstools &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2015 msvscpp\libesedb.sln &&
     msbuild vs2015\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
+- cmd: if [%TARGET%]==[python27] (
+    C:\Python27\python.exe setup.py bdist_msi )
+- cmd: if [%TARGET%]==[python36] (
+    C:\Python36\python.exe setup.py bdist_msi )
 - cmd: if [%TARGET%]==[cygwin] (
     xcopy /q /s C:\projects\libesedb C:\cygwin\home\appveyor\ &&
     C:\cygwin\bin\bash -e -l -c "cd libesedb" &&
-    C:\cygwin\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" &&
-    C:\cygwin\bin\bash -e -l -c "./configure && make -j4" )
-- cmd: if [%TARGET%]==[mingw32] (
+    C:\cygwin\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" )
+- cmd: if [%TARGET%]==[cygwin64] (
+    xcopy /q /s C:\projects\libesedb C:\cygwin64\home\appveyor\ &&
+    C:\cygwin64\bin\bash -e -l -c "cd libesedb" &&
+    C:\cygwin64\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" )
+- cmd: if [%TARGET%]==[mingw] (
+    xcopy /q /s C:\projects\libesedb C:\MinGW\msys\1.0\home\appveyor\ &&
+    C:\MinGW\msys\1.0\bin\bash -e -l -c "cd libesedb" &&
+    C:\MinGW\msys\1.0\bin\bash -e -l -c "sed 's/@VERSION@/0.29/g' m4/pkg.m4.in > m4/pkg.m4" &&
+    C:\MinGW\msys\1.0\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" )
+- cmd: if [%TARGET%]==[mingw-w64] (
     xcopy /q /s C:\projects\libesedb C:\msys64\home\appveyor\ &&
     C:\msys64\usr\bin\bash -e -l -c "cd libesedb" &&
-    C:\msys64\usr\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" &&
-    C:\msys64\usr\bin\bash -e -l -c "./configure --host=i686-w64-mingw32 && make -j4" )
-- cmd: if [%TARGET%]==[mingw64] (
-    xcopy /q /s C:\projects\libesedb C:\msys64\home\appveyor\ &&
-    C:\msys64\usr\bin\bash -e -l -c "cd libesedb" &&
-    C:\msys64\usr\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" &&
-    C:\msys64\usr\bin\bash -e -l -c "./configure --host=x86_64-w64-mingw32 && make -j4" )
+    C:\msys64\usr\bin\bash -e -l -c "./synclibs.sh && ./autogen.sh" )
 
 test_script:
 - cmd: rem Run tests
@@ -75,4 +94,12 @@ test_script:
     .\runtests.ps1 }
 - ps: if ($env:TARGET -eq "vs2015") {
     .\runtests.ps1 }
+- cmd: if [%TARGET%]==[cygwin] (
+    C:\cygwin\bin\bash -e -l -c "./runtests.sh" )
+- cmd: if [%TARGET%]==[cygwin64] (
+    C:\cygwin64\bin\bash -e -l -c "./runtests.sh" )
+- cmd: if [%TARGET%]==[mingw] (
+    C:\MinGW\msys\1.0\bin\bash -e -l -c "./runtests.sh" )
+- cmd: if [%TARGET%]==[mingw-w64] (
+    C:\msys64\usr\bin\bash -e -l -c "./runtests.sh" )
 
