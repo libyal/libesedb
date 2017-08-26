@@ -48,13 +48,13 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	/* TODO: add tests for libesedb_column_type_get_identifier */
 
 	/* TODO: add tests for libesedb_column_type_get_description */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

@@ -35,7 +35,7 @@
 
 #include "../libesedb/libesedb_page_value.h"
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 /* Tests the libesedb_page_value_initialize function
  * Returns 1 if successful or 0 if not
@@ -270,7 +270,7 @@ on_error:
 	return( 0 );
 }
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -287,7 +287,7 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	ESEDB_TEST_RUN(
 	 "libesedb_page_value_initialize",
@@ -297,7 +297,7 @@ int main(
 	 "libesedb_page_value_free",
 	 esedb_test_page_value_free );
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

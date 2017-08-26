@@ -73,9 +73,9 @@ on_error:
 	return( 0 );
 }
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
  */
@@ -92,17 +92,17 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	/* TODO: add tests for libesedb_record_initialize */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	ESEDB_TEST_RUN(
 	 "libesedb_record_free",
 	 esedb_test_record_free );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	/* TODO: add tests for libesedb_record_get_number_of_values */
 
@@ -166,7 +166,7 @@ int main(
 
 	/* TODO: add tests for libesedb_record_get_multi_value */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 

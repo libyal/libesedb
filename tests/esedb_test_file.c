@@ -1631,11 +1631,11 @@ int main(
 		 esedb_test_file_signal_abort,
 		 file );
 
-#if defined( __GNUC__ )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 		/* TODO: add tests for libesedb_file_open_read */
 
-#endif /* defined( __GNUC__ ) */
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 		ESEDB_TEST_RUN_WITH_ARGS(
 		 "libesedb_file_get_type",
