@@ -605,13 +605,13 @@ int esedb_test_file_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_file_free(
 	          &file,
@@ -622,13 +622,13 @@ int esedb_test_file_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -641,9 +641,9 @@ int esedb_test_file_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -659,9 +659,9 @@ int esedb_test_file_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -793,9 +793,9 @@ int esedb_test_file_free(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -836,9 +836,9 @@ int esedb_test_file_open(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_file_initialize(
 	          &file,
@@ -849,13 +849,13 @@ int esedb_test_file_open(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test open
 	 */
@@ -870,9 +870,9 @@ int esedb_test_file_open(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -887,9 +887,9 @@ int esedb_test_file_open(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -905,13 +905,13 @@ int esedb_test_file_open(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 
@@ -957,9 +957,9 @@ int esedb_test_file_open_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_file_initialize(
 	          &file,
@@ -970,13 +970,13 @@ int esedb_test_file_open_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test open
 	 */
@@ -991,9 +991,9 @@ int esedb_test_file_open_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -1008,9 +1008,9 @@ int esedb_test_file_open_wide(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -1026,13 +1026,13 @@ int esedb_test_file_open_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 
@@ -1073,9 +1073,9 @@ int esedb_test_file_close(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -1112,13 +1112,13 @@ int esedb_test_file_open_close(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test open and close
 	 */
@@ -1141,9 +1141,9 @@ int esedb_test_file_open_close(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_file_close(
 	          file,
@@ -1154,9 +1154,9 @@ int esedb_test_file_open_close(
 	 result,
 	 0 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test open and close a second time to validate clean up on close
 	 */
@@ -1179,9 +1179,9 @@ int esedb_test_file_open_close(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_file_close(
 	          file,
@@ -1192,9 +1192,9 @@ int esedb_test_file_open_close(
 	 result,
 	 0 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Clean up
 	 */
@@ -1207,13 +1207,13 @@ int esedb_test_file_open_close(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file",
-         file );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file",
+	 file );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 
@@ -1252,9 +1252,9 @@ int esedb_test_file_signal_abort(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -1267,9 +1267,9 @@ int esedb_test_file_signal_abort(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

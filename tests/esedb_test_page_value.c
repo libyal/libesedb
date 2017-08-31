@@ -64,13 +64,13 @@ int esedb_test_page_value_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "page_value",
-         page_value );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "page_value",
+	 page_value );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_page_value_free(
 	          &page_value,
@@ -81,13 +81,13 @@ int esedb_test_page_value_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "page_value",
-         page_value );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "page_value",
+	 page_value );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -100,9 +100,9 @@ int esedb_test_page_value_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -118,9 +118,9 @@ int esedb_test_page_value_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -252,9 +252,9 @@ int esedb_test_page_value_free(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

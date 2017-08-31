@@ -65,13 +65,13 @@ int esedb_test_key_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "key",
-         key );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "key",
+	 key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_key_free(
 	          &key,
@@ -82,13 +82,13 @@ int esedb_test_key_initialize(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "key",
-         key );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "key",
+	 key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -101,9 +101,9 @@ int esedb_test_key_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -119,9 +119,9 @@ int esedb_test_key_initialize(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -253,9 +253,9 @@ int esedb_test_key_free(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -293,13 +293,13 @@ int esedb_test_key_compare(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "first_key",
-         first_key );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "first_key",
+	 first_key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_key_initialize(
 	          &second_key,
@@ -310,13 +310,13 @@ int esedb_test_key_compare(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "second_key",
-         second_key );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "second_key",
+	 second_key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test regular cases
 	 */
@@ -330,9 +330,9 @@ int esedb_test_key_compare(
 	 result,
 	 LIBFDATA_COMPARE_EQUAL );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -346,9 +346,9 @@ int esedb_test_key_compare(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -363,9 +363,9 @@ int esedb_test_key_compare(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -381,13 +381,13 @@ int esedb_test_key_compare(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "second_key",
-         second_key );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "second_key",
+	 second_key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libesedb_key_free(
 	          &first_key,
@@ -398,13 +398,13 @@ int esedb_test_key_compare(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "first_key",
-         first_key );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "first_key",
+	 first_key );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
 

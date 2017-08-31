@@ -1,6 +1,6 @@
 # Tests C library functions and types.
 #
-# Version: 20170807
+# Version: 20170827
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -73,6 +73,14 @@ If (-Not (Test-Path ${TestToolDirectory}))
 If (-Not (Test-Path ${TestToolDirectory}))
 {
 	$TestToolDirectory = "..\vs2015\VSDebug"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2017\Release"
+}
+If (-Not (Test-Path ${TestToolDirectory}))
+{
+	$TestToolDirectory = "..\vs2017\VSDebug"
 }
 If (-Not (Test-Path ${TestToolDirectory}))
 {

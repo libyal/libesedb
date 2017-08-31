@@ -1,13 +1,14 @@
 #!/bin/bash
 # Info tool testing script
 #
-# Version: 20170802
+# Version: 20170825
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
 OPTION_SETS="";
+OPTIONS="";
 
 INPUT_GLOB="*";
 
@@ -46,7 +47,7 @@ fi
 
 source ${TEST_RUNNER};
 
-run_test_on_input_directory "esedbinfo" "esedbinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "input" "${INPUT_GLOB}";
+run_test_on_input_directory "esedbinfo" "esedbinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "input" "${INPUT_GLOB}" "${OPTIONS}";
 RESULT=$?;
 
 exit ${RESULT};

@@ -55,9 +55,9 @@ int esedb_test_long_value_free(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );

@@ -53,9 +53,9 @@ system_integer_t optopt = 0;
  * ? if the option was not in the options string, : if the option argument was missing
  */
 system_integer_t esedb_test_getopt(
-                  int argument_count,
-                  system_character_t * const argument_values[],
-                  const system_character_t *options_string )
+	          int argument_count,
+	          system_character_t * const argument_values[],
+	          const system_character_t *options_string )
 {
 	system_character_t *argument_value = NULL;
 	system_character_t *option_value   = NULL;

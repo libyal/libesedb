@@ -511,9 +511,9 @@ int esedb_test_get_codepage(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -526,9 +526,9 @@ int esedb_test_get_codepage(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -562,9 +562,9 @@ int esedb_test_set_codepage(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -577,9 +577,9 @@ int esedb_test_set_codepage(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -619,9 +619,9 @@ int esedb_test_check_file_signature(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check file signature
 	 */
@@ -634,9 +634,9 @@ int esedb_test_check_file_signature(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -649,9 +649,9 @@ int esedb_test_check_file_signature(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -693,9 +693,9 @@ int esedb_test_check_file_signature_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check file signature
 	 */
@@ -708,9 +708,9 @@ int esedb_test_check_file_signature_wide(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -723,9 +723,9 @@ int esedb_test_check_file_signature_wide(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -768,13 +768,13 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file_io_handle",
-         file_io_handle );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	source_length = system_string_length(
 	                 source );
@@ -797,9 +797,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_open(
 	          file_io_handle,
@@ -811,9 +811,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check file signature
 	 */
@@ -826,9 +826,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -841,9 +841,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 -1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
 	libcerror_error_free(
 	 &error );
@@ -859,9 +859,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 0 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_free(
 	          &file_io_handle,
@@ -872,13 +872,13 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file_io_handle",
-         file_io_handle );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Initialize test
 	 */
@@ -887,9 +887,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	                 0,
 	                 sizeof( uint8_t ) * 512 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "memset_result",
-         memset_result );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "memset_result",
+	 memset_result );
 
 	result = libbfio_memory_range_initialize(
 	          &file_io_handle,
@@ -900,13 +900,13 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NOT_NULL(
-         "file_io_handle",
-         file_io_handle );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_memory_range_set(
 	          file_io_handle,
@@ -919,9 +919,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_open(
 	          file_io_handle,
@@ -933,9 +933,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test check file signature
 	 */
@@ -948,9 +948,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 0 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Clean up
 	 */
@@ -963,9 +963,9 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 0 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	result = libbfio_handle_free(
 	          &file_io_handle,
@@ -976,13 +976,13 @@ int esedb_test_check_file_signature_file_io_handle(
 	 result,
 	 1 );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "file_io_handle",
-         file_io_handle );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "file_io_handle",
+	 file_io_handle );
 
-        ESEDB_TEST_ASSERT_IS_NULL(
-         "error",
-         error );
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* TODO test file too small */
 

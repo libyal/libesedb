@@ -25,6 +25,11 @@ environment:
     VisualStudioVersion: 14.0
     platform: Win32
     configuration: Release
+  - TARGET: vs2017
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    VisualStudioVersion: 15.0
+    platform: Win32
+    configuration: Release
   - TARGET: python27
   - TARGET: python36
   - TARGET: cygwin
@@ -46,20 +51,24 @@ build_script:
     msbuild msvscpp\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2010] (
     set PYTHONPATH=..\vstools &&
-    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2010 msvscpp\libesedb.sln &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --no-python-dll --output-format 2010 msvscpp\libesedb.sln &&
     msbuild vs2010\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2012] (
     set PYTHONPATH=..\vstools &&
-    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2012 msvscpp\libesedb.sln &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --output-format 2012 --extend-with-x64 --python-path "C:\\Python27-x64" msvscpp\libesedb.sln &&
     msbuild vs2012\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2013] (
     set PYTHONPATH=..\vstools &&
-    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2013 msvscpp\libesedb.sln &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --output-format 2013 msvscpp\libesedb.sln &&
     msbuild vs2013\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2015] (
     set PYTHONPATH=..\vstools &&
-    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --to 2015 msvscpp\libesedb.sln &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --output-format 2015 msvscpp\libesedb.sln &&
     msbuild vs2015\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
+- cmd: if [%TARGET%]==[vs2017] (
+    set PYTHONPATH=..\vstools &&
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --output-format 2017 msvscpp\libesedb.sln &&
+    msbuild vs2017\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[python27] (
     C:\Python27\python.exe setup.py bdist_msi )
 - cmd: if [%TARGET%]==[python36] (
@@ -93,6 +102,8 @@ test_script:
 - ps: if ($env:TARGET -eq "vs2013") {
     .\runtests.ps1 }
 - ps: if ($env:TARGET -eq "vs2015") {
+    .\runtests.ps1 }
+- ps: if ($env:TARGET -eq "vs2017") {
     .\runtests.ps1 }
 - cmd: if [%TARGET%]==[cygwin] (
     C:\cygwin\bin\bash -e -l -c "./runtests.sh" )
