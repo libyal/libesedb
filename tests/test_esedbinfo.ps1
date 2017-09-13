@@ -1,6 +1,6 @@
 # Info tool testing script
 #
-# Version: 20170827
+# Version: 20170911
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -8,52 +8,36 @@ $ExitIgnore = 77
 
 $InputGlob = "*"
 
-$TestToolDirectory = "..\msvscpp\Release"
+Function GetTestToolDirectory
+{
+	$TestToolDirectory = ""
 
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\msvscpp\VSDebug"
+	ForEach (${VSDirectory} in "msvscpp vs2008 vs2010 vs2012 vs2013 vs2015 vs2017" -split " ")
+	{
+		ForEach (${VSConfiguration} in "Release VSDebug" -split " ")
+		{
+			$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}"
+
+			If (Test-Path ${TestToolDirectory})
+			{
+				Return ${TestToolDirectory}
+			}
+			ForEach (${VSPlatform} in "Win32 x64" -split " ")
+			{
+				$TestToolDirectory = "..\${VSDirectory}\${VSConfiguration}\${VSPlatform}"
+
+				If (Test-Path ${TestToolDirectory})
+				{
+					Return ${TestToolDirectory}
+				}
+			}
+		}
+	}
+	Return ${TestToolDirectory}
 }
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2010\Release"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2010\VSDebug"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2012\Release"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2012\VSDebug"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2013\Release"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2013\VSDebug"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2015\Release"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2015\VSDebug"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2017\Release"
-}
-If (-Not (Test-Path ${TestToolDirectory}))
-{
-	$TestToolDirectory = "..\vs2017\VSDebug"
-}
+
+$TestToolDirectory = GetTestToolDirectory
+
 If (-Not (Test-Path ${TestToolDirectory}))
 {
 	Write-Host "Missing test tool directory." -foreground Red

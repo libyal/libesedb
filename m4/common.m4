@@ -1,6 +1,6 @@
-dnl Functions for common
+dnl Checks for common headers and functions
 dnl
-dnl Version: 20161106
+dnl Version: 20170903
 
 dnl Function to test if a certain feature was enabled
 AC_DEFUN([AX_COMMON_ARG_ENABLE],

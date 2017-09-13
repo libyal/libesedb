@@ -19,11 +19,33 @@ from distutils.command.bdist import bdist
 from distutils.command.sdist import sdist
 from distutils.core import Extension, setup
 
+try:
+  from distutils.command.bdist_msi import bdist_msi
+except ImportError:
+  bdist_msi = None
+
+
+if not bdist_msi:
+  custom_bdist_msi = None
+else:
+  class custom_bdist_msi(bdist_msi):
+    """Custom handler for the bdist_msi command."""
+
+    def run(self):
+      """Builds an MSI."""
+      # bdist_msi does not support the library version so we add ".1"
+      # as a work around.
+      self.distribution.metadata.version = "{0:s}.1".format(
+          self.distribution.metadata.version)
+
+      bdist_msi.run(self)
+
 
 class custom_bdist_rpm(bdist):
   """Custom handler for the bdist_rpm command."""
 
   def run(self):
+    """Builds a RPM."""
     print("'setup.py bdist_rpm' command not supported use 'rpmbuild' instead.")
     sys.exit(1)
 
@@ -51,10 +73,12 @@ class custom_build_ext(build_ext):
     return output
 
   def build_extensions(self):
+    """Set up the build extensions."""
     # TODO: move build customization here?
     build_ext.build_extensions(self)
 
   def run(self):
+    """Runs the build extension."""
     compiler = new_compiler(compiler=self.compiler)
     if compiler.compiler_type == "msvc":
       self.define = [
@@ -77,6 +101,8 @@ class custom_build_ext(build_ext):
           if sys.version_info[0] >= 3:
             line = line.decode("ascii")
           configure_arguments.append("{0:s}=no".format(line))
+        elif line == b"--with-bzip2":
+          configure_arguments.append("--with-bzip2=no")
         elif line == b"--with-openssl":
           configure_arguments.append("--with-openssl=no")
         elif line == b"--with-zlib":
@@ -108,6 +134,7 @@ class custom_sdist(sdist):
   """Custom handler for the sdist command."""
 
   def run(self):
+    """Builds a source distribution (sdist) package."""
     if self.formats != ["gztar"]:
       print("'setup.py sdist' unsupported format.")
       sys.exit(1)
@@ -254,12 +281,6 @@ def GetPythonLibraryDirectoryPath():
 
 project_information = ProjectInformation()
 
-MODULE_VERSION = project_information.library_version
-if "bdist_msi" in sys.argv:
-  # bdist_msi does not support the library version so we add ".1"
-  # as a work around.
-  MODULE_VERSION = "{0:s}.1".format(MODULE_VERSION)
-
 PYTHON_LIBRARY_DIRECTORY = GetPythonLibraryDirectoryPath()
 
 SOURCES = []
@@ -300,7 +321,7 @@ LIBRARY_DATA_FILES = [license_file]
 setup(
     name=project_information.package_name,
     url=project_information.project_url,
-    version=MODULE_VERSION,
+    version=project_information.library_version,
     description=project_information.package_description,
     long_description=project_information.package_description,
     author="Joachim Metz",
@@ -308,6 +329,7 @@ setup(
     license="GNU Lesser General Public License v3 or later (LGPLv3+)",
     cmdclass={
         "build_ext": custom_build_ext,
+        "bdist_msi": custom_bdist_msi,
         "bdist_rpm": custom_bdist_rpm,
         "sdist": custom_sdist,
     },

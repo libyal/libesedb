@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20170831],
+ [20170913],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -14,9 +14,6 @@ AC_CONFIG_MACRO_DIR([m4])
 
 dnl Check for host type
 AC_CANONICAL_HOST
-
-dnl Check for large file support
-AC_SYS_LARGEFILE
 
 dnl Check for libtool DLL support
 AC_LIBTOOL_WIN32_DLL
@@ -42,6 +39,9 @@ dnl Check for compiler language support
 AC_C_CONST
 AC_C_VOLATILE
 
+dnl Check for large file support
+AC_SYS_LARGEFILE
+
 dnl Check if WINAPI support should be enabled
 AX_COMMON_CHECK_ENABLE_WINAPI
 
@@ -51,91 +51,121 @@ AX_COMMON_CHECK_ENABLE_WIDE_CHARACTER_TYPE
 dnl Check for type definitions
 AX_TYPES_CHECK_LOCAL
 
-dnl Checks for libraries and library functions
+dnl Check if common required headers and functions are available
 AX_COMMON_CHECK_LOCAL
 
-dnl Check for enabling libcerror for cross-platform C error functions
+dnl Check if libcerror or required headers and functions are available
 AX_LIBCERROR_CHECK_ENABLE
 
-dnl Check for enabling libcthreads for cross-platform C threads functions
+dnl Check if libcthreads or required headers and functions are available
 AX_LIBCTHREADS_CHECK_ENABLE
 
-dnl Check for enabling libcdata for cross-platform C generic data functions
+dnl Check if libcdata or required headers and functions are available
 AX_LIBCDATA_CHECK_ENABLE
 
-dnl Check for enabling libclocale for cross-platform C locale functions
+dnl Check if libclocale or required headers and functions are available
 AX_LIBCLOCALE_CHECK_ENABLE
 
-dnl Check for enabling libcnotify for cross-platform C notification functions
+dnl Check if libcnotify or required headers and functions are available
 AX_LIBCNOTIFY_CHECK_ENABLE
 
-dnl Check for enabling libcsplit for cross-platform C split string functions
+dnl Check if libcsplit or required headers and functions are available
 AX_LIBCSPLIT_CHECK_ENABLE
 
-dnl Check for enabling libuna for Unicode string support
+dnl Check if libuna or required headers and functions are available
 AX_LIBUNA_CHECK_ENABLE
 
-dnl Check for enabling libcfile for cross-platform C file functions
+dnl Check if libcfile or required headers and functions are available
 AX_LIBCFILE_CHECK_ENABLE
 
-dnl Check for enabling libcpath for cross-platform C path functions
+dnl Check if libcpath or required headers and functions are available
 AX_LIBCPATH_CHECK_ENABLE
 
-dnl Check for enabling libbfio for basic file IO support
+dnl Check if libbfio or required headers and functions are available
 AX_LIBBFIO_CHECK_ENABLE
 
-dnl Check for enabling libfcache for file value cache support
+dnl Check if libfcache or required headers and functions are available
 AX_LIBFCACHE_CHECK_ENABLE
 
-dnl Check for enabling libfdata for file data types support
+dnl Check if libfdata or required headers and functions are available
 AX_LIBFDATA_CHECK_ENABLE
 
-dnl Check for enabling libfdatetime for date and time formats support
+dnl Check if libfdatetime or required headers and functions are available
 AX_LIBFDATETIME_CHECK_ENABLE
 
-dnl Check for enabling libfguid for GUID/UUID format support
+dnl Check if libfguid or required headers and functions are available
 AX_LIBFGUID_CHECK_ENABLE
 
-dnl Check for enabling libfvalue for file value support
+dnl Check if libfvalue or required headers and functions are available
 AX_LIBFVALUE_CHECK_ENABLE
 
-dnl Check for library function support
-AX_LIBESEDB_CHECK_LOCAL
-
-dnl Check for enabling libfwnt for file Windows NT type support
+dnl Check if libfwnt or required headers and functions are available
 AX_LIBFWNT_CHECK_ENABLE
 
-dnl Check for enabling libfmapi for file MAPI types support
-AX_LIBFMAPI_CHECK_ENABLE
+dnl Check if libesedb required headers and functions are available
+AX_LIBESEDB_CHECK_LOCAL
 
-dnl Check for enabling libmapidb for MAPI database support
-AX_LIBMAPIDB_CHECK_ENABLE
-
-dnl Check for esedbtools function support
-AX_ESEDBTOOLS_CHECK_LOCAL
-
-dnl Check if libesedb python bindings (pyesedb) should be build
+dnl Check if libesedb Python bindings (pyesedb) required headers and functions are available
 AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
 AX_PYTHON2_CHECK_ENABLE
 AX_PYTHON3_CHECK_ENABLE
 
-AM_CONDITIONAL(
- HAVE_PYTHON_TESTS,
- [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
-
-dnl Headers included in various places
-AC_CHECK_HEADERS([stdarg.h varargs.h])
-
 AS_IF(
- [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
- [AC_MSG_FAILURE(
-  [Missing headers: stdarg.h and varargs.h],
-  [1])
- ])
+  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [dnl Headers included in pyesedb/pyesedb_error.c
+  AC_CHECK_HEADERS([stdarg.h varargs.h])
 
-dnl Check for test function support
+  AS_IF(
+    [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+    [AC_MSG_FAILURE(
+      [Missing headers: stdarg.h and varargs.h],
+      [1])
+    ])
+  ])
+
+AM_CONDITIONAL(
+  HAVE_PYTHON_TESTS,
+  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
+
+dnl Check if libfmapi or required headers and functions are available
+AX_LIBFMAPI_CHECK_ENABLE
+
+dnl Check if libmapidb or required headers and functions are available
+AX_LIBMAPIDB_CHECK_ENABLE
+
+dnl Check if esedbtools required headers and functions are available
+AX_ESEDBTOOLS_CHECK_LOCAL
+
+dnl Check if libesedb should be build with verbose output
+AX_COMMON_CHECK_ENABLE_VERBOSE_OUTPUT
+
+dnl Check if libesedb should be build with debug output
+AX_COMMON_CHECK_ENABLE_DEBUG_OUTPUT
+
+dnl Check if tests required headers and functions are available
 AX_TESTS_CHECK_LOCAL
+
+dnl Check if DLL support is needed
+AS_IF(
+ [test "x$enable_shared" = xyes],
+ [AS_CASE(
+  [$host],
+  [*cygwin* | *mingw*],
+  [AC_DEFINE(
+   [HAVE_DLLMAIN],
+   [1],
+   [Define to 1 to enable the DllMain function.])
+  AC_SUBST(
+   [HAVE_DLLMAIN],
+   [1])
+
+  dnl Used in tests
+  AC_SUBST(
+   [LIBESEDB_DLL_IMPORT],
+   ["-DLIBESEDB_DLL_IMPORT"])
+  ])
+ ])
 
 dnl Set additional compiler flags
 CFLAGS="$CFLAGS -Wall";
@@ -168,12 +198,7 @@ AC_SUBST(
  [SPEC_DATE],
  [`date +"%a %b %e %Y" 2> /dev/null`])
 
-dnl Set the current working directory for PackageMaker files
-AC_SUBST(
- [PWD],
- [`pwd`])
-
-dnl Have configure make the Makefiles
+dnl Generate Makefiles
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([common/Makefile])
@@ -194,30 +219,30 @@ AC_CONFIG_FILES([libfguid/Makefile])
 AC_CONFIG_FILES([libfvalue/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
-AC_CONFIG_FILES([libfmapi/Makefile])
-AC_CONFIG_FILES([libmapidb/Makefile])
-AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([pyesedb/Makefile])
 AC_CONFIG_FILES([pyesedb-python2/Makefile])
 AC_CONFIG_FILES([pyesedb-python3/Makefile])
+AC_CONFIG_FILES([libfmapi/Makefile])
+AC_CONFIG_FILES([libmapidb/Makefile])
+AC_CONFIG_FILES([esedbtools/Makefile])
 AC_CONFIG_FILES([po/Makefile.in])
 AC_CONFIG_FILES([po/Makevars])
 AC_CONFIG_FILES([manuals/Makefile])
 AC_CONFIG_FILES([tests/Makefile])
 AC_CONFIG_FILES([msvscpp/Makefile])
-dnl Have configure make the include files
+dnl Generate header files
 AC_CONFIG_FILES([include/libesedb.h])
 AC_CONFIG_FILES([include/libesedb/definitions.h])
 AC_CONFIG_FILES([include/libesedb/features.h])
 AC_CONFIG_FILES([include/libesedb/types.h])
 AC_CONFIG_FILES([libesedb/libesedb_definitions.h])
-dnl Have configure make distribution specific files
+dnl Generate distribution specific files
 AC_CONFIG_FILES([common/types.h])
 AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([libesedb/libesedb.rc])
 AC_CONFIG_FILES([libesedb.pc])
 AC_CONFIG_FILES([libesedb.spec])
-dnl Have configure write its configuration
+dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 
 AC_OUTPUT
@@ -254,5 +279,4 @@ Features:
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);
-
 
