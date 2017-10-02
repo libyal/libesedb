@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20170828
+# Version: 20170717
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -357,7 +357,7 @@ fi
 
 CONFIGURE_OPTIONS="--enable-shared=no";
 
-if test ${HAVE_ENABLE_WIDE_CHARACTER_TYPE};
+if test ${HAVE_ENABLE_WIDE_CHARACTER_TYPE} -eq 0;
 then
 	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --enable-wide-character-type";
 fi

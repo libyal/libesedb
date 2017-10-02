@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20161030
+# Version: 20170916
 
 # Generic auto-generated build files
 *~
@@ -15,16 +15,16 @@
 *.lo
 *.log
 *.loT
-*.Plo
-*.Po
 *.o
 *.obj
+*.Plo
+*.Po
 *.so
 *.so.[0-9][0-9]*
 *.so.[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*
 *.swp
-*.trs
 *.Tpo
+*.trs
 .deps
 .libs
 INSTALL
@@ -53,9 +53,6 @@ stamp-h[1-9]
 /install-sh
 /libtool
 /ltmain.sh
-/missing
-/test-driver
-/ylwrap
 /m4/codeset.m4
 /m4/extern-inline.m4
 /m4/fcntl-o.m4
@@ -68,8 +65,8 @@ stamp-h[1-9]
 /m4/intldir.m4
 /m4/intlmacosx.m4
 /m4/intmax.m4
-/m4/inttypes-pri.m4
 /m4/inttypes_h.m4
+/m4/inttypes-pri.m4
 /m4/lcmessage.m4
 /m4/lib-ld.m4
 /m4/lib-link.m4
@@ -77,14 +74,14 @@ stamp-h[1-9]
 /m4/libtool.m4
 /m4/lock.m4
 /m4/longlong.m4
+/m4/lt~obsolete.m4
 /m4/ltoptions.m4
 /m4/ltsugar.m4
 /m4/ltversion.m4
-/m4/lt~obsolete.m4
 /m4/nls.m4
 /m4/po.m4
-/m4/progtest.m4
 /m4/printf-posix.m4
+/m4/progtest.m4
 /m4/size_max.m4
 /m4/stdint_h.m4
 /m4/threadlib.m4
@@ -93,6 +90,7 @@ stamp-h[1-9]
 /m4/wchar_t.m4
 /m4/wint_t.m4
 /m4/xsize.m4
+/missing
 /po/boldquot.sed
 /po/en@boldquot.header
 /po/en@quot.header
@@ -100,15 +98,15 @@ stamp-h[1-9]
 /po/Makefile.in.in
 /po/Makevars
 /po/Makevars.template
-/po/Rules-quot
 /po/POTFILES
 /po/quot.sed
 /po/remove-potcdate.sed
 /po/remove-potcdate.sin
+/po/Rules-quot
+/test-driver
+/ylwrap
 
 # Project specific files
-/libesedb.pc
-/libesedb.spec
 /common/config.h
 /common/config.h.in
 /common/types.h
@@ -117,18 +115,22 @@ stamp-h[1-9]
 /include/libesedb/definitions.h
 /include/libesedb/features.h
 /include/libesedb/types.h
+/libesedb.pc
+/libesedb.spec
 /libesedb/libesedb.rc
 /libesedb/libesedb_definitions.h
 /pyesedb-python[23]/*.[ch]
+/esedbtools/*.exe
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
+/tests/*.exe
 /tests/esedb_test_catalog
 /tests/esedb_test_catalog_definition
 /tests/esedb_test_column
 /tests/esedb_test_column_type
-/tests/esedb_test_database
 /tests/esedb_test_data_definition
 /tests/esedb_test_data_segment
+/tests/esedb_test_database
 /tests/esedb_test_error
 /tests/esedb_test_file
 /tests/esedb_test_index

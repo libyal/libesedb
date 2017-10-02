@@ -83,11 +83,11 @@ extern "C" {
 #endif
 
 #if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
-#define system_string_vsprintf \
+#define system_string_vsnprintf \
 	wide_string_vsnwprintf
 
 #else
-#define system_string_vsprintf( string, size, format, ... ) \
+#define system_string_vsnprintf( string, size, format, ... ) \
 	wide_string_vsnwprintf( string, size, format, __VA_ARGS__ )
 #endif
 
@@ -133,15 +133,18 @@ extern "C" {
 #endif
 
 #if defined( __BORLANDC__ ) && ( __BORLANDC__ < 0x0560 )
-#define system_string_vsprintf \
+#define system_string_vsnprintf \
 	narrow_string_vsnprintf
 
 #else
-#define system_string_vsprintf( string, size, format, ... ) \
+#define system_string_vsnprintf( string, size, format, ... ) \
 	narrow_string_vsnprintf( string, size, format, __VA_ARGS__ )
 #endif
 
 #endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
+
+/* For backwards compatibility */
+#define system_string_vsprintf system_string_vsnprintf
 
 #if defined( _cplusplus )
 }
