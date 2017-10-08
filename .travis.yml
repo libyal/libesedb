@@ -52,8 +52,8 @@ before_install:
   - if test ${TARGET} = "coverity"; then echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-; fi
 install:
   - if test ${TRAVIS_OS_NAME} = "osx"; then export SED="/usr/local/bin/gsed"; fi
-  - if test ${TARGET} = "shared"; then ./syncsharedlibs.sh; fi
-  - ./synclibs.sh && ./autogen.sh
+  - if test ${TARGET} = "shared"; then ./syncsharedlibs.sh --use-head; fi
+  - ./synclibs.sh --use-head && ./autogen.sh
   - if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
 script:
   - if test ${TRAVIS_OS_NAME} = "linux"; then export PATH=$(echo $PATH | tr ":" "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s/::/:/g"); fi

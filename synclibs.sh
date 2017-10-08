@@ -1,7 +1,10 @@
 #!/bin/sh
 # Script that synchronizes the local library dependencies
 #
-# Version: 20161212
+# Version: 20171003
+
+EXIT_SUCCESS=0;
+EXIT_FAILURE=1;
 
 GIT_URL_PREFIX="https://github.com/libyal";
 LOCAL_LIBS="libbfio libcdata libcerror libcfile libclocale libcnotify libcpath libcsplit libcthreads libfcache libfdata libfdatetime libfguid libfmapi libfvalue libfwnt libmapidb libuna";
@@ -11,11 +14,29 @@ IFS=" ";
 
 for LOCAL_LIB in ${LOCAL_LIBS};
 do
-	git clone ${GIT_URL_PREFIX}/${LOCAL_LIB}.git ${LOCAL_LIB}-$$;
+	GIT_URL="${GIT_URL_PREFIX}/${LOCAL_LIB}.git";
+
+	git clone --quiet ${GIT_URL} ${LOCAL_LIB}-$$;
 
 	if ! test -d ${LOCAL_LIB}-$$;
 	then
-		continue
+		echo "Unable to git clone: ${GIT_URL}";
+
+		IFS=$OLDIFS;
+
+		exit ${EXIT_FAILURE};
+	fi
+	(cd ${LOCAL_LIB}-$$ && git fetch --quiet --all --tags --prune)
+
+	LATEST_TAG=`cd ${LOCAL_LIB}-$$ && git describe --tags --abbrev=0`;
+
+	if test -n ${LATEST_TAG} && test "$1" != "--use-head";
+	then
+		echo "Synchronizing: ${LOCAL_LIB} from ${GIT_URL} tag ${LATEST_TAG}";
+
+		(cd ${LOCAL_LIB}-$$ && git checkout --quiet tags/${LATEST_TAG});
+	else
+		echo "Synchronizing: ${LOCAL_LIB} from ${GIT_URL} HEAD";
 	fi
 
 	rm -rf ${LOCAL_LIB};
@@ -23,7 +44,11 @@ do
 
 	if ! test -d ${LOCAL_LIB};
 	then
-		continue
+		echo "Missing directory: ${LOCAL_LIB}";
+
+		IFS=$OLDIFS;
+
+		exit ${EXIT_FAILURE};
 	fi
 
 	LOCAL_LIB_UPPER=`echo "${LOCAL_LIB}" | tr "[a-z]" "[A-Z]"`;
@@ -149,4 +174,6 @@ SED_SCRIPT="/^$/ {
 done
 
 IFS=$OLDIFS;
+
+exit ${EXIT_SUCCESS};
 
