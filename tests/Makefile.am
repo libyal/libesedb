@@ -31,6 +31,7 @@ TESTS = \
 	$(TESTS_PYESEDB)
 
 check_SCRIPTS = \
+	pyesedb_test_file.py \
 	pyesedb_test_support.py \
 	test_esedbexport.sh \
 	test_esedbinfo.sh \
@@ -160,17 +161,24 @@ esedb_test_error_LDADD = \
 
 esedb_test_file_SOURCES = \
 	esedb_test_file.c \
+	esedb_test_functions.c esedb_test_functions.h \
 	esedb_test_getopt.c esedb_test_getopt.h \
+	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
 	esedb_test_libclocale.h \
 	esedb_test_libcnotify.h \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
 	esedb_test_macros.h \
-	esedb_test_memory.c esedb_test_memory.h
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
 
 esedb_test_file_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
 	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
 	@LIBCDATA_LIBADD@ \
@@ -298,6 +306,7 @@ esedb_test_record_LDADD = \
 	@LIBCERROR_LIBADD@
 
 esedb_test_support_SOURCES = \
+	esedb_test_functions.c esedb_test_functions.h \
 	esedb_test_getopt.c esedb_test_getopt.h \
 	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
@@ -306,7 +315,8 @@ esedb_test_support_SOURCES = \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
 	esedb_test_macros.h \
-	esedb_test_support.c
+	esedb_test_support.c \
+	esedb_test_unused.h
 
 esedb_test_support_LDADD = \
 	@LIBBFIO_LIBADD@ \

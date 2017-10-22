@@ -68,12 +68,14 @@ rm -rf %{buildroot}
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README
+%license COPYING
+%doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
 %files devel
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README ChangeLog
+%license COPYING
+%doc AUTHORS README ChangeLog
 %{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
@@ -83,21 +85,24 @@ rm -rf %{buildroot}
 
 %files python
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README
+%license COPYING
+%doc AUTHORS README
 %{_libdir}/python2*/site-packages/*.a
 %{_libdir}/python2*/site-packages/*.la
 %{_libdir}/python2*/site-packages/*.so
 
 %files python3
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README
+%license COPYING
+%doc AUTHORS README
 %{_libdir}/python3*/site-packages/*.a
 %{_libdir}/python3*/site-packages/*.la
 %{_libdir}/python3*/site-packages/*.so
 
 %files tools
 %defattr(644,root,root,755)
-%doc AUTHORS COPYING NEWS README
+%license COPYING
+%doc AUTHORS README
 %attr(755,root,root) %{_bindir}/*
 %{_mandir}/man1/*
 

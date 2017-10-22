@@ -3767,6 +3767,7 @@ int export_handle_export_long_record_value(
 
 		return( 0 );
 	}
+/* TODO remove call to export_get_long_value_data */
 	if( export_get_long_value_data(
 	     long_value,
 	     &value_data,
@@ -3783,6 +3784,11 @@ int export_handle_export_long_record_value(
 
 		goto on_error;
 	}
+	memory_free(
+	 value_data );
+
+	value_data = NULL;
+
 	switch( column_type )
 	{
 		case LIBESEDB_COLUMN_TYPE_TEXT:
