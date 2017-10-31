@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20170717
+# Version: 20171026
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -176,7 +176,12 @@ run_setup_py_tests()
 {
 	PYTHON=$1;
 
-	${PYTHON} setup.py build;
+	if test ${CHECK_WITH_STRACE} -eq 1;
+	then
+		strace ${PYTHON} setup.py build;
+	else
+		${PYTHON} setup.py build;
+	fi
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
