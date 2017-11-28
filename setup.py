@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20160316
+# Version: 20171105
 
 from __future__ import print_function
 import glob
@@ -166,10 +166,10 @@ class custom_sdist(sdist):
 
 
 class ProjectInformation(object):
-  """Class to define the project information."""
+  """Project information."""
 
   def __init__(self):
-    """Initializes a project information object."""
+    """Initializes project information."""
     super(ProjectInformation, self).__init__()
     self.include_directories = []
     self.library_name = None
@@ -300,6 +300,12 @@ if platform.system() == "Windows":
 # shared libaries since pip does not integrate well with the system package
 # management.
 for library_name in project_information.library_names:
+  for source_file in glob.glob(os.path.join(library_name, "*.[ly]")):
+    generated_source_file = "{0:s}.c".format(source_file[:-2])
+    if not os.path.exists(generated_source_file):
+      raise RuntimeError("Missing generated source file: {0:s}".format(
+          generated_source_file))
+
   source_files = glob.glob(os.path.join(library_name, "*.c"))
   SOURCES.extend(source_files)
 

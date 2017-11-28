@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20171026
+# Version: 20171127
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -174,14 +174,16 @@ run_configure_make_check_python()
 
 run_setup_py_tests()
 {
+	# Skip this test when running Cygwin on AppVeyor.
+	if test -n "${APPVEYOR}" && test ${TARGET} = "cygwin";
+	then
+		echo "Running: 'setup.py build' skipped";
+
+		return ${EXIT_SUCCESS};
+	fi
 	PYTHON=$1;
 
-	if test ${CHECK_WITH_STRACE} -eq 1;
-	then
-		strace ${PYTHON} setup.py build;
-	else
-		${PYTHON} setup.py build;
-	fi
+	${PYTHON} setup.py build;
 	RESULT=$?;
 
 	if test ${RESULT} -ne ${EXIT_SUCCESS};
@@ -265,7 +267,7 @@ then
 	PYTHON2=`which python2 2> /dev/null`;
 
         # Note that "test -x" on Mac OS X will succeed if the argument is not set.
-	if test ! -z ${PYTHON2} && test -x ${PYTHON2};
+	if test -n "${PYTHON2}" && test -x ${PYTHON2};
 	then
 		export PYTHON_VERSION=2;
 
@@ -296,7 +298,7 @@ then
 	PYTHON3=`which python3 2> /dev/null`;
 
         # Note that "test -x" on Mac OS X will succeed if the argument is not set.
-	if test ! -z ${PYTHON3} && test -x ${PYTHON3};
+	if test -n "${PYTHON3}" && test -x ${PYTHON3};
 	then
 		export PYTHON_VERSION=3;
 
