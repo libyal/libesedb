@@ -24,7 +24,7 @@ BEGIN
       VALUE "FileDescription",		"Library to access the Extensible Storage Engine (ESE) Database File (EDB) format\0"
       VALUE "FileVersion",		"@VERSION@" "\0"
       VALUE "InternalName",		"libesedb.dll\0"
-      VALUE "LegalCopyright",		"(C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>\0"
+      VALUE "LegalCopyright",		"(C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>\0"
       VALUE "OriginalFilename",		"libesedb.dll\0"
       VALUE "ProductName",		"libesedb\0"
       VALUE "ProductVersion",		"@VERSION@" "\0"

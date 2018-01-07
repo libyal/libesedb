@@ -2,7 +2,7 @@
 #
 # Python-bindings file type test script
 #
-# Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
+# Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
 #
 # Refer to AUTHORS for acknowledgements.
 #

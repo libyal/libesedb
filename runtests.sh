@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20171127
+# Version: 20171210
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -213,7 +213,12 @@ echo "${CONFIGURE_HELP}" | grep -- '--enable-python' > /dev/null;
 
 HAVE_ENABLE_PYTHON=$?;
 
-PYTHON_CONFIG=`whereis python-config | sed 's/^.*:[ ]*//' 2> /dev/null`;
+PYTHON_CONFIG="";
+
+if test -x /usr/bin/whereis;
+then
+	PYTHON_CONFIG=`/usr/bin/whereis python-config | sed 's/^.*:[ ]*//' 2> /dev/null`;
+fi
 
 # Test "./configure && make && make check" without options.
 

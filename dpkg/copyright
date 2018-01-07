@@ -3,7 +3,7 @@ Upstream-Name: libesedb
 Source: https://github.com/libyal/libesedb
 
 Files: *
-Copyright: 2009-2017, Joachim Metz <joachim.metz@gmail.com>
+Copyright: 2009-2018, Joachim Metz <joachim.metz@gmail.com>
 License: LGPL-3.0+
 
 License: LGPL-3.0+

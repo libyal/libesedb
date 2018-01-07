@@ -1,7 +1,7 @@
 /*
  * Memory functions
  *
- * Copyright (C) 2009-2017, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -88,7 +88,7 @@ extern "C" {
 
 #elif defined( WINAPI )
 #define memory_free( buffer ) \
-	HeapFree( GetProcessHeap(), 0, (LPVOID) buffer )
+	( buffer == NULL ) ? TRUE : HeapFree( GetProcessHeap(), 0, (LPVOID) buffer )
 
 #elif defined( HAVE_FREE )
 #define memory_free( buffer ) \
