@@ -1,7 +1,7 @@
 /*
- * Export functions
+ * System Resource Usage Monitor (SRUM) database export functions
  *
- * Copyright (c) 2010, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,57 +19,30 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _EXPORT_H )
-#define _EXPORT_H
+#if !defined( _SRUMDB_H )
+#define _SRUMDB_H
 
 #include <common.h>
 #include <file_stream.h>
 #include <types.h>
 
+#include "esedbtools_libcerror.h"
 #include "esedbtools_libesedb.h"
+#include "log_handle.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-void export_binary_data(
-      const uint8_t *data,
-      size_t data_size,
-      FILE *stream );
-
-void export_narrow_text(
-      const char *string,
-      size_t string_size,
-      FILE *stream );
-
-void export_text(
-      const system_character_t *string,
-      size_t string_size,
-      FILE *stream );
-
-int export_filetime(
+int srumdb_export_record_guid(
      libesedb_record_t *record,
-     int record_value_entry,
-     uint8_t byte_order,
      FILE *record_file_stream,
-     libcerror_error_t **error );
-
-int export_floatingtime(
-     libesedb_record_t *record,
-     int record_value_entry,
-     uint8_t byte_order,
-     FILE *record_file_stream,
-     libcerror_error_t **error );
-
-int export_get_long_value_data(
-     libesedb_long_value_t *long_value,
-     uint8_t **long_value_data,
-     size_t *long_value_data_size,
+     log_handle_t *log_handle,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _EXPORT_H ) */
+#endif /* !defined( _SRUMDB_H ) */
 

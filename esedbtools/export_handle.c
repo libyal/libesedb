@@ -38,6 +38,7 @@
 #include "exchange.h"
 #include "export.h"
 #include "export_handle.h"
+#include "srumdb.h"
 #include "webcache.h"
 #include "windows_search.h"
 #include "windows_security.h"
@@ -1521,6 +1522,24 @@ int export_handle_export_table(
 				known_table = 1;
 
 				result = webcache_export_record_container(
+				          record,
+				          table_file_stream,
+				          log_handle,
+				          error );
+			}
+		}
+		if( table_name_length == 38 )
+		{
+			if( ( table_name[ 0 ] == '{' )
+			 && ( table_name[ 9 ] == '-' )
+			 && ( table_name[ 14 ] == '-' )
+			 && ( table_name[ 19 ] == '-' )
+			 && ( table_name[ 24 ] == '-' )
+			 && ( table_name[ 37 ] == '}' ) )
+			{
+				known_table = 1;
+
+				result = srumdb_export_record_guid(
 				          record,
 				          table_file_stream,
 				          log_handle,

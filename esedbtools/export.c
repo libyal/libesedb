@@ -168,7 +168,7 @@ void export_text(
 	}
 }
 
-/* Exports a filetime value
+/* Exports a FILETIME value
  * Returns 1 if successful or -1 on error
  */
 int export_filetime(
@@ -178,7 +178,7 @@ int export_filetime(
      FILE *record_file_stream,
      libcerror_error_t **error )
 {
-	system_character_t filetime_string[ 32 ];
+	system_character_t date_time_string[ 32 ];
 
 	libfdatetime_filetime_t *filetime = NULL;
 	uint8_t *value_data               = NULL;
@@ -330,7 +330,7 @@ int export_filetime(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create filetime.",
+				 "%s: unable to create FILETIME.",
 				 function );
 
 				goto on_error;
@@ -346,7 +346,7 @@ int export_filetime(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy byte stream to filetime.",
+				 "%s: unable to copy byte stream to FILETIME.",
 				 function );
 
 				goto on_error;
@@ -354,14 +354,14 @@ int export_filetime(
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libfdatetime_filetime_copy_to_utf16_string(
 			          filetime,
-			          (uint16_t *) filetime_string,
+			          (uint16_t *) date_time_string,
 			          32,
 			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #else
 			result = libfdatetime_filetime_copy_to_utf8_string(
 			          filetime,
-			          (uint8_t *) filetime_string,
+			          (uint8_t *) date_time_string,
 			          32,
 			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
@@ -372,7 +372,7 @@ int export_filetime(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
-				 "%s: unable to copy filetime to string.",
+				 "%s: unable to copy FILETIME to string.",
 				 function );
 
 				goto on_error;
@@ -385,7 +385,7 @@ int export_filetime(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free filetime.",
+				 "%s: unable to free FILETIME.",
 				 function );
 
 				goto on_error;
@@ -393,7 +393,7 @@ int export_filetime(
 			fprintf(
 			 record_file_stream,
 			 "%" PRIs_SYSTEM "",
-			 filetime_string );
+			 date_time_string );
 		}
 	}
 	else
@@ -413,6 +413,259 @@ on_error:
 	{
 		libfdatetime_filetime_free(
 		 &filetime,
+		 NULL );
+	}
+	if( value_data != NULL )
+	{
+		memory_free(
+		 value_data );
+	}
+	return( -1 );
+}
+
+/* Exports a floating time value
+ * Returns 1 if successful or -1 on error
+ */
+int export_floatingtime(
+     libesedb_record_t *record,
+     int record_value_entry,
+     uint8_t byte_order,
+     FILE *record_file_stream,
+     libcerror_error_t **error )
+{
+	system_character_t date_time_string[ 32 ];
+
+	libfdatetime_floatingtime_t *floatingtime = NULL;
+	uint8_t *value_data                       = NULL;
+	static char *function                     = "export_floatingtime";
+	size_t value_data_size                    = 0;
+	uint32_t column_type                      = 0;
+	uint8_t value_data_flags                  = 0;
+	int result                                = 0;
+
+	if( record == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record.",
+		 function );
+
+		return( -1 );
+	}
+	if( record_file_stream == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid record file stream.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_record_get_column_type(
+	     record,
+	     record_value_entry,
+	     &column_type,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve column type of value: %d.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( column_type != LIBESEDB_COLUMN_TYPE_DATE_TIME )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported column type: %" PRIu32 "",
+		 function,
+		 column_type );
+
+		goto on_error;
+	}
+	if( libesedb_record_get_value_data_size(
+	     record,
+	     record_value_entry,
+	     &value_data_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data size.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( value_data_size > 0 )
+	{
+		value_data = (uint8_t *) memory_allocate(
+		                          sizeof( uint8_t ) * value_data_size );
+
+		if( value_data == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+			 "%s: unable to create value data.",
+			 function );
+
+			goto on_error;
+		}
+		if( libesedb_record_get_value_data(
+		     record,
+		     record_value_entry,
+		     value_data,
+		     value_data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve value: %d data.",
+			 function,
+			 record_value_entry );
+
+			goto on_error;
+		}
+	}
+	if( libesedb_record_get_value_data_flags(
+	     record,
+	     record_value_entry,
+	     &value_data_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve value: %d data flags.",
+		 function,
+		 record_value_entry );
+
+		goto on_error;
+	}
+	if( ( value_data_flags & ~( LIBESEDB_VALUE_FLAG_VARIABLE_SIZE ) ) == 0 )
+	{
+		if( value_data != NULL )
+		{
+			if( value_data_size != 8 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+				 LIBCERROR_ARGUMENT_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported value data size: %" PRIzd "",
+				 function,
+				 value_data_size );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_initialize(
+			     &floatingtime,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+				 "%s: unable to create floating time.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_copy_from_byte_stream(
+			     floatingtime,
+			     value_data,
+			     value_data_size,
+			     byte_order,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy byte stream to floating time.",
+				 function );
+
+				goto on_error;
+			}
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			result = libfdatetime_floatingtime_copy_to_utf16_string(
+			          floatingtime,
+			          (uint16_t *) date_time_string,
+			          32,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME,
+			          error );
+#else
+			result = libfdatetime_floatingtime_copy_to_utf8_string(
+			          floatingtime,
+			          (uint8_t *) date_time_string,
+			          32,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME,
+			          error );
+#endif
+			if( result != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+				 "%s: unable to copy floating time to string.",
+				 function );
+
+				goto on_error;
+			}
+			if( libfdatetime_floatingtime_free(
+			     &floatingtime,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free floating time.",
+				 function );
+
+				goto on_error;
+			}
+			fprintf(
+			 record_file_stream,
+			 "%" PRIs_SYSTEM "",
+			 date_time_string );
+		}
+	}
+	else
+	{
+		export_binary_data(
+		 value_data,
+		 value_data_size,
+		 record_file_stream );
+	}
+	memory_free(
+	 value_data );
+
+	return( 1 );
+
+on_error:
+	if( floatingtime != NULL )
+	{
+		libfdatetime_floatingtime_free(
+		 &floatingtime,
 		 NULL );
 	}
 	if( value_data != NULL )

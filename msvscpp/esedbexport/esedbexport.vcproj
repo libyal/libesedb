@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\esedbtools\srumdb.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\webcache.c"
 				>
 			</File>
@@ -319,6 +323,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\log_handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\srumdb.h"
 				>
 			</File>
 			<File
