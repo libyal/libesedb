@@ -83,6 +83,24 @@ int info_handle_close(
      info_handle_t *info_handle,
      libcerror_error_t **error );
 
+int info_handle_column_fprint(
+     info_handle_t *info_handle,
+     int column_iterator,
+     libesedb_column_t *column,
+     libcerror_error_t **error );
+
+int info_handle_index_fprint(
+     info_handle_t *info_handle,
+     int index_iterator,
+     libesedb_index_t *index,
+     libcerror_error_t **error );
+
+int info_handle_table_fprint(
+     info_handle_t *info_handle,
+     int table_iterator,
+     libesedb_table_t *table,
+     libcerror_error_t **error );
+
 int info_handle_file_fprint(
      info_handle_t *info_handle,
      libcerror_error_t **error );
