@@ -26,6 +26,7 @@
 #include <file_stream.h>
 #include <types.h>
 
+#include "esedbtools_libcdata.h"
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libesedb.h"
 #include "log_handle.h"
@@ -131,6 +132,12 @@ int export_handle_close(
      export_handle_t *export_handle,
      libcerror_error_t **error );
 
+/* Database functions
+ */
+int export_handle_free_table_name(
+     char **table_name,
+     libcerror_error_t **error );
+
 /* Item generic export functions
  */
 int export_handle_create_item_filename(
@@ -153,6 +160,7 @@ int export_handle_create_text_item_file(
 
 int export_handle_export_table(
      export_handle_t *export_handle,
+     int database_type,
      libesedb_table_t *table,
      int table_index,
      const system_character_t *table_name,

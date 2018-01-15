@@ -609,14 +609,14 @@ int export_floatingtime(
 			          floatingtime,
 			          (uint16_t *) date_time_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #else
 			result = libfdatetime_floatingtime_copy_to_utf8_string(
 			          floatingtime,
 			          (uint8_t *) date_time_string,
 			          32,
-			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME,
+			          LIBFDATETIME_STRING_FORMAT_TYPE_CTIME | LIBFDATETIME_STRING_FORMAT_FLAG_DATE_TIME_NANO_SECONDS,
 			          error );
 #endif
 			if( result != 1 )

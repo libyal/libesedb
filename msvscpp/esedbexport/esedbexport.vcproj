@@ -176,6 +176,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\database_types.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\esedbexport.c"
 				>
 			</File>
@@ -234,6 +238,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\database_types.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\esedbtools_getopt.h"
 				>
 			</File>
@@ -243,6 +251,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\esedbtools_libbfio.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\esedbtools_libcdata.h"
 				>
 			</File>
 			<File

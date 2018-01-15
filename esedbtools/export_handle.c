@@ -27,6 +27,8 @@
 #include <types.h>
 #include <wide_string.h>
 
+#include "database_types.h"
+#include "esedbtools_libcdata.h"
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libclocale.h"
 #include "esedbtools_libcnotify.h"
@@ -790,6 +792,42 @@ int export_handle_close(
 	return( 0 );
 }
 
+/* Database functions
+ */
+
+/* Frees a table name
+ * Returns 1 if successful or -1 on error
+ */
+int export_handle_free_table_name(
+     char **table_name,
+     libcerror_error_t **error )
+{
+	static char *function = "export_handle_free_table_name";
+
+	if( table_name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table name.",
+		 function );
+
+		return( -1 );
+	}
+	if( *table_name != NULL )
+	{
+		memory_free(
+		 *table_name );
+
+		*table_name = NULL;
+	}
+	return( 1 );
+}
+
+/* Item generic export functions
+ */
+
 /* Creates an item filename
  * Returns 1 if successful or -1 on error
  */
@@ -1073,6 +1111,7 @@ on_error:
  */
 int export_handle_export_table(
      export_handle_t *export_handle,
+     int database_type,
      libesedb_table_t *table,
      int table_index,
      const system_character_t *table_name,
@@ -1355,196 +1394,218 @@ int export_handle_export_table(
 
 			goto on_error;
 		}
+/* TODO move to separate export table functions */
 		known_table = 0;
 
-		if( table_name_length == 3 )
+		switch( database_type )
 		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "Msg" ),
-			     3 ) == 0 )
-			{
-				known_table = 1;
+			case DATABASE_TYPE_EXCHANGE:
+				if( table_name_length == 3 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "Msg" ),
+					     3 ) == 0 )
+					{
+						known_table = 1;
 
-				result = exchange_export_record_msg(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 6 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "Global" ),
-			     6 ) == 0 )
-			{
-				known_table = 1;
+						result = exchange_export_record_msg(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				else if( table_name_length == 6 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "Global" ),
+					     6 ) == 0 )
+					{
+						known_table = 1;
 
-				result = exchange_export_record_global(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 7 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "Folders" ),
-			     7 ) == 0 )
-			{
-				known_table = 1;
+						result = exchange_export_record_global(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				else if( table_name_length == 7 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "Folders" ),
+					     7 ) == 0 )
+					{
+						known_table = 1;
 
-				result = exchange_export_record_folders(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-			else if( system_string_compare(
-			          table_name,
-			          _SYSTEM_STRING( "Mailbox" ),
-			          7 ) == 0 )
-			{
-				known_table = 1;
+						result = exchange_export_record_folders(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+					else if( system_string_compare(
+						  table_name,
+						  _SYSTEM_STRING( "Mailbox" ),
+						  7 ) == 0 )
+					{
+						known_table = 1;
 
-				result = exchange_export_record_mailbox(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 10 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "Containers" ),
-			     10 ) == 0 )
-			{
-				known_table = 1;
+						result = exchange_export_record_mailbox(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				else if( table_name_length == 11 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "PerUserRead" ),
+					     11 ) == 0 )
+					{
+						known_table = 1;
 
-				result = webcache_export_record_containers(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 11 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "PerUserRead" ),
-			     11 ) == 0 )
-			{
-				known_table = 1;
+						result = exchange_export_record_per_user_read(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				break;
 
-				result = exchange_export_record_per_user_read(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 12 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "SmTblSection" ),
-			     12 ) == 0 )
-			{
-				known_table = 1;
+			case DATABASE_TYPE_SRUM:
+				if( table_name_length == 38 )
+				{
+					if( ( table_name[ 0 ] == '{' )
+					 && ( table_name[ 9 ] == '-' )
+					 && ( table_name[ 14 ] == '-' )
+					 && ( table_name[ 19 ] == '-' )
+					 && ( table_name[ 24 ] == '-' )
+					 && ( table_name[ 37 ] == '}' ) )
+					{
+						known_table = 1;
 
-				result = windows_security_export_record_smtblsection(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-			else if( system_string_compare(
-			          table_name,
-			          _SYSTEM_STRING( "SmTblVersion" ),
-			          12 ) == 0 )
-			{
-				known_table = 1;
+						result = srumdb_export_record_guid(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				break;
 
-				result = windows_security_export_record_smtblversion(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 14 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "SystemIndex_0A" ),
-			     14 ) == 0 )
-			{
-				known_table = 1;
+			case DATABASE_TYPE_WEBCACHE:
+				if( table_name_length == 10 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "Containers" ),
+					     10 ) == 0 )
+					{
+						known_table = 1;
 
-				result = windows_search_export_record_systemindex_0a(
-				          record,
-				          export_handle->ascii_codepage,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		else if( table_name_length == 16 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "SystemIndex_Gthr" ),
-			     16 ) == 0 )
-			{
-				known_table = 1;
+						result = webcache_export_record_containers(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				if( table_name_length >= 10 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "Container_" ),
+					     10 ) == 0 )
+					{
+						known_table = 1;
 
-				result = windows_search_export_record_systemindex_gthr(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		if( table_name_length >= 10 )
-		{
-			if( system_string_compare(
-			     table_name,
-			     _SYSTEM_STRING( "Container_" ),
-			     10 ) == 0 )
-			{
-				known_table = 1;
+						result = webcache_export_record_container(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				break;
 
-				result = webcache_export_record_container(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
-		}
-		if( table_name_length == 38 )
-		{
-			if( ( table_name[ 0 ] == '{' )
-			 && ( table_name[ 9 ] == '-' )
-			 && ( table_name[ 14 ] == '-' )
-			 && ( table_name[ 19 ] == '-' )
-			 && ( table_name[ 24 ] == '-' )
-			 && ( table_name[ 37 ] == '}' ) )
-			{
-				known_table = 1;
+			case DATABASE_TYPE_WINDOWS_SEARCH:
+				if( table_name_length == 14 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "SystemIndex_0A" ),
+					     14 ) == 0 )
+					{
+						known_table = 1;
 
-				result = srumdb_export_record_guid(
-				          record,
-				          table_file_stream,
-				          log_handle,
-				          error );
-			}
+						result = windows_search_export_record_systemindex_0a(
+							  record,
+							  export_handle->ascii_codepage,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				else if( table_name_length == 16 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "SystemIndex_Gthr" ),
+					     16 ) == 0 )
+					{
+						known_table = 1;
+
+						result = windows_search_export_record_systemindex_gthr(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				break;
+
+			case DATABASE_TYPE_WINDOWS_SECURITY:
+				if( table_name_length == 12 )
+				{
+					if( system_string_compare(
+					     table_name,
+					     _SYSTEM_STRING( "SmTblSection" ),
+					     12 ) == 0 )
+					{
+						known_table = 1;
+
+						result = windows_security_export_record_smtblsection(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+					else if( system_string_compare(
+						  table_name,
+						  _SYSTEM_STRING( "SmTblVersion" ),
+						  12 ) == 0 )
+					{
+						known_table = 1;
+
+						result = windows_security_export_record_smtblversion(
+							  record,
+							  table_file_stream,
+							  log_handle,
+							  error );
+					}
+				}
+				break;
+
+			case DATABASE_TYPE_UNKNOWN:
+			default:
+				break;
 		}
 		if( known_table == 0 )
 		{
@@ -4017,14 +4078,20 @@ int export_handle_export_file(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
-	system_character_t *table_name = NULL;
-	libesedb_table_t *table        = NULL;
-	static char *function          = "export_handle_export_file";
-	size_t table_name_size         = 0;
-	int number_of_tables           = 0;
-	int result                     = 0;
-	int table_exported             = 0;
-	int table_index                = 0;
+	libcdata_array_t *table_names      = NULL;
+	libesedb_table_t *table            = NULL;
+	system_character_t *sanitized_name = NULL;
+	system_character_t *table_name     = NULL;
+	static char *function              = "export_handle_export_file";
+	size_t sanitized_name_size         = 0;
+	size_t table_name_length           = 0;
+	size_t table_name_size             = 0;
+	int database_type                  = 0;
+	int entry_index                    = 0;
+	int number_of_tables               = 0;
+	int result                         = 0;
+	int table_exported                 = 0;
+	int table_index                    = 0;
 
 	if( export_handle == NULL )
 	{
@@ -4033,6 +4100,17 @@ int export_handle_export_file(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid export handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( export_table_name_length > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid export table name length value exceeds maximum.",
 		 function );
 
 		return( -1 );
@@ -4054,6 +4132,20 @@ int export_handle_export_file(
 	if( number_of_tables == 0 )
 	{
 		return( 0 );
+	}
+	if( libcdata_array_initialize(
+	     &table_names,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create table names array.",
+		 function );
+
+		goto on_error;
 	}
 	for( table_index = 0;
 	     table_index < number_of_tables;
@@ -4146,106 +4238,6 @@ int export_handle_export_file(
 
 			goto on_error;
 		}
-		if( ( export_table_name == NULL )
-		 || ( ( table_name_size == ( export_table_name_length + 1 ) )
-		   && ( system_string_compare(
-		         table_name,
-		         export_table_name,
-		         export_table_name_length ) == 0 ) ) )
-		{
-			if( table_exported == 0 )
-			{
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				if( libcpath_path_make_directory_wide(
-				     export_handle->items_export_path,
-				     error ) != 1 )
-#else
-				if( libcpath_path_make_directory(
-				     export_handle->items_export_path,
-				     error ) != 1 )
-#endif
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_IO,
-					 LIBCERROR_IO_ERROR_WRITE_FAILED,
-					 "%s: unable to make directory: %" PRIs_SYSTEM ".",
-					 function,
-					 export_handle->items_export_path );
-
-					goto on_error;
-				}
-				log_handle_printf(
-				 log_handle,
-				 "Created directory: %" PRIs_SYSTEM ".\n",
-				 export_handle->items_export_path );
-			}
-			fprintf(
-			 export_handle->notify_stream,
-			 "Exporting table %d (%" PRIs_SYSTEM ")",
-			 table_index + 1,
-			 table_name );
-
-			if( export_table_name == NULL )
-			{
-				fprintf(
-				 export_handle->notify_stream,
-				 " out of %d",
-				 number_of_tables );
-			}
-			fprintf(
-			 export_handle->notify_stream,
-			 ".\n" );
-
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-			if( libcpath_path_sanitize_filename_wide(
-			     table_name,
-			     &table_name_size,
-			     error ) != 1 )
-#else
-			if( libcpath_path_sanitize_filename(
-			     table_name,
-			     &table_name_size,
-			     error ) != 1 )
-#endif
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-				 "%s: unable sanitize table name.",
-				 function );
-
-				goto on_error;
-			}
-			if( export_handle_export_table(
-			     export_handle,
-			     table,
-			     table_index,
-			     table_name,
-			     table_name_size - 1,
-			     export_handle->items_export_path,
-			     export_handle->items_export_path_size - 1,
-			     log_handle,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_GENERIC,
-				 "%s: unable to export table: %d.",
-				 function,
-				 table_index );
-
-				goto on_error;
-			}
-			table_exported = 1;
-		}
-		memory_free(
-		 table_name );
-
-		table_name = NULL;
-
 		if( libesedb_table_free(
 		     &table,
 		     error ) != 1 )
@@ -4260,10 +4252,275 @@ int export_handle_export_file(
 
 			goto on_error;
 		}
+		if( libcdata_array_append_entry(
+		     table_names,
+		     &entry_index,
+		     (intptr_t *) table_name,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+			 "%s: unable to append name of table: %d to array.",
+			 function,
+			 table_index );
+
+			goto on_error;
+		}
+		table_name = NULL;
+	}
+	if( database_type_determine(
+	     &database_type,
+	     table_names,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine database type.",
+		 function );
+
+		table_name = NULL;
+
+		goto on_error;
+	}
+	fprintf(
+	 export_handle->notify_stream,
+	 "Database type: %" PRIs_SYSTEM ".\n",
+	 database_type_descriptions[ database_type ] );
+
+	for( table_index = 0;
+	     table_index < number_of_tables;
+	     table_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     table_names,
+		     table_index,
+		     (intptr_t **) &table_name,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve the name of table: %d from array.",
+			 function,
+			 table_index );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+		if( table_name == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+			 "%s: missing name of table: %d.",
+			 function,
+			 table_index );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+		table_name_length = system_string_length(
+		                     table_name );
+
+		if( export_table_name != NULL )
+		{
+			if( table_name_length != export_table_name_length )
+			{
+				continue;
+			}
+			if( system_string_compare(
+			     table_name,
+			     export_table_name,
+			     export_table_name_length ) != 0 )
+			{
+				continue;
+			}
+		}
+		if( libesedb_file_get_table(
+		     export_handle->input_file,
+		     table_index,
+		     &table,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve table: %d.",
+			 function,
+			 table_index );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+		if( table_exported == 0 )
+		{
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+			if( libcpath_path_make_directory_wide(
+			     export_handle->items_export_path,
+			     error ) != 1 )
+#else
+			if( libcpath_path_make_directory(
+			     export_handle->items_export_path,
+			     error ) != 1 )
+#endif
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_IO,
+				 LIBCERROR_IO_ERROR_WRITE_FAILED,
+				 "%s: unable to make directory: %" PRIs_SYSTEM ".",
+				 function,
+				 export_handle->items_export_path );
+
+				table_name = NULL;
+
+				goto on_error;
+			}
+			log_handle_printf(
+			 log_handle,
+			 "Created directory: %" PRIs_SYSTEM ".\n",
+			 export_handle->items_export_path );
+
+			table_exported = 1;
+		}
+		fprintf(
+		 export_handle->notify_stream,
+		 "Exporting table %d (%" PRIs_SYSTEM ")",
+		 table_index + 1,
+		 table_name );
+
+		if( export_table_name == NULL )
+		{
+			fprintf(
+			 export_handle->notify_stream,
+			 " out of %d",
+			 number_of_tables );
+		}
+		fprintf(
+		 export_handle->notify_stream,
+		 ".\n" );
+
+/* TODO move export_handle_export_table into export_handle_export_table */
+
+/* TODO implement in libcpath
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libcpath_path_get_sanitized_filename_wide(
+		     table_name,
+		     table_name_length + 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
+		     error ) != 1 )
+#else
+		if( libcpath_path_get_sanitized_filename(
+		     table_name,
+		     table_name_length + 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
+		     error ) != 1 )
+#endif
+*/
+#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
+		if( libcpath_path_sanitize_filename_wide(
+		     table_name,
+		     &table_name_size,
+		     error ) != 1 )
+#else
+		if( libcpath_path_sanitize_filename(
+		     table_name,
+		     &table_name_size,
+		     error ) != 1 )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable sanitize table name.",
+			 function );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+/* TODO use sanitized name instead of table name */
+		if( export_handle_export_table(
+		     export_handle,
+		     database_type,
+		     table,
+		     table_index,
+		     table_name,
+		     table_name_size - 1,
+		     export_handle->items_export_path,
+		     export_handle->items_export_path_size - 1,
+		     log_handle,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to export table: %d.",
+			 function,
+			 table_index );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+		memory_free(
+		 sanitized_name );
+
+		sanitized_name = NULL;
+
+		if( libesedb_table_free(
+		     &table,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free table: %d.",
+			 function,
+			 table_index );
+
+			table_name = NULL;
+
+			goto on_error;
+		}
+	}
+	if( libcdata_array_free(
+	     &table_names,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &export_handle_free_table_name,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free table names array.",
+		 function );
+
+		goto on_error;
 	}
 	return( table_exported );
 
 on_error:
+	if( sanitized_name != NULL )
+	{
+		memory_free(
+		 sanitized_name );
+	}
 	if( table_name != NULL )
 	{
 		memory_free(
@@ -4273,6 +4530,13 @@ on_error:
 	{
 		libesedb_table_free(
 		 &table,
+		 NULL );
+	}
+	if( table_names != NULL )
+	{
+		libcdata_array_free(
+		 &table_names,
+		 (int (*)(intptr_t **, libcerror_error_t **)) &export_handle_free_table_name,
 		 NULL );
 	}
 	return( -1 );

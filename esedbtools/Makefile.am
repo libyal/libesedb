@@ -24,10 +24,12 @@ bin_PROGRAMS = \
 	esedbinfo
 
 esedbexport_SOURCES = \
+	database_types.c database_types.h \
 	esedbexport.c \
 	esedbtools_getopt.c esedbtools_getopt.h \
 	esedbtools_i18n.h \
 	esedbtools_libbfio.h \
+	esedbtools_libcdata.h \
 	esedbtools_libcerror.h \
 	esedbtools_libclocale.h \
 	esedbtools_libcfile.h \
