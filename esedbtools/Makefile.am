@@ -67,6 +67,7 @@ esedbexport_LDADD = \
 	@LIBCSPLIT_LIBADD@ \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@ \
 	@LIBINTL@

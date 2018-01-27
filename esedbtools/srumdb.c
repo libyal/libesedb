@@ -40,7 +40,8 @@
 enum SRUMDB_KNOWN_COLUMN_TYPES
 {
 	SRUMDB_KNOWN_COLUMN_TYPE_UNDEFINED,
-	SRUMDB_KNOWN_COLUMN_TYPE_APPLICATION_TIME
+	SRUMDB_KNOWN_COLUMN_TYPE_FILETIME,
+	SRUMDB_KNOWN_COLUMN_TYPE_FLOATINGTIME,
 };
 
 /* Exports the values in a {%GUID%} table record
@@ -54,7 +55,7 @@ int srumdb_export_record_guid(
 {
 	system_character_t column_name[ 256 ];
 
-	static char *function   = "srumdb_export_record_container";
+	static char *function   = "srumdb_export_record_guid";
 	size_t column_name_size = 0;
 	uint32_t column_type    = 0;
 	int known_column_type   = 0;
@@ -197,11 +198,33 @@ int srumdb_export_record_guid(
 				     _SYSTEM_STRING( "TimeStamp" ),
 				     9 ) == 0 )
 				{
-					known_column_type = SRUMDB_KNOWN_COLUMN_TYPE_APPLICATION_TIME;
+					known_column_type = SRUMDB_KNOWN_COLUMN_TYPE_FLOATINGTIME;
 				}
 			}
 		}
-		if( known_column_type == SRUMDB_KNOWN_COLUMN_TYPE_APPLICATION_TIME )
+		else if( column_type == LIBESEDB_COLUMN_TYPE_INTEGER_64BIT_SIGNED )
+		{
+			if( column_name_size == 17 )
+			{
+				if( system_string_compare(
+				     column_name,
+				     _SYSTEM_STRING( "ConnectStartTime" ),
+				     16 ) == 0 )
+				{
+					known_column_type = SRUMDB_KNOWN_COLUMN_TYPE_FILETIME;
+				}
+			}
+		}
+		if( known_column_type == SRUMDB_KNOWN_COLUMN_TYPE_FILETIME )
+		{
+			result = export_filetime(
+				  record,
+				  value_iterator,
+				  byte_order,
+				  record_file_stream,
+				  error );
+		}
+		else if( known_column_type == SRUMDB_KNOWN_COLUMN_TYPE_FLOATINGTIME )
 		{
 			result = export_floatingtime(
 				  record,

@@ -30,7 +30,7 @@
 #include "esedbtools_libcerror.h"
 
 const system_character_t *database_type_descriptions[ ] = {
-	_SYSTEM_STRING( "UNKNOWN" ),
+	_SYSTEM_STRING( "Unknown" ),
 	_SYSTEM_STRING( "Exchange" ),
 	_SYSTEM_STRING( "System Resource Usage Monitor (SRUM)" ),
 	_SYSTEM_STRING( "MSIE WebCache" ),
