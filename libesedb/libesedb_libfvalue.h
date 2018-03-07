@@ -29,6 +29,7 @@
 #if defined( HAVE_LOCAL_LIBFVALUE )
 
 #include <libfvalue_codepage.h>
+#include <libfvalue_data_handle.h>
 #include <libfvalue_definitions.h>
 #include <libfvalue_floating_point.h>
 #include <libfvalue_integer.h>

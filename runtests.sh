@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20171210
+# Version: 20180214
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -201,6 +201,14 @@ echo "${CONFIGURE_HELP}" | grep -- '--enable-wide-character-type' > /dev/null;
 
 HAVE_ENABLE_WIDE_CHARACTER_TYPE=$?;
 
+echo "${CONFIGURE_HELP}" | grep -- '--enable-verbose-output' > /dev/null;
+
+HAVE_ENABLE_VERBOSE_OUTPUT=$?;
+
+echo "${CONFIGURE_HELP}" | grep -- '--enable-debug-output' > /dev/null;
+
+HAVE_ENABLE_DEBUG_OUTPUT=$?;
+
 echo "${CONFIGURE_HELP}" | grep -- '--with-zlib' > /dev/null;
 
 HAVE_WITH_ZLIB=$?;
@@ -228,6 +236,19 @@ RESULT=$?;
 if test ${RESULT} -ne ${EXIT_SUCCESS};
 then
 	exit ${EXIT_FAILURE};
+fi
+
+if test ${HAVE_ENABLE_VERBOSE_OUTPUT} -eq 0 && test ${HAVE_ENABLE_DEBUG_OUTPUT} -eq 0;
+then
+	# Test "./configure && make && make check" with verbose and debug output.
+
+	run_configure_make_check "--enable-verbose-output --enable-debug-output";
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
+	then
+		exit ${EXIT_FAILURE};
+	fi
 fi
 
 if test ${HAVE_WITH_ZLIB} -eq 0;
