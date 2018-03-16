@@ -133,6 +133,7 @@ stamp-h[1-9]
 /tests/esedb_test_database
 /tests/esedb_test_error
 /tests/esedb_test_file
+/tests/esedb_test_file_header
 /tests/esedb_test_index
 /tests/esedb_test_io_handle
 /tests/esedb_test_key

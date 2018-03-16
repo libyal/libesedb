@@ -52,6 +52,7 @@ check_PROGRAMS = \
 	esedb_test_database \
 	esedb_test_error \
 	esedb_test_file \
+	esedb_test_file_header \
 	esedb_test_index \
 	esedb_test_io_handle \
 	esedb_test_key \
@@ -186,6 +187,28 @@ esedb_test_file_LDADD = \
 	@LIBCTHREADS_LIBADD@ \
 	@LIBCERROR_LIBADD@ \
 	@PTHREAD_LIBADD@
+
+esedb_test_file_header_SOURCES = \
+	esedb_test_file_header.c \
+	esedb_test_functions.c esedb_test_functions.h \
+	esedb_test_libbfio.h \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_file_header_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
 
 esedb_test_index_SOURCES = \
 	esedb_test_index.c \

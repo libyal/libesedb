@@ -8,6 +8,7 @@ MSVSCPP_FILES = \
 	esedb_test_database/esedb_test_database.vcproj \
 	esedb_test_error/esedb_test_error.vcproj \
 	esedb_test_file/esedb_test_file.vcproj \
+	esedb_test_file_header/esedb_test_file_header.vcproj \
 	esedb_test_index/esedb_test_index.vcproj \
 	esedb_test_io_handle/esedb_test_io_handle.vcproj \
 	esedb_test_key/esedb_test_key.vcproj \
