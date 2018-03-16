@@ -295,7 +295,7 @@ int libesedb_file_header_read_data(
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: format version\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: format version\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 file_header->format_version );
 
@@ -328,7 +328,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->database_state,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: database state\t\t\t: %" PRIu32 " ",
+		 "%s: database state\t\t\t\t: %" PRIu32 " ",
 		 function,
 		 value_32bit );
 		libesedb_debug_print_database_state(
@@ -429,7 +429,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->last_object_identifier,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: last object identifier\t\t: %" PRIu32 "\n",
+		 "%s: last object identifier\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -463,7 +463,7 @@ int libesedb_file_header_read_data(
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: format revision\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: format revision\t\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 file_header->format_revision );
 		libcnotify_printf(
@@ -475,7 +475,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->repair_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: repair count\t\t\t: %" PRIu32 "\n",
+		 "%s: repair count\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libesedb_debug_print_log_time(
@@ -519,7 +519,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->upgrade_exchange5_format,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: upgrade Exchange 5.5 format\t: %" PRIu32 "\n",
+		 "%s: upgrade Exchange 5.5 format\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		byte_stream_copy_to_uint32_little_endian(
@@ -533,7 +533,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->upgrade_space_map_pages,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: upgrade space map pages\t\t: %" PRIu32 "\n",
+		 "%s: upgrade space map pages\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -546,7 +546,7 @@ int libesedb_file_header_read_data(
 		 0 );
 
 		libcnotify_printf(
-		 "%s: creation format version\t\t: 0x%08" PRIx32 "\n",
+		 "%s: creation format version\t\t\t: 0x%08" PRIx32 "\n",
 		 function,
 		 file_header->creation_format_version );
 		libcnotify_printf(
@@ -574,7 +574,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->ecc_fix_success_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: ECC fix success count\t\t: %" PRIu32 "\n",
+		 "%s: ECC fix success count\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libesedb_debug_print_log_time(
@@ -595,7 +595,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->ecc_fix_error_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: ECC fix error count\t\t: %" PRIu32 "\n",
+		 "%s: ECC fix error count\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libesedb_debug_print_log_time(
@@ -608,7 +608,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->old_ecc_fix_error_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: old ECC fix error count\t\t: %" PRIu32 "\n",
+		 "%s: old ECC fix error count\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -629,7 +629,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->old_bad_checksum_error_count,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: old bad checksum error count\t: %" PRIu32 "\n",
+		 "%s: old bad checksum error count\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -691,7 +691,7 @@ int libesedb_file_header_read_data(
 		 ( (esedb_file_header_t *) data )->unknown_flags,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: unknown flags\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
+		 "%s: unknown flags\t\t\t\t: 0x%08" PRIx32 " (%" PRIu32 ")\n",
 		 function,
 		 value_32bit,
 		 value_32bit );
@@ -712,6 +712,7 @@ int libesedb_file_header_read_data(
 int libesedb_file_header_read_file_io_handle(
      libesedb_file_header_t *file_header,
      libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
      libcerror_error_t **error )
 {
 	uint8_t file_header_data[ sizeof( esedb_file_header_t ) ];
@@ -734,13 +735,15 @@ int libesedb_file_header_read_file_io_handle(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: reading file header at offset: 0 (0x00000000)\n",
-		 function );
+		 "%s: reading file header at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 file_offset,
+		 file_offset );
 	}
 #endif
 	if( libbfio_handle_seek_offset(
 	     file_io_handle,
-	     0,
+	     file_offset,
 	     SEEK_SET,
 	     error ) == -1 )
 	{
@@ -748,8 +751,10 @@ int libesedb_file_header_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek file header offset: 0.",
-		 function );
+		 "%s: unable to seek file header offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 file_offset,
+		 file_offset );
 
 		return( -1 );
 	}

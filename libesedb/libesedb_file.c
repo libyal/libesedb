@@ -32,6 +32,7 @@
 #include "libesedb_i18n.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_file.h"
+#include "libesedb_file_header.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
@@ -841,11 +842,12 @@ int libesedb_file_open_read(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_file_open_read";
-	off64_t file_offset   = 0;
-	size64_t file_size    = 0;
-	int result            = 0;
-	int segment_index     = 0;
+	libesedb_file_header_t *file_header = NULL;
+	static char *function               = "libesedb_file_open_read";
+	size64_t file_size                  = 0;
+	off64_t file_offset                 = 0;
+	int result                          = 0;
+	int segment_index                   = 0;
 
 	if( internal_file == NULL )
 	{
@@ -924,6 +926,8 @@ int libesedb_file_open_read(
 
 		return( -1 );
 	}
+	internal_file->io_handle->abort = 0;
+
 	if( libbfio_handle_get_size(
 	     file_io_handle,
 	     &file_size,
@@ -942,20 +946,52 @@ int libesedb_file_open_read(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "Reading (database) file header:\n" );
+		 "Reading file header:\n" );
 	}
 #endif
-	if( libesedb_io_handle_read_file_header(
-	     internal_file->io_handle,
+	if( libesedb_file_header_initialize(
+	     &file_header,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create file header.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_file_header_read_file_io_handle(
+	     file_header,
 	     file_io_handle,
-	     0,
+	     file_offset,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read (database) file header.",
+		 "%s: unable to read file header.",
+		 function );
+
+		goto on_error;
+	}
+	internal_file->io_handle->format_version           = file_header->format_version;
+	internal_file->io_handle->format_revision          = file_header->format_revision;
+	internal_file->io_handle->page_size                = file_header->page_size;
+	internal_file->io_handle->creation_format_version  = file_header->creation_format_version;
+	internal_file->io_handle->creation_format_revision = file_header->creation_format_revision;
+
+	if( libesedb_file_header_free(
+	     &file_header,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free file header.",
 		 function );
 
 		goto on_error;
@@ -964,58 +1000,140 @@ int libesedb_file_open_read(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "Reading backup (database) file header:\n" );
+		 "Reading backup file header:\n" );
 	}
 #endif
 	if( internal_file->io_handle->page_size != 0 )
 	{
-		result = libesedb_io_handle_read_file_header(
-		          internal_file->io_handle,
-		          file_io_handle,
-		          internal_file->io_handle->page_size,
-		          error );
-	}
-	if( result != 1 )
-	{
-		file_offset = 0x0800;
-
-		while( file_offset <= 0x8000 )
+		if( libesedb_file_header_initialize(
+		     &file_header,
+		     error ) != 1 )
 		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( ( libcnotify_verbose != 0 )
-			 && ( error != NULL )
-			 && ( *error != NULL ) )
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create backup file header.",
+			 function );
+
+			goto on_error;
+		}
+		result = libesedb_file_header_read_file_io_handle(
+		          file_header,
+		          file_io_handle,
+		          (off64_t) internal_file->io_handle->page_size,
+		          error );
+
+		if( result != 1 )
+		{
+			file_offset = 0x0800;
+
+			while( file_offset <= 0x8000 )
 			{
-				libcnotify_print_error_backtrace(
-				 *error );
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( ( libcnotify_verbose != 0 )
+				 && ( error != NULL )
+				 && ( *error != NULL ) )
+				{
+					libcnotify_print_error_backtrace(
+					 *error );
+				}
+#endif
+				libcerror_error_free(
+				 error );
+
+				result = libesedb_file_header_read_file_io_handle(
+				          file_header,
+				          file_io_handle,
+				          (off64_t) internal_file->io_handle->page_size,
+				          error );
+
+				if( result == 1 )
+				{
+					break;
+				}
+				file_offset <<= 1;
+			}
+		}
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read backup file header.",
+			 function );
+
+			goto on_error;
+		}
+		if( internal_file->io_handle->format_version == 0 )
+		{
+			internal_file->io_handle->format_version = file_header->format_version;
+		}
+		else if( internal_file->io_handle->format_version != file_header->format_version )
+		{
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in format version: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
+				 function,
+				 internal_file->io_handle->format_version,
+				 file_header->format_version );
 			}
 #endif
-			libcerror_error_free(
-			 error );
-
-			result = libesedb_io_handle_read_file_header(
-				  internal_file->io_handle,
-				  file_io_handle,
-				  file_offset,
-				  error );
-
-			if( result == 1 )
-			{
-				break;
-			}
-			file_offset <<= 1;
 		}
-	}
-	if( result != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read backup (database) file header.",
-		 function );
+		if( internal_file->io_handle->format_revision == 0 )
+		{
+			internal_file->io_handle->format_revision = file_header->format_revision;
+		}
+		else if( internal_file->io_handle->format_revision != file_header->format_revision )
+		{
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in format revision: 0x%" PRIx32 " and backup: 0x%" PRIx32 "\n",
+				 function,
+				 internal_file->io_handle->format_revision,
+				 file_header->format_revision );
+			}
+#endif
+		}
+		if( internal_file->io_handle->page_size == 0 )
+		{
+			internal_file->io_handle->page_size = file_header->page_size;
+		}
+		else if( internal_file->io_handle->page_size != file_header->page_size )
+		{
+#if defined( HAVE_VERBOSE_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: mismatch in page size: 0x%04" PRIx32 " and backup: 0x%04" PRIx32 "\n",
+				 function,
+				 internal_file->io_handle->page_size,
+				 file_header->page_size );
+			}
+#endif
+			/* The offset of the backup (database) file header
+			 * is a good indication of the actual page size
+			 */
+			internal_file->io_handle->page_size = (uint32_t) file_offset;
+		}
+		if( libesedb_file_header_free(
+		     &file_header,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free backup file header.",
+			 function );
 
-		goto on_error;
+			goto on_error;
+		}
 	}
 	if( internal_file->io_handle->format_version != 0x620 )
 	{
@@ -1098,7 +1216,7 @@ int libesedb_file_open_read(
 
 		goto on_error;
 	}
-	/* TODO clone function ? */
+/* TODO add clone function ? */
 	if( libfdata_vector_initialize(
 	     &( internal_file->pages_vector ),
 	     (size64_t) internal_file->io_handle->page_size,
@@ -1268,6 +1386,8 @@ int libesedb_file_open_read(
 		}
 /* TODO compare contents of catalogs ? */
 	}
+	internal_file->io_handle->abort = 0;
+
 	return( 1 );
 
 on_error:
@@ -1301,6 +1421,14 @@ on_error:
 		 &( internal_file->pages_vector ),
 		 NULL );
 	}
+	if( file_header != NULL )
+	{
+		libesedb_file_header_free(
+		 &file_header,
+		 NULL );
+	}
+	internal_file->io_handle->abort = 0;
+
 	return( -1 );
 }
 

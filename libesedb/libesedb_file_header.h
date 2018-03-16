@@ -78,6 +78,7 @@ int libesedb_file_header_read_data(
 int libesedb_file_header_read_file_io_handle(
      libesedb_file_header_t *file_header,
      libbfio_handle_t *file_io_handle,
+     off64_t file_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

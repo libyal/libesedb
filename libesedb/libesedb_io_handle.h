@@ -102,12 +102,6 @@ int libesedb_io_handle_set_pages_data_range(
      size64_t file_size,
      libcerror_error_t **error );
 
-int libesedb_io_handle_read_file_header(
-     libesedb_io_handle_t *io_handle,
-     libbfio_handle_t *file_io_handle,
-     off64_t file_offset,
-     libcerror_error_t **error );
-
 int libesedb_io_handle_read_page(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,

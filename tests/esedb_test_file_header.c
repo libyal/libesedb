@@ -623,6 +623,7 @@ int esedb_test_file_header_read_file_io_handle(
 	result = libesedb_file_header_read_file_io_handle(
 	          file_header,
 	          file_io_handle,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -639,6 +640,7 @@ int esedb_test_file_header_read_file_io_handle(
 	result = libesedb_file_header_read_file_io_handle(
 	          NULL,
 	          file_io_handle,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -656,6 +658,7 @@ int esedb_test_file_header_read_file_io_handle(
 	result = libesedb_file_header_read_file_io_handle(
 	          file_header,
 	          NULL,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -709,6 +712,7 @@ int esedb_test_file_header_read_file_io_handle(
 	result = libesedb_file_header_read_file_io_handle(
 	          file_header,
 	          file_io_handle,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -760,6 +764,7 @@ int esedb_test_file_header_read_file_io_handle(
 	result = libesedb_file_header_read_file_io_handle(
 	          file_header,
 	          file_io_handle,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(

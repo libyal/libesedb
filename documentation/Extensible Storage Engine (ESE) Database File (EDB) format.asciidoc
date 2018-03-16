@@ -162,7 +162,7 @@ The (database) file header is (at least) 668 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Checksum +
-The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to offset 4096. The value 0x89abcdef is used as the initial value.
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to at least offset 668, but presumably page size. The value 0x89abcdef is used as the initial value.
 | 4 | 4 | "\xef\xcd\xab\x89" | The signature
 | 8 | 4 | | File format version
 | 12 | 4 | | File type +

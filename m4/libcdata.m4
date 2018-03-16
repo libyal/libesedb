@@ -1,6 +1,6 @@
 dnl Checks for libcdata or required headers and functions
 dnl
-dnl Version: 20170904
+dnl Version: 20180316
 
 dnl Function to detect if libcdata is available
 dnl ac_libcdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -120,6 +120,48 @@ AC_DEFUN([AX_LIBCDATA_CHECK_LIB],
         AC_CHECK_LIB(
           cdata,
           libcdata_array_remove_entry,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+
+        dnl Balanced tree functions
+        AC_CHECK_LIB(
+          cdata,
+          libfdata_btree_initialize,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_free,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_number_of_values,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_value_by_index,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_get_value_by_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_insert_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_replace_value,
+          [ac_cv_libcdata_dummy=yes],
+          [ac_cv_libcdata=no])
+        AC_CHECK_LIB(
+          cdata,
+          libcdata_btree_remove_value,
           [ac_cv_libcdata_dummy=yes],
           [ac_cv_libcdata=no])
 
