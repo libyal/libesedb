@@ -184,6 +184,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tests\esedb_test_memory.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_support.c"
 				>
 			</File>
@@ -227,6 +231,10 @@
 			</File>
 			<File
 				RelativePath="..\..\tests\esedb_test_macros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\esedb_test_memory.h"
 				>
 			</File>
 			<File

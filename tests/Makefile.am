@@ -272,13 +272,15 @@ esedb_test_multi_value_LDADD = \
 	@LIBCERROR_LIBADD@
 
 esedb_test_notify_SOURCES = \
+	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
 	esedb_test_macros.h \
 	esedb_test_notify.c \
 	esedb_test_unused.h
 
 esedb_test_notify_LDADD = \
-	../libesedb/libesedb.la
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
 
 esedb_test_page_SOURCES = \
 	esedb_test_libcerror.h \
@@ -338,6 +340,7 @@ esedb_test_support_SOURCES = \
 	esedb_test_libesedb.h \
 	esedb_test_libuna.h \
 	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
 	esedb_test_support.c \
 	esedb_test_unused.h
 

@@ -1,6 +1,6 @@
 dnl Functions for libfdata
 dnl
-dnl Version: 20170905
+dnl Version: 20180316
 
 dnl Function to detect if libfdata is available
 dnl ac_libfdata_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -49,7 +49,76 @@ AC_DEFUN([AX_LIBFDATA_CHECK_LIB],
           [ac_cv_libfdata=no])
 
         dnl Area functions
-        dnl TODO: add functions
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_initialize,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_free,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_clone,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_empty,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_resize,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_get_number_of_segments,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_get_segment_by_index,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_set_segment_by_index,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_prepend_segment,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_append_segment,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_get_element_data_size,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_get_element_value_at_offset,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_set_element_value_at_offset,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
+        AC_CHECK_LIB(
+          fdata,
+          libfdata_area_get_size,
+          [ac_cv_libfdata_dummy=yes],
+          [ac_cv_libfdata=no])
 
         dnl Balanced tree functions
         dnl TODO: add functions

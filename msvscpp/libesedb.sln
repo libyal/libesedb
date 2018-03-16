@@ -122,6 +122,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_notify", "esedb_test_notify\esedb_test_notify.vcproj", "{677D81DB-C708-4BB4-87C3-8EC3A85C1260}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_page", "esedb_test_page\esedb_test_page.vcproj", "{8161CE83-108A-4863-9B51-8F1DF5B5276B}"
