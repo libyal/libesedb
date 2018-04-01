@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20171105
+# Version: 20180317
 
 from __future__ import print_function
 import glob
@@ -163,6 +163,9 @@ class custom_sdist(sdist):
     # Inform distutils what files were created.
     dist_files = getattr(self.distribution, "dist_files", [])
     dist_files.append(("sdist", "", sdist_package_file))
+
+    # Make sure PKG-INFO is generated.
+    sdist.run(self)
 
 
 class ProjectInformation(object):

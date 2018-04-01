@@ -67,9 +67,9 @@ build_script:
     msbuild /verbosity:quiet vs2015\libesedb.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[vs2017] (
     set PYTHONPATH=..\vstools &&
-    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --extend-with-x64 --no-python-dll --output-format 2017 msvscpp\libesedb.sln &&
-    msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=Win32 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" &&
-    msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=x64 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
+    C:\Python27\python.exe ..\vstools\scripts\msvscpp-convert.py --extend-with-x64 --no-python-dll --output-format 2017 --with-dokany msvscpp\libesedb.sln &&
+    msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=Win32 /property:PlatformToolset=v141 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" &&
+    msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=x64 /property:PlatformToolset=v141 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%TARGET%]==[python27] (
     C:\Python27\python.exe setup.py bdist_msi )
 - cmd: if [%TARGET%]==[python36] (
@@ -89,17 +89,7 @@ build_script:
 
 test_script:
 - cmd: rem Run tests
-- ps: if ($env:TARGET -eq "vs2008") {
-    .\runtests.ps1 }
-- ps: if ($env:TARGET -eq "vs2010") {
-    .\runtests.ps1 }
-- ps: if ($env:TARGET -eq "vs2012") {
-    .\runtests.ps1 }
-- ps: if ($env:TARGET -eq "vs2013") {
-    .\runtests.ps1 }
-- ps: if ($env:TARGET -eq "vs2015") {
-    .\runtests.ps1 }
-- ps: if ($env:TARGET -eq "vs2017") {
+- ps: If ($env:TARGET -eq "vs2008" -or $env:TARGET -eq "vs2010" -or $env:TARGET -eq "vs2012" -or $env:TARGET -eq "vs2013" -or $env:TARGET -eq "vs2015" -or $env:TARGET -eq "vs2017") {
     .\runtests.ps1 }
 - cmd: if [%TARGET%]==[cygwin] (
     C:\cygwin\bin\bash -e -l -c "cd libesedb && ./runtests.sh" )
