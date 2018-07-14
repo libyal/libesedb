@@ -1,5 +1,5 @@
 /*
- * The internal libesedb header
+ * The libesedb header wrapper
  *
  * Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
  *

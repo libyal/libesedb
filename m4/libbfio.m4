@@ -1,6 +1,6 @@
 dnl Checks for libbfio or required headers and functions
 dnl
-dnl Version: 20170912
+dnl Version: 20180407
 
 dnl Function to detect if libbfio is available
 AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
@@ -39,7 +39,7 @@ AC_DEFUN([AX_LIBBFIO_CHECK_LIB],
            [[#include <libbfio/features.h>]],
            [[#if !defined( LIBBFIO_HAVE_WIDE_CHARACTER_TYPE ) || ( LIBBFIO_HAVE_WIDE_CHARACTER_TYPE != 1 )
 #error LIBBFIO_HAVE_WIDE_CHARACTER_TYPE not defined
-##endif]] )],
+#endif]] )],
          [ac_cv_header_libbfio_features_h_have_wide_character_type=yes],
          [ac_cv_header_libbfio_features_h_have_wide_character_type=no])
        AC_LANG_POP(C)],

@@ -1,6 +1,6 @@
 dnl Checks for libcsplit or required headers and functions
 dnl
-dnl Version: 20180217
+dnl Version: 20180407
 
 dnl Function to detect if libcsplit is available
 dnl ac_libcsplit_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -40,7 +40,7 @@ AC_DEFUN([AX_LIBCSPLIT_CHECK_LIB],
            [[#include <libcsplit/features.h>]],
            [[#if !defined( LIBCSPLIT_HAVE_WIDE_CHARACTER_TYPE ) || ( LIBCSPLIT_HAVE_WIDE_CHARACTER_TYPE != 1 )
 #error LIBCSPLIT_HAVE_WIDE_CHARACTER_TYPE not defined
-##endif]] )],
+#endif]] )],
          [ac_cv_header_libcsplit_features_h_have_wide_character_type=yes],
          [ac_cv_header_libcsplit_features_h_have_wide_character_type=no])
        AC_LANG_POP(C)],

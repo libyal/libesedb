@@ -59,7 +59,7 @@ typedef int system_integer_t;
 
 #endif /* defined( WINAPI ) && ( defined( _UNICODE ) || defined( UNICODE ) ) */
 
-/* Fix for systems without PRI definitions
+/* Fallback for systems without PRI definitions
  */
 #if !defined( PRId8 )
 #define PRId8 "d"
@@ -77,7 +77,7 @@ typedef int system_integer_t;
 #define PRId32 "d"
 
 #endif
-#endif
+#endif /* !defined( PRId32 ) */
 
 #if !defined( PRId64 )
 #if defined( WINAPI )
@@ -90,7 +90,7 @@ typedef int system_integer_t;
 #define PRId64 "lld"
 
 #endif
-#endif
+#endif /* !defined( PRId64 ) */
 
 #if !defined( PRIi8 )
 #define PRIi8 "i"
@@ -108,7 +108,7 @@ typedef int system_integer_t;
 #define PRIi32 "i"
 
 #endif
-#endif
+#endif /* !defined( PRIi32 ) */
 
 #if !defined( PRIi64 )
 #if defined( WINAPI )
@@ -121,7 +121,7 @@ typedef int system_integer_t;
 #define PRIi64 "lli"
 
 #endif
-#endif
+#endif /* !defined( PRIi64 ) */
 
 #if !defined( PRIu8 )
 #define PRIu8 "u"
@@ -139,7 +139,7 @@ typedef int system_integer_t;
 #define PRIu32 "u"
 
 #endif
-#endif
+#endif /* !defined( PRIu32 ) */
 
 #if !defined( PRIu64 )
 #if defined( WINAPI )
@@ -152,7 +152,38 @@ typedef int system_integer_t;
 #define PRIu64 "llu"
 
 #endif
+#endif /* !defined( PRIu64 ) */
+
+#if !defined( PRIo8 )
+#define PRIo8 "o"
 #endif
+
+#if !defined( PRIo16 )
+#define PRIo16 "o"
+#endif
+
+#if !defined( PRIo32 )
+#if defined( WINAPI )
+#define PRIo32 "I32o"
+
+#else
+#define PRIo32 "o"
+
+#endif
+#endif /* !defined( PRIo32 ) */
+
+#if !defined( PRIo64 )
+#if defined( WINAPI )
+#define PRIo64 "I64o"
+
+#elif __WORDSIZE == 64
+#define PRIo64 "lo"
+
+#else
+#define PRIo64 "llo"
+
+#endif
+#endif /* !defined( PRIo64 ) */
 
 #if !defined( PRIx8 )
 #define PRIx8 "x"
@@ -170,7 +201,7 @@ typedef int system_integer_t;
 #define PRIx32 "x"
 
 #endif
-#endif
+#endif /* !defined( PRIx32 ) */
 
 #if !defined( PRIx64 )
 #if defined( WINAPI )
@@ -183,9 +214,9 @@ typedef int system_integer_t;
 #define PRIx64 "llx"
 
 #endif
-#endif
+#endif /*!defined( PRIx64 ) */
 
-/* Fix for systems without printf %jd definition
+/* Fallback for systems without printf %jd definition
  */
 #if defined( HAVE_PRINTF_JD )
 #define PRIjd	"jd"
@@ -205,9 +236,9 @@ typedef int system_integer_t;
 #define PRIju	PRIu32
 #define PRIjx	PRIx32
 
-#endif
+#endif /* defined( HAVE_PRINTF_JD ) */
 
-/* Fix for systems without printf %zd definition
+/* Fallback for systems without printf %zd definition
  */
 #if defined( HAVE_PRINTF_ZD )
 #define PRIzd	"zd"
@@ -233,9 +264,9 @@ typedef int system_integer_t;
 #define PRIzu	PRIu32
 #define PRIzx	PRIx32
 
-#endif
+#endif /* defined( HAVE_PRINTF_ZD ) */
 
-/* Fix for systems without (U)INTx_MAX definitions
+/* Fallback for systems without (U)INTx_MAX definitions
  */
 
 /* The maximum signed 8-bit integer is 127 (0x7f)
@@ -250,7 +281,7 @@ typedef int system_integer_t;
 #define UINT8_MAX (0xff)
 #endif
 
-/* The maximum signed 16-bit integer is 32767 (0xr7ffff)
+/* The maximum signed 16-bit integer is 32767 (0x7ffff)
  */
 #if !defined( INT16_MAX )
 #define INT16_MAX (0x7fff)
@@ -282,7 +313,7 @@ typedef int system_integer_t;
 #else
 #define INT64_MAX (0x7fffffffffffffffULL)
 #endif
-#endif
+#endif /* !defined( INT64_MAX ) */
 
 /* The maximum unsigned 64-bit integer is 18446744073709551615 (0xffffffffffffffff)
  */
@@ -292,7 +323,7 @@ typedef int system_integer_t;
 #else
 #define UINT64_MAX (0xffffffffffffffffULL)
 #endif
-#endif
+#endif /* !defined( UINT64_MAX ) */
 
 /* The maximum signed integer
  */
@@ -316,7 +347,7 @@ typedef int system_integer_t;
 #define SSIZE_MAX INT64_MAX
 #else
 #define SSIZE_MAX INT32_MAX
-#endif /* _WIN64 */
+#endif
 
 #else
 
@@ -324,7 +355,7 @@ typedef int system_integer_t;
 #define SSIZE_MAX INT64_MAX
 #else
 #define SSIZE_MAX INT32_MAX
-#endif /* __WORDSIZE == 64 */
+#endif
 
 #endif /* WINAPI */
 

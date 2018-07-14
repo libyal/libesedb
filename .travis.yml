@@ -47,7 +47,7 @@ matrix:
     sudo: required
     group: edge
 before_install:
-  - if test ${TRAVIS_OS_NAME} = "linux"; then sudo apt-get update && sudo apt-mark hold oracle-java9-installer postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y && sudo apt-get install -y autopoint; fi
+  - if test ${TRAVIS_OS_NAME} = "linux"; then sudo apt-get update && sudo apt-mark hold oracle-java9-installer postgresql-9.2 postgresql-9.3 postgresql-9.4 postgresql-9.5 postgresql-9.6 postgresql-client postgresql-client-common postgresql-common postgresql-contrib-9.2 postgresql-contrib-9.3 postgresql-contrib-9.4 postgresql-contrib-9.5 postgresql-contrib-9.6 postgresql-doc && sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y --allow-unauthenticated && sudo apt-get install -y autopoint; fi
   - if test ${TRAVIS_OS_NAME} = "osx"; then brew update && brew install gettext gnu-sed && brew link --force gettext; fi
   - if test ${TARGET} = "coverity"; then echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-; fi
 install:

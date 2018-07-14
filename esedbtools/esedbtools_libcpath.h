@@ -1,5 +1,5 @@
 /*
- * The internal libcpath header
+ * The libcpath header wrapper
  *
  * Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
  *

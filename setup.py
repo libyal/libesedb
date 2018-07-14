@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 #
 # Script to build and install Python-bindings.
-# Version: 20180317
+# Version: 20180408
 
 from __future__ import print_function
 import glob
+import gzip
 import platform
 import os
 import shlex
 import shutil
 import subprocess
 import sys
+import tarfile
 
+from distutils import dist
 from distutils import sysconfig
 from distutils.ccompiler import new_compiler
 from distutils.command.build_ext import build_ext
@@ -160,12 +163,27 @@ class custom_sdist(sdist):
     sdist_package_file = os.path.join("dist", sdist_package_file)
     os.rename(source_package_file, sdist_package_file)
 
+    # Create and add the PKG-INFO file to the source package.
+    with gzip.open(sdist_package_file, 'rb') as input_file:
+      with open(sdist_package_file[:-3], 'wb') as output_file:
+        shutil.copyfileobj(input_file, output_file)
+    os.remove(sdist_package_file)
+
+    self.distribution.metadata.write_pkg_info(".")
+    pkg_info_path = "{0:s}-{1:s}/PKG-INFO".format(
+        source_package_prefix, source_package_suffix[:-7])
+    with tarfile.open(sdist_package_file[:-3], "a:") as tar_file:
+      tar_file.add("PKG-INFO", arcname=pkg_info_path)
+    os.remove("PKG-INFO")
+
+    with open(sdist_package_file[:-3], 'rb') as input_file:
+      with gzip.open(sdist_package_file, 'wb') as output_file:
+        shutil.copyfileobj(input_file, output_file)
+    os.remove(sdist_package_file[:-3])
+
     # Inform distutils what files were created.
     dist_files = getattr(self.distribution, "dist_files", [])
     dist_files.append(("sdist", "", sdist_package_file))
-
-    # Make sure PKG-INFO is generated.
-    sdist.run(self)
 
 
 class ProjectInformation(object):
