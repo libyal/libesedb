@@ -21,6 +21,7 @@
 
 #include <common.h>
 #include <file_stream.h>
+#include <memory.h>
 #include <types.h>
 
 #if defined( HAVE_STDLIB_H ) || defined( WINAPI )
@@ -34,6 +35,12 @@
 #include "esedb_test_unused.h"
 
 #include "../libesedb/libesedb_catalog_definition.h"
+
+uint8_t esedb_test_catalog_definition_data1[ 45 ] = {
+	0x08, 0x80, 0x20, 0x00, 0x02, 0x00, 0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x04, 0x00,
+	0x00, 0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x14, 0x00, 0x00, 0x00, 0xff, 0x00,
+	0x0b, 0x00, 0x4d, 0x53, 0x79, 0x73, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x73
+};
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
@@ -270,16 +277,14 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libesedb_catalog_definition_get_identifier function
+/* Tests the libesedb_catalog_definition_read_data function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_catalog_definition_get_identifier(
+int esedb_test_catalog_definition_read_data(
      void )
 {
 	libcerror_error_t *error                          = NULL;
 	libesedb_catalog_definition_t *catalog_definition = NULL;
-	uint32_t identifier                               = 0;
-	int identifier_is_set                             = 0;
 	int result                                        = 0;
 
 	/* Initialize test
@@ -303,27 +308,29 @@ int esedb_test_catalog_definition_get_identifier(
 
 	/* Test regular cases
 	 */
-	result = libesedb_catalog_definition_get_identifier(
+	result = libesedb_catalog_definition_read_data(
 	          catalog_definition,
-	          &identifier,
+	          esedb_test_catalog_definition_data1,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
 	          &error );
 
-	ESEDB_TEST_ASSERT_NOT_EQUAL_INT(
+	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	identifier_is_set = result;
-
 	/* Test error cases
 	 */
-	result = libesedb_catalog_definition_get_identifier(
+	result = libesedb_catalog_definition_read_data(
 	          NULL,
-	          &identifier,
+	          esedb_test_catalog_definition_data1,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -338,25 +345,63 @@ int esedb_test_catalog_definition_get_identifier(
 	libcerror_error_free(
 	 &error );
 
-	if( identifier_is_set != 0 )
-	{
-		result = libesedb_catalog_definition_get_identifier(
-		          catalog_definition,
-		          NULL,
-		          &error );
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          NULL,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
 
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
 
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
 
-		libcerror_error_free(
-		 &error );
-	}
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          0,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libesedb_catalog_definition_free(
@@ -393,22 +438,21 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libesedb_catalog_definition_get_column_type function
+/* Tests the libesedb_catalog_definition_get_identifier function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_catalog_definition_get_column_type(
-     void )
+int esedb_test_catalog_definition_get_identifier(
+     libesedb_catalog_definition_t *catalog_definition )
 {
-	libcerror_error_t *error                          = NULL;
-	libesedb_catalog_definition_t *catalog_definition = NULL;
-	uint32_t column_type                              = 0;
-	int column_type_is_set                            = 0;
-	int result                                        = 0;
+	libcerror_error_t *error = NULL;
+	uint32_t identifier      = 0;
+	int result               = 0;
 
-	/* Initialize test
+	/* Test regular cases
 	 */
-	result = libesedb_catalog_definition_initialize(
-	          &catalog_definition,
+	result = libesedb_catalog_definition_get_identifier(
+	          catalog_definition,
+	          &identifier,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -416,13 +460,71 @@ int esedb_test_catalog_definition_get_column_type(
 	 result,
 	 1 );
 
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "catalog_definition",
-	 catalog_definition );
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "identifier",
+	 identifier,
+	 2 );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_identifier(
+	          NULL,
+	          &identifier,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_identifier(
+	          catalog_definition,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_column_type function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_column_type(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t column_type     = 0;
+	int result               = 0;
 
 	/* Test regular cases
 	 */
@@ -431,16 +533,19 @@ int esedb_test_catalog_definition_get_column_type(
 	          &column_type,
 	          &error );
 
-	ESEDB_TEST_ASSERT_NOT_EQUAL_INT(
+	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 -1 );
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "column_type",
+	 column_type,
+	 4 );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
-
-	column_type_is_set = result;
 
 	/* Test error cases
 	 */
@@ -461,43 +566,22 @@ int esedb_test_catalog_definition_get_column_type(
 	libcerror_error_free(
 	 &error );
 
-	if( column_type_is_set != 0 )
-	{
-		result = libesedb_catalog_definition_get_column_type(
-		          catalog_definition,
-		          NULL,
-		          &error );
-
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
-		libcerror_error_free(
-		 &error );
-	}
-	/* Clean up
-	 */
-	result = libesedb_catalog_definition_free(
-	          &catalog_definition,
+	result = libesedb_catalog_definition_get_column_type(
+	          catalog_definition,
+	          NULL,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
-	 1 );
+	 -1 );
 
-	ESEDB_TEST_ASSERT_IS_NULL(
-	 "catalog_definition",
-	 catalog_definition );
-
-	ESEDB_TEST_ASSERT_IS_NULL(
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
 	 "error",
 	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	return( 1 );
 
@@ -507,11 +591,679 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( catalog_definition != NULL )
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf8_name_size function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf8_name_size(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	libcerror_error_t *error = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_name_size(
+	          catalog_definition,
+	          &utf8_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "utf8_string_size",
+	 utf8_string_size,
+	 (size_t) 12 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_name_size(
+	          NULL,
+	          &utf8_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf8_name_size(
+	          catalog_definition,
+	          NULL,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
 	{
-		libesedb_catalog_definition_free(
-		 &catalog_definition,
-		 NULL );
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf8_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf8_name(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	uint8_t utf8_string[ 32 ];
+
+	uint8_t expected_utf8_string[ 12 ] = { 'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+	libcerror_error_t *error           = NULL;
+	int result                         = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_name(
+	          catalog_definition,
+	          utf8_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = memory_compare(
+	          utf8_string,
+	          expected_utf8_string,
+	          12 );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_name(
+	          NULL,
+	          utf8_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf8_name(
+	          catalog_definition,
+	          NULL,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf16_name_size function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf16_name_size(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	libcerror_error_t *error = NULL;
+	size_t utf16_string_size = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_name_size(
+	          catalog_definition,
+	          &utf16_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "utf16_string_size",
+	 utf16_string_size,
+	 (size_t) 12 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_name_size(
+	          NULL,
+	          &utf16_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf16_name_size(
+	          catalog_definition,
+	          NULL,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf16_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf16_name(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	uint16_t utf16_string[ 32 ];
+
+	uint16_t expected_utf16_string[ 12 ] = { 'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+	libcerror_error_t *error             = NULL;
+	int result                           = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_name(
+	          catalog_definition,
+	          utf16_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = memory_compare(
+	          utf16_string,
+	          expected_utf16_string,
+	          12 );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_name(
+	          NULL,
+	          utf16_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf16_name(
+	          catalog_definition,
+	          NULL,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf8_template_name_size function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf8_template_name_size(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	libcerror_error_t *error = NULL;
+	size_t utf8_string_size  = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_template_name_size(
+	          catalog_definition,
+	          &utf8_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "utf8_string_size",
+	 utf8_string_size,
+	 (size_t) 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_template_name_size(
+	          NULL,
+	          &utf8_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf8_template_name_size(
+	          catalog_definition,
+	          NULL,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf8_template_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf8_template_name(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	uint8_t utf8_string[ 32 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_template_name(
+	          catalog_definition,
+	          utf8_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+/* TODO compare string */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf8_template_name(
+	          NULL,
+	          utf8_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+/* TODO
+	result = libesedb_catalog_definition_get_utf8_template_name(
+	          catalog_definition,
+	          NULL,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+*/
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf16_template_name_size function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf16_template_name_size(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	libcerror_error_t *error = NULL;
+	size_t utf16_string_size = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_template_name_size(
+	          catalog_definition,
+	          &utf16_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "utf16_string_size",
+	 utf16_string_size,
+	 (size_t) 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_template_name_size(
+	          NULL,
+	          &utf16_string_size,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_definition_get_utf16_template_name_size(
+	          catalog_definition,
+	          NULL,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_definition_get_utf16_template_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_definition_get_utf16_template_name(
+     libesedb_catalog_definition_t *catalog_definition )
+{
+	uint16_t utf16_string[ 32 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_template_name(
+	          catalog_definition,
+	          utf16_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+/* TODO compare string */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_definition_get_utf16_template_name(
+	          NULL,
+	          utf16_string,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+/* TODO
+	result = libesedb_catalog_definition_get_utf16_template_name(
+	          catalog_definition,
+	          NULL,
+	          32,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+*/
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
 	}
 	return( 0 );
 }
@@ -530,6 +1282,12 @@ int main(
      char * const argv[] ESEDB_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+	libcerror_error_t *error                          = NULL;
+	libesedb_catalog_definition_t *catalog_definition = NULL;
+	int result                                        = 0;
+#endif
+
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
@@ -543,37 +1301,136 @@ int main(
 	 "libesedb_catalog_definition_free",
 	 esedb_test_catalog_definition_free );
 
-	/* TODO: add tests for libesedb_catalog_definition_read */
-
 	ESEDB_TEST_RUN(
+	 "libesedb_catalog_definition_read_data",
+	 esedb_test_catalog_definition_read_data );
+
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize catalog_definition for tests
+	 */
+	result = libesedb_catalog_definition_initialize(
+	          &catalog_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog_definition",
+	 catalog_definition );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	ESEDB_TEST_RUN_WITH_ARGS(
 	 "libesedb_catalog_definition_get_identifier",
-	 esedb_test_catalog_definition_get_identifier );
+	 esedb_test_catalog_definition_get_identifier,
+	 catalog_definition );
 
-	ESEDB_TEST_RUN(
+	ESEDB_TEST_RUN_WITH_ARGS(
 	 "libesedb_catalog_definition_get_column_type",
-	 esedb_test_catalog_definition_get_column_type );
+	 esedb_test_catalog_definition_get_column_type,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf8_name_size */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf8_name_size",
+	 esedb_test_catalog_definition_get_utf8_name_size,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf8_name */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf8_name",
+	 esedb_test_catalog_definition_get_utf8_name,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf16_name_size */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf16_name_size",
+	 esedb_test_catalog_definition_get_utf16_name_size,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf16_name */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf16_name",
+	 esedb_test_catalog_definition_get_utf16_name,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf8_template_name_size */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf8_template_name_size",
+	 esedb_test_catalog_definition_get_utf8_template_name_size,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf8_template_name */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf8_template_name",
+	 esedb_test_catalog_definition_get_utf8_template_name,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf16_template_name_size */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf16_template_name_size",
+	 esedb_test_catalog_definition_get_utf16_template_name_size,
+	 catalog_definition );
 
-	/* TODO: add tests for libesedb_catalog_definition_get_utf16_template_name */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_catalog_definition_get_utf16_template_name",
+	 esedb_test_catalog_definition_get_utf16_template_name,
+	 catalog_definition );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_definition_free(
+	          &catalog_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog_definition",
+	 catalog_definition );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
 on_error:
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( catalog_definition != NULL )
+	{
+		libesedb_catalog_definition_free(
+		 &catalog_definition,
+		 NULL );
+	}
+#endif
 	return( EXIT_FAILURE );
 }
 

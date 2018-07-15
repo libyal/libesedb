@@ -48,7 +48,7 @@ int esedb_test_catalog_initialize(
 	int result                      = 0;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
+	int number_of_malloc_fail_tests = 2;
 	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
 #endif
@@ -134,6 +134,7 @@ int esedb_test_catalog_initialize(
 	     test_number++ )
 	{
 		/* Test libesedb_catalog_initialize with malloc failing
+		 * Test libesedb_catalog_initialize with malloc failing in libcdata_list_initialize
 		 */
 		esedb_test_malloc_attempts_before_fail = test_number;
 
@@ -276,11 +277,10 @@ on_error:
 int esedb_test_catalog_get_number_of_table_definitions(
      void )
 {
-	libcerror_error_t *error               = NULL;
-	libesedb_catalog_t *catalog            = NULL;
-	int number_of_table_definitions        = 0;
-	int number_of_table_definitions_is_set = 0;
-	int result                             = 0;
+	libcerror_error_t *error        = NULL;
+	libesedb_catalog_t *catalog     = NULL;
+	int number_of_table_definitions = 0;
+	int result                      = 0;
 
 	/* Initialize test
 	 */
@@ -317,8 +317,6 @@ int esedb_test_catalog_get_number_of_table_definitions(
 	 "error",
 	 error );
 
-	number_of_table_definitions_is_set = result;
-
 	/* Test error cases
 	 */
 	result = libesedb_catalog_get_number_of_table_definitions(
@@ -338,25 +336,665 @@ int esedb_test_catalog_get_number_of_table_definitions(
 	libcerror_error_free(
 	 &error );
 
-	if( number_of_table_definitions_is_set != 0 )
+	result = libesedb_catalog_get_number_of_table_definitions(
+	          catalog,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_free(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
 	{
-		result = libesedb_catalog_get_number_of_table_definitions(
-		          catalog,
-		          NULL,
-		          &error );
-
-		ESEDB_TEST_ASSERT_EQUAL_INT(
-		 "result",
-		 result,
-		 -1 );
-
-		ESEDB_TEST_ASSERT_IS_NOT_NULL(
-		 "error",
-		 error );
-
 		libcerror_error_free(
 		 &error );
 	}
+	if( catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &catalog,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_get_table_definition_by_index function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_get_table_definition_by_index(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libesedb_catalog_t *catalog                   = NULL;
+	libesedb_table_definition_t *table_definition = NULL;
+	int result                                    = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_catalog_initialize(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_get_table_definition_by_index(
+	          NULL,
+	          0,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_index(
+	          catalog,
+	          0,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_free(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &catalog,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_get_table_definition_by_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_get_table_definition_by_name(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libesedb_catalog_t *catalog                   = NULL;
+	libesedb_table_definition_t *table_definition = NULL;
+	char *name                                    = "test";
+	int result                                    = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_catalog_initialize(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_get_table_definition_by_name(
+	          NULL,
+	          name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_name(
+	          catalog,
+	          NULL,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_name(
+	          catalog,
+	          name,
+	          (size_t) SSIZE_MAX + 1,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_name(
+	          catalog,
+	          name,
+	          4,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_free(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &catalog,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_get_table_definition_by_utf8_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_get_table_definition_by_utf8_name(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libesedb_catalog_t *catalog                   = NULL;
+	libesedb_table_definition_t *table_definition = NULL;
+	uint8_t *utf8_name                            = "test";
+	int result                                    = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_catalog_initialize(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          NULL,
+	          utf8_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          catalog,
+	          NULL,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          catalog,
+	          utf8_name,
+	          (size_t) SSIZE_MAX + 1,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          catalog,
+	          utf8_name,
+	          4,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_free(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &catalog,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_get_table_definition_by_utf16_name function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_get_table_definition_by_utf16_name(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libesedb_catalog_t *catalog                   = NULL;
+	libesedb_table_definition_t *table_definition = NULL;
+	uint16_t *utf16_name                          = { 't', 'e', 's', 't', 0 };
+	int result                                    = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_catalog_initialize(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          NULL,
+	          utf16_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          catalog,
+	          NULL,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          catalog,
+	          utf16_name,
+	          (size_t) SSIZE_MAX + 1,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          catalog,
+	          utf16_name,
+	          4,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_catalog_free(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( catalog != NULL )
+	{
+		libesedb_catalog_free(
+		 &catalog,
+		 NULL );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_catalog_read_file_io_handle function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_catalog_read_file_io_handle(
+     void )
+{
+	libcerror_error_t *error    = NULL;
+	libesedb_catalog_t *catalog = NULL;
+	int result                  = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_catalog_initialize(
+	          &catalog,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "catalog",
+	 catalog );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+
+	/* Test error cases
+	 */
+	result = libesedb_catalog_read_file_io_handle(
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	/* Clean up
 	 */
 	result = libesedb_catalog_free(
@@ -424,15 +1062,25 @@ int main(
 	 "libesedb_catalog_get_number_of_table_definitions",
 	 esedb_test_catalog_get_number_of_table_definitions );
 
-	/* TODO: add tests for libesedb_catalog_get_table_definition_by_index */
+	ESEDB_TEST_RUN(
+	 "libesedb_catalog_get_table_definition_by_index",
+	 esedb_test_catalog_get_table_definition_by_index );
 
-	/* TODO: add tests for libesedb_catalog_get_table_definition_by_name */
+	ESEDB_TEST_RUN(
+	 "libesedb_catalog_get_table_definition_by_name",
+	 esedb_test_catalog_get_table_definition_by_name );
 
-	/* TODO: add tests for libesedb_catalog_get_table_definition_by_utf8_name */
+	ESEDB_TEST_RUN(
+	 "libesedb_catalog_get_table_definition_by_utf8_name",
+	 esedb_test_catalog_get_table_definition_by_utf8_name );
 
-	/* TODO: add tests for libesedb_catalog_get_table_definition_by_utf16_name */
+	ESEDB_TEST_RUN(
+	 "libesedb_catalog_get_table_definition_by_utf16_name",
+	 esedb_test_catalog_get_table_definition_by_utf16_name );
 
-	/* TODO: add tests for libesedb_catalog_read */
+	ESEDB_TEST_RUN(
+	 "libesedb_catalog_read_file_io_handle",
+	 esedb_test_catalog_read_file_io_handle );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

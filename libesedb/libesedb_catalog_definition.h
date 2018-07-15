@@ -109,10 +109,10 @@ int libesedb_catalog_definition_free(
      libesedb_catalog_definition_t **catalog_definition,
      libcerror_error_t **error );
 
-int libesedb_catalog_definition_read(
+int libesedb_catalog_definition_read_data(
      libesedb_catalog_definition_t *catalog_definition,
-     uint8_t *definition_data,
-     size_t definition_data_size,
+     uint8_t *data,
+     size_t data_size,
      int ascii_codepage,
      libcerror_error_t **error );
 

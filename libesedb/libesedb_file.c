@@ -1328,7 +1328,7 @@ int libesedb_file_open_read(
 
 			goto on_error;
 		}
-		if( libesedb_catalog_read(
+		if( libesedb_catalog_read_file_io_handle(
 		     internal_file->catalog,
 		     file_io_handle,
 		     internal_file->io_handle,
@@ -1366,7 +1366,7 @@ int libesedb_file_open_read(
 
 			goto on_error;
 		}
-		if( libesedb_catalog_read(
+		if( libesedb_catalog_read_file_io_handle(
 		     internal_file->backup_catalog,
 		     file_io_handle,
 		     internal_file->io_handle,

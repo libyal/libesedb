@@ -832,7 +832,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 /* Reads the catalog
  * Returns 1 if successful or -1 on error
  */
-int libesedb_catalog_read(
+int libesedb_catalog_read_file_io_handle(
      libesedb_catalog_t *catalog,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
@@ -848,7 +848,7 @@ int libesedb_catalog_read(
 	libfcache_cache_t *catalog_values_cache           = NULL;
 	libfdata_btree_t *catalog_values_tree             = NULL;
 	uint8_t *catalog_definition_data                  = NULL;
-	static char *function                             = "libesedb_catalog_read";
+	static char *function                             = "libesedb_catalog_read_file_io_handle";
 	off64_t node_data_offset                          = 0;
 	size_t catalog_definition_data_size               = 0;
 	int leaf_value_index                              = 0;
@@ -906,8 +906,7 @@ int libesedb_catalog_read(
 
 		goto on_error;
 	}
-	/* TODO add clone function
-	 */
+/* TODO add clone function */
 	if( libfdata_btree_initialize(
 	     &catalog_values_tree,
 	     (intptr_t *) catalog_page_tree,
@@ -1034,7 +1033,7 @@ int libesedb_catalog_read(
 
 			goto on_error;
 		}
-		if( libesedb_catalog_definition_read(
+		if( libesedb_catalog_definition_read_data(
 		     catalog_definition,
 		     catalog_definition_data,
 		     catalog_definition_data_size,
@@ -1053,8 +1052,7 @@ int libesedb_catalog_read(
 		if( ( catalog_definition->type != LIBESEDB_CATALOG_DEFINITION_TYPE_TABLE )
 		 && ( table_definition == NULL ) )
 		{
-			/* TODO add build-in table 1 support
-			 */
+/* TODO add build-in table 1 support */
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
 			{

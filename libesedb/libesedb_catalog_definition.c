@@ -165,20 +165,20 @@ int libesedb_catalog_definition_free(
 	return( 1 );
 }
 
-/* Reads the catalog definition from the definition data
+/* Reads the catalog definition
  * Returns 1 if successful or -1 on error
  */
-int libesedb_catalog_definition_read(
+int libesedb_catalog_definition_read_data(
      libesedb_catalog_definition_t *catalog_definition,
-     uint8_t *definition_data,
-     size_t definition_data_size,
+     uint8_t *data,
+     size_t data_size,
      int ascii_codepage LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
 	uint8_t *fixed_size_data_type_value_data            = NULL;
 	uint8_t *variable_size_data_type_size_data          = NULL;
 	uint8_t *variable_size_data_type_value_data         = NULL;
-	static char *function                               = "libesedb_catalog_definition_read";
+	static char *function                               = "libesedb_catalog_definition_read_data";
 	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;
 	uint16_t previous_variable_size_data_type_size      = 0;
@@ -211,56 +211,68 @@ int libesedb_catalog_definition_read(
 
 		return( -1 );
 	}
-	if( definition_data == NULL )
+	if( data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid definition data.",
+		 "%s: invalid data.",
 		 function );
 
 		return( -1 );
 	}
-	if( definition_data_size > (size_t) SSIZE_MAX )
+	if( data_size > (size_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid definition data size value exceeds maximum.",
+		 "%s: invalid data size value exceeds maximum.",
 		 function );
 
 		return( -1 );
 	}
-	if( definition_data_size < sizeof( esedb_data_definition_header_t ) )
+	if( data_size < sizeof( esedb_data_definition_header_t ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: definition data too small.",
+		 "%s: data too small.",
 		 function );
 
 		return( -1 );
 	}
-	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) definition_data )->last_fixed_size_data_type;
-	last_variable_size_data_type = ( (esedb_data_definition_header_t *) definition_data )->last_variable_size_data_type;
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: data definition:\n",
+		 function );
+		libcnotify_print_data(
+		 data,
+		 data_size,
+		 0 );
+	}
+#endif
+	last_fixed_size_data_type    = ( (esedb_data_definition_header_t *) data )->last_fixed_size_data_type;
+	last_variable_size_data_type = ( (esedb_data_definition_header_t *) data )->last_variable_size_data_type;
 
 	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_data_definition_header_t *) definition_data )->variable_size_data_types_offset,
+	 ( (esedb_data_definition_header_t *) data )->variable_size_data_types_offset,
 	 variable_size_data_types_offset );
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: last fixed size data type\t\t\t\t: %" PRIu8 "\n",
+		 "%s: last fixed size data type\t\t\t: %" PRIu8 "\n",
 		 function,
 		 last_fixed_size_data_type );
 
 		libcnotify_printf(
-		 "%s: last variable size data type\t\t\t\t: %" PRIu8 "\n",
+		 "%s: last variable size data type\t\t\t: %" PRIu8 "\n",
 		 function,
 		 last_variable_size_data_type );
 
@@ -334,18 +346,18 @@ int libesedb_catalog_definition_read(
 			calculated_variable_size_data_types_offset += 4;
 			break;
 	}
-	if( variable_size_data_types_offset > definition_data_size )
+	if( variable_size_data_types_offset > data_size )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: variable size data types offset exceeds definition data.",
+		 "%s: variable size data types offset exceeds data.",
 		 function );
 
 		return( -1 );
 	}
-	fixed_size_data_type_value_data = &( definition_data[ sizeof( esedb_data_definition_header_t ) ] );
+	fixed_size_data_type_value_data = &( data[ sizeof( esedb_data_definition_header_t ) ] );
 
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_data_definition_t *) fixed_size_data_type_value_data )->father_data_page_object_identifier,
@@ -399,7 +411,7 @@ int libesedb_catalog_definition_read(
 		 catalog_definition->father_data_page_object_identifier );
 
 		libcnotify_printf(
-		 "%s: (%03" PRIu16 ") type\t\t\t\t\t\t: 0x%04" PRIx16 " ",
+		 "%s: (%03" PRIu16 ") type\t\t\t\t\t: 0x%04" PRIx16 " ",
 		 function,
 		 data_type_number++,
 		 catalog_definition->type );
@@ -417,7 +429,7 @@ int libesedb_catalog_definition_read(
 		if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 		{
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") column type\t\t\t\t\t: %" PRIu32 " (%s) %s\n",
+			 "%s: (%03" PRIu16 ") column type\t\t\t\t: %" PRIu32 " (%s) %s\n",
 			 function,
 			 data_type_number++,
 			 catalog_definition->column_type,
@@ -429,13 +441,13 @@ int libesedb_catalog_definition_read(
 		else
 		{
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") father data page (FDP) number\t\t\t: %" PRIu32 "\n",
+			 "%s: (%03" PRIu16 ") father data page (FDP) number\t\t: %" PRIu32 "\n",
 			 function,
 			 data_type_number++,
 			 catalog_definition->father_data_page_number );
 		}
 		libcnotify_printf(
-		 "%s: (%03" PRIu16 ") space usage\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: (%03" PRIu16 ") space usage\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 data_type_number++,
 		 catalog_definition->size );
@@ -449,7 +461,7 @@ int libesedb_catalog_definition_read(
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
@@ -461,7 +473,7 @@ int libesedb_catalog_definition_read(
 			else if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_INDEX )
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
@@ -473,7 +485,7 @@ int libesedb_catalog_definition_read(
 			else
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t\t: 0x%08" PRIx32 "\n",
+				 "%s: (%03" PRIu16 ") flags\t\t\t\t\t: 0x%08" PRIx32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
@@ -484,7 +496,7 @@ int libesedb_catalog_definition_read(
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
+				 "%s: (%03" PRIu16 ") codepage\t\t\t\t: %" PRIu32 "",
 				 function,
 				 data_type_number++,
 				 catalog_definition->codepage );
@@ -508,7 +520,7 @@ int libesedb_catalog_definition_read(
 				 value_32bit );
 
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
+				 "%s: (%03" PRIu16 ") locale identifier\t\t\t: 0x%08" PRIx32 " (%s)\n",
 				 function,
 				 data_type_number++,
 				 value_32bit,
@@ -524,7 +536,7 @@ int libesedb_catalog_definition_read(
 				 value_32bit );
 
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") number of pages\t\t\t\t\t: %" PRIu32 "\n",
+				 "%s: (%03" PRIu16 ") number of pages\t\t\t\t: %" PRIu32 "\n",
 				 function,
 				 data_type_number++,
 				 value_32bit );
@@ -545,7 +557,7 @@ int libesedb_catalog_definition_read(
 			 record_offset );
 
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") record offset\t\t\t\t\t: %" PRIu16 "\n",
+			 "%s: (%03" PRIu16 ") record offset\t\t\t\t: %" PRIu16 "\n",
 			 function,
 			 data_type_number++,
 			 record_offset );
@@ -553,7 +565,7 @@ int libesedb_catalog_definition_read(
 		if( last_fixed_size_data_type >= 10 )
 		{
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t: 0x%08" PRIx32 "\n",
+			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 data_type_number++,
 			 catalog_definition->lcmap_flags );
@@ -569,7 +581,7 @@ int libesedb_catalog_definition_read(
 			 value_16bit );
 
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") key most\t\t\t\t\t: 0x04%" PRIx16 "\n",
+			 "%s: (%03" PRIu16 ") key most\t\t\t\t: 0x04%" PRIx16 "\n",
 			 function,
 			 data_type_number++,
 			 value_16bit );
@@ -587,14 +599,14 @@ int libesedb_catalog_definition_read(
 		 "%s: trailing data:\n",
 		 function );
 		libcnotify_print_data(
-		 &( definition_data[ calculated_variable_size_data_types_offset ] ),
+		 &( data[ calculated_variable_size_data_types_offset ] ),
 		 variable_size_data_types_offset - calculated_variable_size_data_types_offset,
 		 0 );
 	}
 #endif
 	if( number_of_variable_size_data_types > 0 )
 	{
-		variable_size_data_type_size_data  = &( definition_data[ variable_size_data_types_offset ] );
+		variable_size_data_type_size_data  = &( data[ variable_size_data_types_offset ] );
 		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ number_of_variable_size_data_types * 2 ] );
 
 		data_type_number = 128;
@@ -613,7 +625,7 @@ int libesedb_catalog_definition_read(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") variable size data type size\t\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+				 "%s: (%03" PRIu16 ") variable size data type size\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 				 function,
 				 data_type_number,
 				 variable_size_data_type_size,
@@ -745,7 +757,7 @@ int libesedb_catalog_definition_read(
 								return( -1 );
 							}
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: %" PRIs_SYSTEM "\n",
+							 "%s: (%03" PRIu8 ") name\t\t\t\t\t: %" PRIs_SYSTEM "\n",
 							 function,
 							 data_type_number,
 							 catalog_definition->name_string );
@@ -756,7 +768,7 @@ int libesedb_catalog_definition_read(
 					else if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: (%03" PRIu8 ") name\t\t\t\t\t\t: <NULL>\n",
+						 "%s: (%03" PRIu8 ") name\t\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
 					}
@@ -783,7 +795,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") stats\t\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") stats\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -911,7 +923,7 @@ int libesedb_catalog_definition_read(
 								return( -1 );
 							}
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: %" PRIs_SYSTEM "\n",
+							 "%s: (%03" PRIu8 ") template name\t\t\t\t: %" PRIs_SYSTEM "\n",
 							 function,
 							 data_type_number,
 							 value_string );
@@ -925,7 +937,7 @@ int libesedb_catalog_definition_read(
 					else if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: (%03" PRIu8 ") template name\t\t\t\t\t: <NULL>\n",
+						 "%s: (%03" PRIu8 ") template name\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
 					}
@@ -993,7 +1005,7 @@ int libesedb_catalog_definition_read(
 					else if( libcnotify_verbose != 0 )
 					{
 						libcnotify_printf(
-						 "%s: (%03" PRIu8 ") default value\t\t\t\t\t: <NULL>\n",
+						 "%s: (%03" PRIu8 ") default value\t\t\t\t: <NULL>\n",
 						 function,
 						 data_type_number );
 					}
@@ -1020,7 +1032,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") KeyFldIDs\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") KeyFldIDs\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1046,7 +1058,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1072,7 +1084,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1098,7 +1110,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") TupleLimits\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") TupleLimits\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1124,7 +1136,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") Version\t\t\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") Version\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1152,7 +1164,7 @@ int libesedb_catalog_definition_read(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu16 ") variable size data type\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu16 ") variable size data type\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1176,7 +1188,6 @@ int libesedb_catalog_definition_read(
 		 "\n" );
 	}
 #endif
-
 	return( 1 );
 }
 
@@ -1265,7 +1276,6 @@ int libesedb_catalog_definition_get_utf8_name_size(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_name_size";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1278,14 +1288,12 @@ int libesedb_catalog_definition_get_utf8_name_size(
 
 		return( -1 );
 	}
-	result = libuna_utf8_string_size_from_byte_stream(
-		  catalog_definition->name,
-		  catalog_definition->name_size,
-		  ascii_codepage,
-		  utf8_string_size,
-		  error );
-
-	if( result != 1 )
+	if( libuna_utf8_string_size_from_byte_stream(
+	     catalog_definition->name,
+	     catalog_definition->name_size,
+	     ascii_codepage,
+	     utf8_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1311,7 +1319,6 @@ int libesedb_catalog_definition_get_utf8_name(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_name";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1324,15 +1331,13 @@ int libesedb_catalog_definition_get_utf8_name(
 
 		return( -1 );
 	}
-	result = libuna_utf8_string_copy_from_byte_stream(
-		  utf8_string,
-		  utf8_string_size,
-		  catalog_definition->name,
-		  catalog_definition->name_size,
-		  ascii_codepage,
-		  error );
-
-	if( result != 1 )
+	if( libuna_utf8_string_copy_from_byte_stream(
+	     utf8_string,
+	     utf8_string_size,
+	     catalog_definition->name,
+	     catalog_definition->name_size,
+	     ascii_codepage,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1357,7 +1362,6 @@ int libesedb_catalog_definition_get_utf16_name_size(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_name_size";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1370,14 +1374,12 @@ int libesedb_catalog_definition_get_utf16_name_size(
 
 		return( -1 );
 	}
-	result = libuna_utf16_string_size_from_byte_stream(
-		  catalog_definition->name,
-		  catalog_definition->name_size,
-		  ascii_codepage,
-		  utf16_string_size,
-		  error );
-
-	if( result != 1 )
+	if( libuna_utf16_string_size_from_byte_stream(
+	     catalog_definition->name,
+	     catalog_definition->name_size,
+	     ascii_codepage,
+	     utf16_string_size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1403,7 +1405,6 @@ int libesedb_catalog_definition_get_utf16_name(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_name";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1416,15 +1417,13 @@ int libesedb_catalog_definition_get_utf16_name(
 
 		return( -1 );
 	}
-	result = libuna_utf16_string_copy_from_byte_stream(
-		  utf16_string,
-		  utf16_string_size,
-		  catalog_definition->name,
-		  catalog_definition->name_size,
-		  ascii_codepage,
-		  error );
-
-	if( result != 1 )
+	if( libuna_utf16_string_copy_from_byte_stream(
+	     utf16_string,
+	     utf16_string_size,
+	     catalog_definition->name,
+	     catalog_definition->name_size,
+	     ascii_codepage,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1449,7 +1448,6 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_template_name_size";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1479,14 +1477,12 @@ int libesedb_catalog_definition_get_utf8_template_name_size(
 	}
 	else
 	{
-		result = libuna_utf8_string_size_from_byte_stream(
-			  catalog_definition->template_name,
-			  catalog_definition->template_name_size,
-			  ascii_codepage,
-			  utf8_string_size,
-			  error );
-
-		if( result != 1 )
+		if( libuna_utf8_string_size_from_byte_stream(
+		     catalog_definition->template_name,
+		     catalog_definition->template_name_size,
+		     ascii_codepage,
+		     utf8_string_size,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1513,7 +1509,6 @@ int libesedb_catalog_definition_get_utf8_template_name(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf8_template_name";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1528,15 +1523,13 @@ int libesedb_catalog_definition_get_utf8_template_name(
 	}
 	if( catalog_definition->template_name != NULL )
 	{
-		result = libuna_utf8_string_copy_from_byte_stream(
-			  utf8_string,
-			  utf8_string_size,
-			  catalog_definition->template_name,
-			  catalog_definition->template_name_size,
-			  ascii_codepage,
-			  error );
-
-		if( result != 1 )
+		if( libuna_utf8_string_copy_from_byte_stream(
+		     utf8_string,
+		     utf8_string_size,
+		     catalog_definition->template_name,
+		     catalog_definition->template_name_size,
+		     ascii_codepage,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1562,7 +1555,6 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_template_name_size";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1592,14 +1584,12 @@ int libesedb_catalog_definition_get_utf16_template_name_size(
 	}
 	else
 	{
-		result = libuna_utf16_string_size_from_byte_stream(
-			  catalog_definition->template_name,
-			  catalog_definition->template_name_size,
-			  ascii_codepage,
-			  utf16_string_size,
-			  error );
-
-		if( result != 1 )
+		if( libuna_utf16_string_size_from_byte_stream(
+		     catalog_definition->template_name,
+		     catalog_definition->template_name_size,
+		     ascii_codepage,
+		     utf16_string_size,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1626,7 +1616,6 @@ int libesedb_catalog_definition_get_utf16_template_name(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_catalog_definition_get_utf16_template_name";
-	int result            = 0;
 
 	if( catalog_definition == NULL )
 	{
@@ -1641,15 +1630,13 @@ int libesedb_catalog_definition_get_utf16_template_name(
 	}
 	if( catalog_definition->template_name != NULL )
 	{
-		result = libuna_utf16_string_copy_from_byte_stream(
-			  utf16_string,
-			  utf16_string_size,
-			  catalog_definition->template_name,
-			  catalog_definition->template_name_size,
-			  ascii_codepage,
-			  error );
-
-		if( result != 1 )
+		if( libuna_utf16_string_copy_from_byte_stream(
+		     utf16_string,
+		     utf16_string_size,
+		     catalog_definition->template_name,
+		     catalog_definition->template_name_size,
+		     ascii_codepage,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,

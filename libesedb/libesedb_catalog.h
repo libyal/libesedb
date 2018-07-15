@@ -86,7 +86,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error );
 
-int libesedb_catalog_read(
+int libesedb_catalog_read_file_io_handle(
      libesedb_catalog_t *catalog,
      libbfio_handle_t *file_io_handle,
      libesedb_io_handle_t *io_handle,
