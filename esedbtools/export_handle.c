@@ -1729,12 +1729,14 @@ int export_handle_export_indexes(
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
+	libesedb_index_t *index                  = NULL;
 	system_character_t *index_directory_name = NULL;
 	system_character_t *index_name           = NULL;
-	libesedb_index_t *index                  = NULL;
+	system_character_t *sanitized_name       = NULL;
 	static char *function                    = "export_handle_export_indexes";
 	size_t index_directory_name_size         = 0;
 	size_t index_name_size                   = 0;
+	size_t sanitized_name_size               = 0;
 	int index_iterator                       = 0;
 	int number_of_indexes                    = 0;
 	int result                               = 0;
@@ -1967,14 +1969,18 @@ int export_handle_export_indexes(
 		 ".\n" );
 
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libcpath_path_sanitize_filename_wide(
+		if( libcpath_path_get_sanitized_filename_wide(
 		     index_name,
-		     &index_name_size,
+		     index_name_size - 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
 		     error ) != 1 )
 #else
-		if( libcpath_path_sanitize_filename(
+		if( libcpath_path_get_sanitized_filename(
 		     index_name,
-		     &index_name_size,
+		     index_name_size - 1,
+		     &sanitized_name,
+		     &sanitized_name_size,
 		     error ) != 1 )
 #endif
 		{
@@ -1987,12 +1993,18 @@ int export_handle_export_indexes(
 
 			goto on_error;
 		}
+
+		memory_free(
+		 index_name );
+
+		index_name = NULL;
+
 		if( export_handle_export_index(
 		     export_handle,
 		     index,
 		     index_iterator,
-		     index_name,
-		     index_name_size - 1,
+		     sanitized_name,
+		     sanitized_name_size - 1,
 		     export_path,
 		     export_path_length,
 		     log_handle,
@@ -2009,9 +2021,9 @@ int export_handle_export_indexes(
 			goto on_error;
 		}
 		memory_free(
-		 index_name );
+		 sanitized_name );
 
-		index_name = NULL;
+		sanitized_name = NULL;
 
 		if( libesedb_index_free(
 		     &index,
@@ -2030,6 +2042,11 @@ int export_handle_export_indexes(
 	return( 1 );
 
 on_error:
+	if( sanitized_name != NULL )
+	{
+		memory_free(
+		 sanitized_name );
+	}
 	if( index_name != NULL )
 	{
 		memory_free(
@@ -4410,34 +4427,21 @@ int export_handle_export_file(
 		 export_handle->notify_stream,
 		 ".\n" );
 
-/* TODO move export_handle_export_table into export_handle_export_table */
+/* TODO move into export_handle_export_table */
 
-/* TODO implement in libcpath
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		if( libcpath_path_get_sanitized_filename_wide(
 		     table_name,
-		     table_name_length + 1,
+		     table_name_length,
 		     &sanitized_name,
 		     &sanitized_name_size,
 		     error ) != 1 )
 #else
 		if( libcpath_path_get_sanitized_filename(
 		     table_name,
-		     table_name_length + 1,
+		     table_name_length,
 		     &sanitized_name,
 		     &sanitized_name_size,
-		     error ) != 1 )
-#endif
-*/
-#if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-		if( libcpath_path_sanitize_filename_wide(
-		     table_name,
-		     &table_name_size,
-		     error ) != 1 )
-#else
-		if( libcpath_path_sanitize_filename(
-		     table_name,
-		     &table_name_size,
 		     error ) != 1 )
 #endif
 		{
@@ -4452,14 +4456,13 @@ int export_handle_export_file(
 
 			goto on_error;
 		}
-/* TODO use sanitized name instead of table name */
 		if( export_handle_export_table(
 		     export_handle,
 		     database_type,
 		     table,
 		     table_index,
-		     table_name,
-		     table_name_size - 1,
+		     sanitized_name,
+		     sanitized_name_size - 1,
 		     export_handle->items_export_path,
 		     export_handle->items_export_path_size - 1,
 		     log_handle,
