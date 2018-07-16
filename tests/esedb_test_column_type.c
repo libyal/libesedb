@@ -35,6 +35,60 @@
 
 #include "../libesedb/libesedb_column_type.h"
 
+#if defined( HAVE_DEBUG_OUTPUT )
+
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
+/* Tests the libesedb_column_type_get_identifier function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_column_type_get_identifier(
+     void )
+{
+	const char *result = NULL;
+
+	/* Test regular cases
+	 */
+	result = libesedb_column_type_get_identifier(
+	          0x0000 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "result",
+	 result );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+/* Tests the libesedb_column_type_get_description function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_column_type_get_description(
+     void )
+{
+	const char *result = NULL;
+
+	/* Test regular cases
+	 */
+	result = libesedb_column_type_get_description(
+	          0x0000 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "result",
+	 result );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
+
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 /* The main program
  */
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
@@ -50,13 +104,21 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
+#if defined( HAVE_DEBUG_OUTPUT )
+
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
-	/* TODO: add tests for libesedb_column_type_get_identifier */
+	ESEDB_TEST_RUN(
+	 "libesedb_column_type_get_identifier",
+	 esedb_test_column_type_get_identifier );
 
-	/* TODO: add tests for libesedb_column_type_get_description */
+	ESEDB_TEST_RUN(
+	 "libesedb_column_type_get_description",
+	 esedb_test_column_type_get_description );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
+
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	return( EXIT_SUCCESS );
 

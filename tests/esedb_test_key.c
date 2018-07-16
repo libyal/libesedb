@@ -114,6 +114,8 @@ int esedb_test_key_initialize(
 	          &key,
 	          &error );
 
+	key = NULL;
+
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -125,8 +127,6 @@ int esedb_test_key_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	key = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 

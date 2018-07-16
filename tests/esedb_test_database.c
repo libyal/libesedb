@@ -113,6 +113,8 @@ int esedb_test_database_initialize(
 	          &database,
 	          &error );
 
+	database = NULL;
+
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int esedb_test_database_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	database = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 

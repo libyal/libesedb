@@ -43,6 +43,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_column_type", "e
 		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_compression", "esedb_test_compression\esedb_test_compression.vcproj", "{176CDE95-D465-44F2-948C-67C2088B5807}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_data_definition", "esedb_test_data_definition\esedb_test_data_definition.vcproj", "{9419D031-C7C3-4DC1-BC5B-ECFC832B80E9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
@@ -385,6 +391,10 @@ Global
 		{E7AC2AB8-2946-40F9-B0B2-02CE8C96C728}.Release|Win32.Build.0 = Release|Win32
 		{E7AC2AB8-2946-40F9-B0B2-02CE8C96C728}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{E7AC2AB8-2946-40F9-B0B2-02CE8C96C728}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{176CDE95-D465-44F2-948C-67C2088B5807}.Release|Win32.ActiveCfg = Release|Win32
+		{176CDE95-D465-44F2-948C-67C2088B5807}.Release|Win32.Build.0 = Release|Win32
+		{176CDE95-D465-44F2-948C-67C2088B5807}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{176CDE95-D465-44F2-948C-67C2088B5807}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{9419D031-C7C3-4DC1-BC5B-ECFC832B80E9}.Release|Win32.ActiveCfg = Release|Win32
 		{9419D031-C7C3-4DC1-BC5B-ECFC832B80E9}.Release|Win32.Build.0 = Release|Win32
 		{9419D031-C7C3-4DC1-BC5B-ECFC832B80E9}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

@@ -130,6 +130,7 @@ stamp-h[1-9]
 /tests/esedb_test_checksum
 /tests/esedb_test_column
 /tests/esedb_test_column_type
+/tests/esedb_test_compression
 /tests/esedb_test_data_definition
 /tests/esedb_test_data_segment
 /tests/esedb_test_database

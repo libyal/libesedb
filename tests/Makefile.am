@@ -48,6 +48,7 @@ check_PROGRAMS = \
 	esedb_test_checksum \
 	esedb_test_column \
 	esedb_test_column_type \
+	esedb_test_compression \
 	esedb_test_data_definition \
 	esedb_test_data_segment \
 	esedb_test_database \
@@ -125,6 +126,18 @@ esedb_test_column_type_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_column_type_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_compression_SOURCES = \
+	esedb_test_compression.c \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_compression_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 

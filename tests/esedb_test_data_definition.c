@@ -113,6 +113,8 @@ int esedb_test_data_definition_initialize(
 	          &data_definition,
 	          &error );
 
+	data_definition = NULL;
+
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int esedb_test_data_definition_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	data_definition = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 

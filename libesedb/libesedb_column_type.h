@@ -54,7 +54,7 @@ const char *libesedb_column_type_get_identifier(
 const char *libesedb_column_type_get_description(
              uint32_t column_type );
 
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #if defined( __cplusplus )
 }

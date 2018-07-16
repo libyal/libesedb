@@ -3707,7 +3707,7 @@ int libesedb_record_get_multi_value(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+			 "%s: multi value offset: %03" PRIu16 "\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 			 function,
 			 value_entry_offset_index,
 			 value_16bit,
@@ -3743,7 +3743,7 @@ int libesedb_record_get_multi_value(
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
-				 "%s: multi value offset: %03" PRIu16 "\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
+				 "%s: multi value offset: %03" PRIu16 "\t\t: 0x%04" PRIx16 " (%" PRIu16 ")\n",
 				 function,
 				 value_entry_offset_index,
 				 value_16bit,

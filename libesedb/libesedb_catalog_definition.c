@@ -496,7 +496,7 @@ int libesedb_catalog_definition_read_data(
 			if( catalog_definition->type == LIBESEDB_CATALOG_DEFINITION_TYPE_COLUMN )
 			{
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") codepage\t\t\t\t: %" PRIu32 "",
+				 "%s: (%03" PRIu16 ") codepage\t\t\t\t\t: %" PRIu32 "",
 				 function,
 				 data_type_number++,
 				 catalog_definition->codepage );

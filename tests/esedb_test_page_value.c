@@ -113,6 +113,8 @@ int esedb_test_page_value_initialize(
 	          &page_value,
 	          &error );
 
+	page_value = NULL;
+
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -124,8 +126,6 @@ int esedb_test_page_value_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	page_value = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 

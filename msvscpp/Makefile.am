@@ -4,6 +4,7 @@ MSVSCPP_FILES = \
 	esedb_test_checksum/esedb_test_checksum.vcproj \
 	esedb_test_column/esedb_test_column.vcproj \
 	esedb_test_column_type/esedb_test_column_type.vcproj \
+	esedb_test_compression/esedb_test_compression.vcproj \
 	esedb_test_data_definition/esedb_test_data_definition.vcproj \
 	esedb_test_data_segment/esedb_test_data_segment.vcproj \
 	esedb_test_database/esedb_test_database.vcproj \

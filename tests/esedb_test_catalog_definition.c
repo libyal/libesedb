@@ -120,6 +120,8 @@ int esedb_test_catalog_definition_initialize(
 	          &catalog_definition,
 	          &error );
 
+	catalog_definition = NULL;
+
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
 	 result,
@@ -131,8 +133,6 @@ int esedb_test_catalog_definition_initialize(
 
 	libcerror_error_free(
 	 &error );
-
-	catalog_definition = NULL;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
