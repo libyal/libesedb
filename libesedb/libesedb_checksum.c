@@ -335,6 +335,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	uint8_t *buffer_iterator                    = NULL;
 	static char *function                       = "libesedb_checksum_calculate_little_endian_xor32";
 	libesedb_aligned_t value_aligned            = 0;
+	size_t number_of_iterations                 = 0;
 	uint32_t safe_checksum_value                = 0;
 	uint32_t value_32bit                        = 0;
 	uint8_t alignment_count                     = 0;
@@ -342,6 +343,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	uint8_t byte_count                          = 0;
 	uint8_t byte_order                          = 0;
 	uint8_t byte_size                           = 0;
+	uint8_t realignment_size                    = 0;
 
 	if( checksum_value == NULL )
 	{
@@ -388,7 +390,8 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	{
 		/* Align the buffer iterator
 		 */
-		alignment_size = (uint8_t) ( (intptr_t) buffer_iterator % sizeof( libesedb_aligned_t ) );
+		alignment_size   = (uint8_t) ( (intptr_t) buffer_iterator % sizeof( libesedb_aligned_t ) );
+		realignment_size = 4 - ( alignment_size % 4 );
 
 		byte_size = alignment_size;
 
@@ -439,7 +442,9 @@ int libesedb_checksum_calculate_little_endian_xor32(
 		}
 		/* Determine the aligned XOR value
 		 */
-		while( size > sizeof( libesedb_aligned_t ) )
+		for( number_of_iterations = ( size - realignment_size ) / sizeof( libesedb_aligned_t );
+		     number_of_iterations > 0;
+		     number_of_iterations-- )
 		{
 			value_aligned ^= *aligned_buffer_iterator;
 
@@ -509,27 +514,25 @@ int libesedb_checksum_calculate_little_endian_xor32(
 		 */
 		buffer_iterator = (uint8_t *) aligned_buffer_iterator;
 
-		byte_size = 4 - ( alignment_size % 4 );
-
-		if( byte_size != 4 )
+		if( realignment_size != 4 )
 		{
 			value_32bit   = buffer_iterator[ 0 ];
 			value_32bit <<= 8;
 
-			if( byte_size >= 2 )
+			if( realignment_size >= 2 )
 			{
 				value_32bit |= buffer_iterator[ 1 ];
 			}
 			value_32bit <<= 8;
 
-			if( byte_size >= 3 )
+			if( realignment_size >= 3 )
 			{
 				value_32bit |= buffer_iterator[ 2 ];
 			}
 			value_32bit <<= 8;
 
-			buffer_iterator += byte_size;
-			size            -= byte_size;
+			buffer_iterator += realignment_size;
+			size            -= realignment_size;
 
 			safe_checksum_value ^= value_32bit;
 		}
