@@ -1103,7 +1103,7 @@ int libesedb_compression_copy_to_utf8_string(
 			 "%s: unable to copy UTF-8 stream to UTF-8 string.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	memory_free(
@@ -1480,7 +1480,7 @@ int libesedb_compression_copy_to_utf16_string(
 			 "%s: unable to copy UTF-16 stream to UTF-8 string.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 	}
 	memory_free(
