@@ -1,6 +1,7 @@
 MSVSCPP_FILES = \
 	esedb_test_catalog/esedb_test_catalog.vcproj \
 	esedb_test_catalog_definition/esedb_test_catalog_definition.vcproj \
+	esedb_test_checksum/esedb_test_checksum.vcproj \
 	esedb_test_column/esedb_test_column.vcproj \
 	esedb_test_column_type/esedb_test_column_type.vcproj \
 	esedb_test_data_definition/esedb_test_data_definition.vcproj \

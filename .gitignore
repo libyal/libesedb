@@ -127,6 +127,7 @@ stamp-h[1-9]
 /tests/*.exe
 /tests/esedb_test_catalog
 /tests/esedb_test_catalog_definition
+/tests/esedb_test_checksum
 /tests/esedb_test_column
 /tests/esedb_test_column_type
 /tests/esedb_test_data_definition

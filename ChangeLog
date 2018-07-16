@@ -1,4 +1,5 @@
 TODO
+* fix XOR checksum in esedb_test_checksum_calculate_little_endian_ecc32 test
 * libfdata next search keep going on a key match?
 
 * fix flaky test for System_Search_AutoSummary (one byte off?)

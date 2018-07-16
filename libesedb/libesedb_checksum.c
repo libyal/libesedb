@@ -335,6 +335,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 	uint8_t *buffer_iterator                    = NULL;
 	static char *function                       = "libesedb_checksum_calculate_little_endian_xor32";
 	libesedb_aligned_t value_aligned            = 0;
+	uint32_t safe_checksum_value                = 0;
 	uint32_t value_32bit                        = 0;
 	uint8_t alignment_count                     = 0;
 	uint8_t alignment_size                      = 0;
@@ -375,7 +376,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 
 		return( -1 );
 	}
-	*checksum_value = initial_value;
+	safe_checksum_value = initial_value;
 
 	buffer_iterator = (uint8_t *) buffer;
 
@@ -422,7 +423,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 			buffer_iterator += byte_count;
 			byte_size       -= byte_count;
 
-			*checksum_value ^= value_32bit;
+			safe_checksum_value ^= value_32bit;
 		}
 		aligned_buffer_iterator = (libesedb_aligned_t *) buffer_iterator;
 
@@ -471,7 +472,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 				 */
 				value_aligned >>= alignment_count;
 			}
-			*checksum_value ^= value_32bit;
+			safe_checksum_value ^= value_32bit;
 		}
 		/* Update the 32-bit XOR value with the aligned XOR value
 		 */
@@ -502,7 +503,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 			}
 			byte_size -= 4;
 
-			*checksum_value ^= value_32bit;
+			safe_checksum_value ^= value_32bit;
 		}
 		/* Re-align the buffer iterator
 		 */
@@ -530,7 +531,7 @@ int libesedb_checksum_calculate_little_endian_xor32(
 			buffer_iterator += byte_size;
 			size            -= byte_size;
 
-			*checksum_value ^= value_32bit;
+			safe_checksum_value ^= value_32bit;
 		}
 	}
 	while( size > 0 )
@@ -564,8 +565,10 @@ int libesedb_checksum_calculate_little_endian_xor32(
 		buffer_iterator += byte_count;
 		size            -= byte_count;
 
-		*checksum_value ^= value_32bit;
+		safe_checksum_value ^= value_32bit;
 	}
+	*checksum_value = safe_checksum_value;
+
 	return( 1 );
 }
 

@@ -45,6 +45,7 @@ EXTRA_DIST = \
 check_PROGRAMS = \
 	esedb_test_catalog \
 	esedb_test_catalog_definition \
+	esedb_test_checksum \
 	esedb_test_column \
 	esedb_test_column_type \
 	esedb_test_data_definition \
@@ -88,6 +89,18 @@ esedb_test_catalog_definition_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_catalog_definition_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_checksum_SOURCES = \
+	esedb_test_checksum.c \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_checksum_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
