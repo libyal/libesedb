@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20170827
+# Version: 20180727
 #
 # When CHECK_WITH_ASAN is set to a non-empty value the test executable
 # is run with asan, otherwise it is run without.
@@ -82,7 +82,7 @@ assert_availability_binaries()
 check_for_directory_in_ignore_list()
 {
 	local INPUT_DIRECTORY=$1;
-	local IGNORE_LIST=$@;
+	local IGNORE_LIST=$2;
 
 	local INPUT_BASENAME=`basename ${INPUT_DIRECTORY}`;
 
@@ -388,7 +388,7 @@ run_test_with_arguments()
 	local TEST_DESCRIPTION=$1;
 	local TEST_EXECUTABLE=$2;
 	shift 2;
-	local ARGUMENTS=$@;
+	local ARGUMENTS=("$@");
 
 	if ! test -f "${TEST_EXECUTABLE}";
 	then
@@ -468,7 +468,7 @@ run_test_with_arguments()
 
 					exit ${EXIT_FAILURE};
 				fi
-				LIBASAN=`${LDCONFIG} -p | grep libasan | sed 's/^.* => //'`;
+				LIBASAN=`${LDCONFIG} -p | grep libasan | sed 's/^.* => //' | sort | tail -n 1`;
 
 				if ! test -f ${LIBASAN};
 				then
@@ -708,7 +708,7 @@ run_test_with_input_and_arguments()
 	local TEST_EXECUTABLE=$1;
 	local INPUT_FILE=$2;
 	shift 2;
-	local ARGUMENTS=$@;
+	local ARGUMENTS=("$@");
 
 	if ! test -f "${TEST_EXECUTABLE}";
 	then
@@ -789,7 +789,7 @@ run_test_with_input_and_arguments()
 
 					exit ${EXIT_FAILURE};
 				fi
-				LIBASAN=`${LDCONFIG} -p | grep libasan | sed 's/^.* => //'`;
+				LIBASAN=`${LDCONFIG} -p | grep libasan | sed 's/^.* => //' | sort | tail -n 1`;
 
 				if ! test -f ${LIBASAN};
 				then
@@ -1022,7 +1022,7 @@ run_test_on_input_file()
 	local TEST_EXECUTABLE=$5;
 	local INPUT_FILE=$6;
 	shift 6;
-	local ARGUMENTS=$@;
+	local ARGUMENTS=("$@");
 
 	local INPUT_NAME=`basename "${INPUT_FILE}"`;
 	local OPTIONS=();
@@ -1044,7 +1044,7 @@ run_test_on_input_file()
 
 	if test "${TEST_MODE}" = "with_callback";
 	then
-		test_callback "${TMPDIR}" "${TEST_SET_DIRECTORY}" "${TEST_OUTPUT}" "${TEST_EXECUTABLE}" "${TEST_INPUT}" ${ARGUMENTS[@]} ${OPTIONS[@]};
+		test_callback "${TMPDIR}" "${TEST_SET_DIRECTORY}" "${TEST_OUTPUT}" "${TEST_EXECUTABLE}" "${TEST_INPUT}" ${ARGUMENTS[@]} "${OPTIONS[@]}";
 		RESULT=$?;
 
 	elif test "${TEST_MODE}" = "with_stdout_reference";
@@ -1061,7 +1061,7 @@ run_test_on_input_file()
 		local INPUT_FILE_FULL_PATH=$( readlink_f "${INPUT_FILE}" );
 		local TEST_LOG="${TEST_OUTPUT}.log";
 
-		(cd ${TMPDIR} && run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE_FULL_PATH}" ${ARGUMENTS[@]} ${OPTIONS[@]} | sed '1,2d' > "${TEST_LOG}");
+		(cd ${TMPDIR} && run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE_FULL_PATH}" ${ARGUMENTS[@]} "${OPTIONS[@]}" | sed '1,2d' > "${TEST_LOG}");
 		RESULT=$?;
 
 		local TEST_RESULTS="${TMPDIR}/${TEST_LOG}";
@@ -1080,7 +1080,7 @@ run_test_on_input_file()
 		fi
 
 	else
-		run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]} ${OPTIONS[@]};
+		run_test_with_input_and_arguments "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]} "${OPTIONS[@]}";
 		RESULT=$?;
 	fi
 
@@ -1131,7 +1131,7 @@ run_test_on_input_file_with_options()
 	local TEST_EXECUTABLE=$5;
 	local INPUT_FILE=$6;
 	shift 6;
-	local ARGUMENTS=$@;
+	local ARGUMENTS=("$@");
 
 	local RESULT=${EXIT_SUCCESS};
 	local TESTED_WITH_OPTIONS=0;
@@ -1160,125 +1160,6 @@ run_test_on_input_file_with_options()
 		run_test_on_input_file "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
 		RESULT=$?;
 	fi
-	return ${RESULT};
-}
-
-# Runs the test on the input directory.
-#
-# Arguments:
-#   a string containing the name of the test profile
-#   a string containing the description of the test
-#   a string containing the test mode, supported tests modes are:
-#     default: the test executable should be be run without any test
-#              conditions.
-#     with_callback: the test executable should be run and the callback
-#                    function should be called afterwards. The name of the
-#                    callback function is "test_callback".
-#     with_stdout_reference: the test executable should be run and its output
-#                            to stdout, except for the first 2 lines, should
-#                            be compared to a reference file, if available.
-#     Note the globals override the test mode.
-#   a string containing the name of the option sets
-#   a string containing the path of the test executable
-#   a string containing the path of the test input directory
-#   a string containing the input glob
-#   an array containing the arguments for the test executable
-#
-# Returns:
-#   an integer containg the exit status of the test executable
-#
-run_test_on_input_directory()
-{
-	local TEST_PROFILE=$1;
-	local TEST_DESCRIPTION=$2;
-	local TEST_MODE=$3;
-	local OPTION_SETS=$4;
-	local TEST_EXECUTABLE=$5;
-	local TEST_INPUT_DIRECTORY=$6;
-	local INPUT_GLOB=$7;
-	shift 7;
-	local ARGUMENTS=$@;
-
-	assert_availability_binaries;
-
-	if ! test "${TEST_MODE}" = "default" && test "${TEST_MODE}" != "with_callback" && ! test "${TEST_MODE}" = "with_stdout_reference";
-	then
-		echo "Unsupported test mode: ${TEST_MODE}";
-		echo "";
-
-		return ${EXIT_FAILURE};
-	fi
-
-	if ! test -f "${TEST_EXECUTABLE}";
-	then
-		echo "Missing test executable: ${TEST_EXECUTABLE}";
-		echo "";
-
-		return ${EXIT_FAILURE};
-	fi
-
-	if ! test -d "${TEST_INPUT_DIRECTORY}";
-	then
-		echo "Test input directory: ${TEST_INPUT_DIRECTORY} not found.";
-
-		return ${EXIT_IGNORE};
-	fi
-	local RESULT=`ls ${TEST_INPUT_DIRECTORY}/* | tr ' ' '\n' | wc -l`;
-
-	if test ${RESULT} -eq ${EXIT_SUCCESS};
-	then
-		echo "No files or directories found in the test input directory: ${TEST_INPUT_DIRECTORY}";
-
-		return ${EXIT_IGNORE};
-	fi
-
-	local TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "${TEST_INPUT_DIRECTORY}" "${TEST_PROFILE}");
-
-	local IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
-
-	RESULT=${EXIT_SUCCESS};
-
-	for TEST_SET_INPUT_DIRECTORY in ${TEST_INPUT_DIRECTORY}/*;
-	do
-		if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
-		then
-			continue;
-		fi
-		if check_for_directory_in_ignore_list "${TEST_SET_INPUT_DIRECTORY}" "${IGNORE_LIST}";
-		then
-			continue;
-		fi
-
-		local TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
-
-		local INPUT_FILES="";
-		if test -f "${TEST_SET_DIRECTORY}/files";
-		then
-			while read -r INPUT_FILE;
-			do
-				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
-				RESULT=$?;
-
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
-				then
-					return ${RESULT};
-				fi
-			done < <(cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?");
-		else
-			while read -r INPUT_FILE;
-			do
-				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "${TEST_MODE}" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" ${ARGUMENTS[@]};
-				RESULT=$?;
-
-				if test ${RESULT} -ne ${EXIT_SUCCESS};
-				then
-					return ${RESULT};
-				fi
-			done < <(ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB});
-		fi
-
-	done
-
 	return ${RESULT};
 }
 

@@ -25,11 +25,11 @@
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_libcerror.h"
-
 #if defined( HAVE_LIBINTL_H )
 #include <libintl.h>
 #endif
+
+#include "libesedb_libcerror.h"
 
 /* TODO
 #include <gettext.h>

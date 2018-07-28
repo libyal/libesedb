@@ -28,17 +28,13 @@
  */
 #if !defined( HAVE_LOCAL_LIBESEDB )
 
-/* If libtool DLL support is enabled set LIBESEDB_DLL_EXPORT
- * before including libesedb/extern.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_EXPORT
-#endif
-
 #include <libesedb/extern.h>
 
+#define LIBESEDB_EXTERN_VARIABLE	LIBESEDB_EXTERN
+
 #else
-#define LIBESEDB_EXTERN	/* extern */
+#define LIBESEDB_EXTERN		/* extern */
+#define LIBESEDB_EXTERN_VARIABLE	extern
 
 #endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

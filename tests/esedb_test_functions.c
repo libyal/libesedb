@@ -347,7 +347,6 @@ int esedb_test_get_wide_source(
 
 		return( -1 );
 	}
-
 #endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
 
 	if( wide_string_size < wide_source_size )

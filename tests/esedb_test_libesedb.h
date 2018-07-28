@@ -24,13 +24,6 @@
 
 #include <common.h>
 
-/* If Cygwin libtool DLL support is enabled and do not want to create static
- * executables set LIBESEDB_DLL_IMPORT before including libesedb.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT ) && !defined( HAVE_STATIC_EXECUTABLES )
-#define LIBESEDB_DLL_IMPORT
-#endif
-
 #include <libesedb.h>
 
 #endif /* !defined( _ESEDB_TEST_LIBESEDB_H ) */

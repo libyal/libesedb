@@ -57,6 +57,20 @@
 		goto on_error; \
 	}
 
+#define ESEDB_TEST_ASSERT_EQUAL_INTPTR( name, value, expected_value ) \
+	if( value != expected_value ) \
+	{ \
+		fprintf( stdout, "%s:%d %s (0x%08x" PRIjx ") != 0x%08x" PRIjx "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		goto on_error; \
+	}
+
+#define ESEDB_TEST_ASSERT_NOT_EQUAL_INTPTR( name, value, expected_value ) \
+	if( value == expected_value ) \
+	{ \
+		fprintf( stdout, "%s:%d %s (0x%08x" PRIjx ") == 0x%08x" PRIjx "\n", __FILE__, __LINE__, name, value, expected_value ); \
+		goto on_error; \
+	}
+
 #define ESEDB_TEST_ASSERT_EQUAL_SIZE( name, value, expected_value ) \
 	if( value != expected_value ) \
 	{ \

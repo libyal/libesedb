@@ -1,7 +1,7 @@
 #!/bin/sh
 # Script that synchronizes the shared library dependencies
 #
-# Version: 20170905
+# Version: 20180728
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -9,7 +9,7 @@ EXIT_FAILURE=1;
 GIT_URL_PREFIX="https://github.com/libyal";
 SHARED_LIBS="libcerror libcthreads libcdata libclocale libcnotify libcsplit libuna libcfile libcpath libbfio libfcache libfdata libfdatetime libfguid libfvalue libfwnt libfmapi libmapidb";
 
-if test ${TRAVIS_OS_NAME} != "linux";
+if test "${TRAVIS_OS_NAME}" != "linux";
 then
 	echo "ERROR: This script is intended to be run on Travis CI.";
 

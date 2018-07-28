@@ -24,14 +24,7 @@
 
 #include <common.h>
 
-/* If Cygwin libtool DLL support is enabled set LIBESEDB_DLL_IMPORT
- * before including libesedb.h
- */
-#if defined( _WIN32 ) && defined( DLL_EXPORT )
-#define LIBESEDB_DLL_IMPORT
-#endif
-
 #include <libesedb.h>
 
-#endif
+#endif /* !defined( _PYESEDB_LIBESEDB_H ) */
 

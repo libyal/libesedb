@@ -103,5 +103,5 @@ test_script:
 after_test:
 - cmd: if [%TARGET%]==[mingw] (
     copy C:\projects\codecov-bash\codecov C:\MinGW\msys\1.0\home\appveyor\libesedb\codecov.sh &&
-    C:\MinGW\msys\1.0\bin\bash -e -l -c "cd libesedb && chmod a+x ./codecov.sh && ./codecov.sh" )
+    C:\MinGW\msys\1.0\bin\bash -e -l -c "cd libesedb && chmod a+x ./codecov.sh && sed -i 's/-execdir /-exec /' ./codecov.sh && ./codecov.sh -n mingw -y .codecov.yml" )
 

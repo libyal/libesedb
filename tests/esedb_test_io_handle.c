@@ -270,6 +270,134 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_io_handle_clear function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_io_handle_clear(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libesedb_io_handle_t *io_handle = NULL;
+	int result                      = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libesedb_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_io_handle_clear(
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+
+	/* Test libesedb_io_handle_clear with memset failing
+	 */
+	esedb_test_memset_attempts_before_fail = 0;
+
+	result = libesedb_io_handle_clear(
+	          io_handle,
+	          &error );
+
+	if( esedb_test_memset_attempts_before_fail != -1 )
+	{
+		esedb_test_memset_attempts_before_fail = -1;
+	}
+	else
+	{
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libesedb_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( io_handle != NULL )
+	{
+		libesedb_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -297,11 +425,11 @@ int main(
 	 "libesedb_io_handle_free",
 	 esedb_test_io_handle_free );
 
-	/* TODO: add tests for libesedb_io_handle_clear */
+	ESEDB_TEST_RUN(
+	 "libesedb_io_handle_clear",
+	 esedb_test_io_handle_clear );
 
 	/* TODO: add tests for libesedb_io_handle_set_pages_data_range */
-
-	/* TODO: add tests for libesedb_io_handle_read_file_header */
 
 	/* TODO: add tests for libesedb_io_handle_read_page */
 
