@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20180728],
+ [20180729],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -112,27 +112,7 @@ dnl Check if libesedb required headers and functions are available
 AX_LIBESEDB_CHECK_LOCAL
 
 dnl Check if libesedb Python bindings (pyesedb) required headers and functions are available
-AX_PYTHON_CHECK_PYPREFIX
 AX_PYTHON_CHECK_ENABLE
-AX_PYTHON2_CHECK_ENABLE
-AX_PYTHON3_CHECK_ENABLE
-
-AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
-  [dnl Headers included in pyesedb/pyesedb_error.c
-  AC_CHECK_HEADERS([stdarg.h varargs.h])
-
-  AS_IF(
-    [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
-    [AC_MSG_FAILURE(
-      [Missing headers: stdarg.h and varargs.h],
-      [1])
-    ])
-  ])
-
-AM_CONDITIONAL(
-  HAVE_PYTHON_TESTS,
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
 
 dnl Check if libfmapi or required headers and functions are available
 AX_LIBFMAPI_CHECK_ENABLE
@@ -277,8 +257,6 @@ Features:
    Wide character type support:                $ac_cv_enable_wide_character_type
    esedbtools are build as static executables: $ac_cv_enable_static_executables
    Python (pyesedb) support:                   $ac_cv_enable_python
-   Python version 2 (pyesedb) support:         $ac_cv_enable_python2
-   Python version 3 (pyesedb) support:         $ac_cv_enable_python3
    Verbose output:                             $ac_cv_enable_verbose_output
    Debug output:                               $ac_cv_enable_debug_output
 ]);

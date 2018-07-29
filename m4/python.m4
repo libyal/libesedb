@@ -1,6 +1,6 @@
 dnl Functions for Python bindings
 dnl
-dnl Version: 20170806
+dnl Version: 20170829
 
 dnl Function to check if the python binary is available
 dnl "python${PYTHON_VERSION} python python# python#.#"
@@ -8,7 +8,7 @@ AC_DEFUN([AX_PROG_PYTHON],
   [AS_IF(
     [test "x${PYTHON_VERSION}" != x],
     [ax_python_progs="python${PYTHON_VERSION}"],
-    [ax_python_progs="python python2 python2.7 python2.6 python2.5 python3 python3.6 python3.5 python3.4 python3.3 python3.2 python3.1 python3.0"])
+    [ax_python_progs="python python2 python2.7 python2.6 python2.5 python3 python3.7 python3.6 python3.5 python3.4 python3.3 python3.2 python3.1 python3.0"])
   AC_CHECK_PROGS(
     [PYTHON],
     [$ax_python_progs])
@@ -474,7 +474,9 @@ AC_DEFUN([AX_PYTHON_CHECK_PYPREFIX],
 
 dnl Function to detect if to enable Python
 AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
-  [AX_COMMON_ARG_ENABLE(
+  [AX_PYTHON_CHECK_PYPREFIX
+
+  AX_COMMON_ARG_ENABLE(
     [python],
     [python],
     [build Python bindings],
@@ -486,26 +488,7 @@ AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
     [no],
     [no])
 
-  AS_IF(
-    [test "x${ac_cv_enable_python}" != xno],
-    [AX_PYTHON_CHECK])
-
-  AS_IF(
-    [test "x${ac_cv_enable_python}" != xno],
-    [AC_DEFINE(
-      [HAVE_PYTHON],
-      [1],
-      [Define to 1 if you have Python])
-    ])
-
-  AM_CONDITIONAL(
-    HAVE_PYTHON,
-    [test "x${ac_cv_enable_python}" != xno])
-])
-
-dnl Function to detect if to enable Python 2
-AC_DEFUN([AX_PYTHON2_CHECK_ENABLE],
-  [AX_COMMON_ARG_ENABLE(
+  AX_COMMON_ARG_ENABLE(
     [python2],
     [python2],
     [build Python 2 bindings],
@@ -517,26 +500,7 @@ AC_DEFUN([AX_PYTHON2_CHECK_ENABLE],
     [no],
     [no])
 
-  AS_IF(
-    [test "x${ac_cv_enable_python2}" != xno],
-    [AX_PYTHON2_CHECK])
-
-  AS_IF(
-    [test "x${ac_cv_enable_python2}" != xno],
-    [AC_DEFINE(
-      [HAVE_PYTHON2],
-      [1],
-      [Define to 1 if you have Python 2])
-    ])
-
-  AM_CONDITIONAL(
-    HAVE_PYTHON2,
-    [test "x${ac_cv_enable_python2}" != xno])
-])
-
-dnl Function to detect if to enable Python 3
-AC_DEFUN([AX_PYTHON3_CHECK_ENABLE],
-  [AX_COMMON_ARG_ENABLE(
+  AX_COMMON_ARG_ENABLE(
     [python3],
     [python3],
     [build Python 3 bindings],
@@ -549,19 +513,62 @@ AC_DEFUN([AX_PYTHON3_CHECK_ENABLE],
     [no])
 
   AS_IF(
+    [test "x${ac_cv_enable_python}" != xno],
+    [AX_PYTHON_CHECK])
+
+  AS_IF(
+    [test "x${ac_cv_enable_python2}" != xno],
+    [AX_PYTHON2_CHECK])
+
+  AS_IF(
     [test "x${ac_cv_enable_python3}" != xno],
     [AX_PYTHON3_CHECK])
 
   AS_IF(
-    [test "x${ac_cv_enable_python3}" != xno],
-    [AC_DEFINE(
-      [HAVE_PYTHON3],
-      [1],
-      [Define to 1 if you have Python 3])
+    [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+    [dnl Headers included in pycaes/pycaes_error.c
+    AC_CHECK_HEADERS([stdarg.h varargs.h])
+
+    AS_IF(
+      [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+      [AC_MSG_FAILURE(
+        [Missing headers: stdarg.h and varargs.h],
+        [1])
+      ])
     ])
+
+  AM_CONDITIONAL(
+    HAVE_PYTHON,
+    [test "x${ac_cv_enable_python}" != xno])
+
+  AM_CONDITIONAL(
+    HAVE_PYTHON2,
+    [test "x${ac_cv_enable_python2}" != xno])
 
   AM_CONDITIONAL(
     HAVE_PYTHON3,
     [test "x${ac_cv_enable_python3}" != xno])
+
+  AM_CONDITIONAL(
+    HAVE_PYTHON_TESTS,
+    [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno])
+
+  AS_IF(
+    [test "x${ac_cv_enable_python}" = xno],
+    [AS_IF(
+      [test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+      [AS_IF(
+        [test "x${ac_cv_enable_python2}" != xno],
+        [ac_cv_enable_python=${ac_cv_enable_python2}],
+        [ac_cv_enable_python=""])
+      AS_IF(
+        [test "x${ac_cv_enable_python3}" != xno],
+        [AS_IF(
+          [test "x${ac_cv_enable_python}" != x],
+          [ac_cv_enable_python="${ac_cv_enable_python}, "])
+        ac_cv_enable_python="${ac_cv_enable_python}${ac_cv_enable_python3}"])
+      ])
+    ])
+  ])
 ])
 

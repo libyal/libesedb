@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20180726
+# Version: 20180729
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -310,14 +310,18 @@ then
 		run_configure_make_check_python "--enable-python";
 		RESULT=$?;
 
+		export PYTHON_VERSION=;
+
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
-		export PYTHON_VERSION=;
+		export PYTHON_VERSION=2;
 
-		run_configure_make "--enable-python2";
+		run_configure_make_check_python "--enable-python2";
 		RESULT=$?;
+
+		export PYTHON_VERSION=;
 
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
@@ -341,14 +345,18 @@ then
 		run_configure_make_check_python "--enable-python";
 		RESULT=$?;
 
+		export PYTHON_VERSION=;
+
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
 			exit ${EXIT_FAILURE};
 		fi
-		export PYTHON_VERSION=;
+		export PYTHON_VERSION=3;
 
-		run_configure_make "--enable-python3";
+		run_configure_make_check_python "--enable-python3";
 		RESULT=$?;
+
+		export PYTHON_VERSION=;
 
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
