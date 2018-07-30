@@ -1,6 +1,6 @@
 dnl Functions for Python bindings
 dnl
-dnl Version: 20170829
+dnl Version: 20170830
 
 dnl Function to check if the python binary is available
 dnl "python${PYTHON_VERSION} python python# python#.#"
@@ -275,6 +275,12 @@ AC_DEFUN([AX_PYTHON2_CHECK],
     AC_MSG_RESULT(
       [$PYTHON2_LDFLAGS])
 
+    dnl For CygWin add the -no-undefined linker flag
+    AS_CASE(
+      [$host_os],
+      [cygwin*],[PYTHON2_LDFLAGS="${PYTHON2_LDFLAGS} -no-undefined"],
+      [*],[])
+
     dnl Check for the existence of Python.h
     BACKUP_CPPFLAGS="${CPPFLAGS}"
     CPPFLAGS="${CPPFLAGS} ${PYTHON2_INCLUDES}"
@@ -379,6 +385,12 @@ AC_DEFUN([AX_PYTHON3_CHECK],
       [for Python 3 libraries])
     AC_MSG_RESULT(
       [$PYTHON3_LDFLAGS])
+
+    dnl For CygWin add the -no-undefined linker flag
+    AS_CASE(
+      [$host_os],
+      [cygwin*],[PYTHON3_LDFLAGS="${PYTHON3_LDFLAGS} -no-undefined"],
+      [*],[])
 
     dnl Check for the existence of Python.h
     BACKUP_CPPFLAGS="${CPPFLAGS}"
@@ -523,19 +535,6 @@ AC_DEFUN([AX_PYTHON_CHECK_ENABLE],
   AS_IF(
     [test "x${ac_cv_enable_python3}" != xno],
     [AX_PYTHON3_CHECK])
-
-  AS_IF(
-    [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
-    [dnl Headers included in pycaes/pycaes_error.c
-    AC_CHECK_HEADERS([stdarg.h varargs.h])
-
-    AS_IF(
-      [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
-      [AC_MSG_FAILURE(
-        [Missing headers: stdarg.h and varargs.h],
-        [1])
-      ])
-    ])
 
   AM_CONDITIONAL(
     HAVE_PYTHON,

@@ -2,7 +2,7 @@ AC_PREREQ( 2.59 )
 
 AC_INIT(
  [libesedb],
- [20180729],
+ [20180730],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -113,6 +113,19 @@ AX_LIBESEDB_CHECK_LOCAL
 
 dnl Check if libesedb Python bindings (pyesedb) required headers and functions are available
 AX_PYTHON_CHECK_ENABLE
+
+AS_IF(
+  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [AC_CHECK_HEADERS([stdarg.h varargs.h])
+
+  AS_IF(
+    [test "x$ac_cv_header_stdarg_h" != xyes && test "x$ac_cv_header_varargs_h" != xyes],
+    [dnl Headers included in pyesedb/pyesedb_error.c
+    AC_MSG_FAILURE(
+      [Missing headers: stdarg.h and varargs.h],
+      [1])
+    ])
+  ])
 
 dnl Check if libfmapi or required headers and functions are available
 AX_LIBFMAPI_CHECK_ENABLE

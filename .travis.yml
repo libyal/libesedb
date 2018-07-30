@@ -236,7 +236,7 @@ script:
         VERSION=`sed '5!d; s/^ \[//;s/\],$//' configure.ac` &&
         make install DESTDIR=${PWD}/osx-pkg &&
         mkdir -p ${PWD}/osx-pkg/usr/share/doc/libesedb &&
-        cp COPYING ${PWD}/osx-pkg/usr/share/doc/libesedb/LICENSE &&
+        cp AUTHORS COPYING NEWS README ${PWD}/osx-pkg/usr/share/doc/libesedb &&
         pkgbuild --root osx-pkg --identifier com.github.libyal.libesedb --version ${VERSION} --ownership recommended ../libesedb-${VERSION}.pkg;
       fi
     fi
