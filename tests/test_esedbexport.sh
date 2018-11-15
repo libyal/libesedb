@@ -1,14 +1,14 @@
 #!/bin/bash
 # Export tool testing script
 #
-# Version: 20180721
+# Version: 20181111
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
 OPTION_SETS="";
-OPTIONS="";
+OPTIONS=();
 
 INPUT_GLOB="*";
 

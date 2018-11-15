@@ -1399,7 +1399,8 @@ int libesedb_page_tree_read_page(
 			 local_key_size );
 		}
 #endif
-		if( local_key_size > page_value_size )
+		if( ( local_key_size > page_value_size )
+		 || ( page_value_offset > ( page_value_size - local_key_size ) ) )
 		{
 			libcerror_error_set(
 			 error,

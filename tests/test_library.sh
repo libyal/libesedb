@@ -1,7 +1,7 @@
 #!/bin/bash
 # Tests C library functions and types.
 #
-# Version: 20180722
+# Version: 20180907
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -80,7 +80,7 @@ run_test_with_input()
 
 		local OLDIFS=${IFS};
 
-		# IFS="\n"; is not supported by all platforms.
+		# IFS="\n" is not supported by all platforms.
 		IFS="
 ";
 
@@ -88,6 +88,11 @@ run_test_with_input()
 		then
 			for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
 			do
+				if test "${OSTYPE}" = "msys";
+				then
+					# A test executable built with MinGW expects a Windows path.
+					INPUT_FILE=`echo ${INPUT_FILE} | sed 's?/?\\\\?g'`;
+				fi
 				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
 				RESULT=$?;
 
@@ -99,6 +104,11 @@ run_test_with_input()
 		else
 			for INPUT_FILE in `ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
 			do
+				if test "${OSTYPE}" = "msys";
+				then
+					# A test executable built with MinGW expects a Windows path.
+					INPUT_FILE=`echo ${INPUT_FILE} | sed 's?/?\\\\?g'`;
+				fi
 				run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "${TEST_DESCRIPTION}" "default" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
 				RESULT=$?;
 

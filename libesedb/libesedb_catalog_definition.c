@@ -40,6 +40,14 @@
 
 #include "esedb_page_values.h"
 
+#if !defined( LIBESEDB_ATTRIBUTE_FALLTHROUGH )
+#if defined( __GNUC__ ) && __GNUC__ >= 7
+#define LIBESEDB_ATTRIBUTE_FALLTHROUGH	__attribute__ ((fallthrough))
+#else
+#define LIBESEDB_ATTRIBUTE_FALLTHROUGH
+#endif
+#endif
+
 /* Creates a catalog definition
  * Make sure the value catalog_definition is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
@@ -321,27 +329,47 @@ int libesedb_catalog_definition_read_data(
 	{
 		case 11:
 			calculated_variable_size_data_types_offset += 2;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 10:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 9:
 			calculated_variable_size_data_types_offset += 2;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 8:
 			if( last_variable_size_data_type > 127 )
 			{
 				calculated_variable_size_data_types_offset += 1 * number_of_variable_size_data_types;
 			}
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 7:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 6:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 5:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 4:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 3:
 			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 2:
 			calculated_variable_size_data_types_offset += 2;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 1:
 			calculated_variable_size_data_types_offset += 4;
 			break;

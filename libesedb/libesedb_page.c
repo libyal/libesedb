@@ -843,13 +843,10 @@ int libesedb_page_read_tags(
 	libesedb_page_tags_value_t *page_tags_value = NULL;
 	uint8_t *page_tags_data                     = NULL;
 	static char *function                       = "libesedb_page_read_tags";
+	size_t page_tags_data_size                  = 0;
 	uint16_t page_tag_offset                    = 0;
 	uint16_t page_tag_size                      = 0;
 	uint16_t page_tags_index                    = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	size_t page_tags_data_size                  = 0;
-#endif
 
 	if( page_tags_array == NULL )
 	{
@@ -895,6 +892,19 @@ int libesedb_page_read_tags(
 
 		return( -1 );
 	}
+	page_tags_data_size = 4 * number_of_page_tags;
+
+	if( page_tags_data_size > page_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of page tags value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	if( libcdata_array_resize(
 	     page_tags_array,
 	     number_of_page_tags,
@@ -913,8 +923,6 @@ int libesedb_page_read_tags(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		page_tags_data_size = 4 * number_of_page_tags;
-
 		libcnotify_printf(
 		 "%s: page tags:\n",
 		 function );

@@ -8,44 +8,46 @@ Source: %{name}-%{version}.tar.gz
 URL: https://github.com/libyal/libesedb
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 @libesedb_spec_requires@ @ax_libbfio_spec_requires@ @ax_libcdata_spec_requires@ @ax_libcerror_spec_requires@ @ax_libcfile_spec_requires@ @ax_libclocale_spec_requires@ @ax_libcnotify_spec_requires@ @ax_libcpath_spec_requires@ @ax_libcsplit_spec_requires@ @ax_libcthreads_spec_requires@ @ax_libfcache_spec_requires@ @ax_libfdata_spec_requires@ @ax_libfdatetime_spec_requires@ @ax_libfguid_spec_requires@ @ax_libfvalue_spec_requires@ @ax_libfwnt_spec_requires@ @ax_libuna_spec_requires@
-@libesedb_spec_build_requires@ @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcthreads_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libfvalue_spec_build_requires@ @ax_libfwnt_spec_build_requires@ @ax_libuna_spec_build_requires@
+BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requires@ @ax_libcerror_spec_build_requires@ @ax_libcfile_spec_build_requires@ @ax_libclocale_spec_build_requires@ @ax_libcnotify_spec_build_requires@ @ax_libcpath_spec_build_requires@ @ax_libcsplit_spec_build_requires@ @ax_libcthreads_spec_build_requires@ @ax_libfcache_spec_build_requires@ @ax_libfdata_spec_build_requires@ @ax_libfdatetime_spec_build_requires@ @ax_libfguid_spec_build_requires@ @ax_libfvalue_spec_build_requires@ @ax_libfwnt_spec_build_requires@ @ax_libuna_spec_build_requires@
 
-%description
+%description -n libesedb
 Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
 
-%package devel
+%package -n libesedb-devel
 Summary: Header files and libraries for developing applications for libesedb
 Group: Development/Libraries
 Requires: libesedb = %{version}-%{release}
 
-%description devel
+%description -n libesedb-devel
 Header files and libraries for developing applications for libesedb.
 
-%package python
+%package -n libesedb-python2
+Obsoletes: libesedb-python < %{version}
+Provides: libesedb-python = %{version}
 Summary: Python 2 bindings for libesedb
 Group: System Environment/Libraries
-Requires: libesedb = %{version}-%{release} python
-BuildRequires: python-devel
+Requires: libesedb = %{version}-%{release} python2
+BuildRequires: python2-devel
 
-%description python
+%description -n libesedb-python2
 Python 2 bindings for libesedb
 
-%package python3
+%package -n libesedb-python3
 Summary: Python 3 bindings for libesedb
 Group: System Environment/Libraries
 Requires: libesedb = %{version}-%{release} python3
 BuildRequires: python3-devel
 
-%description python3
+%description -n libesedb-python3
 Python 3 bindings for libesedb
 
-%package tools
+%package -n libesedb-tools
 Summary: Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
 Group: Applications/System
 Requires: libesedb = %{version}-%{release} @ax_libfmapi_spec_requires@ @ax_libmapidb_spec_requires@
 @libesedb_spec_tools_build_requires@ @ax_libfmapi_spec_build_requires@ @ax_libmapidb_spec_build_requires@
 
-%description tools
+%description -n libesedb-tools
 Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
 
 %prep
@@ -66,13 +68,13 @@ rm -rf %{buildroot}
 
 %postun -p /sbin/ldconfig
 
-%files
+%files -n libesedb
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
-%files devel
+%files -n libesedb-devel
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README ChangeLog
@@ -83,7 +85,7 @@ rm -rf %{buildroot}
 %{_includedir}/*
 %{_mandir}/man3/*
 
-%files python
+%files -n libesedb-python2
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README
@@ -91,7 +93,7 @@ rm -rf %{buildroot}
 %{_libdir}/python2*/site-packages/*.la
 %{_libdir}/python2*/site-packages/*.so
 
-%files python3
+%files -n libesedb-python3
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README
@@ -99,7 +101,7 @@ rm -rf %{buildroot}
 %{_libdir}/python3*/site-packages/*.la
 %{_libdir}/python3*/site-packages/*.so
 
-%files tools
+%files -n libesedb-tools
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README

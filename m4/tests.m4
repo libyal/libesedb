@@ -1,12 +1,12 @@
 dnl Functions for testing
 dnl
-dnl Version: 20180723
+dnl Version: 20180905
 
 dnl Function to detect if tests dependencies are available
 AC_DEFUN([AX_TESTS_CHECK_LOCAL],
   [AC_CHECK_HEADERS([dlfcn.h])
 
-  AC_CHECK_FUNCS([fmemopen getopt mkstemp])
+  AC_CHECK_FUNCS([fmemopen getopt mkstemp unlink])
 
   AC_CHECK_LIB(
     dl,

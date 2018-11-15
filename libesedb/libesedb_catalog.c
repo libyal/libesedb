@@ -605,7 +605,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
 			return( 1 );
 		}
@@ -804,7 +804,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 
 			return( -1 );
 		}
-		else if( result != 0 )
+		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
 			return( 1 );
 		}

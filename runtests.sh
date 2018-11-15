@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script that runs the tests
 #
-# Version: 20180729
+# Version: 20180905
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -221,6 +221,10 @@ echo "${CONFIGURE_HELP}" | grep -- '--enable-python' > /dev/null;
 
 HAVE_ENABLE_PYTHON=$?;
 
+echo "${CONFIGURE_HELP}" | grep -- '--enable-static-executables' > /dev/null;
+
+HAVE_ENABLE_STATIC_EXECUTABLES=$?;
+
 PYTHON_CONFIG="";
 
 if test -x /usr/bin/whereis;
@@ -389,8 +393,32 @@ then
 	fi
 fi
 
+if test ${HAVE_ENABLE_STATIC_EXECUTABLES} -eq 0;
+then
+	run_configure_make_check "--enable-static-executables";
+	RESULT=$?;
+
+	if test ${RESULT} -ne ${EXIT_SUCCESS};
+	then
+		exit ${EXIT_FAILURE};
+	fi
+fi
+
+# Run tests with asan.
 CONFIGURE_OPTIONS="";
 
+if test ${HAVE_ENABLE_WIDE_CHARACTER_TYPE} -eq 0;
+then
+	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --enable-wide-character-type";
+fi
+if test ${HAVE_WITH_ZLIB} -eq 0;
+then
+	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --with-zlib=no";
+fi
+if test ${HAVE_WITH_OPENSSL} -eq 0;
+then
+	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --with-openssl=no";
+fi
 if test ${HAVE_ENABLE_PYTHON} -eq 0 && test -n "${PYTHON_CONFIG}";
 then
 	# Issue with running the python bindings with asan disabled for now.
@@ -406,11 +434,16 @@ then
 	exit ${EXIT_FAILURE};
 fi
 
+# Run tests with coverage.
 CONFIGURE_OPTIONS="--enable-shared=no";
 
 if test ${HAVE_ENABLE_WIDE_CHARACTER_TYPE} -eq 0;
 then
 	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --enable-wide-character-type";
+fi
+if test ${HAVE_WITH_ZLIB} -eq 0;
+then
+	CONFIGURE_OPTIONS="${CONFIGURE_OPTIONS} --with-zlib=no";
 fi
 if test ${HAVE_WITH_OPENSSL} -eq 0;
 then

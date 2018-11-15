@@ -285,7 +285,7 @@ int libesedb_key_append_data(
 
 		return( -1 );
 	}
-	if( data_size > 0 )
+	if( data_size > key->data_size )
 	{
 		reallocation = memory_reallocate(
 		                key->data,
