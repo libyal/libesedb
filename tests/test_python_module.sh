@@ -1,7 +1,7 @@
 #!/bin/bash
 # Tests Python module functions and types.
 #
-# Version: 20180728
+# Version: 20181221
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;

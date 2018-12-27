@@ -9,6 +9,8 @@ Homepage: https://github.com/libyal/libesedb
 Package: libesedb
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libesedb1
+Replaces: libesedb1
 Suggests: libesedb-dbg
 Description: Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
  libesedb is a library to access the Extensible Storage Engine (ESE) Database File (EDB) format.
@@ -31,6 +33,8 @@ Package: libesedb-tools
 Section: utils
 Architecture: any
 Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: libesedb-utils
+Replaces: libesedb-utils
 Description: Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
  Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB).
 
@@ -45,6 +49,8 @@ Package: libesedb-python
 Section: python
 Architecture: any
 Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python-libesedb
+Replaces: python-libesedb
 Suggests: libesedb-python-dbg
 Description: Python 2 bindings for libesedb
  Python 2 bindings for libesedb.
@@ -60,6 +66,8 @@ Package: libesedb-python3
 Section: python
 Architecture: any
 Depends: libesedb (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Conflicts: python3-libesedb
+Replaces: python3-libesedb
 Suggests: libesedb-python3-dbg
 Description: Python 3 bindings for libesedb
  Python 3 bindings for libesedb.
