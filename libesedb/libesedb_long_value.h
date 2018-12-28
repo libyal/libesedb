@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_LONG_VALUE_H )
-#define _LIBESEDB_INTERNAL_LONG_VALUE_H
+#if !defined( _LIBESEDB_LONG_VALUE_H )
+#define _LIBESEDB_LONG_VALUE_H
 
 #include <common.h>
 #include <types.h>
@@ -174,5 +174,5 @@ int libesedb_long_value_get_segment_data(
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_INTERNAL_LONG_VALUE_H ) */
+#endif /* !defined( _LIBESEDB_LONG_VALUE_H ) */
 
