@@ -305,7 +305,7 @@ int libesedb_catalog_definition_read_data(
 
 		return( -1 );
 	}
-	if( last_fixed_size_data_type > 11 )
+	if( last_fixed_size_data_type > 12 )
 	{
 		libcerror_error_set(
 		 error,
@@ -327,6 +327,10 @@ int libesedb_catalog_definition_read_data(
 	 */
 	switch( last_fixed_size_data_type )
 	{
+		case 12:
+			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 11:
 			calculated_variable_size_data_types_offset += 2;
 
@@ -548,7 +552,7 @@ int libesedb_catalog_definition_read_data(
 				 value_32bit );
 
 				libcnotify_printf(
-				 "%s: (%03" PRIu16 ") locale identifier\t\t\t: 0x%08" PRIx32 " (%s)\n",
+				 "%s: (%03" PRIu16 ") locale identifier\t\t\t\t: 0x%08" PRIx32 " (%s)\n",
 				 function,
 				 data_type_number++,
 				 value_32bit,
@@ -593,7 +597,7 @@ int libesedb_catalog_definition_read_data(
 		if( last_fixed_size_data_type >= 10 )
 		{
 			libcnotify_printf(
-			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t: 0x%08" PRIx32 "\n",
+			 "%s: (%03" PRIu16 ") locale map (LCMAP) flags\t\t\t: 0x%08" PRIx32 "\n",
 			 function,
 			 data_type_number++,
 			 catalog_definition->lcmap_flags );
@@ -1086,7 +1090,7 @@ int libesedb_catalog_definition_read_data(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") VarSegMac\t\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}
@@ -1112,7 +1116,7 @@ int libesedb_catalog_definition_read_data(
 						else
 						{
 							libcnotify_printf(
-							 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t: <NULL>\n",
+							 "%s: (%03" PRIu8 ") ConditionalColumns\t\t\t\t: <NULL>\n",
 							 function,
 							 data_type_number );
 						}

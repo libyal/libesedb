@@ -217,7 +217,7 @@ int libesedb_page_tree_value_read_data(
 		if( libcnotify_verbose != 0 )
 		{
 			libcnotify_printf(
-			 "%s: common key size\t\t: %" PRIu16 "\n",
+			 "%s: common key size\t\t\t: %" PRIu16 "\n",
 			 function,
 			 page_tree_value->common_key_size );
 		}
@@ -233,7 +233,7 @@ int libesedb_page_tree_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: local key size\t\t: %" PRIu16 "\n",
+		 "%s: local key size\t\t\t: %" PRIu16 "\n",
 		 function,
 		 page_tree_value->local_key_size );
 	}
@@ -253,7 +253,7 @@ int libesedb_page_tree_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: local key value\t\t: ",
+		 "%s: local key value\t\t\t: ",
 		 function );
 
 		page_key_data = &( data[ data_offset ] );

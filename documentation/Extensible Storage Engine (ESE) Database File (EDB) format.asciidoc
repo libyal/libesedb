@@ -71,6 +71,7 @@ Additional information about long value.
 | 0.0.24 | J.B. Metz | April 2015 | Textual changes and additional findings regarding Exchange 2013.
 | 0.0.25 | J.B. Metz | December 2015 | Additional information regarding page flags (thanks to R. Priyashantha).
 | 0.0.26 | J.B. Metz | July 2018 | Small textual changes.
+| 0.0.27 | J.B. Metz | December 2018 | Additional information about Active Directory 2016 database format (thanks to E. Gay).
 |===
 
 :numbered:
@@ -165,7 +166,8 @@ The (database) file header is (at least) 668 bytes of size and consists of:
 | 0 | 4 | | Checksum +
 The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to at least offset 668, but presumably page size. The value 0x89abcdef is used as the initial value.
 | 4 | 4 | "\xef\xcd\xab\x89" | The signature
-| 8 | 4 | | File format version
+| 8 | 4 | | File format version +
+See section: <<file_format_and_revision,File format version and revision>>
 | 12 | 4 | | File type +
 See section: <<file_type,File type>>
 | 16 | 8 | | Database time +
@@ -224,7 +226,8 @@ Represents the Windows NT minor version when the databases indexes were updated
 Represents the Windows NT build number when the databases indexes were updated.
 | 228 | 4 | | Service pack number +
 Represents the Windows NT service pack number when the databases indexes were updated.
-| 232 | 4 | | File format revision
+| 232 | 4 | | File format revision +
+See section: <<file_format_and_revision,File format version and revision>>
 | 236 | 4 | | Page size +
 Value in bytes
 | 240 | 4 | | Repair count
@@ -247,8 +250,10 @@ See section: <<log_time,log time>>
 | 316 | 24 | | Current shadow copy backup +
 Consists of a backup information +
 See section: <<backup_information,Backup information>>
-| 340 | 4 | | Creation file format version
-| 344 | 4 | | Creation file format revision
+| 340 | 4 | | Creation file format version +
+See section: <<file_format_and_revision,File format version and revision>>
+| 344 | 4 | | Creation file format revision +
+See section: <<file_format_and_revision,File format version and revision>>
 | 348 | 16 | | [yellow-background]*Unknown3* +
 [yellow-background]*See notes below*
 | 364 | 4 | | Old repair count
@@ -344,25 +349,25 @@ Contains streamed data.
 [NOTE]
 The rest of the format specification largely applies to the database file type.
 
-=== File format version and revision
+=== [[file_format_and_revision]]File format version and revision
 According to `[MSDN]` the file format version and revision consist of the 
 following values:
 
 [cols="1,1,5",options="header"]
 |===
 | Version | Revision | Description
-| 0x00000620 | 0x00000000 | Original operating system Beta format (4/22/97).
-| 0x00000620 | 0x00000001 | Add columns in the catalog for conditional indexing and OLD (5/29/97).
-| 0x00000620 | 0x00000002 | Add the fLocalizedText flag in IDB (6/5/97).
-| 0x00000620 | 0x00000003 | Add SPLIT_BUFFER to space tree root pages (10/30/97).
-| 0x00000620 | 0x00000002 | Revert revision in order for ESE97 to remain forward-compatible (1/28/98).
+| 0x00000620 | 0x00000000 | Original operating system Beta format (April 22, 1997).
+| 0x00000620 | 0x00000001 | Add columns in the catalog for conditional indexing and OLD (May 29, 1997).
+| 0x00000620 | 0x00000002 | Add the fLocalizedText flag in IDB (July 5, 1997).
+| 0x00000620 | 0x00000003 | Add SPLIT_BUFFER to space tree root pages (October 30, 1997).
+| 0x00000620 | 0x00000002 | Revert revision in order for ESE97 to remain forward-compatible (January 28, 1998).
 | 0x00000620 | 0x00000003 | Add new tagged columns to catalog ("CallbackData" and "CallbackDependencies").
-| 0x00000620 | 0x00000004 | Super Long Value (SLV) support: signSLV, fSLVExists in db header (5/5/98).
-| 0x00000620 | 0x00000005 | New SLV space tree (5/29/98).
-| 0x00000620 | 0x00000006 | SLV space map (10/12/98).
-| 0x00000620 | 0x00000007 | 4-byte IDXSEG (12/10/98).
-| 0x00000620 | 0x00000008 | New template column format (1/25/99).
-| 0x00000620 | 0x00000009 | Sorted template columns (6/24/99). +
+| 0x00000620 | 0x00000004 | Super Long Value (SLV) support: signSLV, fSLVExists in db header (May 5, 1998).
+| 0x00000620 | 0x00000005 | New SLV space tree (May 29, 1998).
+| 0x00000620 | 0x00000006 | SLV space map (October 12, 1998).
+| 0x00000620 | 0x00000007 | 4-byte IDXSEG (December 10, 1998).
+| 0x00000620 | 0x00000008 | New template column format (January 25, 1999).
+| 0x00000620 | 0x00000009 | Sorted template columns (July 24, 1999). +
 Used in Windows XP SP3
 | | | 
 | 0x00000620 | 0x0000000b | Contains the page header with the ECC checksum +
@@ -375,9 +380,9 @@ Column compression. +
 Space hints. +
 Used in Windows 7 (SP0)
 | | | 
-| 0x00000620 | 0x00000014 | Used in Exchange 2013.
+| 0x00000620 | 0x00000014 | Used in Exchange 2013 and Active Directory 2016.
 | | | 
-| 0x00000623 | 0x00000000 | New Space Manager (5/15/99).
+| 0x00000623 | 0x00000000 | New Space Manager (May 15, 1999).
 |===
 
 === [[database_state]]Database state
@@ -1083,8 +1088,9 @@ The number of pages used by the long value
 | 27 | 2 | | The record offset +
 The offset of the data type within the record
 | 29 | 4 | | The LC map flags
-| 33 | 2 | | Key most
-| 35 | ... | | [yellow-background]*Unknown trailing data* +
+| 33 | 2 | | [yellow-background]*Unknown (KeyMost)*
+| 35 | 4 | | [yellow-background]*Unknown (LVChunkMax)*
+| 39 | ... | | [yellow-background]*Unknown trailing data* +
 [yellow-background]*used to handle tagged data type definitions?*
 | ... | ... | | The variable data types size array
 | ... | ... | | The variable data types data array +
@@ -1564,25 +1570,27 @@ See section: <<catalog_types,Catalog types>>
 | 10 | LCMapFlags | Long | Flags for the LCMapString function +
 See section: <<lcmapflags,LCMapFlags>>
 4+| _Introduced in Windows Vista (version 0x620 revision 0x0c)_
-| 11 | KeyMost | Short | 
+| 11 | KeyMost | Short | [yellow-background]*Unknown*
+4+| _Introduced in Active Directory 2016 (version 0x620 revision 0x14)_
+| 12 | LVChunkMax | Long | [yellow-background]*Unknown*
 4+| _Variable size data definition types_
 | 128 | Name | Text | Name
-| 129 | Stats | Binary | 
+| 129 | Stats | Binary | [yellow-background]*Unknown*
 | 130 | TemplateTable | Text | Name of the template 'table'
 | 131 | DefaultValue | Binary | Default value
 | 132 | KeyFldIDs | Binary | [yellow-background]*For the index column identifiers*
-| 133 | VarSegMac | Binary | 
-| 134 | ConditionalColumns | Binary | 
-| 135 | TupleLimits | Binary | 
+| 133 | VarSegMac | Binary | [yellow-background]*Unknown*
+| 134 | ConditionalColumns | Binary | [yellow-background]*Unknown*
+| 135 | TupleLimits | Binary | [yellow-background]*Unknown*
 4+| _Introduced in Windows Vista (version 0x620 revision 0x0c)_
-| 136 | Version | Binary | 
+| 136 | Version | Binary | [yellow-background]*Unknown*
 4+| _Tagged data definition types_
 | 256 | CallbackData | Large binary data | Data used in callback
 | 257 | CallbackDependencies | Large binary data | Dependencies for callback
 4+| _Introduced in Windows 7 (version 0x620 revision 0x11)_
-| 258 | SeparateLV | Large binary data | 
-| 259 | SpaceHints | Large binary data | 
-| 260 | SpaceDeferredLVHints | Large binary data
+| 258 | SeparateLV | Large binary data | [yellow-background]*Unknown*
+| 259 | SpaceHints | Large binary data | [yellow-background]*Unknown*
+| 260 | SpaceDeferredLVHints | Large binary data | [yellow-background]*Unknown*
 |===
 
 A codepage of 1200 can represent either ASCII ([yellow-background]*or even 
