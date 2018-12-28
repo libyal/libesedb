@@ -3047,7 +3047,7 @@ int libesedb_record_get_long_value_data_segments_list(
 	     NULL,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfcache_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
 	     NULL,
 	     0,
 	     error ) != 1 )
@@ -3094,7 +3094,7 @@ int libesedb_record_get_long_value_data_segments_list(
 	result = libfdata_btree_get_leaf_value_by_key(
 	          internal_record->long_values_tree,
 	          (intptr_t *) internal_record->file_io_handle,
-	          internal_record->long_values_cache,
+	          (libfdata_cache_t *) internal_record->long_values_cache,
 	          (intptr_t *) key,
 	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
 	          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
@@ -3192,7 +3192,7 @@ int libesedb_record_get_long_value_data_segments_list(
 		result = libfdata_btree_get_leaf_value_by_key(
 			  internal_record->long_values_tree,
 			  (intptr_t *) internal_record->file_io_handle,
-			  internal_record->long_values_cache,
+			  (libfdata_cache_t *) internal_record->long_values_cache,
 		          (intptr_t *) key,
 		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
 		          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,

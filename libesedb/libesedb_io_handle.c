@@ -32,7 +32,6 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
-#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
 #include "libesedb_unused.h"
@@ -231,7 +230,7 @@ int libesedb_io_handle_read_page(
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      libfdata_vector_t *vector,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_index,
      int element_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t element_offset,

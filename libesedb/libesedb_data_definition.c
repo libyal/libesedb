@@ -212,7 +212,7 @@ int libesedb_data_definition_read_data(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
-	     pages_cache,
+	     (libfdata_cache_t *) pages_cache,
 	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
@@ -440,7 +440,7 @@ int libesedb_data_definition_read_record(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
-	     pages_cache,
+	     (libfdata_cache_t *) pages_cache,
 	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
@@ -1571,7 +1571,7 @@ int libesedb_data_definition_read_long_value(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
-	     pages_cache,
+	     (libfdata_cache_t *) pages_cache,
 	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
@@ -1764,7 +1764,7 @@ int libesedb_data_definition_read_long_value_segment(
 	if( libfdata_vector_get_element_value_at_offset(
 	     pages_vector,
 	     (intptr_t *) file_io_handle,
-	     pages_cache,
+	     (libfdata_cache_t *) pages_cache,
 	     data_definition->page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,

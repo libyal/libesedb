@@ -152,7 +152,7 @@ int libesedb_table_initialize(
 	     (intptr_t *) io_handle,
 	     NULL,
 	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
 	     NULL,
 	     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 	     error ) != 1 )
@@ -225,7 +225,7 @@ int libesedb_table_initialize(
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
 	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
@@ -286,7 +286,7 @@ int libesedb_table_initialize(
 		     (intptr_t *) io_handle,
 		     NULL,
 		     NULL,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_vector_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_io_handle_read_page,
 		     NULL,
 		     LIBFDATA_DATA_HANDLE_FLAG_NON_MANAGED,
 		     error ) != 1 )
@@ -359,7 +359,7 @@ int libesedb_table_initialize(
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 		     NULL,
 		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
 		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 		     error ) != 1 )
 		{
@@ -1685,7 +1685,7 @@ int libesedb_table_get_number_of_records(
 	if( libfdata_btree_get_number_of_leaf_values(
 	     internal_table->table_values_tree,
 	     (intptr_t *) internal_table->file_io_handle,
-	     internal_table->table_values_cache,
+	     (libfdata_cache_t *) internal_table->table_values_cache,
 	     number_of_records,
 	     0,
 	     error ) != 1 )
@@ -1753,7 +1753,7 @@ int libesedb_table_get_record(
 	if( libfdata_btree_get_leaf_value_by_index(
 	     internal_table->table_values_tree,
 	     (intptr_t *) internal_table->file_io_handle,
-	     internal_table->table_values_cache,
+	     (libfdata_cache_t *) internal_table->table_values_cache,
 	     record_entry,
 	     (intptr_t **) &record_data_definition,
 	     0,

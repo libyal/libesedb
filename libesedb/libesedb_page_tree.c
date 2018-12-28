@@ -211,7 +211,7 @@ int libesedb_page_tree_read_root_page(
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     (intptr_t *) file_io_handle,
-	     page_tree->pages_cache,
+	     (libfdata_cache_t *) page_tree->pages_cache,
 	     page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
@@ -500,7 +500,7 @@ int libesedb_page_tree_read_space_tree_page(
 	if( libfdata_vector_get_element_value_by_index(
 	     page_tree->pages_vector,
 	     (intptr_t *) file_io_handle,
-	     page_tree->pages_cache,
+	     (libfdata_cache_t *) page_tree->pages_cache,
 	     (int) page_number - 1,
 	     (intptr_t **) &page,
 	     0,
@@ -966,7 +966,7 @@ int libesedb_page_tree_read_page(
 	if( libfdata_vector_get_element_value_at_offset(
 	     page_tree->pages_vector,
 	     (intptr_t *) file_io_handle,
-	     page_tree->pages_cache,
+	     (libfdata_cache_t *) page_tree->pages_cache,
 	     page_offset,
 	     &element_data_offset,
 	     (intptr_t **) &page,
@@ -1051,7 +1051,7 @@ int libesedb_page_tree_read_page(
 		if( libfdata_vector_get_element_value_at_offset(
 		     page_tree->pages_vector,
 		     (intptr_t *) file_io_handle,
-		     page_tree->pages_cache,
+		     (libfdata_cache_t *) page_tree->pages_cache,
 		     page_offset,
 		     &element_data_offset,
 		     (intptr_t **) &page,
@@ -1750,7 +1750,7 @@ int libesedb_page_tree_read_leaf_value(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_btree_t *tree,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int leaf_value_index,
      int leaf_value_data_file_index,
      off64_t leaf_value_data_offset,

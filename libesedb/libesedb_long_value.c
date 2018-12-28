@@ -378,7 +378,7 @@ int libesedb_long_value_get_data(
 		if( libfdata_list_get_element_value_by_index(
 		     internal_long_value->data_segments_list,
 		     (intptr_t *) internal_long_value->file_io_handle,
-		     internal_long_value->data_segments_cache,
+		     (libfdata_cache_t *) internal_long_value->data_segments_cache,
 		     data_segment_index,
 		     (intptr_t **) &data_segment,
 		     0,
@@ -540,7 +540,7 @@ int libesedb_long_value_get_record_value(
 			if( libfdata_list_get_element_value_by_index(
 			     internal_long_value->data_segments_list,
 			     (intptr_t *) internal_long_value->file_io_handle,
-			     internal_long_value->data_segments_cache,
+			     (libfdata_cache_t *) internal_long_value->data_segments_cache,
 			     data_segment_index,
 			     (intptr_t **) &data_segment,
 			     0,
@@ -770,7 +770,7 @@ int libesedb_long_value_get_data_segment_size(
 	if( libfdata_list_get_element_value_by_index(
 	     internal_long_value->data_segments_list,
 	     (intptr_t *) internal_long_value->file_io_handle,
-	     internal_long_value->data_segments_cache,
+	     (libfdata_cache_t *) internal_long_value->data_segments_cache,
 	     data_segment_index,
 	     (intptr_t **) &data_segment,
 	     0,
@@ -834,7 +834,7 @@ int libesedb_long_value_get_data_segment(
 	if( libfdata_list_get_element_value_by_index(
 	     internal_long_value->data_segments_list,
 	     (intptr_t *) internal_long_value->file_io_handle,
-	     internal_long_value->data_segments_cache,
+	     (libfdata_cache_t *) internal_long_value->data_segments_cache,
 	     data_segment_index,
 	     (intptr_t **) &data_segment,
 	     0,
@@ -1322,7 +1322,7 @@ int libesedb_long_value_get_segment_data(
 	if( libfdata_list_get_element_value_by_index(
 	     internal_long_value->data_segments_list,
 	     (intptr_t *) internal_long_value->file_io_handle,
-	     internal_long_value->data_segments_cache,
+	     (libfdata_cache_t *) internal_long_value->data_segments_cache,
 	     data_segment_index,
 	     (intptr_t **) &data_segment,
 	     0,

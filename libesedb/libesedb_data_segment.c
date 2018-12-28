@@ -27,7 +27,6 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
-#include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_unused.h"
 
@@ -291,7 +290,7 @@ int libesedb_data_segment_read_element_data(
      intptr_t *data_handle LIBESEDB_ATTRIBUTE_UNUSED,
      libbfio_handle_t *file_io_handle,
      libfdata_list_element_t *element,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int element_file_index LIBESEDB_ATTRIBUTE_UNUSED,
      off64_t element_offset,
      size64_t element_size,

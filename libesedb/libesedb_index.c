@@ -168,7 +168,7 @@ int libesedb_index_initialize(
 	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
 	     NULL,
 	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfcache_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
 	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
 	     error ) != 1 )
 	{
@@ -609,7 +609,7 @@ int libesedb_index_get_number_of_records(
 	if( libfdata_btree_get_number_of_leaf_values(
 	     internal_index->index_values_tree,
 	     (intptr_t *) internal_index->file_io_handle,
-	     internal_index->index_values_cache,
+	     (libfdata_cache_t *) internal_index->index_values_cache,
 	     number_of_records,
 	     0,
 	     error ) != 1 )
@@ -681,7 +681,7 @@ int libesedb_index_get_record(
 	if( libfdata_btree_get_leaf_value_by_index(
 	     internal_index->index_values_tree,
 	     (intptr_t *) internal_index->file_io_handle,
-	     internal_index->index_values_cache,
+	     (libfdata_cache_t *) internal_index->index_values_cache,
 	     record_entry,
 	     (intptr_t **) &index_data_definition,
 	     0,
@@ -749,7 +749,7 @@ int libesedb_index_get_record(
 	if( libfdata_btree_get_leaf_value_by_key(
 	     internal_index->table_values_tree,
 	     (intptr_t *) internal_index->file_io_handle,
-	     internal_index->table_values_cache,
+	     (libfdata_cache_t *) internal_index->table_values_cache,
 	     (intptr_t *) key,
 	     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
 	     LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,

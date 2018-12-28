@@ -116,7 +116,7 @@ int libesedb_page_tree_read_leaf_value(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libfdata_btree_t *tree,
-     libfcache_cache_t *cache,
+     libfdata_cache_t *cache,
      int leaf_value_index,
      int leaf_value_data_file_index,
      off64_t leaf_value_data_offset,
