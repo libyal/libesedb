@@ -3042,25 +3042,6 @@ int libesedb_record_get_long_value_data_segments_list(
 
 		return( -1 );
 	}
-	if( libfdata_list_initialize(
-	     data_segments_list,
-	     NULL,
-	     NULL,
-	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
-	     NULL,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create data segments list.",
-		 function );
-
-		goto on_error;
-	}
 	if( libesedb_key_initialize(
 	     &key,
 	     error ) != 1 )
@@ -3129,6 +3110,25 @@ int libesedb_record_get_long_value_data_segments_list(
 	if( result == 0 )
 	{
 		return( 0 );
+	}
+	if( libfdata_list_initialize(
+	     data_segments_list,
+	     NULL,
+	     NULL,
+	     NULL,
+	     (int (*)(intptr_t *, intptr_t *, libfdata_list_element_t *, libfdata_cache_t *, int, off64_t, size64_t, uint32_t, uint8_t, libcerror_error_t **)) &libesedb_data_segment_read_element_data,
+	     NULL,
+	     0,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create data segments list.",
+		 function );
+
+		goto on_error;
 	}
 	if( libesedb_data_definition_read_long_value(
 	     data_definition,
@@ -3253,16 +3253,16 @@ int libesedb_record_get_long_value_data_segments_list(
 	return( 1 );
 
 on_error:
-	if( key != NULL )
-	{
-		libesedb_key_free(
-		 &key,
-		 NULL );
-	}
 	if( *data_segments_list != NULL )
 	{
 		libfdata_list_free(
 		 data_segments_list,
+		 NULL );
+	}
+	if( key != NULL )
+	{
+		libesedb_key_free(
+		 &key,
 		 NULL );
 	}
 	return( -1 );
