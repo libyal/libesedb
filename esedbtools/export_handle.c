@@ -3868,7 +3868,7 @@ int export_handle_export_long_record_value(
 	if( export_get_long_value_data(
 	     long_value,
 	     &value_data,
-	     &value_data_size,
+	     (size_t *) &value_data_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
