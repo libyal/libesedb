@@ -244,7 +244,7 @@ int libesedb_page_tree_read_root_page(
 	}
 	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT;
 
-	if( ( page->flags & required_flags ) != required_flags )
+	if( ( page->header->flags & required_flags ) != required_flags )
 	{
 		libcerror_error_set(
 		 error,
@@ -252,11 +252,11 @@ int libesedb_page_tree_read_root_page(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing required page flags: 0x%08" PRIx32 ".",
 		 function,
-		 page->flags );
+		 page->header->flags );
 
 		return( -1 );
 	}
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
 	{
 		return( 1 );
 	}
@@ -273,7 +273,7 @@ int libesedb_page_tree_read_root_page(
 	                | LIBESEDB_PAGE_FLAG_0x8000
 	                | LIBESEDB_PAGE_FLAG_0x10000;
 
-	if( ( page->flags & ~supported_flags ) != 0 )
+	if( ( page->header->flags & ~supported_flags ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -281,7 +281,7 @@ int libesedb_page_tree_read_root_page(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
 		 function,
-		 page->flags );
+		 page->header->flags );
 
 		return( -1 );
 	}
@@ -524,20 +524,20 @@ int libesedb_page_tree_read_space_tree_page(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( page_tree->object_identifier != page->father_data_page_object_identifier )
+		if( page_tree->object_identifier != page->header->father_data_page_object_identifier )
 		{
 			libcnotify_printf(
 			 "%s: mismatch in father data page object identifier (tree: %" PRIu32 " != page: %" PRIu32 ").\n",
 			 function,
 			 page_tree->object_identifier,
-			 page->father_data_page_object_identifier );
+			 page->header->father_data_page_object_identifier );
 		}
 	}
 #endif
 	required_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
 	               | LIBESEDB_PAGE_FLAG_IS_SPACE_TREE;
 
-	if( ( page->flags & required_flags ) != required_flags )
+	if( ( page->header->flags & required_flags ) != required_flags )
 	{
 		libcerror_error_set(
 		 error,
@@ -545,11 +545,11 @@ int libesedb_page_tree_read_space_tree_page(
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 		 "%s: missing required page flags: 0x%08" PRIx32 ".",
 		 function,
-		 page->flags );
+		 page->header->flags );
 
 		goto on_error;
 	}
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
 	{
 		return( 1 );
 	}
@@ -565,7 +565,7 @@ int libesedb_page_tree_read_space_tree_page(
 	                | LIBESEDB_PAGE_FLAG_0x8000
 	                | LIBESEDB_PAGE_FLAG_0x10000;
 
-	if( ( page->flags & ~supported_flags ) != 0 )
+	if( ( page->header->flags & ~supported_flags ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -573,11 +573,11 @@ int libesedb_page_tree_read_space_tree_page(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
 		 function,
-		 page->flags );
+		 page->header->flags );
 
 		goto on_error;
 	}
-	if( page->previous_page_number != 0 )
+	if( page->header->previous_page_number != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -585,11 +585,11 @@ int libesedb_page_tree_read_space_tree_page(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported previous page number: %" PRIu32 ".",
 		 function,
-		 page->previous_page_number );
+		 page->header->previous_page_number );
 
 		goto on_error;
 	}
-	if( page->next_page_number != 0 )
+	if( page->header->next_page_number != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -597,7 +597,7 @@ int libesedb_page_tree_read_space_tree_page(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported next page number: %" PRIu32 ".",
 		 function,
-		 page->next_page_number );
+		 page->header->next_page_number );
 
 		goto on_error;
 	}
@@ -670,7 +670,7 @@ int libesedb_page_tree_read_space_tree_page(
 		 "\n" );
 	}
 #endif
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 		if( page_value->size != 16 )
 		{
@@ -729,7 +729,7 @@ int libesedb_page_tree_read_space_tree_page(
 			 "\n" );
 		}
 #endif
-		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+		if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 		{
 			if( ( page_value->flags & 0x05 ) != 0 )
 			{
@@ -790,7 +790,7 @@ int libesedb_page_tree_read_space_tree_page(
 				goto on_error;
 			}
 		}
-		else if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) != 0 )
+		else if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_PARENT ) != 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -934,7 +934,7 @@ int libesedb_page_tree_read_page(
 
 		goto on_error;
 	}
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
 	{
 		return( 1 );
 	}
@@ -950,7 +950,7 @@ int libesedb_page_tree_read_page(
 	                | LIBESEDB_PAGE_FLAG_0x8000
 	                | LIBESEDB_PAGE_FLAG_0x10000;
 
-	if( ( page->flags & ~supported_flags ) != 0 )
+	if( ( page->header->flags & ~supported_flags ) != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -958,12 +958,12 @@ int libesedb_page_tree_read_page(
 		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
 		 function,
-		 page->flags );
+		 page->header->flags );
 
 		goto on_error;
 	}
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 	{
 /* TODO uncache the root page?
  */
@@ -1021,7 +1021,7 @@ int libesedb_page_tree_read_page(
 		}
 	}
 #endif
-	if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
 #ifdef TODO
 /* TODO refactor */
@@ -1037,47 +1037,47 @@ int libesedb_page_tree_read_page(
 						 previous_next_child_page_number,
 						 child_page->page_number );
 					}
-					if( child_page->previous_page_number != previous_child_page_number )
+					if( child_page->header->previous_page_number != previous_child_page_number )
 					{
 						libcnotify_printf(
 						 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").\n",
 						 function,
 						 previous_child_page_number,
-						 child_page->previous_page_number );
+						 child_page->header->previous_page_number );
 					}
 				}
 /* TODO need the actual values for the following checks
 				if( page_value_index == 1 )
 				{
-					if( child_page->previous_page_number != 0 )
+					if( child_page->header->previous_page_number != 0 )
 					{
 						libcnotify_printf(
 						 "%s: mismatch in previous child page number (%" PRIu32 " != %" PRIu32 ").",
 						 function,
 						 0,
-						 child_page->previous_page_number );
+						 child_page->header->previous_page_number );
 					}
 				}
 				if( page_value_index == ( number_of_page_values - 1 ) )
 				{
-					if( child_page->next_page_number != 0 )
+					if( child_page->header->next_page_number != 0 )
 					{
 						libcnotify_printf(
 						 "%s: mismatch in next child page number (%" PRIu32 " != %" PRIu32 ").",
 						 function,
 						 0,
-						 child_page->previous_page_number );
+						 child_page->header->previous_page_number );
 					}
 				}
 */
 			}
 			previous_child_page_number      = child_page->page_number;
-			previous_next_child_page_number = child_page->next_page_number;
+			previous_next_child_page_number = child_page->header->next_page_number;
 #endif
 	}
 	else
 	{
-		if( page->previous_page_number != 0 )
+		if( page->header->previous_page_number != 0 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1085,11 +1085,11 @@ int libesedb_page_tree_read_page(
 			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported previous page number: %" PRIu32 ".",
 			 function,
-			 page->previous_page_number );
+			 page->header->previous_page_number );
 
 			goto on_error;
 		}
-		if( page->next_page_number != 0 )
+		if( page->header->next_page_number != 0 )
 		{
 			libcerror_error_set(
 			 error,
@@ -1097,7 +1097,7 @@ int libesedb_page_tree_read_page(
 			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported next page number: %" PRIu32 ".",
 			 function,
-			 page->next_page_number );
+			 page->header->next_page_number );
 
 			goto on_error;
 		}
@@ -1188,7 +1188,7 @@ int libesedb_page_tree_read_page(
 		}
 		if( ( page_value->flags & LIBESEDB_PAGE_TAG_FLAG_HAS_COMMON_KEY_SIZE ) != 0 )
 		{
-			if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
+			if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 			{
 				libcerror_error_set(
 				 error,
@@ -1366,7 +1366,7 @@ int libesedb_page_tree_read_page(
 			 "\n" );
 		}
 #endif
-		if( ( page->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+		if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )

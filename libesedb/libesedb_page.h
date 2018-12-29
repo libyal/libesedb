@@ -29,28 +29,12 @@
 #include "libesedb_libbfio.h"
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
+#include "libesedb_page_header.h"
 #include "libesedb_page_value.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
-
-typedef struct libesedb_page_tags_value libesedb_page_tags_value_t;
-
-struct libesedb_page_tags_value
-{
-	/* The offset of the value
-	 */
-	uint16_t offset;
-
-	/* The size of the value
-	 */
-	uint16_t size;
-
-	/* The flags of the value
-	 */
-	uint8_t flags;
-};
 
 typedef struct libesedb_page libesedb_page_t;
 
@@ -60,46 +44,26 @@ struct libesedb_page
 	 */
 	uint32_t page_number;
 
-	/* The previous page number
-	 */
-	uint32_t previous_page_number;
-
-	/* The next page number
-	 */
-	uint32_t next_page_number;
-
-	/* The father data page (FPD) object identifier
-	 */
-	uint32_t father_data_page_object_identifier;
-
-	/* The page flags
-	 */
-	uint32_t flags;
-
-	/* The page data
-	 */
-	uint8_t *data;
-
-	/* The page data size
-	 */
-	size_t data_size;
-
 	/* The file offset of the page
 	 */
 	off64_t offset;
 
-	/* The page values array
+	/* The header
+	 */
+	libesedb_page_header_t *header;
+
+	/* The data
+	 */
+	uint8_t *data;
+
+	/* The data size
+	 */
+	size_t data_size;
+
+	/* The values array
 	 */
 	libcdata_array_t *values_array;
 };
-
-int libesedb_page_tags_value_initialize(
-     libesedb_page_tags_value_t **page_tags_value,
-     libcerror_error_t **error );
-
-int libesedb_page_tags_value_free(
-     libesedb_page_tags_value_t **page_tags_value,
-     libcerror_error_t **error );
 
 int libesedb_page_initialize(
      libesedb_page_t **page,
@@ -107,6 +71,13 @@ int libesedb_page_initialize(
 
 int libesedb_page_free(
      libesedb_page_t **page,
+     libcerror_error_t **error );
+
+int libesedb_page_calculate_checksums(
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     uint32_t *ecc32_checksum,
+     uint32_t *xor32_checksum,
      libcerror_error_t **error );
 
 int libesedb_page_read(
@@ -117,19 +88,15 @@ int libesedb_page_read(
      libcerror_error_t **error );
 
 int libesedb_page_read_tags(
-     libcdata_array_t *page_tags_array,
+     libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      uint16_t number_of_page_tags,
-     uint8_t *page_data,
-     size_t page_data_size,
+     libcdata_array_t **page_tags_array,
      libcerror_error_t **error );
 
 int libesedb_page_read_values(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
-     libcdata_array_t *page_tags_array,
-     uint8_t *page_values_data,
-     size_t page_values_data_size,
      size_t page_values_data_offset,
      libcerror_error_t **error );
 

@@ -7,6 +7,7 @@ Analysis of the Extensible Storage Engine (ESE) Database File (EDB) format
 :numbered!:
 [abstract]
 == Summary
+
 The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
 Microsoft application to store data such as Windows Mail, Windows Search, 
 Active Directory and Exchange. This specification is based on some available 
@@ -18,6 +19,7 @@ existing Open Source forensic tooling to be able to process this file type.
 
 [preface]
 == Document information
+
 [cols="1,5"]
 |===
 | Author(s): | Joachim Metz <joachim.metz@gmail.com>
@@ -28,6 +30,7 @@ existing Open Source forensic tooling to be able to process this file type.
 
 [preface]
 == License
+
 ....
 Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the 
@@ -76,6 +79,7 @@ Additional information about long value.
 
 :numbered:
 == Overview
+
 The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
 Microsoft application to store data such as Windows Mail, Windows Search, 
 Active Directory and Exchange. The The Extensible Storage Engine (ESE) is also 
@@ -115,6 +119,7 @@ ESE is used to store data for various Microsoft applications like:
 * Content Indexing
 
 === Test version
+
 The following version of programs were used to test the information within this 
 document:
 
@@ -122,6 +127,7 @@ document:
 * Windows Search XP, Vista, 7 and 8; with corresponding esentutl
 
 === File structure
+
 An ESE database (EDB) file consist of the following distinguishable elements:
 
 * file header
@@ -154,6 +160,7 @@ Because ESE stores the database data in fixed size pages, long values are used
 to store values that are larger than the page size.
 
 == (Database) file header
+
 The (database) file header is stored in the first database page. The byte value 
 in the remainder of the page are set to 0. A copy of the (database) file header 
 is stored in the second page.
@@ -294,6 +301,7 @@ Some of the values in the file header corresponds correspond with those in the
 miscellaneous database information (JET_DBINFOMISC).
 
 === Notes
+
 ....
 unknown2: 
 00000000: a4 88 3d 00 14 07 0f 07  03 6a 00 00 00 00 00 00   ..=..... .j...... 
@@ -337,6 +345,7 @@ matches the detach position, date and time.*
 
 === [[file_type]]File type
 
+
 [cols="1,1,5",options="header"]
 |===
 | Value | Identifier | Description
@@ -350,6 +359,7 @@ Contains streamed data.
 The rest of the format specification largely applies to the database file type.
 
 === [[file_format_and_revision]]File format version and revision
+
 According to `[MSDN]` the file format version and revision consist of the 
 following values:
 
@@ -386,6 +396,7 @@ Used in Windows 7 (SP0)
 |===
 
 === [[database_state]]Database state
+
 The database state consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -400,6 +411,7 @@ This value is introduced in Windows XP
 |===
 
 == Hierarchical page-based storage
+
 The EDB file uses a fixed size page to store data. The size of the page is 
 defined in the file header.
 
@@ -428,6 +440,7 @@ page number = ( page offset - page size ) / page size
 ....
 
 === Page header
+
 The page header is 40 or 80 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -486,6 +499,7 @@ _(As of version 0x620 revision 0x11)_ +
 |===
 
 ==== Changes in Exchange 2003 SP1
+
 According to `[MSDN]` Exchange Server 2003 Service Pack 1 (SP1) introduces a 
 new feature named Error Correcting Code (ECC) Checksum. ECC Checksum is a new 
 checksum format that enables the correction of single-bit errors in database 
@@ -513,10 +527,12 @@ page number is used as a seed in the calculation of this checksum. The second
 single-bit errors on the page.
 
 ==== Changes in Windows 7
+
 In Windows 7, for pages of 16 KiB and 32 KiB, the page header was extended with 
 mainly additional error recovery checksums.
 
 ==== [[page_flags]]Page flags
+
 The page flags consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -548,6 +564,7 @@ New checksum format
 [yellow-background]*PageFlushType = 1 (0x8000) ?*
 
 === Page tags
+
 The page tags are stored at the end of the the page. The page tags are stored 
 back to front. The page header indicates the first unused page tag.
 
@@ -555,6 +572,7 @@ back to front. The page header indicates the first unused page tag.
 There can be more page tags in the page than being used.
 
 ==== Page tag - format revision 12 and earlier
+
 A page tag is 4 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -564,12 +582,14 @@ A page tag is 4 bytes of size and consists of:
 The offset is relative after the page header
 | 1.5 | 3 bits | | Page tag flags +
 See section: <<page_tag_flags,Page tag flags>>
-| 2.0  | 13 bits | | Value size
+| 2.0  | 13 bits | | Value size +
+Contains 0 if the value is empty
 | 2.5 | 3 bits | | [yellow-background]*Unknown* +
 [yellow-background]*Seen 2nd MSB set*
 |===
 
 ==== Page tag - format revision 17 and later
+
 In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the page 
 tags were changed, to support these page sizes. For these page sizes the page 
 tag flags have been moved to the first 16-value in the leaf page entry.
@@ -583,12 +603,14 @@ A page tag is 4 bytes of size and consists of:
 The offset is relative after the extended page header
 | 3.7 | 1 bit | | [yellow-background]*Unknown* +
 [yellow-background]*Sometimes set*
-| 2 | 15 bits | | Value size
+| 2 | 15 bits | | Value size +
+Contains 0 if the value is empty
 | 3.6 | 1 bit | | [yellow-background]*Unknown* +
 [yellow-background]*Sometimes set*
 |===
 
 ==== Page tag flags
+
 The page tag flags consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -603,6 +625,7 @@ The page value contains a common page key size
 |===
 
 === Page B+-tree
+
 In the B+-tree hierarchy there are multiple types of pages:
 
 * root page
@@ -612,10 +635,12 @@ In the B+-tree hierarchy there are multiple types of pages:
 These different type of pages contain different types of page values.
 
 ==== Empty page
+
 Although empty pages can contain data they are ignored when creating a page 
 B+-tree.
 
 ==== Root page
+
 The root page is identified by the 'is root' flag.
 
 The root page contains different types of values:
@@ -624,6 +649,7 @@ The root page contains different types of values:
 * branch or leaf page entries
 
 ===== Root page header
+
 The root page header is the first page tag within the page.
 
 The root page header is 16 bytes of size and consists of:
@@ -653,6 +679,7 @@ currently represented using multiple pages ("m") or a single page ("s").
 [yellow-background]*The space tree page number is valid when the extent space > 0.*
 
 ==== Branch page
+
 The branch page not identified by any flags, the 'is leaf' flag should not be 
 set. The branch page can contain the 'is parent' flag.
 
@@ -664,6 +691,7 @@ Both the branch page contains different types of values:
 * branch page entries
 
 ===== Branch page header
+
 The branch page header is the first page tag within the page.
 
 If the branch page has no 'is root' flag the branch page header is variable of 
@@ -676,6 +704,7 @@ size and consists of:
 |===
 
 ===== Branch page entry
+
 The branch page entry is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -698,6 +727,7 @@ the common page key size value, followed by the local page key stored in the
 page entry.
 
 ==== Leaf page values
+
 The leaf page is identified by the 'is leaf' flag.
 
 The leaf page contains different types of values:
@@ -714,6 +744,7 @@ There are multiple types of leaf pages:
 Every type of leaf page has a different type of leaf page entry.
 
 ===== Leaf page header
+
 The leaf page header is the first page tag within the page.
 
 If the leaf page has no 'is root' flag the leaf page header is variable of size 
@@ -728,6 +759,7 @@ and consists of:
 If there is no leaf page header the size of the corresponding page tag is 0.
 
 ===== Leaf page entry
+
 The leaf page entries for the different types of leaf pages use a similar entry structure.
 
 [NOTE]
@@ -752,6 +784,7 @@ the common page key size value, followed by the local page key stored in the
 page entry.
 
 ====== Leaf page entry - format revision 17 and later
+
 In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the size 
 of the page key in the leaf page entry was changed.
 
@@ -759,7 +792,9 @@ The upper 3-bits of the first 16-bit value (either the key type or the size of
 the page key) contain the page tag flags (See section: <<page_tag_flags,Page tag flags>>).
 
 === Page values
+
 ==== Space tree page values
+
 The space tree page is identified by the following flags:
 
 * is space tree
@@ -779,6 +814,7 @@ primary space tree page number + 1 contains information about the available
 pages.
 
 ===== Space tree leaf page header
+
 The space tree page header is the first page value within the page.
 
 The space tree page header is 16 bytes of size and consists of:
@@ -802,6 +838,7 @@ The space tree header can also be empty (have a page value size of 0).
 ....
 
 ===== Space tree leaf page entry
+
 The space tree page entry is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -822,6 +859,7 @@ The space tree page entry is variable of size and consists of:
 Space tree entries with the defunct page flag (0x02) are not included.
 
 ==== Index page values
+
 The index page is identified by the following flags:
 
 * is index
@@ -829,6 +867,7 @@ The index page is identified by the following flags:
 Index branch pages are similar to branch pages.
 
 ===== Index leaf page entry data
+
 The index leaf page entry data is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -838,6 +877,7 @@ The index leaf page entry data is variable of size and consists of:
 |===
 
 ==== Long value page values
+
 The long value pages are identified by the following flags:
 
 * is long value
@@ -845,11 +885,13 @@ The long value pages are identified by the following flags:
 For the format of the long value data definitions see section: <<long_values,Long Values>>.
 
 ==== Table page values
+
 The table page values are not identified by a flag. So basically if none of the 
 previously mentioned flags is defined the page contains table value data 
 definitions. See section: <<data_definitions,Data definitions>> for more information.
 
 == [[data_definitions]]Data definitions
+
 In ESE there are multiple categories of table data definitions, each category 
 uses different data type identifiers.
 
@@ -873,6 +915,7 @@ definition records contains the values of a table row.
 be defined as variable columns*
 
 === Data definition header
+
 The data definition header is 4 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -885,6 +928,7 @@ The offset is relative from the start of the data definition header
 |===
 
 === Data type definitions
+
 The data type definitions is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -909,6 +953,7 @@ identifiers before table tagged data type identifiers. Also see section:
 <<template_tables,Template tables>>.
 
 ==== Variable size data type size array entry
+
 The variable size data type size array entry is 2 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -921,6 +966,7 @@ Also the size of the previous variable size data type needs to be subtracted fro
 |===
 
 ==== The tagged data type definitions - format revision 2
+
 For EDB format revision 2 the tagged data type definitions consist of multiple 
 entries.
 
@@ -947,6 +993,7 @@ type data contains the size of the value data. The value is seems to be
 preceded by the tagged data type flags?*
 
 ==== The tagged data type definitions - format revision 9 and later
+
 For format revision 9 and later the tagged data type definitions consist of an 
 an offset and data array.
 
@@ -958,6 +1005,7 @@ an offset and data array.
 |===
 
 ===== Tagged data type offset array entry - format revision 9 and later
+
 The tagged data type offset array entry is 4 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1000,6 +1048,7 @@ See section: <<multi_values,Multi values>>
 |===
 
 ====== Notes
+
 [yellow-background]*Are multi long values used?*
 
 Tag data type flags:
@@ -1040,6 +1089,7 @@ Why is only the first entry is compressed?
 ....
 
 === Example: the catalog (data type) definition
+
 The data below is an example of the catalog (data type) definition. Also see 
 section: <<catalog,Catalog (MSysObjects and MSysObjectsShadow)>>
 
@@ -1109,6 +1159,7 @@ For data definition type is 0x0005 (callback) the variable data type
 'TemplateTable' is used to store the name of the DLL and function to call.
 
 === [[long_values]]Long Values
+
 The actual long values are stored in a separate page tree. The corresponding 
 page key of the long value is the long value identifier in reverse byte order. 
 E.g. a long value identifier of: 0xa7000000 relates to a page key of 
@@ -1147,6 +1198,7 @@ the segment offset 0x00000fae (4014), therefore 0x000000a7000000fae.
 total long value size?*
 
 === [[multi_values]]Multi values
+
 The multi value is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1161,6 +1213,7 @@ The offset is relative to the start of the multi value +
 |===
 
 ==== Notes
+
 ....
 column definition identifier                             : 625
 column definition name                                   : ML827a
@@ -1242,7 +1295,9 @@ MSB contains some flag (defunct?)
 ....
 
 == Database
+
 === [[database_signature]]Database signature
+
 The database signature (JET_SIGNATURE) is 28 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1258,6 +1313,7 @@ Unused bytes are filled with 0
 |===
 
 ==== [[database_time]]Database time
+
 The database time (DBTIME) is 8 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1273,7 +1329,9 @@ Value should be [0 – 59]
 |===
 
 == Columns
+
 === [[column_type]]Column type
+
 The column type (JET_COLTYP) consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -1326,6 +1384,7 @@ kilobytes of page numbers) and checksum data for the data in the streaming file
 is stored in the .edb file.*
 
 ==== Notes
+
 ....
 ASCII strings are always treated as case insensitive for sorting and searching 
 purposes. Further, only the characters preceding the first null character (if 
@@ -1347,6 +1406,7 @@ completely ignored.
 ....
 
 === [[column_flags]]Column flags (group of bits)
+
 The column flags consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -1382,6 +1442,7 @@ JET_bitColumnUserDefinedDefault cannot be used in conjunction with JET_bitColumn
 |===
 
 === Compression
+
 As of Windows 7 the column types JET_coltypLongBinary and JET_coltypLongText 
 can be compressed [MSDN-WIN7].
 
@@ -1390,6 +1451,7 @@ The first byte in the data indicates which compression is used. If the value is
 value.
 
 ==== 7-bit compression
+
 7-bit compression is used for columns with less than 1 KiB (1024 bytes) 
 uncompressed data that consists of only 7-bit values. These are stored as a 
 continuous stream of 7-bit values.
@@ -1411,6 +1473,7 @@ an ASCII or an UTF-16 little-endian string.
 not in Exchange 2010*
 
 ==== XPRESS compression
+
 Microsoft XPRESS compression is used for columns with more than 1 KiB (1024 
 bytes) uncompressed data. This compression method is a combination of the LZ77 
 and DIRECT2 algorithms. The compression method is similar to the LZNT1, which 
@@ -1433,7 +1496,9 @@ an ASCII or an UTF-16 little-endian string.
 
 == Backup
 
+
 === [[backup_information]]Backup information
+
 The backup information (JET_BKINFO) is 24 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1453,7 +1518,9 @@ The upper log generation number associated with the backup.
 |===
 
 == Transaction log
+
 === [[log_information]]Log information
+
 The log position (JET_LOGINFO) is 16 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1476,6 +1543,7 @@ file in zero padded hexadecimal and is always five characters in length. LOG is
 the file extension that is always given to transaction log files by the engine.
 
 === [[log_position]]Log position
+
 The log position (JET_LGPOS) is 8 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1487,6 +1555,7 @@ The log position (JET_LGPOS) is 8 bytes of size and consists of:
 |===
 
 === [[log_time]](Backup) log time
+
 The log time and backup log time (JET_LOGTIME and JET_BKLOGTIME) are 8 bytes of 
 size and consist of:
 
@@ -1523,7 +1592,9 @@ following values:
 The backup log time was introduced in Windows Vista.
 
 == Tables
+
 === Table flags (group of bits)
+
 The table group of bits consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -1536,7 +1607,9 @@ The table group of bits consist of the following values:
 |===
 
 === Metadata tables
+
 ==== [[catalog]]Catalog (MSysObjects and MSysObjectsShadow)
+
 The "MSysObjects" table contains the definitions of all the tables, indexes and 
 long values that are stored within the database. It is also referred to a the 
 catalog (metadata table). A backup (or copy) of the catalog is maintained in 
@@ -1614,6 +1687,7 @@ Unicode (SCSU)?*
 |===
 
 ===== [[clmapflags]]LCMapFlags
+
 The LCMapFlags are used for the LCMapString.
 
 [cols="1,1,5",options="header"]
@@ -1637,6 +1711,7 @@ If the application passes in 0x3450 0x4822, the result is 0x5034 0x2248.
 |===
 
 ====== Notes
+
 ....
 TODO, what is 0x00030401 is one of these undocumented bits used to indicate the fact that the string is stored as a non-UTF-16 string?
 
@@ -1688,6 +1763,7 @@ Treat punctuation the same as symbols.
 ....
 
 ===== KeyFldIDs
+
 [yellow-background]*The KeyFldIDs contain the index column identifiers of the 
 primary and secondary keys.*
 
@@ -1703,6 +1779,7 @@ Contains the data type identifier of the column
 |===
 
 ====== Notes
+
 Id
 ....
 00000000: 00 00 01 00 00 00 02 00  00 00 03 00
@@ -1723,6 +1800,7 @@ RootObjects
 ....
 
 ==== MSysObjids
+
 [yellow-background]*First seen in Windows 8 Consumer Preview Windows.edb*
 
 [cols="1,3,5",options="header"]
@@ -1734,6 +1812,7 @@ RootObjects
 |===
 
 ==== MSysLocales
+
 [yellow-background]*First seen in Windows 8 Consumer Preview Windows.edb*
 
 [cols="1,3,5",options="header"]
@@ -1762,6 +1841,7 @@ RootObjects
 |===
 
 ==== MSysUnicodeFixupVer2
+
 [yellow-background]*The "MsysUnicodeFixupVer2" table was introduced in Windows 
 Vista (SP0)?*
 
@@ -1816,6 +1896,7 @@ Vista (SP0)?*
 |===
 
 === [[template_tables]]Template tables
+
 A table definition which uses a template table definition, basically uses a 
 copy of the template table and appends the defined column definitions.
 
@@ -1842,12 +1923,14 @@ tagged data type definitions.
 [yellow-background]*TODO: What about non tagged data types?*
 
 == Indexes
+
 The FDP value in the catalog definition of an index, refers to the FDP of an 
 index page B+-tree except for the first index (Id). It will point to the parent 
 table and does not contain index page values. [yellow-background]*It is 
 assumed that this index is build-in.*
 
 === Index flags (group of bits)
+
 The column flags consist of the following values:
 
 [cols="1,1,5",options="header"]
@@ -1879,12 +1962,15 @@ For example, if you specified this flag for an index over column A that has the 
 |===
 
 == Notes
+
 === The database metadata table
+
 The database metadata table contains [yellow-background]*space tree information 
 about the database*. The database metadata table is [yellow-background]*always 
 stored as FDP object identifier 1 with parent FDP page number 1*.
 
 === Key behavior
+
 Search XP
 
 record:
@@ -1900,7 +1986,9 @@ key :7f f4 a6 a7 72 7f 57 00 49 00 4e 00 44 00 09 4f 00 57 00 53 00 20 00 09 4c 
 ....
 
 ==== Long value
+
 ===== Normal behavior?
+
 Vista Update (0x620, 0x0c)
 ....
 branch with key: 00 00 01 8e
@@ -1917,6 +2005,7 @@ branch with key: 00 00 00 a7 00
 [yellow-background]*Normal behavior search the leaf node.*
 
 ===== Behavior in dirty databases
+
 Vista Search (0x620, 0x0c)
 ....
 * dirty database

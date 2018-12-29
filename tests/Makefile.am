@@ -62,9 +62,13 @@ check_PROGRAMS = \
 	esedb_test_multi_value \
 	esedb_test_notify \
 	esedb_test_page \
+	esedb_test_page_header \
+	esedb_test_page_tags_value \
 	esedb_test_page_tree \
+	esedb_test_page_tree_value \
 	esedb_test_page_value \
 	esedb_test_record \
+	esedb_test_space_tree_value \
 	esedb_test_support \
 	esedb_test_table \
 	esedb_test_table_definition
@@ -320,6 +324,30 @@ esedb_test_page_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
+esedb_test_page_header_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_page_header.c \
+	esedb_test_unused.h
+
+esedb_test_page_header_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_page_tags_value_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_page_tags_value.c \
+	esedb_test_unused.h
+
+esedb_test_page_tags_value_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
 esedb_test_page_tree_SOURCES = \
 	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
@@ -329,6 +357,18 @@ esedb_test_page_tree_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_page_tree_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_page_tree_value_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_page_tree_value.c \
+	esedb_test_unused.h
+
+esedb_test_page_tree_value_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
@@ -353,6 +393,18 @@ esedb_test_record_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_record_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_space_tree_value_SOURCES = \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_space_tree_value.c \
+	esedb_test_unused.h
+
+esedb_test_space_tree_value_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 

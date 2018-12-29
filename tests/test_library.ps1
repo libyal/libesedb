@@ -6,7 +6,7 @@ $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle key long_value multi_value notify page page_tree page_value record table table_definition"
+$LibraryTests = "catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle key long_value multi_value notify page page_header page_tags_value page_tree page_tree_value page_value record table space_tree_value table_definition"
 $LibraryTestsWithInput = "file support"
 
 $InputGlob = "*"

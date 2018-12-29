@@ -7,7 +7,7 @@ EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-LIBRARY_TESTS="catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle key long_value multi_value notify page page_tree page_value record table table_definition";
+LIBRARY_TESTS="catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle key long_value multi_value notify page page_header page_tags_value page_tree page_tree_value page_value record table space_tree_value table_definition";
 LIBRARY_TESTS_WITH_INPUT="file support";
 OPTION_SETS="";
 

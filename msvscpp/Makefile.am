@@ -18,9 +18,13 @@ MSVSCPP_FILES = \
 	esedb_test_multi_value/esedb_test_multi_value.vcproj \
 	esedb_test_notify/esedb_test_notify.vcproj \
 	esedb_test_page/esedb_test_page.vcproj \
+	esedb_test_page_header/esedb_test_page_header.vcproj \
+	esedb_test_page_tags_value/esedb_test_page_tags_value.vcproj \
 	esedb_test_page_tree/esedb_test_page_tree.vcproj \
+	esedb_test_page_tree_value/esedb_test_page_tree_value.vcproj \
 	esedb_test_page_value/esedb_test_page_value.vcproj \
 	esedb_test_record/esedb_test_record.vcproj \
+	esedb_test_space_tree_value/esedb_test_space_tree_value.vcproj \
 	esedb_test_support/esedb_test_support.vcproj \
 	esedb_test_table/esedb_test_table.vcproj \
 	esedb_test_table_definition/esedb_test_table_definition.vcproj \
