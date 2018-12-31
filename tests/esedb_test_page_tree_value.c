@@ -35,6 +35,9 @@
 
 #include "../libesedb/libesedb_page_tree_value.h"
 
+uint8_t esedb_test_page_tree_value_data1[ 14 ] = {
+	0x08, 0x00, 0x7f, 0x80, 0x00, 0x00, 0x12, 0x7f, 0x80, 0x02, 0x13, 0x00, 0x00, 0x00 };
+
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 /* Tests the libesedb_page_tree_value_initialize function
@@ -270,6 +273,167 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_page_tree_value_read_data function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_value_read_data(
+     void )
+{
+	libcerror_error_t *error                    = NULL;
+	libesedb_page_tree_value_t *page_tree_value = NULL;
+	int result                                  = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_page_tree_value_initialize(
+	          &page_tree_value,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "page_tree_value",
+	 page_tree_value );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libesedb_page_tree_value_read_data(
+	          page_tree_value,
+	          esedb_test_page_tree_value_data1,
+	          14,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_value_read_data(
+	          NULL,
+	          esedb_test_page_tree_value_data1,
+	          14,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_tree_value_read_data(
+	          page_tree_value,
+	          NULL,
+	          14,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_tree_value_read_data(
+	          page_tree_value,
+	          esedb_test_page_tree_value_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_tree_value_read_data(
+	          page_tree_value,
+	          esedb_test_page_tree_value_data1,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_page_tree_value_free(
+	          &page_tree_value,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "page_tree_value",
+	 page_tree_value );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( page_tree_value != NULL )
+	{
+		libesedb_page_tree_value_free(
+		 &page_tree_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -297,7 +461,9 @@ int main(
 	 "libesedb_page_tree_value_free",
 	 esedb_test_page_tree_value_free );
 
-	/* TODO: add tests for libesedb_page_tree_value_read_data */
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_value_read_data",
+	 esedb_test_page_tree_value_read_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

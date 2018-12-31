@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_RECORD_H )
-#define _LIBESEDB_INTERNAL_RECORD_H
+#if !defined( _LIBESEDB_RECORD_H )
+#define _LIBESEDB_RECORD_H
 
 #include <common.h>
 #include <types.h>
@@ -339,5 +339,5 @@ int libesedb_record_get_multi_value(
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_INTERNAL_RECORD_H ) */
+#endif /* !defined( _LIBESEDB_RECORD_H ) */
 

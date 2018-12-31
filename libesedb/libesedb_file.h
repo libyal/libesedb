@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_FILE_H )
-#define _LIBESEDB_INTERNAL_FILE_H
+#if !defined( _LIBESEDB_FILE_H )
+#define _LIBESEDB_FILE_H
 
 #include <common.h>
 #include <types.h>
@@ -188,5 +188,5 @@ int libesedb_file_get_table_by_utf16_name(
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_INTERNAL_FILE_H ) */
+#endif /* !defined( _LIBESEDB_FILE_H ) */
 

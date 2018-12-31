@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_UNUSED_H )
-#define _LIBESEDB_INTERNAL_UNUSED_H
+#if !defined( _LIBESEDB_UNUSED_H )
+#define _LIBESEDB_UNUSED_H
 
 #include <common.h>
 
@@ -40,5 +40,5 @@
 	/* parameter */
 #endif
 
-#endif /* !defined( _LIBESEDB_INTERNAL_UNUSED_H ) */
+#endif /* !defined( _LIBESEDB_UNUSED_H ) */
 

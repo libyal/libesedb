@@ -150,6 +150,7 @@ int libesedb_page_header_read_data(
 	size_t data_offset           = 0;
 	size_t minimum_data_size     = 0;
 	uint16_t available_data_size = 0;
+	uint8_t has_extended_header  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint64_t value_64bit         = 0;
@@ -194,7 +195,8 @@ int libesedb_page_header_read_data(
 	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
 	 && ( io_handle->page_size >= 16384 ) )
 	{
-		minimum_data_size += sizeof( esedb_extended_page_header_t );
+		minimum_data_size  += sizeof( esedb_extended_page_header_t );
+		has_extended_header = 1;
 	}
 	if( ( data_size < minimum_data_size )
 	 || ( data_size > (size_t) SSIZE_MAX ) )
@@ -244,8 +246,7 @@ int libesedb_page_header_read_data(
 
 	/* Make sure to read after the page flags
 	 */
-	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-	 && ( io_handle->page_size >= 16384 ) )
+	if( has_extended_header != 0 )
 	{
 /* TODO store checksum into page header */
 	}
@@ -272,8 +273,7 @@ int libesedb_page_header_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
-		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-		 && ( io_handle->page_size >= 16384 ) )
+		if( has_extended_header != 0 )
 		{
 /* TODO print checksum from page header */
 
@@ -370,8 +370,7 @@ int libesedb_page_header_read_data(
 
 	data_offset = sizeof( esedb_page_header_t );
 
-	if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-	 && ( io_handle->page_size >= 16384 ) )
+	if( has_extended_header != 0 )
 	{
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )

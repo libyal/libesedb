@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_INTERNAL_MULTI_VALUE_H )
-#define _LIBESEDB_INTERNAL_MULTI_VALUE_H
+#if !defined( _LIBESEDB_MULTI_VALUE_H )
+#define _LIBESEDB_MULTI_VALUE_H
 
 #include <common.h>
 #include <types.h>
@@ -209,5 +209,5 @@ int libesedb_multi_value_get_value_binary_data(
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_INTERNAL_MULTI_VALUE_H ) */
+#endif /* !defined( _LIBESEDB_MULTI_VALUE_H ) */
 

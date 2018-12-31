@@ -35,6 +35,9 @@
 
 #include "../libesedb/libesedb_space_tree_value.h"
 
+uint8_t esedb_test_space_tree_value_data1[ 10 ] = {
+	0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00 };
+
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 /* Tests the libesedb_space_tree_value_initialize function
@@ -270,6 +273,162 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_space_tree_value_read_data function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_space_tree_value_read_data(
+     void )
+{
+	libcerror_error_t *error                      = NULL;
+	libesedb_space_tree_value_t *space_tree_value = NULL;
+	int result                                    = 0;
+
+	/* Initialize test
+	 */
+	result = libesedb_space_tree_value_initialize(
+	          &space_tree_value,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "space_tree_value",
+	 space_tree_value );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libesedb_space_tree_value_read_data(
+	          space_tree_value,
+	          esedb_test_space_tree_value_data1,
+	          10,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_space_tree_value_read_data(
+	          NULL,
+	          esedb_test_space_tree_value_data1,
+	          10,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_space_tree_value_read_data(
+	          space_tree_value,
+	          NULL,
+	          10,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_space_tree_value_read_data(
+	          space_tree_value,
+	          esedb_test_space_tree_value_data1,
+	          (size_t) SSIZE_MAX + 1,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_space_tree_value_read_data(
+	          space_tree_value,
+	          esedb_test_space_tree_value_data1,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Clean up
+	 */
+	result = libesedb_space_tree_value_free(
+	          &space_tree_value,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "space_tree_value",
+	 space_tree_value );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( space_tree_value != NULL )
+	{
+		libesedb_space_tree_value_free(
+		 &space_tree_value,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -297,7 +456,9 @@ int main(
 	 "libesedb_space_tree_value_free",
 	 esedb_test_space_tree_value_free );
 
-	/* TODO: add tests for libesedb_space_tree_value_read_data */
+	ESEDB_TEST_RUN(
+	 "libesedb_space_tree_value_read_data",
+	 esedb_test_space_tree_value_read_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
