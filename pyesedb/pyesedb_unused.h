@@ -1,7 +1,7 @@
 /*
- * The internal unused definition
+ * Definitions to silence compiler warnings about unused function attributes/parameters.
  *
- * Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -19,8 +19,8 @@
  * along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if !defined( _PYESEDB_INTERNAL_UNUSED_H )
-#define _PYESEDB_INTERNAL_UNUSED_H
+#if !defined( _PYESEDB_UNUSED_H )
+#define _PYESEDB_UNUSED_H
 
 #include <common.h>
 
@@ -40,5 +40,5 @@
 	/* parameter */
 #endif
 
-#endif /* !defined( _PYESEDB_INTERNAL_UNUSED_H ) */
+#endif /* !defined( _PYESEDB_UNUSED_H ) */
 
