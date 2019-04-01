@@ -159,6 +159,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libcdata\libcdata_btree_node.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcdata\libcdata_btree_values_list.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libcdata\libcdata_error.c"
 				>
 			</File>
@@ -198,6 +206,14 @@
 			</File>
 			<File
 				RelativePath="..\..\libcdata\libcdata_btree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcdata\libcdata_btree_node.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libcdata\libcdata_btree_values_list.h"
 				>
 			</File>
 			<File
