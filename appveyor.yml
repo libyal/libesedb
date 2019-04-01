@@ -68,11 +68,13 @@ environment:
     CONFIGURE_OPTIONS: "--enable-python2"
     CFLAGS: "--coverage"
     LDFLAGS: "--coverage"
+    PYTHON_VERSION: 2
   - TARGET: cygwin-gcc-python3
     BUILD_ENVIRONMENT: cygwin
     CONFIGURE_OPTIONS: "--enable-python3"
     CFLAGS: "--coverage"
     LDFLAGS: "--coverage"
+    PYTHON_VERSION: 3
   - TARGET: cygwin-gcc-static-executables
     BUILD_ENVIRONMENT: cygwin
     CONFIGURE_OPTIONS: "--enable-static-executables"
@@ -99,11 +101,13 @@ environment:
     CONFIGURE_OPTIONS: "--enable-python2"
     CFLAGS: "--coverage"
     LDFLAGS: "--coverage"
+    PYTHON_VERSION: 2
   - TARGET: cygwin64-gcc-python3
     BUILD_ENVIRONMENT: cygwin64
     CONFIGURE_OPTIONS: "--enable-python3"
     CFLAGS: "--coverage"
     LDFLAGS: "--coverage"
+    PYTHON_VERSION: 3
   - TARGET: cygwin64-gcc-static-executables
     BUILD_ENVIRONMENT: cygwin64
     CONFIGURE_OPTIONS: "--enable-static-executables"
@@ -120,6 +124,11 @@ environment:
     CFLAGS: "--coverage -O0"
     CPPFLAGS: "-DOPTIMIZATION_DISABLED"
     LDFLAGS: "--coverage"
+  - TARGET: mingw-gcc-static-executables
+    BUILD_ENVIRONMENT: mingw
+    CONFIGURE_OPTIONS: "--enable-static-executables"
+    CFLAGS: "--coverage"
+    LDFLAGS: "--coverage"
   - TARGET: mingw-w64-gcc
     BUILD_ENVIRONMENT: mingw-w64
     CONFIGURE_OPTIONS: ""
@@ -130,6 +139,11 @@ environment:
     CONFIGURE_OPTIONS: "--enable-shared=no"
     CFLAGS: "--coverage -O0"
     CPPFLAGS: "-DOPTIMIZATION_DISABLED"
+    LDFLAGS: "--coverage"
+  - TARGET: mingw-w64-gcc-static-executables
+    BUILD_ENVIRONMENT: mingw-w64
+    CONFIGURE_OPTIONS: "--enable-static-executables"
+    CFLAGS: "--coverage"
     LDFLAGS: "--coverage"
 
 matrix:
@@ -192,13 +206,13 @@ test_script:
 - ps: If ($env:BUILD_ENVIRONMENT -eq "msbuild") {
     .\runtests.ps1 }
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin] (
-    C:\cygwin\bin\bash -e -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1 || if test $? -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi" )
+    C:\cygwin\bin\bash -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1; RESULT=$?; if test ${RESULT} -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi; exit ${RESULT};" )
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin64] (
-    C:\cygwin64\bin\bash -e -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1 || if test $? -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi" )
+    C:\cygwin64\bin\bash -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1; RESULT=$?; if test ${RESULT} -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi; exit ${RESULT};" )
 - cmd: if [%BUILD_ENVIRONMENT%]==[mingw] (
-    C:\MinGW\msys\1.0\bin\bash -e -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1 || if test $? -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi" )
+    C:\MinGW\msys\1.0\bin\bash -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1; RESULT=$?; if test ${RESULT} -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi; exit ${RESULT};" )
 - cmd: if [%BUILD_ENVIRONMENT%]==[mingw-w64] (
-    C:\msys64\usr\bin\bash -e -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1 || if test $? -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi" )
+    C:\msys64\usr\bin\bash -l -c "cd libesedb && ./configure ${CONFIGURE_OPTIONS} && make > /dev/null && make check CHECK_WITH_STDERR=1; RESULT=$?; if test ${RESULT} -ne 0 && test -f tests/test-suite.log; then cat tests/test-suite.log; fi; exit ${RESULT};" )
 
 after_test:
 - cmd: if [%TARGET%]==[mingw-gcc-no-optimization] (

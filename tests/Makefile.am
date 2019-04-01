@@ -36,6 +36,7 @@ check_SCRIPTS = \
 	test_esedbexport.sh \
 	test_esedbinfo.sh \
 	test_library.sh \
+	test_manpage.sh \
 	test_python_module.sh \
 	test_runner.sh
 

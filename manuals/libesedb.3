@@ -1,11 +1,9 @@
-.Dd January 21, 2017
+.Dd April  1, 2019
 .Dt libesedb 3
 .Os libesedb
 .Sh NAME
 .Nm libesedb.h
 .Nd Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
-.Sh LIBRARY
-.Lb libesedb
 .Sh SYNOPSIS
 .In libesedb.h
 .Pp
@@ -15,27 +13,27 @@ Support functions
 .Ft int
 .Fn libesedb_get_access_flags_read "void"
 .Ft int
-.Fn libesedb_get_codepage "int *codepage, libesedb_error_t **error"
+.Fn libesedb_get_codepage "int *codepage" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_set_codepage "int codepage, libesedb_error_t **error"
+.Fn libesedb_set_codepage "int codepage" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_check_file_signature "const char *filename, libesedb_error_t **error"
+.Fn libesedb_check_file_signature "const char *filename" "libesedb_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libesedb_check_file_signature_wide "const wchar_t *filename, libesedb_error_t **error"
+.Fn libesedb_check_file_signature_wide "const wchar_t *filename" "libesedb_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libesedb_check_file_signature_file_io_handle "libbfio_handle_t *bfio_handle, libesedb_error_t **error"
+.Fn libesedb_check_file_signature_file_io_handle "libbfio_handle_t *bfio_handle" "libesedb_error_t **error"
 .Pp
 Notify functions
 .Ft void
 .Fn libesedb_notify_set_verbose "int verbose"
 .Ft int
-.Fn libesedb_notify_set_stream "FILE *stream, libesedb_error_t **error"
+.Fn libesedb_notify_set_stream "FILE *stream" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_notify_stream_open "const char *filename, libesedb_error_t **error"
+.Fn libesedb_notify_stream_open "const char *filename" "libesedb_error_t **error"
 .Ft int
 .Fn libesedb_notify_stream_close "libesedb_error_t **error"
 .Pp
@@ -43,237 +41,237 @@ Error functions
 .Ft void
 .Fn libesedb_error_free "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_error_fprint "libesedb_error_t *error, FILE *stream"
+.Fn libesedb_error_fprint "libesedb_error_t *error" "FILE *stream"
 .Ft int
-.Fn libesedb_error_sprint "libesedb_error_t *error, char *string, size_t size"
+.Fn libesedb_error_sprint "libesedb_error_t *error" "char *string" "size_t size"
 .Ft int
-.Fn libesedb_error_backtrace_fprint "libesedb_error_t *error, FILE *stream"
+.Fn libesedb_error_backtrace_fprint "libesedb_error_t *error" "FILE *stream"
 .Ft int
-.Fn libesedb_error_backtrace_sprint "libesedb_error_t *error, char *string, size_t size"
+.Fn libesedb_error_backtrace_sprint "libesedb_error_t *error" "char *string" "size_t size"
 .Pp
 File functions
 .Ft int
-.Fn libesedb_file_initialize "libesedb_file_t **file, libesedb_error_t **error"
+.Fn libesedb_file_initialize "libesedb_file_t **file" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_free "libesedb_file_t **file, libesedb_error_t **error"
+.Fn libesedb_file_free "libesedb_file_t **file" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_signal_abort "libesedb_file_t *file, libesedb_error_t **error"
+.Fn libesedb_file_signal_abort "libesedb_file_t *file" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_open "libesedb_file_t *file, const char *filename, int access_flags, libesedb_error_t **error"
+.Fn libesedb_file_open "libesedb_file_t *file" "const char *filename" "int access_flags" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_close "libesedb_file_t *file, libesedb_error_t **error"
+.Fn libesedb_file_close "libesedb_file_t *file" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_type "libesedb_file_t *file, uint32_t *type, libesedb_error_t **error"
+.Fn libesedb_file_get_type "libesedb_file_t *file" "uint32_t *type" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_format_version "libesedb_file_t *file, uint32_t *format_version, uint32_t *format_revision, libesedb_error_t **error"
+.Fn libesedb_file_get_format_version "libesedb_file_t *file" "uint32_t *format_version" "uint32_t *format_revision" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_creation_format_version "libesedb_file_t *file, uint32_t *format_version, uint32_t *format_revision, libesedb_error_t **error"
+.Fn libesedb_file_get_creation_format_version "libesedb_file_t *file" "uint32_t *format_version" "uint32_t *format_revision" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_page_size "libesedb_file_t *file, uint32_t *page_size, libesedb_error_t **error"
+.Fn libesedb_file_get_page_size "libesedb_file_t *file" "uint32_t *page_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_number_of_tables "libesedb_file_t *file, int *number_of_tables, libesedb_error_t **error"
+.Fn libesedb_file_get_number_of_tables "libesedb_file_t *file" "int *number_of_tables" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_table "libesedb_file_t *file, int table_entry, libesedb_table_t **table, libesedb_error_t **error"
+.Fn libesedb_file_get_table "libesedb_file_t *file" "int table_entry" "libesedb_table_t **table" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_table_by_utf8_name "libesedb_file_t *file, const uint8_t *utf8_string, size_t utf8_string_length, libesedb_table_t **table, libesedb_error_t **error"
+.Fn libesedb_file_get_table_by_utf8_name "libesedb_file_t *file" "const uint8_t *utf8_string" "size_t utf8_string_length" "libesedb_table_t **table" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_file_get_table_by_utf16_name "libesedb_file_t *file, const uint16_t *utf16_string, size_t utf16_string_length, libesedb_table_t **table, libesedb_error_t **error"
+.Fn libesedb_file_get_table_by_utf16_name "libesedb_file_t *file" "const uint16_t *utf16_string" "size_t utf16_string_length" "libesedb_table_t **table" "libesedb_error_t **error"
 .Pp
 Available when compiled with wide character string support:
 .Ft int
-.Fn libesedb_file_open_wide "libesedb_file_t *file, const wchar_t *filename, int access_flags, libesedb_error_t **error"
+.Fn libesedb_file_open_wide "libesedb_file_t *file" "const wchar_t *filename" "int access_flags" "libesedb_error_t **error"
 .Pp
 Available when compiled with libbfio support:
 .Ft int
-.Fn libesedb_file_open_file_io_handle "libesedb_file_t *file, libbfio_handle_t *file_io_handle, int access_flags, libesedb_error_t **error"
+.Fn libesedb_file_open_file_io_handle "libesedb_file_t *file" "libbfio_handle_t *file_io_handle" "int access_flags" "libesedb_error_t **error"
 .Pp
 Table functions
 .Ft int
-.Fn libesedb_table_free "libesedb_table_t **table, libesedb_error_t **error"
+.Fn libesedb_table_free "libesedb_table_t **table" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_identifier "libesedb_table_t *table, uint32_t *identifier, libesedb_error_t **error"
+.Fn libesedb_table_get_identifier "libesedb_table_t *table" "uint32_t *identifier" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf8_name_size "libesedb_table_t *table, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf8_name_size "libesedb_table_t *table" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf8_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf8_name "libesedb_table_t *table" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf16_name_size "libesedb_table_t *table, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf16_name_size "libesedb_table_t *table" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf16_name "libesedb_table_t *table, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf16_name "libesedb_table_t *table" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf8_template_name_size "libesedb_table_t *table, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf8_template_name_size "libesedb_table_t *table" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf8_template_name "libesedb_table_t *table, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf8_template_name "libesedb_table_t *table" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf16_template_name_size "libesedb_table_t *table, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf16_template_name_size "libesedb_table_t *table" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_utf16_template_name "libesedb_table_t *table, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_table_get_utf16_template_name "libesedb_table_t *table" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_number_of_columns "libesedb_table_t *table, int *number_of_columns, uint8_t flags, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_columns "libesedb_table_t *table" "int *number_of_columns" "uint8_t flags" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_column "libesedb_table_t *table, int column_entry, libesedb_column_t **column, uint8_t flags, libesedb_error_t **error"
+.Fn libesedb_table_get_column "libesedb_table_t *table" "int column_entry" "libesedb_column_t **column" "uint8_t flags" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_number_of_indexes "libesedb_table_t *table, int *number_of_indexes, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_indexes "libesedb_table_t *table" "int *number_of_indexes" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_index "libesedb_table_t *table, int index_entry, libesedb_index_t **index, libesedb_error_t **error"
+.Fn libesedb_table_get_index "libesedb_table_t *table" "int index_entry" "libesedb_index_t **index" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_number_of_records "libesedb_table_t *table, int *number_of_records, libesedb_error_t **error"
+.Fn libesedb_table_get_number_of_records "libesedb_table_t *table" "int *number_of_records" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_table_get_record "libesedb_table_t *table, int record_entry, libesedb_record_t **record, libesedb_error_t **error"
+.Fn libesedb_table_get_record "libesedb_table_t *table" "int record_entry" "libesedb_record_t **record" "libesedb_error_t **error"
 .Pp
 Column functions
 .Ft int
-.Fn libesedb_column_free "libesedb_column_t **column, libesedb_error_t **error"
+.Fn libesedb_column_free "libesedb_column_t **column" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_identifier "libesedb_column_t *column, uint32_t *identifier, libesedb_error_t **error"
+.Fn libesedb_column_get_identifier "libesedb_column_t *column" "uint32_t *identifier" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_type "libesedb_column_t *column, uint32_t *type, libesedb_error_t **error"
+.Fn libesedb_column_get_type "libesedb_column_t *column" "uint32_t *type" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_utf8_name_size "libesedb_column_t *column, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_column_get_utf8_name_size "libesedb_column_t *column" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_utf8_name "libesedb_column_t *column, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_column_get_utf8_name "libesedb_column_t *column" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_utf16_name_size "libesedb_column_t *column, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_column_get_utf16_name_size "libesedb_column_t *column" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_column_get_utf16_name "libesedb_column_t *column, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_column_get_utf16_name "libesedb_column_t *column" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Pp
 Index functions
 .Ft int
-.Fn libesedb_index_free "libesedb_index_t **index, libesedb_error_t **error"
+.Fn libesedb_index_free "libesedb_index_t **index" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_identifier "libesedb_index_t *index, uint32_t *identifier, libesedb_error_t **error"
+.Fn libesedb_index_get_identifier "libesedb_index_t *index" "uint32_t *identifier" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_utf8_name_size "libesedb_index_t *index, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_index_get_utf8_name_size "libesedb_index_t *index" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_utf8_name "libesedb_index_t *index, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_index_get_utf8_name "libesedb_index_t *index" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_utf16_name_size "libesedb_index_t *index, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_index_get_utf16_name_size "libesedb_index_t *index" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_utf16_name "libesedb_index_t *index, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_index_get_utf16_name "libesedb_index_t *index" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_number_of_records "libesedb_index_t *index, int *number_of_records, libesedb_error_t **error"
+.Fn libesedb_index_get_number_of_records "libesedb_index_t *index" "int *number_of_records" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_index_get_record "libesedb_index_t *index, int record_entry, libesedb_record_t **record, libesedb_error_t **error"
+.Fn libesedb_index_get_record "libesedb_index_t *index" "int record_entry" "libesedb_record_t **record" "libesedb_error_t **error"
 .Pp
 Record (row) functions
 .Ft int
-.Fn libesedb_record_free "libesedb_record_t **record, libesedb_error_t **error"
+.Fn libesedb_record_free "libesedb_record_t **record" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_number_of_values "libesedb_record_t *record, int *number_of_values, libesedb_error_t **error"
+.Fn libesedb_record_get_number_of_values "libesedb_record_t *record" "int *number_of_values" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_column_identifier "libesedb_record_t *record, int value_entry, uint32_t *column_identifier, libesedb_error_t **error"
+.Fn libesedb_record_get_column_identifier "libesedb_record_t *record" "int value_entry" "uint32_t *column_identifier" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_column_type "libesedb_record_t *record, int value_entry, uint32_t *column_type, libesedb_error_t **error"
+.Fn libesedb_record_get_column_type "libesedb_record_t *record" "int value_entry" "uint32_t *column_type" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_utf8_column_name_size "libesedb_record_t *record, int value_entry, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_utf8_column_name_size "libesedb_record_t *record" "int value_entry" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_utf8_column_name "libesedb_record_t *record, int value_entry, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_utf8_column_name "libesedb_record_t *record" "int value_entry" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_utf16_column_name_size "libesedb_record_t *record, int value_entry, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_utf16_column_name_size "libesedb_record_t *record" "int value_entry" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_utf16_column_name "libesedb_record_t *record, int value_entry, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_utf16_column_name "libesedb_record_t *record" "int value_entry" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_data_size "libesedb_record_t *record, int value_entry, size_t *value_data_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_data_size "libesedb_record_t *record" "int value_entry" "size_t *value_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_data "libesedb_record_t *record, int value_entry, uint8_t *value_data, size_t value_data_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_data "libesedb_record_t *record" "int value_entry" "uint8_t *value_data" "size_t value_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_data_flags "libesedb_record_t *record, int value_entry, uint8_t *value_data_flags, libesedb_error_t **error"
+.Fn libesedb_record_get_value_data_flags "libesedb_record_t *record" "int value_entry" "uint8_t *value_data_flags" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_boolean "libesedb_record_t *record, int value_entry, uint8_t *value_boolean, libesedb_error_t **error"
+.Fn libesedb_record_get_value_boolean "libesedb_record_t *record" "int value_entry" "uint8_t *value_boolean" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_8bit "libesedb_record_t *record, int value_entry, uint8_t *value_8bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_8bit "libesedb_record_t *record" "int value_entry" "uint8_t *value_8bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_16bit "libesedb_record_t *record, int value_entry, uint16_t *value_16bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_16bit "libesedb_record_t *record" "int value_entry" "uint16_t *value_16bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_32bit "libesedb_record_t *record, int value_entry, uint32_t *value_32bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_32bit "libesedb_record_t *record" "int value_entry" "uint32_t *value_32bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_64bit "libesedb_record_t *record, int value_entry, uint64_t *value_64bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_64bit "libesedb_record_t *record" "int value_entry" "uint64_t *value_64bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_filetime "libesedb_record_t *record, int value_entry, uint64_t *value_filetime, libesedb_error_t **error"
+.Fn libesedb_record_get_value_filetime "libesedb_record_t *record" "int value_entry" "uint64_t *value_filetime" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_floating_point_32bit "libesedb_record_t *record, int value_entry, float *value_floating_point_32bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_floating_point_32bit "libesedb_record_t *record" "int value_entry" "float *value_floating_point_32bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_floating_point_64bit "libesedb_record_t *record, int value_entry, double *value_floating_point_64bit, libesedb_error_t **error"
+.Fn libesedb_record_get_value_floating_point_64bit "libesedb_record_t *record" "int value_entry" "double *value_floating_point_64bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_utf8_string_size "libesedb_record_t *record, int value_entry, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_utf8_string_size "libesedb_record_t *record" "int value_entry" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_utf8_string "libesedb_record_t *record, int value_entry, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_utf8_string "libesedb_record_t *record" "int value_entry" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_utf16_string_size "libesedb_record_t *record, int value_entry, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_utf16_string_size "libesedb_record_t *record" "int value_entry" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_utf16_string "libesedb_record_t *record, int value_entry, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_utf16_string "libesedb_record_t *record" "int value_entry" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_binary_data_size "libesedb_record_t *record, int value_entry, size_t *binary_data_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_binary_data_size "libesedb_record_t *record" "int value_entry" "size_t *binary_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_value_binary_data "libesedb_record_t *record, int value_entry, uint8_t *binary_data, size_t binary_data_size, libesedb_error_t **error"
+.Fn libesedb_record_get_value_binary_data "libesedb_record_t *record" "int value_entry" "uint8_t *binary_data" "size_t binary_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_is_long_value "libesedb_record_t *record, int value_entry, libesedb_error_t **error"
+.Fn libesedb_record_is_long_value "libesedb_record_t *record" "int value_entry" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_is_multi_value "libesedb_record_t *record, int value_entry, libesedb_error_t **error"
+.Fn libesedb_record_is_multi_value "libesedb_record_t *record" "int value_entry" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_long_value "libesedb_record_t *record, int value_entry, libesedb_long_value_t **long_value, libesedb_error_t **error"
+.Fn libesedb_record_get_long_value "libesedb_record_t *record" "int value_entry" "libesedb_long_value_t **long_value" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_record_get_multi_value "libesedb_record_t *record, int value_entry, libesedb_multi_value_t **multi_value, libesedb_error_t **error"
+.Fn libesedb_record_get_multi_value "libesedb_record_t *record" "int value_entry" "libesedb_multi_value_t **multi_value" "libesedb_error_t **error"
 .Pp
 Long value functions
 .Ft int
-.Fn libesedb_long_value_free "libesedb_long_value_t **long_value, libesedb_error_t **error"
+.Fn libesedb_long_value_free "libesedb_long_value_t **long_value" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_data_size "libesedb_long_value_t *long_value, size64_t *data_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_data_size "libesedb_long_value_t *long_value" "size64_t *data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_data "libesedb_long_value_t *long_value, uint8_t *data, size_t data_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_data "libesedb_long_value_t *long_value" "uint8_t *data" "size_t data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_number_of_data_segments "libesedb_long_value_t *long_value, int *number_of_data_segments, libesedb_error_t **error"
+.Fn libesedb_long_value_get_number_of_data_segments "libesedb_long_value_t *long_value" "int *number_of_data_segments" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_data_segment_size "libesedb_long_value_t *long_value, int data_segment_index, size_t *data_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_data_segment_size "libesedb_long_value_t *long_value" "int data_segment_index" "size_t *data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_data_segment "libesedb_long_value_t *long_value, int data_segment_index, uint8_t *data_segment, size_t data_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_data_segment "libesedb_long_value_t *long_value" "int data_segment_index" "uint8_t *data_segment" "size_t data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_utf8_string_size "libesedb_long_value_t *long_value, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_utf8_string_size "libesedb_long_value_t *long_value" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_utf8_string "libesedb_long_value_t *long_value, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_utf8_string "libesedb_long_value_t *long_value" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_utf16_string_size "libesedb_long_value_t *long_value, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_utf16_string_size "libesedb_long_value_t *long_value" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_long_value_get_utf16_string "libesedb_long_value_t *long_value, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_long_value_get_utf16_string "libesedb_long_value_t *long_value" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Pp
 Multi value functions
 .Ft int
-.Fn libesedb_multi_value_free "libesedb_multi_value_t **multi_value, libesedb_error_t **error"
+.Fn libesedb_multi_value_free "libesedb_multi_value_t **multi_value" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_column_type "libesedb_multi_value_t *multi_value, uint32_t *column_type, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_column_type "libesedb_multi_value_t *multi_value" "uint32_t *column_type" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_number_of_values "libesedb_multi_value_t *multi_value, int *number_of_values, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_number_of_values "libesedb_multi_value_t *multi_value" "int *number_of_values" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_data_size "libesedb_multi_value_t *multi_value, int value_entry, size_t *value_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_data_size "libesedb_multi_value_t *multi_value" "int value_entry" "size_t *value_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_data "libesedb_multi_value_t *multi_value, int value_entry, uint8_t *value_data, size_t value_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_data "libesedb_multi_value_t *multi_value" "int value_entry" "uint8_t *value_data" "size_t value_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_8bit "libesedb_multi_value_t *multi_value, int multi_value_index, uint8_t *value_8bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_8bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint8_t *value_8bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_16bit "libesedb_multi_value_t *multi_value, int multi_value_index, uint16_t *value_16bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_16bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint16_t *value_16bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_32bit "libesedb_multi_value_t *multi_value, int multi_value_index, uint32_t *value_32bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_32bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint32_t *value_32bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_64bit "libesedb_multi_value_t *multi_value, int multi_value_index, uint64_t *value_64bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_64bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint64_t *value_64bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_floating_point_32bit "libesedb_multi_value_t *multi_value, int multi_value_index, float *value_32bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_floating_point_32bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "float *value_32bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_floating_point_64bit "libesedb_multi_value_t *multi_value, int multi_value_index, double *value_64bit, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_floating_point_64bit "libesedb_multi_value_t *multi_value" "int multi_value_index" "double *value_64bit" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_filetime "libesedb_multi_value_t *multi_value, int multi_value_index, uint64_t *value_filetime, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_filetime "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint64_t *value_filetime" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_utf8_string_size "libesedb_multi_value_t *multi_value, int multi_value_index, size_t *utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_utf8_string_size "libesedb_multi_value_t *multi_value" "int multi_value_index" "size_t *utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_utf8_string "libesedb_multi_value_t *multi_value, int multi_value_index, uint8_t *utf8_string, size_t utf8_string_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_utf8_string "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint8_t *utf8_string" "size_t utf8_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_utf16_string_size "libesedb_multi_value_t *multi_value, int multi_value_index, size_t *utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_utf16_string_size "libesedb_multi_value_t *multi_value" "int multi_value_index" "size_t *utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_utf16_string "libesedb_multi_value_t *multi_value, int multi_value_index, uint16_t *utf16_string, size_t utf16_string_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_utf16_string "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint16_t *utf16_string" "size_t utf16_string_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_binary_data_size "libesedb_multi_value_t *multi_value, int multi_value_index, size_t *binary_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_binary_data_size "libesedb_multi_value_t *multi_value" "int multi_value_index" "size_t *binary_data_size" "libesedb_error_t **error"
 .Ft int
-.Fn libesedb_multi_value_get_value_binary_data "libesedb_multi_value_t *multi_value, int multi_value_index, uint8_t *binary_data, size_t binary_data_size, libesedb_error_t **error"
+.Fn libesedb_multi_value_get_value_binary_data "libesedb_multi_value_t *multi_value" "int multi_value_index" "uint8_t *binary_data" "size_t binary_data_size" "libesedb_error_t **error"
 .Sh DESCRIPTION
 The
 .Fn libesedb_get_version
@@ -286,8 +284,8 @@ None
 .Sh FILES
 None
 .Sh NOTES
-libesedb allows to be compiled with wide character support (wchar_t).
-
+libesedb can be compiled with wide character support (wchar_t).
+.sp
 To compile libesedb with wide character support use:
 .Ar ./configure --enable-wide-character-type=yes
  or define:
@@ -295,7 +293,7 @@ To compile libesedb with wide character support use:
  or
 .Ar UNICODE
  during compilation.
-
+.sp
 .Ar LIBESEDB_WIDE_CHARACTER_TYPE
  in libesedb/features.h can be used to determine if libesedb was compiled with wide character support.
 .Sh BUGS
@@ -304,7 +302,7 @@ Please report bugs of any kind on the project issue tracker: https://github.com/
 These man pages are generated from "libesedb.h".
 .Sh COPYRIGHT
 Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>.
-
+.sp
 This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .Sh SEE ALSO

@@ -13,6 +13,14 @@ BuildRequires: gcc @ax_libbfio_spec_build_requires@ @ax_libcdata_spec_build_requ
 %description -n libesedb
 Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
 
+%package -n libesedb-static
+Summary: Library to access the Extensible Storage Engine (ESE) Database File (EDB) format
+Group: Development/Libraries
+Requires: libesedb = %{version}-%{release}
+
+%description -n libesedb-static
+Static library version of libesedb.
+
 %package -n libesedb-devel
 Summary: Header files and libraries for developing applications for libesedb
 Group: Development/Libraries
@@ -74,11 +82,16 @@ rm -rf %{buildroot}
 %doc AUTHORS README
 %attr(755,root,root) %{_libdir}/*.so.*
 
+%files -n libesedb-static
+%defattr(644,root,root,755)
+%license COPYING
+%doc AUTHORS README
+%attr(755,root,root) %{_libdir}/*.a
+
 %files -n libesedb-devel
 %defattr(644,root,root,755)
 %license COPYING
 %doc AUTHORS README
-%{_libdir}/*.a
 %{_libdir}/*.la
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/libesedb.pc

@@ -46,7 +46,7 @@ run_test_with_input()
 
 	if ! test -d "input";
 	then
-		echo "Test input directory: input not found.";
+		echo "Test input directory not found.";
 
 		return ${EXIT_IGNORE};
 	fi
@@ -54,7 +54,7 @@ run_test_with_input()
 
 	if test ${RESULT} -eq ${EXIT_SUCCESS};
 	then
-		echo "No files or directories found in the test input directory: input";
+		echo "No files or directories found in the test input directory";
 
 		return ${EXIT_IGNORE};
 	fi
