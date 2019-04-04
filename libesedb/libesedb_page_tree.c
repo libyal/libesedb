@@ -38,6 +38,7 @@
 #include "libesedb_page_tree.h"
 #include "libesedb_page_tree_value.h"
 #include "libesedb_space_tree_value.h"
+#include "libesedb_root_page_header.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_unused.h"
 
@@ -184,20 +185,14 @@ int libesedb_page_tree_read_root_page(
      uint32_t page_number,
      libcerror_error_t **error )
 {
-	libesedb_page_t *page             = NULL;
-	libesedb_page_value_t *page_value = NULL;
-	static char *function             = "libesedb_page_tree_read_root_page";
-	off64_t element_data_offset       = 0;
-	uint32_t extent_space             = 0;
-	uint32_t required_flags           = 0;
-	uint32_t supported_flags          = 0;
-	uint32_t space_tree_page_number   = 0;
-	uint16_t number_of_page_values    = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	uint32_t initial_number_of_pages  = 0;
-	uint32_t value_32bit              = 0;
-#endif
+	libesedb_page_t *page                         = NULL;
+	libesedb_page_value_t *page_value             = NULL;
+	libesedb_root_page_header_t *root_page_header = NULL;
+	static char *function                         = "libesedb_page_tree_read_root_page";
+	off64_t element_data_offset                   = 0;
+	uint32_t required_flags                       = 0;
+	uint32_t supported_flags                      = 0;
+	uint16_t number_of_page_values                = 0;
 
 	if( page_tree == NULL )
 	{
@@ -329,82 +324,39 @@ int libesedb_page_tree_read_root_page(
 
 		return( -1 );
 	}
-	if( page_value->data == NULL )
+	if( libesedb_root_page_header_initialize(
+	     &root_page_header,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page value - missing data.",
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create root page header.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	if( page_value->size != 16 )
+	if( libesedb_root_page_header_read_data(
+	     root_page_header,
+	     page_value->data,
+	     (size_t) page_value->size,
+	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported size of page value.",
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read root page header.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_root_page_header_t *) page_value->data )->space_tree_page_number,
-	 space_tree_page_number );
-
-/* TODO handle the root page header */
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_root_page_header_t *) page_value->data )->initial_number_of_pages,
-		 initial_number_of_pages );
-		libcnotify_printf(
-		 "%s: (header) initial number of pages\t: %" PRIu32 "\n",
-		 function,
-		 initial_number_of_pages );
-
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_root_page_header_t *) page_value->data )->parent_father_data_page_number,
-		 value_32bit );
-		libcnotify_printf(
-		 "%s: (header) parent FDP number\t\t: %" PRIu32 "\n",
-		 function,
-		 value_32bit );
-
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_root_page_header_t *) page_value->data )->extent_space,
-		 extent_space );
-		libcnotify_printf(
-		 "%s: (header) extent space\t\t: %" PRIu32 "\n",
-		 function,
-		 extent_space );
-
-		libcnotify_printf(
-		 "%s: (header) space tree page number\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
-		 function,
-		 space_tree_page_number,
-		 space_tree_page_number );
-
-		libcnotify_printf(
-		 "%s: (header) primary extent\t\t: %" PRIu32 "-%c\n",
-		 function,
-		 initial_number_of_pages,
-		 ( extent_space == 0 ? 's' : 'm' ) );
-
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
 	/* Read the space tree pages
 	 */
-	if( extent_space > 0 )
+	if( root_page_header->extent_space > 0 )
 	{
-		if( space_tree_page_number >= 0xff000000UL )
+		if( root_page_header->space_tree_page_number >= 0xff000000UL )
 		{
 			libcerror_error_set(
 			 error,
@@ -412,18 +364,18 @@ int libesedb_page_tree_read_root_page(
 			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
 			 "%s: unsupported space tree page number.",
 			 function,
-			 space_tree_page_number );
+			 root_page_header->space_tree_page_number );
 
-			return( -1 );
+			goto on_error;
 		}
-		if( space_tree_page_number > 0 )
+		if( root_page_header->space_tree_page_number > 0 )
 		{
 			/* Read the owned pages space tree page
 			 */
 			if( libesedb_page_tree_read_space_tree_page(
 			     page_tree,
 			     file_io_handle,
-			     space_tree_page_number,
+			     root_page_header->space_tree_page_number,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -432,18 +384,16 @@ int libesedb_page_tree_read_root_page(
 				 LIBCERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read space tree page: %" PRIu32 ".",
 				 function,
-				 space_tree_page_number );
+				 root_page_header->space_tree_page_number );
 
-				return( -1 );
+				goto on_error;
 			}
 			/* Read the available pages space tree page
 			 */
-			space_tree_page_number += 1;
-
 			if( libesedb_page_tree_read_space_tree_page(
 			     page_tree,
 			     file_io_handle,
-			     space_tree_page_number,
+			     root_page_header->space_tree_page_number + 1,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -452,13 +402,35 @@ int libesedb_page_tree_read_root_page(
 				 LIBCERROR_IO_ERROR_READ_FAILED,
 				 "%s: unable to read space tree page: %" PRIu32 ".",
 				 function,
-				 space_tree_page_number );
+				 root_page_header->space_tree_page_number + 1 );
 
-				return( -1 );
+				goto on_error;
 			}
 		}
 	}
+	if( libesedb_root_page_header_free(
+	     &root_page_header,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free root page header.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
+
+on_error:
+	if( root_page_header != NULL )
+	{
+		libesedb_root_page_header_free(
+		 &root_page_header,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the space tree page
@@ -846,6 +818,53 @@ on_error:
 		 &space_tree_value,
 		 NULL );
 	}
+	return( -1 );
+}
+
+/* Retrieves the first leaf page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_get_first_leaf_page(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     off64_t root_page_offset,
+     uint32_t root_page_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_tree_get_first_leaf_page";
+
+	if( page_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_tree_read_root_page(
+	     page_tree,
+	     file_io_handle,
+	     root_page_offset,
+	     root_page_number,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read root page: %" PRIu32 ".",
+		 function,
+		 root_page_number );
+
+		goto on_error;
+	}
+/* TODO implement */
+	return( 1 );
+
+on_error:
 	return( -1 );
 }
 

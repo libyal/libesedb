@@ -68,6 +68,7 @@ libesedb_la_SOURCES = \
 	libesedb_page_value.c libesedb_page_value.h \
 	libesedb_record.c libesedb_record.h \
 	libesedb_record_value.c libesedb_record_value.h \
+	libesedb_root_page_header.c libesedb_root_page_header.h \
 	libesedb_space_tree_value.c libesedb_space_tree_value.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \

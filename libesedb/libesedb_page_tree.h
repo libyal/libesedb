@@ -92,6 +92,13 @@ int libesedb_page_tree_read_space_tree_page(
      uint32_t page_number,
      libcerror_error_t **error );
 
+int libesedb_page_tree_get_first_leaf_page(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     off64_t root_page_offset,
+     uint32_t root_page_number,
+     libcerror_error_t **error );
+
 int libesedb_page_tree_read_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,

@@ -150,6 +150,7 @@ stamp-h[1-9]
 /tests/esedb_test_page_tree_value
 /tests/esedb_test_page_value
 /tests/esedb_test_record
+/tests/esedb_test_root_page_header
 /tests/esedb_test_space_tree_value
 /tests/esedb_test_support
 /tests/esedb_test_table
