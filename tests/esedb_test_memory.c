@@ -35,15 +35,15 @@
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
-static void *(*esedb_test_real_malloc)(size_t)                 = NULL;
-static void *(*esedb_test_real_memcpy)(void *, void *, size_t) = NULL;
-static void *(*esedb_test_real_memset)(void *, int, size_t)    = NULL;
-static void *(*esedb_test_real_realloc)(void *, size_t)        = NULL;
+static void *(*esedb_test_real_malloc)(size_t)                       = NULL;
+static void *(*esedb_test_real_memcpy)(void *, const void *, size_t) = NULL;
+static void *(*esedb_test_real_memset)(void *, int, size_t)          = NULL;
+static void *(*esedb_test_real_realloc)(void *, size_t)              = NULL;
 
-int esedb_test_malloc_attempts_before_fail                     = -1;
-int esedb_test_memcpy_attempts_before_fail                     = -1;
-int esedb_test_memset_attempts_before_fail                     = -1;
-int esedb_test_realloc_attempts_before_fail                    = -1;
+int esedb_test_malloc_attempts_before_fail                           = -1;
+int esedb_test_memcpy_attempts_before_fail                           = -1;
+int esedb_test_memset_attempts_before_fail                           = -1;
+int esedb_test_realloc_attempts_before_fail                          = -1;
 
 /* Custom malloc for testing memory error cases
  * Note this function might fail if compiled with optimation
@@ -82,7 +82,7 @@ void *malloc(
  */
 void *memcpy(
        void *destination,
-       void *source,
+       const void *source,
        size_t size )
 {
 	if( esedb_test_real_memcpy == NULL )
