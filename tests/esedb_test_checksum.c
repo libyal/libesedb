@@ -1223,7 +1223,7 @@ int esedb_test_checksum_calculate_little_endian_xor32(
 	          &checksum_value,
 	          &( esedb_test_checksum_page_0x620_0x09_data[ 4 ] ),
 	          8192 - 4,
-	          0x89abcdef,
+	          0x89abcdefUL,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -1244,7 +1244,7 @@ int esedb_test_checksum_calculate_little_endian_xor32(
 	          &checksum_value,
 	          &( esedb_test_checksum_page_0x620_0x09_data[ 5 ] ),
 	          8192 - 5,
-	          0x89abcdef,
+	          0x89abcdefUL,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
