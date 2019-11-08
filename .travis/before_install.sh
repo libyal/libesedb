@@ -22,7 +22,7 @@ then
 	sudo apt-mark hold mysql-server-5.7 postgresql-9.4 postgresql-client-9.4 postgresql-9.5 postgresql-client-9.5 postgresql-9.6 postgresql-client-9.6 postgresql-10 postgresql-client-10;
 	sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y --allow-unauthenticated;
 
-	sudo apt-get install -y autopoint;
+	sudo apt-get install -y autoconf automake autopoint build-essential git libtool pkg-config;
 
 elif test ${TRAVIS_OS_NAME} = "osx";
 then
