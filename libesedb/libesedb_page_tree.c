@@ -644,7 +644,8 @@ int libesedb_page_tree_read_space_tree_page(
 #endif
 	if( ( page->header->flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 	{
-		if( page_value->size != 16 )
+		if( ( page_value->size != 0 )
+		 && ( page_value->size != 16 ) )
 		{
 			libcerror_error_set(
 			 error,
