@@ -5,18 +5,18 @@
  *
  * Refer to AUTHORS for acknowledgements.
  *
- * This software is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This software is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with this software.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #if !defined( _LIBESEDB_INTERNAL_CODEPAGE_H )
@@ -29,14 +29,14 @@
 extern "C" {
 #endif
 
-#if !defined( HAVE_LOCAL_LIBESEDB )
-
-#include <libesedb/codepage.h>
-
 /* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
  * The definitions in <libesedb/codepage.h> are copied here
  * for local use of libesedb
  */
+#if !defined( HAVE_LOCAL_LIBESEDB )
+
+#include <libesedb/codepage.h>
+
 #else
 
 /* The codepage definitions
@@ -46,12 +46,6 @@ enum LIBESEDB_CODEPAGES
 	LIBESEDB_CODEPAGE_ASCII		= 20127,
 
 	LIBESEDB_CODEPAGE_ISO_8859_1	= 28591,
-	LIBESEDB_CODEPAGE_ISO_8859_10	= 28600,
-	LIBESEDB_CODEPAGE_ISO_8859_11	= 28601,
-	LIBESEDB_CODEPAGE_ISO_8859_13	= 28603,
-	LIBESEDB_CODEPAGE_ISO_8859_14	= 28604,
-	LIBESEDB_CODEPAGE_ISO_8859_15	= 28605,
-	LIBESEDB_CODEPAGE_ISO_8859_16	= 28606,
 	LIBESEDB_CODEPAGE_ISO_8859_2	= 28592,
 	LIBESEDB_CODEPAGE_ISO_8859_3	= 28593,
 	LIBESEDB_CODEPAGE_ISO_8859_4	= 28594,
@@ -60,6 +54,12 @@ enum LIBESEDB_CODEPAGES
 	LIBESEDB_CODEPAGE_ISO_8859_7	= 28597,
 	LIBESEDB_CODEPAGE_ISO_8859_8	= 28598,
 	LIBESEDB_CODEPAGE_ISO_8859_9	= 28599,
+	LIBESEDB_CODEPAGE_ISO_8859_10	= 28600,
+	LIBESEDB_CODEPAGE_ISO_8859_11	= 28601,
+	LIBESEDB_CODEPAGE_ISO_8859_13	= 28603,
+	LIBESEDB_CODEPAGE_ISO_8859_14	= 28604,
+	LIBESEDB_CODEPAGE_ISO_8859_15	= 28605,
+	LIBESEDB_CODEPAGE_ISO_8859_16	= 28606,
 
 	LIBESEDB_CODEPAGE_KOI8_R	= 20866,
 	LIBESEDB_CODEPAGE_KOI8_U	= 21866,

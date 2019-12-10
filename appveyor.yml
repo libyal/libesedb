@@ -39,16 +39,20 @@ environment:
     configuration: Release
   - TARGET: python27
     BUILD_ENVIRONMENT: python
-    PYTHON: "C:\\Python27"
+    PYTHON: "C:\\Python27\\python.exe"
   - TARGET: python27-x64
     BUILD_ENVIRONMENT: python
-    PYTHON: "C:\\Python27-x64"
+    PYTHON: "C:\\Python27-x64\\python.exe"
   - TARGET: python37
     BUILD_ENVIRONMENT: python
-    PYTHON: "C:\\Python37"
+    PYTHON: "C:\\Python37\\python.exe"
   - TARGET: python37-x64
     BUILD_ENVIRONMENT: python
-    PYTHON: "C:\\Python37-x64"
+    PYTHON: "C:\\Python37-x64\\python.exe"
+  - TARGET: python37-x64
+    BUILD_ENVIRONMENT: python
+    APPVEYOR_BUILD_WORKER_IMAGE: macOS-Mojave
+    PYTHON: "/usr/local/bin/python3.7"
   - TARGET: cygwin-gcc
     BUILD_ENVIRONMENT: cygwin
     CONFIGURE_OPTIONS: ""
@@ -152,15 +156,16 @@ install:
 - cmd: git clone https://github.com/codecov/codecov-bash.git ..\codecov-bash
 - cmd: if [%BUILD_ENVIRONMENT%]==[msbuild] (
     git clone https://github.com/libyal/vstools.git ..\vstools )
-- cmd: if [%BUILD_ENVIRONMENT%]==[python] (
-    "%PYTHON%\\python.exe" -m pip install -U pip setuptools twine wheel )
+- sh: if test ${BUILD_ENVIRONMENT} = "python"; then brew update && brew install gettext gnu-sed python3 && brew link --force gettext; fi
+- ps: If ($env:BUILD_ENVIRONMENT -eq "python") {
+    Invoke-Expression "${env:PYTHON} -m pip install -U pip setuptools twine wheel" }
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin] (
     C:\cygwin\setup-x86.exe -qgnNdO -l C:\cygwin\var\cache\setup -R c:\cygwin -s http://cygwin.mirror.constant.com -P python2-devel -P python3-devel )
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin64] (
     C:\cygwin64\setup-x86_64.exe -qgnNdO -l C:\cygwin64\var\cache\setup -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P python2-devel -P python3-devel )
 
 build_script:
-- ps: If ($env:BUILD_ENVIRONMENT -eq "msbuild" -or $env:BUILD_ENVIRONMENT -eq "python") {
+- ps: If ($env:BUILD_ENVIRONMENT -eq "msbuild" -or ($env:BUILD_ENVIRONMENT -eq "python" -and $isWindows)) {
     .\synclibs.ps1;
     .\autogen.ps1 }
 - cmd: if [%TARGET%]==[vs2008] (
@@ -187,7 +192,9 @@ build_script:
     msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=Win32 /property:PlatformToolset=v141 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" &&
     msbuild /verbosity:quiet vs2017\libesedb.sln /property:Platform=x64 /property:PlatformToolset=v141 /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" )
 - cmd: if [%BUILD_ENVIRONMENT%]==[python] (
-    "%PYTHON%\\python.exe" setup.py bdist_msi bdist_wheel )
+    "%PYTHON%" setup.py bdist_msi bdist_wheel )
+- sh: if test ${BUILD_ENVIRONMENT} = "python"; then ./synclibs.sh && ./autogen.sh; fi
+- sh: if test ${BUILD_ENVIRONMENT} = "python"; then ${PYTHON} setup.py bdist_wheel; fi
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin] (
     xcopy /i /q /s C:\projects\libesedb C:\cygwin\home\appveyor\libesedb &&
     C:\cygwin\bin\bash -e -l -c "cd libesedb && ./synclibs.sh --use-head && ./autogen.sh" )
@@ -224,5 +231,5 @@ artifacts:
 
 deploy_script:
 - ps: If ($env:APPVEYOR_REPO_TAG -eq "true") {
-    Invoke-Expression "${env:PYTHON}\\python.exe -m twine upload dist/*.whl --username __token__ --password ${env:PYPI_TOKEN} --skip-existing" }
+    Invoke-Expression "${env:PYTHON} -m twine upload dist/*.whl --username __token__ --password ${env:PYPI_TOKEN} --skip-existing" }
 
