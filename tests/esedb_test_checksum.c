@@ -1194,6 +1194,27 @@ int esedb_test_checksum_calculate_little_endian_ecc32(
 	libcerror_error_free(
 	 &error );
 
+	result = libesedb_checksum_calculate_little_endian_ecc32(
+	          &ecc_checksum_value,
+	          &xor_checksum_value,
+	          esedb_test_checksum_page_0x620_0x0c_data,
+	          8192,
+	          16384,
+	          10,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	return( 1 );
 
 on_error:

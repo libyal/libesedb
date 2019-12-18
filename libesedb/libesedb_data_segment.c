@@ -307,7 +307,7 @@ int libesedb_data_segment_read_element_data(
 	LIBESEDB_UNREFERENCED_PARAMETER( element_flags )
 	LIBESEDB_UNREFERENCED_PARAMETER( read_flags )
 
-	if( element_size > (size_t) SSIZE_MAX )
+	if( element_size > (size64_t) SSIZE_MAX )
 	{
 		libcerror_error_set(
 		 error,

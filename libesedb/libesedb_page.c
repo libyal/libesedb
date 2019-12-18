@@ -330,14 +330,14 @@ int libesedb_page_calculate_checksums(
 /* Reads a page and its values
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_read(
+int libesedb_page_read_file_io_handle(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,
      off64_t file_offset,
      libcerror_error_t **error )
 {
-	static char *function              = "libesedb_page_read";
+	static char *function              = "libesedb_page_read_file_io_handle";
 	ssize_t read_count                 = 0;
 	uint32_t calculated_ecc32_checksum = 0;
 	uint32_t calculated_xor32_checksum = 0;

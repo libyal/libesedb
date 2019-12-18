@@ -180,6 +180,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\tests\esedb_test_functions.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_memory.c"
 				>
 			</File>
@@ -190,11 +194,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\tests\esedb_test_functions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\esedb_test_libbfio.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_libcerror.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\tests\esedb_test_libesedb.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\esedb_test_libfcache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\tests\esedb_test_libfdata.h"
 				>
 			</File>
 			<File

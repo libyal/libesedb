@@ -161,13 +161,27 @@ esedb_test_data_definition_LDADD = \
 
 esedb_test_data_segment_SOURCES = \
 	esedb_test_data_segment.c \
+	esedb_test_functions.c esedb_test_functions.h \
+	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
+	esedb_test_libfcache.h \
+	esedb_test_libfdata.h \
 	esedb_test_macros.h \
 	esedb_test_memory.c esedb_test_memory.h \
 	esedb_test_unused.h
 
 esedb_test_data_segment_LDADD = \
+	@LIBFDATA_LIBADD@ \
+	@LIBFCACHE_LIBADD@ \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
@@ -315,6 +329,8 @@ esedb_test_notify_LDADD = \
 	@LIBCERROR_LIBADD@
 
 esedb_test_page_SOURCES = \
+	esedb_test_functions.c esedb_test_functions.h \
+	esedb_test_libbfio.h \
 	esedb_test_libcerror.h \
 	esedb_test_libesedb.h \
 	esedb_test_macros.h \
@@ -323,6 +339,14 @@ esedb_test_page_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_page_LDADD = \
+	@LIBBFIO_LIBADD@ \
+	@LIBCPATH_LIBADD@ \
+	@LIBCFILE_LIBADD@ \
+	@LIBUNA_LIBADD@ \
+	@LIBCSPLIT_LIBADD@ \
+	@LIBCNOTIFY_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	@LIBCDATA_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 

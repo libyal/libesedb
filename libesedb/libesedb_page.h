@@ -80,7 +80,7 @@ int libesedb_page_calculate_checksums(
      uint32_t *xor32_checksum,
      libcerror_error_t **error );
 
-int libesedb_page_read(
+int libesedb_page_read_file_io_handle(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
      libbfio_handle_t *file_io_handle,

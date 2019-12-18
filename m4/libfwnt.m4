@@ -1,6 +1,6 @@
 dnl Checks for libfwnt required headers and functions
 dnl
-dnl Version: 20190308
+dnl Version: 20191217
 
 dnl Function to detect if libfwnt is available
 dnl ac_libfwnt_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -26,7 +26,7 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
         [PKG_CHECK_MODULES(
           [libfwnt],
-          [libfwnt >= 20161103],
+          [libfwnt >= 20191217],
           [ac_cv_libfwnt=yes],
           [ac_cv_libfwnt=check])
         ])
@@ -194,6 +194,13 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
         AC_CHECK_LIB(
           fwnt,
           libfwnt_lznt1_decompress,
+          [ac_cv_libfwnt_dummy=yes],
+          [ac_cv_libfwnt=no])
+
+        dnl LZXPRESS functions
+        AC_CHECK_LIB(
+          fwnt,
+          libfwnt_lzx_decompress,
           [ac_cv_libfwnt_dummy=yes],
           [ac_cv_libfwnt=no])
 

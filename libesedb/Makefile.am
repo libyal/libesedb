@@ -56,6 +56,7 @@ libesedb_la_SOURCES = \
 	libesedb_libfcache.h \
 	libesedb_libfdata.h \
 	libesedb_libfvalue.h \
+	libesedb_libfwnt.h \
 	libesedb_libuna.h \
 	libesedb_long_value.c libesedb_long_value.h \
 	libesedb_multi_value.c libesedb_multi_value.h \

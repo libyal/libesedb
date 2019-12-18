@@ -8,13 +8,13 @@ Analysis of the Extensible Storage Engine (ESE) Database File (EDB) format
 [abstract]
 == Summary
 
-The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
-Microsoft application to store data such as Windows Mail, Windows Search, 
-Active Directory and Exchange. This specification is based on some available 
+The Extensible Storage Engine (ESE) Database File (EDB) format is used by many
+Microsoft application to store data such as Windows Mail, Windows Search,
+Active Directory and Exchange. This specification is based on some available
 documentation and was enhanced by analyzing test data.
 
-This document is intended as a working document for the Extensible Storage 
-Engine (ESE) Database File (EDB) format specification. Which should allow 
+This document is intended as a working document for the Extensible Storage
+Engine (ESE) Database File (EDB) format specification. Which should allow
 existing Open Source forensic tooling to be able to process this file type.
 
 [preface]
@@ -32,11 +32,11 @@ existing Open Source forensic tooling to be able to process this file type.
 == License
 
 ....
-Copyright (C) 2009-2018, Joachim Metz <joachim.metz@gmail.com>.
-Permission is granted to copy, distribute and/or modify this document under the 
-terms of the GNU Free Documentation License, Version 1.3 or any later version 
-published by the Free Software Foundation; with no Invariant Sections, no 
-Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included 
+Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>.
+Permission is granted to copy, distribute and/or modify this document under the
+terms of the GNU Free Documentation License, Version 1.3 or any later version
+published by the Free Software Foundation; with no Invariant Sections, no
+Front-Cover Texts, and no Back-Cover Texts. A copy of the license is included
 in the section entitled "GNU Free Documentation License".
 ....
 
@@ -63,7 +63,7 @@ Additional information about long value.
 | 0.0.13 | J.B. Metz | December 2010 | License version update
 | 0.0.14 | J.B. Metz | August 2011 | Small addition to page value flags.
 | 0.0.15 | J.B. Metz | September 2011 | Addition to page flags and 7-bit Unicode compression.
-| 0.0.16 | J.B. Metz | October 2011 | Updates for space tree leaf page entry, 7-bit and XPRESS compression, scrubbed page flags.
+| 0.0.16 | J.B. Metz | October 2011 | Updates for space tree leaf page entry, 7-bit and LZXPRESS compression, scrubbed page flags.
 | 0.0.17 | J.B. Metz | October 2011 | Textual changes.
 | 0.0.18 | J.B. Metz | May 2012 | Updates for Windows 8 Consumer Preview.
 | 0.0.19 | J.B. Metz | July 2012 | Email update.
@@ -75,14 +75,15 @@ Additional information about long value.
 | 0.0.25 | J.B. Metz | December 2015 | Additional information regarding page flags (thanks to R. Priyashantha).
 | 0.0.26 | J.B. Metz | July 2018 | Small textual changes.
 | 0.0.27 | J.B. Metz | December 2018 | Additional information about Active Directory 2016 database format (thanks to E. Gay).
+| 0.0.28 | J.B. Metz | December 2019 | Changes for formatting and LZXPRESS compression.
 |===
 
 :numbered:
 == Overview
 
-The Extensible Storage Engine (ESE) Database File (EDB) format is used by many 
-Microsoft application to store data such as Windows Mail, Windows Search, 
-Active Directory and Exchange. The The Extensible Storage Engine (ESE) is also 
+The Extensible Storage Engine (ESE) Database File (EDB) format is used by many
+Microsoft application to store data such as Windows Mail, Windows Search,
+Active Directory and Exchange. The The Extensible Storage Engine (ESE) is also
 known as JET Blue.
 
 There are multiple types of ESE:
@@ -120,7 +121,7 @@ ESE is used to store data for various Microsoft applications like:
 
 === Test version
 
-The following version of programs were used to test the information within this 
+The following version of programs were used to test the information within this
 document:
 
 * Exchange 2003, 2007; with corresponding eseutil
@@ -150,19 +151,19 @@ A table is made up out of:
 * rows (also referred to as records)
 * columns
 
-An EDB contains several metadata tables, these are tables needed for 
+An EDB contains several metadata tables, these are tables needed for
 maintaining the database. The metadata tables are:
 
 * the space tree
 * the catalog and the backup catalog
 
-Because ESE stores the database data in fixed size pages, long values are used 
+Because ESE stores the database data in fixed size pages, long values are used
 to store values that are larger than the page size.
 
 == (Database) file header
 
-The (database) file header is stored in the first database page. The byte value 
-in the remainder of the page are set to 0. A copy of the (database) file header 
+The (database) file header is stored in the first database page. The byte value
+in the remainder of the page are set to 0. A copy of the (database) file header
 is stored in the second page.
 
 The (database) file header is (at least) 668 bytes of size and consists of:
@@ -297,15 +298,15 @@ See section: <<backup_information,Backup information>>
 *See notes below*
 |===
 
-Some of the values in the file header corresponds correspond with those in the 
+Some of the values in the file header corresponds correspond with those in the
 miscellaneous database information (JET_DBINFOMISC).
 
 === Notes
 
 ....
-unknown2: 
-00000000: a4 88 3d 00 14 07 0f 07  03 6a 00 00 00 00 00 00   ..=..... .j...... 
-00000010: 00 00 00 00 00 00 00 00  00 00 00 00               ........ .... 
+unknown2:
+00000000: a4 88 3d 00 14 07 0f 07  03 6a 00 00 00 00 00 00   ..=..... .j......
+00000010: 00 00 00 00 00 00 00 00  00 00 00 00               ........ ....
 
 found in stm
 ....
@@ -340,7 +341,7 @@ Current checksum start Date: 00/00/1900 00:00:00
       Current checksum page: 0
 ....
 
-[yellow-background]*In a clean database the consistent position, date and time 
+[yellow-background]*In a clean database the consistent position, date and time
 matches the detach position, date and time.*
 
 === [[file_type]]File type
@@ -360,7 +361,7 @@ The rest of the format specification largely applies to the database file type.
 
 === [[file_format_and_revision]]File format version and revision
 
-According to `[MSDN]` the file format version and revision consist of the 
+According to `[MSDN]` the file format version and revision consist of the
 following values:
 
 [cols="1,1,5",options="header"]
@@ -379,19 +380,19 @@ following values:
 | 0x00000620 | 0x00000008 | New template column format (January 25, 1999).
 | 0x00000620 | 0x00000009 | Sorted template columns (July 24, 1999). +
 Used in Windows XP SP3
-| | | 
+| | |
 | 0x00000620 | 0x0000000b | Contains the page header with the ECC checksum +
 Used in Exchange
 | 0x00000620 | 0x0000000c | Used in Windows Vista (SP0)
-| | | 
+| | |
 | 0x00000620 | 0x00000011 | Support for 2 KiB, 16 KiB and 32 KiB pages. +
 Extended page header with additional ECC checksums. +
 Column compression. +
 Space hints. +
 Used in Windows 7 (SP0)
-| | | 
+| | |
 | 0x00000620 | 0x00000014 | Used in Exchange 2013 and Active Directory 2016.
-| | | 
+| | |
 | 0x00000623 | 0x00000000 | New Space Manager (May 15, 1999).
 |===
 
@@ -412,14 +413,14 @@ This value is introduced in Windows XP
 
 == Hierarchical page-based storage
 
-The EDB file uses a fixed size page to store data. The size of the page is 
+The EDB file uses a fixed size page to store data. The size of the page is
 defined in the file header.
 
-In a database file these pages are ordered in a B+-tree. The pages can B+-tree 
-references to other pages or data. These page B+-trees make up the database 
-tables and indexes. 
+In a database file these pages are ordered in a B+-tree. The pages can B+-tree
+references to other pages or data. These page B+-trees make up the database
+tables and indexes.
 
-Every page B+-tree refers to a 'Father of the Data Page' (FDP) object 
+Every page B+-tree refers to a 'Father of the Data Page' (FDP) object
 identifier, which is basically a unique number for the specific page B+-tree.
 
 A page consists of:
@@ -500,35 +501,35 @@ _(As of version 0x620 revision 0x11)_ +
 
 ==== Changes in Exchange 2003 SP1
 
-According to `[MSDN]` Exchange Server 2003 Service Pack 1 (SP1) introduces a 
-new feature named Error Correcting Code (ECC) Checksum. ECC Checksum is a new 
-checksum format that enables the correction of single-bit errors in database 
-pages (in the .edb file, .stm file, and transaction log files). This new 
-checksum format uses 64-bits, whereas the earlier checksum format uses 32-bits. 
-Earlier format databases can be used with the new code, but current format 
-databases cannot be used with earlier versions of ESE. After the database 
-engine is updated, all pages that are written to the database have the new 
-checksum format. Pages that are read and not modified do not have their 
+According to `[MSDN]` Exchange Server 2003 Service Pack 1 (SP1) introduces a
+new feature named Error Correcting Code (ECC) Checksum. ECC Checksum is a new
+checksum format that enables the correction of single-bit errors in database
+pages (in the .edb file, .stm file, and transaction log files). This new
+checksum format uses 64-bits, whereas the earlier checksum format uses 32-bits.
+Earlier format databases can be used with the new code, but current format
+databases cannot be used with earlier versions of ESE. After the database
+engine is updated, all pages that are written to the database have the new
+checksum format. Pages that are read and not modified do not have their
 checksum format upgraded.
 
-Database pages with the earlier-format checksum start with a 32-bit checksum, 
-followed by a 32-bit page number, which is used to verify that the requested 
+Database pages with the earlier-format checksum start with a 32-bit checksum,
+followed by a 32-bit page number, which is used to verify that the requested
 page is actually read off disk.
 
-The new checksum format removes the 32-bit page number and instead starts with 
-an eight-byte checksum. The page number is used as an input parameter in 
-calculating the checksum. Therefore, if the wrong page is read off disk, there 
+The new checksum format removes the 32-bit page number and instead starts with
+an eight-byte checksum. The page number is used as an input parameter in
+calculating the checksum. Therefore, if the wrong page is read off disk, there
 will be a checksum mismatch.
 
-The current checksum format actually consists of two 32-bit checksums. The 
-first is an XOR checksum, calculated much like the earlier format checksum. The 
-page number is used as a seed in the calculation of this checksum. The second 
-32-bit checksum is an ECC checksum, which allows for the correction of 
+The current checksum format actually consists of two 32-bit checksums. The
+first is an XOR checksum, calculated much like the earlier format checksum. The
+page number is used as a seed in the calculation of this checksum. The second
+32-bit checksum is an ECC checksum, which allows for the correction of
 single-bit errors on the page.
 
 ==== Changes in Windows 7
 
-In Windows 7, for pages of 16 KiB and 32 KiB, the page header was extended with 
+In Windows 7, for pages of 16 KiB and 32 KiB, the page header was extended with
 mainly additional error recovery checksums.
 
 ==== [[page_flags]]Page flags
@@ -542,21 +543,21 @@ The page flags consist of the following values:
 | 0x00000002 | | The page is a leaf page
 | 0x00000004 | | The page is a parent page
 | 0x00000008 | | The page is empty
-| | | 
+| | |
 | 0x00000020 | | The page is a space tree page
 | 0x00000040 | | The page is an index page
 | 0x00000080 | | The page is a long value page
-| | | 
+| | |
 | 0x00000400 | | [yellow-background]*Unknown*
 | 0x00000800 | | [yellow-background]*Unknown* +
 [yellow-background]*Does not seems to be the primary page flags?* +
 [yellow-background]*Flag for unique keys?*
-| | | 
+| | |
 | 0x00002000 | | New record format +
 New checksum format
 | 0x00004000 | | [yellow-background]*Is scrubbed (was zero-ed)*
 | 0x00008000 | | [yellow-background]*Unknown*
-| | | 
+| | |
 | 0x00010000 | | [yellow-background]*Unknown*
 |===
 
@@ -565,7 +566,7 @@ New checksum format
 
 === Page tags
 
-The page tags are stored at the end of the the page. The page tags are stored 
+The page tags are stored at the end of the the page. The page tags are stored
 back to front. The page header indicates the first unused page tag.
 
 [NOTE]
@@ -590,8 +591,8 @@ Contains 0 if the value is empty
 
 ==== Page tag - format revision 17 and later
 
-In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the page 
-tags were changed, to support these page sizes. For these page sizes the page 
+In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the page
+tags were changed, to support these page sizes. For these page sizes the page
 tag flags have been moved to the first 16-value in the leaf page entry.
 
 A page tag is 4 bytes of size and consists of:
@@ -636,7 +637,7 @@ These different type of pages contain different types of page values.
 
 ==== Empty page
 
-Although empty pages can contain data they are ignored when creating a page 
+Although empty pages can contain data they are ignored when creating a page
 B+-tree.
 
 ==== Root page
@@ -669,18 +670,18 @@ The number of pages when the object was first created in the page tree.
 [yellow-background]*(pgnoOE)*
 |===
 
-The FDP flag in the eseutil seems to be implied if the parent Father Data Page 
+The FDP flag in the eseutil seems to be implied if the parent Father Data Page
 (FDP) number (pgnoFDP) is set.
 
-The primary extent represents the the initial number of pages followed by a 
-dash and a letter after the that indicates whether the space for the B-Tree is 
+The primary extent represents the the initial number of pages followed by a
+dash and a letter after the that indicates whether the space for the B-Tree is
 currently represented using multiple pages ("m") or a single page ("s").
 
 [yellow-background]*The space tree page number is valid when the extent space > 0.*
 
 ==== Branch page
 
-The branch page not identified by any flags, the 'is leaf' flag should not be 
+The branch page not identified by any flags, the 'is leaf' flag should not be
 set. The branch page can contain the 'is parent' flag.
 
 [yellow-background]*What is the significance of the 'is parent' flag?*
@@ -694,7 +695,7 @@ Both the branch page contains different types of values:
 
 The branch page header is the first page tag within the page.
 
-If the branch page has no 'is root' flag the branch page header is variable of 
+If the branch page has no 'is root' flag the branch page header is variable of
 size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -721,9 +722,9 @@ Note that the last father data page entry contains an empty page key
 The child page number is invalid if it exceeds the last page in the file
 |===
 
-The actual page key of the page entry is a combination of the part of the 
-common page key, which is stored in the page header, specified by the size of 
-the common page key size value, followed by the local page key stored in the 
+The actual page key of the page entry is a combination of the part of the
+common page key, which is stored in the page header, specified by the size of
+the common page key size value, followed by the local page key stored in the
 page entry.
 
 ==== Leaf page values
@@ -747,7 +748,7 @@ Every type of leaf page has a different type of leaf page entry.
 
 The leaf page header is the first page tag within the page.
 
-If the leaf page has no 'is root' flag the leaf page header is variable of size 
+If the leaf page has no 'is root' flag the leaf page header is variable of size
 and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -778,17 +779,17 @@ The leaf page entry is variable of size and consists of:
 | ... | ... | | Entry data
 |===
 
-The actual page key of the page entry is a combination of the part of the 
-common page key, which is stored in the page header, specified by the size of 
-the common page key size value, followed by the local page key stored in the 
+The actual page key of the page entry is a combination of the part of the
+common page key, which is stored in the page header, specified by the size of
+the common page key size value, followed by the local page key stored in the
 page entry.
 
 ====== Leaf page entry - format revision 17 and later
 
-In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the size 
+In Windows 7 (format revision 0x11), for pages of 16 KiB and 32 KiB, the size
 of the page key in the leaf page entry was changed.
 
-The upper 3-bits of the first 16-bit value (either the key type or the size of 
+The upper 3-bits of the first 16-bit value (either the key type or the size of
 the page key) contain the page tag flags (See section: <<page_tag_flags,Page tag flags>>).
 
 === Page values
@@ -808,9 +809,9 @@ The space tree leaf page contains different types of values:
 * the space tree page header
 * space tree page entries
 
-The primary space tree page referenced from the father data page contains 
-information about the owned pages. The secondary space tree page which is the 
-primary space tree page number + 1 contains information about the available 
+The primary space tree page referenced from the father data page contains
+information about the owned pages. The secondary space tree page which is the
+primary space tree page number + 1 contains information about the available
 pages.
 
 ===== Space tree leaf page header
@@ -826,7 +827,7 @@ The space tree page header is 16 bytes of size and consists of:
 [yellow-background]*Seen: 0*
 |===
 
-When the space tree page was referenced from the father data page the space 
+When the space tree page was referenced from the father data page the space
 tree page header contains 0 bytes.
 
 The space tree header can also be empty (have a page value size of 0).
@@ -886,13 +887,13 @@ For the format of the long value data definitions see section: <<long_values,Lon
 
 ==== Table page values
 
-The table page values are not identified by a flag. So basically if none of the 
-previously mentioned flags is defined the page contains table value data 
+The table page values are not identified by a flag. So basically if none of the
+previously mentioned flags is defined the page contains table value data
 definitions. See section: <<data_definitions,Data definitions>> for more information.
 
 == [[data_definitions]]Data definitions
 
-In ESE there are multiple categories of table data definitions, each category 
+In ESE there are multiple categories of table data definitions, each category
 uses different data type identifiers.
 
 [cols="1,1,1,5",options="header"]
@@ -908,10 +909,10 @@ The data type identifier and size are stored with the data. +
 When a tagged data type does not contain data no information about it stored.
 |===
 
-The data definitions are stored in (data definition) records. Such a data 
+The data definitions are stored in (data definition) records. Such a data
 definition records contains the values of a table row.
 
-[yellow-background]*According to `[MSDN]` data type identifiers 10 and 11 can 
+[yellow-background]*According to `[MSDN]` data type identifiers 10 and 11 can
 be defined as variable columns*
 
 === Data definition header
@@ -943,13 +944,13 @@ Contains data for a variable data type
 | ... | ... | | The tagged data type definitions
 |===
 
-Although the corresponding table definition does not contain fixed size and/or 
-variable size data type definitions the data type definition still can contain 
-them. They need to be handled to find the offset of the tagged data type 
+Although the corresponding table definition does not contain fixed size and/or
+variable size data type definitions the data type definition still can contain
+them. They need to be handled to find the offset of the tagged data type
 definitions.
 
-The data type definitions will contain temple table tagged data type 
-identifiers before table tagged data type identifiers. Also see section: 
+The data type definitions will contain temple table tagged data type
+identifiers before table tagged data type identifiers. Also see section:
 <<template_tables,Template tables>>.
 
 ==== Variable size data type size array entry
@@ -967,7 +968,7 @@ Also the size of the previous variable size data type needs to be subtracted fro
 
 ==== The tagged data type definitions - format revision 2
 
-For EDB format revision 2 the tagged data type definitions consist of multiple 
+For EDB format revision 2 the tagged data type definitions consist of multiple
 entries.
 
 A tagged data type definitions entry is variable of size and consists of:
@@ -984,17 +985,17 @@ Currently only 0x00 values have been seen
 | 5 | ... | | Value
 |===
 
-[yellow-background]*What does a size of 0 indicate: that the value is empty or 
+[yellow-background]*What does a size of 0 indicate: that the value is empty or
 contains the default value?*
 
-[yellow-background]*When the 0x8000 flag bit is set the tagged data type offset 
-array entry is directly followed by the value data. The size of the tagged data 
-type data contains the size of the value data. The value is seems to be 
+[yellow-background]*When the 0x8000 flag bit is set the tagged data type offset
+array entry is directly followed by the value data. The size of the tagged data
+type data contains the size of the value data. The value is seems to be
 preceded by the tagged data type flags?*
 
 ==== The tagged data type definitions - format revision 9 and later
 
-For format revision 9 and later the tagged data type definitions consist of an 
+For format revision 9 and later the tagged data type definitions consist of an
 an offset and data array.
 
 [cols="1,1,1,5",options="header"]
@@ -1019,18 +1020,18 @@ The offset is relative from the start of the tagged data type offset array +
 [yellow-background]*0x8000 (?)*
 |===
 
-[yellow-background]*The number of tagged data types is deduced from the first 
+[yellow-background]*The number of tagged data types is deduced from the first
 tagged data type data offset?*
 
-If the tagged data type offset is greater equal the record data size it appears 
+If the tagged data type offset is greater equal the record data size it appears
 the value is empty ([yellow-background]*or maybe the default value if set?*).
 
-If the bit 0x4000 is set in the size the value is preceded by the tagged data 
+If the bit 0x4000 is set in the size the value is preceded by the tagged data
 type flags. The size cannot be greater equal than 16 KiB (0x4000).
 
-However for Windows 7 (version 0x620 revision 0x11) and later, for pages of 
-16 KiB and 32 KiB, the tagged data type flags are always present in database 
-and no longer controlled by the flag bits. For such databases the size cannot 
+However for Windows 7 (version 0x620 revision 0x11) and later, for pages of
+16 KiB and 32 KiB, the tagged data type flags are always present in database
+and no longer controlled by the flag bits. For such databases the size cannot
 be greater equal than 32 KiB (0x8000).
 
 ===== Tagged data type flags
@@ -1076,21 +1077,21 @@ byte size of first value?
 ....
 
 ....
-(457) tagged data type flags            : 0x0b 
-        Is variable size 
-        Is compressed 
-        Is multi value 
+(457) tagged data type flags            : 0x0b
+        Is variable size
+        Is compressed
+        Is multi value
 
-(457) tagged data type: 
-00000000: 04 00 09 00 13 ec b4 7b  0d 70 00 72 00 6f 00 67   .......{ .p.r.o.g 
-00000010: 00 72 00 61 00 6d 00                               .r.a.m. 
+(457) tagged data type:
+00000000: 04 00 09 00 13 ec b4 7b  0d 70 00 72 00 6f 00 67   .......{ .p.r.o.g
+00000010: 00 72 00 61 00 6d 00                               .r.a.m.
 
 Why is only the first entry is compressed?
 ....
 
 === Example: the catalog (data type) definition
 
-The data below is an example of the catalog (data type) definition. Also see 
+The data below is an example of the catalog (data type) definition. Also see
 section: <<catalog,Catalog (MSysObjects and MSysObjectsShadow)>>
 
 [cols="1,1,1,5",options="header"]
@@ -1151,25 +1152,25 @@ The offset of the data type within the record
 | ... | ... | The tagged data types data array | Contains data for a tagged data type
 |===
 
-For data definition type is 0x0001 (table) the variable data type 
-'TemplateTable' is used to store the name of the table used as its template. 
+For data definition type is 0x0001 (table) the variable data type
+'TemplateTable' is used to store the name of the table used as its template.
 See section: <<template_tables,Template tables>>.
 
-For data definition type is 0x0005 (callback) the variable data type 
+For data definition type is 0x0005 (callback) the variable data type
 'TemplateTable' is used to store the name of the DLL and function to call.
 
 === [[long_values]]Long Values
 
-The actual long values are stored in a separate page tree. The corresponding 
-page key of the long value is the long value identifier in reverse byte order. 
-E.g. a long value identifier of: 0xa7000000 relates to a page key of 
-0x000000a7. In version 0x620 and revision 0x0c the page key contains the 
+The actual long values are stored in a separate page tree. The corresponding
+page key of the long value is the long value identifier in reverse byte order.
+E.g. a long value identifier of: 0xa7000000 relates to a page key of
+0x000000a7. In version 0x620 and revision 0x0c the page key contains the
 leading 0 values in revision 0x09 these leading 0 values are not present.
 
-The long value page key refers to a page value in the long value page tree 
+The long value page key refers to a page value in the long value page tree
 corresponding to the table page tree as defined in the catalog.
 
-This page value contains the long value header. The long value header is 8 
+This page value contains the long value header. The long value header is 8
 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -1181,20 +1182,20 @@ bytes of size and consists of:
 | 4 | 4 | | [yellow-background]*Unknown (Last segment offset)*
 |===
 
-[yellow-background]*Hypothesis: the total long value size, holds for a lot of 
-single segment long values but not for some multi segment long values Largest 
+[yellow-background]*Hypothesis: the total long value size, holds for a lot of
+single segment long values but not for some multi segment long values Largest
 segment size?*
 
-The corresponding segments can be found by combining the long value page key 
-with a 4 byte segment offset, starting with offset 0. E.g. the first segment 
-for the long value identifier 0xa7000000 is the page key 0x000000a7 followed by 
+The corresponding segments can be found by combining the long value page key
+with a 4 byte segment offset, starting with offset 0. E.g. the first segment
+for the long value identifier 0xa7000000 is the page key 0x000000a7 followed by
 the segment offset 0x00000fae (4014), therefore 0x000000a7000000fae.
 
 [yellow-background]*One long value page tree per table?*
 
 [yellow-background]*Inverse key stored in data type definition*
 
-[yellow-background]*The offset (+ data size) of the last segment can exceed the 
+[yellow-background]*The offset (+ data size) of the last segment can exceed the
 total long value size?*
 
 === [[multi_values]]Multi values
@@ -1372,36 +1373,36 @@ This column type is obsolete.
 [yellow-background]*JET_coltypNil seems to be able to contain data. It is
 unknown if this data is considered valid or remnant data.*
 
-[yellow-background]*TODO: determine why some documentation refers to 
-JET_coltypDateTime as a double-precision (8-byte) floating point number that 
-represents a date in fractional days since the year 1900. This column type is 
+[yellow-background]*TODO: determine why some documentation refers to
+JET_coltypDateTime as a double-precision (8-byte) floating point number that
+represents a date in fractional days since the year 1900. This column type is
 identical to the variant date type (VT_DATE).*
 
-[yellow-background]*A Super Long (or large) Value (SLV) record in the .edb file 
-contains a column (of data type JET_coltypSLV) that references a list of pages 
-in the streaming file that contains the raw data. Space usage (maximum of four 
-kilobytes of page numbers) and checksum data for the data in the streaming file 
+[yellow-background]*A Super Long (or large) Value (SLV) record in the .edb file
+contains a column (of data type JET_coltypSLV) that references a list of pages
+in the streaming file that contains the raw data. Space usage (maximum of four
+kilobytes of page numbers) and checksum data for the data in the streaming file
 is stored in the .edb file.*
 
 ==== Notes
 
 ....
-ASCII strings are always treated as case insensitive for sorting and searching 
-purposes. Further, only the characters preceding the first null character (if 
+ASCII strings are always treated as case insensitive for sorting and searching
+purposes. Further, only the characters preceding the first null character (if
 any) are considered for sorting and searching.
-Unicode strings use the Win32 API LCMapString to create sort keys that are 
-subsequently used for sorting and searching that data. By default, Unicode 
-strings are considered to be in the U.S. English locale and are sorted and 
-searched using the following normalization flags: NORM_IGNORECASE, 
-NORM_IGNOREKANATYPE, and NORM_IGNOREWIDTH. In Windows 2000, it is possible to 
-customize these flags per index to also include NORM_IGNORENONSPACE. In Windows 
-XP and later releases, it is possible to request any combination of the 
-following normalization flags per index: LCMAP_SORTKEY, LCMAP_BYTEREV, 
-NORM_IGNORECASE, NORM_IGNORENONSPACE, NORM_IGNORESYMBOLS, NORM_IGNOREKANATYPE, 
+Unicode strings use the Win32 API LCMapString to create sort keys that are
+subsequently used for sorting and searching that data. By default, Unicode
+strings are considered to be in the U.S. English locale and are sorted and
+searched using the following normalization flags: NORM_IGNORECASE,
+NORM_IGNOREKANATYPE, and NORM_IGNOREWIDTH. In Windows 2000, it is possible to
+customize these flags per index to also include NORM_IGNORENONSPACE. In Windows
+XP and later releases, it is possible to request any combination of the
+following normalization flags per index: LCMAP_SORTKEY, LCMAP_BYTEREV,
+NORM_IGNORECASE, NORM_IGNORENONSPACE, NORM_IGNORESYMBOLS, NORM_IGNOREKANATYPE,
 NORM_IGNOREWIDTH, and SORT_STRINGSORT.
-In all releases, it is possible to customize the locale per index. Any locale 
-may be used as long as the appropriate language pack has been installed on the 
-machine. Finally, any null characters encountered in a Unicode string are 
+In all releases, it is possible to customize the locale per index. Any locale
+may be used as long as the appropriate language pack has been installed on the
+machine. Finally, any null characters encountered in a Unicode string are
 completely ignored.
 ....
 
@@ -1424,7 +1425,7 @@ The column is a version column that specifies the version of the row.
 | 0x00000020 | JET_bitColumnUpdatable | This bit is valid only on calls to  JetGetColumnInfo.
 | 0x00000040 | JET_bitColumnTTKey | This bit is valid only on calls to  JetOpenTable.
 | 0x00000080 | JET_bitColumnTTDescending | This bit is valid only on calls to  JetOpenTempTable.
-| | | 
+| | |
 | 0x00000400 | JET_bitColumnMultiValued | The column can be multi-valued. A multi-valued column can have zero, one, or more values associated with it. The various values in a multi-valued column are identified by a number called the itagSequence member, which belongs to various structures, including:  JET_RETINFO,  JET_SETINFO,  JET_SETCOLUMN,  JET_RETRIEVECOLUMN, and  JET_ENUMCOLUMNVALUE. Multi-valued columns must be tagged columns; that is, they cannot be fixed-length or variable-length columns.
 | 0x00000800 | JET_bitColumnEscrowUpdate | Specifies that a column is an escrow update column. An escrow update column can be updated concurrently by different sessions with  JetEscrowUpdate and will maintain transactional consistency. An escrow update column must also meet the following conditions: +
 An escrow update column can be created only when the table is empty. +
@@ -1443,17 +1444,17 @@ JET_bitColumnUserDefinedDefault cannot be used in conjunction with JET_bitColumn
 
 === Compression
 
-As of Windows 7 the column types JET_coltypLongBinary and JET_coltypLongText 
-can be compressed [MSDN-WIN7].
+As of Windows 7 the column types JET_coltypLongBinary and JET_coltypLongText
+can be compressed `[MSDN-WIN7]`.
 
-The first byte in the data indicates which compression is used. If the value is 
-0x18 the data is XPRESS compressed. The data is 7-bit compressed for any other 
+The first byte in the data indicates which compression is used. If the value is
+0x18 the data is LZXPRESS compressed. The data is 7-bit compressed for any other
 value.
 
 ==== 7-bit compression
 
-7-bit compression is used for columns with less than 1 KiB (1024 bytes) 
-uncompressed data that consists of only 7-bit values. These are stored as a 
+7-bit compression is used for columns with less than 1 KiB (1024 bytes)
+uncompressed data that consists of only 7-bit values. These are stored as a
 continuous stream of 7-bit values.
 
 To decompress:
@@ -1466,18 +1467,16 @@ To decompress:
   c. while not at end of stream
     i) read a 7-bit value from the stream and convert it into an 8-bit value
 
-If the column type is JET_coltypLongText the uncompressed data either contains 
+If the column type is JET_coltypLongText the uncompressed data either contains
 an ASCII or an UTF-16 little-endian string.
 
-[yellow-background]*Notes: Contains unicode 0x09, 0x0b, 0x0d, 0x0f on Win7 but 
+[yellow-background]*Notes: Contains unicode 0x09, 0x0b, 0x0d, 0x0f on Win7 but
 not in Exchange 2010*
 
-==== XPRESS compression
+==== LZXPRESS compression
 
-Microsoft XPRESS compression is used for columns with more than 1 KiB (1024 
-bytes) uncompressed data. This compression method is a combination of the LZ77 
-and DIRECT2 algorithms. The compression method is similar to the LZNT1, which 
-is used in NTFS compression.
+LZXPRESS compression is used for columns with more than 1 KiB (1024 bytes)
+uncompressed data.
 
 The compressed data is variable in size and consists of:
 
@@ -1486,16 +1485,18 @@ The compressed data is variable in size and consists of:
 | Offset | Size | Value | Description
 | 0 | 1 | 0x18 | Leading byte
 | 1 | 2 | | Uncompressed data size
-| 3 | ... | | XPRESS compressed data
+| 3 | ... | | LZXPRESS compressed data
 |===
 
-If the column type is JET_coltypLongText the uncompressed data either contains 
+For more information about LZXPRESS see:
+https://github.com/libyal/libfwnt/blob/master/documentation/Compression%20methods.asciidoc[LIBFWNT\]]
+
+If the column type is JET_coltypLongText the uncompressed data either contains
 an ASCII or an UTF-16 little-endian string.
 
 [yellow-background]*TODO: what about data > 2^16?*
 
 == Backup
-
 
 === [[backup_information]]Backup information
 
@@ -1535,11 +1536,11 @@ The upper log generation number associated with the transaction.
 The prefix used to name the transaction log files.
 |===
 
-Transaction log files are named according to the instance base name and the 
-generation number of the log file. The name is of the format BBBXXXXX.LOG. 
-Where BBB corresponds to the base name for the log file and is always three 
-characters in length. XXXXX corresponds to the generation number of the log 
-file in zero padded hexadecimal and is always five characters in length. LOG is 
+Transaction log files are named according to the instance base name and the
+generation number of the log file. The name is of the format BBBXXXXX.LOG.
+Where BBB corresponds to the base name for the log file and is always three
+characters in length. XXXXX corresponds to the generation number of the log
+file in zero padded hexadecimal and is always five characters in length. LOG is
 the file extension that is always given to transaction log files by the engine.
 
 === [[log_position]]Log position
@@ -1556,7 +1557,7 @@ The log position (JET_LGPOS) is 8 bytes of size and consists of:
 
 === [[log_time]](Backup) log time
 
-The log time and backup log time (JET_LOGTIME and JET_BKLOGTIME) are 8 bytes of 
+The log time and backup log time (JET_LOGTIME and JET_BKLOGTIME) are 8 bytes of
 size and consist of:
 
 [cols="1,1,1,5",options="header"]
@@ -1578,8 +1579,8 @@ The year 0 represents 1900.
 | 7 | 1 | 0 | Filler byte
 |===
 
-In a backup log time the LSB of the second filler byte can be overloaded to 
-contains the backup type bit. The backup type bit consists of one of the 
+In a backup log time the LSB of the second filler byte can be overloaded to
+contains the backup type bit. The backup type bit consists of one of the
 following values:
 
 [cols="1,1,5",options="header"]
@@ -1610,12 +1611,12 @@ The table group of bits consist of the following values:
 
 ==== [[catalog]]Catalog (MSysObjects and MSysObjectsShadow)
 
-The "MSysObjects" table contains the definitions of all the tables, indexes and 
-long values that are stored within the database. It is also referred to a the 
-catalog (metadata table). A backup (or copy) of the catalog is maintained in 
+The "MSysObjects" table contains the definitions of all the tables, indexes and
+long values that are stored within the database. It is also referred to a the
+catalog (metadata table). A backup (or copy) of the catalog is maintained in
 the "MSysObjectsShadow" table.
 
-The page values (in the leaf pages) that make up the catalog contain the 
+The page values (in the leaf pages) that make up the catalog contain the
 following information for every table in the database:
 
 * a table definition
@@ -1623,7 +1624,7 @@ following information for every table in the database:
 * one or more index definitions; there is always at least one index for a table
 * zero or more long value definitions
 
-The catalog also contains its own table definition. The catalog table 
+The catalog also contains its own table definition. The catalog table
 definition consist of:
 
 [cols="1,1,1,5",options="header"]
@@ -1666,10 +1667,10 @@ See section: <<lcmapflags,LCMapFlags>>
 | 260 | SpaceDeferredLVHints | Large binary data | [yellow-background]*Unknown*
 |===
 
-A codepage of 1200 can represent either ASCII ([yellow-background]*or even 
-extended ASCII?*) or UTF-16 little-endian. The way to tell is that the size of 
-the UTF-16 stream should be a multitude of 2. If so try to decode the string as 
-UTF-16 first.[yellow-background]*Could this be: Standard Compression Scheme for 
+A codepage of 1200 can represent either ASCII ([yellow-background]*or even
+extended ASCII?*) or UTF-16 little-endian. The way to tell is that the size of
+the UTF-16 stream should be a multitude of 2. If so try to decode the string as
+UTF-16 first.[yellow-background]*Could this be: Standard Compression Scheme for
 Unicode (SCSU)?*
 
 ===== [[catalog_types]]Catalog types
@@ -1700,7 +1701,7 @@ The LCMapFlags are used for the LCMapString.
 | 0x00000400 | LCMAP_SORTKEY | Produce a normalized sort key. If the LCMAP_SORTKEY flag is not specified, the function performs string mapping.
 | 0x00000800 | LCMAP_BYTEREV | Byte reversal +
 If the application passes in 0x3450 0x4822, the result is 0x5034 0x2248.
-| | | 
+| | |
 | 0x00100000 | LCMAP_HIRAGANA | Map all katakana characters to hiragana. This flag and LCMAP_KATAKANA are mutually exclusive.
 | 0x00200000 | LCMAP_KATAKANA | Map all hiragana characters to katakana. This flag and LCMAP_HIRAGANA are mutually exclusive.
 | 0x00400000 | LCMAP_HALFWIDTH | Use narrow characters where applicable. This flag and LCMAP_FULLWIDTH are mutually exclusive.
@@ -1731,43 +1732,43 @@ TODO, what is 0x00030401 is one of these undocumented bits used to indicate the 
     private const uint NORM_LINGUISTIC_CASING = 0x08000000;
 
 
-The following flags can be used alone, with one another, or with the LCMAP_SORTKEY and/or LCMAP_BYTEREV flags. However, they cannot be combined with the other flags listed above. 
-Flag	Meaning 
-NORM_IGNORENONSPACE 
-Ignore nonspacing characters. For many scripts (notably Latin scripts), NORM_IGNORENONSPACE coincides with LINGUISTIC_IGNOREDIACRITIC. 
-Note NORM_IGNORENONSPACE ignores any secondary distinction, whether it is a diacritic or not. Scripts for Korean, Japanese, Chinese, and Indic languages, among others, use this distinction for purposes other than diacritics. LINGUISTIC_IGNOREDIACRITIC causes the function to ignore only actual diacritics, instead of ignoring the second sorting weight. 
-NORM_IGNORESYMBOLS 
-Ignore symbols and punctuation. 
- 
-The flags listed below are used only with the LCMAP_SORTKEY flag. 
-Flag	Meaning 
-LINGUISTIC_IGNORECASE 
-Ignore case, as linguistically appropriate. 
-LINGUISTIC_IGNOREDIACRITIC 
-Ignore nonspacing characters, as linguistically appropriate. 
-Note This flag does not always produce predictable results when used with decomposed characters, that is, characters in which a base character and one or more nonspacing characters each have distinct code point values. 
-NORM_IGNORECASE 
-Ignore case. For many scripts (notably Latin scripts), NORM_IGNORECASE coincides with LINGUISTIC_IGNORECASE. 
-Note NORM_IGNORECASE ignores any tertiary distinction, whether it is actually linguistic case or not. For example, in Arabic and Indic scripts, this flag distinguishes alternate forms of a character, but the differences do not correspond to linguistic case. LINGUISTIC_IGNORECASE causes the function to ignore only actual linguistic casing, instead of ignoring the third sorting weight. 
-Note For double-byte character set (DBCS) locales, NORM_IGNORECASE has an effect on all Unicode characters as well as narrow (one-byte) characters, including Greek and Cyrillic characters. 
-NORM_IGNOREKANATYPE 
-Do not differentiate between hiragana and katakana characters. Corresponding hiragana and katakana characters compare as equal. 
-NORM_IGNOREWIDTH 
-Ignore the difference between half-width and full-width characters, for example, C a t == cat. The full-width form is a formatting distinction used in Chinese and Japanese scripts. 
-NORM_LINGUISTIC_CASING 
-Use linguistic rules for casing, instead of file system rules (default). 
-SORT_DIGITSASNUMBERS 
-Windows 7: Treat digits as numbers during sorting, for example, sort "2" before "10". 
-SORT_STRINGSORT 
-Treat punctuation the same as symbols. 
+The following flags can be used alone, with one another, or with the LCMAP_SORTKEY and/or LCMAP_BYTEREV flags. However, they cannot be combined with the other flags listed above.
+Flag	Meaning
+NORM_IGNORENONSPACE
+Ignore nonspacing characters. For many scripts (notably Latin scripts), NORM_IGNORENONSPACE coincides with LINGUISTIC_IGNOREDIACRITIC.
+Note NORM_IGNORENONSPACE ignores any secondary distinction, whether it is a diacritic or not. Scripts for Korean, Japanese, Chinese, and Indic languages, among others, use this distinction for purposes other than diacritics. LINGUISTIC_IGNOREDIACRITIC causes the function to ignore only actual diacritics, instead of ignoring the second sorting weight.
+NORM_IGNORESYMBOLS
+Ignore symbols and punctuation.
+
+The flags listed below are used only with the LCMAP_SORTKEY flag.
+Flag	Meaning
+LINGUISTIC_IGNORECASE
+Ignore case, as linguistically appropriate.
+LINGUISTIC_IGNOREDIACRITIC
+Ignore nonspacing characters, as linguistically appropriate.
+Note This flag does not always produce predictable results when used with decomposed characters, that is, characters in which a base character and one or more nonspacing characters each have distinct code point values.
+NORM_IGNORECASE
+Ignore case. For many scripts (notably Latin scripts), NORM_IGNORECASE coincides with LINGUISTIC_IGNORECASE.
+Note NORM_IGNORECASE ignores any tertiary distinction, whether it is actually linguistic case or not. For example, in Arabic and Indic scripts, this flag distinguishes alternate forms of a character, but the differences do not correspond to linguistic case. LINGUISTIC_IGNORECASE causes the function to ignore only actual linguistic casing, instead of ignoring the third sorting weight.
+Note For double-byte character set (DBCS) locales, NORM_IGNORECASE has an effect on all Unicode characters as well as narrow (one-byte) characters, including Greek and Cyrillic characters.
+NORM_IGNOREKANATYPE
+Do not differentiate between hiragana and katakana characters. Corresponding hiragana and katakana characters compare as equal.
+NORM_IGNOREWIDTH
+Ignore the difference between half-width and full-width characters, for example, C a t == cat. The full-width form is a formatting distinction used in Chinese and Japanese scripts.
+NORM_LINGUISTIC_CASING
+Use linguistic rules for casing, instead of file system rules (default).
+SORT_DIGITSASNUMBERS
+Windows 7: Treat digits as numbers during sorting, for example, sort "2" before "10".
+SORT_STRINGSORT
+Treat punctuation the same as symbols.
 ....
 
 ===== KeyFldIDs
 
-[yellow-background]*The KeyFldIDs contain the index column identifiers of the 
+[yellow-background]*The KeyFldIDs contain the index column identifiers of the
 primary and secondary keys.*
 
-[yellow-background]*A index column identifier entry is 4 bytes of size and 
+[yellow-background]*A index column identifier entry is 4 bytes of size and
 consists of:*
 
 [cols="1,1,1,5",options="header"]
@@ -1806,9 +1807,9 @@ RootObjects
 [cols="1,3,5",options="header"]
 |===
 | Column identifier | Column name | Column type
-| 256 | objid | Integer 32-bit signed 
-| 257 | objidTable | Integer 32-bit signed 
-| 258 | type | Integer 16-bit signed 
+| 256 | objid | Integer 32-bit signed
+| 257 | objidTable | Integer 32-bit signed
+| 258 | type | Integer 16-bit signed
 |===
 
 ==== MSysLocales
@@ -1820,7 +1821,7 @@ RootObjects
 | Column identifier | Column name | Column type
 | 1 | Type | Integer 8-bit unsigned
 | 2 | iValue | Integer 32-bit signed
-| 128 | Key | Binary data 
+| 128 | Key | Binary data
 |===
 
 ==== MSysUnicodeFixupVer1
@@ -1842,7 +1843,7 @@ RootObjects
 
 ==== MSysUnicodeFixupVer2
 
-[yellow-background]*The "MsysUnicodeFixupVer2" table was introduced in Windows 
+[yellow-background]*The "MsysUnicodeFixupVer2" table was introduced in Windows
 Vista (SP0)?*
 
 [cols="1,3,5",options="header"]
@@ -1897,10 +1898,10 @@ Vista (SP0)?*
 
 === [[template_tables]]Template tables
 
-A table definition which uses a template table definition, basically uses a 
+A table definition which uses a template table definition, basically uses a
 copy of the template table and appends the defined column definitions.
 
-E.g. if the template table defines 446 columns and the definition of the last 
+E.g. if the template table defines 446 columns and the definition of the last
 column is a tagged data type:
 
 [cols="1,3,5",options="header"]
@@ -1917,16 +1918,16 @@ The first column definition in the table will be column number 447:
 |===
 
 [NOTE]
-The table column identifier is 256 and will also be defined as such in the 
+The table column identifier is 256 and will also be defined as such in the
 tagged data type definitions.
 
 [yellow-background]*TODO: What about non tagged data types?*
 
 == Indexes
 
-The FDP value in the catalog definition of an index, refers to the FDP of an 
-index page B+-tree except for the first index (Id). It will point to the parent 
-table and does not contain index page values. [yellow-background]*It is 
+The FDP value in the catalog definition of an index, refers to the FDP of an
+index page B+-tree except for the first index (Id). It will point to the parent
+table and does not contain index page values. [yellow-background]*It is
 assumed that this index is build-in.*
 
 === Index flags (group of bits)
@@ -1965,8 +1966,8 @@ For example, if you specified this flag for an index over column A that has the 
 
 === The database metadata table
 
-The database metadata table contains [yellow-background]*space tree information 
-about the database*. The database metadata table is [yellow-background]*always 
+The database metadata table contains [yellow-background]*space tree information
+about the database*. The database metadata table is [yellow-background]*always
 stored as FDP object identifier 1 with parent FDP page number 1*.
 
 === Key behavior
@@ -1980,7 +1981,7 @@ record:
 ....
 
 ....
-parent: 7f fb 30 cf db 7f 43 
+parent: 7f fb 30 cf db 7f 43
 key :7f f4 a6 a7 72 7f 57 00 49 00 4e 00 44 00 09 4f 00 57 00 53 00 20 00 09 4c 00 49 00 56 00 45 00 09 20 00 43 00 41 00 4c 00 09 4c 00 2e 00 4c 00 4e 00 09 4b 00 00 00 00 00 00 00 04 7f 80 00 05 6b
 7f f4 a6 a7 72 7f WINDOWS LIVE.LNK 09 4b 00 00 00 00 00 00 00 04 7f 80 00 05 6b
 ....
@@ -2053,7 +2054,7 @@ Is this for leaf values only? or 0x80 only?
 | URL: | http://technet.microsoft.com/en-us/library/bb310772%28EXCHG.80%29.aspx +
 http://technet.microsoft.com/en-us/library/cc961824.aspx +
 http://msdn.microsoft.com/en-us/library/dd207764(v=PROT.13).aspx +
-http://msdn.microsoft.com/en-us/library/ee441458(v=PROT.13).aspx 
+http://msdn.microsoft.com/en-us/library/ee441458(v=PROT.13).aspx
 |===
 
 `[MSDN-WIN7]`
@@ -2075,377 +2076,377 @@ http://msdn.microsoft.com/en-us/library/ee441458(v=PROT.13).aspx
 [appendix]
 == GNU Free Documentation License
 Version 1.3, 3 November 2008
-Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc. 
+Copyright © 2000, 2001, 2002, 2007, 2008 Free Software Foundation, Inc.
 <http://fsf.org/>
 
-Everyone is permitted to copy and distribute verbatim copies of this license 
+Everyone is permitted to copy and distribute verbatim copies of this license
 document, but changing it is not allowed.
 
 === 0. PREAMBLE
-The purpose of this License is to make a manual, textbook, or other functional 
-and useful document "free" in the sense of freedom: to assure everyone the 
-effective freedom to copy and redistribute it, with or without modifying it, 
-either commercially or noncommercially. Secondarily, this License preserves for 
-the author and publisher a way to get credit for their work, while not being 
+The purpose of this License is to make a manual, textbook, or other functional
+and useful document "free" in the sense of freedom: to assure everyone the
+effective freedom to copy and redistribute it, with or without modifying it,
+either commercially or noncommercially. Secondarily, this License preserves for
+the author and publisher a way to get credit for their work, while not being
 considered responsible for modifications made by others.
 
-This License is a kind of "copyleft", which means that derivative works of the 
-document must themselves be free in the same sense. It complements the GNU 
+This License is a kind of "copyleft", which means that derivative works of the
+document must themselves be free in the same sense. It complements the GNU
 General Public License, which is a copyleft license designed for free software.
 
-We have designed this License in order to use it for manuals for free software, 
-because free software needs free documentation: a free program should come with 
-manuals providing the same freedoms that the software does. But this License is 
-not limited to software manuals; it can be used for any textual work, 
-regardless of subject matter or whether it is published as a printed book. We 
-recommend this License principally for works whose purpose is instruction or 
+We have designed this License in order to use it for manuals for free software,
+because free software needs free documentation: a free program should come with
+manuals providing the same freedoms that the software does. But this License is
+not limited to software manuals; it can be used for any textual work,
+regardless of subject matter or whether it is published as a printed book. We
+recommend this License principally for works whose purpose is instruction or
 reference.
 
 === 1. APPLICABILITY AND DEFINITIONS
-This License applies to any manual or other work, in any medium, that contains 
-a notice placed by the copyright holder saying it can be distributed under the 
-terms of this License. Such a notice grants a world-wide, royalty-free license, 
-unlimited in duration, to use that work under the conditions stated herein. The 
-"Document", below, refers to any such manual or work. Any member of the public 
-is a licensee, and is addressed as "you". You accept the license if you copy, 
+This License applies to any manual or other work, in any medium, that contains
+a notice placed by the copyright holder saying it can be distributed under the
+terms of this License. Such a notice grants a world-wide, royalty-free license,
+unlimited in duration, to use that work under the conditions stated herein. The
+"Document", below, refers to any such manual or work. Any member of the public
+is a licensee, and is addressed as "you". You accept the license if you copy,
 modify or distribute the work in a way requiring permission under copyright law.
 
-A "Modified Version" of the Document means any work containing the Document or 
-a portion of it, either copied verbatim, or with modifications and/or 
+A "Modified Version" of the Document means any work containing the Document or
+a portion of it, either copied verbatim, or with modifications and/or
 translated into another language.
 
-A "Secondary Section" is a named appendix or a front-matter section of the 
-Document that deals exclusively with the relationship of the publishers or 
-authors of the Document to the Document's overall subject (or to related 
-matters) and contains nothing that could fall directly within that overall 
-subject. (Thus, if the Document is in part a textbook of mathematics, a 
-Secondary Section may not explain any mathematics.) The relationship could be a 
-matter of historical connection with the subject or with related matters, or of 
+A "Secondary Section" is a named appendix or a front-matter section of the
+Document that deals exclusively with the relationship of the publishers or
+authors of the Document to the Document's overall subject (or to related
+matters) and contains nothing that could fall directly within that overall
+subject. (Thus, if the Document is in part a textbook of mathematics, a
+Secondary Section may not explain any mathematics.) The relationship could be a
+matter of historical connection with the subject or with related matters, or of
 legal, commercial, philosophical, ethical or political position regarding them.
 
-The "Invariant Sections" are certain Secondary Sections whose titles are 
-designated, as being those of Invariant Sections, in the notice that says that 
-the Document is released under this License. If a section does not fit the 
-above definition of Secondary then it is not allowed to be designated as 
-Invariant. The Document may contain zero Invariant Sections. If the Document 
+The "Invariant Sections" are certain Secondary Sections whose titles are
+designated, as being those of Invariant Sections, in the notice that says that
+the Document is released under this License. If a section does not fit the
+above definition of Secondary then it is not allowed to be designated as
+Invariant. The Document may contain zero Invariant Sections. If the Document
 does not identify any Invariant Sections then there are none.
 
-The "Cover Texts" are certain short passages of text that are listed, as 
-Front-Cover Texts or Back-Cover Texts, in the notice that says that the 
-Document is released under this License. A Front-Cover Text may be at most 5 
+The "Cover Texts" are certain short passages of text that are listed, as
+Front-Cover Texts or Back-Cover Texts, in the notice that says that the
+Document is released under this License. A Front-Cover Text may be at most 5
 words, and a Back-Cover Text may be at most 25 words.
 
-A "Transparent" copy of the Document means a machine-readable copy, represented 
-in a format whose specification is available to the general public, that is 
-suitable for revising the document straightforwardly with generic text editors 
-or (for images composed of pixels) generic paint programs or (for drawings) 
-some widely available drawing editor, and that is suitable for input to text 
-formatters or for automatic translation to a variety of formats suitable for 
-input to text formatters. A copy made in an otherwise Transparent file format 
-whose markup, or absence of markup, has been arranged to thwart or discourage 
-subsequent modification by readers is not Transparent. An image format is not 
-Transparent if used for any substantial amount of text. A copy that is not 
+A "Transparent" copy of the Document means a machine-readable copy, represented
+in a format whose specification is available to the general public, that is
+suitable for revising the document straightforwardly with generic text editors
+or (for images composed of pixels) generic paint programs or (for drawings)
+some widely available drawing editor, and that is suitable for input to text
+formatters or for automatic translation to a variety of formats suitable for
+input to text formatters. A copy made in an otherwise Transparent file format
+whose markup, or absence of markup, has been arranged to thwart or discourage
+subsequent modification by readers is not Transparent. An image format is not
+Transparent if used for any substantial amount of text. A copy that is not
 "Transparent" is called "Opaque".
 
-Examples of suitable formats for Transparent copies include plain ASCII without 
-markup, Texinfo input format, LaTeX input format, SGML or XML using a publicly 
-available DTD, and standard-conforming simple HTML, PostScript or PDF designed 
-for human modification. Examples of transparent image formats include PNG, XCF 
-and JPG. Opaque formats include proprietary formats that can be read and edited 
-only by proprietary word processors, SGML or XML for which the DTD and/or 
-processing tools are not generally available, and the machine-generated HTML, 
+Examples of suitable formats for Transparent copies include plain ASCII without
+markup, Texinfo input format, LaTeX input format, SGML or XML using a publicly
+available DTD, and standard-conforming simple HTML, PostScript or PDF designed
+for human modification. Examples of transparent image formats include PNG, XCF
+and JPG. Opaque formats include proprietary formats that can be read and edited
+only by proprietary word processors, SGML or XML for which the DTD and/or
+processing tools are not generally available, and the machine-generated HTML,
 PostScript or PDF produced by some word processors for output purposes only.
 
-The "Title Page" means, for a printed book, the title page itself, plus such 
-following pages as are needed to hold, legibly, the material this License 
-requires to appear in the title page. For works in formats which do not have 
-any title page as such, "Title Page" means the text near the most prominent 
+The "Title Page" means, for a printed book, the title page itself, plus such
+following pages as are needed to hold, legibly, the material this License
+requires to appear in the title page. For works in formats which do not have
+any title page as such, "Title Page" means the text near the most prominent
 appearance of the work's title, preceding the beginning of the body of the text.
 
-The "publisher" means any person or entity that distributes copies of the 
+The "publisher" means any person or entity that distributes copies of the
 Document to the public.
 
-A section "Entitled XYZ" means a named subunit of the Document whose title 
-either is precisely XYZ or contains XYZ in parentheses following text that 
-translates XYZ in another language. (Here XYZ stands for a specific section 
-name mentioned below, such as "Acknowledgements", "Dedications", 
-"Endorsements", or "History".) To "Preserve the Title" of such a section when 
-you modify the Document means that it remains a section "Entitled XYZ" 
+A section "Entitled XYZ" means a named subunit of the Document whose title
+either is precisely XYZ or contains XYZ in parentheses following text that
+translates XYZ in another language. (Here XYZ stands for a specific section
+name mentioned below, such as "Acknowledgements", "Dedications",
+"Endorsements", or "History".) To "Preserve the Title" of such a section when
+you modify the Document means that it remains a section "Entitled XYZ"
 according to this definition.
 
-The Document may include Warranty Disclaimers next to the notice which states 
-that this License applies to the Document. These Warranty Disclaimers are 
-considered to be included by reference in this License, but only as regards 
-disclaiming warranties: any other implication that these Warranty Disclaimers 
+The Document may include Warranty Disclaimers next to the notice which states
+that this License applies to the Document. These Warranty Disclaimers are
+considered to be included by reference in this License, but only as regards
+disclaiming warranties: any other implication that these Warranty Disclaimers
 may have is void and has no effect on the meaning of this License.
 
 === 2. VERBATIM COPYING
-You may copy and distribute the Document in any medium, either commercially or 
-noncommercially, provided that this License, the copyright notices, and the 
-license notice saying this License applies to the Document are reproduced in 
-all copies, and that you add no other conditions whatsoever to those of this 
-License. You may not use technical measures to obstruct or control the reading 
-or further copying of the copies you make or distribute. However, you may 
-accept compensation in exchange for copies. If you distribute a large enough 
+You may copy and distribute the Document in any medium, either commercially or
+noncommercially, provided that this License, the copyright notices, and the
+license notice saying this License applies to the Document are reproduced in
+all copies, and that you add no other conditions whatsoever to those of this
+License. You may not use technical measures to obstruct or control the reading
+or further copying of the copies you make or distribute. However, you may
+accept compensation in exchange for copies. If you distribute a large enough
 number of copies you must also follow the conditions in section 3.
 
-You may also lend copies, under the same conditions stated above, and you may 
+You may also lend copies, under the same conditions stated above, and you may
 publicly display copies.
 
 === 3. COPYING IN QUANTITY
-If you publish printed copies (or copies in media that commonly have printed 
-covers) of the Document, numbering more than 100, and the Document's license 
-notice requires Cover Texts, you must enclose the copies in covers that carry, 
-clearly and legibly, all these Cover Texts: Front-Cover Texts on the front 
-cover, and Back-Cover Texts on the back cover. Both covers must also clearly 
-and legibly identify you as the publisher of these copies. The front cover must 
-present the full title with all words of the title equally prominent and 
-visible. You may add other material on the covers in addition. Copying with 
-changes limited to the covers, as long as they preserve the title of the 
-Document and satisfy these conditions, can be treated as verbatim copying in 
+If you publish printed copies (or copies in media that commonly have printed
+covers) of the Document, numbering more than 100, and the Document's license
+notice requires Cover Texts, you must enclose the copies in covers that carry,
+clearly and legibly, all these Cover Texts: Front-Cover Texts on the front
+cover, and Back-Cover Texts on the back cover. Both covers must also clearly
+and legibly identify you as the publisher of these copies. The front cover must
+present the full title with all words of the title equally prominent and
+visible. You may add other material on the covers in addition. Copying with
+changes limited to the covers, as long as they preserve the title of the
+Document and satisfy these conditions, can be treated as verbatim copying in
 other respects.
 
-If the required texts for either cover are too voluminous to fit legibly, you 
-should put the first ones listed (as many as fit reasonably) on the actual 
+If the required texts for either cover are too voluminous to fit legibly, you
+should put the first ones listed (as many as fit reasonably) on the actual
 cover, and continue the rest onto adjacent pages.
 
-If you publish or distribute Opaque copies of the Document numbering more than 
-100, you must either include a machine-readable Transparent copy along with 
-each Opaque copy, or state in or with each Opaque copy a computer-network 
-location from which the general network-using public has access to download 
-using public-standard network protocols a complete Transparent copy of the 
-Document, free of added material. If you use the latter option, you must take 
-reasonably prudent steps, when you begin distribution of Opaque copies in 
-quantity, to ensure that this Transparent copy will remain thus accessible at 
-the stated location until at least one year after the last time you distribute 
-an Opaque copy (directly or through your agents or retailers) of that edition 
+If you publish or distribute Opaque copies of the Document numbering more than
+100, you must either include a machine-readable Transparent copy along with
+each Opaque copy, or state in or with each Opaque copy a computer-network
+location from which the general network-using public has access to download
+using public-standard network protocols a complete Transparent copy of the
+Document, free of added material. If you use the latter option, you must take
+reasonably prudent steps, when you begin distribution of Opaque copies in
+quantity, to ensure that this Transparent copy will remain thus accessible at
+the stated location until at least one year after the last time you distribute
+an Opaque copy (directly or through your agents or retailers) of that edition
 to the public.
 
-It is requested, but not required, that you contact the authors of the Document 
-well before redistributing any large number of copies, to give them a chance to 
+It is requested, but not required, that you contact the authors of the Document
+well before redistributing any large number of copies, to give them a chance to
 provide you with an updated version of the Document.
 
 === 4. MODIFICATIONS
-You may copy and distribute a Modified Version of the Document under the 
-conditions of sections 2 and 3 above, provided that you release the Modified 
-Version under precisely this License, with the Modified Version filling the 
-role of the Document, thus licensing distribution and modification of the 
-Modified Version to whoever possesses a copy of it. In addition, you must do 
+You may copy and distribute a Modified Version of the Document under the
+conditions of sections 2 and 3 above, provided that you release the Modified
+Version under precisely this License, with the Modified Version filling the
+role of the Document, thus licensing distribution and modification of the
+Modified Version to whoever possesses a copy of it. In addition, you must do
 these things in the Modified Version:
 
-A. Use in the Title Page (and on the covers, if any) a title distinct from that 
-of the Document, and from those of previous versions (which should, if there 
-were any, be listed in the History section of the Document). You may use the 
-same title as a previous version if the original publisher of that version 
-gives permission. 
+A. Use in the Title Page (and on the covers, if any) a title distinct from that
+of the Document, and from those of previous versions (which should, if there
+were any, be listed in the History section of the Document). You may use the
+same title as a previous version if the original publisher of that version
+gives permission.
 
-B. List on the Title Page, as authors, one or more persons or entities 
-responsible for authorship of the modifications in the Modified Version, 
-together with at least five of the principal authors of the Document (all of 
-its principal authors, if it has fewer than five), unless they release you from 
-this requirement. 
+B. List on the Title Page, as authors, one or more persons or entities
+responsible for authorship of the modifications in the Modified Version,
+together with at least five of the principal authors of the Document (all of
+its principal authors, if it has fewer than five), unless they release you from
+this requirement.
 
-C. State on the Title page the name of the publisher of the Modified Version, 
-as the publisher. 
+C. State on the Title page the name of the publisher of the Modified Version,
+as the publisher.
 
-D. Preserve all the copyright notices of the Document. 
+D. Preserve all the copyright notices of the Document.
 
-E. Add an appropriate copyright notice for your modifications adjacent to the 
-other copyright notices. 
+E. Add an appropriate copyright notice for your modifications adjacent to the
+other copyright notices.
 
-F. Include, immediately after the copyright notices, a license notice giving 
-the public permission to use the Modified Version under the terms of this 
-License, in the form shown in the Addendum below. 
+F. Include, immediately after the copyright notices, a license notice giving
+the public permission to use the Modified Version under the terms of this
+License, in the form shown in the Addendum below.
 
-G. Preserve in that license notice the full lists of Invariant Sections and 
-required Cover Texts given in the Document's license notice. 
+G. Preserve in that license notice the full lists of Invariant Sections and
+required Cover Texts given in the Document's license notice.
 
-H. Include an unaltered copy of this License. 
+H. Include an unaltered copy of this License.
 
-I. Preserve the section Entitled "History", Preserve its Title, and add to it 
-an item stating at least the title, year, new authors, and publisher of the 
-Modified Version as given on the Title Page. If there is no section Entitled 
-"History" in the Document, create one stating the title, year, authors, and 
-publisher of the Document as given on its Title Page, then add an item 
-describing the Modified Version as stated in the previous sentence. 
+I. Preserve the section Entitled "History", Preserve its Title, and add to it
+an item stating at least the title, year, new authors, and publisher of the
+Modified Version as given on the Title Page. If there is no section Entitled
+"History" in the Document, create one stating the title, year, authors, and
+publisher of the Document as given on its Title Page, then add an item
+describing the Modified Version as stated in the previous sentence.
 
-J. Preserve the network location, if any, given in the Document for public 
-access to a Transparent copy of the Document, and likewise the network 
-locations given in the Document for previous versions it was based on. These 
-may be placed in the "History" section. You may omit a network location for a 
-work that was published at least four years before the Document itself, or if 
-the original publisher of the version it refers to gives permission. 
+J. Preserve the network location, if any, given in the Document for public
+access to a Transparent copy of the Document, and likewise the network
+locations given in the Document for previous versions it was based on. These
+may be placed in the "History" section. You may omit a network location for a
+work that was published at least four years before the Document itself, or if
+the original publisher of the version it refers to gives permission.
 
-K. For any section Entitled "Acknowledgements" or "Dedications", Preserve the 
-Title of the section, and preserve in the section all the substance and tone of 
-each of the contributor acknowledgements and/or dedications given therein. 
+K. For any section Entitled "Acknowledgements" or "Dedications", Preserve the
+Title of the section, and preserve in the section all the substance and tone of
+each of the contributor acknowledgements and/or dedications given therein.
 
-L. Preserve all the Invariant Sections of the Document, unaltered in their text 
-and in their titles. Section numbers or the equivalent are not considered part 
-of the section titles. 
+L. Preserve all the Invariant Sections of the Document, unaltered in their text
+and in their titles. Section numbers or the equivalent are not considered part
+of the section titles.
 
-M. Delete any section Entitled "Endorsements". Such a section may not be 
-included in the Modified Version. 
+M. Delete any section Entitled "Endorsements". Such a section may not be
+included in the Modified Version.
 
-N. Do not retitle any existing section to be Entitled "Endorsements" or to 
-conflict in title with any Invariant Section. 
+N. Do not retitle any existing section to be Entitled "Endorsements" or to
+conflict in title with any Invariant Section.
 
-O. Preserve any Warranty Disclaimers. 
+O. Preserve any Warranty Disclaimers.
 
-If the Modified Version includes new front-matter sections or appendices that 
-qualify as Secondary Sections and contain no material copied from the Document, 
-you may at your option designate some or all of these sections as invariant. To 
-do this, add their titles to the list of Invariant Sections in the Modified 
-Version's license notice. These titles must be distinct from any other section 
+If the Modified Version includes new front-matter sections or appendices that
+qualify as Secondary Sections and contain no material copied from the Document,
+you may at your option designate some or all of these sections as invariant. To
+do this, add their titles to the list of Invariant Sections in the Modified
+Version's license notice. These titles must be distinct from any other section
 titles.
 
-You may add a section Entitled "Endorsements", provided it contains nothing but 
-endorsements of your Modified Version by various parties—for example, 
-statements of peer review or that the text has been approved by an organization 
+You may add a section Entitled "Endorsements", provided it contains nothing but
+endorsements of your Modified Version by various parties—for example,
+statements of peer review or that the text has been approved by an organization
 as the authoritative definition of a standard.
 
-You may add a passage of up to five words as a Front-Cover Text, and a passage 
-of up to 25 words as a Back-Cover Text, to the end of the list of Cover Texts 
-in the Modified Version. Only one passage of Front-Cover Text and one of 
-Back-Cover Text may be added by (or through arrangements made by) any one 
-entity. If the Document already includes a cover text for the same cover, 
-previously added by you or by arrangement made by the same entity you are 
-acting on behalf of, you may not add another; but you may replace the old one, 
+You may add a passage of up to five words as a Front-Cover Text, and a passage
+of up to 25 words as a Back-Cover Text, to the end of the list of Cover Texts
+in the Modified Version. Only one passage of Front-Cover Text and one of
+Back-Cover Text may be added by (or through arrangements made by) any one
+entity. If the Document already includes a cover text for the same cover,
+previously added by you or by arrangement made by the same entity you are
+acting on behalf of, you may not add another; but you may replace the old one,
 on explicit permission from the previous publisher that added the old one.
 
-The author(s) and publisher(s) of the Document do not by this License give 
-permission to use their names for publicity for or to assert or imply 
+The author(s) and publisher(s) of the Document do not by this License give
+permission to use their names for publicity for or to assert or imply
 endorsement of any Modified Version.
 
 === 5. COMBINING DOCUMENTS
-You may combine the Document with other documents released under this License, 
-under the terms defined in section 4 above for modified versions, provided that 
-you include in the combination all of the Invariant Sections of all of the 
-original documents, unmodified, and list them all as Invariant Sections of your 
-combined work in its license notice, and that you preserve all their Warranty 
+You may combine the Document with other documents released under this License,
+under the terms defined in section 4 above for modified versions, provided that
+you include in the combination all of the Invariant Sections of all of the
+original documents, unmodified, and list them all as Invariant Sections of your
+combined work in its license notice, and that you preserve all their Warranty
 Disclaimers.
 
-The combined work need only contain one copy of this License, and multiple 
-identical Invariant Sections may be replaced with a single copy. If there are 
-multiple Invariant Sections with the same name but different contents, make the 
-title of each such section unique by adding at the end of it, in parentheses, 
-the name of the original author or publisher of that section if known, or else 
-a unique number. Make the same adjustment to the section titles in the list of 
+The combined work need only contain one copy of this License, and multiple
+identical Invariant Sections may be replaced with a single copy. If there are
+multiple Invariant Sections with the same name but different contents, make the
+title of each such section unique by adding at the end of it, in parentheses,
+the name of the original author or publisher of that section if known, or else
+a unique number. Make the same adjustment to the section titles in the list of
 Invariant Sections in the license notice of the combined work.
 
-In the combination, you must combine any sections Entitled "History" in the 
-various original documents, forming one section Entitled "History"; likewise 
-combine any sections Entitled "Acknowledgements", and any sections Entitled 
+In the combination, you must combine any sections Entitled "History" in the
+various original documents, forming one section Entitled "History"; likewise
+combine any sections Entitled "Acknowledgements", and any sections Entitled
 "Dedications". You must delete all sections Entitled "Endorsements".
 
 === 6. COLLECTIONS OF DOCUMENTS
-You may make a collection consisting of the Document and other documents 
-released under this License, and replace the individual copies of this License 
-in the various documents with a single copy that is included in the collection, 
-provided that you follow the rules of this License for verbatim copying of each 
+You may make a collection consisting of the Document and other documents
+released under this License, and replace the individual copies of this License
+in the various documents with a single copy that is included in the collection,
+provided that you follow the rules of this License for verbatim copying of each
 of the documents in all other respects.
 
-You may extract a single document from such a collection, and distribute it 
-individually under this License, provided you insert a copy of this License 
-into the extracted document, and follow this License in all other respects 
+You may extract a single document from such a collection, and distribute it
+individually under this License, provided you insert a copy of this License
+into the extracted document, and follow this License in all other respects
 regarding verbatim copying of that document.
 
 === 7. AGGREGATION WITH INDEPENDENT WORKS
-A compilation of the Document or its derivatives with other separate and 
-independent documents or works, in or on a volume of a storage or distribution 
-medium, is called an "aggregate" if the copyright resulting from the 
-compilation is not used to limit the legal rights of the compilation's users 
-beyond what the individual works permit. When the Document is included in an 
-aggregate, this License does not apply to the other works in the aggregate 
+A compilation of the Document or its derivatives with other separate and
+independent documents or works, in or on a volume of a storage or distribution
+medium, is called an "aggregate" if the copyright resulting from the
+compilation is not used to limit the legal rights of the compilation's users
+beyond what the individual works permit. When the Document is included in an
+aggregate, this License does not apply to the other works in the aggregate
 which are not themselves derivative works of the Document.
 
-If the Cover Text requirement of section 3 is applicable to these copies of the 
-Document, then if the Document is less than one half of the entire aggregate, 
-the Document's Cover Texts may be placed on covers that bracket the Document 
-within the aggregate, or the electronic equivalent of covers if the Document is 
-in electronic form. Otherwise they must appear on printed covers that bracket 
+If the Cover Text requirement of section 3 is applicable to these copies of the
+Document, then if the Document is less than one half of the entire aggregate,
+the Document's Cover Texts may be placed on covers that bracket the Document
+within the aggregate, or the electronic equivalent of covers if the Document is
+in electronic form. Otherwise they must appear on printed covers that bracket
 the whole aggregate.
 
 === 8. TRANSLATION
-Translation is considered a kind of modification, so you may distribute 
-translations of the Document under the terms of section 4. Replacing Invariant 
-Sections with translations requires special permission from their copyright 
-holders, but you may include translations of some or all Invariant Sections in 
-addition to the original versions of these Invariant Sections. You may include 
-a translation of this License, and all the license notices in the Document, and 
-any Warranty Disclaimers, provided that you also include the original English 
-version of this License and the original versions of those notices and 
-disclaimers. In case of a disagreement between the translation and the original 
-version of this License or a notice or disclaimer, the original version will 
+Translation is considered a kind of modification, so you may distribute
+translations of the Document under the terms of section 4. Replacing Invariant
+Sections with translations requires special permission from their copyright
+holders, but you may include translations of some or all Invariant Sections in
+addition to the original versions of these Invariant Sections. You may include
+a translation of this License, and all the license notices in the Document, and
+any Warranty Disclaimers, provided that you also include the original English
+version of this License and the original versions of those notices and
+disclaimers. In case of a disagreement between the translation and the original
+version of this License or a notice or disclaimer, the original version will
 prevail.
 
-If a section in the Document is Entitled "Acknowledgements", "Dedications", or 
-"History", the requirement (section 4) to Preserve its Title (section 1) will 
+If a section in the Document is Entitled "Acknowledgements", "Dedications", or
+"History", the requirement (section 4) to Preserve its Title (section 1) will
 typically require changing the actual title.
 
 === 9. TERMINATION
-You may not copy, modify, sublicense, or distribute the Document except as 
-expressly provided under this License. Any attempt otherwise to copy, modify, 
-sublicense, or distribute it is void, and will automatically terminate your 
+You may not copy, modify, sublicense, or distribute the Document except as
+expressly provided under this License. Any attempt otherwise to copy, modify,
+sublicense, or distribute it is void, and will automatically terminate your
 rights under this License.
 
-However, if you cease all violation of this License, then your license from a 
-particular copyright holder is reinstated (a) provisionally, unless and until 
-the copyright holder explicitly and finally terminates your license, and (b) 
-permanently, if the copyright holder fails to notify you of the violation by 
+However, if you cease all violation of this License, then your license from a
+particular copyright holder is reinstated (a) provisionally, unless and until
+the copyright holder explicitly and finally terminates your license, and (b)
+permanently, if the copyright holder fails to notify you of the violation by
 some reasonable means prior to 60 days after the cessation.
 
-Moreover, your license from a particular copyright holder is reinstated 
-permanently if the copyright holder notifies you of the violation by some 
-reasonable means, this is the first time you have received notice of violation 
-of this License (for any work) from that copyright holder, and you cure the 
+Moreover, your license from a particular copyright holder is reinstated
+permanently if the copyright holder notifies you of the violation by some
+reasonable means, this is the first time you have received notice of violation
+of this License (for any work) from that copyright holder, and you cure the
 violation prior to 30 days after your receipt of the notice.
 
-Termination of your rights under this section does not terminate the licenses 
-of parties who have received copies or rights from you under this License. If 
-your rights have been terminated and not permanently reinstated, receipt of a 
+Termination of your rights under this section does not terminate the licenses
+of parties who have received copies or rights from you under this License. If
+your rights have been terminated and not permanently reinstated, receipt of a
 copy of some or all of the same material does not give you any rights to use it.
 
 === 10. FUTURE REVISIONS OF THIS LICENSE
-The Free Software Foundation may publish new, revised versions of the GNU Free 
-Documentation License from time to time. Such new versions will be similar in 
-spirit to the present version, but may differ in detail to address new problems 
+The Free Software Foundation may publish new, revised versions of the GNU Free
+Documentation License from time to time. Such new versions will be similar in
+spirit to the present version, but may differ in detail to address new problems
 or concerns. See http://www.gnu.org/copyleft/.
 
-Each version of the License is given a distinguishing version number. If the 
-Document specifies that a particular numbered version of this License "or any 
-later version" applies to it, you have the option of following the terms and 
-conditions either of that specified version or of any later version that has 
-been published (not as a draft) by the Free Software Foundation. If the 
-Document does not specify a version number of this License, you may choose any 
-version ever published (not as a draft) by the Free Software Foundation. If the 
-Document specifies that a proxy can decide which future versions of this 
-License can be used, that proxy's public statement of acceptance of a version 
+Each version of the License is given a distinguishing version number. If the
+Document specifies that a particular numbered version of this License "or any
+later version" applies to it, you have the option of following the terms and
+conditions either of that specified version or of any later version that has
+been published (not as a draft) by the Free Software Foundation. If the
+Document does not specify a version number of this License, you may choose any
+version ever published (not as a draft) by the Free Software Foundation. If the
+Document specifies that a proxy can decide which future versions of this
+License can be used, that proxy's public statement of acceptance of a version
 permanently authorizes you to choose that version for the Document.
 
 === 11. RELICENSING
-"Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide 
-Web server that publishes copyrightable works and also provides prominent 
-facilities for anybody to edit those works. A public wiki that anybody can edit 
-is an example of such a server. A "Massive Multiauthor Collaboration" (or 
-"MMC") contained in the site means any set of copyrightable works thus 
+"Massive Multiauthor Collaboration Site" (or "MMC Site") means any World Wide
+Web server that publishes copyrightable works and also provides prominent
+facilities for anybody to edit those works. A public wiki that anybody can edit
+is an example of such a server. A "Massive Multiauthor Collaboration" (or
+"MMC") contained in the site means any set of copyrightable works thus
 published on the MMC site.
 
-"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0 license 
-published by Creative Commons Corporation, a not-for-profit corporation with a 
-principal place of business in San Francisco, California, as well as future 
+"CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0 license
+published by Creative Commons Corporation, a not-for-profit corporation with a
+principal place of business in San Francisco, California, as well as future
 copyleft versions of that license published by that same organization.
 
-"Incorporate" means to publish or republish a Document, in whole or in part, as 
+"Incorporate" means to publish or republish a Document, in whole or in part, as
 part of another Document.
 
-An MMC is "eligible for relicensing" if it is licensed under this License, and 
-if all works that were first published under this License somewhere other than 
-this MMC, and subsequently incorporated in whole or in part into the MMC, (1) 
-had no cover texts or invariant sections, and (2) were thus incorporated prior 
+An MMC is "eligible for relicensing" if it is licensed under this License, and
+if all works that were first published under this License somewhere other than
+this MMC, and subsequently incorporated in whole or in part into the MMC, (1)
+had no cover texts or invariant sections, and (2) were thus incorporated prior
 to November 1, 2008.
 
-The operator of an MMC Site may republish an MMC contained in the site under 
-CC-BY-SA on the same site at any time before August 1, 2009, provided the MMC 
+The operator of an MMC Site may republish an MMC contained in the site under
+CC-BY-SA on the same site at any time before August 1, 2009, provided the MMC
 is eligible for relicensing.
 

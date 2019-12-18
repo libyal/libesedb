@@ -452,6 +452,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_libfwnt.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_libuna.h"
 				>
 			</File>

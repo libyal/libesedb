@@ -44,13 +44,13 @@ int libesedb_compression_7bit_decompress(
      size_t uncompressed_data_size,
      libcerror_error_t **error );
 
-int libesedb_compression_xpress_decompress_get_size(
+int libesedb_compression_lzxpress_decompress_get_size(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      size_t *uncompressed_data_size,
      libcerror_error_t **error );
 
-int libesedb_compression_xpress_decompress(
+int libesedb_compression_lzxpress_decompress(
      const uint8_t *compressed_data,
      size_t compressed_data_size,
      uint8_t *uncompressed_data,

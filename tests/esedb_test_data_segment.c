@@ -27,8 +27,11 @@
 #include <stdlib.h>
 #endif
 
+#include "esedb_test_functions.h"
+#include "esedb_test_libbfio.h"
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libesedb.h"
+#include "esedb_test_libfcache.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
@@ -521,6 +524,24 @@ int esedb_test_data_segment_get_data(
 	libcerror_error_free(
 	 &error );
 
+	result = libesedb_data_segment_get_data(
+	          data_segment,
+	          data,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 #if defined( HAVE_ESEDB_TEST_MEMORY ) && defined( OPTIMIZATION_DISABLED )
 
 	/* Test libesedb_data_segment_get_data with memcpy failing
@@ -589,6 +610,342 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_data_segment_read_element_data function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_data_segment_read_element_data(
+     void )
+{
+	uint8_t data[ 4096 ];
+
+	libbfio_handle_t *file_io_handle      = NULL;
+	libcerror_error_t *error              = NULL;
+	libfcache_cache_t *cache              = NULL;
+	libfdata_list_t *list                 = NULL;
+	libfdata_list_element_t *list_element = NULL;
+	int result                            = 0;
+
+	/* Initialize test
+	 */
+	result = libfdata_list_initialize(
+	          &list,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "list",
+	 list );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfdata_list_element_initialize(
+	          &list_element,
+	          list,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "list_element",
+	 list_element );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfcache_cache_initialize(
+	          &cache,
+	          1,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "cache",
+	 cache );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Initialize file IO handle
+	 */
+	result = esedb_test_open_file_io_handle(
+	          &file_io_handle,
+	          data,
+	          4096,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test regular cases
+	 */
+	result = libesedb_data_segment_read_element_data(
+	          NULL,
+	          file_io_handle,
+	          list_element,
+	          (libfdata_cache_t *) cache,
+	          0,
+	          0,
+	          4096,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_data_segment_read_element_data(
+	          NULL,
+	          file_io_handle,
+	          list_element,
+	          (libfdata_cache_t *) cache,
+	          0,
+	          0,
+	          (size64_t) SSIZE_MAX + 1,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_data_segment_read_element_data(
+	          NULL,
+	          NULL,
+	          list_element,
+	          (libfdata_cache_t *) cache,
+	          0,
+	          0,
+	          4096,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_data_segment_read_element_data(
+	          NULL,
+	          file_io_handle,
+	          NULL,
+	          (libfdata_cache_t *) cache,
+	          0,
+	          0,
+	          4096,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+
+	/* Test libesedb_data_segment_initialize with malloc failing in libesedb_data_segment_initialize
+	 */
+	esedb_test_malloc_attempts_before_fail = 0;
+
+	result = libesedb_data_segment_read_element_data(
+	          NULL,
+	          file_io_handle,
+	          list_element,
+	          (libfdata_cache_t *) cache,
+	          0,
+	          0,
+	          4096,
+	          0,
+	          0,
+	          &error );
+
+	if( esedb_test_malloc_attempts_before_fail != -1 )
+	{
+		esedb_test_malloc_attempts_before_fail = -1;
+	}
+	else
+	{
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
+
+	/* Clean up file IO handle
+	 */
+	result = esedb_test_close_file_io_handle(
+	          &file_io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Clean up
+	 */
+	result = libfcache_cache_free(
+	          &cache,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "cache",
+	 cache );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfdata_list_element_free(
+	          &list_element,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "list_element",
+	 list_element );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libfdata_list_free(
+	          &list,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "list",
+	 list );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
+	if( cache != NULL )
+	{
+		libfcache_cache_free(
+		 &cache,
+		 NULL );
+	}
+	if( list_element != NULL )
+	{
+		libfdata_list_element_free(
+		 &list_element,
+		 NULL );
+	}
+	if( list != NULL )
+	{
+		libfdata_list_free(
+		 &list,
+		 NULL );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -624,7 +981,9 @@ int main(
 	 "libesedb_data_segment_get_data",
 	 esedb_test_data_segment_get_data );
 
-	/* TODO: add tests for libesedb_data_segment_read_element_data */
+	ESEDB_TEST_RUN(
+	 "libesedb_data_segment_read_element_data",
+	 esedb_test_data_segment_read_element_data );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

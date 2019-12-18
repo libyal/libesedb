@@ -575,9 +575,10 @@ on_error:
 int esedb_test_column_get_utf8_name_size(
      libesedb_column_t *column )
 {
-	libcerror_error_t *error = NULL;
-	size_t utf8_string_size  = 0;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libesedb_io_handle_t *io_handle = NULL;
+	size_t utf8_string_size         = 0;
+	int result                      = 0;
 
 	/* Test regular cases
 	 */
@@ -606,6 +607,29 @@ int esedb_test_column_get_utf8_name_size(
 	          NULL,
 	          &utf8_string_size,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	io_handle = ( (libesedb_internal_column_t *) column )->io_handle;
+
+	( (libesedb_internal_column_t *) column )->io_handle = NULL;
+
+	result = libesedb_column_get_utf8_name_size(
+	          column,
+	          &utf8_string_size,
+	          &error );
+
+	( (libesedb_internal_column_t *) column )->io_handle = io_handle;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -655,8 +679,11 @@ int esedb_test_column_get_utf8_name(
 {
 	uint8_t utf8_string[ 32 ];
 
-	uint8_t expected_utf8_string[ 12 ] = { 'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+	uint8_t expected_utf8_string[ 12 ] = {
+		'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+
 	libcerror_error_t *error           = NULL;
+	libesedb_io_handle_t *io_handle    = NULL;
 	int result                         = 0;
 
 	/* Test regular cases
@@ -706,6 +733,30 @@ int esedb_test_column_get_utf8_name(
 	libcerror_error_free(
 	 &error );
 
+	io_handle = ( (libesedb_internal_column_t *) column )->io_handle;
+
+	( (libesedb_internal_column_t *) column )->io_handle = NULL;
+
+	result = libesedb_column_get_utf8_name(
+	          column,
+	          utf8_string,
+	          32,
+	          &error );
+
+	( (libesedb_internal_column_t *) column )->io_handle = io_handle;
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 	result = libesedb_column_get_utf8_name(
 	          column,
 	          NULL,
@@ -741,9 +792,10 @@ on_error:
 int esedb_test_column_get_utf16_name_size(
      libesedb_column_t *column )
 {
-	libcerror_error_t *error = NULL;
-	size_t utf16_string_size = 0;
-	int result               = 0;
+	libcerror_error_t *error        = NULL;
+	libesedb_io_handle_t *io_handle = NULL;
+	size_t utf16_string_size        = 0;
+	int result                      = 0;
 
 	/* Test regular cases
 	 */
@@ -772,6 +824,29 @@ int esedb_test_column_get_utf16_name_size(
 	          NULL,
 	          &utf16_string_size,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	io_handle = ( (libesedb_internal_column_t *) column )->io_handle;
+
+	( (libesedb_internal_column_t *) column )->io_handle = NULL;
+
+	result = libesedb_column_get_utf16_name_size(
+	          column,
+	          &utf16_string_size,
+	          &error );
+
+	( (libesedb_internal_column_t *) column )->io_handle = io_handle;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -821,8 +896,11 @@ int esedb_test_column_get_utf16_name(
 {
 	uint16_t utf16_string[ 32 ];
 
-	uint16_t expected_utf16_string[ 12 ] = { 'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+	uint16_t expected_utf16_string[ 12 ] = {
+		'M', 'S', 'y', 's', 'O', 'b', 'j', 'e', 'c', 't', 's', 0 };
+
 	libcerror_error_t *error             = NULL;
+	libesedb_io_handle_t *io_handle      = NULL;
 	int result                           = 0;
 
 	/* Test regular cases
@@ -859,6 +937,30 @@ int esedb_test_column_get_utf16_name(
 	          utf16_string,
 	          32,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	io_handle = ( (libesedb_internal_column_t *) column )->io_handle;
+
+	( (libesedb_internal_column_t *) column )->io_handle = NULL;
+
+	result = libesedb_column_get_utf16_name(
+	          column,
+	          utf16_string,
+	          32,
+	          &error );
+
+	( (libesedb_internal_column_t *) column )->io_handle = io_handle;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",

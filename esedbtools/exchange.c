@@ -1855,7 +1855,7 @@ int exchange_export_record_value_sid(
 			     sid,
 			     value_data,
 			     value_data_size,
-			     LIBFWNT_ENDIAN_BIG,
+			     LIBFWNT_ENDIAN_LITTLE,
 			     error ) != 1 )
 			{
 				libcerror_error_set(

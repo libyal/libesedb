@@ -260,7 +260,7 @@ int libesedb_io_handle_read_page(
 
 		goto on_error;
 	}
-	if( libesedb_page_read(
+	if( libesedb_page_read_file_io_handle(
 	     page,
 	     io_handle,
 	     file_io_handle,

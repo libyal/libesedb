@@ -64,9 +64,13 @@ uint16_t esedb_test_compression_7bit_uncompressed_utf16_string[ 56 ] = {
 	0x20, 0x69, 0x74, 0x65, 0x6d, 0x73, 0x29, 0x00
 };
 
-uint8_t esedb_test_compression_xpress_compressed_data[ 1 ] = {
-	0x18
-};
+/* The sequence: abcdefghijklmnopqrstuvwxyz compressed in LZXpress
+ * including leading byte 0x18 and uncompressed data size 0x001a
+ */
+uint8_t esedb_test_compression_lzxpress_compressed_data[ 33 ] = {
+	0x18, 0x1a, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,
+	0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79,
+	0x7a };
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
@@ -177,8 +181,8 @@ int esedb_test_compression_7bit_decompress_get_size(
 	 &error );
 
 	result = libesedb_compression_7bit_decompress_get_size(
-	          esedb_test_compression_xpress_compressed_data,
-	          1,
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
 	          &uncompressed_data_size,
 	          &error );
 
@@ -361,8 +365,8 @@ int esedb_test_compression_7bit_decompress(
 	 &error );
 
 	result = libesedb_compression_7bit_decompress(
-	          esedb_test_compression_xpress_compressed_data,
-	          1,
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
 	          uncompressed_data,
 	          64,
 	          &error );
@@ -390,10 +394,10 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libesedb_compression_xpress_decompress_get_size function
+/* Tests the libesedb_compression_lzxpress_decompress_get_size function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_compression_xpress_decompress_get_size(
+int esedb_test_compression_lzxpress_decompress_get_size(
      void )
 {
 	libcerror_error_t *error      = NULL;
@@ -402,13 +406,175 @@ int esedb_test_compression_xpress_decompress_get_size(
 
 	/* Test regular cases
 	 */
+	result = libesedb_compression_lzxpress_decompress_get_size(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
+	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "uncompressed_data_size",
+	 uncompressed_data_size,
+	 (size_t) 26 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
-	result = libesedb_compression_xpress_decompress_get_size(
+	result = libesedb_compression_lzxpress_decompress_get_size(
 	          NULL,
+	          33,
+	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_compression_lzxpress_decompress_get_size(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          (size_t) SSIZE_MAX + 1,
+	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_compression_lzxpress_decompress_get_size(
+	          esedb_test_compression_lzxpress_compressed_data,
 	          0,
 	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_compression_lzxpress_decompress_get_size(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_compression_lzxpress_decompress_get_size(
+	          esedb_test_compression_7bit_compressed_data,
+	          50,
+	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_compression_lzxpress_decompress function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_compression_lzxpress_decompress(
+     void )
+{
+	uint8_t uncompressed_data[ 64 ];
+
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_compression_lzxpress_decompress(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
+	          uncompressed_data,
+	          64,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = memory_compare(
+	          uncompressed_data,
+	          (uint8_t *) "abcdefghijklmnopqrstuvwxyz",
+	          26 );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	/* Test error cases
+	 */
+	result = libesedb_compression_lzxpress_decompress(
+	          NULL,
+	          33,
+	          uncompressed_data,
+	          64,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -461,6 +627,26 @@ int esedb_test_compression_decompress_get_size(
 	 "uncompressed_data_size",
 	 uncompressed_data_size,
 	 (size_t) 56 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libesedb_compression_decompress_get_size(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
+	          &uncompressed_data_size,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_SIZE(
+	 "uncompressed_data_size",
+	 uncompressed_data_size,
+	 (size_t) 26 );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -590,6 +776,32 @@ int esedb_test_compression_decompress(
 	 result,
 	 0 );
 
+	result = libesedb_compression_decompress(
+	          esedb_test_compression_lzxpress_compressed_data,
+	          33,
+	          uncompressed_data,
+	          64,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = memory_compare(
+	          uncompressed_data,
+	          (uint8_t *) "abcdefghijklmnopqrstuvwxyz",
+	          26 );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
 	/* Test error cases
 	 */
 	result = libesedb_compression_decompress(
@@ -710,6 +922,8 @@ int esedb_test_compression_get_utf8_string_size(
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+/* TODO add test with LZXPRESS compressed string */
 
 	/* Test error cases
 	 */
@@ -835,6 +1049,8 @@ int esedb_test_compression_copy_to_utf8_string(
 	 result,
 	 0 );
 
+/* TODO add test with LZXPRESS compressed string */
+
 	/* Test error cases
 	 */
 	result = libesedb_compression_copy_to_utf8_string(
@@ -955,6 +1171,8 @@ int esedb_test_compression_get_utf16_string_size(
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
+
+/* TODO add test with LZXPRESS compressed string */
 
 	/* Test error cases
 	 */
@@ -1080,6 +1298,8 @@ int esedb_test_compression_copy_to_utf16_string(
 	 result,
 	 0 );
 
+/* TODO add test with LZXPRESS compressed string */
+
 	/* Test error cases
 	 */
 	result = libesedb_compression_copy_to_utf16_string(
@@ -1197,10 +1417,12 @@ int main(
 	 esedb_test_compression_7bit_decompress );
 
 	ESEDB_TEST_RUN(
-	 "libesedb_compression_xpress_decompress_get_size",
-	 esedb_test_compression_xpress_decompress_get_size );
+	 "libesedb_compression_lzxpress_decompress_get_size",
+	 esedb_test_compression_lzxpress_decompress_get_size );
 
-	/* TODO: add tests for libesedb_compression_xpress_decompress */
+	ESEDB_TEST_RUN(
+	 "libesedb_compression_lzxpress_decompress",
+	 esedb_test_compression_lzxpress_decompress );
 
 	ESEDB_TEST_RUN(
 	 "libesedb_compression_decompress_get_size",

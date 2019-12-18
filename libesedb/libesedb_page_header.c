@@ -303,7 +303,7 @@ int libesedb_page_header_read_data(
 			else
 			{
 				libcnotify_printf(
-				 "%s: page number\t\t\t\t\t\t: %" PRIu32 "\n",
+				 "%s: page number\t\t\t\t\t: %" PRIu32 "\n",
 				 function,
 				 page_header->page_number );
 			}
