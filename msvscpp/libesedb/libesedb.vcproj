@@ -250,6 +250,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_leaf_page_descriptor.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_long_value.c"
 				>
 			</File>
@@ -413,6 +417,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_lcid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_leaf_page_descriptor.h"
 				>
 			</File>
 			<File

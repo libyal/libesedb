@@ -76,6 +76,10 @@ struct libesedb_internal_record
 	 */
 	libfcache_cache_t *long_values_pages_cache;
 
+	/* The data definition
+	 */
+	libesedb_data_definition_t *data_definition;
+
 	/* The long values tree
 	 */
 	libfdata_btree_t *long_values_tree;

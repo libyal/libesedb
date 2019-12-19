@@ -32,6 +32,7 @@
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
@@ -79,13 +80,9 @@ struct libesedb_internal_index
 	 */
 	libfcache_cache_t *long_values_pages_cache;
 
-	/* The table values tree
+	/* The table page tree
 	 */
-	libfdata_btree_t *table_values_tree;
-
-	/* The table values cache
-	 */
-	libfcache_cache_t *table_values_cache;
+	libesedb_page_tree_t *table_page_tree;
 
 	/* The long values tree
 	 */
@@ -95,13 +92,9 @@ struct libesedb_internal_index
 	 */
 	libfcache_cache_t *long_values_cache;
 
-	/* The table values (data) tree
+	/* The index page tree
 	 */
-	libfdata_btree_t *index_values_tree;
-
-	/* The index values cache
-	 */
-	libfcache_cache_t *index_values_cache;
+	libesedb_page_tree_t *index_page_tree;
 };
 
 int libesedb_index_initialize(
@@ -115,8 +108,7 @@ int libesedb_index_initialize(
      libfcache_cache_t *pages_cache,
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
-     libfdata_btree_t *table_values_tree,
-     libfcache_cache_t *table_values_cache,
+     libesedb_page_tree_t *table_page_tree,
      libfdata_btree_t *long_values_tree,
      libfcache_cache_t *long_values_cache,
      libcerror_error_t **error );

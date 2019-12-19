@@ -178,14 +178,14 @@ int libesedb_catalog_definition_free(
  */
 int libesedb_catalog_definition_read_data(
      libesedb_catalog_definition_t *catalog_definition,
-     uint8_t *data,
+     const uint8_t *data,
      size_t data_size,
      int ascii_codepage LIBESEDB_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
-	uint8_t *fixed_size_data_type_value_data            = NULL;
-	uint8_t *variable_size_data_type_size_data          = NULL;
-	uint8_t *variable_size_data_type_value_data         = NULL;
+	const uint8_t *fixed_size_data_type_value_data      = NULL;
+	const uint8_t *variable_size_data_type_size_data    = NULL;
+	const uint8_t *variable_size_data_type_value_data   = NULL;
 	static char *function                               = "libesedb_catalog_definition_read_data";
 	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;

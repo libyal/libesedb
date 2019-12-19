@@ -183,6 +183,7 @@ int libesedb_record_initialize(
 	internal_record->pages_cache               = pages_cache;
 	internal_record->long_values_pages_vector  = long_values_pages_vector;
 	internal_record->long_values_pages_cache   = long_values_pages_cache;
+	internal_record->data_definition           = data_definition;
 	internal_record->long_values_tree          = long_values_tree;
 	internal_record->long_values_cache         = long_values_cache;
 
@@ -237,6 +238,22 @@ int libesedb_record_free(
 		 * pages_cache, * long_values_pages_vector, long_values_pages_cache, long_values_tree
 		 * and long_values_cache references are freed elsewhere
 		 */
+		if( internal_record->data_definition != NULL )
+		{
+			if( libesedb_data_definition_free(
+			     &( internal_record->data_definition ),
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free data definition.",
+				 function );
+
+				result = -1;
+			}
+		}
 		if( libcdata_array_free(
 		     &( internal_record->values_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,

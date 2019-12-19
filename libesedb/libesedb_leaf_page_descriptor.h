@@ -1,5 +1,5 @@
 /*
- * Database functions
+ * Leaf page descriptor functions
  *
  * Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,59 +19,51 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_DATABASE_H )
-#define _LIBESEDB_DATABASE_H
+#if !defined( _LIBESEDB_LEAF_PAGE_DESCRIPTOR_H )
+#define _LIBESEDB_LEAF_PAGE_DESCRIPTOR_H
 
 #include <common.h>
 #include <types.h>
 
-#include "libesedb_io_handle.h"
-#include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
-#include "libesedb_libfcache.h"
-#include "libesedb_libfdata.h"
-#include "libesedb_page_tree.h"
 
 #if defined( __cplusplus )
 extern "C" {
 #endif
 
-typedef struct libesedb_database libesedb_database_t;
+typedef struct libesedb_leaf_page_descriptor libesedb_leaf_page_descriptor_t;
 
-struct libesedb_database
+struct libesedb_leaf_page_descriptor
 {
-	/* The page tree
+	/* The page number
 	 */
-	libesedb_page_tree_t *page_tree;
+	uint32_t page_number;
+
+	/* The first leaf value index;
+	 */
+	int first_leaf_value_index;
+
+	/* The last leaf value index;
+	 */
+	int last_leaf_value_index;
 };
 
-int libesedb_database_initialize(
-     libesedb_database_t **database,
-     libesedb_io_handle_t *io_handle,
-     libfdata_vector_t *pages_vector,
-     libfcache_cache_t *pages_cache,
+int libesedb_leaf_page_descriptor_initialize(
+     libesedb_leaf_page_descriptor_t **leaf_page_descriptor,
      libcerror_error_t **error );
 
-int libesedb_database_free(
-     libesedb_database_t **database,
+int libesedb_leaf_page_descriptor_free(
+     libesedb_leaf_page_descriptor_t **leaf_page_descriptor,
      libcerror_error_t **error );
 
-int libesedb_database_read_values_from_page(
-     libesedb_database_t *database,
-     libbfio_handle_t *file_io_handle,
-     libesedb_page_t *page,
-     int *current_leaf_value_index,
-     int recursion_depth,
-     libcerror_error_t **error );
-
-int libesedb_database_read_file_io_handle(
-     libesedb_database_t *database,
-     libbfio_handle_t *file_io_handle,
+int libesedb_leaf_page_descriptor_compare(
+     libesedb_leaf_page_descriptor_t *first_leaf_page_descriptor,
+     libesedb_leaf_page_descriptor_t *second_leaf_page_descriptor,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_DATABASE_H ) */
+#endif /* !defined( _LIBESEDB_LEAF_PAGE_DESCRIPTOR_H ) */
 

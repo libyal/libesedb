@@ -431,3 +431,151 @@ int libesedb_page_header_read_data(
 	return( 1 );
 }
 
+/* Retrieves the previous page number
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_header_get_previous_page_number(
+     libesedb_page_header_t *page_header,
+     uint32_t *previous_page_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_header_get_previous_page_number";
+
+	if( page_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page header.",
+		 function );
+
+		return( -1 );
+	}
+	if( previous_page_number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid previous page number.",
+		 function );
+
+		return( -1 );
+	}
+	*previous_page_number = page_header->previous_page_number;
+
+	return( 1 );
+}
+
+/* Retrieves the next page number
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_header_get_next_page_number(
+     libesedb_page_header_t *page_header,
+     uint32_t *next_page_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_header_get_next_page_number";
+
+	if( page_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page header.",
+		 function );
+
+		return( -1 );
+	}
+	if( next_page_number == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid next page number.",
+		 function );
+
+		return( -1 );
+	}
+	*next_page_number = page_header->next_page_number;
+
+	return( 1 );
+}
+
+/* Retrieves the father data page object identifier
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_header_get_father_data_page_object_identifier(
+     libesedb_page_header_t *page_header,
+     uint32_t *father_data_page_object_identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_header_get_father_data_page_object_identifier";
+
+	if( page_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page header.",
+		 function );
+
+		return( -1 );
+	}
+	if( father_data_page_object_identifier == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid father data page object identifier.",
+		 function );
+
+		return( -1 );
+	}
+	*father_data_page_object_identifier = page_header->father_data_page_object_identifier;
+
+	return( 1 );
+}
+
+/* Retrieves the flags
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_header_get_flags(
+     libesedb_page_header_t *page_header,
+     uint32_t *flags,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_header_get_flags";
+
+	if( page_header == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page header.",
+		 function );
+
+		return( -1 );
+	}
+	if( flags == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid flags.",
+		 function );
+
+		return( -1 );
+	}
+	*flags = page_header->flags;
+
+	return( 1 );
+}
+

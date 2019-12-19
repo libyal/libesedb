@@ -88,6 +88,26 @@ int libesedb_page_header_read_data(
      size_t data_size,
      libcerror_error_t **error );
 
+int libesedb_page_header_get_previous_page_number(
+     libesedb_page_header_t *page_header,
+     uint32_t *previous_page_number,
+     libcerror_error_t **error );
+
+int libesedb_page_header_get_next_page_number(
+     libesedb_page_header_t *page_header,
+     uint32_t *next_page_number,
+     libcerror_error_t **error );
+
+int libesedb_page_header_get_father_data_page_object_identifier(
+     libesedb_page_header_t *page_header,
+     uint32_t *father_data_page_object_identifier,
+     libcerror_error_t **error );
+
+int libesedb_page_header_get_flags(
+     libesedb_page_header_t *page_header,
+     uint32_t *flags,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

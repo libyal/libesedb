@@ -105,6 +105,38 @@ int libesedb_page_read_file_io_handle(
      off64_t file_offset,
      libcerror_error_t **error );
 
+int libesedb_page_validate_root_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error );
+
+int libesedb_page_validate_space_tree_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error );
+
+int libesedb_page_validate_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error );
+
+int libesedb_page_get_previous_page_number(
+     libesedb_page_t *page,
+     uint32_t *previous_page_number,
+     libcerror_error_t **error );
+
+int libesedb_page_get_next_page_number(
+     libesedb_page_t *page,
+     uint32_t *next_page_number,
+     libcerror_error_t **error );
+
+int libesedb_page_get_father_data_page_object_identifier(
+     libesedb_page_t *page,
+     uint32_t *father_data_page_object_identifier,
+     libcerror_error_t **error );
+
+int libesedb_page_get_flags(
+     libesedb_page_t *page,
+     uint32_t *flags,
+     libcerror_error_t **error );
+
 int libesedb_page_get_number_of_values(
      libesedb_page_t *page,
      uint16_t *number_of_values,

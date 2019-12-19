@@ -31,6 +31,7 @@
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 #include "libesedb_types.h"
 
@@ -74,9 +75,9 @@ struct libesedb_internal_table
 	 */
 	libfcache_cache_t *long_values_pages_cache;
 
-	/* The table values tree
+	/* The table page tree
 	 */
-	libfdata_btree_t *table_values_tree;
+	libesedb_page_tree_t *table_page_tree;
 
 	/* The table values cache
 	 */

@@ -285,7 +285,7 @@ int libesedb_key_append_data(
 
 		return( -1 );
 	}
-	if( data_size > key->data_size )
+	if( data_size > 0 )
 	{
 		reallocation = memory_reallocate(
 		                key->data,
@@ -477,7 +477,8 @@ int libesedb_key_compare(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	/* Check if the key is empty, therefore has no upper bound
 	 * and thus the first key will be greater than the second key
 	 */
@@ -666,7 +667,8 @@ fprintf( stderr, "MARKER\n" );
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( result );
 }
 

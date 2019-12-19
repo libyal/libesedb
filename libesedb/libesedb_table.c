@@ -53,7 +53,6 @@ int libesedb_table_initialize(
 {
 	libesedb_internal_table_t *internal_table   = NULL;
 	libesedb_page_tree_t *long_values_page_tree = NULL;
-	libesedb_page_tree_t *table_page_tree       = NULL;
 	static char *function                       = "libesedb_table_initialize";
 	off64_t node_data_offset                    = 0;
 	int segment_index                           = 0;
@@ -199,11 +198,12 @@ int libesedb_table_initialize(
 		goto on_error;
 	}
 	if( libesedb_page_tree_initialize(
-	     &table_page_tree,
+	     &( internal_table->table_page_tree ),
 	     io_handle,
 	     internal_table->pages_vector,
 	     internal_table->pages_cache,
 	     table_definition->table_catalog_definition->identifier,
+	     table_definition->table_catalog_definition->father_data_page_number,
 	     table_definition,
 	     template_table_definition,
 	     error ) != 1 )
@@ -213,65 +213,6 @@ int libesedb_table_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
 		 "%s: unable to create table page tree.",
-		 function );
-
-		goto on_error;
-	}
-	/* TODO add clone function
-	 */
-	if( libfdata_btree_initialize(
-	     &( internal_table->table_values_tree ),
-	     (intptr_t *) table_page_tree,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
-	     NULL,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
-	     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
-	     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table values tree.",
-		 function );
-
-		libesedb_page_tree_free(
-		 &table_page_tree,
-		 NULL );
-
-		goto on_error;
-	}
-	if( libfcache_cache_initialize(
-	     &( internal_table->table_values_cache ),
-	     LIBESEDB_MAXIMUM_CACHE_ENTRIES_TABLE_VALUES,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create values cache.",
-		 function );
-
-		goto on_error;
-	}
-	node_data_offset  = table_definition->table_catalog_definition->father_data_page_number - 1;
-	node_data_offset *= io_handle->page_size;
-
-	if( libfdata_btree_set_root_node(
-	     internal_table->table_values_tree,
-	     0,
-	     node_data_offset,
-	     0,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-		 "%s: unable to set root node data range in table values tree.",
 		 function );
 
 		goto on_error;
@@ -338,6 +279,7 @@ int libesedb_table_initialize(
 		     internal_table->long_values_pages_vector,
 		     internal_table->long_values_pages_cache,
 		     table_definition->long_value_catalog_definition->identifier,
+		     table_definition->long_value_catalog_definition->father_data_page_number,
 		     table_definition,
 		     template_table_definition,
 		     error ) != 1 )
@@ -447,16 +389,10 @@ on_error:
 			 &( internal_table->long_values_pages_vector ),
 			 NULL );
 		}
-		if( internal_table->table_values_cache != NULL )
+		if( internal_table->table_page_tree != NULL )
 		{
-			libfcache_cache_free(
-			 &( internal_table->table_values_cache ),
-			 NULL );
-		}
-		if( internal_table->table_values_tree != NULL )
-		{
-			libfdata_btree_free(
-			 &( internal_table->table_values_tree ),
+			libesedb_page_tree_free(
+			 &( internal_table->table_page_tree ),
 			 NULL );
 		}
 		if( internal_table->pages_cache != NULL )
@@ -565,28 +501,15 @@ int libesedb_table_free(
 				result = -1;
 			}
 		}
-		if( libfdata_btree_free(
-		     &( internal_table->table_values_tree ),
+		if( libesedb_page_tree_free(
+		     &( internal_table->table_page_tree ),
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table values tree.",
-			 function );
-
-			result = -1;
-		}
-		if( libfcache_cache_free(
-		     &( internal_table->table_values_cache ),
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table values cache.",
+			 "%s: unable to free table page tree.",
 			 function );
 
 			result = -1;
@@ -1640,8 +1563,7 @@ int libesedb_table_get_index(
 	     internal_table->pages_cache,
 	     internal_table->long_values_pages_vector,
 	     internal_table->long_values_pages_cache,
-	     internal_table->table_values_tree,
-	     internal_table->table_values_cache,
+	     internal_table->table_page_tree,
 	     internal_table->long_values_tree,
 	     internal_table->long_values_cache,
 	     error ) != 1 )
@@ -1682,19 +1604,17 @@ int libesedb_table_get_number_of_records(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( libfdata_btree_get_number_of_leaf_values(
-	     internal_table->table_values_tree,
-	     (intptr_t *) internal_table->file_io_handle,
-	     (libfdata_cache_t *) internal_table->table_values_cache,
+	if( libesedb_page_tree_get_number_of_leaf_values(
+	     internal_table->table_page_tree,
+	     internal_table->file_io_handle,
 	     number_of_records,
-	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of leaf values from table values tree.",
+		 "%s: unable to retrieve number of leaf values from table page tree.",
 		 function );
 
 		return( -1 );
@@ -1750,13 +1670,11 @@ int libesedb_table_get_record(
 
 		return( -1 );
 	}
-	if( libfdata_btree_get_leaf_value_by_index(
-	     internal_table->table_values_tree,
-	     (intptr_t *) internal_table->file_io_handle,
-	     (libfdata_cache_t *) internal_table->table_values_cache,
+	if( libesedb_page_tree_get_leaf_value_by_index(
+	     internal_table->table_page_tree,
+	     internal_table->file_io_handle,
 	     record_entry,
-	     (intptr_t **) &record_data_definition,
-	     0,
+	     &record_data_definition,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1767,7 +1685,7 @@ int libesedb_table_get_record(
 		 function,
 		 record_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( libesedb_record_initialize(
 	     record,
@@ -1788,11 +1706,21 @@ int libesedb_table_get_record(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create record.",
-		 function );
+		 "%s: unable to create record: %d.",
+		 function,
+		 record_entry );
 
-		return( -1 );
+		goto on_error;
 	}
 	return( 1 );
+
+on_error:
+	if( record_data_definition != NULL )
+	{
+		libesedb_data_definition_free(
+		 &record_data_definition,
+		 NULL );
+	}
+	return( -1 );
 }
 

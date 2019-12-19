@@ -31,6 +31,7 @@
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_page_tree.h"
 #include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )
@@ -41,6 +42,10 @@ typedef struct libesedb_catalog libesedb_catalog_t;
 
 struct libesedb_catalog
 {
+	/* The page tree
+	 */
+	libesedb_page_tree_t *page_tree;
+
 	/* The table definition list
 	 */
 	libcdata_list_t *table_definition_list;
@@ -48,10 +53,34 @@ struct libesedb_catalog
 
 int libesedb_catalog_initialize(
      libesedb_catalog_t **catalog,
+     libesedb_io_handle_t *io_handle,
+     uint32_t root_page_number,
+     libfdata_vector_t *pages_vector,
+     libfcache_cache_t *pages_cache,
      libcerror_error_t **error );
 
 int libesedb_catalog_free(
      libesedb_catalog_t **catalog,
+     libcerror_error_t **error );
+
+int libesedb_catalog_read_value_data(
+     libesedb_catalog_t *catalog,
+     const uint8_t *data,
+     size_t data_size,
+     libesedb_table_definition_t **table_definition,
+     libcerror_error_t **error );
+
+int libesedb_catalog_read_values_from_page(
+     libesedb_catalog_t *catalog,
+     libbfio_handle_t *file_io_handle,
+     libesedb_page_t *page,
+     libesedb_table_definition_t **table_definition,
+     int recursion_depth,
+     libcerror_error_t **error );
+
+int libesedb_catalog_read_file_io_handle(
+     libesedb_catalog_t *catalog,
+     libbfio_handle_t *file_io_handle,
      libcerror_error_t **error );
 
 int libesedb_catalog_get_number_of_table_definitions(
@@ -84,15 +113,6 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
      const uint16_t *utf16_string,
      size_t utf16_string_length,
      libesedb_table_definition_t **table_definition,
-     libcerror_error_t **error );
-
-int libesedb_catalog_read_file_io_handle(
-     libesedb_catalog_t *catalog,
-     libbfio_handle_t *file_io_handle,
-     libesedb_io_handle_t *io_handle,
-     uint32_t page_number,
-     libfdata_vector_t *pages_vector,
-     libfcache_cache_t *pages_cache,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

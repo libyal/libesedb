@@ -541,7 +541,7 @@ The page flags consist of the following values:
 | Value | Identifier | Description
 | 0x00000001 | | The page is a root page
 | 0x00000002 | | The page is a leaf page
-| 0x00000004 | | The page is a parent page
+| 0x00000004 | | The page is a parent (or branch) page
 | 0x00000008 | | The page is empty
 | | |
 | 0x00000020 | | The page is a space tree page

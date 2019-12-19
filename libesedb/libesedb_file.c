@@ -1280,6 +1280,9 @@ int libesedb_file_open_read(
 #endif
 		if( libesedb_database_initialize(
 		     &( internal_file->database ),
+		     internal_file->io_handle,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1291,12 +1294,9 @@ int libesedb_file_open_read(
 
 			goto on_error;
 		}
-		if( libesedb_database_read(
+		if( libesedb_database_read_file_io_handle(
 		     internal_file->database,
 		     file_io_handle,
-		     internal_file->io_handle,
-		     internal_file->pages_vector,
-		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1317,6 +1317,10 @@ int libesedb_file_open_read(
 #endif
 		if( libesedb_catalog_initialize(
 		     &( internal_file->catalog ),
+		     internal_file->io_handle,
+		     LIBESEDB_PAGE_NUMBER_CATALOG,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1331,10 +1335,6 @@ int libesedb_file_open_read(
 		if( libesedb_catalog_read_file_io_handle(
 		     internal_file->catalog,
 		     file_io_handle,
-		     internal_file->io_handle,
-		     LIBESEDB_PAGE_NUMBER_CATALOG,
-		     internal_file->pages_vector,
-		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1355,6 +1355,10 @@ int libesedb_file_open_read(
 #endif
 		if( libesedb_catalog_initialize(
 		     &( internal_file->backup_catalog ),
+		     internal_file->io_handle,
+		     LIBESEDB_PAGE_NUMBER_CATALOG_BACKUP,
+		     internal_file->pages_vector,
+		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1369,10 +1373,6 @@ int libesedb_file_open_read(
 		if( libesedb_catalog_read_file_io_handle(
 		     internal_file->backup_catalog,
 		     file_io_handle,
-		     internal_file->io_handle,
-		     LIBESEDB_PAGE_NUMBER_CATALOG_BACKUP,
-		     internal_file->pages_vector,
-		     internal_file->pages_cache,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

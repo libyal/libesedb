@@ -33,9 +33,311 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
+#include "../libesedb/libesedb_io_handle.h"
 #include "../libesedb/libesedb_page_tree.h"
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
+/* Tests the libesedb_page_tree_initialize function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_initialize(
+     void )
+{
+	libcerror_error_t *error        = NULL;
+	libesedb_io_handle_t *io_handle = NULL;
+	libesedb_page_tree_t *page_tree = NULL;
+	int result                      = 0;
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+	int number_of_malloc_fail_tests = 1;
+	int number_of_memset_fail_tests = 1;
+	int test_number                 = 0;
+#endif
+
+	/* Initialize test
+	 */
+	result = libesedb_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_revision = 0x0000000c;
+	io_handle->page_size       = 4096;
+
+	/* Test page_tree initialization
+	 */
+	result = libesedb_page_tree_initialize(
+	          &page_tree,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          0,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "page_tree",
+	 page_tree );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libesedb_page_tree_free(
+	          &page_tree,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "page_tree",
+	 page_tree );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_initialize(
+	          NULL,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          0,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	page_tree = (libesedb_page_tree_t *) 0x12345678UL;
+
+	result = libesedb_page_tree_initialize(
+	          &page_tree,
+	          io_handle,
+	          NULL,
+	          NULL,
+	          0,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	page_tree = NULL;
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_tree_initialize(
+	          &page_tree,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+
+	for( test_number = 0;
+	     test_number < number_of_malloc_fail_tests;
+	     test_number++ )
+	{
+		/* Test libesedb_page_tree_initialize with malloc failing
+		 */
+		esedb_test_malloc_attempts_before_fail = test_number;
+
+		result = libesedb_page_tree_initialize(
+		          &page_tree,
+		          io_handle,
+		          NULL,
+		          NULL,
+		          0,
+		          1,
+		          NULL,
+		          NULL,
+		          &error );
+
+		if( esedb_test_malloc_attempts_before_fail != -1 )
+		{
+			esedb_test_malloc_attempts_before_fail = -1;
+
+			if( page_tree != NULL )
+			{
+				libesedb_page_tree_free(
+				 &page_tree,
+				 NULL );
+			}
+		}
+		else
+		{
+			ESEDB_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			ESEDB_TEST_ASSERT_IS_NULL(
+			 "page_tree",
+			 page_tree );
+
+			ESEDB_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+	for( test_number = 0;
+	     test_number < number_of_memset_fail_tests;
+	     test_number++ )
+	{
+		/* Test libesedb_page_tree_initialize with memset failing
+		 */
+		esedb_test_memset_attempts_before_fail = test_number;
+
+		result = libesedb_page_tree_initialize(
+		          &page_tree,
+		          io_handle,
+		          NULL,
+		          NULL,
+		          0,
+		          1,
+		          NULL,
+		          NULL,
+		          &error );
+
+		if( esedb_test_memset_attempts_before_fail != -1 )
+		{
+			esedb_test_memset_attempts_before_fail = -1;
+
+			if( page_tree != NULL )
+			{
+				libesedb_page_tree_free(
+				 &page_tree,
+				 NULL );
+			}
+		}
+		else
+		{
+			ESEDB_TEST_ASSERT_EQUAL_INT(
+			 "result",
+			 result,
+			 -1 );
+
+			ESEDB_TEST_ASSERT_IS_NULL(
+			 "page_tree",
+			 page_tree );
+
+			ESEDB_TEST_ASSERT_IS_NOT_NULL(
+			 "error",
+			 error );
+
+			libcerror_error_free(
+			 &error );
+		}
+	}
+#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
+
+	/* Clean up
+	 */
+	result = libesedb_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( page_tree != NULL )
+	{
+		libesedb_page_tree_free(
+		 &page_tree,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libesedb_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
+	return( 0 );
+}
 
 /* Tests the libesedb_page_tree_free function
  * Returns 1 if successful or 0 if not
@@ -50,6 +352,175 @@ int esedb_test_page_tree_free(
 	 */
 	result = libesedb_page_tree_free(
 	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_page_tree_read_root_page function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_read_root_page(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_read_root_page(
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_page_tree_read_space_tree_page function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_read_space_tree_page(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_read_space_tree_page(
+	          NULL,
+	          NULL,
+	          0,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_page_tree_read_page function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_read_page(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_read_page(
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_page_tree_read_node function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_tree_read_node(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_page_tree_read_node(
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          0,
+	          0,
+	          0,
+	          NULL,
+	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -94,19 +565,45 @@ int main(
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
-	/* TODO: add tests for libesedb_page_tree_initialize */
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_initialize",
+	 esedb_test_page_tree_initialize );
 
 	ESEDB_TEST_RUN(
 	 "libesedb_page_tree_free",
 	 esedb_test_page_tree_free );
 
-	/* TODO: add tests for libesedb_page_tree_read_root_page */
+	/* TODO: add tests for libesedb_page_tree_read_root_page_header */
 
-	/* TODO: add tests for libesedb_page_tree_read_space_tree_page */
+	/* TODO: add tests for libesedb_page_tree_get_key */
 
-	/* TODO: add tests for libesedb_page_tree_read_page */
+	/* TODO: add tests for libesedb_page_tree_get_number_of_leaf_values_from_page */
 
-	/* TODO: add tests for libesedb_page_tree_read_node */
+	/* TODO: add tests for libesedb_page_tree_get_number_of_leaf_values */
+
+	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_index_from_page */
+
+	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_index */
+
+	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_key_from_page */
+
+	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_key */
+
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_read_root_page",
+	 esedb_test_page_tree_read_root_page );
+
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_read_space_tree_page",
+	 esedb_test_page_tree_read_space_tree_page );
+
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_read_page",
+	 esedb_test_page_tree_read_page );
+
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_read_node",
+	 esedb_test_page_tree_read_node );
 
 	/* TODO: add tests for libesedb_page_tree_read_leaf_value */
 

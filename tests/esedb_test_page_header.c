@@ -481,6 +481,298 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_page_header_get_previous_page_number function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_header_get_previous_page_number(
+     libesedb_page_header_t *page_header )
+{
+	libcerror_error_t *error      = NULL;
+	uint32_t previous_page_number = 0;
+	int result                    = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_page_header_get_previous_page_number(
+	          page_header,
+	          &previous_page_number,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "previous_page_number",
+	 previous_page_number,
+	  0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_header_get_previous_page_number(
+	          NULL,
+	          &previous_page_number,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_header_get_previous_page_number(
+	          page_header,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+/* Tests the libesedb_page_header_get_next_page_number function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_header_get_next_page_number(
+     libesedb_page_header_t *page_header )
+{
+	libcerror_error_t *error  = NULL;
+	uint32_t next_page_number = 0;
+	int result                = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_page_header_get_next_page_number(
+	          page_header,
+	          &next_page_number,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "next_page_number",
+	 next_page_number,
+	  0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_header_get_next_page_number(
+	          NULL,
+	          &next_page_number,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_header_get_next_page_number(
+	          page_header,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+/* Tests the libesedb_page_header_get_father_data_page_object_identifier function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_header_get_father_data_page_object_identifier(
+     libesedb_page_header_t *page_header )
+{
+	libcerror_error_t *error                    = NULL;
+	uint32_t father_data_page_object_identifier = 0;
+	int result                                  = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_page_header_get_father_data_page_object_identifier(
+	          page_header,
+	          &father_data_page_object_identifier,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "father_data_page_object_identifier",
+	 father_data_page_object_identifier,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_header_get_father_data_page_object_identifier(
+	          NULL,
+	          &father_data_page_object_identifier,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_header_get_father_data_page_object_identifier(
+	          page_header,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
+/* Tests the libesedb_page_header_get_flags function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_page_header_get_flags(
+     libesedb_page_header_t *page_header )
+{
+	libcerror_error_t *error = NULL;
+	uint32_t flags           = 0;
+	int result               = 0;
+
+	/* Test regular cases
+	 */
+	result = libesedb_page_header_get_flags(
+	          page_header,
+	          &flags,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_EQUAL_UINT32(
+	 "flags",
+	 flags,
+	 (uint32_t) 0x00002803UL );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Test error cases
+	 */
+	result = libesedb_page_header_get_flags(
+	          NULL,
+	          &flags,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_page_header_get_flags(
+	          page_header,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -495,6 +787,15 @@ int main(
      char * const argv[] ESEDB_TEST_ATTRIBUTE_UNUSED )
 #endif
 {
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
+	libcerror_error_t *error            = NULL;
+	libesedb_io_handle_t *io_handle     = NULL;
+	libesedb_page_header_t *page_header = NULL;
+	int result                          = 0;
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
+
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
@@ -512,11 +813,148 @@ int main(
 	 "libesedb_page_header_read_data",
 	 esedb_test_page_header_read_data );
 
+#if !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 )
+
+	/* Initialize test
+	 */
+	result = libesedb_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->format_revision = 0x0000000c;
+	io_handle->page_size       = 4096;
+
+	result = libesedb_page_header_initialize(
+	          &page_header,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "page_header",
+	 page_header );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libesedb_page_header_read_data(
+	          page_header,
+	          io_handle,
+	          esedb_test_page_header_data1,
+	          40,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	/* Run tests
+	 */
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_page_header_get_previous_page_number",
+	 esedb_test_page_header_get_previous_page_number,
+	 page_header );
+
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_page_header_get_next_page_number",
+	 esedb_test_page_header_get_next_page_number,
+	 page_header );
+
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_page_header_get_father_data_page_object_identifier",
+	 esedb_test_page_header_get_father_data_page_object_identifier,
+	 page_header );
+
+	ESEDB_TEST_RUN_WITH_ARGS(
+	 "libesedb_page_header_get_flags",
+	 esedb_test_page_header_get_flags,
+	 page_header );
+
+	/* Clean up
+	 */
+	result = libesedb_page_header_free(
+	          &page_header,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "page_header",
+	 page_header );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	result = libesedb_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+#endif /* !defined( __BORLANDC__ ) || ( __BORLANDC__ >= 0x0560 ) */
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	if( page_header != NULL )
+	{
+		libesedb_page_header_free(
+		 &page_header,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libesedb_io_handle_free(
+		 &io_handle,
+		 NULL );
+	}
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 }
 

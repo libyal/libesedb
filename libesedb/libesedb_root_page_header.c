@@ -211,7 +211,7 @@ int libesedb_root_page_header_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: initial number of pages\t: %" PRIu32 "\n",
+		 "%s: initial number of pages\t\t: %" PRIu32 "\n",
 		 function,
 		 root_page_header->initial_number_of_pages );
 
@@ -219,23 +219,23 @@ int libesedb_root_page_header_read_data(
 		 ( (esedb_root_page_header_t *) data )->parent_father_data_page_number,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: parent FDP number\t\t: %" PRIu32 "\n",
+		 "%s: parent FDP number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: extent space\t\t: %" PRIu32 "\n",
+		 "%s: extent space\t\t\t: %" PRIu32 "\n",
 		 function,
 		 root_page_header->extent_space );
 
 		libcnotify_printf(
-		 "%s: space tree page number\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
+		 "%s: space tree page number\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
 		 function,
 		 root_page_header->space_tree_page_number,
 		 root_page_header->space_tree_page_number );
 
 		libcnotify_printf(
-		 "%s: primary extent\t\t: %" PRIu32 "-%c\n",
+		 "%s: primary extent\t\t\t: %" PRIu32 "-%c\n",
 		 function,
 		 root_page_header->initial_number_of_pages,
 		 ( root_page_header->extent_space == 0 ? 's' : 'm' ) );

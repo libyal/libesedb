@@ -1063,6 +1063,445 @@ on_error:
 	return( -1 );
 }
 
+/* Checks if the page is valid root page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_validate_root_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error )
+{
+	static char *function         = "libesedb_page_validate_root_page";
+	uint32_t page_flags           = 0;
+	uint32_t required_page_flags  = 0;
+	uint32_t supported_page_flags = 0;
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_flags(
+	     page->header,
+	     &page_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page flags from header.",
+		 function );
+
+		return( 1 );
+	}
+	required_page_flags = LIBESEDB_PAGE_FLAG_IS_ROOT;
+
+	if( ( page_flags & required_page_flags ) != required_page_flags )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing required page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page_flags );
+
+		return( 1 );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
+	}
+	supported_page_flags = required_page_flags
+	                     | LIBESEDB_PAGE_FLAG_IS_LEAF
+	                     | LIBESEDB_PAGE_FLAG_IS_PARENT
+	                     | LIBESEDB_PAGE_FLAG_IS_INDEX
+	                     | LIBESEDB_PAGE_FLAG_IS_SPACE_TREE
+	                     | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
+	                     | LIBESEDB_PAGE_FLAG_0x0400
+	                     | LIBESEDB_PAGE_FLAG_0x0800
+	                     | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                     | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
+	                     | LIBESEDB_PAGE_FLAG_0x8000
+	                     | LIBESEDB_PAGE_FLAG_0x10000;
+
+	if( ( page_flags & ~( supported_page_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page_flags );
+
+		return( 1 );
+	}
+	return( 1 );
+}
+
+/* Checks if the page is valid space tree page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_validate_space_tree_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error )
+{
+	static char *function         = "libesedb_page_validate_space_tree_page";
+	uint32_t next_page_number     = 0;
+	uint32_t page_flags           = 0;
+	uint32_t previous_page_number = 0;
+	uint32_t required_page_flags  = 0;
+	uint32_t supported_page_flags = 0;
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_flags(
+	     page->header,
+	     &page_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page flags from header.",
+		 function );
+
+		return( -1 );
+	}
+	required_page_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
+	                    | LIBESEDB_PAGE_FLAG_IS_SPACE_TREE;
+
+	if( ( page_flags & required_page_flags ) != required_page_flags )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: missing required page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page_flags );
+
+		return( -1 );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
+	}
+	supported_page_flags = required_page_flags
+	                     | LIBESEDB_PAGE_FLAG_IS_LEAF
+	                     | LIBESEDB_PAGE_FLAG_IS_PARENT
+	                     | LIBESEDB_PAGE_FLAG_IS_INDEX
+	                     | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
+	                     | LIBESEDB_PAGE_FLAG_0x0400
+	                     | LIBESEDB_PAGE_FLAG_0x0800
+	                     | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                     | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
+	                     | LIBESEDB_PAGE_FLAG_0x8000
+	                     | LIBESEDB_PAGE_FLAG_0x10000;
+
+	if( ( page_flags & ~( supported_page_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page_flags );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_previous_page_number(
+	     page->header,
+	     &previous_page_number,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve previous page number.",
+		 function );
+
+		return( -1 );
+	}
+	if( previous_page_number != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported previous page number: %" PRIu32 ".",
+		 function,
+		 previous_page_number );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_next_page_number(
+	     page->header,
+	     &next_page_number,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve next page number.",
+		 function );
+
+		return( -1 );
+	}
+	if( next_page_number != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported next page number: %" PRIu32 ".",
+		 function,
+		 next_page_number );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Checks if the page is valid (regular) page
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_validate_page(
+     libesedb_page_t *page,
+     libcerror_error_t **error )
+{
+	static char *function         = "libesedb_page_validate_page";
+	uint32_t page_flags           = 0;
+	uint32_t supported_page_flags = 0;
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_flags(
+	     page->header,
+	     &page_flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page flags from header.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_EMPTY ) != 0 )
+	{
+		return( 1 );
+	}
+	supported_page_flags = LIBESEDB_PAGE_FLAG_IS_ROOT
+	                     | LIBESEDB_PAGE_FLAG_IS_LEAF
+	                     | LIBESEDB_PAGE_FLAG_IS_PARENT
+	                     | LIBESEDB_PAGE_FLAG_IS_INDEX
+	                     | LIBESEDB_PAGE_FLAG_IS_LONG_VALUE
+	                     | LIBESEDB_PAGE_FLAG_0x0400
+	                     | LIBESEDB_PAGE_FLAG_0x0800
+	                     | LIBESEDB_PAGE_FLAG_IS_NEW_RECORD_FORMAT
+	                     | LIBESEDB_PAGE_FLAG_IS_SCRUBBED
+	                     | LIBESEDB_PAGE_FLAG_0x8000
+	                     | LIBESEDB_PAGE_FLAG_0x10000;
+
+	if( ( page_flags & ~( supported_page_flags ) ) != 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported page flags: 0x%08" PRIx32 ".",
+		 function,
+		 page_flags );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the previous page number
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_get_previous_page_number(
+     libesedb_page_t *page,
+     uint32_t *previous_page_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_get_previous_page_number";
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_previous_page_number(
+	     page->header,
+	     previous_page_number,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve previous page number from header.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the next page number
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_get_next_page_number(
+     libesedb_page_t *page,
+     uint32_t *next_page_number,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_get_next_page_number";
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_next_page_number(
+	     page->header,
+	     next_page_number,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve next page number from header.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the father data page object identifier
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_get_father_data_page_object_identifier(
+     libesedb_page_t *page,
+     uint32_t *father_data_page_object_identifier,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_get_father_data_page_object_identifier";
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_father_data_page_object_identifier(
+	     page->header,
+	     father_data_page_object_identifier,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve father data page object identifier from header.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the flags
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_get_flags(
+     libesedb_page_t *page,
+     uint32_t *flags,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_page_get_flags";
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_page_header_get_flags(
+	     page->header,
+	     flags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve flags from header.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Retrieves the number of page values
  * Returns 1 if successful or -1 on error
  */

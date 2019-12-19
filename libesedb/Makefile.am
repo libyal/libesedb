@@ -48,6 +48,7 @@ libesedb_la_SOURCES = \
 	libesedb_io_handle.c libesedb_io_handle.h \
 	libesedb_key.c libesedb_key.h \
 	libesedb_lcid.c libesedb_lcid.h \
+	libesedb_leaf_page_descriptor.c libesedb_leaf_page_descriptor.h \
 	libesedb_libbfio.h \
 	libesedb_libcdata.h \
 	libesedb_libcerror.h \
