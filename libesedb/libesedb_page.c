@@ -33,7 +33,6 @@
 #include "libesedb_libcnotify.h"
 #include "libesedb_page.h"
 #include "libesedb_page_header.h"
-#include "libesedb_page_tags_value.h"
 #include "libesedb_page_value.h"
 
 #include "esedb_page.h"
@@ -218,6 +217,8 @@ int libesedb_page_free(
 int libesedb_page_calculate_checksums(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
+     const uint8_t *page_data,
+     size_t page_data_size,
      uint32_t *ecc32_checksum,
      uint32_t *xor32_checksum,
      libcerror_error_t **error )
@@ -235,25 +236,25 @@ int libesedb_page_calculate_checksums(
 
 		return( -1 );
 	}
-	if( page->data == NULL )
+	if( page_data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing data.",
+		 "%s: invalid page data.",
 		 function );
 
 		return( -1 );
 	}
-	if( ( page->data_size < 4 )
-	 || ( page->data_size > (size_t) SSIZE_MAX ) )
+	if( ( page_data_size < 4 )
+	 || ( page_data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page - data size value out of bounds.",
+		 "%s: invalid page data size value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -271,10 +272,10 @@ int libesedb_page_calculate_checksums(
 	}
 /* TODO for now don't bother calculating checksums for uninitialized pages */
 
-	if( ( page->data[ 0 ] == 0 )
-	 && ( page->data[ 1 ] == 0 )
-	 && ( page->data[ 2 ] == 0 )
-	 && ( page->data[ 3 ] == 0 ) )
+	if( ( page_data[ 0 ] == 0 )
+	 && ( page_data[ 1 ] == 0 )
+	 && ( page_data[ 2 ] == 0 )
+	 && ( page_data[ 3 ] == 0 ) )
 	{
 		return( 0 );
 	}
@@ -289,8 +290,8 @@ int libesedb_page_calculate_checksums(
 		if( libesedb_checksum_calculate_little_endian_ecc32(
 		     ecc32_checksum,
 		     xor32_checksum,
-		     page->data,
-		     page->data_size,
+		     page_data,
+		     page_data_size,
 		     8,
 		     page->page_number,
 		     error ) != 1 )
@@ -309,8 +310,8 @@ int libesedb_page_calculate_checksums(
 	{
 		if( libesedb_checksum_calculate_little_endian_xor32(
 		     xor32_checksum,
-		     &( page->data[ 4 ] ),
-		     page->data_size - 4,
+		     &( page_data[ 4 ] ),
+		     page_data_size - 4,
 		     0x89abcdef,
 		     error ) != 1 )
 		{
@@ -325,6 +326,499 @@ int libesedb_page_calculate_checksums(
 		}
 	}
 	return( 1 );
+}
+
+/* Reads the page tags
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_read_tags(
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     const uint8_t *page_data,
+     size_t page_data_size,
+     uint16_t number_of_page_tags,
+     libcerror_error_t **error )
+{
+	libesedb_page_value_t *page_value = NULL;
+	const uint8_t *page_tags_data     = NULL;
+	static char *function             = "libesedb_page_read_tags";
+	size_t page_tags_data_size        = 0;
+	uint16_t page_tag_offset          = 0;
+	uint16_t page_tag_size            = 0;
+	uint16_t page_tags_index          = 0;
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page data.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( page_data_size < 2 )
+	 || ( page_data_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	page_tags_data_size = 4 * number_of_page_tags;
+
+	if( page_tags_data_size > page_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid number of page tags value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: page tags:\n",
+		 function );
+		libcnotify_print_data(
+		 &( page_data[ page_data_size - page_tags_data_size ] ),
+		 page_tags_data_size,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+	}
+#endif
+	if( libcdata_array_resize(
+	     page->values_array,
+	     number_of_page_tags,
+	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
+		 "%s: unable to resize page values array.",
+		 function );
+
+		goto on_error;
+	}
+	/* Read the page tags back to front
+	 */
+	page_tags_data = &( page_data[ page_data_size - 2 ] );
+
+	for( page_tags_index = 0;
+	     page_tags_index < number_of_page_tags;
+	     page_tags_index++ )
+	{
+		if( libesedb_page_value_initialize(
+		     &page_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+			 "%s: unable to create page value.",
+			 function );
+
+			goto on_error;
+		}
+		byte_stream_copy_to_uint16_little_endian(
+		 page_tags_data,
+		 page_tag_offset );
+
+		page_tags_data -= 2;
+
+		byte_stream_copy_to_uint16_little_endian(
+		 page_tags_data,
+		 page_tag_size );
+
+		page_tags_data -= 2;
+
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
+		{
+			page_value->flags  = 0;
+			page_value->offset = page_tag_offset & 0x7fff;
+			page_value->size   = page_tag_size & 0x7fff;;
+		}
+		else
+		{
+			page_value->flags  = page_tag_offset >> 13;
+			page_value->offset = page_tag_offset & 0x1fff;
+			page_value->size   = page_tag_size & 0x1fff;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: page tag: %03" PRIu16 " offset\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
+			 function,
+			 page_tags_index,
+			 page_value->offset,
+			 page_tag_offset );
+
+			libcnotify_printf(
+			 "%s: page tag: %03" PRIu16 " size\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
+			 function,
+			 page_tags_index,
+			 page_value->size,
+			 page_tag_size );
+
+			if( ( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+			 && ( io_handle->page_size < 16384 ) )
+			{
+				libcnotify_printf(
+				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
+				 function,
+				 page_tags_index,
+				 page_value->flags );
+				libesedb_debug_print_page_tag_flags(
+				 page_value->flags );
+				libcnotify_printf(
+				 "\n" );
+			}
+		}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+		if( libcdata_array_set_entry_by_index(
+		     page->values_array,
+		     (int) page_tags_index,
+		     (intptr_t *) page_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
+			 "%s: unable to set page value: %" PRIu16 ".",
+			 function,
+			 page_tags_index );
+
+			goto on_error;
+		}
+		page_value = NULL;
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
+	return( 1 );
+
+on_error:
+	if( page_value != NULL )
+	{
+		libesedb_page_value_free(
+		 &page_value,
+		 NULL );
+	}
+	libcdata_array_empty(
+	 page->values_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
+	 NULL );
+
+	return( -1 );
+}
+
+/* Reads the page values
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_read_values(
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     uint8_t *page_data,
+     size_t page_data_size,
+     size_t page_values_data_offset,
+     libcerror_error_t **error )
+{
+	libesedb_page_value_t *page_value = NULL;
+	uint8_t *page_values_data         = NULL;
+	static char *function             = "libesedb_page_read_values";
+	size_t page_tags_data_size        = 0;
+	size_t page_values_data_size      = 0;
+	uint16_t number_of_page_tags      = 0;
+	uint16_t page_tags_index          = 0;
+
+	if( page == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_data == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page data.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_data_size > (size_t) SSIZE_MAX )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( (size_t) page_values_data_offset >= page_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page values data offset value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	number_of_page_tags = page->header->available_page_tag;
+
+	if( number_of_page_tags == 0 )
+	{
+		return( 1 );
+	}
+	if( libesedb_page_read_tags(
+	     page,
+	     io_handle,
+	     page_data,
+	     page_data_size,
+	     number_of_page_tags,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_IO,
+		 LIBCERROR_IO_ERROR_READ_FAILED,
+		 "%s: unable to read page tags.",
+		 function );
+
+		goto on_error;
+	}
+	/* The offsets in the page tags are relative after the page header
+	 */
+	page_values_data      = &( page_data[ page_values_data_offset ] );
+	page_values_data_size = page_data_size - page_values_data_offset;
+	page_tags_data_size   = 4 * number_of_page_tags;
+
+	if( page_values_data_size < page_tags_data_size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page values data size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
+	page_values_data_size -= page_tags_data_size;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: page values data:\n",
+		 function );
+		libcnotify_print_data(
+		 page_values_data,
+		 page_values_data_size,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+	}
+#endif
+	for( page_tags_index = 0;
+	     page_tags_index < number_of_page_tags;
+	     page_tags_index++ )
+	{
+		if( libcdata_array_get_entry_by_index(
+		     page->values_array,
+		     page_tags_index,
+		     (intptr_t **) &page_value,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page value: %" PRIu16 ".",
+			 function,
+			 page_tags_index );
+
+			goto on_error;
+		}
+		if( page_value == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+			 "%s: invalid page value.",
+			 function );
+
+			goto on_error;
+		}
+		if( page_value->offset >= page_values_data_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: unsupported page tags value offset value out of bounds.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 " (page value data size: %" PRIu16 ")\n",
+				 function,
+				 page_tags_index,
+				 page_value->offset,
+				 page_value->size,
+				 page_values_data_size );
+			}
+#endif
+			goto on_error;
+		}
+		if( (size_t) page_value->size > ( page_values_data_size - page_value->offset ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: unsupported page tags value size value out of bounds.",
+			 function );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+			if( libcnotify_verbose != 0 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 " (page value data size: %" PRIu16 ")\n",
+				 function,
+				 page_tags_index,
+				 page_value->offset,
+				 page_value->size,
+				 page_values_data_size );
+			}
+#endif
+			goto on_error;
+		}
+		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
+		 && ( io_handle->page_size >= 16384 ) )
+		{
+			if( page_value->size >= 2 )
+			{
+				/* The page tags flags are stored in the upper byte of the first 16-bit value
+				 */
+				page_value->flags = page_values_data[ page_value->offset + 1 ] >> 5;
+
+				page_values_data[ page_value->offset + 1 ] &= 0x1f;
+			}
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: 0x%02" PRIx8 "",
+			 function,
+			 page_tags_index,
+			 page_value->offset,
+			 page_value->size,
+			 page_value->flags );
+			libesedb_debug_print_page_tag_flags(
+			 page_value->flags );
+			libcnotify_printf(
+			 "\n" );
+		}
+#endif
+		page_value->data    = &( page_values_data[ page_value->offset ] );
+		page_value->offset += page_values_data_offset;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: page value: %" PRIu16 " data:\n",
+			 function,
+			 page_tags_index );
+			libcnotify_print_data(
+			 page_value->data,
+			 page_value->size,
+			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		}
+#endif
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		"\n" );
+	}
+#endif
+	return( 1 );
+
+on_error:
+	libcdata_array_empty(
+	 page->values_array,
+	 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
+	 NULL );
+
+	return( -1 );
 }
 
 /* Reads a page and its values
@@ -383,7 +877,7 @@ int libesedb_page_read_file_io_handle(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: current page number\t\t\t\t\t: %" PRIu32 "\n",
+		 "%s: current page number\t\t\t: %" PRIu32 "\n",
 		 function,
 		 page->page_number );
 
@@ -471,6 +965,8 @@ int libesedb_page_read_file_io_handle(
 	result = libesedb_page_calculate_checksums(
 	          page,
 	          io_handle,
+	          page->data,
+	          page->data_size,
 	          &calculated_ecc32_checksum,
 	          &calculated_xor32_checksum,
 	          error );
@@ -540,6 +1036,8 @@ int libesedb_page_read_file_io_handle(
 	if( libesedb_page_read_values(
 	     page,
 	     io_handle,
+	     page->data,
+	     page->data_size,
 	     page->header->data_size,
 	     error ) != 1 )
 	{
@@ -562,593 +1060,6 @@ on_error:
 
 		page->data = NULL;
 	}
-	return( -1 );
-}
-
-/* Reads the page tags
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_read_tags(
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     uint16_t number_of_page_tags,
-     libcdata_array_t **page_tags_array,
-     libcerror_error_t **error )
-{
-	libesedb_page_tags_value_t *page_tags_value = NULL;
-	const uint8_t *page_tags_data               = NULL;
-	static char *function                       = "libesedb_page_read_tags";
-	size_t page_tags_data_size                  = 0;
-	uint16_t page_tag_offset                    = 0;
-	uint16_t page_tag_size                      = 0;
-	uint16_t page_tags_index                    = 0;
-
-	if( page == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
-		 function );
-
-		return( -1 );
-	}
-	if( page->data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing data.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( page->data_size < 2 )
-	 || ( page->data_size > (size_t) SSIZE_MAX ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page - data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( page_tags_array == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page tags array.",
-		 function );
-
-		return( -1 );
-	}
-	page_tags_data_size = 4 * number_of_page_tags;
-
-	if( page_tags_data_size > page->data_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid number of page tags value out of bounds.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_initialize(
-	     page_tags_array,
-	     (int) number_of_page_tags,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create page tags array.",
-		 function );
-
-		goto on_error;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page tags:\n",
-		 function );
-		libcnotify_print_data(
-		 &( page->data[ page->data_size - page_tags_data_size ] ),
-		 page_tags_data_size,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-	}
-#endif
-	/* Read the page tags back to front
-	 */
-	page_tags_data = &( page->data[ page->data_size - 2 ] );
-
-	for( page_tags_index = 0;
-	     page_tags_index < number_of_page_tags;
-	     page_tags_index++ )
-	{
-		if( libesedb_page_tags_value_initialize(
-		     &page_tags_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create page tags value.",
-			 function );
-
-			goto on_error;
-		}
-		byte_stream_copy_to_uint16_little_endian(
-		 page_tags_data,
-		 page_tag_offset );
-
-		page_tags_data -= 2;
-
-		byte_stream_copy_to_uint16_little_endian(
-		 page_tags_data,
-		 page_tag_size );
-
-		page_tags_data -= 2;
-
-		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-		 && ( io_handle->page_size >= 16384 ) )
-		{
-			page_tags_value->flags  = 0;
-			page_tags_value->offset = page_tag_offset & 0x7fff;
-			page_tags_value->size   = page_tag_size & 0x7fff;;
-		}
-		else
-		{
-			page_tags_value->flags  = page_tag_offset >> 13;
-			page_tags_value->offset = page_tag_offset & 0x1fff;
-			page_tags_value->size   = page_tag_size & 0x1fff;
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: page tag: %03" PRIu16 " offset\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
-			 function,
-			 page_tags_index,
-			 page_tags_value->offset,
-			 page_tag_offset );
-
-			libcnotify_printf(
-			 "%s: page tag: %03" PRIu16 " size\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
-			 function,
-			 page_tags_index,
-			 page_tags_value->size,
-			 page_tag_size );
-
-			if( ( io_handle->format_revision < LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-			 && ( io_handle->page_size < 16384 ) )
-			{
-				libcnotify_printf(
-				 "%s: page tag: %03" PRIu16 " flags\t\t\t\t: 0x%02" PRIx8 "",
-				 function,
-				 page_tags_index,
-				 page_tags_value->flags );
-				libesedb_debug_print_page_tag_flags(
-				 page_tags_value->flags );
-				libcnotify_printf(
-				 "\n" );
-			}
-		}
-#endif
-		if( libcdata_array_set_entry_by_index(
-		     *page_tags_array,
-		     (int) page_tags_index,
-		     (intptr_t *) page_tags_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set page tag: %" PRIu16 ".",
-			 function,
-			 page_tags_index );
-
-			goto on_error;
-		}
-		page_tags_value = NULL;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	return( 1 );
-
-on_error:
-	if( page_tags_value != NULL )
-	{
-		libesedb_page_tags_value_free(
-		 &page_tags_value,
-		 NULL );
-	}
-	if( *page_tags_array != NULL )
-	{
-		libcdata_array_free(
-		 page_tags_array,
-		 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
-		 NULL );
-	}
-	return( -1 );
-}
-
-/* Reads the page values
- * Returns 1 if successful or -1 on error
- */
-int libesedb_page_read_values(
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     size_t page_values_data_offset,
-     libcerror_error_t **error )
-{
-	libcdata_array_t *page_tags_array           = NULL;
-	libesedb_page_tags_value_t *page_tags_value = NULL;
-	libesedb_page_value_t *page_value           = NULL;
-	uint8_t *page_values_data                   = NULL;
-	static char *function                       = "libesedb_page_read_values";
-	size_t page_tags_data_size                  = 0;
-	size_t page_values_data_size                = 0;
-	uint16_t number_of_page_tags                = 0;
-	uint16_t page_tags_index                    = 0;
-
-	if( page == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid page.",
-		 function );
-
-		return( -1 );
-	}
-	if( page->data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing data.",
-		 function );
-
-		return( -1 );
-	}
-	if( page->data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page - data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( page->values_array == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid page - missing values array.",
-		 function );
-
-		return( -1 );
-	}
-	if( io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( (size_t) page_values_data_offset >= page->data_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page values data offset value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	number_of_page_tags = page->header->available_page_tag;
-
-	if( number_of_page_tags == 0 )
-	{
-		return( 1 );
-	}
-	if( libesedb_page_read_tags(
-	     page,
-	     io_handle,
-	     number_of_page_tags,
-	     &page_tags_array,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page tags.",
-		 function );
-
-		goto on_error;
-	}
-	if( libcdata_array_resize(
-	     page->values_array,
-	     number_of_page_tags,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_RESIZE_FAILED,
-		 "%s: unable to resize page values array.",
-		 function );
-
-		goto on_error;
-	}
-	/* The offsets in the page tags are relative after the page header
-	 */
-	page_values_data      = &( page->data[ page_values_data_offset ] );
-	page_values_data_size = page->data_size - page_values_data_offset;
-	page_tags_data_size   = 4 * number_of_page_tags;
-
-	if( page_values_data_size < page_tags_data_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page values data size value out of bounds.",
-		 function );
-
-		goto on_error;
-	}
-	page_values_data_size -= page_tags_data_size;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: page values data:\n",
-		 function );
-		libcnotify_print_data(
-		 page_values_data,
-		 page_values_data_size,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-	}
-#endif
-	for( page_tags_index = 0;
-	     page_tags_index < number_of_page_tags;
-	     page_tags_index++ )
-	{
-		if( libcdata_array_get_entry_by_index(
-		     page_tags_array,
-		     page_tags_index,
-		     (intptr_t **) &page_tags_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve page tag: %" PRIu16 ".",
-			 function,
-			 page_tags_index );
-
-			goto on_error;
-		}
-		if( page_tags_value == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-			 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-			 "%s: invalid page tags value.",
-			 function );
-
-			goto on_error;
-		}
-		if( libesedb_page_value_initialize(
-		     &page_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create tags value.",
-			 function );
-
-			goto on_error;
-		}
-		if( page_tags_value->offset >= page_values_data_size )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: unsupported page tags value offset value out of bounds.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 " (page value data size: %" PRIu16 ")\n",
-				 function,
-				 page_tags_index,
-				 page_tags_value->offset,
-				 page_tags_value->size,
-				 page_values_data_size );
-			}
-#endif
-			goto on_error;
-		}
-		if( (size_t) page_tags_value->size > ( page_values_data_size - page_tags_value->offset ) )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: unsupported page tags value size value out of bounds.",
-			 function );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 " (page value data size: %" PRIu16 ")\n",
-				 function,
-				 page_tags_index,
-				 page_tags_value->offset,
-				 page_tags_value->size,
-				 page_values_data_size );
-			}
-#endif
-			goto on_error;
-		}
-		if( ( io_handle->format_revision >= LIBESEDB_FORMAT_REVISION_EXTENDED_PAGE_HEADER )
-		 && ( io_handle->page_size >= 16384 ) )
-		{
-			if( page_tags_value->size >= 2 )
-			{
-				/* The page tags flags are stored in the upper byte of the first 16-bit value
-				 */
-				page_tags_value->flags = page_values_data[ page_tags_value->offset + 1 ] >> 5;
-
-				page_values_data[ page_tags_value->offset + 1 ] &= 0x1f;
-			}
-		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " offset: % 5" PRIu16 ", size: % 5" PRIu16 ", flags: 0x%02" PRIx8 "",
-			 function,
-			 page_tags_index,
-			 page_tags_value->offset,
-			 page_tags_value->size,
-			 page_tags_value->flags );
-			libesedb_debug_print_page_tag_flags(
-			 page_tags_value->flags );
-			libcnotify_printf(
-			 "\n" );
-		}
-#endif
-		page_value->data   = &( page_values_data[ page_tags_value->offset ] );
-		page_value->offset = (uint16_t) ( page_values_data_offset + page_tags_value->offset );
-		page_value->size   = page_tags_value->size;
-		page_value->flags  = page_tags_value->flags;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libcnotify_verbose != 0 )
-		{
-			libcnotify_printf(
-			 "%s: page value: %" PRIu16 " data:\n",
-			 function,
-			 page_tags_index );
-			libcnotify_print_data(
-			 page_value->data,
-			 page_value->size,
-			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-		}
-#endif
-		if( libcdata_array_set_entry_by_index(
-		     page->values_array,
-		     (int) page_tags_index,
-		     (intptr_t *) page_value,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set page value: %" PRIu16 ".",
-			 function,
-			 page_tags_index );
-
-			goto on_error;
-		}
-		page_value = NULL;
-	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		"\n" );
-	}
-#endif
-	if( libcdata_array_free(
-	     &page_tags_array,
-	     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free the page tags array.",
-		 function );
-
-		goto on_error;
-	}
-	return( 1 );
-
-on_error:
-	if( page_value != NULL )
-	{
-		libesedb_page_value_free(
-		 &page_value,
-		 NULL );
-	}
-	if( page_tags_array != NULL )
-	{
-		libcdata_array_free(
-		 &page_tags_array,
-		 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tags_value_free,
-		 NULL );
-	}
-	libcdata_array_empty(
-	 page->values_array,
-	 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_value_free,
-	 NULL );
-
 	return( -1 );
 }
 
@@ -1218,13 +1129,13 @@ int libesedb_page_get_number_of_values(
 /* Retrieves the page value at the index
  * Returns 1 if successful or -1 on error
  */
-int libesedb_page_get_value(
+int libesedb_page_get_value_by_index(
      libesedb_page_t *page,
      uint16_t value_index,
      libesedb_page_value_t **page_value,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_page_get_value";
+	static char *function = "libesedb_page_get_value_by_index";
 
 	if( page == NULL )
 	{

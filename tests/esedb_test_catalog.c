@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #endif
 
+#include "esedb_test_functions.h"
+#include "esedb_test_libbfio.h"
+#include "esedb_test_libcdata.h"
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
@@ -34,6 +37,7 @@
 #include "esedb_test_unused.h"
 
 #include "../libesedb/libesedb_catalog.h"
+#include "../libesedb/libesedb_io_handle.h"
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
@@ -502,6 +506,7 @@ on_error:
 int esedb_test_catalog_get_table_definition_by_name(
      void )
 {
+	libcdata_list_t *table_definition_list        = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_catalog_t *catalog                   = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
@@ -529,6 +534,21 @@ int esedb_test_catalog_get_table_definition_by_name(
 
 	/* Test regular cases
 	 */
+	result = libesedb_catalog_get_table_definition_by_name(
+	          catalog,
+	          (uint8_t *) name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -538,6 +558,31 @@ int esedb_test_catalog_get_table_definition_by_name(
 	          4,
 	          &table_definition,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table_definition_list = catalog->table_definition_list;
+
+	catalog->table_definition_list = NULL;
+
+	result = libesedb_catalog_get_table_definition_by_name(
+	          catalog,
+	          (uint8_t *) name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	catalog->table_definition_list = table_definition_list;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -651,6 +696,8 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
      void )
 {
 	uint8_t utf8_name[ 5 ]                        = { 't', 'e', 's', 't', 0 };
+
+	libcdata_list_t *table_definition_list        = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_catalog_t *catalog                   = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
@@ -677,6 +724,21 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
 
 	/* Test regular cases
 	 */
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          catalog,
+	          utf8_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -686,6 +748,31 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
 	          4,
 	          &table_definition,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table_definition_list = catalog->table_definition_list;
+
+	catalog->table_definition_list = NULL;
+
+	result = libesedb_catalog_get_table_definition_by_utf8_name(
+	          catalog,
+	          utf8_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	catalog->table_definition_list = table_definition_list;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -799,6 +886,8 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
      void )
 {
 	uint16_t utf16_name[ 5 ]                      = { 't', 'e', 's', 't', 0 };
+
+	libcdata_list_t *table_definition_list        = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_catalog_t *catalog                   = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
@@ -825,6 +914,21 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
 
 	/* Test regular cases
 	 */
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          catalog,
+	          utf16_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Test error cases
 	 */
@@ -834,6 +938,31 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
 	          4,
 	          &table_definition,
 	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	table_definition_list = catalog->table_definition_list;
+
+	catalog->table_definition_list = NULL;
+
+	result = libesedb_catalog_get_table_definition_by_utf16_name(
+	          catalog,
+	          utf16_name,
+	          4,
+	          &table_definition,
+	          &error );
+
+	catalog->table_definition_list = table_definition_list;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -946,12 +1075,35 @@ on_error:
 int esedb_test_catalog_read_file_io_handle(
      void )
 {
-	libcerror_error_t *error    = NULL;
-	libesedb_catalog_t *catalog = NULL;
-	int result                  = 0;
+	uint8_t data[ 4096 ];
+
+	libbfio_handle_t *file_io_handle = NULL;
+	libcerror_error_t *error         = NULL;
+	libesedb_catalog_t *catalog      = NULL;
+	libesedb_io_handle_t *io_handle  = NULL;
+	int result                       = 0;
 
 	/* Initialize test
 	 */
+	result = libesedb_io_handle_initialize(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
+	io_handle->page_size = 4096;
+
 	result = libesedb_catalog_initialize(
 	          &catalog,
 	          &error );
@@ -969,15 +1121,79 @@ int esedb_test_catalog_read_file_io_handle(
 	 "error",
 	 error );
 
+	/* Initialize file IO handle
+	 */
+	result = esedb_test_open_file_io_handle(
+	          &file_io_handle,
+	          data,
+	          4096,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "file_io_handle",
+	 file_io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	/* Test regular cases
 	 */
+/* TODO implement */
 
 	/* Test error cases
 	 */
 	result = libesedb_catalog_read_file_io_handle(
 	          NULL,
+	          file_io_handle,
+	          io_handle,
+	          1,
 	          NULL,
 	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_read_file_io_handle(
+	          catalog,
+	          file_io_handle,
+	          NULL,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	result = libesedb_catalog_read_file_io_handle(
+	          catalog,
+	          file_io_handle,
+	          io_handle,
 	          0,
 	          NULL,
 	          NULL,
@@ -994,6 +1210,56 @@ int esedb_test_catalog_read_file_io_handle(
 
 	libcerror_error_free(
 	 &error );
+
+#if defined( HAVE_ESEDB_TEST_MEMORY )
+
+	/* Test libesedb_catalog_read_file_io_handle with malloc failing in libesedb_page_tree_initialize
+	 */
+	esedb_test_malloc_attempts_before_fail = 0;
+
+	result = libesedb_catalog_read_file_io_handle(
+	          catalog,
+	          file_io_handle,
+	          io_handle,
+	          1,
+	          NULL,
+	          NULL,
+	          &error );
+
+	if( esedb_test_malloc_attempts_before_fail != -1 )
+	{
+		esedb_test_malloc_attempts_before_fail = -1;
+	}
+	else
+	{
+		ESEDB_TEST_ASSERT_EQUAL_INT(
+		 "result",
+		 result,
+		 -1 );
+
+		ESEDB_TEST_ASSERT_IS_NOT_NULL(
+		 "error",
+		 error );
+
+		libcerror_error_free(
+		 &error );
+	}
+#endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
+
+	/* Clean up file IO handle
+	 */
+	result = esedb_test_close_file_io_handle(
+	          &file_io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 0 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	/* Clean up
 	 */
@@ -1014,6 +1280,23 @@ int esedb_test_catalog_read_file_io_handle(
 	 "error",
 	 error );
 
+	result = libesedb_io_handle_free(
+	          &io_handle,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "io_handle",
+	 io_handle );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
+
 	return( 1 );
 
 on_error:
@@ -1022,10 +1305,22 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
+	if( file_io_handle != NULL )
+	{
+		libbfio_handle_free(
+		 &file_io_handle,
+		 NULL );
+	}
 	if( catalog != NULL )
 	{
 		libesedb_catalog_free(
 		 &catalog,
+		 NULL );
+	}
+	if( io_handle != NULL )
+	{
+		libesedb_io_handle_free(
+		 &io_handle,
 		 NULL );
 	}
 	return( 0 );

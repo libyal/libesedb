@@ -146,7 +146,6 @@ stamp-h[1-9]
 /tests/esedb_test_notify
 /tests/esedb_test_page
 /tests/esedb_test_page_header
-/tests/esedb_test_page_tags_value
 /tests/esedb_test_page_tree
 /tests/esedb_test_page_tree_value
 /tests/esedb_test_page_value

@@ -76,8 +76,26 @@ int libesedb_page_free(
 int libesedb_page_calculate_checksums(
      libesedb_page_t *page,
      libesedb_io_handle_t *io_handle,
+     const uint8_t *page_data,
+     size_t page_data_size,
      uint32_t *ecc32_checksum,
      uint32_t *xor32_checksum,
+     libcerror_error_t **error );
+
+int libesedb_page_read_tags(
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     const uint8_t *page_data,
+     size_t page_data_size,
+     uint16_t number_of_page_tags,
+     libcerror_error_t **error );
+
+int libesedb_page_read_values(
+     libesedb_page_t *page,
+     libesedb_io_handle_t *io_handle,
+     uint8_t *page_data,
+     size_t page_data_size,
+     size_t page_values_data_offset,
      libcerror_error_t **error );
 
 int libesedb_page_read_file_io_handle(
@@ -87,25 +105,12 @@ int libesedb_page_read_file_io_handle(
      off64_t file_offset,
      libcerror_error_t **error );
 
-int libesedb_page_read_tags(
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     uint16_t number_of_page_tags,
-     libcdata_array_t **page_tags_array,
-     libcerror_error_t **error );
-
-int libesedb_page_read_values(
-     libesedb_page_t *page,
-     libesedb_io_handle_t *io_handle,
-     size_t page_values_data_offset,
-     libcerror_error_t **error );
-
 int libesedb_page_get_number_of_values(
      libesedb_page_t *page,
      uint16_t *number_of_values,
      libcerror_error_t **error );
 
-int libesedb_page_get_value(
+int libesedb_page_get_value_by_index(
      libesedb_page_t *page,
      uint16_t value_index,
      libesedb_page_value_t **page_value,

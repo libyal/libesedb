@@ -63,7 +63,6 @@ libesedb_la_SOURCES = \
 	libesedb_notify.c libesedb_notify.h \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_header.c libesedb_page_header.h \
-	libesedb_page_tags_value.c libesedb_page_tags_value.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
 	libesedb_page_tree_value.c libesedb_page_tree_value.h \
 	libesedb_page_value.c libesedb_page_value.h \

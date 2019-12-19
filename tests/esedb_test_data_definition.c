@@ -270,6 +270,181 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_data_definition_read_data function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_data_definition_read_data(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_data_definition_read_data(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_data_definition_read_record function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_data_definition_read_record(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_data_definition_read_record(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_data_definition_read_long_value function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_data_definition_read_long_value(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_data_definition_read_long_value(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
+/* Tests the libesedb_data_definition_read_long_value_segment function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_data_definition_read_long_value_segment(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_data_definition_read_long_value_segment(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          0,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -297,13 +472,21 @@ int main(
 	 "libesedb_data_definition_free",
 	 esedb_test_data_definition_free );
 
-	/* TODO: add tests for libesedb_data_definition_read_data */
+	ESEDB_TEST_RUN(
+	 "libesedb_data_definition_read_data",
+	 esedb_test_data_definition_read_data );
 
-	/* TODO: add tests for libesedb_data_definition_read_record */
+	ESEDB_TEST_RUN(
+	 "libesedb_data_definition_read_record",
+	 esedb_test_data_definition_read_record );
 
-	/* TODO: add tests for libesedb_data_definition_read_long_value */
+	ESEDB_TEST_RUN(
+	 "libesedb_data_definition_read_long_value",
+	 esedb_test_data_definition_read_long_value );
 
-	/* TODO: add tests for libesedb_data_definition_read_long_value_segment */
+	ESEDB_TEST_RUN(
+	 "libesedb_data_definition_read_long_value_segment",
+	 esedb_test_data_definition_read_long_value_segment );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

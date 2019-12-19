@@ -19,7 +19,6 @@ MSVSCPP_FILES = \
 	esedb_test_notify/esedb_test_notify.vcproj \
 	esedb_test_page/esedb_test_page.vcproj \
 	esedb_test_page_header/esedb_test_page_header.vcproj \
-	esedb_test_page_tags_value/esedb_test_page_tags_value.vcproj \
 	esedb_test_page_tree/esedb_test_page_tree.vcproj \
 	esedb_test_page_tree_value/esedb_test_page_tree_value.vcproj \
 	esedb_test_page_value/esedb_test_page_value.vcproj \

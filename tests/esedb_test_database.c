@@ -270,6 +270,48 @@ on_error:
 	return( 0 );
 }
 
+/* Tests the libesedb_database_read function
+ * Returns 1 if successful or 0 if not
+ */
+int esedb_test_database_read(
+     void )
+{
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	/* Test error cases
+	 */
+	result = libesedb_database_read(
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          NULL,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
+}
+
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 /* The main program
@@ -297,7 +339,9 @@ int main(
 	 "libesedb_database_free",
 	 esedb_test_database_free );
 
-	/* TODO: add tests for libesedb_database_read */
+	ESEDB_TEST_RUN(
+	 "libesedb_database_read",
+	 esedb_test_database_read );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

@@ -843,6 +843,8 @@ int esedb_test_data_segment_read_element_data(
 	}
 #endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
 
+/* TODO test with libbfio_handle_read_buffer failing */
+
 	/* Clean up file IO handle
 	 */
 	result = esedb_test_close_file_io_handle(

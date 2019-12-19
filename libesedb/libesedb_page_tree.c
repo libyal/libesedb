@@ -298,7 +298,7 @@ int libesedb_page_tree_read_root_page(
 	{
 		return( 1 );
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     0,
 	     &page_value,
@@ -591,7 +591,7 @@ int libesedb_page_tree_read_space_tree_page(
 	{
 		return( 1 );
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     page_value_index,
 	     &page_value,
@@ -662,7 +662,7 @@ int libesedb_page_tree_read_space_tree_page(
 	     page_value_index < number_of_page_values;
 	     page_value_index++ )
 	{
-		if( libesedb_page_get_value(
+		if( libesedb_page_get_value_by_index(
 		     page,
 		     page_value_index,
 		     &page_value,
@@ -1144,7 +1144,7 @@ int libesedb_page_tree_read_page(
 	     page_value_index < number_of_page_values;
 	     page_value_index++ )
 	{
-		if( libesedb_page_get_value(
+		if( libesedb_page_get_value_by_index(
 		     page,
 		     page_value_index,
 		     &page_value,
@@ -1267,7 +1267,7 @@ int libesedb_page_tree_read_page(
 		{
 			if( header_page_value == NULL )
 			{
-				if( libesedb_page_get_value(
+				if( libesedb_page_get_value_by_index(
 				     page,
 				     0,
 				     &header_page_value,

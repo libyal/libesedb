@@ -241,7 +241,7 @@ int libesedb_data_definition_read_data(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     data_definition->page_value_index,
 	     &page_value,
@@ -469,7 +469,7 @@ int libesedb_data_definition_read_record(
 
 		goto on_error;
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     data_definition->page_value_index,
 	     &page_value,
@@ -1600,7 +1600,7 @@ int libesedb_data_definition_read_long_value(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     data_definition->page_value_index,
 	     &page_value,
@@ -1793,7 +1793,7 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
-	if( libesedb_page_get_value(
+	if( libesedb_page_get_value_by_index(
 	     page,
 	     data_definition->page_value_index,
 	     &page_value,

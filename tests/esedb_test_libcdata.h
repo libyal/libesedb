@@ -1,5 +1,5 @@
 /*
- * Page tags value functions
+ * The libcdata header wrapper
  *
  * Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,46 +19,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_PAGE_TAGS_VALUE_H )
-#define _LIBESEDB_PAGE_TAGS_VALUE_H
+#if !defined( _ESEDB_TEST_LIBCDATA_H )
+#define _ESEDB_TEST_LIBCDATA_H
 
 #include <common.h>
-#include <types.h>
 
-#include "libesedb_libcerror.h"
+/* Define HAVE_LOCAL_LIBCDATA for local use of libcdata
+ */
+#if defined( HAVE_LOCAL_LIBCDATA )
 
-#if defined( __cplusplus )
-extern "C" {
+#include <libcdata_array.h>
+#include <libcdata_btree.h>
+#include <libcdata_definitions.h>
+#include <libcdata_list.h>
+#include <libcdata_list_element.h>
+#include <libcdata_range_list.h>
+#include <libcdata_tree_node.h>
+#include <libcdata_types.h>
+
+#else
+
+/* If libtool DLL support is enabled set LIBCDATA_DLL_IMPORT
+ * before including libcdata.h
+ */
+#if defined( _WIN32 ) && defined( DLL_IMPORT )
+#define LIBCDATA_DLL_IMPORT
 #endif
 
-typedef struct libesedb_page_tags_value libesedb_page_tags_value_t;
+#include <libcdata.h>
 
-struct libesedb_page_tags_value
-{
-	/* The offset of the value
-	 */
-	uint16_t offset;
+#endif /* defined( HAVE_LOCAL_LIBCDATA ) */
 
-	/* The size of the value
-	 */
-	uint16_t size;
-
-	/* The flags of the value
-	 */
-	uint8_t flags;
-};
-
-int libesedb_page_tags_value_initialize(
-     libesedb_page_tags_value_t **page_tags_value,
-     libcerror_error_t **error );
-
-int libesedb_page_tags_value_free(
-     libesedb_page_tags_value_t **page_tags_value,
-     libcerror_error_t **error );
-
-#if defined( __cplusplus )
-}
-#endif
-
-#endif /* !defined( _LIBESEDB_PAGE_TAGS_VALUE_H ) */
+#endif /* !defined( _ESEDB_TEST_LIBCDATA_H ) */
 

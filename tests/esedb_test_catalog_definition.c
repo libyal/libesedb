@@ -414,9 +414,30 @@ int esedb_test_catalog_definition_read_data(
 	libcerror_error_free(
 	 &error );
 
+	/* Test with variable_size_data_types_offset > data_size
+	 */
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          30,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
-	/* Test libesedb_catalog_definition_read_data with malloc failing in name
+	/* Test libesedb_catalog_definition_read_data with malloc failing for creation of name
 	 */
 	esedb_test_malloc_attempts_before_fail = 0;
 
@@ -447,7 +468,7 @@ int esedb_test_catalog_definition_read_data(
 	}
 #if defined( OPTIMIZATION_DISABLED )
 
-	/* Test libesedb_catalog_definition_read_data with memcpy failing in name
+	/* Test libesedb_catalog_definition_read_data with memcpy failing for creation of name
 	 */
 	esedb_test_memcpy_attempts_before_fail = 0;
 
@@ -478,7 +499,7 @@ int esedb_test_catalog_definition_read_data(
 	}
 #endif /* defined( OPTIMIZATION_DISABLED ) */
 
-	/* Test libesedb_catalog_definition_read_data with malloc failing in template_name
+	/* Test libesedb_catalog_definition_read_data with malloc failing for creation of template_name
 	 */
 	esedb_test_malloc_attempts_before_fail = 0;
 
@@ -509,7 +530,7 @@ int esedb_test_catalog_definition_read_data(
 	}
 #if defined( OPTIMIZATION_DISABLED )
 
-	/* Test libesedb_catalog_definition_read_data with memcpy failing in template_name
+	/* Test libesedb_catalog_definition_read_data with memcpy failing for creation of template_name
 	 */
 	esedb_test_memcpy_attempts_before_fail = 0;
 
@@ -543,6 +564,56 @@ int esedb_test_catalog_definition_read_data(
 /* TODO test catalog definition with default_value */
 
 #endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
+
+	/* Test with last_fixed_size_data_type < 5
+	 */
+	esedb_test_catalog_definition_data1[ 0 ] = 0x00;
+
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	esedb_test_catalog_definition_data1[ 0 ] = 0x08;
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
+
+	/* Test with last_fixed_size_data_type > 12
+	 */
+	esedb_test_catalog_definition_data1[ 0 ] = 0xff;
+
+	result = libesedb_catalog_definition_read_data(
+	          catalog_definition,
+	          esedb_test_catalog_definition_data1,
+	          45,
+	          LIBESEDB_CODEPAGE_WINDOWS_1252,
+	          &error );
+
+	esedb_test_catalog_definition_data1[ 0 ] = 0x08;
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 -1 );
+
+	ESEDB_TEST_ASSERT_IS_NOT_NULL(
+	 "error",
+	 error );
+
+	libcerror_error_free(
+	 &error );
 
 	/* Clean up
 	 */
