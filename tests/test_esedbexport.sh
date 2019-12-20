@@ -1,7 +1,7 @@
 #!/bin/bash
 # Export tool testing script
 #
-# Version: 20190223
+# Version: 20191220
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -32,24 +32,25 @@ test_callback()
 
 	if test "${PLATFORM}" = "Darwin";
 	then
-		(cd ${TMPDIR} && find "'${INPUT_NAME}.export'" -type f -exec md5 {} \; | sort -k 2 > "'${TEST_LOG}'");
+		(cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5 {} \; | sort -k 2 > "${TEST_LOG}");
 	else
-		(cd ${TMPDIR} && find "'${INPUT_NAME}.export'" -type f -exec md5sum {} \; | sort -k 2 > "'${TEST_LOG}'");
+		# md5sum prefixes the output of a filename with an escape character (\) with \
+                (cd ${TMPDIR} && find "${INPUT_NAME}.export" -type f -exec md5sum {} \; | sed 's/^\\//' | sort -k 2 > "${TEST_LOG}");
 	fi
 
 	local TEST_RESULTS="${TMPDIR}/${TEST_LOG}";
 	local STORED_TEST_RESULTS="${TEST_SET_DIRECTORY}/${TEST_LOG}.gz";
 
-	if test -f "'${STORED_TEST_RESULTS}'";
+	if test -f "${STORED_TEST_RESULTS}";
 	then
 		# Using zcat here since zdiff has issues on Mac OS X.
 		# Note that zcat on Mac OS X requires the input from stdin.
-		zcat < "'${STORED_TEST_RESULTS}'" | diff "'${TEST_RESULTS}'" -;
+		zcat < "${STORED_TEST_RESULTS}" | diff "${TEST_RESULTS}" -;
 		RESULT=$?;
 	else
-		gzip "'${TEST_RESULTS}'";
+		gzip "${TEST_RESULTS}";
 
-		mv "'${TEST_RESULTS}.gz'" ${TEST_SET_DIRECTORY};
+		mv "${TEST_RESULTS}.gz" ${TEST_SET_DIRECTORY};
 	fi
 	return ${RESULT};
 }

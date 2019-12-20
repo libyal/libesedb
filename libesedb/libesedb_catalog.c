@@ -894,6 +894,7 @@ int libesedb_catalog_read_file_io_handle(
 	libesedb_table_definition_t *table_definition = NULL;
 	libfcache_cache_t *root_page_cache            = NULL;
 	static char *function                         = "libesedb_catalog_read_file_io_handle";
+	uint32_t page_flags                           = 0;
 
 	if( catalog == NULL )
 	{
@@ -953,35 +954,54 @@ int libesedb_catalog_read_file_io_handle(
 
 		goto on_error;
 	}
-	if( libesedb_page_validate_root_page(
+	if( libesedb_page_get_flags(
 	     root_page,
+	     &page_flags,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported root page.",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve page flags.",
 		 function );
 
 		goto on_error;
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libesedb_page_tree_read_root_page_header(
-	     catalog->page_tree,
-	     root_page,
-	     error ) != 1 )
+	/* Seen in temp.edb where is root flag is not set
+	 */
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read root page header.",
-		 function );
+		if( libesedb_page_validate_root_page(
+		     root_page,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported root page.",
+			 function );
 
-		goto on_error;
-	}
+			goto on_error;
+		}
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libesedb_page_tree_read_root_page_header(
+		     catalog->page_tree,
+		     root_page,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read root page header.",
+			 function );
+
+			goto on_error;
+		}
 #endif
+	}
 	if( libesedb_catalog_read_values_from_page(
 	     catalog,
 	     file_io_handle,

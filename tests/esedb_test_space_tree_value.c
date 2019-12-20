@@ -35,8 +35,8 @@
 
 #include "../libesedb/libesedb_space_tree_value.h"
 
-uint8_t esedb_test_space_tree_value_data1[ 10 ] = {
-	0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00 };
+uint8_t esedb_test_space_tree_value_data1[ 4 ] = {
+	0x00, 0x01, 0x00, 0x00 };
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
@@ -307,7 +307,7 @@ int esedb_test_space_tree_value_read_data(
 	result = libesedb_space_tree_value_read_data(
 	          space_tree_value,
 	          esedb_test_space_tree_value_data1,
-	          10,
+	          4,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -324,7 +324,7 @@ int esedb_test_space_tree_value_read_data(
 	result = libesedb_space_tree_value_read_data(
 	          NULL,
 	          esedb_test_space_tree_value_data1,
-	          10,
+	          4,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -342,7 +342,7 @@ int esedb_test_space_tree_value_read_data(
 	result = libesedb_space_tree_value_read_data(
 	          space_tree_value,
 	          NULL,
-	          10,
+	          4,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(

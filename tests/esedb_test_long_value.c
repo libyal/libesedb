@@ -124,10 +124,6 @@ int main(
 
 	/* TODO: add tests for libesedb_long_value_get_utf16_string */
 
-	/* TODO: add tests for libesedb_long_value_get_number_of_segments */
-
-	/* TODO: add tests for libesedb_long_value_get_segment_data */
-
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );

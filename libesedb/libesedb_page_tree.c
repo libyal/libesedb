@@ -510,7 +510,7 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the page tree key and value of a specific page value
+/* Retrieves the page tree key of a specific page value
  * This function creates a key
  * Returns 1 if successful or -1 on error
  */
@@ -520,7 +520,6 @@ int libesedb_page_tree_get_key(
      libesedb_page_t *page,
      uint32_t page_flags,
      uint16_t page_value_index,
-     libesedb_page_value_t *page_value,
      libesedb_page_tree_key_t **key,
      libcerror_error_t **error )
 {
@@ -973,7 +972,6 @@ int libesedb_page_tree_get_number_of_leaf_values_from_page(
 			     page,
 			     page_flags,
 			     page_value_index,
-			     page_value,
 			     &page_value_key,
 			     error ) != 1 )
 			{
@@ -1066,7 +1064,6 @@ int libesedb_page_tree_get_number_of_leaf_values_from_page(
 		     page,
 		     page_flags,
 		     page_value_index,
-		     page_value,
 		     &page_value_key,
 		     error ) != 1 )
 		{
@@ -1154,17 +1151,19 @@ int libesedb_page_tree_get_number_of_leaf_values_from_page(
 			goto on_error;
 		}
 #if defined( HAVE_DEBUG_OUTPUT )
-		if( ( libcnotify_verbose != 0 )
-		 && ( page_tree_value->data_size > 4 ) )
+		if( libcnotify_verbose != 0 )
 		{
-			libcnotify_printf(
-			 "%s: page value: %03" PRIu16 " trailing data:\n",
-			 function,
-			 page_value_index );
-			libcnotify_print_data(
-			 &( page_tree_value->data[ 4 ] ),
-			 page_tree_value->data_size - 4,
-			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+			if( page_tree_value->data_size > 4 )
+			{
+				libcnotify_printf(
+				 "%s: page value: %03" PRIu16 " trailing data:\n",
+				 function,
+				 page_value_index );
+				libcnotify_print_data(
+				 &( page_tree_value->data[ 4 ] ),
+				 page_tree_value->data_size - 4,
+				 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+			}
 		}
 #endif
 		if( ( child_page_number > 0 )
@@ -1808,17 +1807,19 @@ int libesedb_page_tree_get_leaf_value_by_index_from_page(
 				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( ( libcnotify_verbose != 0 )
-			 && ( page_tree_value->data_size > 4 ) )
+			if( libcnotify_verbose != 0 )
 			{
-				libcnotify_printf(
-				 "%s: page value: %03" PRIu16 " trailing data:\n",
-				 function,
-				 page_value_index );
-				libcnotify_print_data(
-				 &( page_tree_value->data[ 4 ] ),
-				 page_tree_value->data_size - 4,
-				 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+				if( page_tree_value->data_size > 4 )
+				{
+					libcnotify_printf(
+					 "%s: page value: %03" PRIu16 " trailing data:\n",
+					 function,
+					 page_value_index );
+					libcnotify_print_data(
+					 &( page_tree_value->data[ 4 ] ),
+					 page_tree_value->data_size - 4,
+					 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+				}
 			}
 #endif
 			if( ( child_page_number > 0 )
@@ -2419,7 +2420,6 @@ int libesedb_page_tree_get_leaf_value_by_key_from_page(
 		     page,
 		     page_flags,
 		     page_value_index,
-		     page_value,
 		     &page_value_key,
 		     error ) != 1 )
 		{
@@ -2544,17 +2544,19 @@ int libesedb_page_tree_get_leaf_value_by_key_from_page(
 				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT )
-			if( ( libcnotify_verbose != 0 )
-			 && ( page_tree_value->data_size > 4 ) )
+			if( libcnotify_verbose != 0 )
 			{
-				libcnotify_printf(
-				 "%s: page value: %03" PRIu16 " trailing data:\n",
-				 function,
-				 page_value_index );
-				libcnotify_print_data(
-				 &( page_tree_value->data[ 4 ] ),
-				 page_tree_value->data_size - 4,
-				 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+				if( page_tree_value->data_size > 4 )
+				{
+					libcnotify_printf(
+					 "%s: page value: %03" PRIu16 " trailing data:\n",
+					 function,
+					 page_value_index );
+					libcnotify_print_data(
+					 &( page_tree_value->data[ 4 ] ),
+					 page_tree_value->data_size - 4,
+					 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+				}
 			}
 #endif
 			if( ( child_page_number > 0 )

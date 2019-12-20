@@ -40,7 +40,6 @@
 /* Define this if the debug output is not verbose enough
 #define HAVE_EXTRA_DEBUG_OUTPUT
 */
-#define HAVE_EXTRA_DEBUG_OUTPUT
 
 enum WINDOWS_SEARCH_KNOWN_COLUMN_TYPES
 {
@@ -1259,6 +1258,8 @@ int windows_search_export_compressed_string_value(
 
 			return( -1 );
 		}
+		/* Add room for a trailing 0 byte so the decompressed data can be treated as a string
+		 */
 		decompressed_value_data_size += 1;
 
 		decompressed_value_data = (uint8_t *) memory_allocate(
@@ -1327,6 +1328,10 @@ int windows_search_export_compressed_string_value(
 				 0 );
 			}
 #endif
+			/* Add a trailing 0 byte so the decompressed data can be treated as a string
+			 */
+			decompressed_value_data[ decompressed_value_data_size - 1 ] = 0;
+
 			memory_free(
 			 decoded_value_data );
 

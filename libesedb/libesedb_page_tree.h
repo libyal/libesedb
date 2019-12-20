@@ -119,7 +119,6 @@ int libesedb_page_tree_get_key(
      libesedb_page_t *page,
      uint32_t page_flags,
      uint16_t page_value_index,
-     libesedb_page_value_t *page_value,
      libesedb_page_tree_key_t **key,
      libcerror_error_t **error );
 

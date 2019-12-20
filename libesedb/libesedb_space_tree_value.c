@@ -140,14 +140,7 @@ int libesedb_space_tree_value_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function        = "libesedb_space_tree_value_read_data";
-	size_t data_offset           = 0;
-	uint16_t key_size            = 0;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	const uint8_t *page_key_data = NULL;
-	size_t page_key_size         = 0;
-#endif
+	static char *function = "libesedb_space_tree_value_read_data";
 
 	if( space_tree_value == NULL )
 	{
@@ -171,7 +164,7 @@ int libesedb_space_tree_value_read_data(
 
 		return( -1 );
 	}
-	if( ( data_size < 6 )
+	if( ( data_size < 4 )
 	 || ( data_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
@@ -195,72 +188,8 @@ int libesedb_space_tree_value_read_data(
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
-	byte_stream_copy_to_uint16_little_endian(
-	 data,
-	 key_size );
-
-	data_offset = 2;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: key size\t\t\t\t: %" PRIu16 "\n",
-		 function,
-		 key_size );
-	}
-#endif
-	if( (size_t) key_size > ( data_size - data_offset ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid key size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-/* TODO copy key data to space_tree_value */
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: key value\t\t\t\t: ",
-		 function );
-
-		page_key_data = &( data[ data_offset ] );
-		page_key_size = key_size;
-
-		while( page_key_size > 0 )
-		{
-			libcnotify_printf(
-			 "%02" PRIx8 " ",
-			 *page_key_data );
-
-			page_key_data++;
-			page_key_size--;
-		}
-		libcnotify_printf(
-		 "\n" );
-	}
-#endif
-	data_offset += key_size;
-
-	if( ( data_size - data_offset ) < 4 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid data size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint32_little_endian(
-	 &( data[ data_offset ] ),
+	 data,
 	 space_tree_value->number_of_pages );
 
 #if defined( HAVE_DEBUG_OUTPUT )

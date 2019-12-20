@@ -338,12 +338,12 @@ int libesedb_page_tree_key_compare(
 	size_t second_page_tree_key_data_index = 0;
 	int16_t compare_result                 = -1;
 	uint8_t first_page_tree_key_data       = 0;
-	uint8_t is_flexible_match              = 0;
 	int result                             = -1;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint8_t *page_tree_key_data            = NULL;
 	size_t page_tree_key_data_size         = 0;
+	uint8_t is_flexible_match              = 0;
 #endif
 
 	if( first_page_tree_key == NULL )
@@ -528,8 +528,9 @@ int libesedb_page_tree_key_compare(
 		{
 			compare_data_size = second_page_tree_key->data_size;
 		}
-/* TODO remove is_flexible_match test */
+#if defined( HAVE_DEBUG_OUTPUT )
 		is_flexible_match = 0;
+#endif
 
 		/* The long value page_tree_key is stored reversed
 		 */
@@ -557,7 +558,9 @@ int libesedb_page_tree_key_compare(
 				{
 					first_page_tree_key_data &= 0x7f;
 
+#if defined( HAVE_DEBUG_OUTPUT )
 					is_flexible_match = 1;
+#endif
 				}
 			}
 			compare_result = (int16_t) first_page_tree_key_data - (int16_t) second_page_tree_key->data[ second_page_tree_key_data_index ];
@@ -620,16 +623,6 @@ int libesedb_page_tree_key_compare(
 	}
 	else if( second_page_tree_key->type == LIBESEDB_KEY_TYPE_LEAF )
 	{
-		if( is_flexible_match != 0 )
-		{
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-/* TODO remove this after debugging */
-				fprintf( stderr, "MARKER\n" );
-			}
-#endif
-		}
 		if( compare_result < 0 )
 		{
 			result = LIBFDATA_COMPARE_LESS;
@@ -685,6 +678,11 @@ int libesedb_page_tree_key_compare(
 				libcnotify_printf(
 				 "unknown" );
 				break;
+		}
+		if( is_flexible_match != 0 )
+		{
+			libcnotify_printf(
+			 " (is flexible match)" );
 		}
 		libcnotify_printf(
 		 "\n" );

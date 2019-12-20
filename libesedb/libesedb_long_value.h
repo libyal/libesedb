@@ -146,22 +146,6 @@ int libesedb_long_value_get_utf16_string(
      size_t utf16_string_size,
      libcerror_error_t **error );
 
-/* Deprecated */
-
-LIBESEDB_EXTERN \
-int libesedb_long_value_get_number_of_segments(
-     libesedb_long_value_t *long_value,
-     int *number_of_segments,
-     libcerror_error_t **error );
-
-LIBESEDB_EXTERN \
-int libesedb_long_value_get_segment_data(
-     libesedb_long_value_t *long_value,
-     int data_segment_index,
-     uint8_t **segment_data,
-     size_t *segment_data_size,
-     libcerror_error_t **error );
-
 #if defined( __cplusplus )
 }
 #endif

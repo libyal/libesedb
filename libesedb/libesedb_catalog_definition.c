@@ -603,8 +603,6 @@ int libesedb_catalog_definition_read_data(
 			 catalog_definition->lcmap_flags );
 			libesedb_debug_print_lcmap_flags(
 			 catalog_definition->lcmap_flags );
-			libcnotify_printf(
-			 "\n" );
 		}
 		if( last_fixed_size_data_type >= 11 )
 		{
@@ -621,19 +619,21 @@ int libesedb_catalog_definition_read_data(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( ( libcnotify_verbose != 0 )
-	 && ( variable_size_data_types_offset > calculated_variable_size_data_types_offset ) )
+	if( libcnotify_verbose != 0 )
 	{
-		libcnotify_printf(
-		 "%s: trailing data:\n",
-		 function );
-		libcnotify_print_data(
-		 &( data[ calculated_variable_size_data_types_offset ] ),
-		 variable_size_data_types_offset - calculated_variable_size_data_types_offset,
-		 0 );
+		if( variable_size_data_types_offset > calculated_variable_size_data_types_offset )
+		{
+			libcnotify_printf(
+			 "%s: trailing data:\n",
+			 function );
+			libcnotify_print_data(
+			 &( data[ calculated_variable_size_data_types_offset ] ),
+			 variable_size_data_types_offset - calculated_variable_size_data_types_offset,
+			 0 );
+		}
 	}
 #endif
 	if( number_of_variable_size_data_types > 0 )
@@ -664,7 +664,6 @@ int libesedb_catalog_definition_read_data(
 				 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
 			}
 #endif
-
 			switch( data_type_number )
 			{
 				case 128:

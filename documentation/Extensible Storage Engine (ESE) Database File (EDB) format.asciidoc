@@ -76,6 +76,8 @@ Additional information about long value.
 | 0.0.26 | J.B. Metz | July 2018 | Small textual changes.
 | 0.0.27 | J.B. Metz | December 2018 | Additional information about Active Directory 2016 database format (thanks to E. Gay).
 | 0.0.28 | J.B. Metz | December 2019 | Changes for formatting and LZXPRESS compression.
+| 0.0.29 | J.B. Metz | December 2019 | Corrected error in file header definition.
+| 0.0.30 | J.B. Metz | December 2019 | Additional information about space trees.
 |===
 
 :numbered:
@@ -814,39 +816,19 @@ information about the owned pages. The secondary space tree page which is the
 primary space tree page number + 1 contains information about the available
 pages.
 
-===== Space tree leaf page header
-
-The space tree page header is the first page value within the page.
-
-The space tree page header is 16 bytes of size and consists of:
-
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 16 | | [yellow-background]*Unknown* +
-[yellow-background]*Seen: 0*
-|===
-
-When the space tree page was referenced from the father data page the space
-tree page header contains 0 bytes.
-
-The space tree header can also be empty (have a page value size of 0).
-[yellow-background]*related to root flag value?*
-
-[yellow-background]*TODO*
-....
-00000000: 44 03 00 00 01 00 00 00  c6 03 00 00 04 00 00 00   D....... ........
-....
-
 ===== Space tree leaf page entry
 
-The space tree page entry is variable of size and consists of:
+The space tree leaf page entry is variable of size and consists of:
 
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 2 | 4 | Size of the page key
-| 2 | ... | | Page key value
+4+| _If page tag flag 0x04 is set_
+| 0 | 2 | | Common page key size
+4+| _Common for all page flags_
+| 2 | 2 | | Local page key size
+| 4 | ... | | Local page key
+4+| _Entry data_
 | ... | 4 | | number of pages
 |===
 
