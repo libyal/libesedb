@@ -378,14 +378,6 @@ int libesedb_file_header_read_data(
 		 8,
 		 0 );
 
-		libcnotify_printf(
-		 "%s: log signature:\n",
-		 function );
-		libcnotify_print_data(
-		 ( (esedb_file_header_t *) data )->log_signature,
-		 28,
-		 0 );
-
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_file_header_t *) data )->unknown1,
 		 value_32bit );
@@ -394,6 +386,14 @@ int libesedb_file_header_read_data(
 		 function,
 		 value_32bit,
 		 value_32bit );
+
+		libcnotify_printf(
+		 "%s: log signature:\n",
+		 function );
+		libcnotify_print_data(
+		 ( (esedb_file_header_t *) data )->log_signature,
+		 28,
+		 0 );
 
 		libcnotify_printf(
 		 "%s: previous full backup:\n",

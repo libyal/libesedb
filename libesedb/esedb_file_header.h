@@ -110,16 +110,16 @@ struct esedb_file_header
 	 */
 	uint8_t detach_postition[ 8 ];
 
+	/* Unknown
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown1[ 4 ];
+
 	/* The log signature
 	 * Consists of 28 bytes
 	 * Contains a log signature structure
 	 */
 	uint8_t log_signature[ 28 ];
-
-	/* Unknown
-	 * Consists of 4 bytes
-	 */
-	uint8_t unknown1[ 4 ];
 
 	/* Previous full backup
 	 * Consists of 24 bytes

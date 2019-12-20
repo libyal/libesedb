@@ -210,10 +210,10 @@ The date and time when the database was last detached.
 Consists of a log position +
 See section: <<log_position,Log position>> +
 The log position that was used the last time the database was detached.
-| 104 | 28 | | Log signature +
+| 104 | 4 | | [yellow-background]*Unknown (Dbid)*
+| 108 | 28 | | Log signature +
 Consists of a database signature +
 See section: <<database_signature,Database signature>>
-| 132 | 4 | 0 | [yellow-background]*Unknown (Empty value)*
 | 136 | 24 | | Previous full backup +
 Consists of a backup information +
 See section: <<backup_information,Backup information>>
