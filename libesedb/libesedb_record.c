@@ -28,7 +28,6 @@
 #include "libesedb_data_segment.h"
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
-#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
@@ -38,6 +37,8 @@
 #include "libesedb_libfvalue.h"
 #include "libesedb_long_value.h"
 #include "libesedb_multi_value.h"
+#include "libesedb_page_tree.h"
+#include "libesedb_page_tree_key.h"
 #include "libesedb_record.h"
 #include "libesedb_record_value.h"
 #include "libesedb_table_definition.h"
@@ -58,8 +59,7 @@ int libesedb_record_initialize(
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
      libesedb_data_definition_t *data_definition,
-     libfdata_btree_t *long_values_tree,
-     libfcache_cache_t *long_values_cache,
+     libesedb_page_tree_t *long_values_page_tree,
      libcerror_error_t **error )
 {
 	libesedb_internal_record_t *internal_record = NULL;
@@ -184,8 +184,7 @@ int libesedb_record_initialize(
 	internal_record->long_values_pages_vector  = long_values_pages_vector;
 	internal_record->long_values_pages_cache   = long_values_pages_cache;
 	internal_record->data_definition           = data_definition;
-	internal_record->long_values_tree          = long_values_tree;
-	internal_record->long_values_cache         = long_values_cache;
+	internal_record->long_values_page_tree     = long_values_page_tree;
 
 	*record = (libesedb_record_t *) internal_record;
 
@@ -235,8 +234,8 @@ int libesedb_record_free(
 		*record         = NULL;
 
 		/* The io_handle, file_io_handle, table_definition, template_table_definition, pages_vector,
-		 * pages_cache, * long_values_pages_vector, long_values_pages_cache, long_values_tree
-		 * and long_values_cache references are freed elsewhere
+		 * pages_cache, * long_values_pages_vector, long_values_pages_cache and long_values_page_tree
+		 * references are freed elsewhere
 		 */
 		if( internal_record->data_definition != NULL )
 		{
@@ -3009,7 +3008,7 @@ int libesedb_record_get_long_value_data_segments_list(
 	uint8_t long_value_segment_key[ 8 ];
 
 	libesedb_data_definition_t *data_definition = NULL;
-	libesedb_key_t *key                         = NULL;
+	libesedb_page_tree_key_t *key               = NULL;
 	static char *function                       = "libesedb_record_get_long_value_data_segments_list";
 	uint32_t long_value_segment_offset          = 0;
 	int result                                  = 0;
@@ -3059,7 +3058,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 		return( -1 );
 	}
-	if( libesedb_key_initialize(
+	if( libesedb_page_tree_key_initialize(
 	     &key,
 	     error ) != 1 )
 	{
@@ -3072,7 +3071,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 		goto on_error;
 	}
-	if( libesedb_key_set_data(
+	if( libesedb_page_tree_key_set_data(
 	     key,
 	     long_value_key,
 	     long_value_key_size,
@@ -3089,15 +3088,11 @@ int libesedb_record_get_long_value_data_segments_list(
 	}
 	key->type = LIBESEDB_KEY_TYPE_LONG_VALUE;
 
-	result = libfdata_btree_get_leaf_value_by_key(
-	          internal_record->long_values_tree,
-	          (intptr_t *) internal_record->file_io_handle,
-	          (libfdata_cache_t *) internal_record->long_values_cache,
-	          (intptr_t *) key,
-	          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
-	          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
-	          (intptr_t **) &data_definition,
-	          0,
+	result = libesedb_page_tree_get_leaf_value_by_key(
+	          internal_record->long_values_page_tree,
+	          internal_record->file_io_handle,
+	          key,
+	          &data_definition,
 	          error );
 
 	if( result == -1 )
@@ -3111,7 +3106,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 		goto on_error;
 	}
-	if( libesedb_key_free(
+	if( libesedb_page_tree_key_free(
 	     &key,
 	     error ) != 1 )
 	{
@@ -3163,6 +3158,19 @@ int libesedb_record_get_long_value_data_segments_list(
 
 		goto on_error;
 	}
+	if( libesedb_data_definition_free(
+	     &data_definition,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+		 "%s: unable to free data definition.",
+		 function );
+
+		goto on_error;
+	}
 	/* Reverse the reversed long value key
 	 */
 	long_value_segment_key[ 0 ] = long_value_key[ 3 ];
@@ -3176,7 +3184,7 @@ int libesedb_record_get_long_value_data_segments_list(
 		 &( long_value_segment_key[ 4 ] ),
 		 long_value_segment_offset );
 
-		if( libesedb_key_initialize(
+		if( libesedb_page_tree_key_initialize(
 		     &key,
 		     error ) != 1 )
 		{
@@ -3189,7 +3197,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 			goto on_error;
 		}
-		if( libesedb_key_set_data(
+		if( libesedb_page_tree_key_set_data(
 		     key,
 		     long_value_segment_key,
 		     8,
@@ -3206,16 +3214,12 @@ int libesedb_record_get_long_value_data_segments_list(
 		}
 		key->type = LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT;
 
-		result = libfdata_btree_get_leaf_value_by_key(
-			  internal_record->long_values_tree,
-			  (intptr_t *) internal_record->file_io_handle,
-			  (libfdata_cache_t *) internal_record->long_values_cache,
-		          (intptr_t *) key,
-		          (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_key_compare,
-		          LIBFDATA_BTREE_SEARCH_FLAG_SCAN_NEXT_NODE,
-		          (intptr_t **) &data_definition,
-			  0,
-			  error );
+		result = libesedb_page_tree_get_leaf_value_by_key(
+		          internal_record->long_values_page_tree,
+		          internal_record->file_io_handle,
+		          key,
+		          &data_definition,
+		          error );
 
 		if( result == -1 )
 		{
@@ -3228,20 +3232,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 			goto on_error;
 		}
-		if( libesedb_key_free(
-		     &key,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free key.",
-			 function );
-
-			goto on_error;
-		}
-		if( result != 0 )
+		else if( result != 0 )
 		{
 			if( libesedb_data_definition_read_long_value_segment(
 			     data_definition,
@@ -3263,6 +3254,33 @@ int libesedb_record_get_long_value_data_segments_list(
 				goto on_error;
 			}
 			long_value_segment_offset += data_definition->data_size;
+
+			if( libesedb_data_definition_free(
+			     &data_definition,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free data definition.",
+				 function );
+
+				goto on_error;
+			}
+		}
+		if( libesedb_page_tree_key_free(
+		     &key,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free key.",
+			 function );
+
+			goto on_error;
 		}
 	}
 	while( result == 1 );
@@ -3276,9 +3294,15 @@ on_error:
 		 data_segments_list,
 		 NULL );
 	}
+	if( data_definition != NULL )
+	{
+		libesedb_data_definition_free(
+		 &data_definition,
+		 NULL );
+	}
 	if( key != NULL )
 	{
-		libesedb_key_free(
+		libesedb_page_tree_key_free(
 		 &key,
 		 NULL );
 	}

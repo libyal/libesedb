@@ -1228,6 +1228,7 @@ int libesedb_page_validate_space_tree_page(
 
 		return( -1 );
 	}
+/* TODO check if the following checks only apply to branch pages */
 	if( libesedb_page_header_get_previous_page_number(
 	     page->header,
 	     &previous_page_number,
@@ -1291,7 +1292,9 @@ int libesedb_page_validate_page(
      libcerror_error_t **error )
 {
 	static char *function         = "libesedb_page_validate_page";
+	uint32_t next_page_number     = 0;
 	uint32_t page_flags           = 0;
+	uint32_t previous_page_number = 0;
 	uint32_t supported_page_flags = 0;
 
 	if( page == NULL )
@@ -1346,6 +1349,61 @@ int libesedb_page_validate_page(
 		 page_flags );
 
 		return( -1 );
+	}
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == 0 )
+	{
+		if( libesedb_page_header_get_previous_page_number(
+		     page->header,
+		     &previous_page_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve previous page number.",
+			 function );
+
+			return( -1 );
+		}
+		if( previous_page_number != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported previous page number: %" PRIu32 ".",
+			 function,
+			 previous_page_number );
+
+			return( -1 );
+		}
+		if( libesedb_page_header_get_next_page_number(
+		     page->header,
+		     &next_page_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve next page number.",
+			 function );
+
+			return( -1 );
+		}
+		if( next_page_number != 0 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported next page number: %" PRIu32 ".",
+			 function,
+			 next_page_number );
+
+			return( -1 );
+		}
 	}
 	return( 1 );
 }

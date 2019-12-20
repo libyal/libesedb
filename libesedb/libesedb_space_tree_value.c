@@ -205,7 +205,7 @@ int libesedb_space_tree_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: key size\t\t: %" PRIu16 "\n",
+		 "%s: key size\t\t\t\t: %" PRIu16 "\n",
 		 function,
 		 key_size );
 	}
@@ -227,7 +227,7 @@ int libesedb_space_tree_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: key value\t\t: ",
+		 "%s: key value\t\t\t\t: ",
 		 function );
 
 		page_key_data = &( data[ data_offset ] );
@@ -267,7 +267,7 @@ int libesedb_space_tree_value_read_data(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: number of pages\t: %" PRIu32 "\n",
+		 "%s: number of pages\t\t\t: %" PRIu32 "\n",
 		 function,
 		 space_tree_value->number_of_pages );
 

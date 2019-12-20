@@ -27,15 +27,16 @@
 
 #include "libesedb_data_definition.h"
 #include "libesedb_io_handle.h"
-#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcdata.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page.h"
+#include "libesedb_page_tree_key.h"
 #include "libesedb_page_tree_value.h"
 #include "libesedb_page_value.h"
+#include "libesedb_root_page_header.h"
 #include "libesedb_table_definition.h"
 
 #if defined( __cplusplus )
@@ -74,6 +75,10 @@ struct libesedb_page_tree
 	 */
 	libfcache_cache_t *pages_cache;
 
+	/* The root page header
+	 */
+	libesedb_root_page_header_t *root_page_header;
+
 	/* The leaf page descriptors tree
 	 */
 	libcdata_btree_t *leaf_page_descriptors_tree;
@@ -103,13 +108,19 @@ int libesedb_page_tree_read_root_page_header(
      libesedb_page_t *root_page,
      libcerror_error_t **error );
 
+int libesedb_page_tree_read_space_trees(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     libcerror_error_t **error );
+
 int libesedb_page_tree_get_key(
      libesedb_page_tree_t *page_tree,
      libesedb_page_tree_value_t *page_tree_value,
      libesedb_page_t *page,
+     uint32_t page_flags,
      uint16_t page_value_index,
      libesedb_page_value_t *page_value,
-     libesedb_key_t **key,
+     libesedb_page_tree_key_t **key,
      libcerror_error_t **error );
 
 int libesedb_page_tree_get_number_of_leaf_values_from_page(
@@ -147,7 +158,7 @@ int libesedb_page_tree_get_leaf_value_by_key_from_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libesedb_page_t *page,
-     libesedb_key_t *leaf_value_key,
+     libesedb_page_tree_key_t *leaf_value_key,
      libesedb_data_definition_t **data_definition,
      int recursion_depth,
      libcerror_error_t **error );
@@ -155,57 +166,8 @@ int libesedb_page_tree_get_leaf_value_by_key_from_page(
 int libesedb_page_tree_get_leaf_value_by_key(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
-     libesedb_key_t *leaf_value_key,
+     libesedb_page_tree_key_t *leaf_value_key,
      libesedb_data_definition_t **data_definition,
-     libcerror_error_t **error );
-
-/* TODO deprecate functions below */
-
-int libesedb_page_tree_read_root_page(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     off64_t page_offset,
-     uint32_t page_number,
-     libcerror_error_t **error );
-
-int libesedb_page_tree_read_space_tree_page(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     uint32_t page_number,
-     libcerror_error_t **error );
-
-int libesedb_page_tree_read_page(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     off64_t page_offset,
-     uint32_t page_number,
-     libfdata_btree_node_t *node,
-     libcerror_error_t **error );
-
-int libesedb_page_tree_read_node(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     libfdata_btree_node_t *node,
-     int node_data_file_index,
-     off64_t node_data_offset,
-     size64_t node_data_size,
-     uint32_t node_data_flags,
-     intptr_t *key_value,
-     uint8_t read_flags,
-     libcerror_error_t **error );
-
-int libesedb_page_tree_read_leaf_value(
-     libesedb_page_tree_t *page_tree,
-     libbfio_handle_t *file_io_handle,
-     libfdata_btree_t *tree,
-     libfdata_cache_t *cache,
-     int leaf_value_index,
-     int leaf_value_data_file_index,
-     off64_t leaf_value_data_offset,
-     size64_t leaf_value_data_size,
-     uint32_t leaf_value_data_flags,
-     intptr_t *key_value,
-     uint8_t read_flags,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

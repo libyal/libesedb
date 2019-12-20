@@ -13,13 +13,13 @@ MSVSCPP_FILES = \
 	esedb_test_file_header/esedb_test_file_header.vcproj \
 	esedb_test_index/esedb_test_index.vcproj \
 	esedb_test_io_handle/esedb_test_io_handle.vcproj \
-	esedb_test_key/esedb_test_key.vcproj \
 	esedb_test_long_value/esedb_test_long_value.vcproj \
 	esedb_test_multi_value/esedb_test_multi_value.vcproj \
 	esedb_test_notify/esedb_test_notify.vcproj \
 	esedb_test_page/esedb_test_page.vcproj \
 	esedb_test_page_header/esedb_test_page_header.vcproj \
 	esedb_test_page_tree/esedb_test_page_tree.vcproj \
+	esedb_test_page_tree_key/esedb_test_page_tree_key.vcproj \
 	esedb_test_page_tree_value/esedb_test_page_tree_value.vcproj \
 	esedb_test_page_value/esedb_test_page_value.vcproj \
 	esedb_test_record/esedb_test_record.vcproj \

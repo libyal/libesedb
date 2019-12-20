@@ -28,13 +28,13 @@
 #include "libesedb_definitions.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_index.h"
-#include "libesedb_key.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_page_tree.h"
+#include "libesedb_page_tree_key.h"
 #include "libesedb_record.h"
 #include "libesedb_types.h"
 
@@ -54,8 +54,7 @@ int libesedb_index_initialize(
      libfdata_vector_t *long_values_pages_vector,
      libfcache_cache_t *long_values_pages_cache,
      libesedb_page_tree_t *table_page_tree,
-     libfdata_btree_t *long_values_tree,
-     libfcache_cache_t *long_values_cache,
+     libesedb_page_tree_t *long_values_page_tree,
      libcerror_error_t **error )
 {
 	libesedb_internal_index_t *internal_index = NULL;
@@ -168,8 +167,7 @@ int libesedb_index_initialize(
 	internal_index->long_values_pages_vector  = long_values_pages_vector;
 	internal_index->long_values_pages_cache   = long_values_pages_cache;
 	internal_index->table_page_tree           = table_page_tree;
-	internal_index->long_values_tree          = long_values_tree;
-	internal_index->long_values_cache         = long_values_cache;
+	internal_index->long_values_page_tree     = long_values_page_tree;
 
 	*index = (libesedb_index_t *) internal_index;
 
@@ -212,8 +210,8 @@ int libesedb_index_free(
 		*index         = NULL;
 
 		/* The io_handle, file_io_handle, table_definition, template_table_definition,
-		 * index_catalog_definition, pages_vector, pages_cache, table_page_tree,
-		 * long_values_tree and long_values_cache references are freed elsewhere
+		 * index_catalog_definition, pages_vector, pages_cache, table_page_tree and
+		 * long_values_page_tree references are freed elsewhere
 		 */
 		if( libesedb_page_tree_free(
 		     &( internal_index->index_page_tree ),
@@ -549,7 +547,7 @@ int libesedb_index_get_record(
 	libesedb_data_definition_t *index_data_definition  = NULL;
 	libesedb_data_definition_t *record_data_definition = NULL;
 	libesedb_internal_index_t *internal_index          = NULL;
-	libesedb_key_t *key                                = NULL;
+	libesedb_page_tree_key_t *key                      = NULL;
 	uint8_t *index_data                                = NULL;
 	static char *function                              = "libesedb_index_get_record";
 	size_t index_data_size                             = 0;
@@ -638,7 +636,7 @@ int libesedb_index_get_record(
 
 		goto on_error;
 	}
-	if( libesedb_key_initialize(
+	if( libesedb_page_tree_key_initialize(
 	     &key,
 	     error ) != 1 )
 	{
@@ -651,7 +649,7 @@ int libesedb_index_get_record(
 
 		goto on_error;
 	}
-	if( libesedb_key_set_data(
+	if( libesedb_page_tree_key_set_data(
 	     key,
 	     index_data,
 	     index_data_size,
@@ -684,7 +682,7 @@ int libesedb_index_get_record(
 
 		goto on_error;
 	}
-	if( libesedb_key_free(
+	if( libesedb_page_tree_key_free(
 	     &key,
 	     error ) != 1 )
 	{
@@ -708,8 +706,7 @@ int libesedb_index_get_record(
 	     internal_index->long_values_pages_vector,
 	     internal_index->long_values_pages_cache,
 	     record_data_definition,
-	     internal_index->long_values_tree,
-	     internal_index->long_values_cache,
+	     internal_index->long_values_page_tree,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -738,7 +735,7 @@ on_error:
 	}
 	if( key != NULL )
 	{
-		libesedb_key_free(
+		libesedb_page_tree_key_free(
 		 &key,
 		 NULL );
 	}

@@ -648,7 +648,6 @@ int libesedb_catalog_read_values_from_page(
 			 page_value->flags );
 			libesedb_debug_print_page_tag_flags(
 			 page_value->flags );
-
 			libcnotify_printf(
 			 "\n" );
 		}

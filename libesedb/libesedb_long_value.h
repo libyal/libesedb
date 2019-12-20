@@ -55,14 +55,6 @@ struct libesedb_internal_long_value
 	 */
 	libesedb_catalog_definition_t *column_catalog_definition;
 
-	/* The long values tree
-	 */
-	libfdata_btree_t *long_values_tree;
-
-	/* The long values cache
-	 */
-	libfcache_cache_t *long_values_cache;
-
 	/* The data segments list
 	 */
 	libfdata_list_t *data_segments_list;

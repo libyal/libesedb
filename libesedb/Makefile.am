@@ -46,7 +46,6 @@ libesedb_la_SOURCES = \
 	libesedb_i18n.c libesedb_i18n.h \
 	libesedb_index.c libesedb_index.h \
 	libesedb_io_handle.c libesedb_io_handle.h \
-	libesedb_key.c libesedb_key.h \
 	libesedb_lcid.c libesedb_lcid.h \
 	libesedb_leaf_page_descriptor.c libesedb_leaf_page_descriptor.h \
 	libesedb_libbfio.h \
@@ -65,11 +64,13 @@ libesedb_la_SOURCES = \
 	libesedb_page.c libesedb_page.h \
 	libesedb_page_header.c libesedb_page_header.h \
 	libesedb_page_tree.c libesedb_page_tree.h \
+	libesedb_page_tree_key.c libesedb_page_tree_key.h \
 	libesedb_page_tree_value.c libesedb_page_tree_value.h \
 	libesedb_page_value.c libesedb_page_value.h \
 	libesedb_record.c libesedb_record.h \
 	libesedb_record_value.c libesedb_record_value.h \
 	libesedb_root_page_header.c libesedb_root_page_header.h \
+	libesedb_space_tree.c libesedb_space_tree.h \
 	libesedb_space_tree_value.c libesedb_space_tree_value.h \
 	libesedb_support.c libesedb_support.h \
 	libesedb_table.c libesedb_table.h \

@@ -79,17 +79,9 @@ struct libesedb_internal_table
 	 */
 	libesedb_page_tree_t *table_page_tree;
 
-	/* The table values cache
+	/* The long values page tree
 	 */
-	libfcache_cache_t *table_values_cache;
-
-	/* The long values tree
-	 */
-	libfdata_btree_t *long_values_tree;
-
-	/* The long values cache
-	 */
-	libfcache_cache_t *long_values_cache;
+	libesedb_page_tree_t *long_values_page_tree;
 };
 
 int libesedb_table_initialize(

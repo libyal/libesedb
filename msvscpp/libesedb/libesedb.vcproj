@@ -242,10 +242,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_key.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_lcid.c"
 				>
 			</File>
@@ -278,6 +274,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_page_tree_key.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_page_tree_value.c"
 				>
 			</File>
@@ -295,6 +295,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_root_page_header.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_space_tree.c"
 				>
 			</File>
 			<File
@@ -412,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\libesedb\libesedb_key.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\libesedb\libesedb_lcid.h"
 				>
 			</File>
@@ -488,6 +488,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_page_tree_key.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_page_tree_value.h"
 				>
 			</File>
@@ -505,6 +509,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\libesedb_root_page_header.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_space_tree.h"
 				>
 			</File>
 			<File

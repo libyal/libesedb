@@ -1,5 +1,5 @@
 /*
- * Key functions
+ * Page tree key functions
  *
  * Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -24,68 +24,68 @@
 #include <types.h>
 
 #include "libesedb_definitions.h"
-#include "libesedb_key.h"
 #include "libesedb_libcerror.h"
 #include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
+#include "libesedb_page_tree_key.h"
 
-/* Creates a key
- * Make sure the value key is referencing, is set to NULL
+/* Creates a page tree key
+ * Make sure the value page_tree_key is referencing, is set to NULL
  * Returns 1 if successful or -1 on error
  */
-int libesedb_key_initialize(
-     libesedb_key_t **key,
+int libesedb_page_tree_key_initialize(
+     libesedb_page_tree_key_t **page_tree_key,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_key_initialize";
+	static char *function = "libesedb_page_tree_key_initialize";
 
-	if( key == NULL )
+	if( page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid key.",
+		 "%s: invalid page tree key.",
 		 function );
 
 		return( -1 );
 	}
-	if( *key != NULL )
+	if( *page_tree_key != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid key value already set.",
+		 "%s: invalid page tree key value already set.",
 		 function );
 
 		return( -1 );
 	}
-	*key = memory_allocate_structure(
-	        libesedb_key_t );
+	*page_tree_key = memory_allocate_structure(
+	                  libesedb_page_tree_key_t );
 
-	if( *key == NULL )
+	if( *page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-		 "%s: unable to create key.",
+		 "%s: unable to create page tree key.",
 		 function );
 
 		goto on_error;
 	}
 	if( memory_set(
-	     ( *key ),
+	     ( *page_tree_key ),
 	     0,
-	     sizeof( libesedb_key_t ) ) == NULL )
+	     sizeof( libesedb_page_tree_key_t ) ) == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_MEMORY,
 		 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-		 "%s: unable to clear key.",
+		 "%s: unable to clear page tree key.",
 		 function );
 
 		goto on_error;
@@ -93,80 +93,80 @@ int libesedb_key_initialize(
 	return( 1 );
 
 on_error:
-	if( *key != NULL )
+	if( *page_tree_key != NULL )
 	{
 		memory_free(
-		 *key );
+		 *page_tree_key );
 
-		*key = NULL;
+		*page_tree_key = NULL;
 	}
 	return( -1 );
 }
 
-/* Frees a key
+/* Frees a page tree key
  * Returns 1 if successful or -1 on error
  */
-int libesedb_key_free(
-     libesedb_key_t **key,
+int libesedb_page_tree_key_free(
+     libesedb_page_tree_key_t **page_tree_key,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_key_free";
+	static char *function = "libesedb_page_tree_key_free";
 
-	if( key == NULL )
+	if( page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid key.",
+		 "%s: invalid page tree key.",
 		 function );
 
 		return( -1 );
 	}
-	if( *key != NULL )
+	if( *page_tree_key != NULL )
 	{
-		if( ( *key )->data != NULL )
+		if( ( *page_tree_key )->data != NULL )
 		{
 			memory_free(
-			 ( *key )->data );
+			 ( *page_tree_key )->data );
 		}
 		memory_free(
-		 *key );
+		 *page_tree_key );
 
-		*key = NULL;
+		*page_tree_key = NULL;
 	}
 	return( 1 );
 }
 
-/* Sets the data
+/* Sets data
  * Returns 1 if successful or -1 on error
  */
-int libesedb_key_set_data(
-     libesedb_key_t *key,
+int libesedb_page_tree_key_set_data(
+     libesedb_page_tree_key_t *page_tree_key,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function = "libesedb_key_set_data";
+	static char *function = "libesedb_page_tree_key_set_data";
 
-	if( key == NULL )
+	if( page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid key.",
+		 "%s: invalid page tree key.",
 		 function );
 
 		return( -1 );
 	}
-	if( key->data != NULL )
+	if( page_tree_key->data != NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
-		 "%s: invalid key - data already set.",
+		 "%s: invalid page tree key - data already set.",
 		 function );
 
 		return( -1 );
@@ -195,10 +195,10 @@ int libesedb_key_set_data(
 	}
 	if( data_size > 0 )
 	{
-		key->data = (uint8_t *) memory_allocate(
-		                         sizeof( uint8_t ) * data_size );
+		page_tree_key->data = (uint8_t *) memory_allocate(
+		                                   sizeof( uint8_t ) * data_size );
 
-		if( key->data == NULL )
+		if( page_tree_key->data == NULL )
 		{
 			libcerror_error_set(
 			 error,
@@ -210,7 +210,7 @@ int libesedb_key_set_data(
 			goto on_error;
 		}
 		if( memory_copy(
-		     key->data,
+		     page_tree_key->data,
 		     data,
 		     sizeof( uint8_t ) * data_size ) == NULL )
 		{
@@ -223,42 +223,42 @@ int libesedb_key_set_data(
 
 			goto on_error;
 		}
-		key->data_size = data_size;
+		page_tree_key->data_size = data_size;
 	}
 	return( 1 );
 
 on_error:
-	if( key->data != NULL )
+	if( page_tree_key->data != NULL )
 	{
 		memory_free(
-		 key->data );
+		 page_tree_key->data );
 
-		key->data = NULL;
+		page_tree_key->data = NULL;
 	}
-	key->data_size = 0;
+	page_tree_key->data_size = 0;
 
 	return( -1 );
 }
 
-/* Append the data
+/* Append data
  * Returns 1 if successful or -1 on error
  */
-int libesedb_key_append_data(
-     libesedb_key_t *key,
+int libesedb_page_tree_key_append_data(
+     libesedb_page_tree_key_t *page_tree_key,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error )
 {
 	void *reallocation    = NULL;
-	static char *function = "libesedb_key_append_data";
+	static char *function = "libesedb_page_tree_key_append_data";
 
-	if( key == NULL )
+	if( page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid key.",
+		 "%s: invalid page tree key.",
 		 function );
 
 		return( -1 );
@@ -288,8 +288,8 @@ int libesedb_key_append_data(
 	if( data_size > 0 )
 	{
 		reallocation = memory_reallocate(
-		                key->data,
-		                sizeof( uint8_t ) * ( key->data_size + data_size ) );
+		                page_tree_key->data,
+		                sizeof( uint8_t ) * ( page_tree_key->data_size + data_size ) );
 
 		if( reallocation == NULL )
 		{
@@ -302,10 +302,10 @@ int libesedb_key_append_data(
 
 			return( -1 );
 		}
-		key->data = (uint8_t *) reallocation;
+		page_tree_key->data = (uint8_t *) reallocation;
 
 		if( memory_copy(
-		     &( key->data[ key->data_size ] ),
+		     &( page_tree_key->data[ page_tree_key->data_size ] ),
 		     data,
 		     sizeof( uint8_t ) * data_size ) == NULL )
 		{
@@ -318,63 +318,88 @@ int libesedb_key_append_data(
 
 			return( -1 );
 		}
-		key->data_size += data_size;
+		page_tree_key->data_size += data_size;
 	}
 	return( 1 );
 }
 
-/* Compares two keys
+/* Compares two page tree keys
  * Returns LIBFDATA_COMPARE_LESS, LIBFDATA_COMPARE_EQUAL, LIBFDATA_COMPARE_GREATER,
  * LIBFDATA_COMPARE_GREATER_EQUAL if successful or -1 on error
  */
-int libesedb_key_compare(
-     libesedb_key_t *first_key,
-     libesedb_key_t *second_key,
+int libesedb_page_tree_key_compare(
+     libesedb_page_tree_key_t *first_page_tree_key,
+     libesedb_page_tree_key_t *second_page_tree_key,
      libcerror_error_t **error )
 {
-	static char *function        = "libesedb_key_compare";
-	size_t compare_data_size     = 0;
-	size_t first_key_data_index  = 0;
-	size_t second_key_data_index = 0;
-	int16_t compare_result       = -1;
-	uint8_t first_key_data       = 0;
-	uint8_t is_flexible_match    = 0;
-	int result                   = -1;
+	static char *function                  = "libesedb_page_tree_key_compare";
+	size_t compare_data_size               = 0;
+	size_t first_page_tree_key_data_index  = 0;
+	size_t second_page_tree_key_data_index = 0;
+	int16_t compare_result                 = -1;
+	uint8_t first_page_tree_key_data       = 0;
+	uint8_t is_flexible_match              = 0;
+	int result                             = -1;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint8_t *key_data            = NULL;
-	size_t key_data_size         = 0;
+	uint8_t *page_tree_key_data            = NULL;
+	size_t page_tree_key_data_size         = 0;
 #endif
 
-	if( first_key == NULL )
+	if( first_page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid first key.",
+		 "%s: invalid first page tree key.",
 		 function );
 
 		return( -1 );
 	}
-	if( first_key->data == NULL )
+	if( first_page_tree_key->data == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid first key - missing data.",
+		 "%s: invalid first page tree key - missing data.",
 		 function );
 
 		return( -1 );
 	}
-	if( second_key == NULL )
+	if( ( first_page_tree_key->type != LIBESEDB_KEY_TYPE_INDEX_VALUE )
+	 && ( first_page_tree_key->type != LIBESEDB_KEY_TYPE_LONG_VALUE )
+	 && ( first_page_tree_key->type != LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported first page tree key type.",
+		 function );
+
+		return( -1 );
+	}
+	if( second_page_tree_key == NULL )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid second key.",
+		 "%s: invalid second page tree key.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( second_page_tree_key->type != LIBESEDB_KEY_TYPE_BRANCH )
+	 && ( second_page_tree_key->type != LIBESEDB_KEY_TYPE_LEAF ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported second page tree key type.",
 		 function );
 
 		return( -1 );
@@ -383,31 +408,31 @@ int libesedb_key_compare(
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: first key\t\t\t\t\t\t: ",
+		 "%s: first page tree key\t\t\t: ",
 		 function );
 
-		key_data      = first_key->data;
-		key_data_size = first_key->data_size;
+		page_tree_key_data      = first_page_tree_key->data;
+		page_tree_key_data_size = first_page_tree_key->data_size;
 
-		while( key_data_size > 0 )
+		while( page_tree_key_data_size > 0 )
 		{
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
 				 "%02" PRIx8 " ",
-				 *key_data );
+				 *page_tree_key_data );
 			}
-			key_data++;
-			key_data_size--;
+			page_tree_key_data++;
+			page_tree_key_data_size--;
 		}
 		libcnotify_printf(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: first key type\t\t\t\t\t: ",
+		 "%s: first page tree key type\t\t: ",
 		 function );
 
-		switch( first_key->type )
+		switch( first_page_tree_key->type )
 		{
 			case LIBESEDB_KEY_TYPE_INDEX_VALUE:
 				libcnotify_printf(
@@ -426,38 +451,38 @@ int libesedb_key_compare(
 
 			default:
 				libcnotify_printf(
-				 "invalid" );
+				 "unknown" );
 				break;
 		}
 		libcnotify_printf(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: second key\t\t\t\t\t: ",
+		 "%s: second page tree key\t\t\t: ",
 		 function );
 
-		key_data      = second_key->data;
-		key_data_size = second_key->data_size;
+		page_tree_key_data      = second_page_tree_key->data;
+		page_tree_key_data_size = second_page_tree_key->data_size;
 
-		while( key_data_size > 0 )
+		while( page_tree_key_data_size > 0 )
 		{
 			if( libcnotify_verbose != 0 )
 			{
 				libcnotify_printf(
 				 "%02" PRIx8 " ",
-				 *key_data );
+				 *page_tree_key_data );
 			}
-			key_data++;
-			key_data_size--;
+			page_tree_key_data++;
+			page_tree_key_data_size--;
 		}
 		libcnotify_printf(
 		 "\n" );
 
 		libcnotify_printf(
-		 "%s: second key type\t\t\t\t\t: ",
+		 "%s: second page tree key type\t\t: ",
 		 function );
 
-		switch( second_key->type )
+		switch( second_page_tree_key->type )
 		{
 			case LIBESEDB_KEY_TYPE_BRANCH:
 				libcnotify_printf(
@@ -471,7 +496,7 @@ int libesedb_key_compare(
 
 			default:
 				libcnotify_printf(
-				 "invalid" );
+				 "unknown" );
 				break;
 		}
 		libcnotify_printf(
@@ -479,75 +504,75 @@ int libesedb_key_compare(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
-	/* Check if the key is empty, therefore has no upper bound
-	 * and thus the first key will be greater than the second key
+	/* Check if the page tree key is empty, therefore has no upper bound
+	 * and thus the first page tree key will be greater than the second page tree key
 	 */
-	if( second_key->data_size > 0 )
+	if( second_page_tree_key->data_size > 0 )
 	{
-		if( second_key->data == NULL )
+		if( second_page_tree_key->data == NULL )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid second key - missing data.",
+			 "%s: invalid second page tree key - missing data.",
 			 function );
 
 			return( -1 );
 		}
-		if( first_key->data_size <= second_key->data_size )
+		if( first_page_tree_key->data_size <= second_page_tree_key->data_size )
 		{
-			compare_data_size = first_key->data_size;
+			compare_data_size = first_page_tree_key->data_size;
 		}
 		else
 		{
-			compare_data_size = second_key->data_size;
+			compare_data_size = second_page_tree_key->data_size;
 		}
 /* TODO remove is_flexible_match test */
 		is_flexible_match = 0;
 
-		/* The long value key is stored reversed
+		/* The long value page_tree_key is stored reversed
 		 */
-		if( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
+		if( first_page_tree_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
 		{
-			first_key_data_index = first_key->data_size - 1;
+			first_page_tree_key_data_index = first_page_tree_key->data_size - 1;
 		}
 		else
 		{
-			first_key_data_index = 0;
+			first_page_tree_key_data_index = 0;
 		}
-		for( second_key_data_index = 0;
-		     second_key_data_index < compare_data_size;
-		     second_key_data_index++ )
+		for( second_page_tree_key_data_index = 0;
+		     second_page_tree_key_data_index < compare_data_size;
+		     second_page_tree_key_data_index++ )
 		{
-			first_key_data = first_key->data[ first_key_data_index ];
+			first_page_tree_key_data = first_page_tree_key->data[ first_page_tree_key_data_index ];
 
-			if( ( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
-			 && ( second_key->type == LIBESEDB_KEY_TYPE_LEAF ) )
+			if( ( first_page_tree_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
+			 && ( second_page_tree_key->type == LIBESEDB_KEY_TYPE_LEAF ) )
 			{
-/* TODO does not hold for branch keys in Win XP search database */
-				if( ( first_key_data_index == 1 )
-				 && ( ( first_key_data & 0x80 ) != 0 )
-				 && ( ( first_key_data & 0x7f ) == second_key->data[ second_key_data_index ] ) )
+/* TODO does not hold for branch page_tree_keys in Win XP search database */
+				if( ( first_page_tree_key_data_index == 1 )
+				 && ( ( first_page_tree_key_data & 0x80 ) != 0 )
+				 && ( ( first_page_tree_key_data & 0x7f ) == second_page_tree_key->data[ second_page_tree_key_data_index ] ) )
 				{
-					first_key_data &= 0x7f;
+					first_page_tree_key_data &= 0x7f;
 
 					is_flexible_match = 1;
 				}
 			}
-			compare_result = (int16_t) first_key_data - (int16_t) second_key->data[ second_key_data_index ];
+			compare_result = (int16_t) first_page_tree_key_data - (int16_t) second_page_tree_key->data[ second_page_tree_key_data_index ];
 
 			if( compare_result != 0 )
 			{
 				break;
 			}
-			if( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
+			if( first_page_tree_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
 			{
-				first_key_data_index--;
+				first_page_tree_key_data_index--;
 			}
 			else
 			{
-				first_key_data_index++;
+				first_page_tree_key_data_index++;
 			}
 		}
 	}
@@ -555,11 +580,11 @@ int libesedb_key_compare(
 	{
 		result = LIBFDATA_COMPARE_GREATER;
 	}
-	else if( second_key->type == LIBESEDB_KEY_TYPE_BRANCH )
+	else if( second_page_tree_key->type == LIBESEDB_KEY_TYPE_BRANCH )
 	{
-		if( first_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
+		if( first_page_tree_key->type == LIBESEDB_KEY_TYPE_INDEX_VALUE )
 		{
-			/* If the key exactly matches the branch key,
+			/* If the page_tree_key exactly matches the branch page_tree_key,
 			 * the leaf value is in the next branch node
 			 */
 			if( compare_result == 0 )
@@ -571,14 +596,14 @@ int libesedb_key_compare(
 				result = LIBFDATA_COMPARE_EQUAL;
 			}
 		}
-		else if( ( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
-		      || ( first_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT ) )
+		else if( ( first_page_tree_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE )
+		      || ( first_page_tree_key->type == LIBESEDB_KEY_TYPE_LONG_VALUE_SEGMENT ) )
 		{
-			/* If the key matches the branch key but is longer,
+			/* If the page_tree_key matches the branch page_tree_key but is longer,
 			 * the leaf value is in the next branch node
 			 */
 			if( ( compare_result == 0 )
-			 && ( first_key->data_size > second_key->data_size ) )
+			 && ( first_page_tree_key->data_size > second_page_tree_key->data_size ) )
 			{
 				result = LIBFDATA_COMPARE_GREATER;
 			}
@@ -593,27 +618,27 @@ int libesedb_key_compare(
 			result = LIBFDATA_COMPARE_EQUAL;
 		}
 	}
-	else if( second_key->type == LIBESEDB_KEY_TYPE_LEAF )
+	else if( second_page_tree_key->type == LIBESEDB_KEY_TYPE_LEAF )
 	{
 		if( is_flexible_match != 0 )
 		{
 #if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
+			if( libcnotify_verbose != 0 )
+			{
 /* TODO remove this after debugging */
-fprintf( stderr, "MARKER\n" );
-	}
+				fprintf( stderr, "MARKER\n" );
+			}
 #endif
 		}
 		if( compare_result < 0 )
 		{
 			result = LIBFDATA_COMPARE_LESS;
 		}
-		else if( first_key->data_size < second_key->data_size )
+		else if( first_page_tree_key->data_size < second_page_tree_key->data_size )
 		{
 			result = LIBFDATA_COMPARE_LESS;
 		}
-		else if( first_key->data_size > second_key->data_size )
+		else if( first_page_tree_key->data_size > second_page_tree_key->data_size )
 		{
 			result = LIBFDATA_COMPARE_GREATER;
 		}
@@ -626,7 +651,7 @@ fprintf( stderr, "MARKER\n" );
 	if( libcnotify_verbose != 0 )
 	{
 		libcnotify_printf(
-		 "%s: result\t\t\t\t\t\t: ",
+		 "%s: result\t\t\t\t\t: ",
 		 function );
 
 		switch( result )
@@ -658,7 +683,7 @@ fprintf( stderr, "MARKER\n" );
 
 			default:
 				libcnotify_printf(
-				 "invalid" );
+				 "unknown" );
 				break;
 		}
 		libcnotify_printf(

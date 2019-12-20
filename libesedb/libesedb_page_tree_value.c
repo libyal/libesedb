@@ -275,6 +275,8 @@ int libesedb_page_tree_value_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	page_tree_value->local_key = &( data[ data_offset ] );
+
 	data_offset += page_tree_value->local_key_size;
 
 	page_tree_value->data      = &( data[ data_offset ] );

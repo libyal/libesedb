@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedb_test_key"
-	ProjectGUID="{FF226CC0-063B-4420-B88F-DDBACF5CC50C}"
-	RootNamespace="esedb_test_key"
+	Name="esedb_test_page_tree_key"
+	ProjectGUID="{C10A5D46-F063-48EE-BC09-A3E3358A0494}"
+	RootNamespace="esedb_test_page_tree_key"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\esedb_test_key.c"
+				RelativePath="..\..\tests\esedb_test_memory.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\esedb_test_memory.c"
+				RelativePath="..\..\tests\esedb_test_page_tree_key.c"
 				>
 			</File>
 		</Filter>

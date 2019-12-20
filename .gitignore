@@ -140,13 +140,13 @@ stamp-h[1-9]
 /tests/esedb_test_file_header
 /tests/esedb_test_index
 /tests/esedb_test_io_handle
-/tests/esedb_test_key
 /tests/esedb_test_long_value
 /tests/esedb_test_multi_value
 /tests/esedb_test_notify
 /tests/esedb_test_page
 /tests/esedb_test_page_header
 /tests/esedb_test_page_tree
+/tests/esedb_test_page_tree_key
 /tests/esedb_test_page_tree_value
 /tests/esedb_test_page_value
 /tests/esedb_test_record

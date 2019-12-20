@@ -39,6 +39,10 @@ struct libesedb_page_tree_value
 	 */
 	uint16_t common_key_size;
 
+	/* The local key
+	 */
+	const uint8_t *local_key;
+
 	/* The local key size
 	 */
 	uint16_t local_key_size;

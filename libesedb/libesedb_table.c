@@ -51,11 +51,9 @@ int libesedb_table_initialize(
      libesedb_table_definition_t *template_table_definition,
      libcerror_error_t **error )
 {
-	libesedb_internal_table_t *internal_table   = NULL;
-	libesedb_page_tree_t *long_values_page_tree = NULL;
-	static char *function                       = "libesedb_table_initialize";
-	off64_t node_data_offset                    = 0;
-	int segment_index                           = 0;
+	libesedb_internal_table_t *internal_table = NULL;
+	static char *function                     = "libesedb_table_initialize";
+	int segment_index                         = 0;
 
 	if( table == NULL )
 	{
@@ -274,7 +272,7 @@ int libesedb_table_initialize(
 			goto on_error;
 		}
 		if( libesedb_page_tree_initialize(
-		     &long_values_page_tree,
+		     &( internal_table->long_values_page_tree ),
 		     io_handle,
 		     internal_table->long_values_pages_vector,
 		     internal_table->long_values_pages_cache,
@@ -293,65 +291,6 @@ int libesedb_table_initialize(
 
 			goto on_error;
 		}
-		/* TODO add clone function
-		 */
-		if( libfdata_btree_initialize(
-		     &( internal_table->long_values_tree ),
-		     (intptr_t *) long_values_page_tree,
-		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_page_tree_free,
-		     NULL,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_node_t *, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_node,
-		     (int (*)(intptr_t *, intptr_t *, libfdata_btree_t *, libfdata_cache_t *, int, int, off64_t, size64_t, uint32_t, intptr_t *, uint8_t, libcerror_error_t **)) &libesedb_page_tree_read_leaf_value,
-		     LIBFDATA_DATA_HANDLE_FLAG_MANAGED,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create long values tree.",
-			 function );
-
-			libesedb_page_tree_free(
-			 &long_values_page_tree,
-			 NULL );
-
-			goto on_error;
-		}
-		if( libfcache_cache_initialize(
-		     &( internal_table->long_values_cache ),
-		     LIBESEDB_MAXIMUM_CACHE_ENTRIES_LONG_VALUES,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-			 "%s: unable to create long values values.",
-			 function );
-
-			goto on_error;
-		}
-		node_data_offset  = table_definition->long_value_catalog_definition->father_data_page_number - 1;
-		node_data_offset *= io_handle->page_size;
-
-		if( libfdata_btree_set_root_node(
-		     internal_table->long_values_tree,
-		     0,
-		     node_data_offset,
-		     0,
-		     0,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_SET_FAILED,
-			 "%s: unable to set root node in table values tree.",
-			 function );
-
-			goto on_error;
-		}
 	}
 	internal_table->io_handle                 = io_handle;
 	internal_table->file_io_handle            = file_io_handle;
@@ -365,18 +304,6 @@ int libesedb_table_initialize(
 on_error:
 	if( internal_table != NULL )
 	{
-		if( internal_table->long_values_cache != NULL )
-		{
-			libfcache_cache_free(
-			 &( internal_table->long_values_cache ),
-			 NULL );
-		}
-		if( internal_table->long_values_tree != NULL )
-		{
-			libfdata_btree_free(
-			 &( internal_table->long_values_tree ),
-			 NULL );
-		}
 		if( internal_table->long_values_pages_cache != NULL )
 		{
 			libfcache_cache_free(
@@ -387,6 +314,12 @@ on_error:
 		{
 			libfdata_vector_free(
 			 &( internal_table->long_values_pages_vector ),
+			 NULL );
+		}
+		if( internal_table->long_values_page_tree != NULL )
+		{
+			libesedb_page_tree_free(
+			 &( internal_table->long_values_page_tree ),
 			 NULL );
 		}
 		if( internal_table->table_page_tree != NULL )
@@ -501,6 +434,22 @@ int libesedb_table_free(
 				result = -1;
 			}
 		}
+		if( internal_table->long_values_page_tree != NULL )
+		{
+			if( libesedb_page_tree_free(
+			     &( internal_table->long_values_page_tree ),
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+				 "%s: unable to free long values page tree.",
+				 function );
+
+				result = -1;
+			}
+		}
 		if( libesedb_page_tree_free(
 		     &( internal_table->table_page_tree ),
 		     error ) != 1 )
@@ -513,38 +462,6 @@ int libesedb_table_free(
 			 function );
 
 			result = -1;
-		}
-		if( internal_table->long_values_tree != NULL )
-		{
-			if( libfdata_btree_free(
-			     &( internal_table->long_values_tree ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free long values tree.",
-				 function );
-
-				result = -1;
-			}
-		}
-		if( internal_table->long_values_cache != NULL )
-		{
-			if( libfcache_cache_free(
-			     &( internal_table->long_values_cache ),
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-				 "%s: unable to free long values cache.",
-				 function );
-
-				result = -1;
-			}
 		}
 		memory_free(
 		 internal_table );
@@ -1564,8 +1481,7 @@ int libesedb_table_get_index(
 	     internal_table->long_values_pages_vector,
 	     internal_table->long_values_pages_cache,
 	     internal_table->table_page_tree,
-	     internal_table->long_values_tree,
-	     internal_table->long_values_cache,
+	     internal_table->long_values_page_tree,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1698,8 +1614,7 @@ int libesedb_table_get_record(
 	     internal_table->long_values_pages_vector,
 	     internal_table->long_values_pages_cache,
 	     record_data_definition,
-	     internal_table->long_values_tree,
-	     internal_table->long_values_cache,
+	     internal_table->long_values_page_tree,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

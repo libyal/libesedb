@@ -377,10 +377,10 @@ on_error:
 	return( 0 );
 }
 
-/* Tests the libesedb_page_tree_read_root_page function
+/* Tests the libesedb_page_tree_read_root_page_header function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_page_tree_read_root_page(
+int esedb_test_page_tree_read_root_page_header(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -388,139 +388,9 @@ int esedb_test_page_tree_read_root_page(
 
 	/* Test error cases
 	 */
-	result = libesedb_page_tree_read_root_page(
+	result = libesedb_page_tree_read_root_page_header(
 	          NULL,
 	          NULL,
-	          0,
-	          0,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libesedb_page_tree_read_space_tree_page function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_page_tree_read_space_tree_page(
-     void )
-{
-	libcerror_error_t *error = NULL;
-	int result               = 0;
-
-	/* Test error cases
-	 */
-	result = libesedb_page_tree_read_space_tree_page(
-	          NULL,
-	          NULL,
-	          0,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libesedb_page_tree_read_page function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_page_tree_read_page(
-     void )
-{
-	libcerror_error_t *error = NULL;
-	int result               = 0;
-
-	/* Test error cases
-	 */
-	result = libesedb_page_tree_read_page(
-	          NULL,
-	          NULL,
-	          0,
-	          0,
-	          NULL,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libesedb_page_tree_read_node function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_page_tree_read_node(
-     void )
-{
-	libcerror_error_t *error = NULL;
-	int result               = 0;
-
-	/* Test error cases
-	 */
-	result = libesedb_page_tree_read_node(
-	          NULL,
-	          NULL,
-	          NULL,
-	          0,
-	          0,
-	          0,
-	          0,
-	          NULL,
-	          0,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -573,7 +443,11 @@ int main(
 	 "libesedb_page_tree_free",
 	 esedb_test_page_tree_free );
 
-	/* TODO: add tests for libesedb_page_tree_read_root_page_header */
+	ESEDB_TEST_RUN(
+	 "libesedb_page_tree_read_root_page_header",
+	 esedb_test_page_tree_read_root_page_header );
+
+	/* TODO: add tests for libesedb_page_tree_read_space_trees */
 
 	/* TODO: add tests for libesedb_page_tree_get_key */
 
@@ -588,24 +462,6 @@ int main(
 	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_key_from_page */
 
 	/* TODO: add tests for libesedb_page_tree_get_leaf_value_by_key */
-
-	ESEDB_TEST_RUN(
-	 "libesedb_page_tree_read_root_page",
-	 esedb_test_page_tree_read_root_page );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_page_tree_read_space_tree_page",
-	 esedb_test_page_tree_read_space_tree_page );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_page_tree_read_page",
-	 esedb_test_page_tree_read_page );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_page_tree_read_node",
-	 esedb_test_page_tree_read_node );
-
-	/* TODO: add tests for libesedb_page_tree_read_leaf_value */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 

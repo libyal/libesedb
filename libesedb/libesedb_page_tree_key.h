@@ -1,5 +1,5 @@
 /*
- * Key functions
+ * Page tree key functions
  *
  * Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -19,8 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#if !defined( _LIBESEDB_KEY_H )
-#define _LIBESEDB_KEY_H
+#if !defined( _LIBESEDB_PAGE_TREE_KEY_H )
+#define _LIBESEDB_PAGE_TREE_KEY_H
 
 #include <common.h>
 #include <types.h>
@@ -31,9 +31,9 @@
 extern "C" {
 #endif
 
-typedef struct libesedb_key libesedb_key_t;
+typedef struct libesedb_page_tree_key libesedb_page_tree_key_t;
 
-struct libesedb_key
+struct libesedb_page_tree_key
 {
 	/* The type
 	 */
@@ -48,34 +48,34 @@ struct libesedb_key
 	size_t data_size;
 };
 
-int libesedb_key_initialize(
-     libesedb_key_t **key,
+int libesedb_page_tree_key_initialize(
+     libesedb_page_tree_key_t **page_tree_key,
      libcerror_error_t **error );
 
-int libesedb_key_free(
-     libesedb_key_t **key,
+int libesedb_page_tree_key_free(
+     libesedb_page_tree_key_t **page_tree_key,
      libcerror_error_t **error );
 
-int libesedb_key_set_data(
-     libesedb_key_t *key,
+int libesedb_page_tree_key_set_data(
+     libesedb_page_tree_key_t *page_tree_key,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );
 
-int libesedb_key_append_data(
-     libesedb_key_t *key,
+int libesedb_page_tree_key_append_data(
+     libesedb_page_tree_key_t *page_tree_key,
      const uint8_t *data,
      size_t data_size,
      libcerror_error_t **error );
 
-int libesedb_key_compare(
-     libesedb_key_t *first_key,
-     libesedb_key_t *second_key,
+int libesedb_page_tree_key_compare(
+     libesedb_page_tree_key_t *first_page_tree_key,
+     libesedb_page_tree_key_t *second_page_tree_key,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )
 }
 #endif
 
-#endif /* !defined( _LIBESEDB_KEY_H ) */
+#endif /* !defined( _LIBESEDB_PAGE_TREE_KEY_H ) */
 
