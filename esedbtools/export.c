@@ -64,45 +64,52 @@ void export_narrow_text(
 	{
 		while( string_size > 0 )
 		{
-			if( *string == 0 )
+			switch( *string )
 			{
-				if( string_size > 1 )
-				{
+				case 0:
+					if( string_size > 1 )
+					{
+						fprintf(
+						 stream,
+						 "\\0" );
+					}
+					break;
+
+				case '\\':
 					fprintf(
 					 stream,
-					 "\\0" );
-				}
-			}
-			else if( *string == '\\' )
-			{
-				fprintf(
-				 stream,
-				 "\\\\" );
-			}
-			else if( *string == '\n' )
-			{
-				fprintf(
-				 stream,
-				 "\\n" );
-			}
-			else if( *string == '\r' )
-			{
-				fprintf(
-				 stream,
-				 "\\r" );
-			}
-			else if( *string == '\t' )
-			{
-				fprintf(
-				 stream,
-				 "\\t" );
-			}
-			else
-			{
-				fprintf(
-				 stream,
-				 "%c",
-				 *string );
+					 "\\\\" );
+
+					break;
+
+				case '\n':
+					fprintf(
+					 stream,
+					 "\\n" );
+
+					break;
+
+				case '\r':
+					fprintf(
+					 stream,
+					 "\\r" );
+
+					break;
+
+				case '\t':
+					fprintf(
+					 stream,
+					 "\\t" );
+
+					break;
+
+				default:
+					fprintf(
+					 stream,
+					 "%c",
+					 *string );
+
+					break;
 			}
 			string      += 1;
 			string_size -= 1;
@@ -122,45 +129,52 @@ void export_text(
 	{
 		while( string_size > 0 )
 		{
-			if( *string == 0 )
+			switch( *string )
 			{
-				if( string_size > 1 )
-				{
+				case 0:
+					if( string_size > 1 )
+					{
+						fprintf(
+						 stream,
+						 "\\0" );
+					}
+					break;
+
+				case (system_character_t) '\\':
 					fprintf(
 					 stream,
-					 "\\0" );
-				}
-			}
-			else if( *string == (system_character_t) '\\' )
-			{
-				fprintf(
-				 stream,
-				 "\\\\" );
-			}
-			else if( *string == (system_character_t) '\n' )
-			{
-				fprintf(
-				 stream,
-				 "\\n" );
-			}
-			else if( *string == (system_character_t) '\r' )
-			{
-				fprintf(
-				 stream,
-				 "\\r" );
-			}
-			else if( *string == (system_character_t) '\t' )
-			{
-				fprintf(
-				 stream,
-				 "\\t" );
-			}
-			else
-			{
-				fprintf(
-				 stream,
-				 "%" PRIc_SYSTEM "",
-				 *string );
+					 "\\\\" );
+
+					break;
+
+				case (system_character_t) '\n':
+					fprintf(
+					 stream,
+					 "\\n" );
+
+					break;
+
+				case (system_character_t) '\r':
+					fprintf(
+					 stream,
+					 "\\r" );
+
+					break;
+
+				case (system_character_t) '\t':
+					fprintf(
+					 stream,
+					 "\\t" );
+
+					break;
+
+				default:
+					fprintf(
+					 stream,
+					 "%" PRIc_SYSTEM "",
+					 *string );
+
+					break;
 			}
 			string      += 1;
 			string_size -= 1;

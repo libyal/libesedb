@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20191005
+# Version: 20191220
 
 # Generic auto-generated build files
 *~
@@ -27,6 +27,7 @@
 *.trs
 /*.egg-info/
 .deps
+.dirstamp
 .libs
 INSTALL
 Makefile
@@ -139,6 +140,7 @@ stamp-h[1-9]
 /tests/esedb_test_file
 /tests/esedb_test_file_header
 /tests/esedb_test_index
+/tests/esedb_test_info_handle
 /tests/esedb_test_io_handle
 /tests/esedb_test_long_value
 /tests/esedb_test_multi_value
@@ -155,6 +157,7 @@ stamp-h[1-9]
 /tests/esedb_test_support
 /tests/esedb_test_table
 /tests/esedb_test_table_definition
+/tests/esedb_test_windows_search_compression
 /tests/input
 /tests/tmp*
 

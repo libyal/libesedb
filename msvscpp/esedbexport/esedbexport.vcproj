@@ -228,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\esedbtools\windows_search_compression.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\esedbtools\windows_security.c"
 				>
 			</File>
@@ -347,6 +351,10 @@
 			</File>
 			<File
 				RelativePath="..\..\esedbtools\windows_search.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\esedbtools\windows_search_compression.h"
 				>
 			</File>
 			<File

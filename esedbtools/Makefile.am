@@ -53,6 +53,7 @@ esedbexport_SOURCES = \
 	srumdb.c srumdb.h \
 	webcache.c webcache.h \
 	windows_search.c windows_search.h \
+	windows_search_compression.c windows_search_compression.h \
 	windows_security.c windows_security.h
 
 esedbexport_LDADD = \
