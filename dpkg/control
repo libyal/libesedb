@@ -2,9 +2,10 @@ Source: libesedb
 Priority: extra
 Maintainer: Joachim Metz <joachim.metz@gmail.com>
 Build-Depends: debhelper (>= 9), dh-autoreconf, pkg-config, python-dev, python-setuptools, python3-dev, python3-setuptools
-Standards-Version: 3.9.5
+Standards-Version: 4.1.4
 Section: libs
 Homepage: https://github.com/libyal/libesedb
+Vcs-Git: https://github.com/libyal/libesedb.git
 
 Package: libesedb
 Architecture: any

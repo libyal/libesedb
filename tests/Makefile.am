@@ -294,6 +294,7 @@ esedb_test_info_handle_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_info_handle_LDADD = \
+	@LIBCLOCALE_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
