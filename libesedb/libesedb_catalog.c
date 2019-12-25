@@ -127,15 +127,16 @@ int libesedb_catalog_initialize(
 
 		goto on_error;
 	}
-	if( libcdata_list_initialize(
-	     &( ( *catalog )->table_definition_list ),
+	if( libcdata_array_initialize(
+	     &( ( *catalog )->table_definition_array ),
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create table definition list.",
+		 "%s: unable to create table definition array.",
 		 function );
 
 		goto on_error;
@@ -195,8 +196,8 @@ int libesedb_catalog_free(
 
 			result = -1;
 		}
-		if( libcdata_list_free(
-		     &( ( *catalog )->table_definition_list ),
+		if( libcdata_array_free(
+		     &( ( *catalog )->table_definition_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_table_definition_free,
 		     error ) != 1 )
 		{
@@ -204,7 +205,7 @@ int libesedb_catalog_free(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free table definition list.",
+			 "%s: unable to free table definition array.",
 			 function );
 
 			result = -1;
@@ -229,6 +230,7 @@ int libesedb_catalog_read_value_data(
 {
 	libesedb_catalog_definition_t *catalog_definition = NULL;
 	static char *function                             = "libesedb_catalog_read_value_data";
+	int entry_index                                   = 0;
 
 	if( catalog == NULL )
 	{
@@ -356,8 +358,9 @@ int libesedb_catalog_read_value_data(
 			}
 			catalog_definition = NULL;
 
-			if( libcdata_list_append_value(
-			     catalog->table_definition_list,
+			if( libcdata_array_append_entry(
+			     catalog->table_definition_array,
+			     &entry_index,
 			     (intptr_t *) *table_definition,
 			     error ) != 1 )
 			{
@@ -365,7 +368,7 @@ int libesedb_catalog_read_value_data(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable to append table definition to table definition list.",
+				 "%s: unable to append table definition to table definition array.",
 				 function );
 
 				libesedb_table_definition_free(
@@ -491,23 +494,18 @@ on_error:
 	return( -1 );
 }
 
-/* Reads the catalog values from a page
+/* Reads the catalog values from a leaf page
  * Returns 1 if successful or -1 on error
  */
-int libesedb_catalog_read_values_from_page(
+int libesedb_catalog_read_values_from_leaf_page(
      libesedb_catalog_t *catalog,
-     libbfio_handle_t *file_io_handle,
      libesedb_page_t *page,
      libesedb_table_definition_t **table_definition,
-     int recursion_depth,
      libcerror_error_t **error )
 {
-	libesedb_page_t *child_page                 = NULL;
 	libesedb_page_tree_value_t *page_tree_value = NULL;
 	libesedb_page_value_t *page_value           = NULL;
-	libfcache_cache_t *child_page_cache         = NULL;
-	static char *function                       = "libesedb_catalog_read_values_from_page";
-	uint32_t child_page_number                  = 0;
+	static char *function                       = "libesedb_catalog_read_values_from_leaf_page";
 	uint32_t page_flags                         = 0;
 	uint16_t number_of_page_values              = 0;
 	uint16_t page_value_index                   = 0;
@@ -523,58 +521,6 @@ int libesedb_catalog_read_values_from_page(
 
 		return( -1 );
 	}
-	if( catalog->page_tree == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - missing page tree.",
-		 function );
-
-		return( -1 );
-	}
-	if( catalog->page_tree->io_handle == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - invalid page tree - missing IO handle.",
-		 function );
-
-		return( -1 );
-	}
-	if( ( recursion_depth < 0 )
-	 || ( recursion_depth > LIBESEDB_MAXIMUM_INDEX_NODE_RECURSION_DEPTH ) )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid recursion depth value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
-	if( libesedb_page_get_number_of_values(
-	     page,
-	     &number_of_page_values,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of page values.",
-		 function );
-
-		goto on_error;
-	}
-	if( number_of_page_values == 0 )
-	{
-		return( 1 );
-	}
 	if( libesedb_page_get_flags(
 	     page,
 	     &page_flags,
@@ -589,19 +535,27 @@ int libesedb_catalog_read_values_from_page(
 
 		goto on_error;
 	}
-        /* Use a local cache to prevent cache invalidation of the page
-         * when reading child pages.
-         */
-	if( libfcache_cache_initialize(
-	     &child_page_cache,
-	     1,
+	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+		 "%s: unsupported page - not a leaf page.",
+		 function );
+
+		goto on_error;
+	}
+	if( libesedb_page_get_number_of_values(
+	     page,
+	     &number_of_page_values,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create child page cache.",
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of page values.",
 		 function );
 
 		goto on_error;
@@ -686,156 +640,21 @@ int libesedb_catalog_read_values_from_page(
 
 			goto on_error;
 		}
-		if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+		if( libesedb_catalog_read_value_data(
+		     catalog,
+		     page_tree_value->data,
+		     page_tree_value->data_size,
+		     table_definition,
+		     error ) != 1 )
 		{
-			if( libesedb_catalog_read_value_data(
-			     catalog,
-			     page_tree_value->data,
-			     page_tree_value->data_size,
-			     table_definition,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_IO,
-				 LIBCERROR_IO_ERROR_READ_FAILED,
-				 "%s: unable to read catalog value.",
-				 function );
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_IO,
+			 LIBCERROR_IO_ERROR_READ_FAILED,
+			 "%s: unable to read catalog value.",
+			 function );
 
-				goto on_error;
-			}
-		}
-		else
-		{
-			if( page_tree_value->data_size < 4 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid page tree value: %" PRIu16 " data size value out of bounds.",
-				 function,
-				 page_value_index );
-
-				goto on_error;
-			}
-			byte_stream_copy_to_uint32_little_endian(
-			 page_tree_value->data,
-			 child_page_number );
-
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				libcnotify_printf(
-				 "%s: page value: %03" PRIu16 " child page number\t\t: %" PRIu32 "",
-				 function,
-				 page_value_index,
-				 child_page_number );
-
-				if( child_page_number == 0 )
-				{
-					libcnotify_printf(
-					 " (invalid page number)\n" );
-				}
-				else if( child_page_number > catalog->page_tree->io_handle->last_page_number )
-				{
-					libcnotify_printf(
-					 " (exceeds last page number: %" PRIu32 ")\n",
-					 catalog->page_tree->io_handle->last_page_number );
-				}
-				libcnotify_printf(
-				 "\n" );
-				libcnotify_printf(
-				 "\n" );
-			}
-#endif
-#if ( SIZEOF_INT <= 4 )
-			if( ( child_page_number < 1 )
-			 || ( child_page_number > (uint32_t) INT_MAX ) )
-#else
-			if( ( child_page_number < 1 )
-			 || ( (int) child_page_number > INT_MAX ) )
-#endif
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-				 "%s: invalid child page number value out of bounds.",
-				 function );
-
-				goto on_error;
-			}
-#if defined( HAVE_DEBUG_OUTPUT )
-			if( libcnotify_verbose != 0 )
-			{
-				if( page_tree_value->data_size > 4 )
-				{
-					libcnotify_printf(
-					 "%s: page value: %03" PRIu16 " trailing data:\n",
-					 function,
-					 page_value_index );
-					libcnotify_print_data(
-					 &( page_tree_value->data[ 4 ] ),
-					 page_tree_value->data_size - 4,
-					 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
-				}
-			}
-#endif
-			if( ( child_page_number > 0 )
-			 && ( child_page_number <= catalog->page_tree->io_handle->last_page_number ) )
-			{
-				if( libfdata_vector_get_element_value_by_index(
-				     catalog->page_tree->pages_vector,
-				     (intptr_t *) file_io_handle,
-				     (libfdata_cache_t *) child_page_cache,
-				     (int) child_page_number - 1,
-				     (intptr_t **) &child_page,
-				     0,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve page: %" PRIu32 ".",
-					 function,
-					 child_page_number );
-
-					goto on_error;
-				}
-				if( libesedb_page_validate_page(
-				     child_page,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-					 "%s: unsupported page.",
-					 function );
-
-					goto on_error;
-				}
-				if( libesedb_catalog_read_values_from_page(
-				     catalog,
-				     file_io_handle,
-				     child_page,
-				     table_definition,
-				     recursion_depth + 1,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to read values from page: %" PRIu32 ".",
-					 function,
-					 child_page_number );
-
-					goto on_error;
-				}
-			}
+			goto on_error;
 		}
 		if( libesedb_page_tree_value_free(
 		     &page_tree_value,
@@ -851,19 +670,6 @@ int libesedb_catalog_read_values_from_page(
 			goto on_error;
 		}
 	}
-	if( libfcache_cache_free(
-	     &child_page_cache,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free child page cache.",
-		 function );
-
-		goto on_error;
-	}
 	return( 1 );
 
 on_error:
@@ -871,12 +677,6 @@ on_error:
 	{
 		libesedb_page_tree_value_free(
 		 &page_tree_value,
-		 NULL );
-	}
-	if( child_page_cache != NULL )
-	{
-		libfcache_cache_free(
-		 &child_page_cache,
 		 NULL );
 	}
 	return( -1 );
@@ -890,11 +690,10 @@ int libesedb_catalog_read_file_io_handle(
      libbfio_handle_t *file_io_handle,
      libcerror_error_t **error )
 {
-	libesedb_page_t *root_page                    = NULL;
+	libesedb_page_t *page                         = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
-	libfcache_cache_t *root_page_cache            = NULL;
 	static char *function                         = "libesedb_catalog_read_file_io_handle";
-	uint32_t page_flags                           = 0;
+	uint32_t leaf_page_number                     = 0;
 
 	if( catalog == NULL )
 	{
@@ -918,130 +717,75 @@ int libesedb_catalog_read_file_io_handle(
 
 		return( -1 );
 	}
-        /* Use a local cache to prevent cache invalidation of the root page
-         * when reading child pages.
-         */
-	if( libfcache_cache_initialize(
-	     &root_page_cache,
-	     1,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create root page cache.",
-		 function );
-
-		goto on_error;
-	}
-	if( libfdata_vector_get_element_value_by_index(
-	     catalog->page_tree->pages_vector,
-	     (intptr_t *) file_io_handle,
-	     (libfdata_cache_t *) root_page_cache,
-	     (int) catalog->page_tree->root_page_number - 1,
-	     (intptr_t **) &root_page,
-	     0,
+	if( libesedb_page_tree_get_get_first_leaf_page_number(
+	     catalog->page_tree,
+	     file_io_handle,
+	     &leaf_page_number,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page: %" PRIu32 ".",
-		 function,
-		 catalog->page_tree->root_page_number );
-
-		goto on_error;
-	}
-	if( libesedb_page_get_flags(
-	     root_page,
-	     &page_flags,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve page flags.",
+		 "%s: unable to retrieve first leaf page number from page tree.",
 		 function );
 
-		goto on_error;
+		return( -1 );
 	}
-	/* Seen in temp.edb where is root flag is not set
-	 */
-	if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_ROOT ) != 0 )
+	while( leaf_page_number != 0 )
 	{
-		if( libesedb_page_validate_root_page(
-		     root_page,
+		if( libfdata_vector_get_element_value_by_index(
+		     catalog->page_tree->pages_vector,
+		     (intptr_t *) file_io_handle,
+		     (libfdata_cache_t *) catalog->page_tree->pages_cache,
+		     (int) leaf_page_number - 1,
+		     (intptr_t **) &page,
+		     0,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-			 "%s: unsupported root page.",
-			 function );
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page: %" PRIu32 ".",
+			 function,
+			 leaf_page_number );
 
-			goto on_error;
+			return( -1 );
 		}
-#if defined( HAVE_DEBUG_OUTPUT )
-		if( libesedb_page_tree_read_root_page_header(
-		     catalog->page_tree,
-		     root_page,
+		if( libesedb_catalog_read_values_from_leaf_page(
+		     catalog,
+		     page,
+		     &table_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
-			 LIBCERROR_ERROR_DOMAIN_IO,
-			 LIBCERROR_IO_ERROR_READ_FAILED,
-			 "%s: unable to read root page header.",
-			 function );
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to read values from page: %" PRIu32 ".",
+			 function,
+			 leaf_page_number );
 
-			goto on_error;
+			return( -1 );
 		}
-#endif
-	}
-	if( libesedb_catalog_read_values_from_page(
-	     catalog,
-	     file_io_handle,
-	     root_page,
-	     &table_definition,
-	     0,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to read values from root page.",
-		 function );
+		if( libesedb_page_get_next_page_number(
+		     page,
+		     &leaf_page_number,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve next page number from page: %" PRIu32 ".",
+			 function,
+			 leaf_page_number );
 
-		goto on_error;
-	}
-	if( libfcache_cache_free(
-	     &root_page_cache,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-		 "%s: unable to free root page cache.",
-		 function );
-
-		goto on_error;
+			return( -1 );
+		}
 	}
 	return( 1 );
-
-on_error:
-	if( root_page_cache != NULL )
-	{
-		libfcache_cache_free(
-		 &root_page_cache,
-		 NULL );
-	}
-	return( -1 );
 }
 
 /* Retrieves the number of table definitions
@@ -1065,8 +809,8 @@ int libesedb_catalog_get_number_of_table_definitions(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_number_of_elements(
-	     catalog->table_definition_list,
+	if( libcdata_array_get_number_of_entries(
+	     catalog->table_definition_array,
 	     number_of_table_definitions,
 	     error ) != 1 )
 	{
@@ -1074,7 +818,7 @@ int libesedb_catalog_get_number_of_table_definitions(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of table definitions.",
+		 "%s: unable to retrieve number of entries from table definition array.",
 		 function );
 
 		return( -1 );
@@ -1104,8 +848,8 @@ int libesedb_catalog_get_table_definition_by_index(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_value_by_index(
-	     catalog->table_definition_list,
+	if( libcdata_array_get_entry_by_index(
+	     catalog->table_definition_array,
 	     table_definition_index,
 	     (intptr_t **) table_definition,
 	     error ) != 1 )
@@ -1114,7 +858,7 @@ int libesedb_catalog_get_table_definition_by_index(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve table definition: %d.",
+		 "%s: unable to retrieve entry: %d from table definition array.",
 		 function,
 		 table_definition_index );
 
@@ -1133,10 +877,11 @@ int libesedb_catalog_get_table_definition_by_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libcdata_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_catalog_get_table_definition_by_name";
-	int element_index                     = 0;
-	int number_of_elements                = 0;
+	libesedb_table_definition_t *safe_table_definition = NULL;
+	static char *function                              = "libesedb_catalog_get_table_definition_by_name";
+	int entry_index                                    = 0;
+	int number_of_entries                              = 0;
+	int result                                         = 0;
 
 	if( catalog == NULL )
 	{
@@ -1145,17 +890,6 @@ int libesedb_catalog_get_table_definition_by_name(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog.",
-		 function );
-
-		return( -1 );
-	}
-	if( catalog->table_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - missing table definition list.",
 		 function );
 
 		return( -1 );
@@ -1171,7 +905,8 @@ int libesedb_catalog_get_table_definition_by_name(
 
 		return( -1 );
 	}
-	if( table_name_size > (size_t) SSIZE_MAX )
+	if( ( table_name_size == 0 )
+	 || ( table_name_size > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -1193,54 +928,43 @@ int libesedb_catalog_get_table_definition_by_name(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_first_element(
-	     catalog->table_definition_list,
-	     &list_element,
+	*table_definition = NULL;
+
+	if( libcdata_array_get_number_of_entries(
+	     catalog->table_definition_array,
+	     &number_of_entries,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve first element of table definition list.",
+		 "%s: unable to retrieve number of entries in table definition array.",
 		 function );
 
 		return( -1 );
 	}
-	if( libcdata_list_get_number_of_elements(
-	     catalog->table_definition_list,
-	     &number_of_elements,
-	     error ) != 1 )
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	for( element_index = 0;
-	     element_index < number_of_elements;
-	     element_index++ )
-	{
-		if( libcdata_list_element_get_value(
-		     list_element,
-		     (intptr_t **) table_definition,
+		if( libcdata_array_get_entry_by_index(
+		     catalog->table_definition_array,
+		     entry_index,
+		     (intptr_t **) &safe_table_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value from element: %d.",
+			 "%s: unable to retrieve entry: %d from table definition array.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( *table_definition == NULL )
+		if( safe_table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
@@ -1248,63 +972,38 @@ int libesedb_catalog_get_table_definition_by_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition: %d.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( ( *table_definition )->table_catalog_definition == NULL )
+		result = libesedb_catalog_definition_compare_name(
+			  safe_table_definition->table_catalog_definition,
+			  table_name,
+			  table_name_size,
+			  error );
+
+		if( result == -1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table definition: %d - missing table catalog definition.",
+			 "%s: unable to compare table name with table catalog definition: %d name.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( ( *table_definition )->table_catalog_definition->name == NULL )
+		else if( result == 1 )
 		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table catalog definition: %d - missing name.",
-			 function,
-			 element_index );
-
-			return( -1 );
-		}
-		if( table_name_size == ( *table_definition )->table_catalog_definition->name_size )
-		{
-			if( memory_compare(
-			     ( *table_definition )->table_catalog_definition->name,
-			     table_name,
-			     table_name_size ) == 0 )
-			{
-				return( 1 );
-			}
-		}
-		if( libcdata_list_element_get_next_element(
-		     list_element,
-		     &list_element,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve next element of element: %d.",
-			 function,
-			 element_index );
-
-			return( -1 );
+			break;
 		}
 	}
-	*table_definition = NULL;
-
-	return( 0 );
+	if( result != 0 )
+	{
+		*table_definition = safe_table_definition;
+	}
+	return( result );
 }
 
 /* Retrieves the table definition for the specific UTF-8 encoded name
@@ -1317,11 +1016,11 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libcdata_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_catalog_get_table_definition_by_utf8_name";
-	int element_index                     = 0;
-	int number_of_elements                = 0;
-	int result                            = 0;
+	libesedb_table_definition_t *safe_table_definition = NULL;
+	static char *function                              = "libesedb_catalog_get_table_definition_by_utf8_name";
+	int entry_index                                    = 0;
+	int number_of_entries                              = 0;
+	int result                                         = 0;
 
 	if( catalog == NULL )
 	{
@@ -1330,17 +1029,6 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog.",
-		 function );
-
-		return( -1 );
-	}
-	if( catalog->table_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - missing table definition list.",
 		 function );
 
 		return( -1 );
@@ -1356,7 +1044,8 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 
 		return( -1 );
 	}
-	if( utf8_string_length > (size_t) SSIZE_MAX )
+	if( ( utf8_string_length == 0 )
+	 || ( utf8_string_length > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -1378,54 +1067,43 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_first_element(
-	     catalog->table_definition_list,
-	     &list_element,
+	*table_definition = NULL;
+
+	if( libcdata_array_get_number_of_entries(
+	     catalog->table_definition_array,
+	     &number_of_entries,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve first element of table definition list.",
+		 "%s: unable to retrieve number of entries in table definition array.",
 		 function );
 
 		return( -1 );
 	}
-	if( libcdata_list_get_number_of_elements(
-	     catalog->table_definition_list,
-	     &number_of_elements,
-	     error ) != 1 )
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	for( element_index = 0;
-	     element_index < number_of_elements;
-	     element_index++ )
-	{
-		if( libcdata_list_element_get_value(
-		     list_element,
-		     (intptr_t **) table_definition,
+		if( libcdata_array_get_entry_by_index(
+		     catalog->table_definition_array,
+		     entry_index,
+		     (intptr_t **) &safe_table_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value from element: %d.",
+			 "%s: unable to retrieve entry: %d from table definition array.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( *table_definition == NULL )
+		if( safe_table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
@@ -1433,40 +1111,14 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition: %d.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( ( *table_definition )->table_catalog_definition == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table definition: %d - missing table catalog definition.",
-			 function,
-			 element_index );
-
-			return( -1 );
-		}
-		if( ( *table_definition )->table_catalog_definition->name == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table catalog definition: %d - missing name.",
-			 function,
-			 element_index );
-
-			return( -1 );
-		}
-		result = libuna_utf8_string_compare_with_byte_stream(
+		result = libesedb_catalog_definition_compare_name_with_utf8_string(
+			  safe_table_definition->table_catalog_definition,
 			  utf8_string,
 			  utf8_string_length,
-			  ( *table_definition )->table_catalog_definition->name,
-			  ( *table_definition )->table_catalog_definition->name_size,
-			  LIBUNA_CODEPAGE_WINDOWS_1252,
 			  error );
 
 		if( result == -1 )
@@ -1477,33 +1129,22 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: unable to compare UTF-8 string with table catalog definition: %d name.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
 		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
-			return( 1 );
-		}
-		if( libcdata_list_element_get_next_element(
-		     list_element,
-		     &list_element,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve next element of element: %d.",
-			 function,
-			 element_index );
+			result = 1;
 
-			return( -1 );
+			break;
 		}
 	}
-	*table_definition = NULL;
-
-	return( 0 );
+	if( result != 0 )
+	{
+		*table_definition = safe_table_definition;
+	}
+	return( result );
 }
 
 /* Retrieves the table definition for the specific UTF-16 encoded name
@@ -1516,11 +1157,11 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error )
 {
-	libcdata_list_element_t *list_element = NULL;
-	static char *function                 = "libesedb_catalog_get_table_definition_by_utf16_name";
-	int element_index                     = 0;
-	int number_of_elements                = 0;
-	int result                            = 0;
+	libesedb_table_definition_t *safe_table_definition = NULL;
+	static char *function                              = "libesedb_catalog_get_table_definition_by_utf16_name";
+	int entry_index                                    = 0;
+	int number_of_entries                              = 0;
+	int result                                         = 0;
 
 	if( catalog == NULL )
 	{
@@ -1529,17 +1170,6 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid catalog.",
-		 function );
-
-		return( -1 );
-	}
-	if( catalog->table_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid catalog - missing table definition list.",
 		 function );
 
 		return( -1 );
@@ -1555,7 +1185,8 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 
 		return( -1 );
 	}
-	if( utf16_string_length > (size_t) SSIZE_MAX )
+	if( ( utf16_string_length == 0 )
+	 || ( utf16_string_length > (size_t) SSIZE_MAX ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -1577,54 +1208,43 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_first_element(
-	     catalog->table_definition_list,
-	     &list_element,
+	*table_definition = NULL;
+
+	if( libcdata_array_get_number_of_entries(
+	     catalog->table_definition_array,
+	     &number_of_entries,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve first element of table definition list.",
+		 "%s: unable to retrieve number of entries in table definition array.",
 		 function );
 
 		return( -1 );
 	}
-	if( libcdata_list_get_number_of_elements(
-	     catalog->table_definition_list,
-	     &number_of_elements,
-	     error ) != 1 )
+	for( entry_index = 0;
+	     entry_index < number_of_entries;
+	     entry_index++ )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements in table definition list.",
-		 function );
-
-		return( -1 );
-	}
-	for( element_index = 0;
-	     element_index < number_of_elements;
-	     element_index++ )
-	{
-		if( libcdata_list_element_get_value(
-		     list_element,
-		     (intptr_t **) table_definition,
+		if( libcdata_array_get_entry_by_index(
+		     catalog->table_definition_array,
+		     entry_index,
+		     (intptr_t **) &safe_table_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve value from element: %d.",
+			 "%s: unable to retrieve entry: %d from table definition array.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( *table_definition == NULL )
+		if( safe_table_definition == NULL )
 		{
 			libcerror_error_set(
 			 error,
@@ -1632,40 +1252,14 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: missing table definition: %d.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
-		if( ( *table_definition )->table_catalog_definition == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table definition: %d - missing table catalog definition.",
-			 function,
-			 element_index );
-
-			return( -1 );
-		}
-		if( ( *table_definition )->table_catalog_definition->name == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: invalid table catalog definition: %d - missing name.",
-			 function,
-			 element_index );
-
-			return( -1 );
-		}
-		result = libuna_utf16_string_compare_with_byte_stream(
+		result = libesedb_catalog_definition_compare_name_with_utf16_string(
+			  safe_table_definition->table_catalog_definition,
 			  utf16_string,
 			  utf16_string_length,
-			  ( *table_definition )->table_catalog_definition->name,
-			  ( *table_definition )->table_catalog_definition->name_size,
-			  LIBUNA_CODEPAGE_WINDOWS_1252,
 			  error );
 
 		if( result == -1 )
@@ -1676,32 +1270,21 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
 			 "%s: unable to compare UTF-16 string with table catalog definition: %d name.",
 			 function,
-			 element_index );
+			 entry_index );
 
 			return( -1 );
 		}
 		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
-			return( 1 );
-		}
-		if( libcdata_list_element_get_next_element(
-		     list_element,
-		     &list_element,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve next element of element: %d.",
-			 function,
-			 element_index );
+			result = 1;
 
-			return( -1 );
+			break;
 		}
 	}
-	*table_definition = NULL;
-
-	return( 0 );
+	if( result != 0 )
+	{
+		*table_definition = safe_table_definition;
+	}
+	return( result );
 }
 

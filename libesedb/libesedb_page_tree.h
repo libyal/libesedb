@@ -122,12 +122,24 @@ int libesedb_page_tree_get_key(
      libesedb_page_tree_key_t **key,
      libcerror_error_t **error );
 
-int libesedb_page_tree_get_number_of_leaf_values_from_page(
+int libesedb_page_tree_get_first_leaf_page_number_from_page(
      libesedb_page_tree_t *page_tree,
      libbfio_handle_t *file_io_handle,
      libesedb_page_t *page,
-     int *number_of_leaf_values,
+     uint32_t *leaf_page_number,
      int recursion_depth,
+     libcerror_error_t **error );
+
+int libesedb_page_tree_get_get_first_leaf_page_number(
+     libesedb_page_tree_t *page_tree,
+     libbfio_handle_t *file_io_handle,
+     uint32_t *leaf_page_number,
+     libcerror_error_t **error );
+
+int libesedb_page_tree_get_number_of_leaf_values_from_leaf_page(
+     libesedb_page_tree_t *page_tree,
+     libesedb_page_t *page,
+     int *number_of_leaf_values,
      libcerror_error_t **error );
 
 int libesedb_page_tree_get_number_of_leaf_values(

@@ -172,7 +172,8 @@ int libesedb_root_page_header_read_data(
 
 		return( -1 );
 	}
-	if( data_size != sizeof( esedb_root_page_header_t ) )
+	if( ( data_size != sizeof( esedb_root_page_header_t ) )
+	 && ( data_size != sizeof( esedb_extended_root_page_header_t ) ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -192,21 +193,33 @@ int libesedb_root_page_header_read_data(
 		libcnotify_print_data(
 		 data,
 		 data_size,
-		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+		 0 );
 	}
 #endif
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_root_page_header_t *) data )->space_tree_page_number,
-	 root_page_header->space_tree_page_number );
-
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_root_page_header_t *) data )->initial_number_of_pages,
 	 root_page_header->initial_number_of_pages );
 
-	byte_stream_copy_to_uint32_little_endian(
-	 ( (esedb_root_page_header_t *) data )->extent_space,
-	 root_page_header->extent_space );
+	if( data_size == sizeof( esedb_root_page_header_t ) )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_root_page_header_t *) data )->extent_space,
+		 root_page_header->extent_space );
 
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_root_page_header_t *) data )->space_tree_page_number,
+		 root_page_header->space_tree_page_number );
+	}
+	else if( data_size == sizeof( esedb_extended_root_page_header_t ) )
+	{
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_extended_root_page_header_t *) data )->extent_space,
+		 root_page_header->extent_space );
+
+		byte_stream_copy_to_uint32_little_endian(
+		 ( (esedb_extended_root_page_header_t *) data )->space_tree_page_number,
+		 root_page_header->space_tree_page_number );
+	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
@@ -215,6 +228,13 @@ int libesedb_root_page_header_read_data(
 		 function,
 		 root_page_header->initial_number_of_pages );
 
+		if( data_size == sizeof( esedb_extended_root_page_header_t ) )
+		{
+			libcnotify_printf(
+			 "%s: unknown1\t\t\t\t: 0x%02" PRIx8 "\n",
+			 function,
+			 ( (esedb_extended_root_page_header_t *) data )->unknown1 );
+		}
 		byte_stream_copy_to_uint32_little_endian(
 		 ( (esedb_root_page_header_t *) data )->parent_father_data_page_number,
 		 value_32bit );
@@ -240,6 +260,24 @@ int libesedb_root_page_header_read_data(
 		 root_page_header->initial_number_of_pages,
 		 ( root_page_header->extent_space == 0 ? 's' : 'm' ) );
 
+		if( data_size == sizeof( esedb_extended_root_page_header_t ) )
+		{
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_extended_root_page_header_t *) data )->unknown2,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: unknown2\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+
+			byte_stream_copy_to_uint32_little_endian(
+			 ( (esedb_extended_root_page_header_t *) data )->unknown3,
+			 value_32bit );
+			libcnotify_printf(
+			 "%s: unknown3\t\t\t\t: 0x%08" PRIx32 "\n",
+			 function,
+			 value_32bit );
+		}
 		libcnotify_printf(
 		 "\n" );
 	}

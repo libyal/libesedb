@@ -56,12 +56,10 @@ int libesedb_database_free(
      libesedb_database_t **database,
      libcerror_error_t **error );
 
-int libesedb_database_read_values_from_page(
+int libesedb_database_read_values_from_leaf_page(
      libesedb_database_t *database,
-     libbfio_handle_t *file_io_handle,
      libesedb_page_t *page,
      int *current_leaf_value_index,
-     int recursion_depth,
      libcerror_error_t **error );
 
 int libesedb_database_read_file_io_handle(

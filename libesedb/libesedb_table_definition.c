@@ -119,28 +119,30 @@ int libesedb_table_definition_initialize(
 
 		return( -1 );
 	}
-	if( libcdata_list_initialize(
-	     &( ( *table_definition )->column_catalog_definition_list ),
+	if( libcdata_array_initialize(
+	     &( ( *table_definition )->column_catalog_definition_array ),
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create column catalog definition list.",
+		 "%s: unable to create column catalog definition array.",
 		 function );
 
 		goto on_error;
 	}
-	if( libcdata_list_initialize(
-	     &( ( *table_definition )->index_catalog_definition_list ),
+	if( libcdata_array_initialize(
+	     &( ( *table_definition )->index_catalog_definition_array ),
+	     0,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-		 "%s: unable to create index catalog definition list.",
+		 "%s: unable to create index catalog definition array.",
 		 function );
 
 		goto on_error;
@@ -152,10 +154,10 @@ int libesedb_table_definition_initialize(
 on_error:
 	if( *table_definition != NULL )
 	{
-		if( ( *table_definition )->column_catalog_definition_list != NULL )
+		if( ( *table_definition )->column_catalog_definition_array != NULL )
 		{
-			libcdata_list_free(
-			 &( ( *table_definition )->column_catalog_definition_list ),
+			libcdata_array_free(
+			 &( ( *table_definition )->column_catalog_definition_array ),
 			 NULL,
 			 NULL );
 		}
@@ -238,8 +240,8 @@ int libesedb_table_definition_free(
 				result = -1;
 			}
 		}
-		if( libcdata_list_free(
-		     &( ( *table_definition )->column_catalog_definition_list ),
+		if( libcdata_array_free(
+		     &( ( *table_definition )->column_catalog_definition_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
@@ -247,13 +249,13 @@ int libesedb_table_definition_free(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free column catalog definition list.",
+			 "%s: unable to free column catalog definition array.",
 			 function );
 
 			result = -1;
 		}
-		if( libcdata_list_free(
-		     &( ( *table_definition )->index_catalog_definition_list ),
+		if( libcdata_array_free(
+		     &( ( *table_definition )->index_catalog_definition_array ),
 		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_catalog_definition_free,
 		     error ) != 1 )
 		{
@@ -261,7 +263,7 @@ int libesedb_table_definition_free(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
-			 "%s: unable to free index catalog definition list.",
+			 "%s: unable to free index catalog definition array.",
 			 function );
 
 			result = -1;
@@ -394,6 +396,85 @@ int libesedb_table_definition_set_callback_catalog_definition(
 	return( 1 );
 }
 
+/* Retrieves the number of column catalog definitions
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_get_number_of_column_catalog_definitions(
+     libesedb_table_definition_t *table_definition,
+     int *number_of_definitions,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_get_number_of_column_catalog_definitions";
+
+	if( table_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     table_definition->column_catalog_definition_array,
+	     number_of_definitions,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries from column catalog definition array.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific column catalog definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_get_column_catalog_definition_by_index(
+     libesedb_table_definition_t *table_definition,
+     int definition_index,
+     libesedb_catalog_definition_t **column_catalog_definition,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_get_column_catalog_definition_by_index";
+
+	if( table_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_entry_by_index(
+	     table_definition->column_catalog_definition_array,
+	     definition_index,
+	     (intptr_t **) column_catalog_definition,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve entry: %d from column catalog definition array.",
+		 function,
+		 definition_index );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
 /* Appends a column catalog definition to the table definition
  * Returns 1 if successful or -1 on error
  */
@@ -403,6 +484,7 @@ int libesedb_table_definition_append_column_catalog_definition(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_append_column_catalog_definition";
+	int entry_index       = 0;
 
 	if( table_definition == NULL )
 	{
@@ -438,8 +520,9 @@ int libesedb_table_definition_append_column_catalog_definition(
 
 		return( -1 );
 	}
-	if( libcdata_list_append_value(
-	     table_definition->column_catalog_definition_list,
+	if( libcdata_array_append_entry(
+	     table_definition->column_catalog_definition_array,
+	     &entry_index,
 	     (intptr_t *) column_catalog_definition,
 	     error ) != 1 )
 	{
@@ -447,8 +530,87 @@ int libesedb_table_definition_append_column_catalog_definition(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append column catalog definition to list.",
+		 "%s: unable to append column catalog definition to array.",
 		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves the number of index catalog definitions
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_get_number_of_index_catalog_definitions(
+     libesedb_table_definition_t *table_definition,
+     int *number_of_definitions,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_get_number_of_index_catalog_definitions";
+
+	if( table_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_number_of_entries(
+	     table_definition->index_catalog_definition_array,
+	     number_of_definitions,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve number of entries from index catalog definition array.",
+		 function );
+
+		return( -1 );
+	}
+	return( 1 );
+}
+
+/* Retrieves a specific index catalog definition
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_table_definition_get_index_catalog_definition_by_index(
+     libesedb_table_definition_t *table_definition,
+     int definition_index,
+     libesedb_catalog_definition_t **index_catalog_definition,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_table_definition_get_index_catalog_definition_by_index";
+
+	if( table_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid table definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( libcdata_array_get_entry_by_index(
+	     table_definition->index_catalog_definition_array,
+	     definition_index,
+	     (intptr_t **) index_catalog_definition,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve entry: %d from index catalog definition array.",
+		 function,
+		 definition_index );
 
 		return( -1 );
 	}
@@ -464,6 +626,7 @@ int libesedb_table_definition_append_index_catalog_definition(
      libcerror_error_t **error )
 {
 	static char *function = "libesedb_table_definition_append_index_catalog_definition";
+	int entry_index       = 0;
 
 	if( table_definition == NULL )
 	{
@@ -499,8 +662,9 @@ int libesedb_table_definition_append_index_catalog_definition(
 
 		return( -1 );
 	}
-	if( libcdata_list_append_value(
-	     table_definition->index_catalog_definition_list,
+	if( libcdata_array_append_entry(
+	     table_definition->index_catalog_definition_array,
+	     &entry_index,
 	     (intptr_t *) index_catalog_definition,
 	     error ) != 1 )
 	{
@@ -508,7 +672,7 @@ int libesedb_table_definition_append_index_catalog_definition(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-		 "%s: unable to append index catalog definition to list.",
+		 "%s: unable to append index catalog definition to array.",
 		 function );
 
 		return( -1 );

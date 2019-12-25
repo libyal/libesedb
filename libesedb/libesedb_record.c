@@ -314,7 +314,7 @@ int libesedb_record_get_number_of_values(
 	return( 1 );
 }
 
-/* Retrieves the column catalog definition of the specific entry
+/* Retrieves a specific column catalog definition
  * Returns 1 if successful or -1 on error
  */
 int libesedb_record_get_column_catalog_definition(
@@ -350,8 +350,8 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	if( internal_record->template_table_definition != NULL )
 	{
-		if( libcdata_list_get_number_of_elements(
-		     internal_record->template_table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_number_of_column_catalog_definitions(
+		     internal_record->template_table_definition,
 		     &template_table_number_of_columns,
 		     error ) != 1 )
 		{
@@ -367,10 +367,10 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	if( value_entry < template_table_number_of_columns )
 	{
-		if( libcdata_list_get_value_by_index(
-		     internal_record->template_table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_column_catalog_definition_by_index(
+		     internal_record->template_table_definition,
 		     value_entry,
-		     (intptr_t **) column_catalog_definition,
+		     column_catalog_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -385,10 +385,10 @@ int libesedb_record_get_column_catalog_definition(
 	}
 	else
 	{
-		if( libcdata_list_get_value_by_index(
-		     internal_record->table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_column_catalog_definition_by_index(
+		     internal_record->table_definition,
 		     value_entry - template_table_number_of_columns,
-		     (intptr_t **) column_catalog_definition,
+		     column_catalog_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(

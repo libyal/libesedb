@@ -178,6 +178,24 @@ int libesedb_catalog_definition_get_utf16_template_name(
      int ascii_codepage,
      libcerror_error_t **error );
 
+int libesedb_catalog_definition_compare_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint8_t *name,
+     size_t name_size,
+     libcerror_error_t **error );
+
+int libesedb_catalog_definition_compare_name_with_utf8_string(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error );
+
+int libesedb_catalog_definition_compare_name_with_utf16_string(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libcerror_error_t **error );
+
 #if defined( __cplusplus )
 }
 #endif

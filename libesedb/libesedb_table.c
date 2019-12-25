@@ -1079,28 +1079,6 @@ int libesedb_table_get_number_of_columns(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_table->table_definition->column_catalog_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - invalid table definition - missing column catalog definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( number_of_columns == NULL )
 	{
 		libcerror_error_set(
@@ -1126,8 +1104,8 @@ int libesedb_table_get_number_of_columns(
 	if( ( ( flags & LIBESEDB_GET_COLUMN_FLAG_IGNORE_TEMPLATE_TABLE ) == 0 )
 	 && ( internal_table->template_table_definition != NULL ) )
 	{
-		if( libcdata_list_get_number_of_elements(
-		     internal_table->template_table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_number_of_column_catalog_definitions(
+		     internal_table->template_table_definition,
 		     &template_table_number_of_columns,
 		     error ) != 1 )
 		{
@@ -1141,8 +1119,8 @@ int libesedb_table_get_number_of_columns(
 			return( -1 );
 		}
 	}
-	if( libcdata_list_get_number_of_elements(
-	     internal_table->table_definition->column_catalog_definition_list,
+	if( libesedb_table_definition_get_number_of_column_catalog_definitions(
+	     internal_table->table_definition,
 	     number_of_columns,
 	     error ) != 1 )
 	{
@@ -1192,28 +1170,6 @@ int libesedb_table_get_column(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_table->table_definition->column_catalog_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - invalid table definition - missing column catalog definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( column == NULL )
 	{
 		libcerror_error_set(
@@ -1251,8 +1207,8 @@ int libesedb_table_get_column(
 	{
 		if( internal_table->template_table_definition != NULL )
 		{
-			if( libcdata_list_get_number_of_elements(
-			     internal_table->template_table_definition->column_catalog_definition_list,
+			if( libesedb_table_definition_get_number_of_column_catalog_definitions(
+			     internal_table->template_table_definition,
 			     &template_table_number_of_columns,
 			     error ) != 1 )
 			{
@@ -1269,10 +1225,10 @@ int libesedb_table_get_column(
 	}
 	if( column_entry < template_table_number_of_columns )
 	{
-		if( libcdata_list_get_value_by_index(
-		     internal_table->template_table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_column_catalog_definition_by_index(
+		     internal_table->template_table_definition,
 		     column_entry,
-		     (intptr_t **) &column_catalog_definition,
+		     &column_catalog_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1287,10 +1243,10 @@ int libesedb_table_get_column(
 	}
 	else
 	{
-		if( libcdata_list_get_value_by_index(
-		     internal_table->table_definition->column_catalog_definition_list,
+		if( libesedb_table_definition_get_column_catalog_definition_by_index(
+		     internal_table->table_definition,
 		     column_entry - template_table_number_of_columns,
-		     (intptr_t **) &column_catalog_definition,
+		     &column_catalog_definition,
 		     error ) != 1 )
 		{
 			libcerror_error_set(
@@ -1356,19 +1312,8 @@ int libesedb_table_get_number_of_indexes(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( libcdata_list_get_number_of_elements(
-	     internal_table->table_definition->index_catalog_definition_list,
+	if( libesedb_table_definition_get_number_of_index_catalog_definitions(
+	     internal_table->table_definition,
 	     number_of_indexes,
 	     error ) != 1 )
 	{
@@ -1410,28 +1355,6 @@ int libesedb_table_get_index(
 	}
 	internal_table = (libesedb_internal_table_t *) table;
 
-	if( internal_table->table_definition == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - missing table definition.",
-		 function );
-
-		return( -1 );
-	}
-	if( internal_table->table_definition->index_catalog_definition_list == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: invalid table - invalid table definition - missing index catalog definition list.",
-		 function );
-
-		return( -1 );
-	}
 	if( index == NULL )
 	{
 		libcerror_error_set(
@@ -1454,10 +1377,10 @@ int libesedb_table_get_index(
 
 		return( -1 );
 	}
-	if( libcdata_list_get_value_by_index(
-	     internal_table->table_definition->index_catalog_definition_list,
+	if( libesedb_table_definition_get_index_catalog_definition_by_index(
+	     internal_table->table_definition,
 	     index_entry,
-	     (intptr_t **) &index_catalog_definition,
+	     &index_catalog_definition,
 	     error ) != 1 )
 	{
 		libcerror_error_set(

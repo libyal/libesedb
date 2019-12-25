@@ -46,9 +46,9 @@ struct libesedb_catalog
 	 */
 	libesedb_page_tree_t *page_tree;
 
-	/* The table definition list
+	/* The table definition array
 	 */
-	libcdata_list_t *table_definition_list;
+	libcdata_array_t *table_definition_array;
 };
 
 int libesedb_catalog_initialize(
@@ -70,12 +70,10 @@ int libesedb_catalog_read_value_data(
      libesedb_table_definition_t **table_definition,
      libcerror_error_t **error );
 
-int libesedb_catalog_read_values_from_page(
+int libesedb_catalog_read_values_from_leaf_page(
      libesedb_catalog_t *catalog,
-     libbfio_handle_t *file_io_handle,
      libesedb_page_t *page,
      libesedb_table_definition_t **table_definition,
-     int recursion_depth,
      libcerror_error_t **error );
 
 int libesedb_catalog_read_file_io_handle(

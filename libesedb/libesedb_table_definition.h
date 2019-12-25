@@ -49,13 +49,13 @@ struct libesedb_table_definition
 	 */
 	libesedb_catalog_definition_t *callback_catalog_definition;
 
-	/* The column catalog definition list
+	/* The column catalog definition array
 	 */
-	libcdata_list_t *column_catalog_definition_list;
+	libcdata_array_t *column_catalog_definition_array;
 
-	/* The index catalog definition list
+	/* The index catalog definition array
 	 */
-	libcdata_list_t *index_catalog_definition_list;
+	libcdata_array_t *index_catalog_definition_array;
 };
 
 int libesedb_table_definition_initialize(
@@ -77,9 +77,31 @@ int libesedb_table_definition_set_callback_catalog_definition(
      libesedb_catalog_definition_t *callback_catalog_definition,
      libcerror_error_t **error );
 
+int libesedb_table_definition_get_number_of_column_catalog_definitions(
+     libesedb_table_definition_t *table_definition,
+     int *number_of_definitions,
+     libcerror_error_t **error );
+
+int libesedb_table_definition_get_column_catalog_definition_by_index(
+     libesedb_table_definition_t *table_definition,
+     int definition_index,
+     libesedb_catalog_definition_t **column_catalog_definition,
+     libcerror_error_t **error );
+
 int libesedb_table_definition_append_column_catalog_definition(
      libesedb_table_definition_t *table_definition,
      libesedb_catalog_definition_t *column_catalog_definition,
+     libcerror_error_t **error );
+
+int libesedb_table_definition_get_number_of_index_catalog_definitions(
+     libesedb_table_definition_t *table_definition,
+     int *number_of_definitions,
+     libcerror_error_t **error );
+
+int libesedb_table_definition_get_index_catalog_definition_by_index(
+     libesedb_table_definition_t *table_definition,
+     int definition_index,
+     libesedb_catalog_definition_t **index_catalog_definition,
      libcerror_error_t **error );
 
 int libesedb_table_definition_append_index_catalog_definition(

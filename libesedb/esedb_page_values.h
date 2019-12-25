@@ -54,6 +54,46 @@ struct esedb_root_page_header
 	uint8_t space_tree_page_number[ 4 ];
 };
 
+typedef struct esedb_extended_root_page_header esedb_extended_root_page_header_t;
+
+struct esedb_extended_root_page_header
+{
+	/* The initial number of pages
+	 * Consists of 4 bytes
+	 */
+	uint8_t initial_number_of_pages[ 4 ];
+
+	/* Unknonwn
+	 * Consists of 1 byte
+	 */
+	uint8_t unknown1;
+
+	/* The parent father page (FDP) number
+	 * Consists of 4 bytes
+	 */
+	uint8_t parent_father_data_page_number[ 4 ];
+
+	/* Extent space
+	 * Consists of 4 bytes
+	 */
+	uint8_t extent_space[ 4 ];
+
+	/* The space tree page number
+	 * Consists of 4 bytes
+	 */
+	uint8_t space_tree_page_number[ 4 ];
+
+	/* Unknonwn
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown2[ 4 ];
+
+	/* Unknonwn
+	 * Consists of 4 bytes
+	 */
+	uint8_t unknown3[ 4 ];
+};
+
 typedef struct esedb_space_tree_page_entry esedb_space_tree_page_entry_t;
 
 struct esedb_space_tree_page_entry

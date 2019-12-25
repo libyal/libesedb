@@ -173,7 +173,7 @@ int esedb_test_catalog_initialize(
 	     test_number++ )
 	{
 		/* Test libesedb_catalog_initialize with malloc failing
-		 * Test libesedb_catalog_initialize with malloc failing in libcdata_list_initialize
+		 * Test libesedb_catalog_initialize with malloc failing in libcdata_array_initialize
 		 */
 		esedb_test_malloc_attempts_before_fail = test_number;
 
@@ -666,7 +666,7 @@ on_error:
 int esedb_test_catalog_get_table_definition_by_name(
      libesedb_catalog_t *catalog )
 {
-	libcdata_list_t *table_definition_list        = NULL;
+	libcdata_array_t *table_definition_array      = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
 	char *name                                    = "test";
@@ -711,9 +711,9 @@ int esedb_test_catalog_get_table_definition_by_name(
 	libcerror_error_free(
 	 &error );
 
-	table_definition_list = catalog->table_definition_list;
+	table_definition_array = catalog->table_definition_array;
 
-	catalog->table_definition_list = NULL;
+	catalog->table_definition_array = NULL;
 
 	result = libesedb_catalog_get_table_definition_by_name(
 	          catalog,
@@ -722,7 +722,7 @@ int esedb_test_catalog_get_table_definition_by_name(
 	          &table_definition,
 	          &error );
 
-	catalog->table_definition_list = table_definition_list;
+	catalog->table_definition_array = table_definition_array;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -812,7 +812,7 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
 {
 	uint8_t utf8_name[ 5 ]                        = { 't', 'e', 's', 't', 0 };
 
-	libcdata_list_t *table_definition_list        = NULL;
+	libcdata_array_t *table_definition_array      = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
 	int result                                    = 0;
@@ -856,9 +856,9 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
 	libcerror_error_free(
 	 &error );
 
-	table_definition_list = catalog->table_definition_list;
+	table_definition_array = catalog->table_definition_array;
 
-	catalog->table_definition_list = NULL;
+	catalog->table_definition_array = NULL;
 
 	result = libesedb_catalog_get_table_definition_by_utf8_name(
 	          catalog,
@@ -867,7 +867,7 @@ int esedb_test_catalog_get_table_definition_by_utf8_name(
 	          &table_definition,
 	          &error );
 
-	catalog->table_definition_list = table_definition_list;
+	catalog->table_definition_array = table_definition_array;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -957,7 +957,7 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
 {
 	uint16_t utf16_name[ 5 ]                      = { 't', 'e', 's', 't', 0 };
 
-	libcdata_list_t *table_definition_list        = NULL;
+	libcdata_array_t *table_definition_array      = NULL;
 	libcerror_error_t *error                      = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
 	int result                                    = 0;
@@ -1001,9 +1001,9 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
 	libcerror_error_free(
 	 &error );
 
-	table_definition_list = catalog->table_definition_list;
+	table_definition_array = catalog->table_definition_array;
 
-	catalog->table_definition_list = NULL;
+	catalog->table_definition_array = NULL;
 
 	result = libesedb_catalog_get_table_definition_by_utf16_name(
 	          catalog,
@@ -1012,7 +1012,7 @@ int esedb_test_catalog_get_table_definition_by_utf16_name(
 	          &table_definition,
 	          &error );
 
-	catalog->table_definition_list = table_definition_list;
+	catalog->table_definition_array = table_definition_array;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",

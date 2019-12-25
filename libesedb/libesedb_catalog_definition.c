@@ -1682,3 +1682,186 @@ int libesedb_catalog_definition_get_utf16_template_name(
 	return( 1 );
 }
 
+/* Compares the name of the table definition with a name
+ * Returns 1 if equal, 0 if not or -1 on error
+ */
+int libesedb_catalog_definition_compare_name(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint8_t *name,
+     size_t name_size,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_compare_name";
+
+	if( catalog_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog definition - missing name.",
+		 function );
+
+		return( -1 );
+	}
+	if( name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid name.",
+		 function );
+
+		return( -1 );
+	}
+	if( ( name_size == 0 )
+	 || ( name_size > (size_t) SSIZE_MAX ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+		 "%s: invalid name size value exceeds maximum.",
+		 function );
+
+		return( -1 );
+	}
+	if( name_size == catalog_definition->name_size )
+	{
+		if( memory_compare(
+		     catalog_definition->name,
+		     name,
+		     name_size ) == 0 )
+		{
+			return( 1 );
+		}
+	}
+	return( 0 );
+}
+
+/* Compares the name of the table definition with an UTF-8 encoded string
+ * Returns LIBUNA_COMPARE_LESS, LIBUNA_COMPARE_EQUAL, LIBUNA_COMPARE_GREATER if successful or -1 on error
+ */
+int libesedb_catalog_definition_compare_name_with_utf8_string(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint8_t *utf8_string,
+     size_t utf8_string_length,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_compare_name_with_utf8_string";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog definition - missing name.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO use ascii codepage */
+	result = libuna_utf8_string_compare_with_byte_stream(
+		  utf8_string,
+		  utf8_string_length,
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  LIBUNA_CODEPAGE_WINDOWS_1252,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: unable to compare UTF-8 string with catalog definition name.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+
+/* Compares the name of the table definition with an UTF-16 encoded string
+ * Returns LIBUNA_COMPARE_LESS, LIBUNA_COMPARE_EQUAL, LIBUNA_COMPARE_GREATER if successful or -1 on error
+ */
+int libesedb_catalog_definition_compare_name_with_utf16_string(
+     libesedb_catalog_definition_t *catalog_definition,
+     const uint16_t *utf16_string,
+     size_t utf16_string_length,
+     libcerror_error_t **error )
+{
+	static char *function = "libesedb_catalog_definition_compare_name_with_utf16_string";
+	int result            = 0;
+
+	if( catalog_definition == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid catalog definition.",
+		 function );
+
+		return( -1 );
+	}
+	if( catalog_definition->name == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog definition - missing name.",
+		 function );
+
+		return( -1 );
+	}
+/* TODO use ascii codepage */
+	result = libuna_utf16_string_compare_with_byte_stream(
+		  utf16_string,
+		  utf16_string_length,
+		  catalog_definition->name,
+		  catalog_definition->name_size,
+		  LIBUNA_CODEPAGE_WINDOWS_1252,
+		  error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: unable to compare UTF-16 string with catalog definition name.",
+		 function );
+
+		return( -1 );
+	}
+	return( result );
+}
+

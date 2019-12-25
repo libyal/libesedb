@@ -78,6 +78,7 @@ Additional information about long value.
 | 0.0.28 | J.B. Metz | December 2019 | Changes for formatting and LZXPRESS compression.
 | 0.0.29 | J.B. Metz | December 2019 | Corrected error in file header definition.
 | 0.0.30 | J.B. Metz | December 2019 | Additional information about space trees.
+| 0.0.31 | J.B. Metz | December 2019 | Additional information about extended root page header.
 |===
 
 :numbered:
@@ -655,6 +656,10 @@ The root page contains different types of values:
 
 The root page header is the first page tag within the page.
 
+The root page header is either 16 or 25 bytes of size.
+
+====== Root page header
+
 The root page header is 16 bytes of size and consists of:
 
 [cols="1,1,1,5",options="header"]
@@ -680,6 +685,38 @@ dash and a letter after the that indicates whether the space for the B-Tree is
 currently represented using multiple pages ("m") or a single page ("s").
 
 [yellow-background]*The space tree page number is valid when the extent space > 0.*
+
+[NOTE]
+The size of the root page header has changed in later version see notes below.
+
+====== Extended root page header
+
+The extended root page header is 25 bytes of size and consists of:
+
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 4 | | The initial number of pages +
+The number of pages when the object was first created in the page tree.
+| 4 | 1 | | [yellow-background]*Unknown*
+| 5 | 4 | | The parent Father Data Page (FDP) number
+| 9 | 4 | | Extent space +
+0x00000000 => single +
+0x00000001 => multiple
+| 13 | 4 | | The space tree page number +
+0 if not set +
+[yellow-background]*masks 0xff000000 if not set* +
+[yellow-background]*(pgnoOE)*
+| 17 | 4 | | [yellow-background]*Unknown*
+| 21 | 4 | | [yellow-background]*Unknown (empty values?)*
+|===
+
+Seen in format version 0x620 revision 0x14, 25 bytes in size:
+
+....
+00000000: 03 0a 00 00 00 01 00 00  00 00 00 00 00 fc 01 00   ........ ........
+00000010: 00 1e 00 00 00 00 00 00  00                        ........ .
+....
 
 ==== Branch page
 
