@@ -135,7 +135,7 @@ matrix:
     dist: bionic
     sudo: required
     group: edge
-    python: 3.4
+    python: 3.6
   - name: "Linux with gcc and shared libraries"
     env:
     - CONFIGURE_OPTIONS=""
