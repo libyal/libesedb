@@ -2673,65 +2673,69 @@ int export_handle_export_record_value(
 				{
 					if( value_string_size == 0 )
 					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-						 "%s: missing value string.",
-						 function );
-
-						goto on_error;
+						if( libcnotify_verbose != 0 )
+						{
+							libcnotify_printf(
+							 "%s: missing value string: %d (%" PRIu32 ").",
+							 function,
+							 record_value_entry,
+							 column_identifier );
+						}
 					}
-					value_string = system_string_allocate(
-					                value_string_size );
-
-					if( value_string == NULL )
+					else
 					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_MEMORY,
-						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-						 "%s: unable to create value string.",
-						 function );
+						value_string = system_string_allocate(
+						                value_string_size );
 
-						goto on_error;
-					}
+						if( value_string == NULL )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_MEMORY,
+							 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+							 "%s: unable to create value string.",
+							 function );
+
+							goto on_error;
+						}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-					result = libesedb_record_get_value_utf16_string(
-					          record,
-					          record_value_entry,
-					          (uint16_t *) value_string,
-					          value_string_size,
-					          error );
+						result = libesedb_record_get_value_utf16_string(
+						          record,
+						          record_value_entry,
+						          (uint16_t *) value_string,
+						          value_string_size,
+						          error );
 #else
-					result = libesedb_record_get_value_utf8_string(
-					          record,
-					          record_value_entry,
-					          (uint8_t *) value_string,
-					          value_string_size,
-					          error );
+						result = libesedb_record_get_value_utf8_string(
+						          record,
+						          record_value_entry,
+						          (uint8_t *) value_string,
+						          value_string_size,
+						          error );
 #endif
-					if( result != 1 )
-					{
-						libcerror_error_set(
-						 error,
-						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-						 "%s: unable to retrieve value string: %d.",
-						 function,
-						 record_value_entry );
+						if( result != 1 )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+							 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+							 "%s: unable to retrieve value string: %d (%" PRIu32 ").",
+							 function,
+							 record_value_entry,
+							 column_identifier );
 
-						goto on_error;
+							goto on_error;
+						}
+						export_text(
+						 value_string,
+						 value_string_size,
+						 record_file_stream );
+
+						memory_free(
+						 value_string );
+
+						value_string = NULL;
 					}
-					export_text(
-					 value_string,
-					 value_string_size,
-					 record_file_stream );
-
-					memory_free(
-					 value_string );
-
-					value_string = NULL;
 				}
 				break;
 
@@ -3573,65 +3577,69 @@ int export_handle_export_basic_record_value(
 			{
 				if( value_string_size == 0 )
 				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-					 "%s: missing value string.",
-					 function );
-
-					goto on_error;
+					if( libcnotify_verbose != 0 )
+					{
+						libcnotify_printf(
+						 "%s: missing value string: %d (%" PRIu32 ").",
+						 function,
+						 record_value_entry,
+						 column_identifier );
+					}
 				}
-				value_string = system_string_allocate(
-				                value_string_size );
-
-				if( value_string == NULL )
+				else
 				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-					 "%s: unable to create value string.",
-					 function );
+					value_string = system_string_allocate(
+					                value_string_size );
 
-					goto on_error;
-				}
+					if( value_string == NULL )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create value string.",
+						 function );
+
+						goto on_error;
+					}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libesedb_record_get_value_utf16_string(
-					  record,
-					  record_value_entry,
-					  (uint16_t *) value_string,
-					  value_string_size,
-					  error );
+					result = libesedb_record_get_value_utf16_string(
+						  record,
+						  record_value_entry,
+						  (uint16_t *) value_string,
+						  value_string_size,
+						  error );
 #else
-				result = libesedb_record_get_value_utf8_string(
-					  record,
-					  record_value_entry,
-					  (uint8_t *) value_string,
-					  value_string_size,
-					  error );
+					result = libesedb_record_get_value_utf8_string(
+						  record,
+						  record_value_entry,
+						  (uint8_t *) value_string,
+						  value_string_size,
+						  error );
 #endif
-				if( result != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value string: %d.",
-					 function,
-					 record_value_entry );
+					if( result != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to retrieve value string: %d (%" PRIu32 ").",
+						 function,
+						 record_value_entry,
+						 column_identifier );
 
-					goto on_error;
+						goto on_error;
+					}
+					export_text(
+					 value_string,
+					 value_string_size,
+					 record_file_stream );
+
+					memory_free(
+					 value_string );
+
+					value_string = NULL;
 				}
-				export_text(
-				 value_string,
-				 value_string_size,
-				 record_file_stream );
-
-				memory_free(
-				 value_string );
-
-				value_string = NULL;
 			}
 			break;
 
@@ -3918,63 +3926,67 @@ int export_handle_export_long_record_value(
 			{
 				if( value_string_size == 0 )
 				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-					 "%s: missing value string.",
-					 function );
-
-					goto on_error;
+					if( libcnotify_verbose != 0 )
+					{
+						libcnotify_printf(
+						 "%s: missing value string: %d (%" PRIu32 ").",
+						 function,
+						 record_value_entry,
+						 column_identifier );
+					}
 				}
-				value_string = system_string_allocate(
-				                value_string_size );
-
-				if( value_string == NULL )
+				else
 				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-					 "%s: unable to create value string.",
-					 function );
+					value_string = system_string_allocate(
+					                value_string_size );
 
-					goto on_error;
-				}
+					if( value_string == NULL )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_MEMORY,
+						 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+						 "%s: unable to create value string.",
+						 function );
+
+						goto on_error;
+					}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
-				result = libesedb_long_value_get_utf16_string(
-					  long_value,
-					  (uint16_t *) value_string,
-					  value_string_size,
-					  error );
+					result = libesedb_long_value_get_utf16_string(
+						  long_value,
+						  (uint16_t *) value_string,
+						  value_string_size,
+						  error );
 #else
-				result = libesedb_long_value_get_utf8_string(
-					  long_value,
-					  (uint8_t *) value_string,
-					  value_string_size,
-					  error );
+					result = libesedb_long_value_get_utf8_string(
+						  long_value,
+						  (uint8_t *) value_string,
+						  value_string_size,
+						  error );
 #endif
-				if( result != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable to retrieve value string: %d.",
-					 function,
-					 record_value_entry );
+					if( result != 1 )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+						 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+						 "%s: unable to retrieve value string: %d (%" PRIu32 ").",
+						 function,
+						 record_value_entry,
+						 column_identifier );
 
-					goto on_error;
+						goto on_error;
+					}
+					export_text(
+					 value_string,
+					 value_string_size,
+					 record_file_stream );
+
+					memory_free(
+					 value_string );
+
+					value_string = NULL;
 				}
-				export_text(
-				 value_string,
-				 value_string_size,
-				 record_file_stream );
-
-				memory_free(
-				 value_string );
-
-				value_string = NULL;
 			}
 			break;
 
