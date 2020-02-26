@@ -1,14 +1,15 @@
 #!/bin/bash
 # Info tool testing script
 #
-# Version: 20190223
+# Version: 20200223
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
+PROFILES=("esedbinfo");
+OPTIONS_PER_PROFILE=("");
 OPTION_SETS="";
-OPTIONS=();
 
 INPUT_GLOB="*";
 
@@ -62,61 +63,45 @@ then
 	exit ${EXIT_IGNORE};
 fi
 
-TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "esedbinfo");
-
-IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
-
-RESULT=${EXIT_SUCCESS};
-
-for TEST_SET_INPUT_DIRECTORY in input/*;
+for PROFILE_INDEX in ${!PROFILES[*]};
 do
-	if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
-	then
-		continue;
-	fi
-	if check_for_directory_in_ignore_list "${TEST_SET_INPUT_DIRECTORY}" "${IGNORE_LIST}";
-	then
-		continue;
-	fi
+	TEST_PROFILE=${PROFILES[${PROFILE_INDEX}]};
 
-	TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
+	TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "${TEST_PROFILE}");
 
-	OLDIFS=${IFS};
+	IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
 
-	# IFS="\n"; is not supported by all platforms.
-	IFS="
-";
+	IFS=" " read -a OPTIONS <<< ${OPTIONS_PER_PROFILE[${PROFILE_INDEX}]};
 
-	if test -f "${TEST_SET_DIRECTORY}/files";
-	then
-		for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
-		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "esedbinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
-			RESULT=$?;
+	RESULT=${EXIT_SUCCESS};
 
-			if test ${RESULT} -ne ${EXIT_SUCCESS};
-			then
-				break;
-			fi
-		done
-	else
-		for INPUT_FILE in `ls -1d ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
-		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "esedbinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${OPTIONS[@]}";
-			RESULT=$?;
+	for TEST_SET_INPUT_DIRECTORY in input/*;
+	do
+		if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
+		then
+			continue;
+		fi
+		TEST_SET=`basename ${TEST_SET_INPUT_DIRECTORY}`;
 
-			if test ${RESULT} -ne ${EXIT_SUCCESS};
-			then
-				break;
-			fi
-		done
-	fi
-	IFS=${OLDIFS};
+		if check_for_test_set_in_ignore_list "${TEST_SET}" "${IGNORE_LIST}";
+		then
+			continue;
+		fi
+		TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
 
-	if test ${RESULT} -ne ${EXIT_SUCCESS};
-	then
-		break;
-	fi
+		run_test_on_test_set_with_options "${TEST_SET_DIRECTORY}" "esedbinfo" "with_stdout_reference" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${OPTIONS[@]}";
+		RESULT=$?;
+
+		# Ignore failures due to corrupted data.
+		if test "${TEST_SET}" = "corrupted";
+		then
+			RESULT=${EXIT_SUCCESS};
+		fi
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			break;
+		fi
+	done
 done
 
 exit ${RESULT};
