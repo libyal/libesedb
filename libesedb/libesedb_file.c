@@ -977,6 +977,7 @@ int libesedb_file_open_read(
 
 		goto on_error;
 	}
+	internal_file->io_handle->file_type                = file_header->file_type;
 	internal_file->io_handle->format_version           = file_header->format_version;
 	internal_file->io_handle->format_revision          = file_header->format_revision;
 	internal_file->io_handle->page_size                = file_header->page_size;

@@ -14,6 +14,7 @@ MSVSCPP_FILES = \
 	esedb_test_index/esedb_test_index.vcproj \
 	esedb_test_info_handle/esedb_test_info_handle.vcproj \
 	esedb_test_io_handle/esedb_test_io_handle.vcproj \
+	esedb_test_leaf_page_descriptor/esedb_test_leaf_page_descriptor.vcproj \
 	esedb_test_long_value/esedb_test_long_value.vcproj \
 	esedb_test_multi_value/esedb_test_multi_value.vcproj \
 	esedb_test_notify/esedb_test_notify.vcproj \
@@ -25,6 +26,7 @@ MSVSCPP_FILES = \
 	esedb_test_page_value/esedb_test_page_value.vcproj \
 	esedb_test_record/esedb_test_record.vcproj \
 	esedb_test_root_page_header/esedb_test_root_page_header.vcproj \
+	esedb_test_space_tree/esedb_test_space_tree.vcproj \
 	esedb_test_space_tree_value/esedb_test_space_tree_value.vcproj \
 	esedb_test_support/esedb_test_support.vcproj \
 	esedb_test_table/esedb_test_table.vcproj \

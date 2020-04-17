@@ -1,7 +1,7 @@
 #!/bin/bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20200223
+# Version: 20200417
 #
 # When CHECK_WITH_ASAN is set to a non-empty value the test executable
 # is run with asan, otherwise it is run without.
@@ -84,7 +84,9 @@ check_for_test_set_in_ignore_list()
 	local TEST_SET=$1;
 	local IGNORE_LIST=$2;
 
-	for LIST_ELEMENT in `echo "${IGNORE_LIST}" | tr ' ' '\n'`;
+	local IFS=" ";
+
+	for LIST_ELEMENT in ${IGNORE_LIST};
 	do
 		if test "${LIST_ELEMENT}" = "${TEST_SET}";
 		then
@@ -111,7 +113,9 @@ check_for_directory_in_ignore_list()
 
 	local INPUT_BASENAME=`basename ${INPUT_DIRECTORY}`;
 
-	for LIST_ELEMENT in `echo "${IGNORE_LIST}" | tr ' ' '\n'`;
+	local IFS=" ";
+
+	for LIST_ELEMENT in ${IGNORE_LIST};
 	do
 		if test "${LIST_ELEMENT}" = "${INPUT_BASENAME}";
 		then
@@ -259,7 +263,7 @@ find_binary_python_module_path()
 # Returns:
 #   a string containing the test input files
 #
-get_testion_test_data_option_file()
+get_test_data_option_file()
 {
 	local TEST_SET_DIRECTORY=$1;
 	local INPUT_FILE=$2;
@@ -387,7 +391,7 @@ read_test_data_option_file()
 
 	if ! test -f "${TEST_DATA_OPTION_FILE}";
 	then
-		TEST_DATA_OPTION_FILE=$(get_testion_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+		TEST_DATA_OPTION_FILE=$(get_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
 	fi
 
 	local OPTIONS=()
@@ -704,7 +708,7 @@ run_test_with_arguments()
 	fi
 	if test -n "${TEST_DESCRIPTION}";
 	then
-		echo -n "${TEST_DESCRIPTION} ";
+		echo -n "${TEST_DESCRIPTION}";
 
 		if test ${RESULT} -ne ${EXIT_SUCCESS};
 		then
@@ -1187,7 +1191,7 @@ run_test_on_input_file_with_options()
 
 	for OPTION_SET in `echo ${OPTION_SETS} | tr ' ' '\n'`;
 	do
-		local TEST_DATA_OPTION_FILE=$(get_testion_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+		local TEST_DATA_OPTION_FILE=$(get_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
 
 		if ! test -f ${TEST_DATA_OPTION_FILE};
 		then

@@ -138,6 +138,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_io_handle", "ese
 		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_leaf_page_descriptor", "esedb_test_leaf_page_descriptor\esedb_test_leaf_page_descriptor.vcproj", "{DE9B39FD-66E5-4157-8917-E6E40CC80D41}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_long_value", "esedb_test_long_value\esedb_test_long_value.vcproj", "{609F3B7C-7754-487E-87E7-D19276604C3B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
@@ -207,6 +213,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_record", "esedb_
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_root_page_header", "esedb_test_root_page_header\esedb_test_root_page_header.vcproj", "{EEFAD65F-7A5A-43CD-87D0-9E7D678958DB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
+		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "esedb_test_space_tree", "esedb_test_space_tree\esedb_test_space_tree.vcproj", "{0301EB16-A952-46F6-8D64-CD318B49D8C2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A426611F-36ED-4F34-8CEC-12270B8954D9} = {A426611F-36ED-4F34-8CEC-12270B8954D9}
 		{BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C} = {BD3A95FA-A3DE-4B79-A889-A7E5ECA4B69C}
@@ -496,6 +508,10 @@ Global
 		{4514F4B8-9225-4C90-91ED-D65BB183BDEC}.Release|Win32.Build.0 = Release|Win32
 		{4514F4B8-9225-4C90-91ED-D65BB183BDEC}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{4514F4B8-9225-4C90-91ED-D65BB183BDEC}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{DE9B39FD-66E5-4157-8917-E6E40CC80D41}.Release|Win32.ActiveCfg = Release|Win32
+		{DE9B39FD-66E5-4157-8917-E6E40CC80D41}.Release|Win32.Build.0 = Release|Win32
+		{DE9B39FD-66E5-4157-8917-E6E40CC80D41}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{DE9B39FD-66E5-4157-8917-E6E40CC80D41}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{609F3B7C-7754-487E-87E7-D19276604C3B}.Release|Win32.ActiveCfg = Release|Win32
 		{609F3B7C-7754-487E-87E7-D19276604C3B}.Release|Win32.Build.0 = Release|Win32
 		{609F3B7C-7754-487E-87E7-D19276604C3B}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
@@ -540,6 +556,10 @@ Global
 		{EEFAD65F-7A5A-43CD-87D0-9E7D678958DB}.Release|Win32.Build.0 = Release|Win32
 		{EEFAD65F-7A5A-43CD-87D0-9E7D678958DB}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
 		{EEFAD65F-7A5A-43CD-87D0-9E7D678958DB}.VSDebug|Win32.Build.0 = VSDebug|Win32
+		{0301EB16-A952-46F6-8D64-CD318B49D8C2}.Release|Win32.ActiveCfg = Release|Win32
+		{0301EB16-A952-46F6-8D64-CD318B49D8C2}.Release|Win32.Build.0 = Release|Win32
+		{0301EB16-A952-46F6-8D64-CD318B49D8C2}.VSDebug|Win32.ActiveCfg = VSDebug|Win32
+		{0301EB16-A952-46F6-8D64-CD318B49D8C2}.VSDebug|Win32.Build.0 = VSDebug|Win32
 		{75750FF8-0CE1-4A6E-B6EE-D99B5343F432}.Release|Win32.ActiveCfg = Release|Win32
 		{75750FF8-0CE1-4A6E-B6EE-D99B5343F432}.Release|Win32.Build.0 = Release|Win32
 		{75750FF8-0CE1-4A6E-B6EE-D99B5343F432}.VSDebug|Win32.ActiveCfg = VSDebug|Win32

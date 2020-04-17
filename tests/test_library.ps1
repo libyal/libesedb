@@ -1,41 +1,16 @@
 # Tests library functions and types.
 #
-# Version: 20200216
+# Version: 20200413
 
 $ExitSuccess = 0
 $ExitFailure = 1
 $ExitIgnore = 77
 
-$LibraryTests = "catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle long_value multi_value notify page page_header page_tree page_tree_key page_tree_value page_value record table root_page_header space_tree_value table_definition"
+$LibraryTests = "catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle leaf_page_descriptor long_value multi_value notify page page_header page_tree page_tree_key page_tree_value page_value record table root_page_header space_tree space_tree_value table_definition"
 $LibraryTestsWithInput = "file support"
+$OptionSets = "";
 
 $InputGlob = "*"
-
-Function GetTestProfileDirectory
-{
-	param( [string]$TestInputDirectory, [string]$TestProfile )
-
-	$TestProfileDirectory = "${TestInputDirectory}\.${TestProfile}"
-
-	If (-Not (Test-Path -Path ${TestProfileDirectory} -PathType "Container"))
-	{
-		New-Item -ItemType "directory" -Path ${TestProfileDirectory}
-	}
-	Return ${TestProfileDirectory}
-}
-
-Function GetTestSetDirectory
-{
-	param( [string]$TestProfileDirectory, [string]$TestSetInputDirectory )
-
-	$TestSetDirectory = "${TestProfileDirectory}\${TestSetInputDirectory.Basename}"
-
-	If (-Not (Test-Path -Path ${TestSetDirectory} -PathType "Container"))
-	{
-		New-Item -ItemType "directory" -Path ${TestSetDirectory}
-	}
-	Return ${TestSetDirectory}
-}
 
 Function GetTestExecutablesDirectory
 {
@@ -86,6 +61,14 @@ Function RunTest
 	$TestDescription = "Testing: ${TestName}"
 	$TestExecutable = "${TestExecutablesDirectory}\esedb_test_${TestName}.exe"
 
+	If (-Not (Test-Path -Path ${TestExecutable} -PathType "Leaf"))
+	{
+		Write-Host "${TestDescription} (" -nonewline
+		Write-Host "SKIP" -foreground Cyan -nonewline
+		Write-Host ")"
+
+		Return ${ExitIgnore}
+	}
 	$Output = Invoke-Expression ${TestExecutable}
 	$Result = ${LastExitCode}
 
@@ -93,16 +76,18 @@ Function RunTest
 	{
 		Write-Host ${Output} -foreground Red
 	}
-	Write-Host "${TestDescription} " -nonewline
+	Write-Host "${TestDescription} (" -nonewline
 
 	If (${Result} -ne ${ExitSuccess})
 	{
-		Write-Host " (FAIL)"
+		Write-Host "FAIL" -foreground Red -nonewline
 	}
 	Else
 	{
-		Write-Host " (PASS)"
+		Write-Host "PASS" -foreground Green -nonewline
 	}
+	Write-Host ")"
+
 	Return ${Result}
 }
 
@@ -113,8 +98,20 @@ Function RunTestWithInput
 	$TestDescription = "Testing: ${TestName}"
 	$TestExecutable = "${TestExecutablesDirectory}\esedb_test_${TestName}.exe"
 
-	$TestProfileDirectory = GetTestProfileDirectory "input" "libesedb"
+	If (-Not (Test-Path -Path ${TestExecutable} -PathType "Leaf"))
+	{
+		Write-Host "${TestDescription} (" -nonewline
+		Write-Host "SKIP" -foreground Cyan -nonewline
+		Write-Host ")"
 
+		Return ${ExitIgnore}
+	}
+	$TestProfileDirectory = "input\.libesedb"
+
+	If (-Not (Test-Path -Path ${TestProfileDirectory} -PathType "Container"))
+	{
+		New-Item -ItemType "directory" -Path ${TestProfileDirectory}
+	}
 	$IgnoreList = ReadIgnoreList ${TestProfileDirectory}
 
 	$Result = ${ExitSuccess}
@@ -129,11 +126,11 @@ Function RunTestWithInput
 		{
 			Continue
 		}
-		$TestSetDirectory = GetTestSetDirectory ${TestProfileDirectory} ${TestSetInputDirectory}
+		$TestSetName = ${TestSetInputDirectory}.Name
 
-		If (Test-Path -Path "${TestSetDirectory}\files" -PathType "Leaf")
+		If (Test-Path -Path "${TestProfileDirectory}\${TestSetName}\files" -PathType "Leaf")
 		{
-			$InputFiles = Get-Content -Path "${TestSetDirectory}\files" | Where {$_ -ne ""}
+			$InputFiles = Get-Content -Path "${TestProfileDirectory}\${TestSetName}\files" | Where {$_ -ne ""}
 		}
 		Else
 		{
@@ -141,10 +138,33 @@ Function RunTestWithInput
 		}
 		ForEach ($InputFile in ${InputFiles})
 		{
-			# TODO: add test option support
-			$Output = Invoke-Expression ${TestExecutable}
-			$Result = ${LastExitCode}
+			$TestedWithOptions = $False
 
+			ForEach ($OptionSet in ${OptionSets} -split " ")
+			{
+				$InputFileName = ${InputFile}.Name
+				$TestDataOptionFile = "${TestProfileDirectory}\${TestSetName}\${InputFileName}.${OptionSet}"
+
+				If (-Not (Test-Path -Path "${TestDataOptionFile}" -PathType "Leaf"))
+				{
+					Continue
+				}
+				$InputOptions = Get-content -Path "${TestDataOptionFile}" -First 1
+
+				$Output = Invoke-Expression "${TestExecutable} ${InputOptions} ${InputFile}"
+				$Result = $LastExitCode
+
+				If (${Result} -ne ${ExitSuccess})
+				{
+					Break
+				}
+				$TestedWithOptions = $True
+			}
+			If ((${Result} -eq ${ExitSuccess}) -And (-Not (${TestedWithOptions})))
+			{
+				$Output = Invoke-Expression "${TestExecutable} ${InputFile}"
+				$Result = ${LastExitCode}
+			}
 			If (${Result} -ne ${ExitSuccess})
 			{
 				Break
@@ -159,16 +179,18 @@ Function RunTestWithInput
 	{
 		Write-Host ${Output} -foreground Red
 	}
-	Write-Host "${TestDescription} " -nonewline
+	Write-Host "${TestDescription} (" -nonewline
 
 	If (${Result} -ne ${ExitSuccess})
 	{
-		Write-Host " (FAIL)"
+		Write-Host "FAIL" -foreground Red -nonewline
 	}
 	Else
 	{
-		Write-Host " (PASS)"
+		Write-Host "PASS" -foreground Green -nonewline
 	}
+	Write-Host ")"
+
 	Return ${Result}
 }
 
@@ -192,7 +214,7 @@ Foreach (${TestName} in ${LibraryTests} -split " ")
 	}
 	$Result = RunTest ${TestName}
 
-	If (${Result} -ne ${ExitSuccess})
+	If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
 	{
 		Break
 	}
@@ -213,7 +235,7 @@ Foreach (${TestName} in ${LibraryTestsWithInput} -split " ")
 	{
 		$Result = RunTest ${TestName}
 	}
-	If (${Result} -ne ${ExitSuccess})
+	If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
 	{
 		Break
 	}
