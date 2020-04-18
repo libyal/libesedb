@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb multi value
+ * Python object wrapper of libesedb_multi_value_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -189,7 +189,7 @@ PyTypeObject pyesedb_multi_value_type_object = {
  */
 PyObject *pyesedb_multi_value_new(
            libesedb_multi_value_t *multi_value,
-           PyObject *record_object )
+           PyObject *parent_object )
 {
 	pyesedb_multi_value_t *pyesedb_multi_value = NULL;
 	static char *function                      = "pyesedb_multi_value_new";
@@ -197,12 +197,14 @@ PyObject *pyesedb_multi_value_new(
 	if( multi_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid multi value.",
 		 function );
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_multi_value = PyObject_New(
 	                       struct pyesedb_multi_value,
 	                       &pyesedb_multi_value_type_object );
@@ -216,22 +218,14 @@ PyObject *pyesedb_multi_value_new(
 
 		goto on_error;
 	}
-	if( pyesedb_multi_value_init(
-	     pyesedb_multi_value ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize multi value.",
-		 function );
-
-		goto on_error;
-	}
 	pyesedb_multi_value->multi_value   = multi_value;
-	pyesedb_multi_value->record_object = record_object;
+	pyesedb_multi_value->parent_object = parent_object;
 
-	Py_IncRef(
-	 (PyObject *) pyesedb_multi_value->record_object );
-
+	if( pyesedb_multi_value->parent_object != NULL )
+	{
+		Py_IncRef(
+		 pyesedb_multi_value->parent_object );
+	}
 	return( (PyObject *) pyesedb_multi_value );
 
 on_error:
@@ -254,13 +248,22 @@ int pyesedb_multi_value_init(
 	if( pyesedb_multi_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid multi value.",
 		 function );
 
 		return( -1 );
 	}
-	return( 0 );
+	/* Make sure libesedb multi value is set to NULL
+	 */
+	pyesedb_multi_value->multi_value = NULL;
+
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of multi value not supported.",
+	 function );
+
+	return( -1 );
 }
 
 /* Frees a multi value object
@@ -268,24 +271,16 @@ int pyesedb_multi_value_init(
 void pyesedb_multi_value_free(
       pyesedb_multi_value_t *pyesedb_multi_value )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyesedb_multi_value_free";
+	int result                  = 0;
 
 	if( pyesedb_multi_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid multi value.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_multi_value->multi_value == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid multi value - missing libesedb multi value.",
 		 function );
 
 		return;
@@ -311,23 +306,32 @@ void pyesedb_multi_value_free(
 
 		return;
 	}
-	if( libesedb_multi_value_free(
-	     &( pyesedb_multi_value->multi_value ),
-	     &error ) != 1 )
+	if( pyesedb_multi_value->multi_value != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb multi value.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_multi_value_free(
+		          &( pyesedb_multi_value->multi_value ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb multi value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
-	if( pyesedb_multi_value->record_object != NULL )
+	if( pyesedb_multi_value->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_multi_value->record_object );
+		 pyesedb_multi_value->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_multi_value );

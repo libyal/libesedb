@@ -53,7 +53,6 @@ extern PyMethodDef pyesedb_index_object_methods[];
 extern PyTypeObject pyesedb_index_type_object;
 
 PyObject *pyesedb_index_new(
-           PyTypeObject *type_object,
            libesedb_index_t *index,
            PyObject *parent_object );
 

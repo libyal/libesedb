@@ -34,6 +34,10 @@
 #include "pyesedb_error.h"
 #include "pyesedb_file.h"
 #include "pyesedb_file_object_io_handle.h"
+#include "pyesedb_file_types.h"
+#include "pyesedb_index.h"
+#include "pyesedb_indexes.h"
+#include "pyesedb_libbfio.h"
 #include "pyesedb_libcerror.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_long_value.h"
@@ -47,11 +51,13 @@
 #include "pyesedb_value_flags.h"
 
 #if !defined( LIBESEDB_HAVE_BFIO )
+
 LIBESEDB_EXTERN \
 int libesedb_check_file_signature_file_io_handle(
      libbfio_handle_t *file_io_handle,
      libesedb_error_t **error );
-#endif
+
+#endif /* !defined( LIBESEDB_HAVE_BFIO ) */
 
 /* The pyesedb module methods
  */
@@ -68,34 +74,31 @@ PyMethodDef pyesedb_module_methods[] = {
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_file_signature(filename) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Personal Folder Format (ESEDB) signature." },
+	  "Checks if a file has a Extensible Storage Engine (ESE) Database File (EDB) signature." },
 
 	{ "check_file_signature_file_object",
 	  (PyCFunction) pyesedb_check_file_signature_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "check_file_signature_file_object(file_object) -> Boolean\n"
 	  "\n"
-	  "Checks if a file has a Personal Folder Format (ESEDB) signature using a file-like object." },
+	  "Checks if a file has a Extensible Storage Engine (ESE) Database File (EDB) signature using a file-like object." },
 
 	{ "open",
-	  (PyCFunction) pyesedb_file_new_open,
+	  (PyCFunction) pyesedb_open_new_file,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "open(filename, mode='r') -> Object\n"
 	  "\n"
 	  "Opens a file." },
 
 	{ "open_file_object",
-	  (PyCFunction) pyesedb_file_new_open_file_object,
+	  (PyCFunction) pyesedb_open_new_file_with_file_object,
 	  METH_VARARGS | METH_KEYWORDS,
 	  "open_file_object(file_object, mode='r') -> Object\n"
 	  "\n"
 	  "Opens a file using a file-like object." },
 
 	/* Sentinel */
-	{ NULL,
-	  NULL,
-	  0,
-	  NULL}
+	{ NULL, NULL, 0, NULL }
 };
 
 /* Retrieves the pyesedb/libesedb version
@@ -131,7 +134,7 @@ PyObject *pyesedb_get_version(
 	         errors ) );
 }
 
-/* Checks if the file has a Personal Folder File (ESEDB) signature
+/* Checks if a file has a Extensible Storage Engine (ESE) Database File (EDB) signature
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_check_file_signature(
@@ -162,7 +165,7 @@ PyObject *pyesedb_check_file_signature(
 	if( PyArg_ParseTupleAndKeywords(
 	     arguments,
 	     keywords,
-	     "|O",
+	     "O|",
 	     keyword_list,
 	     &string_object ) == 0 )
 	{
@@ -178,7 +181,7 @@ PyObject *pyesedb_check_file_signature(
 	{
 		pyesedb_error_fetch_and_raise(
 	         PyExc_RuntimeError,
-		 "%s: unable to determine if string object is of type unicode.",
+		 "%s: unable to determine if string object is of type Unicode.",
 		 function );
 
 		return( NULL );
@@ -205,7 +208,7 @@ PyObject *pyesedb_check_file_signature(
 		{
 			pyesedb_error_fetch_and_raise(
 			 PyExc_RuntimeError,
-			 "%s: unable to convert unicode string to UTF-8.",
+			 "%s: unable to convert Unicode string to UTF-8.",
 			 function );
 
 			return( NULL );
@@ -227,7 +230,9 @@ PyObject *pyesedb_check_file_signature(
 
 		Py_DecRef(
 		 utf8_string_object );
-#endif
+
+#endif /* defined( HAVE_WIDE_SYSTEM_CHARACTER ) */
+
 		if( result == -1 )
 		{
 			pyesedb_error_raise(
@@ -325,7 +330,7 @@ PyObject *pyesedb_check_file_signature(
 	return( NULL );
 }
 
-/* Checks if the file has a Personal Folder File (ESEDB) file signature using a file-like object
+/* Checks if a file has a Extensible Storage Engine (ESE) Database File (EDB) signature using a file-like object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_check_file_signature_file_object(
@@ -425,6 +430,52 @@ on_error:
 	return( NULL );
 }
 
+/* Creates a new file object and opens it
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_open_new_file(
+           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *pyesedb_file = NULL;
+
+	PYESEDB_UNREFERENCED_PARAMETER( self )
+
+	pyesedb_file_init(
+	 (pyesedb_file_t *) pyesedb_file );
+
+	pyesedb_file_open(
+	 (pyesedb_file_t *) pyesedb_file,
+	 arguments,
+	 keywords );
+
+	return( pyesedb_file );
+}
+
+/* Creates a new file object and opens it using a file-like object
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_open_new_file_with_file_object(
+           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	PyObject *pyesedb_file = NULL;
+
+	PYESEDB_UNREFERENCED_PARAMETER( self )
+
+	pyesedb_file_init(
+	 (pyesedb_file_t *) pyesedb_file );
+
+	pyesedb_file_open_file_object(
+	 (pyesedb_file_t *) pyesedb_file,
+	 arguments,
+	 keywords );
+
+	return( pyesedb_file );
+}
+
 #if PY_MAJOR_VERSION >= 3
 
 /* The pyesedb module definition
@@ -462,19 +513,8 @@ PyMODINIT_FUNC initpyesedb(
                 void )
 #endif
 {
-	PyObject *module                       = NULL;
-	PyTypeObject *column_type_object       = NULL;
-	PyTypeObject *column_types_type_object = NULL;
-	PyTypeObject *columns_type_object      = NULL;
-	PyTypeObject *file_type_object         = NULL;
-	PyTypeObject *long_value_type_object   = NULL;
-	PyTypeObject *multi_value_type_object  = NULL;
-	PyTypeObject *record_type_object       = NULL;
-	PyTypeObject *records_type_object      = NULL;
-	PyTypeObject *table_type_object        = NULL;
-	PyTypeObject *tables_type_object       = NULL;
-	PyTypeObject *value_flags_type_object  = NULL;
-	PyGILState_STATE gil_state             = 0;
+	PyObject *module           = NULL;
+	PyGILState_STATE gil_state = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	libesedb_notify_set_stream(
@@ -509,82 +549,6 @@ PyMODINIT_FUNC initpyesedb(
 
 	gil_state = PyGILState_Ensure();
 
-	/* Setup the file type object
-	 */
-	pyesedb_file_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_file_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_file_type_object );
-
-	file_type_object = &pyesedb_file_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "file",
-	 (PyObject *) file_type_object );
-
-	/* Setup the tables type object
-	 */
-	pyesedb_tables_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_tables_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_tables_type_object );
-
-	tables_type_object = &pyesedb_tables_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "_tables",
-	 (PyObject *) tables_type_object );
-
-	/* Setup the table type object
-	 */
-	pyesedb_table_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_table_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_table_type_object );
-
-	table_type_object = &pyesedb_table_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "table",
-	 (PyObject *) table_type_object );
-
-	/* Setup the columns type object
-	 */
-	pyesedb_columns_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_columns_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_columns_type_object );
-
-	columns_type_object = &pyesedb_columns_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "_columns",
-	 (PyObject *) columns_type_object );
-
 	/* Setup the column type object
 	 */
 	pyesedb_column_type_object.tp_new = PyType_GenericNew;
@@ -597,90 +561,12 @@ PyMODINIT_FUNC initpyesedb(
 	Py_IncRef(
 	 (PyObject *) &pyesedb_column_type_object );
 
-	column_type_object = &pyesedb_column_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "column",
-	 (PyObject *) column_type_object );
+	 (PyObject *) &pyesedb_column_type_object );
 
-	/* Setup the records type object
-	 */
-	pyesedb_records_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_records_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_records_type_object );
-
-	records_type_object = &pyesedb_records_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "_records",
-	 (PyObject *) records_type_object );
-
-	/* Setup the record type object
-	 */
-	pyesedb_record_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_record_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_record_type_object );
-
-	record_type_object = &pyesedb_record_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "record",
-	 (PyObject *) record_type_object );
-
-	/* Setup the long value type object
-	 */
-	pyesedb_long_value_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_long_value_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_long_value_type_object );
-
-	long_value_type_object = &pyesedb_long_value_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "long_value",
-	 (PyObject *) long_value_type_object );
-
-	/* Setup the multi value type object
-	 */
-	pyesedb_multi_value_type_object.tp_new = PyType_GenericNew;
-
-	if( PyType_Ready(
-	     &pyesedb_multi_value_type_object ) < 0 )
-	{
-		goto on_error;
-	}
-	Py_IncRef(
-	 (PyObject *) &pyesedb_multi_value_type_object );
-
-	multi_value_type_object = &pyesedb_multi_value_type_object;
-
-	PyModule_AddObject(
-	 module,
-	 "multi_value",
-	 (PyObject *) multi_value_type_object );
-
-	/* Setup the column types type object
+	/* Setup the column_types type object
 	 */
 	pyesedb_column_types_type_object.tp_new = PyType_GenericNew;
 
@@ -697,14 +583,204 @@ PyMODINIT_FUNC initpyesedb(
 	Py_IncRef(
 	 (PyObject *) &pyesedb_column_types_type_object );
 
-	column_types_type_object = &pyesedb_column_types_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "column_types",
-	 (PyObject *) column_types_type_object );
+	 (PyObject *) &pyesedb_column_types_type_object );
 
-	/* Setup the value flags type object
+	/* Setup the columns type object
+	 */
+	pyesedb_columns_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_columns_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_columns_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "columns",
+	 (PyObject *) &pyesedb_columns_type_object );
+
+	/* Setup the file type object
+	 */
+	pyesedb_file_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_file_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_file_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "file",
+	 (PyObject *) &pyesedb_file_type_object );
+
+	/* Setup the file_types type object
+	 */
+	pyesedb_file_types_type_object.tp_new = PyType_GenericNew;
+
+	if( pyesedb_file_types_init_type(
+	     &pyesedb_file_types_type_object ) != 1 )
+	{
+		goto on_error;
+	}
+	if( PyType_Ready(
+	     &pyesedb_file_types_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_file_types_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "file_types",
+	 (PyObject *) &pyesedb_file_types_type_object );
+
+	/* Setup the index type object
+	 */
+	pyesedb_index_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_index_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_index_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "index",
+	 (PyObject *) &pyesedb_index_type_object );
+
+	/* Setup the indexes type object
+	 */
+	pyesedb_indexes_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_indexes_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_indexes_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "indexes",
+	 (PyObject *) &pyesedb_indexes_type_object );
+
+	/* Setup the long_value type object
+	 */
+	pyesedb_long_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_long_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_long_value_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "long_value",
+	 (PyObject *) &pyesedb_long_value_type_object );
+
+	/* Setup the multi_value type object
+	 */
+	pyesedb_multi_value_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_multi_value_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_multi_value_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "multi_value",
+	 (PyObject *) &pyesedb_multi_value_type_object );
+
+	/* Setup the record type object
+	 */
+	pyesedb_record_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_record_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_record_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "record",
+	 (PyObject *) &pyesedb_record_type_object );
+
+	/* Setup the records type object
+	 */
+	pyesedb_records_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_records_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_records_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "records",
+	 (PyObject *) &pyesedb_records_type_object );
+
+	/* Setup the table type object
+	 */
+	pyesedb_table_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_table_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_table_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "table",
+	 (PyObject *) &pyesedb_table_type_object );
+
+	/* Setup the tables type object
+	 */
+	pyesedb_tables_type_object.tp_new = PyType_GenericNew;
+
+	if( PyType_Ready(
+	     &pyesedb_tables_type_object ) < 0 )
+	{
+		goto on_error;
+	}
+	Py_IncRef(
+	 (PyObject *) &pyesedb_tables_type_object );
+
+	PyModule_AddObject(
+	 module,
+	 "tables",
+	 (PyObject *) &pyesedb_tables_type_object );
+
+	/* Setup the value_flags type object
 	 */
 	pyesedb_value_flags_type_object.tp_new = PyType_GenericNew;
 
@@ -721,12 +797,10 @@ PyMODINIT_FUNC initpyesedb(
 	Py_IncRef(
 	 (PyObject *) &pyesedb_value_flags_type_object );
 
-	value_flags_type_object = &pyesedb_value_flags_type_object;
-
 	PyModule_AddObject(
 	 module,
 	 "value_flags",
-	 (PyObject *) value_flags_type_object );
+	 (PyObject *) &pyesedb_value_flags_type_object );
 
 	PyGILState_Release(
 	 gil_state );

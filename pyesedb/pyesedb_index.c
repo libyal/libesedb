@@ -40,28 +40,28 @@ PyMethodDef pyesedb_index_object_methods[] = {
 	{ "get_identifier",
 	  (PyCFunction) pyesedb_index_get_identifier,
 	  METH_NOARGS,
-	  "get_identifier() -> Integer or None\n"
+	  "get_identifier() -> Integer\n"
 	  "\n"
 	  "Retrieves the identifier." },
 
 	{ "get_name",
 	  (PyCFunction) pyesedb_index_get_name,
 	  METH_NOARGS,
-	  "get_name() -> Unicode string or None\n"
+	  "get_name() -> Unicode string\n"
 	  "\n"
 	  "Retrieves the name." },
 
 	{ "get_number_of_records",
 	  (PyCFunction) pyesedb_index_get_number_of_records,
 	  METH_NOARGS,
-	  "get_number_of_records() -> Integer or None\n"
+	  "get_number_of_records() -> Integer\n"
 	  "\n"
 	  "Retrieves the number of records." },
 
 	{ "get_record",
 	  (PyCFunction) pyesedb_index_get_record,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_record(record_entry) -> Object or None\n"
+	  "get_record(record_entry) -> Object\n"
 	  "\n"
 	  "Retrieves the record specified by the entry." },
 
@@ -198,7 +198,6 @@ PyTypeObject pyesedb_index_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_index_new(
-           PyTypeObject *type_object,
            libesedb_index_t *index,
            PyObject *parent_object )
 {
@@ -214,21 +213,13 @@ PyObject *pyesedb_index_new(
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_index = PyObject_New(
 	                 struct pyesedb_index,
-	                 type_object );
+	                 &pyesedb_index_type_object );
 
 	if( pyesedb_index == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize index.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyesedb_index_init(
-	     pyesedb_index ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
@@ -240,9 +231,11 @@ PyObject *pyesedb_index_new(
 	pyesedb_index->index         = index;
 	pyesedb_index->parent_object = parent_object;
 
-	Py_IncRef(
-	 (PyObject *) pyesedb_index->parent_object );
-
+	if( pyesedb_index->parent_object != NULL )
+	{
+		Py_IncRef(
+		 pyesedb_index->parent_object );
+	}
 	return( (PyObject *) pyesedb_index );
 
 on_error:
@@ -275,7 +268,12 @@ int pyesedb_index_init(
 	 */
 	pyesedb_index->index = NULL;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of index not supported.",
+	 function );
+
+	return( -1 );
 }
 
 /* Frees an index object
@@ -293,15 +291,6 @@ void pyesedb_index_free(
 		PyErr_Format(
 		 PyExc_ValueError,
 		 "%s: invalid index.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_index->index == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid index - missing libesedb index.",
 		 function );
 
 		return;
@@ -327,29 +316,32 @@ void pyesedb_index_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_index_free(
-	          &( pyesedb_index->index ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pyesedb_index->index != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb index.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_index_free(
+		          &( pyesedb_index->index ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb index.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	if( pyesedb_index->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_index->parent_object );
+		 pyesedb_index->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_index );
@@ -388,7 +380,7 @@ PyObject *pyesedb_index_get_identifier(
 
 	Py_END_ALLOW_THREADS
 
-	if( result == -1 )
+	if( result != 1 )
 	{
 		pyesedb_error_raise(
 		 error,
@@ -400,13 +392,6 @@ PyObject *pyesedb_index_get_identifier(
 		 &error );
 
 		return( NULL );
-	}
-	else if( result == 0 )
-	{
-		Py_IncRef(
-		 Py_None );
-
-		return( Py_None );
 	}
 	integer_object = PyLong_FromUnsignedLong(
 	                  (unsigned long) value_32bit );
@@ -506,7 +491,7 @@ PyObject *pyesedb_index_get_name(
 		goto on_error;
 	}
 	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
-	 * the end of string character is part of the string
+	 * the end of string character is part of the string.
 	 */
 	string_object = PyUnicode_DecodeUTF8(
 	                 utf8_string,
@@ -640,7 +625,7 @@ PyObject *pyesedb_index_get_record_by_index(
 	}
 	record_object = pyesedb_record_new(
 	                 record,
-	                 (PyObject *) pyesedb_index );
+	                 pyesedb_index );
 
 	if( record_object == NULL )
 	{

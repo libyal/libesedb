@@ -59,7 +59,7 @@ PyTypeObject pyesedb_indexes_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pyesedb._indexes",
+	"pyesedb.indexes",
 	/* tp_basicsize */
 	sizeof( pyesedb_indexes_t ),
 	/* tp_itemsize */
@@ -97,7 +97,7 @@ PyTypeObject pyesedb_indexes_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"pyesedb internal sequence and iterator object of indexes",
+	"pyesedb sequence and iterator object of indexes",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -150,7 +150,7 @@ PyTypeObject pyesedb_indexes_type_object = {
 	0
 };
 
-/* Creates a new indexes object
+/* Creates a new indexes sequence and iterator object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_indexes_new(
@@ -160,8 +160,8 @@ PyObject *pyesedb_indexes_new(
                         int index ),
            int number_of_items )
 {
-	pyesedb_indexes_t *indexes_object = NULL;
-	static char *function             = "pyesedb_indexes_new";
+	pyesedb_indexes_t *sequence_object = NULL;
+	static char *function              = "pyesedb_indexes_new";
 
 	if( parent_object == NULL )
 	{
@@ -183,93 +183,89 @@ PyObject *pyesedb_indexes_new(
 	}
 	/* Make sure the indexes values are initialized
 	 */
-	indexes_object = PyObject_New(
-	                  struct pyesedb_indexes,
-	                  &pyesedb_indexes_type_object );
+	sequence_object = PyObject_New(
+	                   struct pyesedb_indexes,
+	                   &pyesedb_indexes_type_object );
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create indexes object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		goto on_error;
 	}
-	if( pyesedb_indexes_init(
-	     indexes_object ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize indexes object.",
-		 function );
-
-		goto on_error;
-	}
-	indexes_object->parent_object     = parent_object;
-	indexes_object->get_item_by_index = get_item_by_index;
-	indexes_object->number_of_items   = number_of_items;
+	sequence_object->parent_object     = parent_object;
+	sequence_object->get_item_by_index = get_item_by_index;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) indexes_object->parent_object );
+	 (PyObject *) sequence_object->parent_object );
 
-	return( (PyObject *) indexes_object );
+	return( (PyObject *) sequence_object );
 
 on_error:
-	if( indexes_object != NULL )
+	if( sequence_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) indexes_object );
+		 (PyObject *) sequence_object );
 	}
 	return( NULL );
 }
 
-/* Intializes an indexes object
+/* Intializes an indexes sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_indexes_init(
-     pyesedb_indexes_t *indexes_object )
+     pyesedb_indexes_t *sequence_object )
 {
 	static char *function = "pyesedb_indexes_init";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the indexes values are initialized
 	 */
-	indexes_object->parent_object     = NULL;
-	indexes_object->get_item_by_index = NULL;
-	indexes_object->current_index     = 0;
-	indexes_object->number_of_items   = 0;
+	sequence_object->parent_object     = NULL;
+	sequence_object->get_item_by_index = NULL;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = 0;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of indexes not supported.",
+	 function );
+
+	return( -1 );
 }
 
-/* Frees an indexes object
+/* Frees an indexes sequence object
  */
 void pyesedb_indexes_free(
-      pyesedb_indexes_t *indexes_object )
+      pyesedb_indexes_t *sequence_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_indexes_free";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           indexes_object );
+	           sequence_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +285,72 @@ void pyesedb_indexes_free(
 
 		return;
 	}
-	if( indexes_object->parent_object != NULL )
+	if( sequence_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) indexes_object->parent_object );
+		 (PyObject *) sequence_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) indexes_object );
+	 (PyObject*) sequence_object );
 }
 
 /* The indexes len() function
  */
 Py_ssize_t pyesedb_indexes_len(
-            pyesedb_indexes_t *indexes_object )
+            pyesedb_indexes_t *sequence_object )
 {
 	static char *function = "pyesedb_indexes_len";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) indexes_object->number_of_items );
+	return( (Py_ssize_t) sequence_object->number_of_items );
 }
 
 /* The indexes getitem() function
  */
 PyObject *pyesedb_indexes_getitem(
-           pyesedb_indexes_t *indexes_object,
+           pyesedb_indexes_t *sequence_object,
            Py_ssize_t item_index )
 {
 	PyObject *index_object = NULL;
 	static char *function  = "pyesedb_indexes_getitem";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) indexes_object->number_of_items ) )
+	 || ( item_index >= (Py_ssize_t) sequence_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +359,8 @@ PyObject *pyesedb_indexes_getitem(
 
 		return( NULL );
 	}
-	index_object = indexes_object->get_item_by_index(
-	                indexes_object->parent_object,
+	index_object = sequence_object->get_item_by_index(
+	                sequence_object->parent_object,
 	                (int) item_index );
 
 	return( index_object );
@@ -373,83 +369,83 @@ PyObject *pyesedb_indexes_getitem(
 /* The indexes iter() function
  */
 PyObject *pyesedb_indexes_iter(
-           pyesedb_indexes_t *indexes_object )
+           pyesedb_indexes_t *sequence_object )
 {
 	static char *function = "pyesedb_indexes_iter";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) indexes_object );
+	 (PyObject *) sequence_object );
 
-	return( (PyObject *) indexes_object );
+	return( (PyObject *) sequence_object );
 }
 
 /* The indexes iternext() function
  */
 PyObject *pyesedb_indexes_iternext(
-           pyesedb_indexes_t *indexes_object )
+           pyesedb_indexes_t *sequence_object )
 {
 	PyObject *index_object = NULL;
 	static char *function  = "pyesedb_indexes_iternext";
 
-	if( indexes_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->current_index < 0 )
+	if( sequence_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object - invalid current index.",
+		 "%s: invalid sequence object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid indexes object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( indexes_object->current_index >= indexes_object->number_of_items )
+	if( sequence_object->current_index >= sequence_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	index_object = indexes_object->get_item_by_index(
-	                indexes_object->parent_object,
-	                indexes_object->current_index );
+	index_object = sequence_object->get_item_by_index(
+	                sequence_object->parent_object,
+	                sequence_object->current_index );
 
 	if( index_object != NULL )
 	{
-		indexes_object->current_index++;
+		sequence_object->current_index++;
 	}
 	return( index_object );
 }

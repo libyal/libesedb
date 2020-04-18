@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb record
+ * Python object wrapper of libesedb_record_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *

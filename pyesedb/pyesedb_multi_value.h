@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb multi value
+ * Python object wrapper of libesedb_multi_value_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -44,16 +44,17 @@ struct pyesedb_multi_value
 	 */
 	libesedb_multi_value_t *multi_value;
 
-	/* The record object
+	/* The parent object
 	 */
-	PyObject *record_object;
+	PyObject *parent_object;
 };
 
+extern PyMethodDef pyesedb_multi_value_object_methods[];
 extern PyTypeObject pyesedb_multi_value_type_object;
 
 PyObject *pyesedb_multi_value_new(
            libesedb_multi_value_t *multi_value,
-           PyObject *record_object );
+           PyObject *parent_object );
 
 int pyesedb_multi_value_init(
      pyesedb_multi_value_t *pyesedb_multi_value );

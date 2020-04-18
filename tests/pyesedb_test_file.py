@@ -39,7 +39,7 @@ class FileTypeTests(unittest.TestCase):
   def test_open(self):
     """Tests the open function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     esedb_file = pyesedb.file()
 
@@ -59,30 +59,33 @@ class FileTypeTests(unittest.TestCase):
   def test_open_file_object(self):
     """Tests the open_file_object function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
-    file_object = open(unittest.source, "rb")
+    if not os.path.isfile(unittest.source):
+      raise unittest.SkipTest("source not a regular file")
 
     esedb_file = pyesedb.file()
 
-    esedb_file.open_file_object(file_object)
+    with open(unittest.source, "rb") as file_object:
 
-    with self.assertRaises(IOError):
       esedb_file.open_file_object(file_object)
 
-    esedb_file.close()
+      with self.assertRaises(IOError):
+        esedb_file.open_file_object(file_object)
 
-    # TODO: change IOError into TypeError
-    with self.assertRaises(IOError):
-      esedb_file.open_file_object(None)
+      esedb_file.close()
 
-    with self.assertRaises(ValueError):
-      esedb_file.open_file_object(file_object, mode="w")
+      # TODO: change IOError into TypeError
+      with self.assertRaises(IOError):
+        esedb_file.open_file_object(None)
+
+      with self.assertRaises(ValueError):
+        esedb_file.open_file_object(file_object, mode="w")
 
   def test_close(self):
     """Tests the close function."""
     if not unittest.source:
-      return
+      raise unittest.SkipTest("missing source")
 
     esedb_file = pyesedb.file()
 
@@ -104,19 +107,68 @@ class FileTypeTests(unittest.TestCase):
     esedb_file.open(unittest.source)
     esedb_file.close()
 
-    file_object = open(unittest.source, "rb")
+    if os.path.isfile(unittest.source):
+      with open(unittest.source, "rb") as file_object:
 
-    # Test open_file_object and close.
-    esedb_file.open_file_object(file_object)
+        # Test open_file_object and close.
+        esedb_file.open_file_object(file_object)
+        esedb_file.close()
+
+        # Test open_file_object and close a second time to validate clean up on close.
+        esedb_file.open_file_object(file_object)
+        esedb_file.close()
+
+        # Test open_file_object and close and dereferencing file_object.
+        esedb_file.open_file_object(file_object)
+        del file_object
+        esedb_file.close()
+
+  def test_get_type(self):
+    """Tests the get_type function and type property."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    esedb_file = pyesedb.file()
+
+    esedb_file.open(unittest.source)
+
+    type = esedb_file.get_type()
+    self.assertIsNotNone(type)
+
+    self.assertIsNotNone(esedb_file.type)
+
     esedb_file.close()
 
-    # Test open_file_object and close a second time to validate clean up on close.
-    esedb_file.open_file_object(file_object)
+  def test_get_page_size(self):
+    """Tests the get_page_size function and page_size property."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    esedb_file = pyesedb.file()
+
+    esedb_file.open(unittest.source)
+
+    page_size = esedb_file.get_page_size()
+    self.assertIsNotNone(page_size)
+
+    self.assertIsNotNone(esedb_file.page_size)
+
     esedb_file.close()
 
-    # Test open_file_object and close and dereferencing file_object.
-    esedb_file.open_file_object(file_object)
-    del file_object
+  def test_get_number_of_tables(self):
+    """Tests the get_number_of_tables function and number_of_tables property."""
+    if not unittest.source:
+      raise unittest.SkipTest("missing source")
+
+    esedb_file = pyesedb.file()
+
+    esedb_file.open(unittest.source)
+
+    number_of_tables = esedb_file.get_number_of_tables()
+    self.assertIsNotNone(number_of_tables)
+
+    self.assertIsNotNone(esedb_file.number_of_tables)
+
     esedb_file.close()
 
 

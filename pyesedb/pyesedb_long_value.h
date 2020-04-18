@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb long value
+ * Python object wrapper of libesedb_long_value_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,7 +27,6 @@
 
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
-#include "pyesedb_record.h"
 
 #if defined( __cplusplus )
 extern "C" {
@@ -41,13 +40,13 @@ struct pyesedb_long_value
 	 */
 	PyObject_HEAD
 
-	/* The libesedb long_value
+	/* The libesedb long value
 	 */
 	libesedb_long_value_t *long_value;
 
-	/* The record object
+	/* The parent object
 	 */
-	pyesedb_record_t *record_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pyesedb_long_value_object_methods[];
@@ -55,7 +54,7 @@ extern PyTypeObject pyesedb_long_value_type_object;
 
 PyObject *pyesedb_long_value_new(
            libesedb_long_value_t *long_value,
-           pyesedb_record_t *record_object );
+           PyObject *parent_object );
 
 int pyesedb_long_value_init(
      pyesedb_long_value_t *pyesedb_long_value );

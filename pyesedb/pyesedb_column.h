@@ -53,7 +53,6 @@ extern PyMethodDef pyesedb_column_object_methods[];
 extern PyTypeObject pyesedb_column_type_object;
 
 PyObject *pyesedb_column_new(
-           PyTypeObject *type_object,
            libesedb_column_t *column,
            PyObject *parent_object );
 

@@ -69,23 +69,23 @@ PyObject *pyesedb_tables_new(
            int number_of_items );
 
 int pyesedb_tables_init(
-     pyesedb_tables_t *tables_object );
+     pyesedb_tables_t *sequence_object );
 
 void pyesedb_tables_free(
-      pyesedb_tables_t *tables_object );
+      pyesedb_tables_t *sequence_object );
 
 Py_ssize_t pyesedb_tables_len(
-            pyesedb_tables_t *tables_object );
+            pyesedb_tables_t *sequence_object );
 
 PyObject *pyesedb_tables_getitem(
-           pyesedb_tables_t *tables_object,
+           pyesedb_tables_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_tables_iter(
-           pyesedb_tables_t *tables_object );
+           pyesedb_tables_t *sequence_object );
 
 PyObject *pyesedb_tables_iternext(
-           pyesedb_tables_t *tables_object );
+           pyesedb_tables_t *sequence_object );
 
 #if defined( __cplusplus )
 }

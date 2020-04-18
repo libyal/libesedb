@@ -69,23 +69,23 @@ PyObject *pyesedb_columns_new(
            int number_of_items );
 
 int pyesedb_columns_init(
-     pyesedb_columns_t *columns_object );
+     pyesedb_columns_t *sequence_object );
 
 void pyesedb_columns_free(
-      pyesedb_columns_t *columns_object );
+      pyesedb_columns_t *sequence_object );
 
 Py_ssize_t pyesedb_columns_len(
-            pyesedb_columns_t *columns_object );
+            pyesedb_columns_t *sequence_object );
 
 PyObject *pyesedb_columns_getitem(
-           pyesedb_columns_t *columns_object,
+           pyesedb_columns_t *sequence_object,
            Py_ssize_t item_index );
 
 PyObject *pyesedb_columns_iter(
-           pyesedb_columns_t *columns_object );
+           pyesedb_columns_t *sequence_object );
 
 PyObject *pyesedb_columns_iternext(
-           pyesedb_columns_t *columns_object );
+           pyesedb_columns_t *sequence_object );
 
 #if defined( __cplusplus )
 }

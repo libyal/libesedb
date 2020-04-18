@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb long value
+ * Python object wrapper of libesedb_long_value_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -163,12 +163,12 @@ PyTypeObject pyesedb_long_value_type_object = {
 	0
 };
 
-/* Creates a new long_value object
+/* Creates a new long value object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_long_value_new(
            libesedb_long_value_t *long_value,
-           pyesedb_record_t *record_object )
+           PyObject *parent_object )
 {
 	pyesedb_long_value_t *pyesedb_long_value = NULL;
 	static char *function                    = "pyesedb_long_value_new";
@@ -176,12 +176,14 @@ PyObject *pyesedb_long_value_new(
 	if( long_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid long value.",
 		 function );
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_long_value = PyObject_New(
 	                      struct pyesedb_long_value,
 	                      &pyesedb_long_value_type_object );
@@ -195,22 +197,14 @@ PyObject *pyesedb_long_value_new(
 
 		goto on_error;
 	}
-	if( pyesedb_long_value_init(
-	     pyesedb_long_value ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize long value.",
-		 function );
-
-		goto on_error;
-	}
 	pyesedb_long_value->long_value    = long_value;
-	pyesedb_long_value->record_object = record_object;
+	pyesedb_long_value->parent_object = parent_object;
 
-	Py_IncRef(
-	 (PyObject *) pyesedb_long_value->record_object );
-
+	if( pyesedb_long_value->parent_object != NULL )
+	{
+		Py_IncRef(
+		 pyesedb_long_value->parent_object );
+	}
 	return( (PyObject *) pyesedb_long_value );
 
 on_error:
@@ -233,17 +227,22 @@ int pyesedb_long_value_init(
 	if( pyesedb_long_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid long value.",
 		 function );
 
 		return( -1 );
 	}
-	/* Make sure libesedb long_value is set to NULL
+	/* Make sure libesedb long value is set to NULL
 	 */
 	pyesedb_long_value->long_value = NULL;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of long value not supported.",
+	 function );
+
+	return( -1 );
 }
 
 /* Frees a long value object
@@ -251,24 +250,16 @@ int pyesedb_long_value_init(
 void pyesedb_long_value_free(
       pyesedb_long_value_t *pyesedb_long_value )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyesedb_long_value_free";
+	int result                  = 0;
 
 	if( pyesedb_long_value == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid long value.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_long_value->long_value == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid long value - missing libesedb long value.",
 		 function );
 
 		return;
@@ -294,23 +285,32 @@ void pyesedb_long_value_free(
 
 		return;
 	}
-	if( libesedb_long_value_free(
-	     &( pyesedb_long_value->long_value ),
-	     &error ) != 1 )
+	if( pyesedb_long_value->long_value != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb long value.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_long_value_free(
+		          &( pyesedb_long_value->long_value ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb long value.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
-	if( pyesedb_long_value->record_object != NULL )
+	if( pyesedb_long_value->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_long_value->record_object );
+		 pyesedb_long_value->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_long_value );

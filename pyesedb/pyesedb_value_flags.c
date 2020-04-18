@@ -26,10 +26,10 @@
 #include <stdlib.h>
 #endif
 
-#include "pyesedb_value_flags.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 #include "pyesedb_unused.h"
+#include "pyesedb_value_flags.h"
 
 PyTypeObject pyesedb_value_flags_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )

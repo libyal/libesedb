@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb table
+ * Python object wrapper of libesedb_table_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -25,7 +25,6 @@
 #include <common.h>
 #include <types.h>
 
-#include "pyesedb_file.h"
 #include "pyesedb_libesedb.h"
 #include "pyesedb_python.h"
 
@@ -45,9 +44,9 @@ struct pyesedb_table
 	 */
 	libesedb_table_t *table;
 
-	/* The file object
+	/* The parent object
 	 */
-	PyObject *file_object;
+	PyObject *parent_object;
 };
 
 extern PyMethodDef pyesedb_table_object_methods[];
@@ -55,7 +54,7 @@ extern PyTypeObject pyesedb_table_type_object;
 
 PyObject *pyesedb_table_new(
            libesedb_table_t *table,
-           PyObject *file_object );
+           PyObject *parent_object );
 
 int pyesedb_table_init(
      pyesedb_table_t *pyesedb_table );

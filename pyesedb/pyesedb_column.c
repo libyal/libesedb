@@ -38,21 +38,21 @@ PyMethodDef pyesedb_column_object_methods[] = {
 	{ "get_identifier",
 	  (PyCFunction) pyesedb_column_get_identifier,
 	  METH_NOARGS,
-	  "get_identifier() -> Integer or None\n"
+	  "get_identifier() -> Integer\n"
 	  "\n"
 	  "Retrieves the identifier." },
 
 	{ "get_type",
 	  (PyCFunction) pyesedb_column_get_type,
 	  METH_NOARGS,
-	  "get_type() -> Integer or None\n"
+	  "get_type() -> Integer\n"
 	  "\n"
 	  "Retrieves the type." },
 
 	{ "get_name",
 	  (PyCFunction) pyesedb_column_get_name,
 	  METH_NOARGS,
-	  "get_name() -> Unicode string or None\n"
+	  "get_name() -> Unicode string\n"
 	  "\n"
 	  "Retrieves the name." },
 
@@ -183,7 +183,6 @@ PyTypeObject pyesedb_column_type_object = {
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_column_new(
-           PyTypeObject *type_object,
            libesedb_column_t *column,
            PyObject *parent_object )
 {
@@ -199,21 +198,13 @@ PyObject *pyesedb_column_new(
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_column = PyObject_New(
 	                  struct pyesedb_column,
-	                  type_object );
+	                  &pyesedb_column_type_object );
 
 	if( pyesedb_column == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize column.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyesedb_column_init(
-	     pyesedb_column ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
@@ -225,9 +216,11 @@ PyObject *pyesedb_column_new(
 	pyesedb_column->column        = column;
 	pyesedb_column->parent_object = parent_object;
 
-	Py_IncRef(
-	 (PyObject *) pyesedb_column->parent_object );
-
+	if( pyesedb_column->parent_object != NULL )
+	{
+		Py_IncRef(
+		 pyesedb_column->parent_object );
+	}
 	return( (PyObject *) pyesedb_column );
 
 on_error:
@@ -260,7 +253,12 @@ int pyesedb_column_init(
 	 */
 	pyesedb_column->column = NULL;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of column not supported.",
+	 function );
+
+	return( -1 );
 }
 
 /* Frees a column object
@@ -278,15 +276,6 @@ void pyesedb_column_free(
 		PyErr_Format(
 		 PyExc_ValueError,
 		 "%s: invalid column.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_column->column == NULL )
-	{
-		PyErr_Format(
-		 PyExc_ValueError,
-		 "%s: invalid column - missing libesedb column.",
 		 function );
 
 		return;
@@ -312,29 +301,32 @@ void pyesedb_column_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_column_free(
-	          &( pyesedb_column->column ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pyesedb_column->column != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb column.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_column_free(
+		          &( pyesedb_column->column ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb column.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	if( pyesedb_column->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_column->parent_object );
+		 pyesedb_column->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_column );
@@ -373,7 +365,7 @@ PyObject *pyesedb_column_get_identifier(
 
 	Py_END_ALLOW_THREADS
 
-	if( result == -1 )
+	if( result != 1 )
 	{
 		pyesedb_error_raise(
 		 error,
@@ -385,13 +377,6 @@ PyObject *pyesedb_column_get_identifier(
 		 &error );
 
 		return( NULL );
-	}
-	else if( result == 0 )
-	{
-		Py_IncRef(
-		 Py_None );
-
-		return( Py_None );
 	}
 	integer_object = PyLong_FromUnsignedLong(
 	                  (unsigned long) value_32bit );
@@ -432,7 +417,7 @@ PyObject *pyesedb_column_get_type(
 
 	Py_END_ALLOW_THREADS
 
-	if( result == -1 )
+	if( result != 1 )
 	{
 		pyesedb_error_raise(
 		 error,
@@ -444,13 +429,6 @@ PyObject *pyesedb_column_get_type(
 		 &error );
 
 		return( NULL );
-	}
-	else if( result == 0 )
-	{
-		Py_IncRef(
-		 Py_None );
-
-		return( Py_None );
 	}
 	integer_object = PyLong_FromUnsignedLong(
 	                  (unsigned long) value_32bit );
@@ -550,7 +528,7 @@ PyObject *pyesedb_column_get_name(
 		goto on_error;
 	}
 	/* Pass the string length to PyUnicode_DecodeUTF8 otherwise it makes
-	 * the end of string character is part of the string
+	 * the end of string character is part of the string.
 	 */
 	string_object = PyUnicode_DecodeUTF8(
 	                 utf8_string,

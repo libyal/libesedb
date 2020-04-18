@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb table
+ * Python object wrapper of libesedb_table_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -248,7 +248,7 @@ PyTypeObject pyesedb_table_type_object = {
  */
 PyObject *pyesedb_table_new(
            libesedb_table_t *table,
-           PyObject *file_object )
+           PyObject *parent_object )
 {
 	pyesedb_table_t *pyesedb_table = NULL;
 	static char *function          = "pyesedb_table_new";
@@ -256,12 +256,14 @@ PyObject *pyesedb_table_new(
 	if( table == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid table.",
 		 function );
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_table = PyObject_New(
 	                 struct pyesedb_table,
 	                 &pyesedb_table_type_object );
@@ -275,22 +277,14 @@ PyObject *pyesedb_table_new(
 
 		goto on_error;
 	}
-	if( pyesedb_table_init(
-	     pyesedb_table ) != 0 )
+	pyesedb_table->table         = table;
+	pyesedb_table->parent_object = parent_object;
+
+	if( pyesedb_table->parent_object != NULL )
 	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize table.",
-		 function );
-
-		goto on_error;
+		Py_IncRef(
+		 pyesedb_table->parent_object );
 	}
-	pyesedb_table->table      = table;
-	pyesedb_table->file_object = file_object;
-
-	Py_IncRef(
-	 (PyObject *) pyesedb_table->file_object );
-
 	return( (PyObject *) pyesedb_table );
 
 on_error:
@@ -302,7 +296,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes an table object
+/* Intializes a table object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_table_init(
@@ -313,7 +307,7 @@ int pyesedb_table_init(
 	if( pyesedb_table == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid table.",
 		 function );
 
@@ -323,32 +317,29 @@ int pyesedb_table_init(
 	 */
 	pyesedb_table->table = NULL;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of table not supported.",
+	 function );
+
+	return( -1 );
 }
 
-/* Frees an table object
+/* Frees a table object
  */
 void pyesedb_table_free(
       pyesedb_table_t *pyesedb_table )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyesedb_table_free";
+	int result                  = 0;
 
 	if( pyesedb_table == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid table.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_table->table == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid table - missing libesedb table.",
 		 function );
 
 		return;
@@ -374,23 +365,32 @@ void pyesedb_table_free(
 
 		return;
 	}
-	if( libesedb_table_free(
-	     &( pyesedb_table->table ),
-	     &error ) != 1 )
+	if( pyesedb_table->table != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb table.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_table_free(
+		          &( pyesedb_table->table ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb table.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
-	if( pyesedb_table->file_object != NULL )
+	if( pyesedb_table->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_table->file_object );
+		 pyesedb_table->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_table );
@@ -781,7 +781,6 @@ PyObject *pyesedb_table_get_column_by_index(
 		goto on_error;
 	}
 	column_object = pyesedb_column_new(
-	                 &pyesedb_column_type_object,
 	                 column,
 	                 pyesedb_table );
 

@@ -59,7 +59,7 @@ PyTypeObject pyesedb_tables_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pyesedb._tables",
+	"pyesedb.tables",
 	/* tp_basicsize */
 	sizeof( pyesedb_tables_t ),
 	/* tp_itemsize */
@@ -97,7 +97,7 @@ PyTypeObject pyesedb_tables_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"pyesedb internal sequence and iterator object of tables",
+	"pyesedb sequence and iterator object of tables",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -150,7 +150,7 @@ PyTypeObject pyesedb_tables_type_object = {
 	0
 };
 
-/* Creates a new tables object
+/* Creates a new tables sequence and iterator object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_tables_new(
@@ -160,8 +160,8 @@ PyObject *pyesedb_tables_new(
                         int index ),
            int number_of_items )
 {
-	pyesedb_tables_t *tables_object = NULL;
-	static char *function           = "pyesedb_tables_new";
+	pyesedb_tables_t *sequence_object = NULL;
+	static char *function             = "pyesedb_tables_new";
 
 	if( parent_object == NULL )
 	{
@@ -183,93 +183,89 @@ PyObject *pyesedb_tables_new(
 	}
 	/* Make sure the tables values are initialized
 	 */
-	tables_object = PyObject_New(
-	                 struct pyesedb_tables,
-	                 &pyesedb_tables_type_object );
+	sequence_object = PyObject_New(
+	                   struct pyesedb_tables,
+	                   &pyesedb_tables_type_object );
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create tables object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		goto on_error;
 	}
-	if( pyesedb_tables_init(
-	     tables_object ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize tables object.",
-		 function );
-
-		goto on_error;
-	}
-	tables_object->parent_object     = parent_object;
-	tables_object->get_item_by_index = get_item_by_index;
-	tables_object->number_of_items   = number_of_items;
+	sequence_object->parent_object     = parent_object;
+	sequence_object->get_item_by_index = get_item_by_index;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) tables_object->parent_object );
+	 (PyObject *) sequence_object->parent_object );
 
-	return( (PyObject *) tables_object );
+	return( (PyObject *) sequence_object );
 
 on_error:
-	if( tables_object != NULL )
+	if( sequence_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) tables_object );
+		 (PyObject *) sequence_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a tables object
+/* Intializes a tables sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_tables_init(
-     pyesedb_tables_t *tables_object )
+     pyesedb_tables_t *sequence_object )
 {
 	static char *function = "pyesedb_tables_init";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the tables values are initialized
 	 */
-	tables_object->parent_object     = NULL;
-	tables_object->get_item_by_index = NULL;
-	tables_object->current_index     = 0;
-	tables_object->number_of_items   = 0;
+	sequence_object->parent_object     = NULL;
+	sequence_object->get_item_by_index = NULL;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = 0;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of tables not supported.",
+	 function );
+
+	return( -1 );
 }
 
-/* Frees a tables object
+/* Frees a tables sequence object
  */
 void pyesedb_tables_free(
-      pyesedb_tables_t *tables_object )
+      pyesedb_tables_t *sequence_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_tables_free";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           tables_object );
+	           sequence_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +285,72 @@ void pyesedb_tables_free(
 
 		return;
 	}
-	if( tables_object->parent_object != NULL )
+	if( sequence_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) tables_object->parent_object );
+		 (PyObject *) sequence_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) tables_object );
+	 (PyObject*) sequence_object );
 }
 
 /* The tables len() function
  */
 Py_ssize_t pyesedb_tables_len(
-            pyesedb_tables_t *tables_object )
+            pyesedb_tables_t *sequence_object )
 {
 	static char *function = "pyesedb_tables_len";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) tables_object->number_of_items );
+	return( (Py_ssize_t) sequence_object->number_of_items );
 }
 
 /* The tables getitem() function
  */
 PyObject *pyesedb_tables_getitem(
-           pyesedb_tables_t *tables_object,
+           pyesedb_tables_t *sequence_object,
            Py_ssize_t item_index )
 {
 	PyObject *table_object = NULL;
 	static char *function  = "pyesedb_tables_getitem";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) tables_object->number_of_items ) )
+	 || ( item_index >= (Py_ssize_t) sequence_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +359,8 @@ PyObject *pyesedb_tables_getitem(
 
 		return( NULL );
 	}
-	table_object = tables_object->get_item_by_index(
-	                tables_object->parent_object,
+	table_object = sequence_object->get_item_by_index(
+	                sequence_object->parent_object,
 	                (int) item_index );
 
 	return( table_object );
@@ -373,83 +369,83 @@ PyObject *pyesedb_tables_getitem(
 /* The tables iter() function
  */
 PyObject *pyesedb_tables_iter(
-           pyesedb_tables_t *tables_object )
+           pyesedb_tables_t *sequence_object )
 {
 	static char *function = "pyesedb_tables_iter";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) tables_object );
+	 (PyObject *) sequence_object );
 
-	return( (PyObject *) tables_object );
+	return( (PyObject *) sequence_object );
 }
 
 /* The tables iternext() function
  */
 PyObject *pyesedb_tables_iternext(
-           pyesedb_tables_t *tables_object )
+           pyesedb_tables_t *sequence_object )
 {
 	PyObject *table_object = NULL;
 	static char *function  = "pyesedb_tables_iternext";
 
-	if( tables_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->current_index < 0 )
+	if( sequence_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object - invalid current index.",
+		 "%s: invalid sequence object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid tables object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( tables_object->current_index >= tables_object->number_of_items )
+	if( sequence_object->current_index >= sequence_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	table_object = tables_object->get_item_by_index(
-	                tables_object->parent_object,
-	                tables_object->current_index );
+	table_object = sequence_object->get_item_by_index(
+	                sequence_object->parent_object,
+	                sequence_object->current_index );
 
 	if( table_object != NULL )
 	{
-		tables_object->current_index++;
+		sequence_object->current_index++;
 	}
 	return( table_object );
 }

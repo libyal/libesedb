@@ -184,11 +184,13 @@ int libesedb_catalog_definition_read_data(
      libcerror_error_t **error )
 {
 	const uint8_t *fixed_size_data_type_value_data      = NULL;
-	const uint8_t *variable_size_data_type_size_data    = NULL;
 	const uint8_t *variable_size_data_type_value_data   = NULL;
 	static char *function                               = "libesedb_catalog_definition_read_data";
+	size_t remaining_data_size                          = 0;
+	size_t variable_size_data_type_value_data_offset    = 0;
 	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;
+	uint16_t data_type_size                             = 0;
 	uint16_t previous_variable_size_data_type_size      = 0;
 	uint16_t variable_size_data_type_size               = 0;
 	uint16_t variable_size_data_types_offset            = 0;
@@ -289,7 +291,7 @@ int libesedb_catalog_definition_read_data(
 		 function,
 		 variable_size_data_types_offset );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	/* As far as the documentation states
 	 * the column data FIELD structure is 16 bytes of size
@@ -378,13 +380,14 @@ int libesedb_catalog_definition_read_data(
 			calculated_variable_size_data_types_offset += 4;
 			break;
 	}
-	if( variable_size_data_types_offset > data_size )
+	if( ( variable_size_data_types_offset < sizeof( esedb_data_definition_header_t ) )
+	 || ( variable_size_data_types_offset > data_size ) )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: variable size data types offset exceeds data.",
+		 "%s: variable size data types offset value out of bounds.",
 		 function );
 
 		return( -1 );
@@ -627,7 +630,7 @@ int libesedb_catalog_definition_read_data(
 		if( variable_size_data_types_offset > calculated_variable_size_data_types_offset )
 		{
 			libcnotify_printf(
-			 "%s: trailing data:\n",
+			 "%s: fixed size data types trailing data:\n",
 			 function );
 			libcnotify_print_data(
 			 &( data[ calculated_variable_size_data_types_offset ] ),
@@ -638,8 +641,21 @@ int libesedb_catalog_definition_read_data(
 #endif
 	if( number_of_variable_size_data_types > 0 )
 	{
-		variable_size_data_type_size_data  = &( data[ variable_size_data_types_offset ] );
-		variable_size_data_type_value_data = &( variable_size_data_type_size_data[ number_of_variable_size_data_types * 2 ] );
+		variable_size_data_type_value_data_offset = variable_size_data_types_offset + ( number_of_variable_size_data_types * 2 );
+
+		if( variable_size_data_type_value_data_offset > data_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: variable size data type value data offset exceeds data.",
+			 function );
+
+			return( -1 );
+		}
+		variable_size_data_type_value_data = &( data[ variable_size_data_type_value_data_offset ] );
+		remaining_data_size                = data_size - variable_size_data_type_value_data_offset;
 
 		data_type_number = 128;
 
@@ -647,11 +663,22 @@ int libesedb_catalog_definition_read_data(
 		     variable_size_data_type_iterator < number_of_variable_size_data_types;
 		     variable_size_data_type_iterator++ )
 		{
+			if( variable_size_data_types_offset > ( data_size - 2 ) )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: variable size data types offset value out of bounds.",
+				 function );
+
+				return( -1 );
+			}
 			byte_stream_copy_to_uint16_little_endian(
-			 variable_size_data_type_size_data,
+			 &( data[ variable_size_data_types_offset ] ),
 			 variable_size_data_type_size );
 
-			variable_size_data_type_size_data += 2;
+			variable_size_data_types_offset += 2;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -664,17 +691,36 @@ int libesedb_catalog_definition_read_data(
 				 ( ( variable_size_data_type_size & 0x8000 ) != 0 ) ? 0 : ( variable_size_data_type_size & 0x7fff ) - previous_variable_size_data_type_size );
 			}
 #endif
+			/* The MSB signifies that the variable size data type is empty
+			 */
+			if( ( variable_size_data_type_size & 0x8000 ) != 0 )
+			{
+				data_type_size = 0;
+			}
+			else
+			{
+				data_type_size = variable_size_data_type_size - previous_variable_size_data_type_size;
+
+				if( ( previous_variable_size_data_type_size > remaining_data_size )
+				 || ( data_type_size > ( remaining_data_size - previous_variable_size_data_type_size ) ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: data type size value out of bounds.",
+					 function );
+
+					return( -1 );
+				}
+			}
 			switch( data_type_number )
 			{
 				case 128:
-					/* The MSB signifies that the variable size data type is empty
-					 */
-					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					if( data_type_size > 0 )
 					{
-						catalog_definition->name_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
-
 						catalog_definition->name = (uint8_t *) memory_allocate(
-										        sizeof( uint8_t ) * catalog_definition->name_size );
+										        sizeof( uint8_t ) * data_type_size );
 
 						if( catalog_definition->name == NULL )
 						{
@@ -685,10 +731,10 @@ int libesedb_catalog_definition_read_data(
 							 "%s: unable to create name.",
 							 function );
 
-							catalog_definition->name_size = 0;
-
 							return( -1 );
 						}
+						catalog_definition->name_size = (size_t) data_type_size;
+
 						if( memory_copy(
 						     catalog_definition->name,
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
@@ -810,9 +856,7 @@ int libesedb_catalog_definition_read_data(
 				case 129:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") stats:\n",
@@ -820,7 +864,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -835,14 +879,10 @@ int libesedb_catalog_definition_read_data(
 #endif
 
 				case 130:
-					/* The MSB signifies that the variable size data type is empty
-					 */
-					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					if( data_type_size > 0 )
 					{
-						catalog_definition->template_name_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
-
 						catalog_definition->template_name = (uint8_t *) memory_allocate(
-						                                                 sizeof( uint8_t ) * catalog_definition->template_name_size );
+						                                                 sizeof( uint8_t ) * data_type_size );
 
 						if( catalog_definition->template_name == NULL )
 						{
@@ -853,10 +893,10 @@ int libesedb_catalog_definition_read_data(
 							 "%s: unable to create template name.",
 							 function );
 
-							catalog_definition->template_name_size = 0;
-
 							return( -1 );
 						}
+						catalog_definition->template_name_size = (size_t) data_type_size;
+
 						if( memory_copy(
 						     catalog_definition->template_name,
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
@@ -976,14 +1016,10 @@ int libesedb_catalog_definition_read_data(
 					break;
 
 				case 131:
-					/* The MSB signifies that the variable size data type is empty
-					 */
-					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+					if( data_type_size > 0 )
 					{
-						catalog_definition->default_value_size = (size_t) ( variable_size_data_type_size - previous_variable_size_data_type_size );
-
 						catalog_definition->default_value = (uint8_t *) memory_allocate(
-												 sizeof( uint8_t ) * catalog_definition->default_value_size );
+												 sizeof( uint8_t ) * data_type_size );
 
 						if( catalog_definition->default_value == NULL )
 						{
@@ -994,10 +1030,10 @@ int libesedb_catalog_definition_read_data(
 							 "%s: unable to create default value.",
 							 function );
 
-							catalog_definition->default_value_size = 0;
-
 							return( -1 );
 						}
+						catalog_definition->default_value_size = (size_t) data_type_size;
+
 						if( memory_copy(
 						     catalog_definition->default_value,
 						     &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
@@ -1047,9 +1083,7 @@ int libesedb_catalog_definition_read_data(
 				case 132:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") KeyFldIDs:\n",
@@ -1057,7 +1091,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1073,9 +1107,7 @@ int libesedb_catalog_definition_read_data(
 				case 133:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") VarSegMac:\n",
@@ -1083,7 +1115,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1099,9 +1131,7 @@ int libesedb_catalog_definition_read_data(
 				case 134:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") ConditionalColumns:\n",
@@ -1109,7 +1139,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1125,9 +1155,7 @@ int libesedb_catalog_definition_read_data(
 				case 135:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") TupleLimits:\n",
@@ -1135,7 +1163,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1151,9 +1179,7 @@ int libesedb_catalog_definition_read_data(
 				case 136:
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu8 ") Version:\n",
@@ -1161,7 +1187,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1179,9 +1205,7 @@ int libesedb_catalog_definition_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 					if( libcnotify_verbose != 0 )
 					{
-						/* The MSB signifies that the variable size data type is empty
-						 */
-						if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+						if( data_type_size > 0 )
 						{
 							libcnotify_printf(
 							 "%s: (%03" PRIu16 ") variable size data type:\n",
@@ -1189,7 +1213,7 @@ int libesedb_catalog_definition_read_data(
 							 data_type_number );
 							libcnotify_print_data(
 							 &( variable_size_data_type_value_data[ previous_variable_size_data_type_size ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 data_type_size,
 							 0 );
 						}
 						else
@@ -1203,9 +1227,7 @@ int libesedb_catalog_definition_read_data(
 #endif
 					break;
 			}
-			/* The MSB signifies that the variable size data type is empty
-			 */
-			if( ( variable_size_data_type_size & 0x8000 ) == 0 )
+			if( data_type_size > 0 )
 			{
 				previous_variable_size_data_type_size = variable_size_data_type_size;
 			}

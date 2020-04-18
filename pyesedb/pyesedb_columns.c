@@ -59,7 +59,7 @@ PyTypeObject pyesedb_columns_type_object = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 
 	/* tp_name */
-	"pyesedb._columns",
+	"pyesedb.columns",
 	/* tp_basicsize */
 	sizeof( pyesedb_columns_t ),
 	/* tp_itemsize */
@@ -97,7 +97,7 @@ PyTypeObject pyesedb_columns_type_object = {
 	/* tp_flags */
 	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_ITER,
 	/* tp_doc */
-	"pyesedb internal sequence and iterator object of columns",
+	"pyesedb sequence and iterator object of columns",
 	/* tp_traverse */
 	0,
 	/* tp_clear */
@@ -150,7 +150,7 @@ PyTypeObject pyesedb_columns_type_object = {
 	0
 };
 
-/* Creates a new columns object
+/* Creates a new columns sequence and iterator object
  * Returns a Python object if successful or NULL on error
  */
 PyObject *pyesedb_columns_new(
@@ -160,8 +160,8 @@ PyObject *pyesedb_columns_new(
                         int index ),
            int number_of_items )
 {
-	pyesedb_columns_t *columns_object = NULL;
-	static char *function             = "pyesedb_columns_new";
+	pyesedb_columns_t *sequence_object = NULL;
+	static char *function              = "pyesedb_columns_new";
 
 	if( parent_object == NULL )
 	{
@@ -183,93 +183,89 @@ PyObject *pyesedb_columns_new(
 	}
 	/* Make sure the columns values are initialized
 	 */
-	columns_object = PyObject_New(
-	                  struct pyesedb_columns,
-	                  &pyesedb_columns_type_object );
+	sequence_object = PyObject_New(
+	                   struct pyesedb_columns,
+	                   &pyesedb_columns_type_object );
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
-		 "%s: unable to create columns object.",
+		 "%s: unable to create sequence object.",
 		 function );
 
 		goto on_error;
 	}
-	if( pyesedb_columns_init(
-	     columns_object ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize columns object.",
-		 function );
-
-		goto on_error;
-	}
-	columns_object->parent_object     = parent_object;
-	columns_object->get_item_by_index = get_item_by_index;
-	columns_object->number_of_items   = number_of_items;
+	sequence_object->parent_object     = parent_object;
+	sequence_object->get_item_by_index = get_item_by_index;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = number_of_items;
 
 	Py_IncRef(
-	 (PyObject *) columns_object->parent_object );
+	 (PyObject *) sequence_object->parent_object );
 
-	return( (PyObject *) columns_object );
+	return( (PyObject *) sequence_object );
 
 on_error:
-	if( columns_object != NULL )
+	if( sequence_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) columns_object );
+		 (PyObject *) sequence_object );
 	}
 	return( NULL );
 }
 
-/* Intializes a columns object
+/* Intializes a columns sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_columns_init(
-     pyesedb_columns_t *columns_object )
+     pyesedb_columns_t *sequence_object )
 {
 	static char *function = "pyesedb_columns_init";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
 	/* Make sure the columns values are initialized
 	 */
-	columns_object->parent_object     = NULL;
-	columns_object->get_item_by_index = NULL;
-	columns_object->current_index     = 0;
-	columns_object->number_of_items   = 0;
+	sequence_object->parent_object     = NULL;
+	sequence_object->get_item_by_index = NULL;
+	sequence_object->current_index     = 0;
+	sequence_object->number_of_items   = 0;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of columns not supported.",
+	 function );
+
+	return( -1 );
 }
 
-/* Frees a columns object
+/* Frees a columns sequence object
  */
 void pyesedb_columns_free(
-      pyesedb_columns_t *columns_object )
+      pyesedb_columns_t *sequence_object )
 {
 	struct _typeobject *ob_type = NULL;
 	static char *function       = "pyesedb_columns_free";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return;
 	}
 	ob_type = Py_TYPE(
-	           columns_object );
+	           sequence_object );
 
 	if( ob_type == NULL )
 	{
@@ -289,72 +285,72 @@ void pyesedb_columns_free(
 
 		return;
 	}
-	if( columns_object->parent_object != NULL )
+	if( sequence_object->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) columns_object->parent_object );
+		 (PyObject *) sequence_object->parent_object );
 	}
 	ob_type->tp_free(
-	 (PyObject*) columns_object );
+	 (PyObject*) sequence_object );
 }
 
 /* The columns len() function
  */
 Py_ssize_t pyesedb_columns_len(
-            pyesedb_columns_t *columns_object )
+            pyesedb_columns_t *sequence_object )
 {
 	static char *function = "pyesedb_columns_len";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( -1 );
 	}
-	return( (Py_ssize_t) columns_object->number_of_items );
+	return( (Py_ssize_t) sequence_object->number_of_items );
 }
 
 /* The columns getitem() function
  */
 PyObject *pyesedb_columns_getitem(
-           pyesedb_columns_t *columns_object,
+           pyesedb_columns_t *sequence_object,
            Py_ssize_t item_index )
 {
 	PyObject *column_object = NULL;
 	static char *function   = "pyesedb_columns_getitem";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
 	if( ( item_index < 0 )
-	 || ( item_index >= (Py_ssize_t) columns_object->number_of_items ) )
+	 || ( item_index >= (Py_ssize_t) sequence_object->number_of_items ) )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
@@ -363,8 +359,8 @@ PyObject *pyesedb_columns_getitem(
 
 		return( NULL );
 	}
-	column_object = columns_object->get_item_by_index(
-	                 columns_object->parent_object,
+	column_object = sequence_object->get_item_by_index(
+	                 sequence_object->parent_object,
 	                 (int) item_index );
 
 	return( column_object );
@@ -373,83 +369,83 @@ PyObject *pyesedb_columns_getitem(
 /* The columns iter() function
  */
 PyObject *pyesedb_columns_iter(
-           pyesedb_columns_t *columns_object )
+           pyesedb_columns_t *sequence_object )
 {
 	static char *function = "pyesedb_columns_iter";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
 	Py_IncRef(
-	 (PyObject *) columns_object );
+	 (PyObject *) sequence_object );
 
-	return( (PyObject *) columns_object );
+	return( (PyObject *) sequence_object );
 }
 
 /* The columns iternext() function
  */
 PyObject *pyesedb_columns_iternext(
-           pyesedb_columns_t *columns_object )
+           pyesedb_columns_t *sequence_object )
 {
 	PyObject *column_object = NULL;
 	static char *function   = "pyesedb_columns_iternext";
 
-	if( columns_object == NULL )
+	if( sequence_object == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object.",
+		 "%s: invalid sequence object.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->get_item_by_index == NULL )
+	if( sequence_object->get_item_by_index == NULL )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object - missing get item by index function.",
+		 "%s: invalid sequence object - missing get item by index function.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->current_index < 0 )
+	if( sequence_object->current_index < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object - invalid current index.",
+		 "%s: invalid sequence object - invalid current index.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->number_of_items < 0 )
+	if( sequence_object->number_of_items < 0 )
 	{
 		PyErr_Format(
 		 PyExc_ValueError,
-		 "%s: invalid columns object - invalid number of items.",
+		 "%s: invalid sequence object - invalid number of items.",
 		 function );
 
 		return( NULL );
 	}
-	if( columns_object->current_index >= columns_object->number_of_items )
+	if( sequence_object->current_index >= sequence_object->number_of_items )
 	{
 		PyErr_SetNone(
 		 PyExc_StopIteration );
 
 		return( NULL );
 	}
-	column_object = columns_object->get_item_by_index(
-	                 columns_object->parent_object,
-	                 columns_object->current_index );
+	column_object = sequence_object->get_item_by_index(
+	                 sequence_object->parent_object,
+	                 sequence_object->current_index );
 
 	if( column_object != NULL )
 	{
-		columns_object->current_index++;
+		sequence_object->current_index++;
 	}
 	return( column_object );
 }

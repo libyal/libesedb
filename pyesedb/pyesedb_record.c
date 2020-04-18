@@ -1,5 +1,5 @@
 /*
- * Python object definition of the libesedb record
+ * Python object wrapper of libesedb_record_t
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -240,27 +240,19 @@ PyObject *pyesedb_record_new(
 	if( record == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record.",
 		 function );
 
 		return( NULL );
 	}
+	/* PyObject_New does not invoke tp_init
+	 */
 	pyesedb_record = PyObject_New(
-	                 struct pyesedb_record,
-	                 &pyesedb_record_type_object );
+	                  struct pyesedb_record,
+	                  &pyesedb_record_type_object );
 
 	if( pyesedb_record == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize record.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyesedb_record_init(
-	     pyesedb_record ) != 0 )
 	{
 		PyErr_Format(
 		 PyExc_MemoryError,
@@ -272,9 +264,11 @@ PyObject *pyesedb_record_new(
 	pyesedb_record->record        = record;
 	pyesedb_record->parent_object = parent_object;
 
-	Py_IncRef(
-	 (PyObject *) pyesedb_record->parent_object );
-
+	if( pyesedb_record->parent_object != NULL )
+	{
+		Py_IncRef(
+		 pyesedb_record->parent_object );
+	}
 	return( (PyObject *) pyesedb_record );
 
 on_error:
@@ -297,7 +291,7 @@ int pyesedb_record_init(
 	if( pyesedb_record == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record.",
 		 function );
 
@@ -307,7 +301,12 @@ int pyesedb_record_init(
 	 */
 	pyesedb_record->record = NULL;
 
-	return( 0 );
+	PyErr_Format(
+	 PyExc_NotImplementedError,
+	 "%s: initialize of record not supported.",
+	 function );
+
+	return( -1 );
 }
 
 /* Frees a record object
@@ -315,24 +314,16 @@ int pyesedb_record_init(
 void pyesedb_record_free(
       pyesedb_record_t *pyesedb_record )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyesedb_record_free";
+	int result                  = 0;
 
 	if( pyesedb_record == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid record.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_record->record == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid record - missing libesedb record.",
 		 function );
 
 		return;
@@ -358,23 +349,32 @@ void pyesedb_record_free(
 
 		return;
 	}
-	if( libesedb_record_free(
-	     &( pyesedb_record->record ),
-	     &error ) != 1 )
+	if( pyesedb_record->record != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb record.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_record_free(
+		          &( pyesedb_record->record ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb record.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	if( pyesedb_record->parent_object != NULL )
 	{
 		Py_DecRef(
-		 (PyObject *) pyesedb_record->parent_object );
+		 pyesedb_record->parent_object );
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_record );
@@ -1509,7 +1509,7 @@ PyObject *pyesedb_record_get_value_data_as_long_value(
 	}
 	long_value_object = pyesedb_long_value_new(
 	                     long_value,
-	                     pyesedb_record );
+	                     (PyObject *) pyesedb_record );
 
 	if( long_value_object == NULL )
 	{

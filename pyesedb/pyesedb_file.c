@@ -277,111 +277,26 @@ PyTypeObject pyesedb_file_type_object = {
 	0
 };
 
-/* Creates a new file object
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_file_new(
-           void )
-{
-	pyesedb_file_t *pyesedb_file = NULL;
-	static char *function        = "pyesedb_file_new";
-
-	pyesedb_file = PyObject_New(
-	                struct pyesedb_file,
-	                &pyesedb_file_type_object );
-
-	if( pyesedb_file == NULL )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize file.",
-		 function );
-
-		goto on_error;
-	}
-	if( pyesedb_file_init(
-	     pyesedb_file ) != 0 )
-	{
-		PyErr_Format(
-		 PyExc_MemoryError,
-		 "%s: unable to initialize file.",
-		 function );
-
-		goto on_error;
-	}
-	return( (PyObject *) pyesedb_file );
-
-on_error:
-	if( pyesedb_file != NULL )
-	{
-		Py_DecRef(
-		 (PyObject *) pyesedb_file );
-	}
-	return( NULL );
-}
-
-/* Creates a new file object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_file_new_open(
-           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyesedb_file = NULL;
-
-	PYESEDB_UNREFERENCED_PARAMETER( self )
-
-	pyesedb_file = pyesedb_file_new();
-
-	pyesedb_file_open(
-	 (pyesedb_file_t *) pyesedb_file,
-	 arguments,
-	 keywords );
-
-	return( pyesedb_file );
-}
-
-/* Creates a new file object and opens it
- * Returns a Python object if successful or NULL on error
- */
-PyObject *pyesedb_file_new_open_file_object(
-           PyObject *self PYESEDB_ATTRIBUTE_UNUSED,
-           PyObject *arguments,
-           PyObject *keywords )
-{
-	PyObject *pyesedb_file = NULL;
-
-	PYESEDB_UNREFERENCED_PARAMETER( self )
-
-	pyesedb_file = pyesedb_file_new();
-
-	pyesedb_file_open_file_object(
-	 (pyesedb_file_t *) pyesedb_file,
-	 arguments,
-	 keywords );
-
-	return( pyesedb_file );
-}
-
 /* Intializes a file object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_file_init(
      pyesedb_file_t *pyesedb_file )
 {
-	static char *function    = "pyesedb_file_init";
 	libcerror_error_t *error = NULL;
+	static char *function    = "pyesedb_file_init";
 
 	if( pyesedb_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
 		 function );
 
 		return( -1 );
 	}
+	/* Make sure libesedb file is set to NULL
+	 */
 	pyesedb_file->file           = NULL;
 	pyesedb_file->file_io_handle = NULL;
 
@@ -408,25 +323,16 @@ int pyesedb_file_init(
 void pyesedb_file_free(
       pyesedb_file_t *pyesedb_file )
 {
-	libcerror_error_t *error    = NULL;
 	struct _typeobject *ob_type = NULL;
+	libcerror_error_t *error    = NULL;
 	static char *function       = "pyesedb_file_free";
 	int result                  = 0;
 
 	if( pyesedb_file == NULL )
 	{
 		PyErr_Format(
-		 PyExc_TypeError,
+		 PyExc_ValueError,
 		 "%s: invalid file.",
-		 function );
-
-		return;
-	}
-	if( pyesedb_file->file == NULL )
-	{
-		PyErr_Format(
-		 PyExc_TypeError,
-		 "%s: invalid file - missing libesedb file.",
 		 function );
 
 		return;
@@ -452,24 +358,27 @@ void pyesedb_file_free(
 
 		return;
 	}
-	Py_BEGIN_ALLOW_THREADS
-
-	result = libesedb_file_free(
-	          &( pyesedb_file->file ),
-	          &error );
-
-	Py_END_ALLOW_THREADS
-
-	if( result != 1 )
+	if( pyesedb_file->file != NULL )
 	{
-		pyesedb_error_raise(
-		 error,
-		 PyExc_IOError,
-		 "%s: unable to free libesedb file.",
-		 function );
+		Py_BEGIN_ALLOW_THREADS
 
-		libcerror_error_free(
-		 &error );
+		result = libesedb_file_free(
+		          &( pyesedb_file->file ),
+		          &error );
+
+		Py_END_ALLOW_THREADS
+
+		if( result != 1 )
+		{
+			pyesedb_error_raise(
+			 error,
+			 PyExc_MemoryError,
+			 "%s: unable to free libesedb file.",
+			 function );
+
+			libcerror_error_free(
+			 &error );
+		}
 	}
 	ob_type->tp_free(
 	 (PyObject*) pyesedb_file );
