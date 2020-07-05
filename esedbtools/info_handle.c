@@ -29,8 +29,8 @@
 
 #include "esedbtools_libcerror.h"
 #include "esedbtools_libclocale.h"
-#include "esedbtools_libfdatetime.h"
 #include "esedbtools_libesedb.h"
+#include "esedbtools_libfdatetime.h"
 #include "info_handle.h"
 
 #define INFO_HANDLE_NOTIFY_STREAM	stdout

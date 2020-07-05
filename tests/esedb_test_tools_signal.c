@@ -1,5 +1,5 @@
 /*
- * Library error functions test program
+ * Tools signal functions test program
  *
  * Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -27,84 +27,81 @@
 #include <stdlib.h>
 #endif
 
-#include "esedb_test_libesedb.h"
+#include "esedb_test_libcerror.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_unused.h"
 
-/* Tests the libesedb_error_free function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_free(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_free(
-	 NULL );
+#include "../esedbtools/esedbtools_signal.h"
 
-	return( 1 );
+void esedb_test_tools_signal_handler(
+      esedbtools_signal_t signal ESEDB_TEST_ATTRIBUTE_UNUSED )
+{
+	ESEDB_TEST_UNREFERENCED_PARAMETER( signal )
 }
 
-/* Tests the libesedb_error_fprint function
+/* Tests the esedbtools_signal_attach and function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_fprint(
+int esedb_test_tools_signal_attach(
      void )
 {
-	/* Test invocation of function only
-	 */
-	libesedb_error_fprint(
-	 NULL,
-	 NULL );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	result = esedbtools_signal_attach(
+	          esedb_test_tools_signal_handler,
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
+
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
 }
 
-/* Tests the libesedb_error_sprint function
+/* Tests the esedbtools_signal_detach and function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_error_sprint(
+int esedb_test_tools_signal_detach(
      void )
 {
-	/* Test invocation of function only
-	 */
-	libesedb_error_sprint(
-	 NULL,
-	 NULL,
-	 0 );
+	libcerror_error_t *error = NULL;
+	int result               = 0;
+
+	result = esedbtools_signal_detach(
+	          &error );
+
+	ESEDB_TEST_ASSERT_EQUAL_INT(
+	 "result",
+	 result,
+	 1 );
+
+	ESEDB_TEST_ASSERT_IS_NULL(
+	 "error",
+	 error );
 
 	return( 1 );
-}
 
-/* Tests the libesedb_error_backtrace_fprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_backtrace_fprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_backtrace_fprint(
-	 NULL,
-	 NULL );
-
-	return( 1 );
-}
-
-/* Tests the libesedb_error_backtrace_sprint function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_error_backtrace_sprint(
-     void )
-{
-	/* Test invocation of function only
-	 */
-	libesedb_error_backtrace_sprint(
-	 NULL,
-	 NULL,
-	 0 );
-
-	return( 1 );
+on_error:
+	if( error != NULL )
+	{
+		libcerror_error_free(
+		 &error );
+	}
+	return( 0 );
 }
 
 /* The main program
@@ -122,25 +119,23 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argc )
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
-	ESEDB_TEST_RUN(
-	 "libesedb_error_free",
-	 esedb_test_error_free );
+#if defined( WINAPI )
+
+	/* TODO add tests for esedbtools_signal_handler */
+#endif
+
+#if defined( WINAPI ) && defined( _MSC_VER )
+
+	/* TODO add tests for esedbtools_signal_initialize_memory_debug */
+#endif
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_fprint",
-	 esedb_test_error_fprint );
+	 "esedbtools_signal_attach",
+	 esedb_test_tools_signal_attach )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_error_sprint",
-	 esedb_test_error_sprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_fprint",
-	 esedb_test_error_backtrace_fprint );
-
-	ESEDB_TEST_RUN(
-	 "libesedb_error_backtrace_sprint",
-	 esedb_test_error_backtrace_sprint );
+	 "esedbtools_signal_detach",
+	 esedb_test_tools_signal_detach )
 
 	return( EXIT_SUCCESS );
 

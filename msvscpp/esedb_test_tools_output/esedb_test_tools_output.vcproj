@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedb_test_page_tree_key"
-	ProjectGUID="{C10A5D46-F063-48EE-BC09-A3E3358A0494}"
-	RootNamespace="esedb_test_page_tree_key"
+	Name="esedb_test_tools_output"
+	ProjectGUID="{9D57CE4C-A2B0-46A3-8B58-963470100928}"
+	RootNamespace="esedb_test_tools_output"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,11 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\tests\esedb_test_memory.c"
+				RelativePath="..\..\esedbtools\esedbtools_output.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\esedb_test_page_tree_key.c"
+				RelativePath="..\..\tests\esedb_test_tools_output.c"
 				>
 			</File>
 		</Filter>
@@ -190,23 +190,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\esedbtools_output.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_libcerror.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\esedb_test_libesedb.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\esedb_test_libfdata.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\tests\esedb_test_macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\esedb_test_memory.h"
 				>
 			</File>
 			<File

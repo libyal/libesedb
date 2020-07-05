@@ -12,7 +12,6 @@ MSVSCPP_FILES = \
 	esedb_test_file/esedb_test_file.vcproj \
 	esedb_test_file_header/esedb_test_file_header.vcproj \
 	esedb_test_index/esedb_test_index.vcproj \
-	esedb_test_info_handle/esedb_test_info_handle.vcproj \
 	esedb_test_io_handle/esedb_test_io_handle.vcproj \
 	esedb_test_leaf_page_descriptor/esedb_test_leaf_page_descriptor.vcproj \
 	esedb_test_long_value/esedb_test_long_value.vcproj \
@@ -31,7 +30,10 @@ MSVSCPP_FILES = \
 	esedb_test_support/esedb_test_support.vcproj \
 	esedb_test_table/esedb_test_table.vcproj \
 	esedb_test_table_definition/esedb_test_table_definition.vcproj \
-	esedb_test_windows_search_compression/esedb_test_windows_search_compression.vcproj \
+	esedb_test_tools_info_handle/esedb_test_tools_info_handle.vcproj \
+	esedb_test_tools_output/esedb_test_tools_output.vcproj \
+	esedb_test_tools_signal/esedb_test_tools_signal.vcproj \
+	esedb_test_tools_windows_search_compression/esedb_test_tools_windows_search_compression.vcproj \
 	esedbexport/esedbexport.vcproj \
 	esedbinfo/esedbinfo.vcproj \
 	libbfio/libbfio.vcproj \

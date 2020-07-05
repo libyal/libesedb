@@ -18,6 +18,7 @@ AM_CPPFLAGS = \
 	@LIBFGUID_CPPFLAGS@ \
 	@LIBFVALUE_CPPFLAGS@ \
 	@LIBFWNT_CPPFLAGS@ \
+	@LIBFMAPI_CPPFLAGS@ \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
@@ -61,7 +62,6 @@ check_PROGRAMS = \
 	esedb_test_file \
 	esedb_test_file_header \
 	esedb_test_index \
-	esedb_test_info_handle \
 	esedb_test_io_handle \
 	esedb_test_leaf_page_descriptor \
 	esedb_test_long_value \
@@ -80,7 +80,10 @@ check_PROGRAMS = \
 	esedb_test_support \
 	esedb_test_table \
 	esedb_test_table_definition \
-	esedb_test_windows_search_compression
+	esedb_test_tools_info_handle \
+	esedb_test_tools_output \
+	esedb_test_tools_signal \
+	esedb_test_tools_windows_search_compression
 
 esedb_test_catalog_SOURCES = \
 	esedb_test_catalog.c \
@@ -283,20 +286,6 @@ esedb_test_index_SOURCES = \
 	esedb_test_unused.h
 
 esedb_test_index_LDADD = \
-	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@
-
-esedb_test_info_handle_SOURCES = \
-	../esedbtools/info_handle.c ../esedbtools/info_handle.h \
-	esedb_test_info_handle.c \
-	esedb_test_libcerror.h \
-	esedb_test_libesedb.h \
-	esedb_test_macros.h \
-	esedb_test_memory.c esedb_test_memory.h \
-	esedb_test_unused.h
-
-esedb_test_info_handle_LDADD = \
-	@LIBCLOCALE_LIBADD@ \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
@@ -541,16 +530,51 @@ esedb_test_table_definition_LDADD = \
 	../libesedb/libesedb.la \
 	@LIBCERROR_LIBADD@
 
-esedb_test_windows_search_compression_SOURCES = \
-	../esedbtools/windows_search_compression.c ../esedbtools/windows_search_compression.h \
-	esedb_test_windows_search_compression.c \
+esedb_test_tools_info_handle_SOURCES = \
+	../esedbtools/info_handle.c ../esedbtools/info_handle.h \
 	esedb_test_libcerror.h \
-	esedb_test_libesedb.h \
 	esedb_test_macros.h \
 	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_tools_info_handle.c \
 	esedb_test_unused.h
 
-esedb_test_windows_search_compression_LDADD = \
+esedb_test_tools_info_handle_LDADD = \
+	@LIBFDATETIME_LIBADD@ \
+	@LIBCLOCALE_LIBADD@ \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_tools_output_SOURCES = \
+	../esedbtools/esedbtools_output.c ../esedbtools/esedbtools_output.h \
+	esedb_test_libcerror.h \
+	esedb_test_macros.h \
+	esedb_test_tools_output.c \
+	esedb_test_unused.h
+
+esedb_test_tools_output_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_tools_signal_SOURCES = \
+	../esedbtools/esedbtools_signal.c ../esedbtools/esedbtools_signal.h \
+	esedb_test_libcerror.h \
+	esedb_test_macros.h \
+	esedb_test_tools_signal.c \
+	esedb_test_unused.h
+
+esedb_test_tools_signal_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_tools_windows_search_compression_SOURCES = \
+	../esedbtools/windows_search_compression.c ../esedbtools/windows_search_compression.h \
+	esedb_test_libcerror.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_tools_windows_search_compression.c \
+	esedb_test_unused.h
+
+esedb_test_tools_windows_search_compression_LDADD = \
 	@LIBCNOTIFY_LIBADD@ \
 	@LIBCERROR_LIBADD@
 

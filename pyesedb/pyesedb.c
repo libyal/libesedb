@@ -438,19 +438,47 @@ PyObject *pyesedb_open_new_file(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *pyesedb_file = NULL;
+	pyesedb_file_t *pyesedb_file = NULL;
+	static char *function        = "pyesedb_open_new_file";
 
 	PYESEDB_UNREFERENCED_PARAMETER( self )
 
-	pyesedb_file_init(
-	 (pyesedb_file_t *) pyesedb_file );
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyesedb_file = PyObject_New(
+	                struct pyesedb_file,
+	                &pyesedb_file_type_object );
 
-	pyesedb_file_open(
-	 (pyesedb_file_t *) pyesedb_file,
-	 arguments,
-	 keywords );
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create file.",
+		 function );
 
-	return( pyesedb_file );
+		goto on_error;
+	}
+	if( pyesedb_file_init(
+	     pyesedb_file ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyesedb_file_open(
+	     pyesedb_file,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyesedb_file );
+
+on_error:
+	if( pyesedb_file != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyesedb_file );
+	}
+	return( NULL );
 }
 
 /* Creates a new file object and opens it using a file-like object
@@ -461,19 +489,47 @@ PyObject *pyesedb_open_new_file_with_file_object(
            PyObject *arguments,
            PyObject *keywords )
 {
-	PyObject *pyesedb_file = NULL;
+	pyesedb_file_t *pyesedb_file = NULL;
+	static char *function        = "pyesedb_open_new_file_with_file_object";
 
 	PYESEDB_UNREFERENCED_PARAMETER( self )
 
-	pyesedb_file_init(
-	 (pyesedb_file_t *) pyesedb_file );
+	/* PyObject_New does not invoke tp_init
+	 */
+	pyesedb_file = PyObject_New(
+	                struct pyesedb_file,
+	                &pyesedb_file_type_object );
 
-	pyesedb_file_open_file_object(
-	 (pyesedb_file_t *) pyesedb_file,
-	 arguments,
-	 keywords );
+	if( pyesedb_file == NULL )
+	{
+		PyErr_Format(
+		 PyExc_MemoryError,
+		 "%s: unable to create file.",
+		 function );
 
-	return( pyesedb_file );
+		goto on_error;
+	}
+	if( pyesedb_file_init(
+	     pyesedb_file ) != 0 )
+	{
+		goto on_error;
+	}
+	if( pyesedb_file_open_file_object(
+	     pyesedb_file,
+	     arguments,
+	     keywords ) == NULL )
+	{
+		goto on_error;
+	}
+	return( (PyObject *) pyesedb_file );
+
+on_error:
+	if( pyesedb_file != NULL )
+	{
+		Py_DecRef(
+		 (PyObject *) pyesedb_file );
+	}
+	return( NULL );
 }
 
 #if PY_MAJOR_VERSION >= 3

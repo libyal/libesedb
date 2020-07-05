@@ -29,14 +29,13 @@
 #endif
 
 #include "esedb_test_libcerror.h"
-#include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
 #include "../esedbtools/windows_search_compression.h"
 
-uint8_t esedb_test_windows_search_utf16_run_length_compressed_data[ 725 ] = {
+uint8_t esedb_test_tools_windows_search_utf16_run_length_compressed_data[ 725 ] = {
 	0xff, 0x00, 0x23, 0x4d, 0x33, 0x55, 0x0d, 0x0a, 0x28, 0x30, 0x31, 0x29, 0x20, 0x5b, 0x42, 0x4b,
 	0x61, 0x6d, 0x75, 0x69, 0x5d, 0x20, 0x45, 0x78, 0x63, 0x65, 0x65, 0x64, 0x2e, 0x6d, 0x70, 0x33,
 	0x0d, 0x0a, 0x28, 0x30, 0x32, 0x29, 0x20, 0x5b, 0x4c, 0x69, 0x73, 0x61, 0x20, 0x4c, 0x61, 0x73,
@@ -84,7 +83,7 @@ uint8_t esedb_test_windows_search_utf16_run_length_compressed_data[ 725 ] = {
 	0x58, 0x5d, 0x20, 0x53, 0x69, 0x6c, 0x6c, 0x79, 0x20, 0x4d, 0x69, 0x64, 0x20, 0x4f, 0x6e, 0x2e,
 	0x6d, 0x70, 0x33, 0x0d, 0x0a };
 
-uint8_t esedb_test_windows_search_utf16_run_length_uncompressed_data[ 1422 ] = {
+uint8_t esedb_test_tools_windows_search_utf16_run_length_uncompressed_data[ 1422 ] = {
 	0x23, 0x00, 0x4d, 0x00, 0x33, 0x00, 0x55, 0x00, 0x0d, 0x00, 0x0a, 0x00, 0x28, 0x00, 0x30, 0x00,
 	0x31, 0x00, 0x29, 0x00, 0x20, 0x00, 0x5b, 0x00, 0x42, 0x00, 0x4b, 0x00, 0x61, 0x00, 0x6d, 0x00,
 	0x75, 0x00, 0x69, 0x00, 0x5d, 0x00, 0x20, 0x00, 0x45, 0x00, 0x78, 0x00, 0x63, 0x00, 0x65, 0x00,
@@ -178,7 +177,7 @@ uint8_t esedb_test_windows_search_utf16_run_length_uncompressed_data[ 1422 ] = {
 /* Tests the windows_search_utf16_run_length_compression_get_size function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_windows_search_utf16_run_length_compression_get_size(
+int esedb_test_tools_windows_search_utf16_run_length_compression_get_size(
      void )
 {
 	libcerror_error_t *error      = NULL;
@@ -188,7 +187,7 @@ int esedb_test_windows_search_utf16_run_length_compression_get_size(
 	/* Test regular cases
 	 */
 	result = windows_search_utf16_run_length_compression_get_size(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          &uncompressed_data_size,
 	          &error );
@@ -228,7 +227,7 @@ int esedb_test_windows_search_utf16_run_length_compression_get_size(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_get_size(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          (size_t) SSIZE_MAX + 1,
 	          &uncompressed_data_size,
 	          &error );
@@ -246,7 +245,7 @@ int esedb_test_windows_search_utf16_run_length_compression_get_size(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_get_size(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          0,
 	          &uncompressed_data_size,
 	          &error );
@@ -264,7 +263,7 @@ int esedb_test_windows_search_utf16_run_length_compression_get_size(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_get_size(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          NULL,
 	          &error );
@@ -295,7 +294,7 @@ on_error:
 /* Tests the windows_search_utf16_run_length_compression_decompress function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_windows_search_utf16_run_length_compression_decompress(
+int esedb_test_tools_windows_search_utf16_run_length_compression_decompress(
      void )
 {
 	uint8_t uncompressed_data[ 2048 ];
@@ -306,7 +305,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	/* Test regular cases
 	 */
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          uncompressed_data,
 	          1422,
@@ -323,7 +322,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 
 	result = memory_compare(
 	          uncompressed_data,
-	          esedb_test_windows_search_utf16_run_length_uncompressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_uncompressed_data,
 	          1422 );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -353,7 +352,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          (size_t) SSIZE_MAX + 1,
 	          uncompressed_data,
 	          1422,
@@ -372,7 +371,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          0,
 	          uncompressed_data,
 	          1422,
@@ -391,7 +390,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          NULL,
 	          1422,
@@ -410,7 +409,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          uncompressed_data,
 	          (size_t) SSIZE_MAX + 1,
@@ -429,7 +428,7 @@ int esedb_test_windows_search_utf16_run_length_compression_decompress(
 	 &error );
 
 	result = windows_search_utf16_run_length_compression_decompress(
-	          esedb_test_windows_search_utf16_run_length_compressed_data,
+	          esedb_test_tools_windows_search_utf16_run_length_compressed_data,
 	          725,
 	          uncompressed_data,
 	          4,
@@ -475,11 +474,11 @@ int main(
 
 	ESEDB_TEST_RUN(
 	 "windows_search_utf16_run_length_compression_get_size",
-	 esedb_test_windows_search_utf16_run_length_compression_get_size );
+	 esedb_test_tools_windows_search_utf16_run_length_compression_get_size );
 
 	ESEDB_TEST_RUN(
 	 "windows_search_utf16_run_length_compression_decompress",
-	 esedb_test_windows_search_utf16_run_length_compression_decompress );
+	 esedb_test_tools_windows_search_utf16_run_length_compression_decompress );
 
 	return( EXIT_SUCCESS );
 

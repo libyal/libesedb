@@ -1,13 +1,13 @@
 #!/bin/bash
 # Tests tools functions and types.
 #
-# Version: 20190216
+# Version: 20200705
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-TOOLS_TESTS="info_handle windows_search_compression";
+TOOLS_TESTS="info_handle output signal windows_search_compression";
 TOOLS_TESTS_WITH_INPUT="";
 OPTION_SETS="";
 
@@ -18,7 +18,7 @@ run_test()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="./esedb_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./esedb_test_tools_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -37,7 +37,7 @@ run_test_with_input()
 	local TEST_NAME=$1;
 
 	local TEST_DESCRIPTION="Testing: ${TEST_NAME}";
-	local TEST_EXECUTABLE="./esedb_test_${TEST_NAME}";
+	local TEST_EXECUTABLE="./esedb_test_tools_${TEST_NAME}";
 
 	if ! test -x "${TEST_EXECUTABLE}";
 	then
@@ -129,7 +129,7 @@ run_test_with_input()
 	return ${RESULT};
 }
 
-if ! test -z ${SKIP_TOOLS_TESTS};
+if test -n "${SKIP_TOOLS_TESTS}";
 then
 	exit ${EXIT_IGNORE};
 fi

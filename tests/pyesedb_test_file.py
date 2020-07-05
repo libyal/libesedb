@@ -75,8 +75,7 @@ class FileTypeTests(unittest.TestCase):
 
       esedb_file.close()
 
-      # TODO: change IOError into TypeError
-      with self.assertRaises(IOError):
+      with self.assertRaises(TypeError):
         esedb_file.open_file_object(None)
 
       with self.assertRaises(ValueError):

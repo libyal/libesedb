@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="esedb_test_page_tree_key"
-	ProjectGUID="{C10A5D46-F063-48EE-BC09-A3E3358A0494}"
-	RootNamespace="esedb_test_page_tree_key"
+	Name="esedb_test_tools_info_handle"
+	ProjectGUID="{35ABBCF1-BE33-4FC0-B634-5B89DF08AB87}"
+	RootNamespace="esedb_test_tools_info_handle"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -176,11 +176,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\info_handle.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_memory.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\tests\esedb_test_page_tree_key.c"
+				RelativePath="..\..\tests\esedb_test_tools_info_handle.c"
 				>
 			</File>
 		</Filter>
@@ -190,15 +194,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\esedbtools\info_handle.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\tests\esedb_test_libcerror.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\esedb_test_libesedb.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\tests\esedb_test_libfdata.h"
 				>
 			</File>
 			<File

@@ -124,7 +124,7 @@ jobs:
     group: edge
   - name: "Linux with gcc and static executables support"
     env:
-    - CONFIGURE_OPTIONS="--enable-static-executables"
+    - CONFIGURE_OPTIONS="--enable-static-executables=yes --enable-multi-threading-support=no"
     - CFLAGS="--coverage"
     - LDFLAGS="--coverage"
     - TARGET="linux-gcc-static-executables"
@@ -187,7 +187,8 @@ script:
 - .travis/script.sh
 after_success:
 - if test ${TARGET} = "linux-gcc-no-optimization"; then
-    curl -o codecov.sh -s https://codecov.io/bash && sed 's/ -execdir / -exec /' -i ./codecov.sh && /bin/bash ./codecov.sh -n ${TARGET} -y .codecov.yml;
+    for DIRECTORY in `find . -maxdepth 1 -type d`; do (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) done;
+    curl -o codecov.sh -s https://codecov.io/bash && /bin/bash ./codecov.sh -n ${TARGET} -X gcov;
   fi
 - if test ${TARGET} = "macos-gcc-python-setup-py37" && test -n "${TRAVIS_TAG}"; then
     python3 -m twine upload dist/*.whl --username __token__ --password ${PYPI_TOKEN} --skip-existing;

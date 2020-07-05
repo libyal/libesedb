@@ -29,7 +29,6 @@
 #endif
 
 #include "esedb_test_libcerror.h"
-#include "esedb_test_libesedb.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
@@ -39,7 +38,7 @@
 /* Tests the info_handle_initialize function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_info_handle_initialize(
+int esedb_test_tools_info_handle_initialize(
      void )
 {
 	info_handle_t *info_handle      = NULL;
@@ -234,7 +233,7 @@ on_error:
 /* Tests the info_handle_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_info_handle_free(
+int esedb_test_tools_info_handle_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -286,11 +285,11 @@ int main(
 
 	ESEDB_TEST_RUN(
 	 "info_handle_initialize",
-	 esedb_test_info_handle_initialize );
+	 esedb_test_tools_info_handle_initialize );
 
 	ESEDB_TEST_RUN(
 	 "info_handle_free",
-	 esedb_test_info_handle_free );
+	 esedb_test_tools_info_handle_free );
 
 	return( EXIT_SUCCESS );
 
