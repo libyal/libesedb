@@ -598,6 +598,18 @@ int libesedb_compression_get_utf8_string_size(
 
 		goto on_error;
 	}
+	if( ( uncompressed_data_size == 0 )
+	 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid uncompressed data size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	uncompressed_data = (uint8_t *) memory_allocate(
 					 sizeof( uint8_t ) * uncompressed_data_size );
 
@@ -782,6 +794,18 @@ int libesedb_compression_copy_to_utf8_string(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( uncompressed_data_size == 0 )
+	 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid uncompressed data size value out of bounds.",
 		 function );
 
 		goto on_error;
@@ -975,6 +999,18 @@ int libesedb_compression_get_utf16_string_size(
 
 		goto on_error;
 	}
+	if( ( uncompressed_data_size == 0 )
+	 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid uncompressed data size value out of bounds.",
+		 function );
+
+		goto on_error;
+	}
 	uncompressed_data = (uint8_t *) memory_allocate(
 					 sizeof( uint8_t ) * uncompressed_data_size );
 
@@ -1159,6 +1195,18 @@ int libesedb_compression_copy_to_utf16_string(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
 		 "%s: unable retrieve uncompressed data size.",
+		 function );
+
+		goto on_error;
+	}
+	if( ( uncompressed_data_size == 0 )
+	 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid uncompressed data size value out of bounds.",
 		 function );
 
 		goto on_error;

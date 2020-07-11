@@ -1152,6 +1152,7 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	uint32_t last_leaf_page_number = 0;
 	uint32_t page_flags            = 0;
 	uint32_t safe_leaf_page_number = 0;
+	int recursion_depth            = 0;
 
 	if( page_tree == NULL )
 	{
@@ -1279,6 +1280,17 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	}
 	while( safe_leaf_page_number != 0 )
 	{
+		if( recursion_depth > LIBESEDB_MAXIMUM_INDEX_NODE_RECURSION_DEPTH )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid recursion depth value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
 		last_leaf_page_number = safe_leaf_page_number;
 
 		if( libfdata_vector_get_element_value_by_index(
@@ -1315,6 +1327,7 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
+		recursion_depth++;
 	}
 	*leaf_page_number = last_leaf_page_number;
 

@@ -24,10 +24,12 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_compression.h"
 #include "libesedb_data_segment.h"
 #include "libesedb_definitions.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
+#include "libesedb_libcnotify.h"
 #include "libesedb_libfcache.h"
 #include "libesedb_libfdata.h"
 #include "libesedb_libfvalue.h"
@@ -434,16 +436,18 @@ int libesedb_long_value_get_record_value(
      libcerror_error_t **error )
 {
 	libesedb_data_segment_t *data_segment = NULL;
-	uint8_t *data                         = 0;
+	uint8_t *compressed_data              = NULL;
+	uint8_t *data                         = NULL;
 	static char *function                 = "libesedb_long_value_get_record_value";
 	size64_t data_size                    = 0;
+	size_t compressed_data_size           = 0;
 	size_t data_offset                    = 0;
 	uint32_t column_type                  = 0;
+	uint8_t record_value_type             = 0;
 	int data_segment_index                = 0;
 	int encoding                          = 0;
 	int long_value_codepage               = 0;
 	int number_of_data_segments           = 0;
-	uint8_t record_value_type             = 0;
 
 	if( internal_long_value == NULL )
 	{
@@ -494,13 +498,14 @@ int libesedb_long_value_get_record_value(
 
 			goto on_error;
 		}
-		if( data_size > (size64_t) SSIZE_MAX )
+		if( ( data_size == 0 )
+		 || ( data_size > (size64_t) MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: data size value out of bounds.",
+			 "%s: invalid data size value out of bounds.",
 			 function );
 
 			goto on_error;
@@ -632,12 +637,88 @@ int libesedb_long_value_get_record_value(
 			{
 				long_value_codepage = internal_long_value->io_handle->ascii_codepage;
 			}
-			/* Codepage 1200 in the ESE database format is not strict UTF-16 little endian
-			 * it can be used for ASCII strings as well. This could be SCSU.
-			 */
-			if( long_value_codepage == 1200 )
+			if( ( data_size > 1 )
+			 && ( data[ 0 ] == 0x18 ) )
 			{
-				long_value_codepage = LIBFVALUE_CODEPAGE_1200_MIXED;
+				compressed_data      = data;
+				compressed_data_size = data_size;
+				data                 = NULL;
+				data_size            = 0;
+
+				if( libesedb_compression_lzxpress_decompress_get_size(
+				     compressed_data,
+				     compressed_data_size,
+				     (size_t *) &data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable retrieve uncompressed data size.",
+					 function );
+
+					goto on_error;
+				}
+				if( ( data_size == 0 )
+				 || ( data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid uncompressed data size value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
+				data = (uint8_t *) memory_allocate(
+				                    sizeof( uint8_t ) * data_size );
+
+				if( data == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+					 "%s: unable to create uncompressed data.",
+					 function );
+
+					goto on_error;
+				}
+				if( libesedb_compression_lzxpress_decompress(
+				     compressed_data,
+				     compressed_data_size,
+				     data,
+				     data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+					 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+					 "%s: unable decompressed data.",
+					 function );
+
+					goto on_error;
+				}
+				memory_free(
+				 compressed_data );
+
+				compressed_data = NULL;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+				if( libcnotify_verbose != 0 )
+				{
+					libcnotify_printf(
+					 "%s: uncompressed data:\n",
+					 function );
+					libcnotify_print_data(
+					 data,
+					 data_size,
+					 0 );
+				}
+#endif
 			}
 			encoding = long_value_codepage;
 		}
@@ -691,6 +772,11 @@ on_error:
 		libfvalue_value_free(
 		 &( internal_long_value->record_value ),
 		 NULL );
+	}
+	if( compressed_data != NULL )
+	{
+		memory_free(
+		 compressed_data );
 	}
 	if( data != NULL )
 	{

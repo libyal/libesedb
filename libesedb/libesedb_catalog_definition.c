@@ -708,7 +708,7 @@ int libesedb_catalog_definition_read_data(
 					 error,
 					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: data type size value out of bounds.",
+					 "%s: invalid data type size value out of bounds.",
 					 function );
 
 					return( -1 );

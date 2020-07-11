@@ -28,6 +28,7 @@
 #include "libesedb_libcnotify.h"
 #include "libesedb_libfvalue.h"
 #include "libesedb_value_data_handle.h"
+#include "libesedb_unused.h"
 
 /* Retrieves the number of value entries
  * Return if successful or -1 on error
@@ -36,7 +37,7 @@ int libesedb_value_data_handle_read_value_entries(
      libfvalue_data_handle_t *data_handle,
      const uint8_t *data,
      size_t data_size,
-     int encoding,
+     int encoding LIBESEDB_ATTRIBUTE_UNUSED,
      uint32_t data_flags,
      libcerror_error_t **error )
 {
@@ -48,6 +49,8 @@ int libesedb_value_data_handle_read_value_entries(
 	uint16_t value_entry_offset_index      = 0;
 	uint16_t value_entry_size              = 0;
 	int value_entry_index                  = 0;
+
+	LIBESEDB_UNREFERENCED_PARAMETER( encoding )
 
 	if( data_handle == NULL )
 	{

@@ -32,7 +32,7 @@ existing Open Source forensic tooling to be able to process this file type.
 == License
 
 ....
-Copyright (C) 2009-2019, Joachim Metz <joachim.metz@gmail.com>.
+Copyright (C) 2009-2020, Joachim Metz <joachim.metz@gmail.com>.
 Permission is granted to copy, distribute and/or modify this document under the
 terms of the GNU Free Documentation License, Version 1.3 or any later version
 published by the Free Software Foundation; with no Invariant Sections, no
@@ -79,6 +79,7 @@ Additional information about long value.
 | 0.0.29 | J.B. Metz | December 2019 | Corrected error in file header definition.
 | 0.0.30 | J.B. Metz | December 2019 | Additional information about space trees.
 | 0.0.31 | J.B. Metz | December 2019 | Additional information about extended root page header.
+| 0.0.32 | J.B. Metz | July 2020 | Updates regarding codepage 1200.
 |===
 
 :numbered:
@@ -1686,11 +1687,10 @@ See section: <<lcmapflags,LCMapFlags>>
 | 260 | SpaceDeferredLVHints | Large binary data | [yellow-background]*Unknown*
 |===
 
-A codepage of 1200 can represent either ASCII ([yellow-background]*or even
-extended ASCII?*) or UTF-16 little-endian. The way to tell is that the size of
-the UTF-16 stream should be a multitude of 2. If so try to decode the string as
-UTF-16 first.[yellow-background]*Could this be: Standard Compression Scheme for
-Unicode (SCSU)?*
+[NOTE]
+A codepage of 1200 can represent either an UTF-16 little-endian or ASCII string.
+The way to tell is that the size of the UTF-16 stream should be a multitude of
+2. If so try to decode the string as UTF-16 first.
 
 ===== [[catalog_types]]Catalog types
 

@@ -33,7 +33,7 @@ libesedb_codepage_t libesedb_codepages[ ] = {
 	{ 936,		"gb2312",		"Chinese Simplified" },
 	{ 949,		"ks_c_5601-1987",	"Korean" },
 	{ 950,		"big5",			"Chinese Traditional" },
-	{ 1200,		"unicode",		"Unicode" },
+	{ 1200,		"unicode",		"16-bit Unicode Transformation Format (UTF-16) or ASCII" },
 	{ 1250,		"windows-1250",		"Central European" },
 	{ 1251,		"windows-1251",		"Cyrillic" },
 	{ 1252,		"windows-1252",		"Western European" },

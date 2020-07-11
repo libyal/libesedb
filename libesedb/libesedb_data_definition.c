@@ -827,8 +827,8 @@ int libesedb_data_definition_read_record(
 			{
 				record_value_codepage = io_handle->ascii_codepage;
 			}
-			/* Codepage 1200 in the ESE database format is not strict UTF-16 little endian
-			 * it can be used for ASCII strings as well. This could be SCSU.
+			/* Codepage 1200 in the ESE database format is not strict UTF-16 little-endian
+			 * it can be used for ASCII strings as well.
 			 */
 			if( record_value_codepage == 1200 )
 			{
