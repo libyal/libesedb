@@ -22,6 +22,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Note that some of the OSS-Fuzz engines use C++
+ */
+extern "C" {
+
 #include "ossfuzz_libbfio.h"
 #include "ossfuzz_libesedb.h"
 
@@ -90,4 +94,6 @@ on_error_libbfio:
 
 	return( 0 );
 }
+
+} /* extern "C" */
 

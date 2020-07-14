@@ -15,7 +15,7 @@ bin_PROGRAMS = \
 	file_fuzzer
 
 file_fuzzer_SOURCES = \
-	file_fuzzer.c \
+	file_fuzzer.cc \
 	ossfuzz_libbfio.h \
 	ossfuzz_libesedb.h
 
