@@ -1291,6 +1291,21 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
+#if ( SIZEOF_INT <= 4 )
+		if( safe_leaf_page_number > (uint32_t) INT_MAX )
+#else
+		if( safe_leaf_page_number > (unsigned int) INT_MAX )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid leaf page number value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
 		last_leaf_page_number = safe_leaf_page_number;
 
 		if( libfdata_vector_get_element_value_by_index(
