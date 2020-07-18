@@ -735,13 +735,28 @@ int libesedb_catalog_read_file_io_handle(
 	}
 	while( leaf_page_number != 0 )
 	{
-		if( recursion_depth > LIBESEDB_MAXIMUM_INDEX_NODE_RECURSION_DEPTH )
+		if( recursion_depth > LIBESEDB_MAXIMUM_LEAF_PAGE_RECURSION_DEPTH )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
 			 "%s: invalid recursion depth value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+#if ( SIZEOF_INT <= 4 )
+		if( leaf_page_number > (uint32_t) INT_MAX )
+#else
+		if( leaf_page_number > (unsigned int) INT_MAX )
+#endif
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid leaf page number value out of bounds.",
 			 function );
 
 			return( -1 );

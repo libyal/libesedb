@@ -1280,7 +1280,7 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	}
 	while( safe_leaf_page_number != 0 )
 	{
-		if( recursion_depth > LIBESEDB_MAXIMUM_INDEX_NODE_RECURSION_DEPTH )
+		if( recursion_depth > LIBESEDB_MAXIMUM_LEAF_PAGE_RECURSION_DEPTH )
 		{
 			libcerror_error_set(
 			 error,
@@ -1525,6 +1525,7 @@ int libesedb_page_tree_get_number_of_leaf_values(
 	libesedb_page_t *page                                          = NULL;
 	static char *function                                          = "libesedb_page_tree_get_number_of_leaf_values";
 	uint32_t leaf_page_number                                      = 0;
+	int number_of_leaf_pages                                       = 0;
 	int safe_number_of_leaf_values                                 = 0;
 	int value_index                                                = 0;
 
@@ -1571,6 +1572,32 @@ int libesedb_page_tree_get_number_of_leaf_values(
 		}
 		while( leaf_page_number != 0 )
 		{
+			if( number_of_leaf_pages > LIBESEDB_MAXIMUM_NUMBER_OF_LEAF_PAGES )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+				 "%s: invalid number of leaf pages value exceeds maximum.",
+				 function );
+
+				goto on_error;
+			}
+#if ( SIZEOF_INT <= 4 )
+			if( leaf_page_number > (uint32_t) INT_MAX )
+#else
+			if( leaf_page_number > (unsigned int) INT_MAX )
+#endif
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+				 "%s: invalid leaf page number value out of bounds.",
+				 function );
+
+				goto on_error;
+			}
 			if( libfdata_vector_get_element_value_by_index(
 			     page_tree->pages_vector,
 			     (intptr_t *) file_io_handle,
@@ -1659,6 +1686,8 @@ int libesedb_page_tree_get_number_of_leaf_values(
 				goto on_error;
 			}
 			page_tree->number_of_leaf_values = safe_number_of_leaf_values;
+
+			number_of_leaf_pages++;
 		}
 	}
 	*number_of_leaf_values = page_tree->number_of_leaf_values;
