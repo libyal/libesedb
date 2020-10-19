@@ -452,7 +452,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a column types object
+/* Initializes a column types object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_column_types_init(

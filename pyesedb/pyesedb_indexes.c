@@ -215,7 +215,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes an indexes sequence and iterator object
+/* Initializes an indexes sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_indexes_init(

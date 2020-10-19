@@ -232,7 +232,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a column object
+/* Initializes a column object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_column_init(

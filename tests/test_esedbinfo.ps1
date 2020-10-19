@@ -1,6 +1,6 @@
 # Info tool testing script
 #
-# Version: 20200414
+# Version: 20200726
 
 $ExitSuccess = 0
 $ExitFailure = 1
@@ -8,7 +8,7 @@ $ExitIgnore = 77
 
 $Profiles = @("esedbinfo")
 $OptionsPerProfile = @("")
-$OptionSets = "";
+$OptionSets = ""
 
 $InputGlob = "*"
 

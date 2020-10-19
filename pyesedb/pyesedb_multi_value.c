@@ -237,7 +237,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a multi value object
+/* Initializes a multi value object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_multi_value_init(

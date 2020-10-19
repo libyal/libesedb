@@ -256,7 +256,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a value flags object
+/* Initializes a value flags object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_value_flags_init(

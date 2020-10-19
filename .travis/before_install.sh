@@ -1,28 +1,18 @@
 #!/bin/sh
 # Script to run before_install step on Travis-CI
 #
-# Version: 20200414
+# Version: 20201009
 
 # Exit on error.
 set -e;
 
-if test ${TARGET} = "docker";
+if test ${TRAVIS_OS_NAME} = "linux";
 then
 	sudo apt-get update;
-	sudo apt-mark hold mysql-server-5.7 postgresql-9.4 postgresql-client-9.4 postgresql-9.5 postgresql-client-9.5 postgresql-9.6 postgresql-client-9.6 postgresql-10 postgresql-client-10;
+	sudo apt-mark hold openssh-server;
 	sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y --allow-unauthenticated;
 
-	sudo apt-get install -y qemu-user-static;
-
-	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes;
-
-elif test ${TRAVIS_OS_NAME} = "linux";
-then
-	sudo apt-get update;
-	sudo apt-mark hold mysql-server-5.7 postgresql-9.4 postgresql-client-9.4 postgresql-9.5 postgresql-client-9.5 postgresql-9.6 postgresql-client-9.6 postgresql-10 postgresql-client-10;
-	sudo apt-get --fix-missing -o Dpkg::Options::="--force-confold" upgrade -y --allow-unauthenticated;
-
-	sudo apt-get install -y autoconf automake autopoint build-essential git libtool pkg-config;
+	sudo apt-get install -y autoconf automake autopoint build-essential git libtool pkg-config python-dev-is-python3 python2-dev;
 
 elif test ${TRAVIS_OS_NAME} = "osx";
 then

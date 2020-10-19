@@ -216,7 +216,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a long value object
+/* Initializes a long value object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_long_value_init(

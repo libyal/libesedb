@@ -280,7 +280,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a record object
+/* Initializes a record object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_record_init(

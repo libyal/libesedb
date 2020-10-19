@@ -215,7 +215,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a columns sequence and iterator object
+/* Initializes a columns sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_columns_init(

@@ -215,7 +215,7 @@ on_error:
 	return( NULL );
 }
 
-/* Intializes a records sequence and iterator object
+/* Initializes a records sequence and iterator object
  * Returns 0 if successful or -1 on error
  */
 int pyesedb_records_init(
