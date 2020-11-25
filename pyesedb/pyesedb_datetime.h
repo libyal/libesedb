@@ -31,6 +31,14 @@
 extern "C" {
 #endif
 
+PyObject *pyesedb_datetime_new_from_time_elements(
+           uint16_t year,
+           uint64_t number_of_days,
+           uint8_t hours,
+           uint8_t minutes,
+           uint8_t seconds,
+           uint8_t micro_seconds );
+
 PyObject *pyesedb_datetime_new_from_fat_date_time(
            uint32_t fat_date_time );
 
@@ -40,8 +48,14 @@ PyObject *pyesedb_datetime_new_from_filetime(
 PyObject *pyesedb_datetime_new_from_floatingtime(
            uint64_t floatingtime );
 
+PyObject *pyesedb_datetime_new_from_hfs_time(
+           uint32_t hfs_time );
+
 PyObject *pyesedb_datetime_new_from_posix_time(
-           uint32_t posix_time );
+           int64_t posix_time );
+
+PyObject *pyesedb_datetime_new_from_posix_time_in_micro_seconds(
+           int64_t posix_time );
 
 #if defined( __cplusplus )
 }
