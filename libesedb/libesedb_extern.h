@@ -30,7 +30,7 @@
 
 #include <libesedb/extern.h>
 
-#if defined( __CYGWIN__ )
+#if defined( __CYGWIN__ ) || defined( __MINGW32__ )
 #define LIBESEDB_EXTERN_VARIABLE	extern
 #else
 #define LIBESEDB_EXTERN_VARIABLE	LIBESEDB_EXTERN

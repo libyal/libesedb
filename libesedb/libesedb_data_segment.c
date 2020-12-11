@@ -318,32 +318,6 @@ int libesedb_data_segment_read_element_data(
 
 		return( -1 );
 	}
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading data segment at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 element_offset,
-		 element_offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     element_offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek data segment offset: %" PRIi64 ".",
-		 function,
-		 element_offset );
-
-		goto on_error;
-	}
 	if( libesedb_data_segment_initialize(
 	     &data_segment,
 	     (size_t) element_size,
@@ -358,10 +332,21 @@ int libesedb_data_segment_read_element_data(
 
 		goto on_error;
 	}
-	read_count = libbfio_handle_read_buffer(
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading data segment at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 element_offset,
+		 element_offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
 		      file_io_handle,
 		      data_segment->data,
 		      data_segment->data_size,
+		      element_offset,
 		      error );
 
 	if( read_count == -1 )
@@ -370,8 +355,9 @@ int libesedb_data_segment_read_element_data(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read data segment at offset: 0x%08" PRIx64 ".",
+		 "%s: unable to read data segment at offset: %" PRIi64 " (0x%08" PRIx64 ").",
 		 function,
+		 element_offset,
 		 element_offset );
 
 		goto on_error;

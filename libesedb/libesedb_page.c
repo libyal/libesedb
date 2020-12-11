@@ -886,33 +886,6 @@ int libesedb_page_read_file_io_handle(
 	}
 #endif
 
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
-		libcnotify_printf(
-		 "%s: reading page: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
-		 function,
-		 page->page_number,
-		 page->offset,
-		 page->offset );
-	}
-#endif
-	if( libbfio_handle_seek_offset(
-	     file_io_handle,
-	     page->offset,
-	     SEEK_SET,
-	     error ) == -1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_IO,
-		 LIBCERROR_IO_ERROR_SEEK_FAILED,
-		 "%s: unable to seek page offset: %" PRIi64 ".",
-		 function,
-		 page->offset );
-
-		goto on_error;
-	}
 	page->data = (uint8_t *) memory_allocate(
 	                          (size_t) io_handle->page_size );
 
@@ -929,10 +902,22 @@ int libesedb_page_read_file_io_handle(
 	}
 	page->data_size = (size_t) io_handle->page_size;
 
-	read_count = libbfio_handle_read_buffer(
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: reading page: %" PRIu32 " at offset: %" PRIi64 " (0x%08" PRIx64 ")\n",
+		 function,
+		 page->page_number,
+		 page->offset,
+		 page->offset );
+	}
+#endif
+	read_count = libbfio_handle_read_buffer_at_offset(
 	              file_io_handle,
 	              page->data,
 	              page->data_size,
+	              page->offset,
 	              error );
 
 	if( read_count != (ssize_t) page->data_size )
@@ -941,8 +926,11 @@ int libesedb_page_read_file_io_handle(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_IO,
 		 LIBCERROR_IO_ERROR_READ_FAILED,
-		 "%s: unable to read page data.",
-		 function );
+		 "%s: unable to read page: %" PRIu32 " data at offset: %" PRIi64 " (0x%08" PRIx64 ").",
+		 function,
+		 page->page_number,
+		 page->offset,
+		 page->offset );
 
 		goto on_error;
 	}
