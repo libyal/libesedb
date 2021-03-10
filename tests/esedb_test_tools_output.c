@@ -39,7 +39,7 @@
 
 #include "../esedbtools/esedbtools_output.h"
 
-/* Tests the esedbtools_output_initialize and function
+/* Tests the esedbtools_output_initialize function
  * Returns 1 if successful or 0 if not
  */
 int esedb_test_tools_output_initialize(
