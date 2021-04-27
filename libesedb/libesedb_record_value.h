@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libesedb_libcerror.h"
 #include "libesedb_libfvalue.h"
 
 #if defined( __cplusplus )
