@@ -1,7 +1,7 @@
 /*
  * OSS-Fuzz target for libesedb table type
  *
- * Copyright (C) 2011-2020, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2011-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

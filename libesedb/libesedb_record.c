@@ -195,9 +195,12 @@ on_error:
 	{
 		if( internal_record->values_array != NULL )
 		{
+			/* Note that if libesedb_data_definition_read_record fails values_array
+			 * can contain values that need to be freed with libfvalue_value_free.
+			 */
 			libcdata_array_free(
 			 &( internal_record->values_array ),
-			 NULL,
+			 (int (*)(intptr_t **, libcerror_error_t **)) &libfvalue_value_free,
 			 NULL );
 		}
 		memory_free(

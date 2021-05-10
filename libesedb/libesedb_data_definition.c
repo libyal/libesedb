@@ -495,7 +495,7 @@ int libesedb_data_definition_read_record(
 		 "%s: invalid data definition - data offset value out of bounds.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	record_data      = &( page_value->data[ data_offset ] );
 	record_data_size = page_value->size - data_offset;
@@ -546,7 +546,8 @@ int libesedb_data_definition_read_record(
 		 function,
 		 variable_size_data_types_offset );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( template_table_definition != NULL )
 	{
 		if( libesedb_table_definition_get_number_of_column_catalog_definitions(
@@ -844,6 +845,17 @@ int libesedb_data_definition_read_record(
 		{
 			if( column_catalog_definition->identifier <= last_fixed_size_data_type )
 			{
+				if( column_catalog_definition->size > ( record_data_size - fixed_size_data_type_value_offset ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid data definition - size value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
 #if defined( HAVE_DEBUG_OUTPUT )
 				if( libcnotify_verbose != 0 )
 				{
