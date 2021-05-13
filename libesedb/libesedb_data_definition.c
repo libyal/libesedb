@@ -343,6 +343,7 @@ int libesedb_data_definition_read_record(
 	uint16_t variable_size_data_type_offset                  = 0;
 	uint16_t variable_size_data_type_size                    = 0;
 	uint16_t variable_size_data_type_value_offset            = 0;
+	uint16_t variable_size_data_type_value_size              = 0;
 	uint16_t variable_size_data_types_offset                 = 0;
 	uint8_t current_variable_size_data_type                  = 0;
 	uint8_t last_fixed_size_data_type                        = 0;
@@ -722,7 +723,8 @@ int libesedb_data_definition_read_record(
 			 libesedb_column_type_get_identifier(
 			  column_catalog_definition->column_type ) );
 		}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 /* TODO refactor to value type */
 
 		switch( column_catalog_definition->column_type )
@@ -869,7 +871,8 @@ int libesedb_data_definition_read_record(
 					 column_catalog_definition->size,
 					 0 );
 				}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 				if( libfvalue_data_handle_set_data(
 				     value_data_handle,
 				     &( record_data[ fixed_size_data_type_value_offset ] ),
@@ -905,6 +908,17 @@ int libesedb_data_definition_read_record(
 		{
 			while( current_variable_size_data_type < column_catalog_definition->identifier )
 			{
+				if( variable_size_data_type_offset > ( record_data_size - 2 ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+					 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid variable size data type offset value out of bounds.",
+					 function );
+
+					goto on_error;
+				}
 				byte_stream_copy_to_uint16_little_endian(
 				 &( record_data[ variable_size_data_type_offset ] ),
 				 variable_size_data_type_size );
@@ -930,6 +944,31 @@ int libesedb_data_definition_read_record(
 					 */
 					if( ( variable_size_data_type_size & 0x8000 ) == 0 )
 					{
+						if( variable_size_data_type_size < previous_variable_size_data_type_size )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid variable size data type size value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
+						variable_size_data_type_value_size = variable_size_data_type_size - previous_variable_size_data_type_size;
+
+						if( ( variable_size_data_type_value_size > record_data_size )
+						 || ( variable_size_data_type_offset > ( record_data_size - variable_size_data_type_value_size ) ) )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid variable size data type value size value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 #if defined( HAVE_DEBUG_OUTPUT )
 						if( libcnotify_verbose != 0 )
 						{
@@ -939,14 +978,14 @@ int libesedb_data_definition_read_record(
 							 column_catalog_definition->identifier );
 							libcnotify_print_data(
 							 &( record_data[ variable_size_data_type_value_offset ] ),
-							 variable_size_data_type_size - previous_variable_size_data_type_size,
+							 variable_size_data_type_value_size,
 							 0 );
 						}
 #endif
 						if( libfvalue_data_handle_set_data(
 						     value_data_handle,
 						     &( record_data[ variable_size_data_type_value_offset ] ),
-						     variable_size_data_type_size - previous_variable_size_data_type_size,
+						     variable_size_data_type_value_size,
 						     encoding,
 						     LIBFVALUE_VALUE_DATA_FLAG_MANAGED,
 						     error ) != 1 )
@@ -960,7 +999,7 @@ int libesedb_data_definition_read_record(
 
 							goto on_error;
 						}
-						variable_size_data_type_value_offset += variable_size_data_type_size - previous_variable_size_data_type_size;
+						variable_size_data_type_value_offset += variable_size_data_type_value_size;
 						previous_variable_size_data_type_size = variable_size_data_type_size;
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -1098,7 +1137,7 @@ int libesedb_data_definition_read_record(
 							 column_catalog_definition->identifier );
 						}
 					}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 					if( tagged_data_type_size > 0 )
 					{
 						if( tagged_data_type_value_offset >= record_data_size )
@@ -1368,7 +1407,7 @@ int libesedb_data_definition_read_record(
 								 "<NULL>\n\n" );
 							}
 						}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 					}
 #if defined( HAVE_DEBUG_OUTPUT )
 					/* TODO are zero size tagged data type values handled correctly?
@@ -1467,7 +1506,8 @@ int libesedb_data_definition_read_record(
 		libcnotify_printf(
 		 "\n" );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 
 on_error:
