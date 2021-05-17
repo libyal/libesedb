@@ -1214,12 +1214,37 @@ int libesedb_data_definition_read_record(
 			{
 				if( tagged_data_types_offset == 0 )
 				{
-					tagged_data_types_offset       = variable_size_data_type_value_offset;
+					tagged_data_types_offset = variable_size_data_type_value_offset;
+
+					/* Note that offset is allowed to be equal to the record data size here
+					 */
+					if( tagged_data_types_offset > record_data_size )
+					{
+						libcerror_error_set(
+						 error,
+						 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+						 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+						 "%s: invalid tagged data types offset value out of bounds.",
+						 function );
+
+						goto on_error;
+					}
 					tagged_data_type_offset_data   = &( record_data[ tagged_data_types_offset ] );
 					remaining_definition_data_size = record_data_size - (size_t) tagged_data_types_offset;
 
 					if( remaining_definition_data_size > 0 )
 					{
+						if( record_data_size < 4 )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data types offset data size value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						byte_stream_copy_to_uint16_little_endian(
 						 tagged_data_type_offset_data,
 						 tagged_data_type_identifier );
@@ -1290,6 +1315,17 @@ int libesedb_data_definition_read_record(
 
 					if( tagged_data_type_offset_data_size > 0 )
 					{
+						if( tagged_data_type_offset_data_size < 4 )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data types offset data size value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						byte_stream_copy_to_uint16_little_endian(
 						 tagged_data_type_offset_data,
 						 tagged_data_type_identifier );
