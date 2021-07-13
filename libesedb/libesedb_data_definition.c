@@ -1469,6 +1469,17 @@ int libesedb_data_definition_read_record(
 
 							goto on_error;
 						}
+						if( tagged_data_type_size > ( record_data_size - tagged_data_type_value_offset ) )
+						{
+							libcerror_error_set(
+							 error,
+							 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+							 LIBCERROR_ARGUMENT_ERROR_VALUE_OUT_OF_BOUNDS,
+							 "%s: invalid tagged data type size value out of bounds.",
+							 function );
+
+							goto on_error;
+						}
 						if( libfvalue_data_handle_set_data(
 						     value_data_handle,
 						     &( record_data[ tagged_data_type_value_offset ] ),
