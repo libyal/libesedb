@@ -358,6 +358,15 @@ void pyesedb_file_free(
 
 		return;
 	}
+	if( pyesedb_file->file_io_handle != NULL )
+	{
+		if( pyesedb_file_close(
+		     pyesedb_file,
+		     NULL ) == NULL )
+		{
+			return;
+		}
+	}
 	if( pyesedb_file->file != NULL )
 	{
 		Py_BEGIN_ALLOW_THREADS

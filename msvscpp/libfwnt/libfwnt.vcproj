@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libfwnt\libfwnt_notify.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libfwnt\libfwnt_security_descriptor.c"
 				>
 			</File>
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath="..\..\libfwnt\libfwnt_lzxpress.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libfwnt\libfwnt_notify.h"
 				>
 			</File>
 			<File
