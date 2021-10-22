@@ -223,39 +223,10 @@ int libesedb_file_header_read_data(
 
 		return( -1 );
 	}
-	if( libesedb_checksum_calculate_little_endian_xor32(
-	     &calculated_xor32_checksum,
-	     &( data[ 4 ] ),
-	     data_size - 4,
-	     0x89abcdef,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GENERIC,
-		 "%s: unable to calculate XOR-32 checksum.",
-		 function );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->checksum,
 	 stored_xor32_checksum );
 
-	if( stored_xor32_checksum != calculated_xor32_checksum )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_INPUT,
-		 LIBCERROR_INPUT_ERROR_CHECKSUM_MISMATCH,
-		 "%s: mismatch in file header checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
-		 function,
-		 stored_xor32_checksum,
-		 calculated_xor32_checksum );
-
-		return( -1 );
-	}
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->format_version,
 	 file_header->format_version );
@@ -701,6 +672,35 @@ int libesedb_file_header_read_data(
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
+	if( libesedb_checksum_calculate_little_endian_xor32(
+	     &calculated_xor32_checksum,
+	     &( data[ 4 ] ),
+	     data_size - 4,
+	     0x89abcdef,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GENERIC,
+		 "%s: unable to calculate XOR-32 checksum.",
+		 function );
+
+		return( -1 );
+	}
+	if( stored_xor32_checksum != calculated_xor32_checksum )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_INPUT,
+		 LIBCERROR_INPUT_ERROR_CHECKSUM_MISMATCH,
+		 "%s: mismatch in file header checksum ( 0x%08" PRIx32 " != 0x%08" PRIx32 " ).",
+		 function,
+		 stored_xor32_checksum,
+		 calculated_xor32_checksum );
+
+		return( -1 );
+	}
 /* TODO add more values to internal structures */
 
 	return( 1 );
