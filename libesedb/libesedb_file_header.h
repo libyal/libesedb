@@ -56,6 +56,10 @@ struct libesedb_file_header
 	 */
 	uint32_t format_version;
 
+	/* The database state
+	 */
+	uint32_t database_state;
+
 	/* The page size
 	 */
 	uint32_t page_size;

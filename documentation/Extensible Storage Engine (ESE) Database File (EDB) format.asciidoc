@@ -81,6 +81,7 @@ Additional information about long value.
 | 0.0.31 | J.B. Metz | December 2019 | Additional information about extended root page header.
 | 0.0.32 | J.B. Metz | July 2020 | Updates regarding codepage 1200.
 | 0.0.31 | J.B. Metz | October 2021 | Updates regarding Windows 11.
+| 0.0.32 | J.B. Metz | December 2021 | Updates regarding Windows 11.
 |===
 
 :numbered:
@@ -330,6 +331,8 @@ Unknown flags
 | Value | Identifier | Description
 | 0x01000000 | | [yellow-background]*If not set the ECC and checksum counts and date and time values are not shown by eseutil, could be some extended data flag*
 | 0x02000000 | | [yellow-background]*Found in STM*
+| | |
+| 0x01000000 | | [yellow-background]*Found in Windows 11 database*
 |===
 
 ....

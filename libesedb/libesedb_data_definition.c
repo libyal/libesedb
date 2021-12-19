@@ -958,7 +958,7 @@ int libesedb_data_definition_read_record(
 						variable_size_data_type_value_size = variable_size_data_type_size - previous_variable_size_data_type_size;
 
 						if( ( variable_size_data_type_value_size > record_data_size )
-						 || ( variable_size_data_type_offset > ( record_data_size - variable_size_data_type_value_size ) ) )
+						 || ( variable_size_data_type_value_offset > ( record_data_size - variable_size_data_type_value_size ) ) )
 						{
 							libcerror_error_set(
 							 error,

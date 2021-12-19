@@ -236,6 +236,10 @@ int libesedb_file_header_read_data(
 	 file_header->file_type );
 
 	byte_stream_copy_to_uint32_little_endian(
+	 ( (esedb_file_header_t *) data )->database_state,
+	 file_header->database_state );
+
+	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->format_revision,
 	 file_header->format_revision );
 	byte_stream_copy_to_uint32_little_endian(
@@ -295,15 +299,12 @@ int libesedb_file_header_read_data(
 		 28,
 		 0 );
 
-		byte_stream_copy_to_uint32_little_endian(
-		 ( (esedb_file_header_t *) data )->database_state,
-		 value_32bit );
 		libcnotify_printf(
 		 "%s: database state\t\t\t\t: %" PRIu32 " ",
 		 function,
-		 value_32bit );
+		 file_header->database_state );
 		libesedb_debug_print_database_state(
-		 value_32bit );
+		 file_header->database_state );
 		libcnotify_printf(
 		 "\n" );
 
@@ -434,8 +435,9 @@ int libesedb_file_header_read_data(
 		 value_32bit );
 
 		libcnotify_printf(
-		 "%s: format revision\t\t\t\t: 0x%08" PRIx32 "\n",
+		 "%s: format revision\t\t\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
 		 function,
+		 file_header->format_revision,
 		 file_header->format_revision );
 		libcnotify_printf(
 		 "%s: page size\t\t\t\t: %" PRIu32 "\n",
@@ -521,8 +523,9 @@ int libesedb_file_header_read_data(
 		 function,
 		 file_header->creation_format_version );
 		libcnotify_printf(
-		 "%s: creation format revision\t\t: 0x%08" PRIx32 "\n",
+		 "%s: creation format revision\t\t: %" PRIu32 " (0x%08" PRIx32 ")\n",
 		 function,
+		 file_header->creation_format_revision,
 		 file_header->creation_format_revision );
 
 		libcnotify_printf(
@@ -688,7 +691,8 @@ int libesedb_file_header_read_data(
 
 		return( -1 );
 	}
-	if( stored_xor32_checksum != calculated_xor32_checksum )
+	if( ( file_header->database_state != 2 )
+	 && ( stored_xor32_checksum != calculated_xor32_checksum ) )
 	{
 		libcerror_error_set(
 		 error,
