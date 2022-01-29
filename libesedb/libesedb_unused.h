@@ -1,7 +1,7 @@
 /*
  * Definitions to silence compiler warnings about unused function attributes/parameters.
  *
- * Copyright (C) 2009-2021, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2022, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
