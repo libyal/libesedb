@@ -29,17 +29,6 @@ Requires: libesedb = %{version}-%{release}
 %description -n libesedb-devel
 Header files and libraries for developing applications for libesedb.
 
-%package -n libesedb-python2
-Obsoletes: libesedb-python < %{version}
-Provides: libesedb-python = %{version}
-Summary: Python 2 bindings for libesedb
-Group: System Environment/Libraries
-Requires: libesedb = %{version}-%{release} python2
-BuildRequires: python2-devel
-
-%description -n libesedb-python2
-Python 2 bindings for libesedb
-
 %package -n libesedb-python3
 Summary: Python 3 bindings for libesedb
 Group: System Environment/Libraries
@@ -62,7 +51,7 @@ Several tools for reading Extensible Storage Engine (ESE) Database Files (EDB)
 %setup -q
 
 %build
-%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python2 --enable-python3
+%configure --prefix=/usr --libdir=%{_libdir} --mandir=%{_mandir} --enable-python3
 make %{?_smp_mflags}
 
 %install
@@ -97,14 +86,6 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/libesedb.pc
 %{_includedir}/*
 %{_mandir}/man3/*
-
-%files -n libesedb-python2
-%defattr(644,root,root,755)
-%license COPYING COPYING.LESSER
-%doc AUTHORS README
-%{_libdir}/python2*/site-packages/*.a
-%{_libdir}/python2*/site-packages/*.la
-%{_libdir}/python2*/site-packages/*.so
 
 %files -n libesedb-python3
 %defattr(644,root,root,755)

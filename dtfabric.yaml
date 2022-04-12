@@ -1,0 +1,83 @@
+name: esedb
+type: format
+description: Extensible Storage Engine (ESE) Database File (EDB) format
+urls: ["https://github.com/libyal/libesedb/blob/main/documentation/Extensible%20Storage%20Engine%20(ESE)%20Database%20File%20(EDB)%20format.asciidoc"]
+metadata:
+  authors: ['Joachim Metz <joachim.metz@gmail.com>']
+  year: 2009
+attributes:
+  byte_order: little-endian
+layout:
+- data_type: file_header
+  offset: 0
+---
+name: byte
+type: integer
+attributes:
+  format: unsigned
+  size: 1
+  units: bytes
+---
+name: uint32
+type: integer
+attributes:
+  format: unsigned
+  size: 4
+  units: bytes
+---
+name: uint64
+type: integer
+attributes:
+  format: unsigned
+  size: 8
+  units: bytes
+---
+name: file_header
+type: structure
+description: File header
+members:
+- name: checksum
+  data_type: uint32
+- name: signature
+  type: stream
+  element_data_type: byte
+  elements_data_size: 4
+  value: [0xef, 0xcd, 0xab, 0x89]
+- name: format_version
+  data_type: uint32
+- name: file_type
+  data_type: uint32
+- name: database_time
+  data_type: uint64
+- name: database_signature
+  type: stream
+  element_data_type: byte
+  elements_data_size: 28
+- name: database_state
+  data_type: uint32
+- name: consistent_position
+  data_type: uint64
+- name: consistent_time
+  data_type: uint64
+- name: attach_time
+  data_type: uint64
+- name: attach_position
+  data_type: uint64
+- name: unknown1
+  data_type: uint32
+- name: log_signature
+  type: stream
+  element_data_type: byte
+  elements_data_size: 28
+- name: previous_full_backup
+  type: stream
+  element_data_type: byte
+  elements_data_size: 24
+- name: previous_incremental_backup
+  type: stream
+  element_data_type: byte
+  elements_data_size: 24
+- name: current_full_backup
+  type: stream
+  element_data_type: byte
+  elements_data_size: 24
