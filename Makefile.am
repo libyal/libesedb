@@ -41,7 +41,6 @@ DPKG_FILES = \
 	dpkg/rules \
 	dpkg/libesedb.install \
 	dpkg/libesedb-dev.install \
-	dpkg/libesedb-python.install \
 	dpkg/libesedb-python3.install \
 	dpkg/libesedb-tools.install \
 	dpkg/source/format
