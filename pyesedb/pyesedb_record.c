@@ -115,6 +115,13 @@ PyMethodDef pyesedb_record_object_methods[] = {
 	  "get_value_data_as_long_value(value_entry) -> pyesedb.long_value or None\n"
 	  "\n"
 	  "Retrieves the value data as a long value." },
+	
+	{ "get_value_data_as_bool",
+	  (PyCFunction) pyesedb_record_get_value_data_as_bool,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_value_data_as_bool(value_entry) -> Boolean\n"
+	  "\n"
+	  "Retrieves the value data as a boolean." },
 
 	/* Sentinel */
 	{ NULL, NULL, 0, NULL }
@@ -1532,3 +1539,103 @@ on_error:
 	return( NULL );
 }
 
+/* Retrieves the value data represented as a boolean value
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_get_value_data_as_bool(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error          = NULL;
+	PyObject *bool_value_object       = NULL;
+	static char *keyword_list[]       = { "value_entry", NULL };
+	static char *function             = "pyesedb_record_get_value_data_as_bool";
+	uint32_t column_type        	  = 0;
+	uint8_t bool_value 				  = 0;
+	int result                        = 0;
+	int value_entry                   = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_column_type(
+	          pyesedb_record->record,
+	          value_entry,
+	          &column_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve column: %d type.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+
+	if( column_type != LIBESEDB_COLUMN_TYPE_BOOLEAN )
+	{
+		PyErr_Format(
+		 PyExc_IOError,
+		 "%s: value: %d is not a boolean type.",
+		 function,
+		 value_entry );
+
+		return( NULL );
+	}
+	
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_value_boolean(
+	          pyesedb_record->record,
+	          value_entry,
+	          &bool_value,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve boolean value: %d.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+
+	bool_value_object = PyBool_FromLong((long) bool_value);
+
+	return( bool_value_object );
+}

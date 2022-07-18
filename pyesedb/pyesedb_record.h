@@ -116,6 +116,11 @@ PyObject *pyesedb_record_get_value_data_as_long_value(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pyesedb_record_get_value_data_as_bool(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
 #if defined( __cplusplus )
 }
 #endif
