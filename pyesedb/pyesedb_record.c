@@ -1552,7 +1552,7 @@ PyObject *pyesedb_record_get_value_data_as_bool(
 	static char *keyword_list[]       = { "value_entry", NULL };
 	static char *function             = "pyesedb_record_get_value_data_as_bool";
 	uint32_t column_type        	  = 0;
-	uint8_t bool_value 				  = 0;
+	uint8_t bool_value                = 0;
 	int result                        = 0;
 	int value_entry                   = 0;
 
