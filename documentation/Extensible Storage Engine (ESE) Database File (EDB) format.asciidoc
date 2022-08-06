@@ -1367,7 +1367,7 @@ The column type (JET_COLTYP) consist of the following values:
 | 0 | JET_coltypNil | Invalid +
 Invalid column type.
 | 1 | JET_coltypBit | Boolean +
-Boolean column type that can be true, or false but cannot be NULL. This type of column is one byte of size and is a fixed size.
+Boolean column type that can be true (non 0), or false (0) but cannot be NULL. This type of column is one byte of size and is a fixed size.
 | 2 | JET_coltypUnsignedByte | Integer 8-bit unsigned
 | 3 | JET_coltypShort | Integer 16-bit signed
 | 4 | JET_coltypLong | Integer 32-bit signed

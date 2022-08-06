@@ -96,6 +96,11 @@ PyObject *pyesedb_record_get_value_data(
            PyObject *arguments,
            PyObject *keywords );
 
+PyObject *pyesedb_record_get_value_data_as_boolean(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords );
+
 PyObject *pyesedb_record_get_value_data_as_floating_point(
            pyesedb_record_t *pyesedb_record,
            PyObject *arguments,

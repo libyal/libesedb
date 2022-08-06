@@ -88,17 +88,24 @@ PyMethodDef pyesedb_record_object_methods[] = {
 	  "\n"
 	  "Retrieves the value data as a binary string." },
 
+	{ "get_value_data_as_boolean",
+	  (PyCFunction) pyesedb_record_get_value_data_as_boolean,
+	  METH_VARARGS | METH_KEYWORDS,
+	  "get_value_data_as_boolean(value_entry) -> Boolean or None\n"
+	  "\n"
+	  "Retrieves the value data as a boolean." },
+
 	{ "get_value_data_as_floating_point",
 	  (PyCFunction) pyesedb_record_get_value_data_as_floating_point,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_value_data_as_floating_point(value_entry) -> Float\n"
+	  "get_value_data_as_floating_point(value_entry) -> Float or None\n"
 	  "\n"
 	  "Retrieves the value data as a floating point." },
 
 	{ "get_value_data_as_integer",
 	  (PyCFunction) pyesedb_record_get_value_data_as_integer,
 	  METH_VARARGS | METH_KEYWORDS,
-	  "get_value_data_as_integer(value_entry) -> Integer\n"
+	  "get_value_data_as_integer(value_entry) -> Integer or None\n"
 	  "\n"
 	  "Retrieves the value data as an integer." },
 
@@ -957,6 +964,122 @@ on_error:
 	return( NULL );
 }
 
+/* Retrieves the value data represented as a boolean
+ * Returns a Python object if successful or NULL on error
+ */
+PyObject *pyesedb_record_get_value_data_as_boolean(
+           pyesedb_record_t *pyesedb_record,
+           PyObject *arguments,
+           PyObject *keywords )
+{
+	libcerror_error_t *error    = NULL;
+	static char *function       = "pyesedb_record_get_value_data_as_boolean";
+	static char *keyword_list[] = { "value_entry", NULL };
+	uint32_t column_type        = 0;
+	uint8_t value_8bit          = 0;
+	int result                  = 0;
+	int value_entry             = 0;
+
+	if( pyesedb_record == NULL )
+	{
+		PyErr_Format(
+		 PyExc_TypeError,
+		 "%s: invalid record.",
+		 function );
+
+		return( NULL );
+	}
+	if( PyArg_ParseTupleAndKeywords(
+	     arguments,
+	     keywords,
+	     "i",
+	     keyword_list,
+	     &value_entry ) == 0 )
+	{
+		return( NULL );
+	}
+	Py_BEGIN_ALLOW_THREADS
+
+	result = libesedb_record_get_column_type(
+	          pyesedb_record->record,
+	          value_entry,
+	          &column_type,
+	          &error );
+
+	Py_END_ALLOW_THREADS
+
+	if( result != 1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve column: %d type.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	switch( column_type )
+	{
+		case LIBESEDB_COLUMN_TYPE_BOOLEAN:
+			Py_BEGIN_ALLOW_THREADS
+
+			result = libesedb_record_get_value_boolean(
+				  pyesedb_record->record,
+				  value_entry,
+				  &value_8bit,
+				  &error );
+
+			Py_END_ALLOW_THREADS
+
+			break;
+
+		default:
+			PyErr_Format(
+			 PyExc_IOError,
+			 "%s: value: %d is not a boolean type.",
+			 function,
+			 value_entry );
+
+			return( NULL );
+	}
+	if( result == -1 )
+	{
+		pyesedb_error_raise(
+		 error,
+		 PyExc_IOError,
+		 "%s: unable to retrieve boolean value: %d.",
+		 function,
+		 value_entry );
+
+		libcerror_error_free(
+		 &error );
+
+		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
+	}
+	if( value_8bit != 0 )
+	{
+		Py_IncRef(
+		 (PyObject *) Py_True );
+
+		return( Py_True );
+	}
+	Py_IncRef(
+	 (PyObject *) Py_False );
+
+	return( Py_False );
+}
+
 /* Retrieves the value data represented as a floating point
  * Returns a Python object if successful or NULL on error
  */
@@ -1069,6 +1192,13 @@ PyObject *pyesedb_record_get_value_data_as_floating_point(
 		 &error );
 
 		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
 	}
 	floating_point_object = PyFloat_FromDouble(
 	                         value_64bit );
@@ -1263,6 +1393,13 @@ PyObject *pyesedb_record_get_value_data_as_integer(
 		 &error );
 
 		return( NULL );
+	}
+	else if( result == 0 )
+	{
+		Py_IncRef(
+		 Py_None );
+
+		return( Py_None );
 	}
 	if( value_is_signed != 0 )
 	{
