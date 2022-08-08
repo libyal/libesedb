@@ -32,6 +32,7 @@
 #include "esedb_test_libcerror.h"
 #include "esedb_test_libesedb.h"
 #include "esedb_test_libfcache.h"
+#include "esedb_test_libfdata.h"
 #include "esedb_test_macros.h"
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
