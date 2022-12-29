@@ -22,7 +22,7 @@
 #include <common.h>
 #include <types.h>
 
-#if defined( HAVE_LIBINTL_H )
+#if defined( HAVE_LIBINTL_H ) && defined( ENABLE_NLS )
 #include <libintl.h>
 #endif
 
@@ -40,7 +40,7 @@ int libesedb_i18n_initialize(
 
 	if( libesedb_i18n_initialized == 0 )
 	{
-#if defined( HAVE_BINDTEXTDOMAIN )
+#if defined( HAVE_BINDTEXTDOMAIN ) && defined( LOCALEDIR )
 		if( bindtextdomain(
 		     "libesedb",
 		     LOCALEDIR ) == NULL )
@@ -54,7 +54,8 @@ int libesedb_i18n_initialize(
 
 			return( -1 );
 		}
-#endif
+#endif /* defined( HAVE_BINDTEXTDOMAIN ) && defined( LOCALEDIR ) */
+
 		libesedb_i18n_initialized = 1;
 	}
 	return( 1 );

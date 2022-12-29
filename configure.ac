@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libesedb],
- [20221113],
+ [20221228],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(

@@ -25,7 +25,7 @@
 #include <common.h>
 #include <types.h>
 
-#if defined( HAVE_LIBINTL_H )
+#if defined( HAVE_LIBINTL_H ) && defined( ENABLE_NLS )
 #include <libintl.h>
 #endif
 
