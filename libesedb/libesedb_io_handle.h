@@ -59,6 +59,10 @@ struct libesedb_io_handle
 	 */
 	uint32_t creation_format_revision;
 
+	/* The file size
+	 */
+	size64_t file_size;
+
 	/* The pages data offset
 	 */
 	off64_t pages_data_offset;

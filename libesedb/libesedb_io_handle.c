@@ -215,6 +215,7 @@ int libesedb_io_handle_set_pages_data_range(
 
 		return( -1 );
 	}
+	io_handle->file_size         = file_size;
 	io_handle->pages_data_offset = (off64_t) ( io_handle->page_size * 2 );
 	io_handle->pages_data_size   = file_size - (size64_t) io_handle->pages_data_offset;
 	io_handle->last_page_number  = (uint32_t) ( io_handle->pages_data_size / io_handle->page_size );

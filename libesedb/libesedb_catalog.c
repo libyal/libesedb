@@ -23,6 +23,8 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_block_descriptor.h"
+#include "libesedb_block_tree.h"
 #include "libesedb_data_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
@@ -70,6 +72,17 @@ int libesedb_catalog_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid catalog value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -127,6 +140,21 @@ int libesedb_catalog_initialize(
 
 		goto on_error;
 	}
+	if( libesedb_block_tree_initialize(
+	     &( ( *catalog )->page_block_tree ),
+	     io_handle->file_size,
+	     io_handle->page_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create page block tree.",
+		 function );
+
+		goto on_error;
+	}
 	if( libcdata_array_initialize(
 	     &( ( *catalog )->table_definition_array ),
 	     0,
@@ -146,6 +174,13 @@ int libesedb_catalog_initialize(
 on_error:
 	if( *catalog != NULL )
 	{
+		if( ( *catalog )->page_block_tree != NULL )
+		{
+			libesedb_block_tree_free(
+			 &( ( *catalog )->page_block_tree ),
+			 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_block_descriptor_free,
+			 NULL );
+		}
 		if( ( *catalog )->page_tree != NULL )
 		{
 			libesedb_page_tree_free(
@@ -192,6 +227,20 @@ int libesedb_catalog_free(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free catalog page tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_block_tree_free(
+		     &( ( *catalog )->page_block_tree ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_block_descriptor_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page block tree.",
 			 function );
 
 			result = -1;
@@ -693,8 +742,8 @@ int libesedb_catalog_read_file_io_handle(
 	libesedb_page_t *page                         = NULL;
 	libesedb_table_definition_t *table_definition = NULL;
 	static char *function                         = "libesedb_catalog_read_file_io_handle";
+	off64_t page_offset                           = 0;
 	uint32_t leaf_page_number                     = 0;
-	int recursion_depth                           = 0;
 
 	if( catalog == NULL )
 	{
@@ -718,6 +767,17 @@ int libesedb_catalog_read_file_io_handle(
 
 		return( -1 );
 	}
+	if( catalog->page_tree->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid catalog - invalid page tree - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_get_get_first_leaf_page_number(
 	     catalog->page_tree,
 	     file_io_handle,
@@ -735,14 +795,22 @@ int libesedb_catalog_read_file_io_handle(
 	}
 	while( leaf_page_number != 0 )
 	{
-		if( recursion_depth > LIBESEDB_MAXIMUM_LEAF_PAGE_RECURSION_DEPTH )
+		page_offset = ( leaf_page_number + 1 ) * catalog->page_tree->io_handle->page_size;
+
+		if( libesedb_page_tree_check_if_page_block_first_read(
+		     catalog->page_tree,
+		     catalog->page_block_tree,
+		     leaf_page_number,
+		     page_offset,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid recursion depth value out of bounds.",
-			 function );
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to check if first read of page number: %" PRIu32 ".",
+			 function,
+			 leaf_page_number );
 
 			return( -1 );
 		}
@@ -811,7 +879,6 @@ int libesedb_catalog_read_file_io_handle(
 
 			return( -1 );
 		}
-		recursion_depth++;
 	}
 	return( 1 );
 }

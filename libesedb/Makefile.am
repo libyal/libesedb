@@ -27,6 +27,9 @@ libesedb_la_SOURCES = \
 	esedb_page.h \
 	esedb_page_values.h \
 	libesedb.c \
+	libesedb_block_descriptor.c libesedb_block_descriptor.h \
+	libesedb_block_tree.c libesedb_block_tree.h \
+	libesedb_block_tree_node.c libesedb_block_tree_node.h \
 	libesedb_catalog.c libesedb_catalog.h \
 	libesedb_catalog_definition.c libesedb_catalog_definition.h \
 	libesedb_checksum.c libesedb_checksum.h \

@@ -24,6 +24,9 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_block_descriptor.h"
+#include "libesedb_block_tree.h"
+#include "libesedb_block_tree_node.h"
 #include "libesedb_data_definition.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
@@ -145,6 +148,21 @@ int libesedb_page_tree_initialize(
 
 		return( -1 );
 	}
+	if( libesedb_block_tree_initialize(
+	     &( ( *page_tree )->page_block_tree ),
+	     io_handle->file_size,
+	     io_handle->page_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create page block tree.",
+		 function );
+
+		goto on_error;
+	}
 	if( libcdata_btree_initialize(
 	     &( ( *page_tree )->leaf_page_descriptors_tree ),
 	     257,
@@ -173,6 +191,13 @@ int libesedb_page_tree_initialize(
 on_error:
 	if( *page_tree != NULL )
 	{
+		if( ( *page_tree )->page_block_tree != NULL )
+		{
+			libesedb_block_tree_free(
+			 &( ( *page_tree )->page_block_tree ),
+			 (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_block_descriptor_free,
+			 NULL );
+		}
 		memory_free(
 		 *page_tree );
 
@@ -237,12 +262,115 @@ int libesedb_page_tree_free(
 
 			result = -1;
 		}
+		if( libesedb_block_tree_free(
+		     &( ( *page_tree )->page_block_tree ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_block_descriptor_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page block tree.",
+			 function );
+
+			result = -1;
+		}
 		memory_free(
 		 *page_tree );
 
 		*page_tree = NULL;
 	}
 	return( result );
+}
+
+/* Checks if this is the first time the page block is being read
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_page_tree_check_if_page_block_first_read(
+     libesedb_page_tree_t *page_tree,
+     libesedb_block_tree_t *page_block_tree,
+     uint32_t page_number,
+     off64_t page_offset,
+     libcerror_error_t **error )
+{
+	libesedb_block_descriptor_t *existing_block_descriptor = NULL;
+	libesedb_block_descriptor_t *new_block_descriptor      = NULL;
+	libesedb_block_tree_node_t *leaf_block_tree_node       = NULL;
+	static char *function                                  = "libesedb_page_tree_check_if_page_block_first_read";
+	int leaf_value_index                                   = 0;
+	int result                                             = 0;
+
+	if( page_tree == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_block_descriptor_initialize(
+	     &new_block_descriptor,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create block descriptor.",
+		 function );
+
+		goto on_error;
+	}
+	new_block_descriptor->page_number = page_number;
+
+	result = libesedb_block_tree_insert_block_descriptor_by_offset(
+	          page_block_tree,
+	          page_offset,
+	          new_block_descriptor,
+	          &leaf_value_index,
+	          &leaf_block_tree_node,
+	          &existing_block_descriptor,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+		 "%s: unable to insert block descriptor in page block tree.",
+		 function );
+
+		goto on_error;
+	}
+	else if( result == 0 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page number: %" PRIu32 " value already exists.",
+		 function,
+		 page_number );
+
+		goto on_error;
+	}
+	new_block_descriptor = NULL;
+
+	return( 1 );
+
+on_error:
+	if( new_block_descriptor != NULL )
+	{
+		libesedb_block_descriptor_free(
+		 &new_block_descriptor,
+		 NULL );
+	}
+	return( -1 );
 }
 
 /* Reads the root page header
@@ -1149,10 +1277,10 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 {
 	libesedb_page_t *page          = NULL;
 	static char *function          = "libesedb_page_tree_get_get_first_leaf_page_number";
+	off64_t page_offset            = 0;
 	uint32_t last_leaf_page_number = 0;
 	uint32_t page_flags            = 0;
 	uint32_t safe_leaf_page_number = 0;
-	int recursion_depth            = 0;
 
 	if( page_tree == NULL )
 	{
@@ -1161,6 +1289,17 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid page tree.",
+		 function );
+
+		return( -1 );
+	}
+	if( page_tree->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid page tree - missing IO handle.",
 		 function );
 
 		return( -1 );
@@ -1280,14 +1419,22 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	}
 	while( safe_leaf_page_number != 0 )
 	{
-		if( recursion_depth > LIBESEDB_MAXIMUM_LEAF_PAGE_RECURSION_DEPTH )
+		page_offset = ( safe_leaf_page_number + 1 ) * page_tree->io_handle->page_size;
+
+		if( libesedb_page_tree_check_if_page_block_first_read(
+		     page_tree,
+		     page_tree->page_block_tree,
+		     safe_leaf_page_number,
+		     page_offset,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid recursion depth value out of bounds.",
-			 function );
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to check if first read of page number: %" PRIu32 ".",
+			 function,
+			 safe_leaf_page_number );
 
 			return( -1 );
 		}
@@ -1342,7 +1489,6 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
-		recursion_depth++;
 	}
 	*leaf_page_number = last_leaf_page_number;
 

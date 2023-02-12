@@ -49,6 +49,9 @@ EXTRA_DIST = \
 	$(check_SCRIPTS)
 
 check_PROGRAMS = \
+	esedb_test_block_descriptor \
+	esedb_test_block_tree \
+	esedb_test_block_tree_node \
 	esedb_test_catalog \
 	esedb_test_catalog_definition \
 	esedb_test_checksum \
@@ -84,6 +87,42 @@ check_PROGRAMS = \
 	esedb_test_tools_output \
 	esedb_test_tools_signal \
 	esedb_test_tools_windows_search_compression
+
+esedb_test_block_descriptor_SOURCES = \
+	esedb_test_block_descriptor.c \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_block_descriptor_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_block_tree_SOURCES = \
+	esedb_test_block_tree.c \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_block_tree_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
+
+esedb_test_block_tree_node_SOURCES = \
+	esedb_test_block_tree_node.c \
+	esedb_test_libcerror.h \
+	esedb_test_libesedb.h \
+	esedb_test_macros.h \
+	esedb_test_memory.c esedb_test_memory.h \
+	esedb_test_unused.h
+
+esedb_test_block_tree_node_LDADD = \
+	../libesedb/libesedb.la \
+	@LIBCERROR_LIBADD@
 
 esedb_test_catalog_SOURCES = \
 	esedb_test_catalog.c \

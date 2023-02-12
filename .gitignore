@@ -128,6 +128,9 @@ stamp-h[1-9]
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
 /tests/*.exe
+/tests/esedb_test_block_descriptor
+/tests/esedb_test_block_tree
+/tests/esedb_test_block_tree_node
 /tests/esedb_test_catalog
 /tests/esedb_test_catalog_definition
 /tests/esedb_test_checksum

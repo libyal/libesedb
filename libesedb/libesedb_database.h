@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libesedb_block_tree.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
 #include "libesedb_libcerror.h"
@@ -43,6 +44,10 @@ struct libesedb_database
 	/* The page tree
 	 */
 	libesedb_page_tree_t *page_tree;
+
+	/* The page block tree
+	 */
+	libesedb_block_tree_t *page_block_tree;
 };
 
 int libesedb_database_initialize(

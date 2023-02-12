@@ -23,6 +23,8 @@
 #include <memory.h>
 #include <types.h>
 
+#include "libesedb_block_descriptor.h"
+#include "libesedb_block_tree.h"
 #include "libesedb_database.h"
 #include "libesedb_debug.h"
 #include "libesedb_definitions.h"
@@ -67,6 +69,17 @@ int libesedb_database_initialize(
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_ALREADY_SET,
 		 "%s: invalid database value already set.",
+		 function );
+
+		return( -1 );
+	}
+	if( io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid IO handle.",
 		 function );
 
 		return( -1 );
@@ -124,11 +137,32 @@ int libesedb_database_initialize(
 
 		goto on_error;
 	}
+	if( libesedb_block_tree_initialize(
+	     &( ( *database )->page_block_tree ),
+	     io_handle->file_size,
+	     io_handle->page_size,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+		 "%s: unable to create page block tree.",
+		 function );
+
+		goto on_error;
+	}
 	return( 1 );
 
 on_error:
 	if( *database != NULL )
 	{
+		if( ( *database )->page_tree != NULL )
+		{
+			libesedb_page_tree_free(
+			 &( ( *database )->page_tree ),
+			 NULL );
+		}
 		memory_free(
 		 *database );
 
@@ -169,6 +203,20 @@ int libesedb_database_free(
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
 			 "%s: unable to free page tree.",
+			 function );
+
+			result = -1;
+		}
+		if( libesedb_block_tree_free(
+		     &( ( *database )->page_block_tree ),
+		     (int (*)(intptr_t **, libcerror_error_t **)) &libesedb_block_descriptor_free,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_FINALIZE_FAILED,
+			 "%s: unable to free page block tree.",
 			 function );
 
 			result = -1;
@@ -413,9 +461,9 @@ int libesedb_database_read_file_io_handle(
 {
 	libesedb_page_t *page        = NULL;
 	static char *function        = "libesedb_database_read_file_io_handle";
+	off64_t page_offset          = 0;
 	uint32_t leaf_page_number    = 0;
 	int current_leaf_value_index = 0;
-	int recursion_depth          = 0;
 
 	if( database == NULL )
 	{
@@ -439,6 +487,17 @@ int libesedb_database_read_file_io_handle(
 
 		return( -1 );
 	}
+	if( database->page_tree->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid database - invalid page tree - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
 	if( libesedb_page_tree_get_get_first_leaf_page_number(
 	     database->page_tree,
 	     file_io_handle,
@@ -456,14 +515,22 @@ int libesedb_database_read_file_io_handle(
 	}
 	while( leaf_page_number != 0 )
 	{
-		if( recursion_depth > LIBESEDB_MAXIMUM_LEAF_PAGE_RECURSION_DEPTH )
+		page_offset = ( leaf_page_number + 1 ) * database->page_tree->io_handle->page_size;
+
+		if( libesedb_page_tree_check_if_page_block_first_read(
+		     database->page_tree,
+		     database->page_block_tree,
+		     leaf_page_number,
+		     page_offset,
+		     error ) != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-			 "%s: invalid recursion depth value out of bounds.",
-			 function );
+			 LIBCERROR_RUNTIME_ERROR_GENERIC,
+			 "%s: unable to check if first read of page number: %" PRIu32 ".",
+			 function,
+			 leaf_page_number );
 
 			return( -1 );
 		}
@@ -532,7 +599,6 @@ int libesedb_database_read_file_io_handle(
 
 			return( -1 );
 		}
-		recursion_depth++;
 	}
 	return( 1 );
 }

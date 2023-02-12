@@ -174,6 +174,18 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\libesedb\libesedb_block_descriptor.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_block_tree.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_block_tree_node.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\libesedb\libesedb_catalog.c"
 				>
 			</File>
@@ -337,6 +349,18 @@
 			</File>
 			<File
 				RelativePath="..\..\libesedb\esedb_page_values.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_block_descriptor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_block_tree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\libesedb\libesedb_block_tree_node.h"
 				>
 			</File>
 			<File

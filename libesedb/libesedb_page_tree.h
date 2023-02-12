@@ -25,6 +25,7 @@
 #include <common.h>
 #include <types.h>
 
+#include "libesedb_block_tree.h"
 #include "libesedb_data_definition.h"
 #include "libesedb_io_handle.h"
 #include "libesedb_libbfio.h"
@@ -50,6 +51,10 @@ struct libesedb_page_tree
 	/* The IO handle
 	 */
 	libesedb_io_handle_t *io_handle;
+
+	/* The page block tree
+	 */
+	libesedb_block_tree_t *page_block_tree;
 
 	/* The object identifier
 	 */
@@ -101,6 +106,13 @@ int libesedb_page_tree_initialize(
 
 int libesedb_page_tree_free(
      libesedb_page_tree_t **page_tree,
+     libcerror_error_t **error );
+
+int libesedb_page_tree_check_if_page_block_first_read(
+     libesedb_page_tree_t *page_tree,
+     libesedb_block_tree_t *page_block_tree,
+     uint32_t page_number,
+     off64_t page_offset,
      libcerror_error_t **error );
 
 int libesedb_page_tree_read_root_page_header(

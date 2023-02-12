@@ -1,4 +1,7 @@
 MSVSCPP_FILES = \
+	esedb_test_block_descriptor/esedb_test_block_descriptor.vcproj \
+	esedb_test_block_tree/esedb_test_block_tree.vcproj \
+	esedb_test_block_tree_node/esedb_test_block_tree_node.vcproj \
 	esedb_test_catalog/esedb_test_catalog.vcproj \
 	esedb_test_catalog_definition/esedb_test_catalog_definition.vcproj \
 	esedb_test_checksum/esedb_test_checksum.vcproj \

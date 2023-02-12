@@ -1,5 +1,5 @@
 /*
- * Library database type test program
+ * Library block_descriptor type test program
  *
  * Copyright (C) 2009-2023, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -33,58 +33,30 @@
 #include "esedb_test_memory.h"
 #include "esedb_test_unused.h"
 
-#include "../libesedb/libesedb_database.h"
-#include "../libesedb/libesedb_io_handle.h"
+#include "../libesedb/libesedb_block_descriptor.h"
 
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
-/* Tests the libesedb_database_initialize function
+/* Tests the libesedb_block_descriptor_initialize function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_database_initialize(
+int esedb_test_block_descriptor_initialize(
      void )
 {
-	libcerror_error_t *error        = NULL;
-	libesedb_database_t *database   = NULL;
-	libesedb_io_handle_t *io_handle = NULL;
-	int result                      = 0;
+	libcerror_error_t *error                      = NULL;
+	libesedb_block_descriptor_t *block_descriptor = NULL;
+	int result                                    = 0;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 3;
-	int number_of_memset_fail_tests = 1;
-	int test_number                 = 0;
+	int number_of_malloc_fail_tests               = 1;
+	int number_of_memset_fail_tests               = 1;
+	int test_number                               = 0;
 #endif
-
-	/* Initialize test
-	 */
-	result = libesedb_io_handle_initialize(
-	          &io_handle,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "io_handle",
-	 io_handle );
-
-	ESEDB_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
-	io_handle->format_revision = 0x0000000c;
-	io_handle->file_size       = 16777216;
-	io_handle->page_size       = 4096;
 
 	/* Test regular cases
 	 */
-	result = libesedb_database_initialize(
-	          &database,
-	          io_handle,
-	          NULL,
-	          NULL,
+	result = libesedb_block_descriptor_initialize(
+	          &block_descriptor,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -93,15 +65,15 @@ int esedb_test_database_initialize(
 	 1 );
 
 	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "database",
-	 database );
+	 "block_descriptor",
+	 block_descriptor );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
 	 error );
 
-	result = libesedb_database_free(
-	          &database,
+	result = libesedb_block_descriptor_free(
+	          &block_descriptor,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -110,8 +82,8 @@ int esedb_test_database_initialize(
 	 1 );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
-	 "database",
-	 database );
+	 "block_descriptor",
+	 block_descriptor );
 
 	ESEDB_TEST_ASSERT_IS_NULL(
 	 "error",
@@ -119,10 +91,7 @@ int esedb_test_database_initialize(
 
 	/* Test error cases
 	 */
-	result = libesedb_database_initialize(
-	          NULL,
-	          io_handle,
-	          NULL,
+	result = libesedb_block_descriptor_initialize(
 	          NULL,
 	          &error );
 
@@ -138,16 +107,13 @@ int esedb_test_database_initialize(
 	libcerror_error_free(
 	 &error );
 
-	database = (libesedb_database_t *) 0x12345678UL;
+	block_descriptor = (libesedb_block_descriptor_t *) 0x12345678UL;
 
-	result = libesedb_database_initialize(
-	          &database,
-	          io_handle,
-	          NULL,
-	          NULL,
+	result = libesedb_block_descriptor_initialize(
+	          &block_descriptor,
 	          &error );
 
-	database = NULL;
+	block_descriptor = NULL;
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
 	 "result",
@@ -167,25 +133,22 @@ int esedb_test_database_initialize(
 	     test_number < number_of_malloc_fail_tests;
 	     test_number++ )
 	{
-		/* Test libesedb_database_initialize with malloc failing
+		/* Test libesedb_block_descriptor_initialize with malloc failing
 		 */
 		esedb_test_malloc_attempts_before_fail = test_number;
 
-		result = libesedb_database_initialize(
-		          &database,
-		          io_handle,
-		          NULL,
-		          NULL,
+		result = libesedb_block_descriptor_initialize(
+		          &block_descriptor,
 		          &error );
 
 		if( esedb_test_malloc_attempts_before_fail != -1 )
 		{
 			esedb_test_malloc_attempts_before_fail = -1;
 
-			if( database != NULL )
+			if( block_descriptor != NULL )
 			{
-				libesedb_database_free(
-				 &database,
+				libesedb_block_descriptor_free(
+				 &block_descriptor,
 				 NULL );
 			}
 		}
@@ -197,8 +160,8 @@ int esedb_test_database_initialize(
 			 -1 );
 
 			ESEDB_TEST_ASSERT_IS_NULL(
-			 "database",
-			 database );
+			 "block_descriptor",
+			 block_descriptor );
 
 			ESEDB_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -212,25 +175,22 @@ int esedb_test_database_initialize(
 	     test_number < number_of_memset_fail_tests;
 	     test_number++ )
 	{
-		/* Test libesedb_database_initialize with memset failing
+		/* Test libesedb_block_descriptor_initialize with memset failing
 		 */
 		esedb_test_memset_attempts_before_fail = test_number;
 
-		result = libesedb_database_initialize(
-		          &database,
-		          io_handle,
-		          NULL,
-		          NULL,
+		result = libesedb_block_descriptor_initialize(
+		          &block_descriptor,
 		          &error );
 
 		if( esedb_test_memset_attempts_before_fail != -1 )
 		{
 			esedb_test_memset_attempts_before_fail = -1;
 
-			if( database != NULL )
+			if( block_descriptor != NULL )
 			{
-				libesedb_database_free(
-				 &database,
+				libesedb_block_descriptor_free(
+				 &block_descriptor,
 				 NULL );
 			}
 		}
@@ -242,8 +202,8 @@ int esedb_test_database_initialize(
 			 -1 );
 
 			ESEDB_TEST_ASSERT_IS_NULL(
-			 "database",
-			 database );
+			 "block_descriptor",
+			 block_descriptor );
 
 			ESEDB_TEST_ASSERT_IS_NOT_NULL(
 			 "error",
@@ -255,25 +215,6 @@ int esedb_test_database_initialize(
 	}
 #endif /* defined( HAVE_ESEDB_TEST_MEMORY ) */
 
-	/* Clean up
-	 */
-	result = libesedb_io_handle_free(
-	          &io_handle,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 1 );
-
-	ESEDB_TEST_ASSERT_IS_NULL(
-	 "io_handle",
-	 io_handle );
-
-	ESEDB_TEST_ASSERT_IS_NULL(
-	 "error",
-	 error );
-
 	return( 1 );
 
 on_error:
@@ -282,25 +223,19 @@ on_error:
 		libcerror_error_free(
 		 &error );
 	}
-	if( database != NULL )
+	if( block_descriptor != NULL )
 	{
-		libesedb_database_free(
-		 &database,
-		 NULL );
-	}
-	if( io_handle != NULL )
-	{
-		libesedb_io_handle_free(
-		 &io_handle,
+		libesedb_block_descriptor_free(
+		 &block_descriptor,
 		 NULL );
 	}
 	return( 0 );
 }
 
-/* Tests the libesedb_database_free function
+/* Tests the libesedb_block_descriptor_free function
  * Returns 1 if successful or 0 if not
  */
-int esedb_test_database_free(
+int esedb_test_block_descriptor_free(
      void )
 {
 	libcerror_error_t *error = NULL;
@@ -308,46 +243,7 @@ int esedb_test_database_free(
 
 	/* Test error cases
 	 */
-	result = libesedb_database_free(
-	          NULL,
-	          &error );
-
-	ESEDB_TEST_ASSERT_EQUAL_INT(
-	 "result",
-	 result,
-	 -1 );
-
-	ESEDB_TEST_ASSERT_IS_NOT_NULL(
-	 "error",
-	 error );
-
-	libcerror_error_free(
-	 &error );
-
-	return( 1 );
-
-on_error:
-	if( error != NULL )
-	{
-		libcerror_error_free(
-		 &error );
-	}
-	return( 0 );
-}
-
-/* Tests the libesedb_database_read_file_io_handle function
- * Returns 1 if successful or 0 if not
- */
-int esedb_test_database_read_file_io_handle(
-     void )
-{
-	libcerror_error_t *error = NULL;
-	int result               = 0;
-
-	/* Test error cases
-	 */
-	result = libesedb_database_read_file_io_handle(
-	          NULL,
+	result = libesedb_block_descriptor_free(
 	          NULL,
 	          &error );
 
@@ -394,24 +290,22 @@ int main(
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	ESEDB_TEST_RUN(
-	 "libesedb_database_initialize",
-	 esedb_test_database_initialize );
+	 "libesedb_block_descriptor_initialize",
+	 esedb_test_block_descriptor_initialize );
 
 	ESEDB_TEST_RUN(
-	 "libesedb_database_free",
-	 esedb_test_database_free );
-
-/* TODO add test for libesedb_database_read_values_from_page */
-
-	ESEDB_TEST_RUN(
-	 "libesedb_database_read_file_io_handle",
-	 esedb_test_database_read_file_io_handle );
+	 "libesedb_block_descriptor_free",
+	 esedb_test_block_descriptor_free );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 }
 

@@ -50,7 +50,7 @@ int esedb_test_page_tree_initialize(
 	int result                      = 0;
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
-	int number_of_malloc_fail_tests = 1;
+	int number_of_malloc_fail_tests = 3;
 	int number_of_memset_fail_tests = 1;
 	int test_number                 = 0;
 #endif
@@ -75,6 +75,7 @@ int esedb_test_page_tree_initialize(
 	 error );
 
 	io_handle->format_revision = 0x0000000c;
+	io_handle->file_size       = 16777216;
 	io_handle->page_size       = 4096;
 
 	/* Test page_tree initialization
