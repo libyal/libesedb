@@ -307,7 +307,7 @@ int libesedb_catalog_definition_read_data(
 
 		return( -1 );
 	}
-	if( last_fixed_size_data_type > 12 )
+	if( last_fixed_size_data_type > 13 )
 	{
 		libcerror_error_set(
 		 error,
@@ -329,6 +329,10 @@ int libesedb_catalog_definition_read_data(
 	 */
 	switch( last_fixed_size_data_type )
 	{
+		case 13:
+			calculated_variable_size_data_types_offset += 4;
+
+		LIBESEDB_ATTRIBUTE_FALLTHROUGH;
 		case 12:
 			calculated_variable_size_data_types_offset += 4;
 
