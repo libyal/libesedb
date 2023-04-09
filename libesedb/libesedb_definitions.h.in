@@ -237,7 +237,7 @@ enum LIBESEDB_FILE_ATTRIBUTE_FLAGS
  */
 #define LIBESEDB_PAGE_TREE_NODE_FLAG_IS_VIRTUAL				LIBFDATA_RANGE_FLAG_USER_DEFINED_1
 
-/* The maximum number of cache entries defintions
+/* The maximum number of cache entries definitions
  */
 #define LIBESEDB_MAXIMUM_CACHE_ENTRIES_PAGES				( 8 * 1024 ) - 3
 #define LIBESEDB_MAXIMUM_CACHE_ENTRIES_INDEX_VALUES			( 32 * 1024 ) - 3

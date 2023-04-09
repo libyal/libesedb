@@ -159,7 +159,7 @@ Test suite:
 Notes
 * create a root page table instead?
   - no
-* read catalog data type defintions and convert them into column definitions?
+* read catalog data type definitions and convert them into column definitions?
   - no
 
 20090913

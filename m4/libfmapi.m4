@@ -1,6 +1,6 @@
 dnl Checks for libfmapi required headers and functions
 dnl
-dnl Version: 20190308
+dnl Version: 20230404
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -26,7 +26,7 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
         [PKG_CHECK_MODULES(
           [libfmapi],
-          [libfmapi >= 20180714],
+          [libfmapi >= 20230404],
           [ac_cv_libfmapi=yes],
           [ac_cv_libfmapi=check])
         ])
@@ -166,6 +166,18 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
         AC_CHECK_LIB(
           fmapi,
           libfmapi_class_identifier_public_strings,
+          [ac_cv_libfmapi_dummy=yes],
+          [ac_cv_libfmapi=no])
+
+        dnl LZFu (de)compression functions
+        AC_CHECK_LIB(
+          fmapi,
+          libfmapi_lzfu_get_uncompressed_data_size,
+          [ac_cv_libfmapi_dummy=yes],
+          [ac_cv_libfmapi=no])
+        AC_CHECK_LIB(
+          fmapi,
+          libfmapi_lzfu_decompress,
           [ac_cv_libfmapi_dummy=yes],
           [ac_cv_libfmapi=no])
 
