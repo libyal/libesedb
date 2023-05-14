@@ -1115,7 +1115,7 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 	static char *function                              = "libesedb_catalog_get_table_definition_by_utf8_name";
 	int entry_index                                    = 0;
 	int number_of_entries                              = 0;
-	int result                                         = 0;
+	int result                                         = LIBUNA_COMPARE_GREATER;
 
 	if( catalog == NULL )
 	{
@@ -1230,16 +1230,16 @@ int libesedb_catalog_get_table_definition_by_utf8_name(
 		}
 		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
-			result = 1;
-
 			break;
 		}
 	}
-	if( result != 0 )
+	if( result == LIBUNA_COMPARE_EQUAL )
 	{
 		*table_definition = safe_table_definition;
+
+		return( 1 );
 	}
-	return( result );
+	return( 0 );
 }
 
 /* Retrieves the table definition for the specific UTF-16 encoded name
@@ -1256,7 +1256,7 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 	static char *function                              = "libesedb_catalog_get_table_definition_by_utf16_name";
 	int entry_index                                    = 0;
 	int number_of_entries                              = 0;
-	int result                                         = 0;
+	int result                                         = LIBUNA_COMPARE_GREATER;
 
 	if( catalog == NULL )
 	{
@@ -1371,15 +1371,15 @@ int libesedb_catalog_get_table_definition_by_utf16_name(
 		}
 		else if( result == LIBUNA_COMPARE_EQUAL )
 		{
-			result = 1;
-
 			break;
 		}
 	}
-	if( result != 0 )
+	if( result == LIBUNA_COMPARE_EQUAL )
 	{
 		*table_definition = safe_table_definition;
+
+		return( 1 );
 	}
-	return( result );
+	return( 0 );
 }
 
