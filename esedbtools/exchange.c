@@ -2812,6 +2812,7 @@ int exchange_export_record_global(
 int exchange_export_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     system_character_t **column_names,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
@@ -2866,6 +2867,13 @@ int exchange_export_record_mailbox(
 	     value_entry < number_of_values;
 	     value_entry++ )
 	{
+		if( column_names != NULL )
+		{
+			fprintf(
+			 record_file_stream,
+			 "%s: ",
+			 column_names[value_entry]);
+		}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_record_get_utf16_column_name_size(
 		          record,
@@ -3089,7 +3097,8 @@ int exchange_export_record_mailbox(
 
 			return( -1 );
 		}
-		if( value_entry == ( number_of_values - 1 ) )
+		if( ( column_names != NULL )
+		 || ( value_entry == ( number_of_values - 1 ) ) )
 		{
 			fprintf(
 			 record_file_stream,

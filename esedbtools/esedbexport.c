@@ -147,6 +147,7 @@ int main( int argc, char * const argv[] )
 	size_t source_length                      = 0;
 	size_t option_table_name_length           = 0;
 	system_integer_t option                   = 0;
+	system_integer_t option_vertical          = 0;
 	int result                                = 0;
 	int verbose                               = 0;
 
@@ -183,7 +184,7 @@ int main( int argc, char * const argv[] )
 	while( ( option = esedbtools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "c:hl:m:t:T:vV" ) ) ) != (system_integer_t) -1 )
+	                   _SYSTEM_STRING( "Ec:hl:m:t:T:vV" ) ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -198,6 +199,10 @@ int main( int argc, char * const argv[] )
 				 stdout );
 
 				return( EXIT_FAILURE );
+
+			case (system_integer_t) 'E':
+				option_vertical = 1;
+				break;
 
 			case (system_integer_t) 'c':
 				option_ascii_codepage = optarg;
@@ -434,6 +439,7 @@ int main( int argc, char * const argv[] )
 	          esedbexport_export_handle,
 	          option_table_name,
 	          option_table_name_length,
+	          option_vertical ? 1 : 0,
 	          log_handle,
 	          &error );
 

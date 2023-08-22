@@ -167,6 +167,7 @@ int export_handle_export_table(
      size_t table_name_length,
      const system_character_t *export_path,
      size_t export_path_length,
+     int export_format,
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
@@ -194,6 +195,7 @@ int export_handle_export_index(
 int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     system_character_t **column_names,
      log_handle_t *log_handle,
      libcerror_error_t **error );
 
@@ -222,6 +224,7 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      const system_character_t *export_table_name,
      size_t export_table_name_length,
+     int export_format,
      log_handle_t *log_handle,
      libcerror_error_t **error );
 

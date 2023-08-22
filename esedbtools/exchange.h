@@ -107,6 +107,7 @@ int exchange_export_record_global(
 int exchange_export_record_mailbox(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     system_character_t **column_names,
      log_handle_t *log_handle,
      libcerror_error_t **error );
 

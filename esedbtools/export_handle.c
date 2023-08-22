@@ -1118,9 +1118,11 @@ int export_handle_export_table(
      size_t table_name_length,
      const system_character_t *export_path,
      size_t export_path_length,
+     int export_format,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
+	system_character_t **column_names = NULL;
 	system_character_t *item_filename = NULL;
 	system_character_t *value_string  = NULL;
 	libesedb_column_t *column         = NULL;
@@ -1230,6 +1232,22 @@ int export_handle_export_table(
 
 		goto on_error;
 	}
+
+	column_names = calloc(
+	                number_of_columns,
+	                sizeof(system_character_t *));
+	if( column_names == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_MEMORY,
+		 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
+		 "%s: unable to create column name array.",
+		 function);
+
+		goto on_error;
+	}
+
 	for( column_iterator = 0;
 	     column_iterator < number_of_columns;
 	     column_iterator++ )
@@ -1298,6 +1316,7 @@ int export_handle_export_table(
 
 			goto on_error;
 		}
+		column_names[column_iterator] = value_string;
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 		result = libesedb_column_get_utf16_name(
 		          column,
@@ -1322,14 +1341,13 @@ int export_handle_export_table(
 
 			goto on_error;
 		}
-		fprintf(
-		 table_file_stream,
-		 "%" PRIs_SYSTEM "",
-		 value_string );
-
-		memory_free(
-		 value_string );
-
+		if( export_format == 0 )
+		{
+			fprintf(
+			 table_file_stream,
+			 "%" PRIs_SYSTEM "",
+			 value_string );
+		}
 		value_string = NULL;
 
 		if( libesedb_column_free(
@@ -1344,6 +1362,10 @@ int export_handle_export_table(
 			 function );
 
 			goto on_error;
+		}
+		if( export_format != 0 )
+		{
+			continue;
 		}
 		if( column_iterator == ( number_of_columns - 1 ) )
 		{
@@ -1378,6 +1400,13 @@ int export_handle_export_table(
 	     record_iterator < number_of_records;
 	     record_iterator++ )
 	{
+		if( export_format == 1 )
+		{
+			fprintf(
+			 table_file_stream,
+			 "*** Row %d ***\n",
+			 record_iterator);
+		}
 		if( libesedb_table_get_record(
 		     table,
 		     record_iterator,
@@ -1457,6 +1486,7 @@ int export_handle_export_table(
 						result = exchange_export_record_mailbox(
 							  record,
 							  table_file_stream,
+							  export_format == 1 ? column_names : NULL,
 							  log_handle,
 							  error );
 					}
@@ -1612,6 +1642,7 @@ int export_handle_export_table(
 			result = export_handle_export_record(
 			          record,
 			          table_file_stream,
+			          export_format == 1 ? column_names : NULL,
 			          log_handle,
 			          error );
 		}
@@ -1683,9 +1714,29 @@ int export_handle_export_table(
 			}
 		}
 	}
+	if( column_names != NULL )
+	{
+		for( size_t i = 0; i < number_of_columns; ++i )
+		{
+			memory_free(
+			 column_names[i]);
+		}
+	}
+	free(
+	 column_names);
 	return( 1 );
 
 on_error:
+	if( column_names != NULL )
+	{
+		for( size_t i = 0; i < number_of_columns; ++i )
+		{
+			memory_free(
+			 column_names[i]);
+		}
+	}
+	free(
+	 column_names);
 	if( record != NULL )
 	{
 		libesedb_record_free(
@@ -2357,6 +2408,7 @@ int export_handle_export_index(
 			result = export_handle_export_record(
 			          record,
 			          index_file_stream,
+			          NULL,
 			          log_handle,
 			          error );
 		}
@@ -2440,6 +2492,7 @@ on_error:
 int export_handle_export_record(
      libesedb_record_t *record,
      FILE *record_file_stream,
+     system_character_t **column_names,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
@@ -2487,6 +2540,13 @@ int export_handle_export_record(
 	     value_iterator < number_of_values;
 	     value_iterator++ )
 	{
+		if( column_names != NULL )
+		{
+			fprintf(
+			 record_file_stream,
+			 "%s: ",
+			 column_names[value_iterator]);
+		}
 		if( export_handle_export_record_value(
 		     record,
 		     value_iterator,
@@ -2504,7 +2564,8 @@ int export_handle_export_record(
 
 			return( -1 );
 		}
-		if( value_iterator == ( number_of_values - 1 ) )
+		if( ( column_names != NULL )
+		 || ( value_iterator == ( number_of_values - 1 ) ) )
 		{
 			fprintf(
 			 record_file_stream,
@@ -4104,6 +4165,7 @@ int export_handle_export_file(
      export_handle_t *export_handle,
      const system_character_t *export_table_name,
      size_t export_table_name_length,
+     int export_format,
      log_handle_t *log_handle,
      libcerror_error_t **error )
 {
@@ -4477,6 +4539,7 @@ int export_handle_export_file(
 		     sanitized_name_size - 1,
 		     export_handle->items_export_path,
 		     export_handle->items_export_path_size - 1,
+		     export_format,
 		     log_handle,
 		     error ) != 1 )
 		{
