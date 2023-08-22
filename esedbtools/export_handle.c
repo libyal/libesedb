@@ -4422,22 +4422,16 @@ int export_handle_export_file(
 
 			table_exported = 1;
 		}
-		fprintf(
-		 export_handle->notify_stream,
-		 "Exporting table %d (%" PRIs_SYSTEM ")",
-		 table_index + 1,
-		 table_name );
-
 		if( export_table_name == NULL )
 		{
-			fprintf(
-			 export_handle->notify_stream,
-			 " out of %d",
-			 number_of_tables );
+			fprintf(export_handle->notify_stream,
+				"[%d/%d] ", table_index + 1, number_of_tables);
 		}
 		fprintf(
 		 export_handle->notify_stream,
-		 ".\n" );
+		 "Exporting table to %" PRIs_SYSTEM ".%d\n",
+		 table_name,
+		 table_index );
 
 /* TODO move into export_handle_export_table */
 
