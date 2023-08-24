@@ -2534,7 +2534,6 @@ int export_handle_export_record_value(
         libesedb_multi_value_t *multi_value = NULL;
 	uint8_t *binary_data                = NULL;
 	uint8_t *multi_value_data           = NULL;
-	uint8_t *value_data                 = NULL;
 	static char *function               = "export_handle_export_record_value";
 	size_t binary_data_size             = 0;
 	size_t multi_value_data_size        = 0;
@@ -2818,11 +2817,6 @@ int export_handle_export_record_value(
 				break;
 
 			default:
-				export_binary_data(
-				 value_data,
-				 value_data_size,
-				 record_file_stream );
-
 				break;
 		}
 	}
@@ -3061,13 +3055,6 @@ int export_handle_export_record_value(
 			goto on_error;
 		}
 	}
-	else
-	{
-		export_binary_data(
-		 value_data,
-		 value_data_size,
-		 record_file_stream );
-	}
 	return( 1 );
 
 on_error:
@@ -3091,11 +3078,6 @@ on_error:
 	{
 		memory_free(
 		 value_string );
-	}
-	if( value_data != NULL )
-	{
-		memory_free(
-		 value_data );
 	}
 	return( -1 );
 }
