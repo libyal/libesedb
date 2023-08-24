@@ -116,12 +116,6 @@ environment:
     BUILD_ENVIRONMENT: python
     APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
     PYTHON: "C:\\Python311-x64\\python.exe"
-  - TARGET: macos-tox-py37
-    BUILD_ENVIRONMENT: python-tox
-    APPVEYOR_BUILD_WORKER_IMAGE: macos-monterey
-    HOMEBREW_NO_INSTALL_CLEANUP: 1
-    PYTHON_VERSION: 3.7
-    TOXENV: py37
   - TARGET: macos-tox-py38
     BUILD_ENVIRONMENT: python-tox
     APPVEYOR_BUILD_WORKER_IMAGE: macos-monterey
@@ -189,7 +183,7 @@ environment:
 install:
 - cmd: if [%BUILD_ENVIRONMENT%]==[msbuild] (
     git clone https://github.com/libyal/vstools.git ..\vstools )
-- sh: if test ${BUILD_ENVIRONMENT} = "python-tox" || test ${BUILD_ENVIRONMENT} = "xcode"; then brew update -q; fi
+- sh: if test ${BUILD_ENVIRONMENT} = "python-tox" || test ${BUILD_ENVIRONMENT} = "xcode"; then brew update-reset && brew update -q; fi
 - sh: if test ${BUILD_ENVIRONMENT} = "python-tox" || test ${BUILD_ENVIRONMENT} = "xcode"; then brew install -q gettext gnu-sed || true; fi
 - sh: if test ${BUILD_ENVIRONMENT} = "python-tox"; then brew install -q python@${PYTHON_VERSION} tox twine-pypi || true; fi
 - cmd: if [%BUILD_ENVIRONMENT%]==[python] (
@@ -199,7 +193,7 @@ install:
 - cmd: if [%BUILD_ENVIRONMENT%]==[cygwin64] (
     C:\cygwin64\setup-x86_64.exe -qgnNdO -l C:\cygwin64\var\cache\setup -R c:\cygwin64 -s http://cygwin.mirror.constant.com -P gettext-devel -P wget -P python3-devel )
 - cmd: if [%BUILD_ENVIRONMENT%]==[mingw-w64] (
-    C:\msys64\usr\bin\pacman -S --noconfirm --needed autoconf automake gcc gettext-devel libtool make )
+    C:\msys64\usr\bin\pacman -S --noconfirm --needed autoconf automake gettext-devel libtool make mingw-w64-x86_64-gcc )
 - ps: If ( ( "cygwin64-gcc-no-optimization", "mingw-w64-gcc-no-optimization" ).Contains( $env:TARGET ) ) {
     $ProgressPreference = 'SilentlyContinue'; Invoke-WebRequest -Uri https://uploader.codecov.io/latest/windows/codecov.exe -Outfile ..\codecov.exe }
 

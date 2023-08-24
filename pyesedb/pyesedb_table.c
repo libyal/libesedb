@@ -457,7 +457,6 @@ PyObject *pyesedb_table_get_name(
 {
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
-	const char *errors       = NULL;
 	uint8_t *name            = NULL;
 	static char *function    = "pyesedb_table_get_name";
 	size_t name_size         = 0;
@@ -510,7 +509,7 @@ PyObject *pyesedb_table_get_name(
 	if( name == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create name.",
 		 function );
 
@@ -546,7 +545,7 @@ PyObject *pyesedb_table_get_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) name,
 			 (Py_ssize_t) name_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 name );
@@ -571,7 +570,6 @@ PyObject *pyesedb_table_get_template_name(
 {
 	libcerror_error_t *error  = NULL;
 	PyObject *string_object   = NULL;
-	const char *errors        = NULL;
 	uint8_t *template_name    = NULL;
 	static char *function     = "pyesedb_table_get_template_name";
 	size_t template_name_size = 0;
@@ -624,7 +622,7 @@ PyObject *pyesedb_table_get_template_name(
 	if( template_name == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create template name.",
 		 function );
 
@@ -660,7 +658,7 @@ PyObject *pyesedb_table_get_template_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) template_name,
 			 (Py_ssize_t) template_name_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 template_name );

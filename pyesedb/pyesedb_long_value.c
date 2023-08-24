@@ -384,7 +384,7 @@ PyObject *pyesedb_long_value_get_data(
 	if( data == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create data.",
 		 function );
 
@@ -446,7 +446,6 @@ PyObject *pyesedb_long_value_get_data_as_string(
 	libcerror_error_t *error = NULL;
 	PyObject *string_object  = NULL;
 	uint8_t *value_string    = NULL;
-	const char *errors       = NULL;
 	static char *function    = "pyesedb_long_value_get_data_as_string";
 	size_t value_string_size = 0;
 	int result               = 0;
@@ -496,7 +495,7 @@ PyObject *pyesedb_long_value_get_data_as_string(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create string.",
 		 function );
 
@@ -532,7 +531,7 @@ PyObject *pyesedb_long_value_get_data_as_string(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );

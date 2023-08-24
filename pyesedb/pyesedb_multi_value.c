@@ -466,7 +466,7 @@ PyObject *pyesedb_multi_value_get_value_data(
 	if( value_data == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create value: %d data.",
 		 function,
 		 multi_value_index );
@@ -850,7 +850,6 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 	libcerror_error_t *error    = NULL;
 	PyObject *string_object     = NULL;
 	uint8_t *value_string       = NULL;
-	const char *errors          = NULL;
 	static char *keyword_list[] = { "multi_value_index", NULL };
 	static char *function       = "pyesedb_multi_value_get_value_data_as_string";
 	size_t value_string_size    = 0;
@@ -948,7 +947,7 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create value: %d string.",
 		 function,
 		 multi_value_index );
@@ -987,7 +986,7 @@ PyObject *pyesedb_multi_value_get_value_data_as_string(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );

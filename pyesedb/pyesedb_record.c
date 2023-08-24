@@ -518,7 +518,6 @@ PyObject *pyesedb_record_get_column_name(
 	libcerror_error_t *error    = NULL;
 	PyObject *string_object     = NULL;
 	uint8_t *column_name        = NULL;
-	const char *errors          = NULL;
 	static char *function       = "pyesedb_record_get_column_name";
 	static char *keyword_list[] = { "value_entry", NULL };
 	size_t column_name_size     = 0;
@@ -581,7 +580,7 @@ PyObject *pyesedb_record_get_column_name(
 	if( column_name == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create column name: %d.",
 		 function,
 		 value_entry );
@@ -620,7 +619,7 @@ PyObject *pyesedb_record_get_column_name(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) column_name,
 			 (Py_ssize_t) column_name_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 column_name );
@@ -909,7 +908,7 @@ PyObject *pyesedb_record_get_value_data(
 	if( value_data == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create value: %d data.",
 		 function,
 		 value_entry );
@@ -1425,7 +1424,6 @@ PyObject *pyesedb_record_get_value_data_as_string(
 	libcerror_error_t *error    = NULL;
 	PyObject *string_object     = NULL;
 	uint8_t *value_string       = NULL;
-	const char *errors          = NULL;
 	static char *keyword_list[] = { "value_entry", NULL };
 	static char *function       = "pyesedb_record_get_value_data_as_string";
 	size_t value_string_size    = 0;
@@ -1524,7 +1522,7 @@ PyObject *pyesedb_record_get_value_data_as_string(
 	if( value_string == NULL )
 	{
 		PyErr_Format(
-		 PyExc_IOError,
+		 PyExc_MemoryError,
 		 "%s: unable to create value: %d string.",
 		 function,
 		 value_entry );
@@ -1563,7 +1561,7 @@ PyObject *pyesedb_record_get_value_data_as_string(
 	string_object = PyUnicode_DecodeUTF8(
 			 (char *) value_string,
 			 (Py_ssize_t) value_string_size - 1,
-			 errors );
+			 NULL );
 
 	PyMem_Free(
 	 value_string );
