@@ -232,13 +232,13 @@ int pyesedb_file_object_io_handle_free(
 		Py_DecRef(
 		 ( *file_object_io_handle )->file_object );
 
-		PyGILState_Release(
-		 gil_state );
-
 		PyMem_Free(
 		 *file_object_io_handle );
 
 		*file_object_io_handle = NULL;
+
+		PyGILState_Release(
+		 gil_state );
 	}
 	return( 1 );
 }

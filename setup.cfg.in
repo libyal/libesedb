@@ -1,6 +1,6 @@
 [metadata]
 name = libesedb-python
-version = 20231008
+version = @VERSION@
 description = Python bindings module for libesedb
 long_description = Python bindings module for libesedb
 author = Joachim Metz

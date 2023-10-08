@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libesedb],
- [20230824],
+ [20231008],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -222,6 +222,7 @@ AC_CONFIG_FILES([dpkg/changelog])
 AC_CONFIG_FILES([libesedb/libesedb.rc])
 AC_CONFIG_FILES([libesedb.pc])
 AC_CONFIG_FILES([libesedb.spec])
+AC_CONFIG_FILES([setup.cfg])
 dnl Generate a source configuration file
 AC_CONFIG_HEADERS([common/config.h])
 

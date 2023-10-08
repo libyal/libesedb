@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # Export tool testing script
 #
-# Version: 20230410
+# Version: 20231005
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
 EXIT_IGNORE=77;
 
-OPTION_SETS="";
-OPTIONS=();
+PROFILES=("esedbexport");
+OPTIONS_PER_PROFILE=("");
+OPTION_SETS=();
 
 INPUT_GLOB="*";
 
@@ -116,61 +117,86 @@ then
 	return ${EXIT_IGNORE};
 fi
 
-TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "esedbexport");
-
-IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
-
-RESULT=${EXIT_SUCCESS};
-
-for TEST_SET_INPUT_DIRECTORY in input/*;
+for PROFILE_INDEX in ${!PROFILES[*]};
 do
-	if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
-	then
-		continue;
-	fi
-	if check_for_directory_in_ignore_list "${TEST_SET_INPUT_DIRECTORY}" "${IGNORE_LIST}";
-	then
-		continue;
-	fi
+	TEST_PROFILE=${PROFILES[${PROFILE_INDEX}]};
 
-	TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
+	TEST_PROFILE_DIRECTORY=$(get_test_profile_directory "input" "${TEST_PROFILE}");
 
-	OLDIFS=${IFS};
+	IGNORE_LIST=$(read_ignore_list "${TEST_PROFILE_DIRECTORY}");
 
-	# IFS="\n"; is not supported by all platforms.
-	IFS="
-";
+	IFS=" " read -a PROFILE_OPTIONS <<< ${OPTIONS_PER_PROFILE[${PROFILE_INDEX}]};
 
-	if test -f "${TEST_SET_DIRECTORY}/files";
-	then
-		for INPUT_FILE in `cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?"`;
+	RESULT=${EXIT_SUCCESS};
+
+	for TEST_SET_INPUT_DIRECTORY in input/*;
+	do
+		if ! test -d "${TEST_SET_INPUT_DIRECTORY}";
+		then
+			continue;
+		fi
+		TEST_SET=`basename ${TEST_SET_INPUT_DIRECTORY}`;
+
+		if check_for_test_set_in_ignore_list "${TEST_SET}" "${IGNORE_LIST}";
+		then
+			continue;
+		fi
+		TEST_SET_DIRECTORY=$(get_test_set_directory "${TEST_PROFILE_DIRECTORY}" "${TEST_SET_INPUT_DIRECTORY}");
+
+		RESULT=${EXIT_SUCCESS};
+
+		if test -f "${TEST_SET_DIRECTORY}/files";
+		then
+			IFS="" read -a INPUT_FILES <<< $(cat ${TEST_SET_DIRECTORY}/files | sed "s?^?${TEST_SET_INPUT_DIRECTORY}/?");
+		else
+			IFS="" read -a INPUT_FILES <<< $(ls -1d ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB});
+		fi
+		for INPUT_FILE in "${INPUT_FILES[@]}";
 		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "esedbexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
-			RESULT=$?;
+			TESTED_WITH_OPTIONS=0;
+
+			for OPTION_SET in ${OPTION_SETS[@]};
+			do
+				TEST_DATA_OPTION_FILE=$(get_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+
+				if test -f ${TEST_DATA_OPTION_FILE};
+				then
+					TESTED_WITH_OPTIONS=1;
+
+					IFS=" " read -a OPTIONS <<< $(read_test_data_option_file "${TEST_SET_DIRECTORY}" "${INPUT_FILE}" "${OPTION_SET}");
+
+					run_test_on_input_file "${TEST_SET_DIRECTORY}" "esedbexport" "with_callback" "${OPTION_SET}" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}" "${OPTIONS[@]}";
+					RESULT=$?;
+
+					if test ${RESULT} -ne ${EXIT_SUCCESS};
+					then
+						break;
+					fi
+				fi
+			done
+
+			if test ${TESTED_WITH_OPTIONS} -eq 0;
+			then
+				run_test_on_input_file "${TEST_SET_DIRECTORY}" "esedbexport" "with_callback" "" "${TEST_EXECUTABLE}" "${INPUT_FILE}" "${PROFILE_OPTIONS[@]}";
+				RESULT=$?;
+			fi
 
 			if test ${RESULT} -ne ${EXIT_SUCCESS};
 			then
 				break;
 			fi
 		done
-	else
-		for INPUT_FILE in `ls -1 ${TEST_SET_INPUT_DIRECTORY}/${INPUT_GLOB}`;
-		do
-			run_test_on_input_file_with_options "${TEST_SET_DIRECTORY}" "esedbexport" "with_callback" "${OPTION_SETS}" "${TEST_EXECUTABLE}" "${INPUT_FILE}";
-			RESULT=$?;
 
-			if test ${RESULT} -ne ${EXIT_SUCCESS};
-			then
-				break;
-			fi
-		done
-	fi
-	IFS=${OLDIFS};
-
-	if test ${RESULT} -ne ${EXIT_SUCCESS};
-	then
-		break;
-	fi
+		# Ignore failures due to corrupted data.
+		if test "${TEST_SET}" = "corrupted";
+		then
+			RESULT=${EXIT_SUCCESS};
+		fi
+		if test ${RESULT} -ne ${EXIT_SUCCESS};
+		then
+			break;
+		fi
+	done
 done
 
 exit ${RESULT};
