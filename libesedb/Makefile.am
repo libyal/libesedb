@@ -111,11 +111,13 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libesedb_definitions.h
-	/bin/rm -f libesedb.rc
-	/bin/rm -f Makefile
+	-rm -f libesedb_definitions.h
+	-rm -f libesedb.rc
+	-rm -f Makefile
 
-splint:
+sources-local: $(BUILT_SOURCES)
+
+splint-local:
 	@echo "Running splint on libesedb ..."
 	-splint -preproc -redef $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(libesedb_la_SOURCES)
 

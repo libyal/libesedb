@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Bash functions to run an executable for testing.
 #
-# Version: 20231001
+# Version: 20231013
 #
 # When CHECK_WITH_ASAN is set to a non-empty value the test executable
 # is run with asan, otherwise it is run without.
@@ -410,7 +410,7 @@ read_test_data_option_file()
 
 	if test "${OPTIONS_STRING}" = "# libyal test data options";
 	then
-		OPTIONS_STRING=`tail -n +2 "${TEST_DATA_OPTION_FILE}" | sed 's/^offset=/-o/;s/^password=/-p/;s/^recovery_password=/-r/;s/^startup_key=/-s/' | tr '\n' ' '`;
+		OPTIONS_STRING=`tail -n +2 "${TEST_DATA_OPTION_FILE}" | sed 's/^offset=/-o/;s/^password=/-p/;s/^recovery_password=/-r/;s/^startup_key=/-s/;s/virtual_address=/-v/' | tr '\n' ' '`;
 	fi
 	echo "${OPTIONS_STRING}";
 }

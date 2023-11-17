@@ -36,7 +36,7 @@ jobs:
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
     - name: Prepare build
       run: |
-        ./synclibs.sh --use-head && ./autogen.sh && ./configure
+        ./synclibs.sh --use-head && ./autogen.sh && ./configure && make sources >/dev/null
     - name: Build Python wheel
       run: |
         tox -e${{ matrix.toxenv }}

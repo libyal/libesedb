@@ -105,40 +105,14 @@ library:
 	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean: clean
-	/bin/rm -f Makefile
-	/bin/rm -f config.status
-	/bin/rm -f config.cache
-	/bin/rm -f config.log
-	/bin/rm -f libesedb.pc
-	/bin/rm -f libesedb.spec
+	-rm -f Makefile
+	-rm -f config.status
+	-rm -f config.cache
+	-rm -f config.log
+	-rm -f libesedb.pc
+	-rm -f libesedb.spec
 	@for dir in ${subdirs}; do \
 		(cd $$dir && $(MAKE) distclean) \
 		|| case "$(MFLAGS)" in *k*) fail=yes;; *) exit 1;; esac; \
 	done && test -z "$$fail"
-
-splint:
-	(cd $(srcdir)/libcerror && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcthreads && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcdata && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libclocale && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcnotify && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcsplit && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libuna && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcfile && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libcpath && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libbfio && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfcache && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfdata && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfdatetime && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfguid && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfvalue && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfwnt && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libesedb && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libfmapi && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/libmapidb && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/esedbtools && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/pyesedb && $(MAKE) splint $(AM_MAKEFLAGS))
-	(cd $(srcdir)/po && $(MAKE) $(AM_MAKEFLAGS))
-	(cd $(srcdir)/tests && $(MAKE) $(AM_MAKEFLAGS))
-	(cd $(srcdir)/ossfuzz && $(MAKE) $(AM_MAKEFLAGS))
 

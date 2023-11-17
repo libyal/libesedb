@@ -40,7 +40,7 @@ void (*esedbtools_signal_signal_handler)( esedbtools_signal_t ) = NULL;
 /* Signal handler for Ctrl+C or Ctrl+Break signals
  */
 BOOL WINAPI esedbtools_signal_handler(
-             unsigned long signal )
+             esedbtools_signal_t signal )
 {
 	static char *function = "esedbtools_signal_handler";
 
@@ -112,7 +112,7 @@ int esedbtools_signal_attach(
 	esedbtools_signal_signal_handler = signal_handler;
 
 	if( SetConsoleCtrlHandler(
-	     esedbtools_signal_handler,
+	     (PHANDLER_ROUTINE) esedbtools_signal_handler,
 	     TRUE ) == 0 )
 	{
 		libcerror_error_set(
@@ -179,7 +179,7 @@ int esedbtools_signal_detach(
 	static char *function = "esedbtools_signal_detach";
 
 	if( SetConsoleCtrlHandler(
-	     esedbtools_signal_handler,
+	     (PHANDLER_ROUTINE) esedbtools_signal_handler,
 	     FALSE ) == 0 )
 	{
 		libcerror_error_set(

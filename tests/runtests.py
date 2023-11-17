@@ -2,7 +2,7 @@
 #
 # Script to run Python test scripts.
 #
-# Version: 20231004
+# Version: 20231024
 
 import glob
 import os
@@ -58,18 +58,22 @@ if __name__ == "__main__":
 
   setattr(unittest, "source", source_file)
 
-  for option_set in option_sets:
-    test_file = os.path.basename(source_file)
-    test_options_file_path = os.path.join(
-        "tests", "input", test_profile, test_set,
-        f"{test_file:s}.{option_set:s}")
-    if os.path.isfile(test_options_file_path):
-      with open(test_options_file_path, "r", encoding="utf-8") as file_object:
-        lines = [line.strip() for line in file_object.readlines()]
-        if lines[0] == "# libyal test data options":
-          for line in lines[1:]:
-            key, value = line.split("=", maxsplit=1)
-            setattr(unittest, key, value)
+  if source_file:
+    for option_set in option_sets:
+      test_file = os.path.basename(source_file)
+      test_options_file_path = os.path.join(
+          "tests", "input", test_profile, test_set,
+          f"{test_file:s}.{option_set:s}")
+      if os.path.isfile(test_options_file_path):
+        with open(test_options_file_path, "r", encoding="utf-8") as file_object:
+          lines = [line.strip() for line in file_object.readlines()]
+          if lines[0] == "# libyal test data options":
+            for line in lines[1:]:
+              key, value = line.split("=", maxsplit=1)
+              if key == 'offset':
+                value = int(value)
+
+              setattr(unittest, key, value)
 
   test_results = test_runner.run(test_scripts)
   if not test_results.wasSuccessful():

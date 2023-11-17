@@ -19,9 +19,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in
 
 distclean: clean
-	/bin/rm -f libesedb.h
-	/bin/rm -f libesedb/definitions.h
-	/bin/rm -f libesedb/features.h
-	/bin/rm -f libesedb/types.h
-	/bin/rm -f Makefile
+	-rm -f libesedb.h
+	-rm -f libesedb/definitions.h
+	-rm -f libesedb/features.h
+	-rm -f libesedb/types.h
+	-rm -f Makefile
 
