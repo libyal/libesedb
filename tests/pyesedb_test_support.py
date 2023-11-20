@@ -37,7 +37,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_check_file_signature(self):
     """Tests the check_file_signature function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -46,7 +46,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_check_file_signature_file_object(self):
     """Tests the check_file_signature_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -56,7 +56,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -73,7 +73,7 @@ class SupportFunctionsTests(unittest.TestCase):
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 

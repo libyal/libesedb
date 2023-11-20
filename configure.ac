@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
  [libesedb],
- [20231117],
+ [20231120],
  [joachim.metz@gmail.com])
 
 AC_CONFIG_SRCDIR(
@@ -122,7 +122,7 @@ dnl Check if libesedb Python bindings (pyesedb) required headers and functions a
 AX_PYTHON_CHECK_ENABLE
 
 AS_IF(
-  [test "x${ac_cv_enable_python}" != xno || test "x${ac_cv_enable_python2}" != xno || test "x${ac_cv_enable_python3}" != xno],
+  [test "x${ac_cv_enable_python}" != xno],
   [dnl Headers included in pyesedb/pyesedb_error.c
   AC_CHECK_HEADERS([stdarg.h varargs.h])
 
@@ -200,8 +200,6 @@ AC_CONFIG_FILES([libfvalue/Makefile])
 AC_CONFIG_FILES([libfwnt/Makefile])
 AC_CONFIG_FILES([libesedb/Makefile])
 AC_CONFIG_FILES([pyesedb/Makefile])
-AC_CONFIG_FILES([pyesedb-python2/Makefile])
-AC_CONFIG_FILES([pyesedb-python3/Makefile])
 AC_CONFIG_FILES([libfmapi/Makefile])
 AC_CONFIG_FILES([libmapidb/Makefile])
 AC_CONFIG_FILES([esedbtools/Makefile])

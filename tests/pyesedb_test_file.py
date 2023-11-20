@@ -38,7 +38,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_open(self):
     """Tests the open function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -59,7 +59,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_open_file_object(self):
     """Tests the open_file_object function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -85,7 +85,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_close(self):
     """Tests the close function."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -96,7 +96,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_open_close(self):
     """Tests the open and close functions."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       return
 
@@ -128,7 +128,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_type(self):
     """Tests the get_type function and type property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -145,7 +145,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_page_size(self):
     """Tests the get_page_size function and page_size property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 
@@ -162,7 +162,7 @@ class FileTypeTests(unittest.TestCase):
 
   def test_get_number_of_tables(self):
     """Tests the get_number_of_tables function and number_of_tables property."""
-    test_source = unittest.source
+    test_source = getattr(unittest, "source", None)
     if not test_source:
       raise unittest.SkipTest("missing source")
 

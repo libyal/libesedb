@@ -24,8 +24,6 @@ SUBDIRS = \
 	libmapidb \
 	esedbtools \
 	pyesedb \
-	pyesedb-python2 \
-	pyesedb-python3 \
 	po \
 	manuals \
 	tests \
