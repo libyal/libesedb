@@ -1545,8 +1545,8 @@ int libesedb_multi_value_get_value_binary_data(
 
 		return( -1 );
 	}
-	if( ( column_type != LIBESEDB_COLUMN_TYPE_TEXT )
-	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
+	if( ( column_type != LIBESEDB_COLUMN_TYPE_BINARY_DATA )
+	 && ( column_type != LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA ) )
 	{
 		libcerror_error_set(
 		 error,
