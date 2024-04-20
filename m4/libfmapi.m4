@@ -1,6 +1,6 @@
 dnl Checks for libfmapi required headers and functions
 dnl
-dnl Version: 20230404
+dnl Version: 20240413
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -10,8 +10,10 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
     [ac_cv_libfmapi=no],
     [ac_cv_libfmapi=check
     dnl Check if the directory provided as parameter exists
+    dnl For both --with-libfmapi which returns "yes" and --with-libfmapi= which returns ""
+    dnl treat them as auto-detection.
     AS_IF(
-      [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect],
+      [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_with_libfmapi" != xyes],
       [AS_IF(
         [test -d "$ac_cv_with_libfmapi"],
         [CFLAGS="$CFLAGS -I${ac_cv_with_libfmapi}/include"
@@ -183,8 +185,9 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
 
         ac_cv_libfmapi_LIBADD="-lfmapi"])
       ])
+
     AS_IF(
-      [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_libfmapi" != xyes],
+      [test "x$ac_cv_libfmapi" != xyes && test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_with_libfmapi" != xyes],
       [AC_MSG_FAILURE(
         [unable to find supported libfmapi in directory: $ac_cv_with_libfmapi],
         [1])
@@ -240,7 +243,7 @@ dnl Function to detect if libfmapi dependencies are available
 AC_DEFUN([AX_LIBFMAPI_CHECK_LOCAL],
   [dnl No additional checks.
 
-  ac_cv_libfmapi_CPPFLAGS="-I../libfmapi";
+  ac_cv_libfmapi_CPPFLAGS="-I../libfmapi -I\$(top_srcdir)/libfmapi";
   ac_cv_libfmapi_LIBADD="../libfmapi/libfmapi.la";
 
   ac_cv_libfmapi=local

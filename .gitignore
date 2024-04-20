@@ -171,6 +171,7 @@ stamp-h[1-9]
 /tests/esedb_test_tools_signal
 /tests/esedb_test_tools_windows_search_compression
 /tests/input
+/tests/notify_stream.log
 /tests/tmp*
 
 # Local library dependencies specific files

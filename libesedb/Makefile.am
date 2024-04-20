@@ -1,7 +1,7 @@
 AM_CPPFLAGS = \
 	-DLOCALEDIR=\"$(datadir)/locale\" \
-	-I$(top_srcdir)/include \
-	-I$(top_srcdir)/common \
+	-I../include -I$(top_srcdir)/include \
+	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
 	@LIBCDATA_CPPFLAGS@ \
 	@LIBCLOCALE_CPPFLAGS@ \
@@ -107,13 +107,11 @@ EXTRA_DIST = \
 	libesedb.rc \
 	libesedb.rc.in
 
-MAINTAINERCLEANFILES = \
+DISTCLEANFILES = \
+	libesedb_definitions.h \
+	libesedb.rc \
+	Makefile \
 	Makefile.in
-
-distclean: clean
-	-rm -f libesedb_definitions.h
-	-rm -f libesedb.rc
-	-rm -f Makefile
 
 sources-local: $(BUILT_SOURCES)
 
