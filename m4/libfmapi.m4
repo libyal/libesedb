@@ -1,6 +1,6 @@
 dnl Checks for libfmapi required headers and functions
 dnl
-dnl Version: 20240413
+dnl Version: 20240531
 
 dnl Function to detect if libfmapi is available
 dnl ac_libfmapi_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -14,15 +14,7 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
     dnl treat them as auto-detection.
     AS_IF(
       [test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_with_libfmapi" != xyes],
-      [AS_IF(
-        [test -d "$ac_cv_with_libfmapi"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libfmapi}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libfmapi}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libfmapi],
-          [1])
-        ])
-      ],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libfmapi])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -46,152 +38,41 @@ AC_DEFUN([AX_LIBFMAPI_CHECK_LIB],
       AS_IF(
         [test "x$ac_cv_header_libfmapi_h" = xno],
         [ac_cv_libfmapi=no],
-        [dnl Check for the individual functions
-        ac_cv_libfmapi=yes
+        [ac_cv_libfmapi=yes
 
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_get_version,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-
-        dnl Entry identifier functions
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_entry_identifier_initialize,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_entry_identifier_free,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_entry_identifier_copy_from_byte_stream,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_entry_identifier_get_service_provider_identifier,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-
-        dnl One-off entry identifier functions
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_initialize,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_free,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_copy_from_byte_stream,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_version,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_flags,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_display_name_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_display_name,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_display_name_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_display_name,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_address_type_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_address_type,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_address_type_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_address_type,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_email_address_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf8_email_address,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_email_address_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_one_off_entry_identifier_get_utf16_email_address,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-
-        dnl MAPI class identifiers
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_class_identifier_public_strings,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-
-        dnl LZFu (de)compression functions
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_lzfu_get_uncompressed_data_size,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
-        AC_CHECK_LIB(
-          fmapi,
-          libfmapi_lzfu_decompress,
-          [ac_cv_libfmapi_dummy=yes],
-          [ac_cv_libfmapi=no])
+        AX_CHECK_LIB_FUNCTIONS(
+         [libmfapi],
+          [mfapi],
+          [[libfmapi_get_version],
+           [libfmapi_entry_identifier_initialize],
+           [libfmapi_entry_identifier_free],
+           [libfmapi_entry_identifier_copy_from_byte_stream],
+           [libfmapi_entry_identifier_get_service_provider_identifier],
+           [libfmapi_one_off_entry_identifier_initialize],
+           [libfmapi_one_off_entry_identifier_free],
+           [libfmapi_one_off_entry_identifier_copy_from_byte_stream],
+           [libfmapi_one_off_entry_identifier_get_version],
+           [libfmapi_one_off_entry_identifier_get_flags],
+           [libfmapi_one_off_entry_identifier_get_utf8_display_name_size],
+           [libfmapi_one_off_entry_identifier_get_utf8_display_name],
+           [libfmapi_one_off_entry_identifier_get_utf16_display_name_size],
+           [libfmapi_one_off_entry_identifier_get_utf16_display_name],
+           [libfmapi_one_off_entry_identifier_get_utf8_address_type_size],
+           [libfmapi_one_off_entry_identifier_get_utf8_address_type],
+           [libfmapi_one_off_entry_identifier_get_utf16_address_type_size],
+           [libfmapi_one_off_entry_identifier_get_utf16_address_type],
+           [libfmapi_one_off_entry_identifier_get_utf8_email_address_size],
+           [libfmapi_one_off_entry_identifier_get_utf8_email_address],
+           [libfmapi_one_off_entry_identifier_get_utf16_email_address_size],
+           [libfmapi_one_off_entry_identifier_get_utf16_email_address],
+           [libfmapi_class_identifier_public_strings],
+           [libfmapi_lzfu_get_uncompressed_data_size],
+           [libfmapi_lzfu_decompress]])
 
         ac_cv_libfmapi_LIBADD="-lfmapi"])
       ])
 
-    AS_IF(
-      [test "x$ac_cv_libfmapi" != xyes && test "x$ac_cv_with_libfmapi" != x && test "x$ac_cv_with_libfmapi" != xauto-detect && test "x$ac_cv_with_libfmapi" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libfmapi in directory: $ac_cv_with_libfmapi],
-        [1])
-      ])
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libfmapi])
     ])
 
   dnl Check for debug functions

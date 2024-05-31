@@ -1,6 +1,6 @@
 dnl Checks for libfwnt required headers and functions
 dnl
-dnl Version: 20240413
+dnl Version: 20240519
 
 dnl Function to detect if libfwnt is available
 dnl ac_libfwnt_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -14,15 +14,7 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
     dnl treat them as auto-detection.
     AS_IF(
       [test "x$ac_cv_with_libfwnt" != x && test "x$ac_cv_with_libfwnt" != xauto-detect && test "x$ac_cv_with_libfwnt" != xyes],
-      [AS_IF(
-        [test -d "$ac_cv_with_libfwnt"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libfwnt}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libfwnt}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libfwnt],
-          [1])
-        ])
-      ],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libfwnt])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -46,187 +38,47 @@ AC_DEFUN([AX_LIBFWNT_CHECK_LIB],
       AS_IF(
         [test "x$ac_cv_header_libfwnt_h" = xno],
         [ac_cv_libfwnt=no],
-        [dnl Check for the individual functions
-        ac_cv_libfwnt=yes
+        [ac_cv_libfwnt=yes
 
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_get_version,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl Security descriptor functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_initialize,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_free,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_copy_from_byte_stream,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_get_owner,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_get_group,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_get_discretionary_acl,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_descriptor_get_system_acl,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl Security identifier (SID) functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_initialize,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_free,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_from_byte_stream,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_get_string_size,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf8_string,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf8_string_with_index,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf16_string,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf16_string_with_index,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf32_string,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_security_identifier_copy_to_utf32_string_with_index,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl Access control list (ACL) functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_list_free,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_list_get_number_of_entries,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_list_get_entry_by_index,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl Access control entry (ACE) functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_entry_free,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_entry_get_type,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_entry_get_flags,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_entry_get_access_mask,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_access_control_entry_get_security_identifier,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl LZNT1 functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_lznt1_decompress,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl LZXPRESS functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_lzx_decompress,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-
-        dnl LZXPRESS functions
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_lzxpress_decompress,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
-        AC_CHECK_LIB(
-          fwnt,
-          libfwnt_lzxpress_huffman_decompress,
-          [ac_cv_libfwnt_dummy=yes],
-          [ac_cv_libfwnt=no])
+        AX_CHECK_LIB_FUNCTIONS(
+          [libfwnt],
+          [fwnt],
+          [[libfwnt_get_version],
+           [libfwnt_array_initialize],
+           [libfwnt_security_descriptor_initialize],
+           [libfwnt_security_descriptor_free],
+           [libfwnt_security_descriptor_copy_from_byte_stream],
+           [libfwnt_security_descriptor_get_owner],
+           [libfwnt_security_descriptor_get_group],
+           [libfwnt_security_descriptor_get_discretionary_acl],
+           [libfwnt_security_descriptor_get_system_acl],
+           [libfwnt_security_identifier_initialize],
+           [libfwnt_security_identifier_free],
+           [libfwnt_security_identifier_copy_from_byte_stream],
+           [libfwnt_security_identifier_get_string_size],
+           [libfwnt_security_identifier_copy_to_utf8_string],
+           [libfwnt_security_identifier_copy_to_utf8_string_with_index],
+           [libfwnt_security_identifier_copy_to_utf16_string],
+           [libfwnt_security_identifier_copy_to_utf16_string_with_index],
+           [libfwnt_security_identifier_copy_to_utf32_string],
+           [libfwnt_security_identifier_copy_to_utf32_string_with_index],
+           [libfwnt_access_control_list_free],
+           [libfwnt_access_control_list_get_number_of_entries],
+           [libfwnt_access_control_list_get_entry_by_index],
+           [libfwnt_access_control_entry_free],
+           [libfwnt_access_control_entry_get_type],
+           [libfwnt_access_control_entry_get_flags],
+           [libfwnt_access_control_entry_get_access_mask],
+           [libfwnt_access_control_entry_get_security_identifier],
+           [libfwnt_lznt1_decompress],
+           [libfwnt_lzx_decompress],
+           [libfwnt_lzxpress_decompress],
+           [libfwnt_lzxpress_huffman_decompress]])
 
         ac_cv_libfwnt_LIBADD="-lfwnt"])
       ])
 
-    AS_IF(
-      [test "x$ac_cv_libfwnt" != xyes && test "x$ac_cv_with_libfwnt" != x && test "x$ac_cv_with_libfwnt" != xauto-detect && test "x$ac_cv_with_libfwnt" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libfwnt in directory: $ac_cv_with_libfwnt],
-        [1])
-      ])
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libfwnt])
     ])
 
   AS_IF(

@@ -1,6 +1,6 @@
 dnl Checks for libmapidb required headers and functions
 dnl
-dnl Version: 20240413
+dnl Version: 20240531
 
 dnl Function to detect if libmapidb is available
 dnl ac_libmapidb_dummy is used to prevent AC_CHECK_LIB adding unnecessary -l<library> arguments
@@ -14,15 +14,7 @@ AC_DEFUN([AX_LIBMAPIDB_CHECK_LIB],
     dnl treat them as auto-detection.
     AS_IF(
       [test "x$ac_cv_with_libmapidb" != x && test "x$ac_cv_with_libmapidb" != xauto-detect && test "x$ac_cv_with_libmapidb" != xyes],
-      [AS_IF(
-        [test -d "$ac_cv_with_libmapidb"],
-        [CFLAGS="$CFLAGS -I${ac_cv_with_libmapidb}/include"
-        LDFLAGS="$LDFLAGS -L${ac_cv_with_libmapidb}/lib"],
-        [AC_MSG_FAILURE(
-          [no such directory: $ac_cv_with_libmapidb],
-          [1])
-        ])
-      ],
+      [AX_CHECK_LIB_DIRECTORY_EXISTS([libmapidb])],
       [dnl Check for a pkg-config file
       AS_IF(
         [test "x$cross_compiling" != "xyes" && test "x$PKGCONFIG" != "x"],
@@ -46,26 +38,19 @@ AC_DEFUN([AX_LIBMAPIDB_CHECK_LIB],
       AS_IF(
         [test "x$ac_cv_header_libmapidb_h" = xno],
         [ac_cv_libmapidb=no],
-        [dnl Check for the individual functions
-        ac_cv_libmapidb=yes
+        [ac_cv_libmapidb=yes
 
-        AC_CHECK_LIB(
-          mapidb,
-          libmapidb_get_version,
-          [ac_cv_libmapidb_dummy=yes],
-          [ac_cv_libmapidb=no])
+        AX_CHECK_LIB_FUNCTIONS(
+          [libmapidb],
+          [mapidb],
+          [[libmapidb_get_version]])
 
         dnl TODO add functions
 
         ac_cv_libmapidb_LIBADD="-lmapidb"])
       ])
 
-    AS_IF(
-      [test "x$ac_cv_libmapidb" != xyes && test "x$ac_cv_with_libmapidb" != x && test "x$ac_cv_with_libmapidb" != xauto-detect && test "x$ac_cv_with_libmapidb" != xyes],
-      [AC_MSG_FAILURE(
-        [unable to find supported libmapidb in directory: $ac_cv_with_libmapidb],
-        [1])
-      ])
+    AX_CHECK_LIB_DIRECTORY_MSG_ON_FAILURE([libmapidb])
     ])
 
   AS_IF(
