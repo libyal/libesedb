@@ -1,0 +1,35 @@
+# Build OSSFuzz fuzz targets from source.
+name: build_ossfuzz
+on:
+  push:
+    branches: [main]
+permissions: read-all
+jobs:
+  build_ossfuzz:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        include:
+        - architecture: 'x64'
+          compiler: 'gcc'
+          configure_options: ''
+    steps:
+    - name: Install build dependencies
+      run: |
+        sudo apt-get -y install git
+    - uses: actions/checkout@v4
+      with:
+        repository: google/oss-fuzz
+        path: oss-fuzz
+    - name: Build OSSFuzz fuzz targets
+      working-directory: oss-fuzz
+      run: |
+        mkdir -p projects/libesedb
+        cp projects/libyal/build.sh projects/libesedb/
+        cp projects/libyal/project.yaml projects/libesedb/
+        head -n 20 projects/libyal/Dockerfile > projects/libesedb/Dockerfile
+        echo "RUN git clone --depth 1 https://github.com/libyal/libesedb.git libesedb" >> projects/libesedb/Dockerfile
+        tail -n 3 projects/libyal/Dockerfile >> projects/libesedb/Dockerfile
+        python3 infra/helper.py build_image --pull libesedb 
+        python3 infra/helper.py build_fuzzers --sanitizer address libesedb
+        python3 infra/helper.py check_build libesedb

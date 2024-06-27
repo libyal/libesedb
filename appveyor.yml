@@ -257,6 +257,9 @@ matrix:
 install:
 - cmd: if [%BUILD_ENVIRONMENT%]==[msbuild] (
     git clone https://github.com/libyal/vstools.git ..\vstools )
+- ps: If (($env:BUILD_ENVIRONMENT -eq "msbuild") -And (Test-Path ".\synctestdata.ps1")) {
+    .\synctestdata.ps1 }
+- sh: if ( test ${BUILD_ENVIRONMENT} = "python-tox" || test ${BUILD_ENVIRONMENT} = "xcode" ) && test -f "./synctestdata.sh"; then ./synctestdata.sh; fi
 - sh: if ( test `uname -s` = "Darwin" && test ${BUILD_ENVIRONMENT} = "python-tox" ) || test ${BUILD_ENVIRONMENT} = "xcode"; then brew update-reset && brew update -q; fi
 - sh: if ( test `uname -s` = "Darwin" && test ${BUILD_ENVIRONMENT} = "python-tox" ) || test ${BUILD_ENVIRONMENT} = "xcode"; then brew install -q autoconf automake gettext gnu-sed libtool pkg-config || true; fi
 - cmd: if [%BUILD_ENVIRONMENT%]==[python-tox] (
