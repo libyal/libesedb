@@ -179,7 +179,7 @@ The (database) file header is (at least) 668 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Checksum +
-The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to at least offset 668, but presumably page size. The value 0x89abcdef is used as the initial value.
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to at least offset 668, but presumably page size.
 | 4 | 4 | "\xef\xcd\xab\x89" | The signature
 | 8 | 4 | | File format version +
 See section: <<file_format_and_revision,File format version and revision>>
@@ -1349,13 +1349,13 @@ The database time (DBTIME) is 8 bytes of size and consists of:
 [cols="1,1,1,5",options="header"]
 |===
 | Offset | Size | Value | Description
-| 0 | 2 | | Hours +
+| 0 | 1 | | Hours +
 Value should be [0 - 23]
-| 2 | 2 | | Minutes +
+| 2 | 1 | | Minutes +
 Value should be [0 - 59]
-| 4 | 2 | | Seconds +
+| 4 | 1 | | Seconds +
 Value should be [0 – 59]
-| 6 | 2 | 0 | Padding
+| 6 | 5 | 0 | Padding
 |===
 
 == Columns
