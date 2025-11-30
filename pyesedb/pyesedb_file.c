@@ -1,7 +1,7 @@
 /*
  * Python object wrapper of libesedb_file_t
  *
- * Copyright (C) 2009-2024, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2009-2025, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *

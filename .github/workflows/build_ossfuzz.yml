@@ -30,6 +30,6 @@ jobs:
         head -n 20 projects/libyal/Dockerfile > projects/libesedb/Dockerfile
         echo "RUN git clone --depth 1 https://github.com/libyal/libesedb.git libesedb" >> projects/libesedb/Dockerfile
         tail -n 3 projects/libyal/Dockerfile >> projects/libesedb/Dockerfile
-        python3 infra/helper.py build_image --pull libesedb 
+        python3 infra/helper.py build_image --pull libesedb
         python3 infra/helper.py build_fuzzers --sanitizer address libesedb
         python3 infra/helper.py check_build libesedb
