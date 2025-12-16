@@ -4,7 +4,7 @@ on: [push, pull_request]
 permissions: read-all
 jobs:
   build_ubuntu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -30,7 +30,7 @@ jobs:
           compiler: 'gcc'
           configure_options: '--enable-static-executables=yes --enable-multi-threading-support=no'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
@@ -46,7 +46,7 @@ jobs:
       run: |
         tests/runtests.sh
   build_dist:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -54,7 +54,7 @@ jobs:
           compiler: 'gcc'
           configure_options: ''
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
@@ -70,7 +70,7 @@ jobs:
       run: |
         make distcheck
   build_python_ubuntu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -79,7 +79,7 @@ jobs:
           configure_options: '--enable-python'
           python_version: ''
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install build dependencies
       run: |
         sudo add-apt-repository universe &&
@@ -99,7 +99,7 @@ jobs:
       run: |
         tests/runtests.sh
   build_setup_py_ubuntu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -108,7 +108,7 @@ jobs:
           configure_options: ''
           python-version: '3.10'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -127,7 +127,7 @@ jobs:
       run: |
         python setup.py build
   coverage_ubuntu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -138,7 +138,7 @@ jobs:
           compiler: 'gcc'
           configure_options: '--enable-wide-character-type'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
@@ -159,7 +159,7 @@ jobs:
           (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) \
         done
     - name: Upload coverage report to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       with:
         name: linux-${{ matrix.architecture }}-gcc-no-optimization
         token: ${{ secrets.CODECOV_TOKEN }}
