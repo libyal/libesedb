@@ -1453,8 +1453,6 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
-		last_leaf_page_number = safe_leaf_page_number;
-
 		if( libfdata_vector_get_element_value_by_index(
 		     page_tree->pages_vector,
 		     (intptr_t *) file_io_handle,
@@ -1474,6 +1472,29 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
+		/* Stop backward walk if the page is not a leaf page
+		 */
+		if( libesedb_page_get_flags(
+		     page,
+		     &page_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page flags from page: %" PRIu32 ".",
+			 function,
+			 safe_leaf_page_number );
+
+			return( -1 );
+		}
+		if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == 0 )
+		{
+			break;
+		}
+		last_leaf_page_number = safe_leaf_page_number;
+
 		if( libesedb_page_get_previous_page_number(
 		     page,
 		     &safe_leaf_page_number,
@@ -1671,6 +1692,7 @@ int libesedb_page_tree_get_number_of_leaf_values(
 	libesedb_page_t *page                                          = NULL;
 	static char *function                                          = "libesedb_page_tree_get_number_of_leaf_values";
 	uint32_t leaf_page_number                                      = 0;
+	uint32_t page_flags                                            = 0;
 	int number_of_leaf_pages                                       = 0;
 	int safe_number_of_leaf_values                                 = 0;
 	int value_index                                                = 0;
@@ -1762,6 +1784,27 @@ int libesedb_page_tree_get_number_of_leaf_values(
 				 leaf_page_number );
 
 				goto on_error;
+			}
+			/* Stop forward walk if the page is not a leaf page
+			 */
+			if( libesedb_page_get_flags(
+			     page,
+			     &page_flags,
+			     error ) != 1 )
+			{
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+				 "%s: unable to retrieve page flags from page: %" PRIu32 ".",
+				 function,
+				 leaf_page_number );
+
+				goto on_error;
+			}
+			if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) == 0 )
+			{
+				break;
 			}
 			if( libesedb_page_tree_get_number_of_leaf_values_from_leaf_page(
 			     page_tree,

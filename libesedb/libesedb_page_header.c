@@ -240,6 +240,15 @@ int libesedb_page_header_read_data(
 	 ( (esedb_page_header_t *) data )->available_page_tag,
 	 page_header->available_page_tag );
 
+	/* In the 32KiB page format the upper 4 bits of the available page tag
+	 * are reserved (ctagReserved) and the lower 12 bits contain the actual
+	 * number of page tags
+	 */
+	if( io_handle->page_size >= 32768 )
+	{
+		page_header->available_page_tag &= 0x0fff;
+	}
+
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_page_header_t *) data )->page_flags,
 	 page_header->flags );
