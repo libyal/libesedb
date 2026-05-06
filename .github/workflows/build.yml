@@ -30,7 +30,7 @@ jobs:
           compiler: 'gcc'
           configure_options: '--enable-static-executables=yes --enable-multi-threading-support=no'
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
@@ -54,7 +54,7 @@ jobs:
           compiler: 'gcc'
           configure_options: ''
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
@@ -79,7 +79,7 @@ jobs:
           configure_options: '--enable-python'
           python_version: ''
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
         sudo add-apt-repository universe &&
@@ -108,9 +108,9 @@ jobs:
           configure_options: ''
           python-version: '3.10'
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install build dependencies
@@ -138,7 +138,7 @@ jobs:
           compiler: 'gcc'
           configure_options: '--enable-wide-character-type'
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
         sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
