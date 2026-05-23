@@ -31,14 +31,17 @@
  */
 #if defined( LIBESEDB_DLL_EXPORT )
 #define LIBESEDB_EXTERN __declspec(dllexport)
+#define LIBESEDB_EXTERN_VARIABLE extern __declspec(dllexport)
 
 #elif defined( LIBESEDB_DLL_IMPORT )
-#define LIBESEDB_EXTERN extern __declspec(dllimport)
+#define LIBESEDB_EXTERN __declspec(dllimport)
+#define LIBESEDB_EXTERN_VARIABLE extern __declspec(dllimport)
 
 #else
 #define LIBESEDB_EXTERN extern
+#define LIBESEDB_EXTERN_VARIABLE extern
 
-#endif
+#endif /* defined( LIBESEDB_DLL_EXPORT ) */
 
 #endif /* !defined( _LIBESEDB_EXTERN_H ) */
 

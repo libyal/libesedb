@@ -1,21 +1,49 @@
 # Build Python wheels from source using cibuildwheel.
 name: build_wheels
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+  release:
+    types: [published]
+  # Allow trigger via API
+  workflow_dispatch:
 permissions: read-all
 jobs:
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install build dependencies
+      run: |
+        sudo apt update
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config python3-build
+    - name: Prepare build
+      run: |
+        ./synclibs.sh
+        ./autogen.sh
+        ./configure
+        make sources >/dev/null
+    - name: Build sdist
+      run: |
+        python -m build --sdist
+    - uses: actions/upload-artifact@v7
+      with:
+        name: cibw-sdist
+        path: dist/*.tar.gz
   build_wheels_linux:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
+        - os: ubuntu-24.04
         - os: ubuntu-24.04-arm
-        - os: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config
     - name: Prepare build
       run: |
         ./synclibs.sh
@@ -23,14 +51,14 @@ jobs:
         ./configure
         make sources >/dev/null
     - name: Build Python wheels
-      uses: pypa/cibuildwheel@v3.3.0
+      uses: pypa/cibuildwheel@v3.4.1
       env:
         CIBW_TEST_COMMAND: python tests/runtests.py
         CIBW_TEST_SOURCES: tests
       with:
         package-dir: .
         output-dir: dist
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: dist/*.whl
@@ -40,15 +68,14 @@ jobs:
     strategy:
       matrix:
         include:
-        - os: macos-14
-        - os: macos-15-intel
+        - os: macos-26
+        - os: macos-26-intel
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
         brew update -q
         brew install -q autoconf automake gettext gnu-sed libtool pkg-config || true
-        brew link --force gettext
         ln -s /usr/local/bin/glibtoolize /usr/local/bin/libtoolize
     - name: Prepare build
       run: |
@@ -57,14 +84,14 @@ jobs:
         ./configure
         make sources >/dev/null
     - name: Build Python wheels
-      uses: pypa/cibuildwheel@v3.3.0
+      uses: pypa/cibuildwheel@v3.4.1
       env:
         CIBW_TEST_COMMAND: python tests/runtests.py
         CIBW_TEST_SOURCES: tests
       with:
         package-dir: .
         output-dir: dist
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: dist/*.whl
@@ -83,14 +110,44 @@ jobs:
         .\synclibs.ps1
         .\autogen.ps1
     - name: Build Python wheels
-      uses: pypa/cibuildwheel@v3.3.0
+      uses: pypa/cibuildwheel@v3.4.1
       env:
         CIBW_TEST_COMMAND: python tests/runtests.py
         CIBW_TEST_SOURCES: tests
       with:
         package-dir: .
         output-dir: dist
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
         path: dist/*.whl
+  upload_test_pypi:
+    needs: [build_sdist, build_wheels_linux, build_wheels_macos, build_wheels_windows]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+  upload_pypi:
+    needs: [upload_test_pypi]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1

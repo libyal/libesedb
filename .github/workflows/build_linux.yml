@@ -1,39 +1,41 @@
-# Build from source.
-name: build
-on: [push, pull_request]
+# Build from source on Linux.
+name: build_linux
+on:
+  pull_request:
+  push:
 permissions: read-all
 jobs:
-  build_ubuntu:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x86'
+        - os: ubuntu-24.04
           compiler: 'clang'
           configure_options: ''
-        - architecture: 'x64'
+        - os: ubuntu-24.04-arm
           compiler: 'clang'
           configure_options: ''
-        - architecture: 'x86'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: ''
-        - architecture: 'x64'
+        - os: ubuntu-24.04-arm
           compiler: 'gcc'
           configure_options: ''
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: '--with-pthread=no'
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: '--enable-wide-character-type'
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: '--enable-static-executables=yes --enable-multi-threading-support=no'
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
@@ -46,18 +48,18 @@ jobs:
       run: |
         tests/runtests.sh
   build_dist:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: ''
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
@@ -70,11 +72,11 @@ jobs:
       run: |
         make distcheck
   build_python_ubuntu:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: '--enable-python'
           python_version: ''
@@ -83,8 +85,8 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo add-apt-repository universe &&
-        sudo apt-get update &&
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config python3-dev python-dev-is-python3
+        sudo apt update &&
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config python3-dev
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
@@ -98,26 +100,21 @@ jobs:
         PYTHON_VERSION: ${{ matrix.python_version }}
       run: |
         tests/runtests.sh
-  build_setup_py_ubuntu:
-    runs-on: ubuntu-latest
+  build_pyproject_ubuntu:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x64'
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: ''
-          python-version: '3.10'
     steps:
     - uses: actions/checkout@v6
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Install build dependencies
       run: |
         sudo add-apt-repository universe &&
-        sudo apt-get update &&
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config python3-dev python-dev-is-python3
+        sudo apt update &&
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config python3 python3-build python3-dev
     - name: Building from source
       env:
         CC: ${{ matrix.compiler }}
@@ -125,23 +122,50 @@ jobs:
         tests/build.sh ${{ matrix.configure_options }}
     - name: Build Python module
       run: |
-        python setup.py build
-  coverage_ubuntu:
-    runs-on: ubuntu-latest
+        python -m build
+  build_shared:
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-        - architecture: 'x86'
+        - os: ubuntu-24.04
           compiler: 'gcc'
-          configure_options: '--enable-wide-character-type'
-        - architecture: 'x64'
+          configure_options: ''
+        - os: ubuntu-24.04
           compiler: 'gcc'
           configure_options: '--enable-wide-character-type'
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
       run: |
-        sudo apt-get -y install autoconf automake autopoint build-essential git libtool pkg-config
+        sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config
+    - name: Download test data
+      run: |
+        if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
+    - name: Prepare shared libraries
+      run: |
+        tests/syncsharedlibs.sh --use-head
+    - name: Building from source
+      env:
+        CC: ${{ matrix.compiler }}
+      run: |
+        tests/build.sh ${{ matrix.configure_options }}
+    - name: Run tests
+      run: |
+        tests/runtests.sh
+  coverage:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+        - os: ubuntu-24.04
+          compiler: 'gcc'
+          configure_options: '--enable-wide-character-type'
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install build dependencies
+      run: |
+        sudo apt -y install curl autoconf automake autopoint build-essential git libtool pkg-config
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
@@ -159,7 +183,7 @@ jobs:
           (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) \
         done
     - name: Upload coverage report to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
-        name: linux-${{ matrix.architecture }}-gcc-no-optimization
+        name: ${{ matrix.os }}-gcc-no-optimization
         token: ${{ secrets.CODECOV_TOKEN }}
