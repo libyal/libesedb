@@ -105,7 +105,6 @@ int main(
 	ESEDB_TEST_UNREFERENCED_PARAMETER( argv )
 
 #if defined( HAVE_DEBUG_OUTPUT )
-
 #if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
 
 	ESEDB_TEST_RUN(
@@ -117,12 +116,17 @@ int main(
 	 esedb_test_column_type_get_description );
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
-
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
 
 	return( EXIT_SUCCESS );
 
+#if defined( HAVE_DEBUG_OUTPUT )
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
 }
 

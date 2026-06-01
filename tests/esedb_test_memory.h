@@ -28,9 +28,23 @@
 extern "C" {
 #endif
 
-#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) && !defined( __aarch64__ ) && !defined( __arm__ ) && !defined( __clang__ ) && !defined( __CYGWIN__ ) && !defined( __hppa__ ) && !defined( __loongarch__ ) && !defined( __mips__ ) && !defined( __riscv ) && !defined( __sparc__ ) && !defined( HAVE_ASAN )
-#define HAVE_ESEDB_TEST_MEMORY		1
-#endif
+#if defined( HAVE_MEMORY_TESTS )
+
+/* Memory tests only support x86 or x86-64 architectures */
+#if defined( __x86__ ) || defined( __x86_64__ )
+
+/* Memory tests cannot be used in combination with DLLs or CygWin */
+#if !defined( LIBESEDB_DLL_IMPORT ) && !defined( __CYGWIN__ )
+
+/* Memory tests require dlsym */
+#if defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ )
+
+#define HAVE_ESEDB_TEST_MEMORY	1
+
+#endif /* defined( HAVE_GNU_DL_DLSYM ) && defined( __GNUC__ ) */
+#endif /* !defined( LIBESEDB_DLL_IMPORT ) && !defined( __CYGWIN__ ) */
+#endif /* defined( __x86__ ) || defined( __x86_64__ ) */
+#endif /* defined( HAVE_MEMORY_TESTS ) */
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Export tool testing script
 #
-# Version: 20240413
+# Version: 20260601
 
 EXIT_SUCCESS=0;
 EXIT_FAILURE=1;
@@ -9,7 +9,7 @@ EXIT_IGNORE=77;
 
 PROFILES=("esedbexport");
 OPTIONS_PER_PROFILE=("");
-OPTION_SETS=();
+OPTIONS=();
 
 INPUT_GLOB="*";
 
@@ -94,16 +94,16 @@ assert_availability_binary find;
 
 if test "${PLATFORM}" = "Darwin";
 then
-	assert_availability_binary md5;
+       assert_availability_binary md5;
 else
-	assert_availability_binary md5sum;
+       assert_availability_binary md5sum;
 fi
 
 if ! test -d "input";
 then
 	echo "Test input directory not found.";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 RESULT=`ls input/* | tr ' ' '\n' | wc -l`;
 
@@ -111,7 +111,7 @@ if test ${RESULT} -eq ${EXIT_SUCCESS};
 then
 	echo "No files or directories found in the test input directory";
 
-	return ${EXIT_IGNORE};
+	exit ${EXIT_IGNORE};
 fi
 
 for PROFILE_INDEX in ${!PROFILES[*]};

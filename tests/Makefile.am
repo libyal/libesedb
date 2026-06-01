@@ -22,6 +22,9 @@ AM_CPPFLAGS = \
 	@PTHREAD_CPPFLAGS@ \
 	@LIBESEDB_DLL_IMPORT@
 
+AM_TESTS_ENVIRONMENT = \
+	export TESTS_USE_WINAPI="@TESTS_USE_WINAPI@";
+
 if HAVE_PYTHON_TESTS
 TESTS_PYESEDB = \
 	test_python_module.sh
@@ -592,7 +595,8 @@ esedb_test_tools_output_SOURCES = \
 
 esedb_test_tools_output_LDADD = \
 	../libesedb/libesedb.la \
-	@LIBCERROR_LIBADD@
+	@LIBCERROR_LIBADD@ \
+	@LIBINTL@
 
 esedb_test_tools_signal_SOURCES = \
 	../esedbtools/esedbtools_signal.c ../esedbtools/esedbtools_signal.h \

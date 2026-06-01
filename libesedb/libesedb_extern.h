@@ -24,6 +24,19 @@
 
 #include <common.h>
 
+#if !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute )
+#if __has_attribute( visibility )
+#define LIBESEDB_INTERNAL	__attribute__((visibility("hidden"))) extern
+
+#else
+#define LIBESEDB_INTERNAL	extern
+
+#endif /* __has_attribute( visibility ) */
+#else
+#define LIBESEDB_INTERNAL	extern
+
+#endif /* !defined( __CYGWIN__ ) && !defined( _WIN32 ) && defined( __has_attribute ) */
+
 /* Define HAVE_LOCAL_LIBESEDB for local use of libesedb
  */
 #if !defined( HAVE_LOCAL_LIBESEDB )
@@ -32,7 +45,7 @@
 
 #else
 #define LIBESEDB_EXTERN		/* extern */
-#define LIBESEDB_EXTERN_VARIABLE	extern
+#define LIBESEDB_EXTERN_VARIABLE	LIBESEDB_INTERNAL
 
 #endif /* !defined( HAVE_LOCAL_LIBESEDB ) */
 

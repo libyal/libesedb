@@ -1,18 +1,15 @@
 # Build OSSFuzz fuzz targets from source.
 name: build_ossfuzz
 on:
+  pull_request:
   push:
-    branches: [main]
 permissions: read-all
 jobs:
   build_ossfuzz:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        include:
-        - os: ubuntu-24.04
-          compiler: 'gcc'
-          configure_options: ''
+        os: ["ubuntu-24.04"]
     steps:
     - name: Install build dependencies
       run: |
@@ -22,13 +19,16 @@ jobs:
         repository: google/oss-fuzz
         path: oss-fuzz
     - name: Build OSSFuzz fuzz targets
+      env:
+        BRANCH: ${{ github.head_ref || github.ref_name }}
+        ORGANIZATION: ${{ github.event.pull_request.head.repo.owner.login || github.repository_owner }}
       working-directory: oss-fuzz
       run: |
         mkdir -p projects/libesedb
         cp projects/libyal/build.sh projects/libesedb/
         cp projects/libyal/project.yaml projects/libesedb/
         head -n 20 projects/libyal/Dockerfile > projects/libesedb/Dockerfile
-        echo "RUN git clone --depth 1 https://github.com/libyal/libesedb.git libesedb" >> projects/libesedb/Dockerfile
+        echo "RUN git clone --depth 1 https://github.com/${ORGANIZATION:-libyal}/libesedb.git -b ${BRANCH:-main} libesedb" >> projects/libesedb/Dockerfile
         tail -n 3 projects/libyal/Dockerfile >> projects/libesedb/Dockerfile
         python3 infra/helper.py build_image --pull libesedb
         python3 infra/helper.py build_fuzzers --sanitizer address libesedb

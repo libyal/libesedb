@@ -987,6 +987,7 @@ int export_handle_create_text_item_file(
      libcerror_error_t **error )
 {
 	system_character_t *item_filename_path = NULL;
+	system_character_t *mode               = NULL;
 	static char *function                  = "export_handle_create_text_item_file";
 	size_t item_filename_path_size         = 0;
 	int result                             = 0;
@@ -1070,16 +1071,20 @@ int export_handle_create_text_item_file(
 
 		return( 0 );
 	}
+#if defined( __MINGW32__ ) && defined( HAVE_MINGW_BINMODE )
+	mode = _SYSTEM_STRING( FILE_STREAM_BINARY_OPEN_WRITE );
+#else
+	mode = _SYSTEM_STRING( FILE_STREAM_OPEN_WRITE );
+#endif
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 	*item_file_stream = file_stream_open_wide(
 	                     item_filename_path,
-	                     _SYSTEM_STRING( FILE_STREAM_OPEN_WRITE ) );
+	                     mode );
 #else
 	*item_file_stream = file_stream_open(
 	                     item_filename_path,
-	                     FILE_STREAM_OPEN_WRITE );
+	                     mode );
 #endif
-
 	if( *item_file_stream == NULL )
 	{
 		libcerror_error_set(
@@ -1644,8 +1649,12 @@ int export_handle_export_table(
 			break;
 		}
 	}
-	if( file_stream_close(
-	     table_file_stream ) != 0 )
+	result = file_stream_close(
+	          table_file_stream );
+
+	table_file_stream = NULL;
+
+	if( result != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -1656,8 +1665,6 @@ int export_handle_export_table(
 
 		goto on_error;
 	}
-	table_file_stream = NULL;
-
 	if( export_handle->abort == 0 )
 	{
 		if( export_handle->export_mode != EXPORT_MODE_TABLES )
@@ -2313,7 +2320,8 @@ int export_handle_export_index(
 			 "\t" );
 		}
 	}
-#endif
+#endif /* TODO */
+
 	/* Write the record (row) values to the index file
 	 */
 	if( libesedb_index_get_number_of_records(
@@ -2385,8 +2393,12 @@ int export_handle_export_index(
 			goto on_error;
 		}
 	}
-	if( file_stream_close(
-	     index_file_stream ) != 0 )
+	result = file_stream_close(
+	          index_file_stream );
+
+	index_file_stream = NULL;
+
+	if( result != 0 )
 	{
 		libcerror_error_set(
 		 error,
@@ -2397,8 +2409,6 @@ int export_handle_export_index(
 
 		goto on_error;
 	}
-	index_file_stream = NULL;
-
 	return( 1 );
 
 on_error:

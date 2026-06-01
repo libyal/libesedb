@@ -524,6 +524,20 @@ int libesedb_long_value_get_record_value(
 
 			goto on_error;
 		}
+		if( memory_set(
+		     data,
+		     0,
+		     (size_t) data_size ) == NULL )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_MEMORY,
+			 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+			 "%s: unable to clear data.",
+			 function );
+
+			goto on_error;
+		}
 		if( libfdata_list_get_number_of_elements(
 		     internal_long_value->data_segments_list,
 		     &number_of_data_segments,
@@ -686,6 +700,20 @@ int libesedb_long_value_get_record_value(
 
 					goto on_error;
 				}
+				if( memory_set(
+				     data,
+				     0,
+				     (size_t) data_size ) == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_SET_FAILED,
+					 "%s: unable to clear data.",
+					 function );
+
+					goto on_error;
+				}
 				if( libesedb_compression_lzxpress_decompress(
 				     compressed_data,
 				     compressed_data_size,
@@ -760,6 +788,9 @@ int libesedb_long_value_get_record_value(
 		}
 		/* The record value takes over management of data
 		 */
+#if defined( __clang_analyzer__ )
+		free( data );
+#endif
 		data = NULL;
 	}
 	*record_value = internal_long_value->record_value;

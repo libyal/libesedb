@@ -188,7 +188,6 @@ int libesedb_catalog_definition_read_data(
 	static char *function                               = "libesedb_catalog_definition_read_data";
 	size_t remaining_data_size                          = 0;
 	size_t variable_size_data_type_value_data_offset    = 0;
-	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t data_type_number                           = 0;
 	uint16_t data_type_size                             = 0;
 	uint16_t previous_variable_size_data_type_size      = 0;
@@ -203,6 +202,7 @@ int libesedb_catalog_definition_read_data(
 	system_character_t *value_string                    = 0;
 	size_t value_string_size                            = 0;
 	uint32_t value_32bit                                = 0;
+	uint16_t calculated_variable_size_data_types_offset = 0;
 	uint16_t record_offset                              = 0;
 	uint16_t value_16bit                                = 0;
 	int result                                          = 0;
@@ -323,6 +323,7 @@ int libesedb_catalog_definition_read_data(
 	{
 		number_of_variable_size_data_types = last_variable_size_data_type - 127;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
 	calculated_variable_size_data_types_offset += sizeof( esedb_data_definition_header_t );
 
 	/* Use a fall through to determine the size of the fixed size data types
@@ -384,6 +385,8 @@ int libesedb_catalog_definition_read_data(
 			calculated_variable_size_data_types_offset += 4;
 			break;
 	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( ( variable_size_data_types_offset < sizeof( esedb_data_definition_header_t ) )
 	 || ( variable_size_data_types_offset > data_size ) )
 	{
@@ -642,7 +645,8 @@ int libesedb_catalog_definition_read_data(
 			 0 );
 		}
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	if( number_of_variable_size_data_types > 0 )
 	{
 		variable_size_data_type_value_data_offset = variable_size_data_types_offset + ( number_of_variable_size_data_types * 2 );

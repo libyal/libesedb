@@ -13,11 +13,11 @@ jobs:
         - os: ubuntu-24.04
           compiler: 'clang'
           configure_options: ''
-        - os: ubuntu-24.04-arm
-          compiler: 'clang'
-          configure_options: ''
         - os: ubuntu-24.04
           compiler: 'gcc'
+          configure_options: ''
+        - os: ubuntu-24.04-arm
+          compiler: 'clang'
           configure_options: ''
         - os: ubuntu-24.04-arm
           compiler: 'gcc'
@@ -30,7 +30,7 @@ jobs:
           configure_options: '--enable-wide-character-type'
         - os: ubuntu-24.04
           compiler: 'gcc'
-          configure_options: '--enable-static-executables=yes --enable-multi-threading-support=no'
+          configure_options: '--disable-multi-threading-support --enable-static-executables'
     steps:
     - uses: actions/checkout@v6
     - name: Install build dependencies
@@ -39,11 +39,14 @@ jobs:
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
-    - name: Building from source
+    - name: Build from source
       env:
         CC: ${{ matrix.compiler }}
       run: |
-        tests/build.sh ${{ matrix.configure_options }}
+        ./synclibs.sh --use-head
+        ./autogen.sh
+        ./configure ${{ matrix.configure_options }}
+        make > /dev/null
     - name: Run tests
       run: |
         tests/runtests.sh
@@ -63,15 +66,18 @@ jobs:
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
-    - name: Building from source
+    - name: Build from source
       env:
         CC: ${{ matrix.compiler }}
       run: |
-        tests/build.sh ${{ matrix.configure_options }}
+        ./synclibs.sh --use-head
+        ./autogen.sh
+        ./configure ${{ matrix.configure_options }}
+        make > /dev/null
     - name: Run tests
       run: |
         make distcheck
-  build_python_ubuntu:
+  build_python:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -90,17 +96,20 @@ jobs:
     - name: Download test data
       run: |
         if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
-    - name: Building from source
+    - name: Build from source
       env:
         CC: ${{ matrix.compiler }}
       run: |
-        tests/build.sh ${{ matrix.configure_options }}
+        ./synclibs.sh --use-head
+        ./autogen.sh
+        ./configure ${{ matrix.configure_options }}
+        make > /dev/null
     - name: Run tests
       env:
         PYTHON_VERSION: ${{ matrix.python_version }}
       run: |
         tests/runtests.sh
-  build_pyproject_ubuntu:
+  build_pyproject:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -115,11 +124,14 @@ jobs:
         sudo add-apt-repository universe &&
         sudo apt update &&
         sudo apt -y install autoconf automake autopoint build-essential git libtool pkg-config python3 python3-build python3-dev
-    - name: Building from source
+    - name: Build from source
       env:
         CC: ${{ matrix.compiler }}
       run: |
-        tests/build.sh ${{ matrix.configure_options }}
+        ./synclibs.sh --use-head
+        ./autogen.sh
+        ./configure ${{ matrix.configure_options }}
+        make > /dev/null
     - name: Build Python module
       run: |
         python -m build
@@ -145,45 +157,14 @@ jobs:
     - name: Prepare shared libraries
       run: |
         tests/syncsharedlibs.sh --use-head
-    - name: Building from source
+    - name: Build from source
       env:
         CC: ${{ matrix.compiler }}
       run: |
-        tests/build.sh ${{ matrix.configure_options }}
+        ./synclibs.sh --use-head
+        ./autogen.sh
+        ./configure ${{ matrix.configure_options }}
+        make > /dev/null
     - name: Run tests
       run: |
         tests/runtests.sh
-  coverage:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-        - os: ubuntu-24.04
-          compiler: 'gcc'
-          configure_options: '--enable-wide-character-type'
-    steps:
-    - uses: actions/checkout@v6
-    - name: Install build dependencies
-      run: |
-        sudo apt -y install curl autoconf automake autopoint build-essential git libtool pkg-config
-    - name: Download test data
-      run: |
-        if test -x "synctestdata.sh"; then ./synctestdata.sh; fi
-    - name: Building from source
-      env:
-        CC: ${{ matrix.compiler }}
-      run: |
-        tests/build.sh ${{ matrix.configure_options }} --enable-shared=no CFLAGS="--coverage -O0" CPPFLAGS="-DOPTIMIZATION_DISABLED" LDFLAGS="--coverage"
-    - name: Run tests
-      run: |
-        make check CHECK_WITH_STDERR=1 SKIP_TOOLS_END_TO_END_TESTS=1
-    - name: Generate coverage data
-      run: |
-        for DIRECTORY in `find . -maxdepth 1 -type d`; do \
-          (cd ${DIRECTORY} && find . -maxdepth 1 -name \*.gcno -type f -exec gcov -pb {} \;) \
-        done
-    - name: Upload coverage report to Codecov
-      uses: codecov/codecov-action@v6
-      with:
-        name: ${{ matrix.os }}-gcc-no-optimization
-        token: ${{ secrets.CODECOV_TOKEN }}

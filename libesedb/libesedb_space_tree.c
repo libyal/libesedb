@@ -203,12 +203,12 @@ int libesedb_space_tree_read_values_from_page(
 	static char *function                         = "libesedb_space_tree_read_values_from_page";
 	uint32_t child_page_number                    = 0;
 	uint32_t page_flags                           = 0;
-	uint32_t total_number_of_pages                = 0;
 	uint16_t number_of_page_values                = 0;
 	uint16_t page_value_index                     = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	uint32_t father_data_page_object_identifier   = 0;
+	uint32_t total_number_of_pages                = 0;
 #endif
 
 	if( space_tree == NULL )
@@ -506,8 +506,9 @@ int libesedb_space_tree_read_values_from_page(
 
 				goto on_error;
 			}
+#if defined( HAVE_DEBUG_OUTPUT )
 			total_number_of_pages += space_tree_value->number_of_pages;
-
+#endif
 			if( libesedb_space_tree_value_free(
 			     &space_tree_value,
 			     error ) != 1 )

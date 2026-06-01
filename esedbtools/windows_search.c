@@ -209,7 +209,7 @@ int windows_search_export_compressed_string_value(
 		 "%s: unable to create decoded value data.",
 		 function );
 
-		return( -1 );
+		goto on_error;
 	}
 	if( windows_search_decode(
 	     decoded_value_data,
@@ -225,10 +225,7 @@ int windows_search_export_compressed_string_value(
 		 "%s: unable to decode value data.",
 		 function );
 
-		memory_free(
-		 decoded_value_data );
-
-		return( -1 );
+		goto on_error;
 	}
 /* TODO test purposes
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
@@ -271,7 +268,7 @@ int windows_search_export_compressed_string_value(
 			 "%s: invalid value data size value too small.",
 			 function );
 
-			return( -1 );
+			goto on_error;
 		}
 		/* Bytes 1 - 2 contain the uncompressed data size
 		 */
@@ -295,10 +292,7 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to create decompressed value data.",
 			 function );
 
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
+			goto on_error;
 		}
 		/* Add the first byte of the decoded data - 2 to have the
 		 * decompressed data look like decoded data for chained decompression
@@ -335,6 +329,8 @@ int windows_search_export_compressed_string_value(
 
 			memory_free(
 			 decompressed_value_data );
+
+			decompressed_value_data = NULL;
 		}
 		else
 		{
@@ -384,9 +380,6 @@ int windows_search_export_compressed_string_value(
 			}
 			libcerror_error_free(
 			 error );
-
-			memory_free(
-			 decoded_value_data );
 		}
 		if( value_utf16_stream_size > 0 )
 		{
@@ -402,10 +395,7 @@ int windows_search_export_compressed_string_value(
 				 "%s: unable to create value UTF-16 stream.",
 				 function );
 
-				memory_free(
-				 decoded_value_data );
-
-				return( -1 );
+				goto on_error;
 			}
 			if( windows_search_utf16_run_length_compression_decompress(
 			     &( decoded_value_data[ 1 ] ),
@@ -421,12 +411,7 @@ int windows_search_export_compressed_string_value(
 				 "%s: unable to decompress UTF-16 run-length compressed data.",
 				 function );
 
-				memory_free(
-				 value_utf16_stream );
-				memory_free(
-				 decoded_value_data );
-
-				return( -1 );
+				goto on_error;
 			}
 #if defined( HAVE_DEBUG_OUTPUT ) && defined( HAVE_EXTRA_DEBUG_OUTPUT )
 			if( libcnotify_verbose != 0 )
@@ -449,9 +434,6 @@ int windows_search_export_compressed_string_value(
 			{
 				value_utf16_stream_size -= 2;
 			}
-			memory_free(
-			 decoded_value_data );
-
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_size_from_utf16_stream(
 				  value_utf16_stream,
@@ -476,10 +458,7 @@ int windows_search_export_compressed_string_value(
 				 "%s: unable to determine size of value UTF-16 stream.",
 				 function );
 
-				memory_free(
-				 value_utf16_stream );
-
-				return( -1 );
+				goto on_error;
 			}
 			value_string = system_string_allocate(
 					value_string_size );
@@ -493,10 +472,7 @@ int windows_search_export_compressed_string_value(
 				 "%s: unable to create value string.",
 				 function );
 
-				memory_free(
-				 value_utf16_stream );
-
-				return( -1 );
+				goto on_error;
 			}
 #if defined( HAVE_WIDE_SYSTEM_CHARACTER )
 			result = libuna_utf16_string_copy_from_utf16_stream(
@@ -524,15 +500,12 @@ int windows_search_export_compressed_string_value(
 				 "%s: unable to retrieve value string.",
 				 function );
 
-				memory_free(
-				 value_string );
-				memory_free(
-				 value_utf16_stream );
-
-				return( -1 );
+				goto on_error;
 			}
 			memory_free(
 			 value_utf16_stream );
+
+			value_utf16_stream = NULL;
 
 			export_text(
 			 value_string,
@@ -541,6 +514,8 @@ int windows_search_export_compressed_string_value(
 
 			memory_free(
 			 value_string );
+
+			value_string = NULL;
 		}
 	}
 	/* 8-bit compressed UTF-16 little-endian string
@@ -561,10 +536,7 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to determine size of value string.",
 			 function );
 
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
+			goto on_error;
 		}
 		narrow_value_string = (uint8_t *) memory_allocate(
 		                                   sizeof( uint8_t ) * value_string_size );
@@ -578,10 +550,7 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to create value string.",
 			 function );
 
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
+			goto on_error;
 		}
 		if( libuna_utf8_string_copy_from_byte_stream(
 		     narrow_value_string,
@@ -598,16 +567,8 @@ int windows_search_export_compressed_string_value(
 			 "%s: unable to retrieve value string.",
 			 function );
 
-			memory_free(
-			 narrow_value_string );
-			memory_free(
-			 decoded_value_data );
-
-			return( -1 );
+			goto on_error;
 		}
-		memory_free(
-		 decoded_value_data );
-
 		export_narrow_text(
 		 (char *) narrow_value_string,
 		 value_string_size,
@@ -615,6 +576,8 @@ int windows_search_export_compressed_string_value(
 
 		memory_free(
 		 narrow_value_string );
+
+		narrow_value_string = NULL;
 	}
 	/* uncompressed data
 	 */
@@ -624,9 +587,6 @@ int windows_search_export_compressed_string_value(
 		 (char *) &( decoded_value_data[ 1 ] ),
 		 decoded_value_data_size - 1,
 		 record_file_stream );
-
-		memory_free(
-		 decoded_value_data );
 	}
 	else
 	{
@@ -643,6 +603,30 @@ int windows_search_export_compressed_string_value(
 			 0 );
 #endif
 		}
+	}
+	memory_free(
+	 decoded_value_data );
+
+	return( 1 );
+
+on_error:
+	if( narrow_value_string != NULL )
+	{
+		memory_free(
+		 narrow_value_string );
+	}
+	if( value_string != NULL )
+	{
+		memory_free(
+		 value_string );
+	}
+	if( value_utf16_stream != NULL )
+	{
+		memory_free(
+		 value_utf16_stream );
+	}
+	if( decoded_value_data != NULL )
+	{
 		memory_free(
 		 decoded_value_data );
 	}

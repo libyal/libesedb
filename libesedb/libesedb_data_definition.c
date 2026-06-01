@@ -1585,12 +1585,15 @@ int libesedb_data_definition_read_long_value(
 {
 	libesedb_page_t *page             = NULL;
 	libesedb_page_value_t *page_value = NULL;
-	uint8_t *long_value_data          = NULL;
 	static char *function             = "libesedb_data_definition_read_long_value";
 	size_t long_value_data_size       = 0;
 	off64_t element_data_offset       = 0;
-	uint32_t value_32bit              = 0;
 	uint16_t data_offset              = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	uint8_t *long_value_data          = NULL;
+	uint32_t value_32bit              = 0;
+#endif
 
 	if( data_definition == NULL )
 	{
@@ -1688,7 +1691,6 @@ int libesedb_data_definition_read_long_value(
 
 		return( -1 );
 	}
-	long_value_data      = &( page_value->data[ data_offset ] );
 	long_value_data_size = page_value->size - data_offset;
 
 	if( long_value_data_size != 8 )
@@ -1706,6 +1708,8 @@ int libesedb_data_definition_read_long_value(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		long_value_data = &( page_value->data[ data_offset ] );
+
 		libcnotify_printf(
 		 "%s: long value data:\n",
 		 function );
@@ -1713,41 +1717,31 @@ int libesedb_data_definition_read_long_value(
 		 long_value_data,
 		 long_value_data_size,
 		 0 );
-	}
-#endif
-	byte_stream_copy_to_uint16_little_endian(
-	 long_value_data,
-	 value_32bit );
 
-	long_value_data += 4;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
+		byte_stream_copy_to_uint16_little_endian(
+		 long_value_data,
+		 value_32bit );
 		libcnotify_printf(
 		 "%s: unknown1\t\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
-	}
-#endif
 
-	byte_stream_copy_to_uint16_little_endian(
-	 long_value_data,
-	 value_32bit );
+		long_value_data += 4;
 
-	long_value_data += 4;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-	if( libcnotify_verbose != 0 )
-	{
+		byte_stream_copy_to_uint16_little_endian(
+		 long_value_data,
+		 value_32bit );
 		libcnotify_printf(
 		 "%s: last segment offset\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libcnotify_printf(
 		 "\n" );
+
+		long_value_data += 4;
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 

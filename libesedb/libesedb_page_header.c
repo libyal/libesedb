@@ -149,7 +149,6 @@ int libesedb_page_header_read_data(
 	static char *function        = "libesedb_page_header_read_data";
 	size_t data_offset           = 0;
 	size_t minimum_data_size     = 0;
-	uint16_t available_data_size = 0;
 	uint8_t has_extended_header  = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
@@ -222,10 +221,6 @@ int libesedb_page_header_read_data(
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
 #endif
-	byte_stream_copy_to_uint16_little_endian(
-	 ( (esedb_page_header_t *) data )->available_data_size,
-	 available_data_size );
-
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_page_header_t *) data )->previous_page,
 	 page_header->previous_page_number );
@@ -331,10 +326,13 @@ int libesedb_page_header_read_data(
 		 function,
 		 page_header->father_data_page_object_identifier );
 
+		byte_stream_copy_to_uint16_little_endian(
+		 ( (esedb_page_header_t *) data )->available_data_size,
+		 value_16bit );
 		libcnotify_printf(
 		 "%s: available data size\t\t\t\t: %" PRIu32 "\n",
 		 function,
-		 available_data_size );
+		 value_16bit );
 
 		byte_stream_copy_to_uint16_little_endian(
 		 ( (esedb_page_header_t *) data )->available_uncommitted_data_size,
