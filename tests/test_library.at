@@ -1,0 +1,41 @@
+m4_include([package.m4])
+m4_include([test_macros.at])
+
+include_test_inputs([libesedb])
+
+dnl Wrap m4_define to overwrite AT_TESTSUITE_NAME
+m4_define([_M4_DEFINE_HOOK], m4_defn([m4_define]))
+m4_define([m4_define],
+  [m4_if(
+    [$1],
+    [AT_TESTSUITE_NAME],
+    [_M4_DEFINE_HOOK([$1], [Running library tests])],
+    [_M4_DEFINE_HOOK([$1], [$2])])])
+
+dnl Redefine AS_BOX to remove the "box"
+m4_undefine([AS_BOX])
+m4_define([AS_BOX], [echo "$1"])
+
+AT_INIT([library])
+AT_COLOR_TESTS
+
+dnl Rewrite AT_SETUP to change the minimum line length
+m4_define([AT_SETUP],
+  m4_unquote(
+    [m4_bpatsubst(
+      m4_dquote(m4_defn([AT_SETUP])),
+      [47],
+      [72])
+    ])
+  )
+
+SETUP_HELPER_FUNCTIONS
+
+RUN_TEST_BINARIES(
+  [SKIP_LIBRARY_TESTS],
+  [block_descriptor block_tree block_tree_node catalog catalog_definition checksum column column_type compression data_definition data_segment database error file_header index io_handle leaf_page_descriptor long_value multi_value notify page page_header page_tree page_tree_key page_tree_value page_value record table root_page_header space_tree space_tree_value table_definition])
+
+RUN_TEST_BINARIES_WITH_INPUT(
+  [SKIP_LIBRARY_TESTS],
+  [file support],
+  test_inputs_libesedb)

@@ -42,10 +42,10 @@ jobs:
         ./synclibs.sh --use-head
         ./autogen.sh
         ./configure ${{ matrix.configure_options }}
-        make > /dev/null
+        make -j4 > /dev/null
     - name: Run tests
       run: |
-        tests/runtests.sh
+        tests/runtests.sh -j4 VERBOSE=1
   build_python:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -71,10 +71,10 @@ jobs:
         ./synclibs.sh --use-head
         ./autogen.sh
         ./configure ${{ matrix.configure_options }}
-        make > /dev/null
+        make -j4 > /dev/null
     - name: Run tests
       run: |
-        tests/runtests.sh
+        tests/runtests.sh -j4 VERBOSE=1
   build_pkgbuild:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -100,7 +100,7 @@ jobs:
         ./synclibs.sh --use-head
         ./autogen.sh
         ./configure ${{ matrix.configure_options }}
-        make > /dev/null
+        make -j4 > /dev/null
     - name: Build pkg
       run: |
         tests/pkgbuild.sh

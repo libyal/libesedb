@@ -1,5 +1,5 @@
 if HAVE_PYTHON
-AM_CFLAGS = \
+AM_CPPFLAGS = \
 	-I../include -I$(top_srcdir)/include \
 	-I../common -I$(top_srcdir)/common \
 	@LIBCERROR_CPPFLAGS@ \
@@ -52,7 +52,7 @@ pyesedb_la_LIBADD = \
 	@LIBCPATH_LIBADD@ \
 	@LIBBFIO_LIBADD@
 
-pyesedb_la_CPPFLAGS = $(PYTHON_CPPFLAGS)
+pyesedb_la_CPPFLAGS = $(AM_CPPFLAGS) $(PYTHON_CPPFLAGS)
 pyesedb_la_LDFLAGS  = -module -avoid-version $(PYTHON_LDFLAGS)
 
 endif

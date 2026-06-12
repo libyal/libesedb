@@ -401,7 +401,7 @@ PyObject *pyesedb_file_signal_abort(
            PyObject *arguments PYESEDB_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
-	static char *function    = "pyesedb_file_signal_abort";	
+	static char *function    = "pyesedb_file_signal_abort";
 	int result               = 0;
 
 	PYESEDB_UNREFERENCED_PARAMETER( arguments )

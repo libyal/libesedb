@@ -1,6 +1,6 @@
 # Files to ignore by git
 #
-# Version: 20251129
+# Version: 20260604
 
 # Generic auto-generated build files
 *~
@@ -131,7 +131,12 @@ stamp-h[1-9]
 /esedbtools/*.exe
 /esedbtools/esedbexport
 /esedbtools/esedbinfo
+/tests/*.dir
 /tests/*.exe
+/tests/*.log
+/tests/*.tmp
+/tests/atconfig
+/tests/atlocal
 /tests/esedb_test_block_descriptor
 /tests/esedb_test_block_tree
 /tests/esedb_test_block_tree_node
@@ -172,6 +177,12 @@ stamp-h[1-9]
 /tests/esedb_test_tools_windows_search_compression
 /tests/input
 /tests/notify_stream.log
+/tests/package.m4
+/tests/test_inputs_*.at
+/tests/test_library
+/tests/test_manpages
+/tests/test_python_module
+/tests/test_tools
 /tests/tmp*
 
 # Local library dependencies specific files

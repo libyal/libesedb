@@ -958,7 +958,7 @@ int export_handle_create_item_filename(
 		goto on_error;
 	}
 	( *item_filename )[ item_name_length ] = 0;
-	
+
 	return( 1 );
 
 on_error:
@@ -4017,7 +4017,7 @@ int export_handle_export_long_record_value(
 				goto on_error;
 			}
 			if( value_data_size > (size64_t) SSIZE_MAX )
-			{	
+			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,

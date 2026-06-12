@@ -32,8 +32,8 @@ jobs:
         ./synclibs.sh --use-head
         ./autogen.sh
         ./configure ${{ matrix.configure_options }}
-        make > /dev/null
+        make -j4 > /dev/null
     - name: Run tests
       shell: freebsd {0}
       run: |
-        tests/runtests.sh
+        tests/runtests.sh -j4 VERBOSE=1

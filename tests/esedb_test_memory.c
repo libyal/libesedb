@@ -35,15 +35,8 @@
 
 #if defined( HAVE_ESEDB_TEST_MEMORY )
 
-static void *(*esedb_test_real_malloc)(size_t)                       = NULL;
-static void *(*esedb_test_real_memcpy)(void *, const void *, size_t) = NULL;
-static void *(*esedb_test_real_memset)(void *, int, size_t)          = NULL;
-static void *(*esedb_test_real_realloc)(void *, size_t)              = NULL;
-
-int esedb_test_malloc_attempts_before_fail                           = -1;
-int esedb_test_memcpy_attempts_before_fail                           = -1;
-int esedb_test_memset_attempts_before_fail                           = -1;
-int esedb_test_realloc_attempts_before_fail                          = -1;
+static void *(*esedb_test_real_malloc)(size_t) = NULL;
+int esedb_test_malloc_attempts_before_fail     = -1;
 
 /* Custom malloc for testing memory error cases
  * Note this function might fail if compiled with optimation
@@ -59,6 +52,11 @@ void *malloc(
 		esedb_test_real_malloc = dlsym(
 		                          RTLD_NEXT,
 		                          "malloc" );
+
+		if( esedb_test_real_malloc == NULL )
+		{
+			return( NULL );
+		}
 	}
 	if( esedb_test_malloc_attempts_before_fail == 0 )
 	{
@@ -76,6 +74,9 @@ void *malloc(
 	return( ptr );
 }
 
+static void *(*esedb_test_real_memcpy)(void *, const void *, size_t) = NULL;
+int esedb_test_memcpy_attempts_before_fail                           = -1;
+
 /* Custom memcpy for testing memory error cases
  * Note this function might fail if compiled with optimation and as a shared libary
  * Returns a pointer to newly allocated data or NULL
@@ -90,6 +91,11 @@ void *memcpy(
 		esedb_test_real_memcpy = dlsym(
 		                          RTLD_NEXT,
 		                          "memcpy" );
+
+		if( esedb_test_real_memcpy == NULL )
+		{
+			return( NULL );
+		}
 	}
 	if( esedb_test_memcpy_attempts_before_fail == 0 )
 	{
@@ -109,6 +115,9 @@ void *memcpy(
 	return( destination );
 }
 
+static void *(*esedb_test_real_memset)(void *, int, size_t) = NULL;
+int esedb_test_memset_attempts_before_fail                  = -1;
+
 /* Custom memset for testing memory error cases
  * Note this function might fail if compiled with optimation and as a shared libary
  * Returns a pointer to newly allocated data or NULL
@@ -123,6 +132,11 @@ void *memset(
 		esedb_test_real_memset = dlsym(
 		                          RTLD_NEXT,
 		                          "memset" );
+
+		if( esedb_test_real_memset == NULL )
+		{
+			return( NULL );
+		}
 	}
 	if( esedb_test_memset_attempts_before_fail == 0 )
 	{
@@ -142,6 +156,9 @@ void *memset(
 	return( ptr );
 }
 
+static void *(*esedb_test_real_realloc)(void *, size_t) = NULL;
+int esedb_test_realloc_attempts_before_fail             = -1;
+
 /* Custom realloc for testing memory error cases
  * Note this function might fail if compiled with optimation
  * Returns a pointer to reallocated data or NULL
@@ -155,6 +172,11 @@ void *realloc(
 		esedb_test_real_realloc = dlsym(
 		                           RTLD_NEXT,
 		                           "realloc" );
+
+		if( esedb_test_real_realloc == NULL )
+		{
+			return( NULL );
+		}
 	}
 	if( esedb_test_realloc_attempts_before_fail == 0 )
 	{
