@@ -109,7 +109,6 @@ int webcache_export_record_container(
 		          value_iterator,
 		          &column_name_size,
 		          error );
-
 #else
 		result = libesedb_record_get_utf8_column_name_size(
 		          record,
@@ -221,15 +220,15 @@ int webcache_export_record_container(
 				}
 				else if( system_string_compare(
 				          column_name,
-				        _SYSTEM_STRING( "CreationTime" ),
-				        12 ) == 0 )
+				          _SYSTEM_STRING( "CreationTime" ),
+				          12 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
 				}
 				else if( system_string_compare(
-				        column_name,
-				        _SYSTEM_STRING( "ModifiedTime" ),
-				        12 ) == 0 )
+				          column_name,
+				          _SYSTEM_STRING( "ModifiedTime" ),
+				          12 ) == 0 )
 				{
 					known_column_type = WEBCACHE_KNOWN_COLUMN_TYPE_FILETIME;
 				}

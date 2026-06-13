@@ -21,7 +21,7 @@ AT_TEST_HELPER_FN(
   fi
   shift
 
-  $BINARY $[]*
+  $BINARY "$[]@"
   ])
 
 AT_TEST_HELPER_FN(
@@ -44,7 +44,7 @@ AT_TEST_HELPER_FN(
   else
     OUTPUT_FILE="${OUTPUT_FILE}-${OPTION_SET}.log"
   fi
-  ath_fn_run_esedbtools_binary "${ESEDBTOOL}" $[]* > /dev/null
+  ath_fn_run_esedbtools_binary "${ESEDBTOOL}" "$[]@" > /dev/null
   STATUS=$?
 
   if test ${STATUS} -eq 0; then
@@ -85,7 +85,7 @@ AT_TEST_HELPER_FN(
   else
     OUTPUT_FILE="${OUTPUT_FILE}-${OPTION_SET}.log"
   fi
-  ath_fn_run_esedbtools_binary "${ESEDBTOOL}" $[]* > "${OUTPUT_FILE}"
+  ath_fn_run_esedbtools_binary "${ESEDBTOOL}" "$[]@" > "${OUTPUT_FILE}"
   STATUS=$?
 
   if test ${STATUS} -eq 0; then
@@ -116,7 +116,7 @@ m4_define([RUN_TEST_ESEDBTOOL_AND_COMPARE_FILES],
     [$2],
     [m4_define([option_set], m4_normalize(get_test_result_value([test_input], 1)))
     m4_define([test_options], m4_normalize(get_test_result_value([test_input], 2)))
-    m4_define([test_file], m4_normalize(get_test_result_value([test_input], 3)))
+    m4_define([test_file], [_strip(get_test_result_value([test_input], 3))])
 
     m4_define([sanitized_test_file],
       [m4_translit([test_file], [[],[],[]"'`\], [______])])
@@ -166,7 +166,7 @@ m4_define([RUN_TEST_ESEDBTOOL_AND_COMPARE_STDOUT],
     [$2],
     [m4_define([option_set], m4_normalize(get_test_result_value([test_input], 1)))
     m4_define([test_options], m4_normalize(get_test_result_value([test_input], 2)))
-    m4_define([test_file], m4_normalize(get_test_result_value([test_input], 3)))
+    m4_define([test_file], [_strip(get_test_result_value([test_input], 3))])
 
     m4_define([sanitized_test_file],
       [m4_translit([test_file], [[],[],[]"'`\], [______])])

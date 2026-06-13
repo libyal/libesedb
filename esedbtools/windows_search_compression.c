@@ -108,12 +108,6 @@ int windows_search_utf16_run_length_compression_get_size(
 		 */
 		if( ( compressed_data_offset + 1 + compression_size ) > compressed_data_size )
 		{
-#if defined( HAVE_DEBUG_OUTPUT )
-fprintf( stderr, "MARKER: %zd, %d, %zd, %zd\n",
- compressed_data_offset,
- compression_size, compressed_data_size,
- compressed_data_size - compressed_data_offset - 1 );
-#endif
 			compression_size = (uint8_t) ( compressed_data_size - compressed_data_offset - 1 );
 		}
 		safe_uncompressed_data_size += compression_size * 2;

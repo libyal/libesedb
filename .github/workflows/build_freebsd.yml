@@ -19,7 +19,7 @@ jobs:
         usesh: true
         mem: 4096
         prepare: |
-          pkg install -y autoconf automake bash curl gettext git libtool pkgconf
+          pkg install -y autoconf automake curl gettext git libtool pkgconf
     - name: Download test data
       shell: freebsd {0}
       run: |

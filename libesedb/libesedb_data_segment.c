@@ -362,6 +362,18 @@ int libesedb_data_segment_read_element_data(
 
 		goto on_error;
 	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: data segment:\n",
+		 function );
+		libcnotify_print_data(
+		 data_segment->data,
+		 data_segment->data_size,
+		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
+	}
+#endif
 	if( libfdata_list_element_set_element_value(
 	     element,
 	     (intptr_t *) file_io_handle,

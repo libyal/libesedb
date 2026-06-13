@@ -89,7 +89,7 @@ struct libesedb_internal_record
 	 */
 	libcdata_array_t *values_array;
 
-	/* The (record) flags 
+	/* The (record) flags
 	 */
 	uint8_t flags;
 };

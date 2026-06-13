@@ -1767,6 +1767,7 @@ int libesedb_data_definition_read_long_value_segment(
 	size_t long_value_segment_data_size    = 0;
 	uint16_t data_offset                   = 0;
 	int element_index                      = 0;
+	uint16_t header_size                   = 0;
 
 	if( data_definition == NULL )
 	{
@@ -1856,7 +1857,7 @@ int libesedb_data_definition_read_long_value_segment(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-		 "%s: missing page value data.",
+		 "%s: invalid page value - missing data.",
 		 function );
 
 		return( -1 );
@@ -1896,6 +1897,54 @@ int libesedb_data_definition_read_long_value_segment(
 		 long_value_segment_data_offset,
 		 long_value_segment_data_offset,
 		 long_value_segment_data_size );
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
+	if( page_value->size < 2 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid page value - size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	byte_stream_copy_to_uint16_little_endian(
+	 page_value->data,
+	 header_size );
+
+	if( (size_t) header_size > page_value->size )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid long value header size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: long value header data:\n",
+		 function );
+		libcnotify_print_data(
+		 page_value->data,
+		 header_size,
+		 0 );
+
+		libcnotify_printf(
+		 "%s: long value header size\t: %" PRIu16 "\n",
+		 function,
+		 header_size );
+
+		/* TODO print key and offset */
+
 		libcnotify_printf(
 		 "\n" );
 	}

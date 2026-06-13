@@ -2,7 +2,7 @@ AC_PREREQ([2.71])
 
 AC_INIT(
   [libesedb],
-  [20260612],
+  [20260613],
   [https://github.com/libyal/libesedb/issues])
 
 AC_CONFIG_SRCDIR(

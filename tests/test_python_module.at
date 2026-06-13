@@ -16,18 +16,18 @@ m4_define([SETUP_HELPER_FUNCTIONS],
     [PLATFORM=`uname -s | sed 's/-.*$//'`
 
     if test "${PLATFORM}" = "Darwin"; then
-      DYLD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" $[]*
+      DYLD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "$[]@"
 
     elif test "${PLATFORM}" = "CYGWIN_NT"; then
-      PATH="${LIBRARY_PATH}:${PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" $[]*
+      PATH="${LIBRARY_PATH}:${PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "$[]@"
 
     elif test "${PLATFORM}" = "MINGW32_NT" || test "${PLATFORM}" = "MINGW64_NT" || test "${PLATFORM}" = "MSYS_NT"; then
       # Copy the library DLL to the Python module directory so Python can load it.
       cp -f "${LIBRARY_PATH}"/*.dll "${PYTHON_MODULE_PATH}"/
 
-      PATH="${PYTHON_MODULE_PATH}:${PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" $[]*
+      PATH="${PYTHON_MODULE_PATH}:${PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "$[]@"
     else
-      LD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" $[]*
+      LD_LIBRARY_PATH="${LIBRARY_PATH}" PYTHONPATH="${PYTHON_MODULE_PATH}" "${PYTHON}" "$[]@"
     fi
     ])
   ])
@@ -74,7 +74,7 @@ m4_define([RUN_TEST_SCRIPTS_WITH_INPUT],
       [test_input],
       [$2],
       [m4_define([test_options], m4_normalize(get_test_result_value([test_input], 2)))
-      m4_define([test_file], m4_normalize(get_test_result_value([test_input], 3)))
+      m4_define([test_file], [_strip(get_test_result_value([test_input], 3))])
 
       m4_define(
         [test_script],

@@ -28,7 +28,7 @@ m4_define([SETUP_HELPER_FUNCTIONS],
     fi
     shift
 
-    $BINARY $[]*
+    $BINARY "$[]@"
     ])
 
   AT_TEST_HELPER_FN(
@@ -112,6 +112,19 @@ m4_define([get_test_result_value], [
   m4_argn([$2], m4_unquote(m4_translit(m4_defn([$1]), [[[]]])))
 ])
 
+m4_define([_strip_leading],
+  [m4_bpatsubst([$1], [^\s*])])
+
+m4_define([_strip_trailing],
+  [m4_bpatsubst([$1], [\s*$])])
+
+m4_define([_strip_newline],
+  [m4_translit([$1], [
+])])
+
+m4_define([_strip],
+  [_strip_newline([_strip_trailing([_strip_leading([$1])])])])
+
 dnl Runs one or more test binaries with input.
 dnl Arguments:
 dnl   skip_condition
@@ -127,7 +140,7 @@ m4_define([RUN_TEST_BINARIES_WITH_INPUT],
       [test_input],
       [$3],
       [m4_define([test_options], m4_normalize(get_test_result_value([test_input], 2)))
-      m4_define([test_file], m4_normalize(get_test_result_value([test_input], 3)))
+      m4_define([test_file], [_strip(get_test_result_value([test_input], 3))])
 
       m4_define(
         [test_binary],
