@@ -240,11 +240,15 @@ int libesedb_page_header_read_data(
 	 ( (esedb_page_header_t *) data )->available_page_tag,
 	 page_header->available_page_tag );
 
-	/* In the 32KiB page format the upper 4 bits of the available page tag
-	 * are reserved (ctagReserved) and the lower 12 bits contain the actual
-	 * number of page tags
+	/* WS2025 (ESE format revision >= 0x0122) reinterprets the available page
+	 * tag field as itagState: the upper 4 bits are reserved (ctagReserved) and
+	 * the lower 12 bits contain the actual number of page tags. Gating on the
+	 * format revision (not the page size) keeps the mask a no-op on every
+	 * pre-WS2025 database, while also covering the 16 KiB and 4 KiB WS2025
+	 * databases that a page-size gate would miss. Observed WS2025 revisions:
+	 * 0x0122 (NTDS.dit), 0x012C (DataStore.edb, SRUDB.dat).
 	 */
-	if( io_handle->page_size >= 32768 )
+	if( io_handle->format_revision >= 0x00000122UL )
 	{
 		page_header->available_page_tag &= 0x0fff;
 	}
