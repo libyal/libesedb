@@ -146,14 +146,15 @@ int libesedb_page_header_read_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	static char *function        = "libesedb_page_header_read_data";
-	size_t data_offset           = 0;
-	size_t minimum_data_size     = 0;
-	uint8_t has_extended_header  = 0;
+	static char *function            = "libesedb_page_header_read_data";
+	size_t data_offset               = 0;
+	size_t minimum_data_size         = 0;
+	uint16_t available_page_tag_mask = 0;
+	uint8_t has_extended_header      = 0;
 
 #if defined( HAVE_DEBUG_OUTPUT )
-	uint64_t value_64bit         = 0;
-	uint16_t value_16bit         = 0;
+	uint64_t value_64bit             = 0;
+	uint16_t value_16bit             = 0;
 #endif
 
 	if( page_header == NULL )
@@ -224,9 +225,11 @@ int libesedb_page_header_read_data(
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_page_header_t *) data )->previous_page,
 	 page_header->previous_page_number );
+
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_page_header_t *) data )->next_page,
 	 page_header->next_page_number );
+
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_page_header_t *) data )->father_data_page_object_identifier,
 	 page_header->father_data_page_object_identifier );
@@ -239,6 +242,14 @@ int libesedb_page_header_read_data(
 	 ( (esedb_page_header_t *) data )->page_flags,
 	 page_header->flags );
 
+	if( io_handle->format_revision >= 0x00000122UL )
+	{
+		available_page_tag_mask = 0x0fff;
+	}
+	else
+	{
+		available_page_tag_mask = 0xffff;
+	}
 	/* Make sure to read after the page flags
 	 */
 	if( has_extended_header != 0 )
@@ -351,8 +362,9 @@ int libesedb_page_header_read_data(
 		 value_16bit );
 
 		libcnotify_printf(
-		 "%s: available page tag\t\t\t\t: %" PRIu32 "\n",
+		 "%s: available page tag\t\t\t\t: %" PRIu16 " (0x%04" PRIx16 ")\n",
 		 function,
+		 page_header->available_page_tag & available_page_tag_mask,
 		 page_header->available_page_tag );
 
 		libcnotify_printf(
@@ -365,6 +377,8 @@ int libesedb_page_header_read_data(
 		 "\n" );
 	}
 #endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	page_header->available_page_tag &= available_page_tag_mask;
 
 	data_offset = sizeof( esedb_page_header_t );
 

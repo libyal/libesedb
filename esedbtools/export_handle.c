@@ -37,6 +37,7 @@
 #include "esedbtools_libesedb.h"
 #include "esedbtools_libfdatetime.h"
 #include "esedbtools_system_string.h"
+#include "esedbtools_unused.h"
 #include "exchange.h"
 #include "export.h"
 #include "export_handle.h"
@@ -3117,7 +3118,7 @@ int export_handle_export_basic_record_value(
      libesedb_record_t *record,
      int record_value_entry,
      FILE *record_file_stream,
-     log_handle_t *log_handle,
+     log_handle_t *log_handle ESEDBTOOLS_ATTRIBUTE_UNUSED,
      libcerror_error_t **error )
 {
 	system_character_t filetime_string[ 32 ];
@@ -3138,6 +3139,8 @@ int export_handle_export_basic_record_value(
 	uint8_t value_8bit                = 0;
 	uint8_t value_data_flags          = 0;
 	int result                        = 0;
+
+	ESEDBTOOLS_UNREFERENCED_PARAMETER( log_handle )
 
 	if( record == NULL )
 	{

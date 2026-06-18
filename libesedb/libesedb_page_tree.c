@@ -1453,8 +1453,6 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
-		last_leaf_page_number = safe_leaf_page_number;
-
 		if( libfdata_vector_get_element_value_by_index(
 		     page_tree->pages_vector,
 		     (intptr_t *) file_io_handle,
@@ -1473,6 +1471,25 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 			 safe_leaf_page_number );
 
 			return( -1 );
+		}
+		if( libesedb_page_get_flags(
+		     page,
+		     &page_flags,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve page flags from page: %" PRIu32 ".",
+			 function,
+			 safe_leaf_page_number );
+
+			 return( -1 );
+		}
+		if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
+		{
+			last_leaf_page_number = safe_leaf_page_number;
 		}
 		if( libesedb_page_get_previous_page_number(
 		     page,
@@ -1671,6 +1688,7 @@ int libesedb_page_tree_get_number_of_leaf_values(
 	libesedb_page_t *page                                          = NULL;
 	static char *function                                          = "libesedb_page_tree_get_number_of_leaf_values";
 	uint32_t leaf_page_number                                      = 0;
+	uint32_t page_flags                                            = 0;
 	int number_of_leaf_pages                                       = 0;
 	int safe_number_of_leaf_values                                 = 0;
 	int value_index                                                = 0;
@@ -1763,59 +1781,80 @@ int libesedb_page_tree_get_number_of_leaf_values(
 
 				goto on_error;
 			}
-			if( libesedb_page_tree_get_number_of_leaf_values_from_leaf_page(
-			     page_tree,
+			if( libesedb_page_get_flags(
 			     page,
-			     &safe_number_of_leaf_values,
+			     &page_flags,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to determine number of leaf values from page: %" PRIu32 ".",
+				 "%s: unable to retrieve page flags from page: %" PRIu32 ".",
 				 function,
 				 leaf_page_number );
 
-				goto on_error;
+				 goto on_error;
 			}
-			if( libesedb_leaf_page_descriptor_initialize(
-			     &leaf_page_descriptor,
-			     error ) != 1 )
+			if( ( page_flags & LIBESEDB_PAGE_FLAG_IS_LEAF ) != 0 )
 			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
-				 "%s: unable to create leaf page descriptor.",
-				 function );
+				if( libesedb_page_tree_get_number_of_leaf_values_from_leaf_page(
+				     page_tree,
+				     page,
+				     &safe_number_of_leaf_values,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable to determine number of leaf values from page: %" PRIu32 ".",
+					 function,
+					 leaf_page_number );
 
-				goto on_error;
+					goto on_error;
+				}
+				if( libesedb_leaf_page_descriptor_initialize(
+				     &leaf_page_descriptor,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_INITIALIZE_FAILED,
+					 "%s: unable to create leaf page descriptor.",
+					 function );
+
+					goto on_error;
+				}
+				leaf_page_descriptor->page_number            = page->page_number;
+				leaf_page_descriptor->first_leaf_value_index = page_tree->number_of_leaf_values;
+				leaf_page_descriptor->last_leaf_value_index  = safe_number_of_leaf_values - 1;
+
+				if( libcdata_btree_insert_value(
+				     page_tree->leaf_page_descriptors_tree,
+				     &value_index,
+				     (intptr_t *) leaf_page_descriptor,
+				     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_leaf_page_descriptor_compare,
+				     &upper_node,
+				     (intptr_t **) &existing_leaf_page_descriptor,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
+					 "%s: unable insert leaf page descriptor into tree.",
+					 function );
+
+					goto on_error;
+				}
+				leaf_page_descriptor = NULL;
+
+				page_tree->number_of_leaf_values = safe_number_of_leaf_values;
+
+				number_of_leaf_pages++;
 			}
-			leaf_page_descriptor->page_number            = page->page_number;
-			leaf_page_descriptor->first_leaf_value_index = page_tree->number_of_leaf_values;
-			leaf_page_descriptor->last_leaf_value_index  = safe_number_of_leaf_values - 1;
-
-			if( libcdata_btree_insert_value(
-			     page_tree->leaf_page_descriptors_tree,
-			     &value_index,
-			     (intptr_t *) leaf_page_descriptor,
-			     (int (*)(intptr_t *, intptr_t *, libcerror_error_t **)) &libesedb_leaf_page_descriptor_compare,
-			     &upper_node,
-			     (intptr_t **) &existing_leaf_page_descriptor,
-			     error ) != 1 )
-			{
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_APPEND_FAILED,
-				 "%s: unable insert leaf page descriptor into tree.",
-				 function );
-
-				goto on_error;
-			}
-			leaf_page_descriptor = NULL;
-
 			if( libesedb_page_get_next_page_number(
 			     page,
 			     &leaf_page_number,
@@ -1831,9 +1870,6 @@ int libesedb_page_tree_get_number_of_leaf_values(
 
 				goto on_error;
 			}
-			page_tree->number_of_leaf_values = safe_number_of_leaf_values;
-
-			number_of_leaf_pages++;
 		}
 	}
 	*number_of_leaf_values = page_tree->number_of_leaf_values;

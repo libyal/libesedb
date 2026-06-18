@@ -242,6 +242,7 @@ int libesedb_file_header_read_data(
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->format_revision,
 	 file_header->format_revision );
+
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->page_size,
 	 file_header->page_size );
@@ -249,6 +250,7 @@ int libesedb_file_header_read_data(
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->creation_format_version,
 	 file_header->creation_format_version );
+
 	byte_stream_copy_to_uint32_little_endian(
 	 ( (esedb_file_header_t *) data )->creation_format_revision,
 	 file_header->creation_format_revision );
@@ -691,6 +693,19 @@ int libesedb_file_header_read_data(
 
 		return( -1 );
 	}
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	if( libcnotify_verbose != 0 )
+	{
+		libcnotify_printf(
+		 "%s: calculated checksum\t\t\t: 0x%08" PRIx32 "\n",
+		 function,
+		 calculated_xor32_checksum );
+
+		libcnotify_printf(
+		 "\n" );
+	}
+#endif
 	if( ( file_header->database_state != 2 )
 	 && ( stored_xor32_checksum != calculated_xor32_checksum ) )
 	{

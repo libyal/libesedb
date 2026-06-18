@@ -83,7 +83,7 @@ Additional information about long value.
 | 0.0.31 | J.B. Metz | October 2021 | Updates regarding Windows 11.
 | 0.0.32 | J.B. Metz | December 2021 | Updates regarding Windows 11.
 | 0.0.33 | J.B. Metz | March 2023 | Updates regarding SortID catalog values added in Windows 11 (thanks to C. Ray).
-| 0.0.34 | J.B. Metz | June 2026 | Updates regarding long values.
+| 0.0.34 | J.B. Metz | June 2026 | Additional findings regarding long values and format version 0x620,122 with thanks to @takker-hero-se).
 |===
 
 :numbered:
@@ -180,7 +180,8 @@ The (database) file header is (at least) 668 bytes of size and consists of:
 |===
 | Offset | Size | Value | Description
 | 0 | 4 | | Checksum +
-The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 8 to at least offset 668, but presumably page size. The value 0x89abcdef is used as the initial value.
+The checksum is a XOR over the 32-bit little-endian values in the header starting at offset 4 to at least offset 668, but presumably page size. +
+The value 0x89abcdef is used as the initial value.
 | 4 | 4 | "\xef\xcd\xab\x89" | The signature
 | 8 | 4 | | File format version +
 See section: <<file_format_and_revision,File format version and revision>>
@@ -407,6 +408,8 @@ Used in Windows 7 (SP0)
 | | |
 | 0x00000620 | 0x000000e6 | Used in Windows 11.
 | | |
+| 0x00000620 | 0x00000122 | Change in use of upper 4 bits of (first) available page tag.
+| | |
 | 0x00000623 | 0x00000000 | New Space Manager (May 15, 1999).
 |===
 
@@ -512,6 +515,10 @@ _(As of version 0x620 revision 0x11)_ +
 | 64 | 8 | | Page number +
 | 72 | 8 | | [yellow-background]*Unknown (Empty values)*
 |===
+
+[NOTE]
+Note that as of format 0x620 revision 0x122 the upper 4 bits of the (first)
+available page tag are reserved and must be ignored.
 
 ==== Changes in Exchange 2003 SP1
 
@@ -1348,19 +1355,14 @@ Unused bytes are filled with 0
 
 ==== [[database_time]]Database time
 
-The database time (DBTIME) is 8 bytes of size and consists of:
+[yellow-background]*TODO: complete section*
 
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 2 | | Hours +
-Value should be [0 - 23]
-| 2 | 2 | | Minutes +
-Value should be [0 - 59]
-| 4 | 2 | | Seconds +
-Value should be [0 – 59]
-| 6 | 2 | 0 | Padding
-|===
+....
+dbtime: 449 (0x1c1)
+
+libesedb_file_header_read_data: database time:
+00000000: c1 01 00 00 00 00 00 00                            ........
+....
 
 == Columns
 
@@ -1700,6 +1702,8 @@ See section: <<lcmapflags,LCMapFlags>>
 | 258 | SeparateLV | Large binary data | [yellow-background]*Unknown*
 | 259 | SpaceHints | Large binary data | [yellow-background]*Unknown*
 | 260 | SpaceDeferredLVHints | Large binary data | [yellow-background]*Unknown*
+4+| _Seen in (version 0x620 revision 0x12c)_
+| 261 | LocaleName | Large binary data | [yellow-background]*Unknown*
 |===
 
 [NOTE]
