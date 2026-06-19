@@ -1722,7 +1722,7 @@ int libesedb_data_definition_read_long_value(
 		 long_value_data,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: unknown1\t\t\t\t: %" PRIu32 "\n",
+		 "%s: unknown1\t\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 
@@ -1732,7 +1732,7 @@ int libesedb_data_definition_read_long_value(
 		 long_value_data,
 		 value_32bit );
 		libcnotify_printf(
-		 "%s: last segment offset\t\t\t: %" PRIu32 "\n",
+		 "%s: last segment offset\t\t: %" PRIu32 "\n",
 		 function,
 		 value_32bit );
 		libcnotify_printf(
@@ -1756,18 +1756,24 @@ int libesedb_data_definition_read_long_value_segment(
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_list_t *data_segments_list,
+     uint32_t *next_long_value_segment_offset,
      libcerror_error_t **error )
 {
 	libesedb_page_t *page                  = NULL;
 	libesedb_page_value_t *page_value      = NULL;
 	static char *function                  = "libesedb_data_definition_read_long_value_segment";
+	uint8_t *long_value_segment_data       = NULL;
 	off64_t element_data_offset            = 0;
 	off64_t long_value_segment_data_offset = 0;
 	size64_t data_size                     = 0;
 	size_t long_value_segment_data_size    = 0;
+	uint32_t uncompressed_segment_size     = 0;
 	uint16_t data_offset                   = 0;
 	int element_index                      = 0;
-	uint16_t header_size                   = 0;
+
+#if defined( HAVE_DEBUG_OUTPUT )
+	size_t debug_size                      = 0;
+#endif
 
 	if( data_definition == NULL )
 	{
@@ -1787,6 +1793,17 @@ int libesedb_data_definition_read_long_value_segment(
 		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
 		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
 		 "%s: invalid IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( next_long_value_segment_offset == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid next long value segment offset.",
 		 function );
 
 		return( -1 );
@@ -1901,88 +1918,100 @@ int libesedb_data_definition_read_long_value_segment(
 		 "\n" );
 	}
 #endif
-	if( page_value->size < 2 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid page value - size value out of bounds.",
-		 function );
+	long_value_segment_data = &( page_value->data[ data_offset ] );
 
-		return( -1 );
-	}
-	byte_stream_copy_to_uint16_little_endian(
-	 page_value->data,
-	 header_size );
-
-	if( (size_t) header_size > page_value->size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-		 "%s: invalid long value header size value out of bounds.",
-		 function );
-
-		return( -1 );
-	}
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		if( long_value_segment_data_size < 32 )
+		{
+			debug_size = long_value_segment_data_size;
+		}
+		else
+		{
+			debug_size = 32;
+		}
+/* TODO consider changing to libcnotify_print_data_truncated with trailing ... or equivalent */
 		libcnotify_printf(
-		 "%s: long value header data:\n",
+		 "%s: long value segment data:\n",
 		 function );
 		libcnotify_print_data(
-		 page_value->data,
-		 header_size,
+		 long_value_segment_data,
+		 debug_size,
 		 0 );
-
-		libcnotify_printf(
-		 "%s: long value header size\t: %" PRIu16 "\n",
-		 function,
-		 header_size );
-
-		/* TODO print key and offset */
-
-		libcnotify_printf(
-		 "\n" );
 	}
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
+	if( ( long_value_segment_data_size > 1 )
+	 && ( long_value_segment_data[ 0 ] == 0x18 ) )
+	{
+		if( long_value_segment_data_size < 3 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+			 "%s: invalid long value segment data size value out of bounds.",
+			 function );
+
+			return( -1 );
+		}
+		byte_stream_copy_to_uint16_little_endian(
+		 &( long_value_segment_data[ 1 ] ),
+		 uncompressed_segment_size );
+
+#if defined( HAVE_DEBUG_OUTPUT )
+		if( libcnotify_verbose != 0 )
+		{
+			libcnotify_printf(
+			 "%s: uncompressed data segment size: %" PRIu32 "\n",
+			 function,
+			 uncompressed_segment_size );
+
+			libcnotify_printf(
+			 "\n" );
+		}
 #endif
-	if( libfdata_list_get_size(
-	     data_segments_list,
-	     &data_size,
-	     error ) != 1 )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve size of data segments list.",
-		 function );
-
-		return( -1 );
 	}
-	if( long_value_segment_offset != (off64_t) data_size )
+	else
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-		 "%s: unsupported long value segment offset: %" PRIi64 " value must match end of previous segment: %" PRIzd ".",
-		 function,
-		 long_value_segment_offset,
-		 data_size );
+		if( libfdata_list_get_size(
+		     data_segments_list,
+		     &data_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve size of data segments list.",
+			 function );
 
-		return( -1 );
+			return( -1 );
+		}
+		if( long_value_segment_offset != (off64_t) data_size )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+			 "%s: unsupported long value segment offset: %" PRIi64 " value must match end of previous segment: %" PRIzd ".",
+			 function,
+			 long_value_segment_offset,
+			 data_size );
+
+			return( -1 );
+		}
+		uncompressed_segment_size = (uint32_t) long_value_segment_data_size;
 	}
-	if( libfdata_list_append_element(
+	if( libfdata_list_append_element_with_mapped_size(
 	     data_segments_list,
 	     &element_index,
 	     0,
 	     long_value_segment_data_offset,
 	     (size64_t) long_value_segment_data_size,
 	     0,
+	     (size64_t) uncompressed_segment_size,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
@@ -1995,6 +2024,19 @@ int libesedb_data_definition_read_long_value_segment(
 
 		return( -1 );
 	}
+	if( long_value_segment_data_size > ( UINT32_MAX - long_value_segment_offset ) )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+		 "%s: invalid long value segment data size value out of bounds.",
+		 function );
+
+		return( -1 );
+	}
+	*next_long_value_segment_offset = long_value_segment_offset + uncompressed_segment_size;
+
 	return( 1 );
 }
 

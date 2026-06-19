@@ -107,6 +107,7 @@ int libesedb_data_definition_read_long_value_segment(
      libfcache_cache_t *pages_cache,
      uint32_t long_value_segment_offset,
      libfdata_list_t *data_segments_list,
+     uint32_t *next_long_value_segment_offset,
      libcerror_error_t **error );
 
 #if defined( __cplusplus )

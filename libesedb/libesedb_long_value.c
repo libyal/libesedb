@@ -242,6 +242,7 @@ int libesedb_long_value_free(
 }
 
 /* Retrieve the data size
+ * If the long value is compressed this will return the uncompressed data size
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_data_size(
@@ -250,7 +251,10 @@ int libesedb_long_value_get_data_size(
      libcerror_error_t **error )
 {
 	libesedb_internal_long_value_t *internal_long_value = NULL;
+	libfvalue_value_t *record_value                     = NULL;
 	static char *function                               = "libesedb_long_value_get_data_size";
+	size_t safe_data_size                               = 0;
+	int result                                          = 0;
 
 	if( long_value == NULL )
 	{
@@ -265,24 +269,72 @@ int libesedb_long_value_get_data_size(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( libfdata_list_get_size(
-	     internal_long_value->data_segments_list,
-	     data_size,
+	if( data_size == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid data size.",
+		 function );
+
+		return( -1 );
+	}
+	if( libesedb_long_value_get_record_value(
+	     internal_long_value,
+	     &record_value,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve size from data segments list.",
+		 "%s: unable to retrieve record value.",
 		 function );
 
 		return( -1 );
 	}
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
+
+	if( result == -1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to determine if record value has data.",
+		 function );
+
+		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		result = libfvalue_value_get_data_size(
+		          record_value,
+		          &safe_data_size,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data size from record value.",
+			 function );
+
+			return( -1 );
+		}
+	}
+	*data_size = safe_data_size;
+
 	return( 1 );
 }
 
 /* Retrieve the data
+ * If the long value is compressed this will return the uncompressed data
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_data(
@@ -291,13 +343,10 @@ int libesedb_long_value_get_data(
      size_t data_size,
      libcerror_error_t **error )
 {
-	libesedb_data_segment_t *data_segment               = NULL;
 	libesedb_internal_long_value_t *internal_long_value = NULL;
+	libfvalue_value_t *record_value                     = NULL;
 	static char *function                               = "libesedb_long_value_get_data";
-	size64_t data_segments_size                         = 0;
-	size_t data_offset                                  = 0;
-	int data_segment_index                              = 0;
-	int number_of_data_segments                         = 0;
+	int result                                          = 0;
 
 	if( long_value == NULL )
 	{
@@ -312,117 +361,54 @@ int libesedb_long_value_get_data(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
-	if( data == NULL )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
-		 "%s: invalid data.",
-		 function );
-
-		return( -1 );
-	}
-	if( data_size > (size_t) SSIZE_MAX )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid data size value exceeds maximum.",
-		 function );
-
-		return( -1 );
-	}
-	if( libfdata_list_get_size(
-	     internal_long_value->data_segments_list,
-	     &data_segments_size,
+	if( libesedb_long_value_get_record_value(
+	     internal_long_value,
+	     &record_value,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve size from data segments list.",
+		 "%s: unable to retrieve record value.",
 		 function );
 
 		return( -1 );
 	}
-	if( (size64_t) data_size < data_segments_size )
-	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_TOO_SMALL,
-		 "%s: data size value too small.",
-		 function );
+	result = libfvalue_value_has_data(
+	          record_value,
+	          error );
 
-		return( -1 );
-	}
-	if( libfdata_list_get_number_of_elements(
-	     internal_long_value->data_segments_list,
-	     &number_of_data_segments,
-	     error ) != 1 )
+	if( result == -1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve number of elements from data segments list.",
+		 "%s: unable to determine if record value has data.",
 		 function );
 
 		return( -1 );
 	}
-	for( data_segment_index = 0;
-	     data_segment_index < number_of_data_segments;
-	     data_segment_index++ )
+	else if( result != 0 )
 	{
-		if( libfdata_list_get_element_value_by_index(
-		     internal_long_value->data_segments_list,
-		     (intptr_t *) internal_long_value->file_io_handle,
-		     (libfdata_cache_t *) internal_long_value->data_segments_cache,
-		     data_segment_index,
-		     (intptr_t **) &data_segment,
-		     0,
-		     error ) != 1 )
+		result = libfvalue_value_copy_data(
+		          record_value,
+		          data,
+		          data_size,
+		          error );
+
+		if( result != 1 )
 		{
 			libcerror_error_set(
 			 error,
 			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve data segment: %d.",
-			 function,
-			 data_segment_index );
-
-			return( -1 );
-		}
-		if( data_segment == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
-			 "%s: missing data segment: %d.",
-			 function,
-			 data_segment_index );
-
-			return( -1 );
-		}
-		if( memory_copy(
-		     &( data[ data_offset ] ),
-		     data_segment->data,
-		     data_segment->data_size ) == NULL )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_MEMORY,
 			 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-			 "%s: unable to copy data.",
+			 "%s: unable to copy data from record value.",
 			 function );
 
 			return( -1 );
 		}
-		data_offset += data_segment->data_size;
 	}
 	return( 1 );
 }
@@ -440,8 +426,8 @@ int libesedb_long_value_get_record_value(
 	uint8_t *data                         = NULL;
 	static char *function                 = "libesedb_long_value_get_record_value";
 	size64_t data_size                    = 0;
-	size_t compressed_data_size           = 0;
 	size_t data_offset                    = 0;
+	size_t uncompressed_data_size         = 0;
 	uint32_t column_type                  = 0;
 	uint8_t record_value_type             = 0;
 	int data_segment_index                = 0;
@@ -484,6 +470,43 @@ int libesedb_long_value_get_record_value(
 	}
 	if( internal_long_value->record_value == NULL )
 	{
+		if( libesedb_catalog_definition_get_column_type(
+		     internal_long_value->column_catalog_definition,
+		     &column_type,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve catalog definition column type.",
+			 function );
+
+			goto on_error;
+		}
+		switch( column_type )
+		{
+			case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
+			case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
+				record_value_type = LIBFVALUE_VALUE_TYPE_BINARY_DATA;
+				break;
+
+			case LIBESEDB_COLUMN_TYPE_TEXT:
+			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
+				record_value_type = LIBFVALUE_VALUE_TYPE_STRING_BYTE_STREAM;
+				break;
+
+			default:
+				libcerror_error_set(
+				 error,
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
+				 "%s: unsupported column type: %" PRIu32 ".",
+				 function,
+				 column_type );
+
+				goto on_error;
+		}
 		if( libfdata_list_get_size(
 		     internal_long_value->data_segments_list,
 		     &data_size,
@@ -587,58 +610,87 @@ int libesedb_long_value_get_record_value(
 
 				goto on_error;
 			}
-			if( memory_copy(
-			     &( data[ data_offset ] ),
-			     data_segment->data,
-			     data_segment->data_size ) == NULL )
+			if( data_segment->data == NULL )
 			{
 				libcerror_error_set(
 				 error,
-				 LIBCERROR_ERROR_DOMAIN_MEMORY,
-				 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
-				 "%s: unable to copy data.",
-				 function );
+				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+				 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+				 "%s: invalid data segment: %d - missing data.",
+				 function,
+				 data_segment_index );
 
 				goto on_error;
 			}
-			data_offset += data_segment->data_size;
-		}
-		if( libesedb_catalog_definition_get_column_type(
-		     internal_long_value->column_catalog_definition,
-		     &column_type,
-		     error ) != 1 )
-		{
-			libcerror_error_set(
-			 error,
-			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-			 "%s: unable to retrieve catalog definition column type.",
-			 function );
+			if( ( data_segment->data_size > 1 )
+			 && ( data_segment->data[ 0 ] == 0x18 ) )
+			{
+				if( libesedb_compression_lzxpress_decompress_get_size(
+				     data_segment->data,
+				     data_segment->data_size,
+				     (size_t *) &uncompressed_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+					 "%s: unable retrieve uncompressed data segment: %d size.",
+					 function,
+					 data_segment_index );
 
-			goto on_error;
-		}
-		switch( column_type )
-		{
-			case LIBESEDB_COLUMN_TYPE_BINARY_DATA:
-			case LIBESEDB_COLUMN_TYPE_LARGE_BINARY_DATA:
-				record_value_type = LIBFVALUE_VALUE_TYPE_BINARY_DATA;
-				break;
+					goto on_error;
+				}
+				if( ( uncompressed_data_size == 0 )
+				 || ( uncompressed_data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
+					 "%s: invalid uncompressed data segment: %d size value out of bounds.",
+					 function,
+					 data_segment_index );
 
-			case LIBESEDB_COLUMN_TYPE_TEXT:
-			case LIBESEDB_COLUMN_TYPE_LARGE_TEXT:
-				record_value_type = LIBFVALUE_VALUE_TYPE_STRING_BYTE_STREAM;
-				break;
+					goto on_error;
+				}
+				if( libesedb_compression_lzxpress_decompress(
+				     data_segment->data,
+				     data_segment->data_size,
+				     &( data[ data_offset ] ),
+				     uncompressed_data_size,
+				     error ) != 1 )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
+					 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
+					 "%s: unable to decompress data segment: %d.",
+					 function,
+					 data_segment_index );
 
-			default:
-				libcerror_error_set(
-				 error,
-				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-				 LIBCERROR_RUNTIME_ERROR_UNSUPPORTED_VALUE,
-				 "%s: unsupported column type: %" PRIu32 ".",
-				 function,
-				 column_type );
+					goto on_error;
+				}
+				data_offset += uncompressed_data_size;
+			}
+			else
+			{
+				if( memory_copy(
+				     &( data[ data_offset ] ),
+				     data_segment->data,
+				     data_segment->data_size ) == NULL )
+				{
+					libcerror_error_set(
+					 error,
+					 LIBCERROR_ERROR_DOMAIN_MEMORY,
+					 LIBCERROR_MEMORY_ERROR_COPY_FAILED,
+					 "%s: unable to copy data.",
+					 function );
 
-				goto on_error;
+					goto on_error;
+				}
+				data_offset += data_segment->data_size;
+			}
 		}
 		if( ( column_type == LIBESEDB_COLUMN_TYPE_TEXT )
 		 || ( column_type == LIBESEDB_COLUMN_TYPE_LARGE_TEXT ) )
@@ -651,110 +703,12 @@ int libesedb_long_value_get_record_value(
 			{
 				long_value_codepage = internal_long_value->io_handle->ascii_codepage;
 			}
-			if( ( data_size > 1 )
-			 && ( data[ 0 ] == 0x18 ) )
-			{
-				compressed_data      = data;
-				compressed_data_size = data_size;
-				data                 = NULL;
-				data_size            = 0;
-
-				if( libesedb_compression_lzxpress_decompress_get_size(
-				     compressed_data,
-				     compressed_data_size,
-				     (size_t *) &data_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-					 "%s: unable retrieve uncompressed data size.",
-					 function );
-
-					goto on_error;
-				}
-				if( ( data_size == 0 )
-				 || ( data_size > MEMORY_MAXIMUM_ALLOCATION_SIZE ) )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-					 LIBCERROR_RUNTIME_ERROR_VALUE_OUT_OF_BOUNDS,
-					 "%s: invalid uncompressed data size value out of bounds.",
-					 function );
-
-					goto on_error;
-				}
-				data = (uint8_t *) memory_allocate(
-				                    sizeof( uint8_t ) * data_size );
-
-				if( data == NULL )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_INSUFFICIENT,
-					 "%s: unable to create uncompressed data.",
-					 function );
-
-					goto on_error;
-				}
-				if( memory_set(
-				     data,
-				     0,
-				     (size_t) data_size ) == NULL )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_MEMORY,
-					 LIBCERROR_MEMORY_ERROR_SET_FAILED,
-					 "%s: unable to clear data.",
-					 function );
-
-					goto on_error;
-				}
-				if( libesedb_compression_lzxpress_decompress(
-				     compressed_data,
-				     compressed_data_size,
-				     data,
-				     data_size,
-				     error ) != 1 )
-				{
-					libcerror_error_set(
-					 error,
-					 LIBCERROR_ERROR_DOMAIN_COMPRESSION,
-					 LIBCERROR_COMPRESSION_ERROR_DECOMPRESS_FAILED,
-					 "%s: unable decompressed data.",
-					 function );
-
-					goto on_error;
-				}
-				memory_free(
-				 compressed_data );
-
-				compressed_data = NULL;
-
-#if defined( HAVE_DEBUG_OUTPUT )
-				if( libcnotify_verbose != 0 )
-				{
-					libcnotify_printf(
-					 "%s: uncompressed data:\n",
-					 function );
-					libcnotify_print_data(
-					 data,
-					 data_size,
-					 0 );
-				}
-#endif
-			}
 			encoding = long_value_codepage;
 		}
 		else
 		{
 			encoding = LIBFVALUE_ENDIAN_LITTLE;
 		}
-/* TODO create value */
 		if( libfvalue_value_type_initialize(
 		     &( internal_long_value->record_value ),
 		     record_value_type,
@@ -859,6 +813,7 @@ int libesedb_long_value_get_number_of_data_segments(
 }
 
 /* Retrieve the data segment size
+ * If the long value is compressed this will return the compressed data segment size
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_data_segment_size(
@@ -922,6 +877,7 @@ int libesedb_long_value_get_data_segment_size(
 }
 
 /* Retrieve the data segment
+ * If the long value is compressed this will return the compressed data segment
  * Returns 1 if successful or -1 on error
  */
 int libesedb_long_value_get_data_segment(
@@ -948,6 +904,7 @@ int libesedb_long_value_get_data_segment(
 	}
 	internal_long_value = (libesedb_internal_long_value_t *) long_value;
 
+/* TODO return uncompressed data */
 	if( libfdata_list_get_element_value_by_index(
 	     internal_long_value->data_segments_list,
 	     (intptr_t *) internal_long_value->file_io_handle,
@@ -1055,9 +1012,8 @@ int libesedb_long_value_get_utf8_string_size(
 
 		return( -1 );
 	}
-	result = libesedb_record_value_get_utf8_string_size(
+	result = libfvalue_value_has_data(
 	          record_value,
-	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1066,10 +1022,30 @@ int libesedb_long_value_get_utf8_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-8 string size from record value.",
+		 "%s: unable to determine if record value has data.",
 		 function );
 
 		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		result = libfvalue_value_get_utf8_string_size(
+		          record_value,
+		          0,
+		          utf8_string_size,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve UTF-8 string size.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }
@@ -1145,10 +1121,8 @@ int libesedb_long_value_get_utf8_string(
 
 		return( -1 );
 	}
-	result = libesedb_record_value_get_utf8_string(
+	result = libfvalue_value_has_data(
 	          record_value,
-	          utf8_string,
-	          utf8_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1157,10 +1131,31 @@ int libesedb_long_value_get_utf8_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-8 string from record value.",
+		 "%s: unable to determine if record value has data.",
 		 function );
 
 		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		result = libfvalue_value_copy_to_utf8_string(
+		          record_value,
+		          0,
+		          utf8_string,
+		          utf8_string_size,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to UTF-8 string.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }
@@ -1234,9 +1229,8 @@ int libesedb_long_value_get_utf16_string_size(
 
 		return( -1 );
 	}
-	result = libesedb_record_value_get_utf16_string_size(
+	result = libfvalue_value_has_data(
 	          record_value,
-	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1245,10 +1239,30 @@ int libesedb_long_value_get_utf16_string_size(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-16 string size from record value.",
+		 "%s: unable to determine if record value has data.",
 		 function );
 
 		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		result = libfvalue_value_get_utf16_string_size(
+		          record_value,
+		          0,
+		          utf16_string_size,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable retrieve UTF-16 string size.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }
@@ -1324,10 +1338,8 @@ int libesedb_long_value_get_utf16_string(
 
 		return( -1 );
 	}
-	result = libesedb_record_value_get_utf16_string(
+	result = libfvalue_value_has_data(
 	          record_value,
-	          utf16_string,
-	          utf16_string_size,
 	          error );
 
 	if( result == -1 )
@@ -1336,10 +1348,31 @@ int libesedb_long_value_get_utf16_string(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve UTF-16 string from record value.",
+		 "%s: unable to determine if record value has data.",
 		 function );
 
 		return( -1 );
+	}
+	else if( result != 0 )
+	{
+		result = libfvalue_value_copy_to_utf16_string(
+		          record_value,
+		          0,
+		          utf16_string,
+		          utf16_string_size,
+		          error );
+
+		if( result != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_COPY_FAILED,
+			 "%s: unable to copy value to UTF-16 string.",
+			 function );
+
+			return( -1 );
+		}
 	}
 	return( result );
 }

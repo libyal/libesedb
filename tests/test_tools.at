@@ -249,7 +249,7 @@ RUN_TEST_ESEDBTOOL_AND_COMPARE_STDOUT(
   [],
   test_inputs_esedbinfo)
 
-RUN_TEST_ESEDBTOOL_AND_COMPARE_STDOUT(
+RUN_TEST_ESEDBTOOL_AND_COMPARE_FILES(
   [esedbexport],
   [esedbexport],
   [],

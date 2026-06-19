@@ -1004,6 +1004,7 @@ int libesedb_long_value_free(
      libesedb_error_t **error );
 
 /* Retrieve the data size
+ * If the long value is compressed this will return the uncompressed data size
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -1013,6 +1014,7 @@ int libesedb_long_value_get_data_size(
      libesedb_error_t **error );
 
 /* Retrieve the data
+ * If the long value is compressed this will return the uncompressed data
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -1032,6 +1034,7 @@ int libesedb_long_value_get_number_of_data_segments(
      libesedb_error_t **error );
 
 /* Retrieve the data segment size
+ * If the long value is compressed this will return the compressed data segment size
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -1042,6 +1045,7 @@ int libesedb_long_value_get_data_segment_size(
      libesedb_error_t **error );
 
 /* Retrieve the data segment
+ * If the long value is compressed this will return the compressed data segment
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \

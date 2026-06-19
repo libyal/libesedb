@@ -572,6 +572,10 @@ int libesedb_page_read_values(
 	uint16_t number_of_page_tags      = 0;
 	uint16_t page_tags_index          = 0;
 
+#if defined( HAVE_DEBUG_OUTPUT )
+	size_t debug_size                 = 0;
+#endif
+
 	if( page == NULL )
 	{
 		libcerror_error_set(
@@ -792,13 +796,22 @@ int libesedb_page_read_values(
 #if defined( HAVE_DEBUG_OUTPUT )
 		if( libcnotify_verbose != 0 )
 		{
+			if( page_value->size < 32 )
+			{
+				debug_size = page_value->size;
+			}
+			else
+			{
+				debug_size = 32;
+			}
 			libcnotify_printf(
 			 "%s: page value: %" PRIu16 " data:\n",
 			 function,
 			 page_tags_index );
+/* TODO consider changing to libcnotify_print_data_truncated with trailing ... or equivalent */
 			libcnotify_print_data(
 			 page_value->data,
-			 page_value->size,
+			 debug_size,
 			 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 		}
 #endif

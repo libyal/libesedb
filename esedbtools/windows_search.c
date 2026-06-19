@@ -1535,7 +1535,7 @@ int windows_search_export_record_value_compressed_string(
 		}
 		else
 		{
-			if( export_get_long_value_data(
+			if( export_get_compressed_long_value_data(
 			     long_value,
 			     &long_value_data,
 			     &long_value_data_size,
@@ -1545,7 +1545,7 @@ int windows_search_export_record_value_compressed_string(
 				 error,
 				 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 				 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-				 "%s: unable to retrieve long value data.",
+				 "%s: unable to retrieve compressed long value data.",
 				 function );
 
 				goto on_error;

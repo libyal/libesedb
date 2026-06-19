@@ -690,17 +690,22 @@ on_error:
 	return( -1 );
 }
 
-/* Retrieves the long value data from a long value
+/* Retrieves the compressed long value data from a long value
  * Returns 1 if successful or -1 on error
  */
-int export_get_long_value_data(
+int export_get_compressed_long_value_data(
      libesedb_long_value_t *long_value,
      uint8_t **long_value_data,
      size_t *long_value_data_size,
      libcerror_error_t **error )
 {
-	static char *function              = "export_get_long_value_data";
+	static char *function              = "export_get_compressed_long_value_data";
+	uint8_t *safe_long_value_data      = NULL;
 	size64_t safe_long_value_data_size = 0;
+	size_t data_offset                 = 0;
+	size_t data_segment_size           = 0;
+	int number_of_data_segments        = 0;
+	int data_segment_index             = 0;
 
 	if( long_value == NULL )
 	{
@@ -746,40 +751,65 @@ int export_get_long_value_data(
 
 		return( -1 );
 	}
-	if( libesedb_long_value_get_data_size(
+	if( libesedb_long_value_get_number_of_data_segments(
 	     long_value,
-	     &safe_long_value_data_size,
+	     &number_of_data_segments,
 	     error ) != 1 )
 	{
 		libcerror_error_set(
 		 error,
 		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
 		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve long value data size.",
+		 "%s: unable to retrieve number of data segments.",
 		 function );
 
 		goto on_error;
 	}
-	if( safe_long_value_data_size > (size64_t) SSIZE_MAX )
+	for( data_segment_index = 0;
+	     data_segment_index < number_of_data_segments;
+	     data_segment_index++ )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
-		 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
-		 "%s: invalid long value data size value exceeds maximum.",
-		 function );
+		if( libesedb_long_value_get_data_segment_size(
+		     long_value,
+		     data_segment_index,
+		     &data_segment_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data segment: %d size.",
+			 function,
+			 data_segment_index );
 
-		goto on_error;
+			goto on_error;
+		}
+		if( data_segment_size > ( (size64_t) SSIZE_MAX - safe_long_value_data_size ) )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+			 LIBCERROR_ARGUMENT_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid data segment: %d size value exceeds maximum.",
+			 function,
+			 data_segment_index );
+
+			goto on_error;
+		}
+		safe_long_value_data_size += data_segment_size;
 	}
 	if( safe_long_value_data_size == 0 )
 	{
 		*long_value_data      = NULL;
 		*long_value_data_size = 0;
-	}
-	*long_value_data = (uint8_t *) memory_allocate(
-	                                sizeof( uint8_t ) * (size_t) safe_long_value_data_size );
 
-	if( *long_value_data == NULL )
+		return( 1 );
+	}
+	safe_long_value_data = (uint8_t *) memory_allocate(
+	                                    sizeof( uint8_t ) * (size_t) safe_long_value_data_size );
+
+	if( safe_long_value_data == NULL )
 	{
 		libcerror_error_set(
 		 error,
@@ -790,30 +820,55 @@ int export_get_long_value_data(
 
 		goto on_error;
 	}
-	if( libesedb_long_value_get_data(
-	     long_value,
-	     *long_value_data,
-	     (size_t) safe_long_value_data_size,
-	     error ) != 1 )
+	for( data_segment_index = 0;
+	     data_segment_index < number_of_data_segments;
+	     data_segment_index++ )
 	{
-		libcerror_error_set(
-		 error,
-		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
-		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
-		 "%s: unable to retrieve long value data.",
-		 function );
+		if( libesedb_long_value_get_data_segment_size(
+		     long_value,
+		     data_segment_index,
+		     &data_segment_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data segment: %d size.",
+			 function,
+			 data_segment_index );
 
-		goto on_error;
+			goto on_error;
+		}
+		if( libesedb_long_value_get_data_segment(
+		     long_value,
+		     data_segment_index,
+		     &( safe_long_value_data[ data_offset ] ),
+		     data_segment_size,
+		     error ) != 1 )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+			 "%s: unable to retrieve data segment: %d.",
+			 function,
+			 data_segment_index );
+
+			goto on_error;
+		}
+		data_offset += data_segment_size;
 	}
+	*long_value_data      = safe_long_value_data;
 	*long_value_data_size = (size_t) safe_long_value_data_size;
 
 	return( 1 );
 
 on_error:
-	if( long_value_data != NULL )
+	if( safe_long_value_data != NULL )
 	{
 		memory_free(
-		 long_value_data );
+		 safe_long_value_data );
 	}
 	return( -1 );
 }

@@ -148,6 +148,7 @@ int libesedb_page_tree_value_read_data(
 
 #if defined( HAVE_DEBUG_OUTPUT )
 	const uint8_t *page_key_data = NULL;
+	size_t debug_size            = 0;
 	size_t page_key_size         = 0;
 #endif
 
@@ -285,15 +286,25 @@ int libesedb_page_tree_value_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		if( page_tree_value->data_size < 32 )
+		{
+			debug_size = page_tree_value->data_size;
+		}
+		else
+		{
+			debug_size = 32;
+		}
 		libcnotify_printf(
 		 "%s: page tree value data:\n",
 		 function );
+/* TODO consider changing to libcnotify_print_data_truncated with trailing ... or equivalent */
 		libcnotify_print_data(
 		 page_tree_value->data,
-		 page_tree_value->data_size,
+		 debug_size,
 		 LIBCNOTIFY_PRINT_DATA_FLAG_GROUP_DATA );
 	}
-#endif
+#endif /* defined( HAVE_DEBUG_OUTPUT ) */
+
 	return( 1 );
 }
 

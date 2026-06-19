@@ -3015,6 +3015,7 @@ int libesedb_record_get_long_value_data_segments_list(
 	libfdata_list_t *safe_data_segments_list    = NULL;
 	static char *function                       = "libesedb_record_get_long_value_data_segments_list";
 	uint32_t long_value_segment_offset          = 0;
+	uint32_t next_long_value_segment_offset     = 0;
 	int result                                  = 0;
 
 	if( internal_record == NULL )
@@ -3273,6 +3274,7 @@ int libesedb_record_get_long_value_data_segments_list(
 			     internal_record->long_values_pages_cache,
 			     long_value_segment_offset,
 			     safe_data_segments_list,
+			     &next_long_value_segment_offset,
 			     error ) != 1 )
 			{
 				libcerror_error_set(
@@ -3284,7 +3286,7 @@ int libesedb_record_get_long_value_data_segments_list(
 
 				goto on_error;
 			}
-			long_value_segment_offset += data_definition->data_size;
+			long_value_segment_offset = next_long_value_segment_offset;
 
 			if( libesedb_data_definition_free(
 			     &data_definition,

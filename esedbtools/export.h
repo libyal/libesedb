@@ -61,7 +61,7 @@ int export_floatingtime(
      FILE *record_file_stream,
      libcerror_error_t **error );
 
-int export_get_long_value_data(
+int export_get_compressed_long_value_data(
      libesedb_long_value_t *long_value,
      uint8_t **long_value_data,
      size_t *long_value_data_size,

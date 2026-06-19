@@ -1209,34 +1209,31 @@ The long value identifier can be 4 or 8 bytes in size.
 The long value page key refers to a page value in the long value page tree
 corresponding to the table page tree as defined in the catalog.
 
-This page value contains the long value header. The long value header is
-variable of size and consists of:
-
-[cols="1,1,1,5",options="header"]
-|===
-| Offset | Size | Value | Description
-| 0 | 2 | | [yellow-background]*Unknown (data size)* +
-Value in bytes
-4+ | _Data_
-| 2 | 4 or 8 | | Long value key
-| ... | 4 | | Long value offset
-|===
-
-[yellow-background]*Hypothesis: the total long value size, holds for a lot of
-single segment long values but not for some multi segment long values Largest
-segment size?*
-
 The corresponding segments can be found by combining the long value page key
 with a 4 byte segment offset, starting with offset 0. E.g. the first segment
 for the long value identifier 0xa7000000 is the page key 0x000000a7 followed by
 the segment offset 0x00000fae (4014), therefore 0x000000a7000000fae.
 
-[yellow-background]*One long value page tree per table?*
+[NOTE]
+Note that for compressed long values the successive segment offsets need to be
+calculated based on the uncompressed long value data segment size stored in
+the long value data segment.
 
-[yellow-background]*Inverse key stored in data type definition*
+A compressed long value data segment is variable of size and consists of:
 
-[yellow-background]*The offset (+ data size) of the last segment can exceed the
-total long value size?*
+[cols="1,1,1,5",options="header"]
+|===
+| Offset | Size | Value | Description
+| 0 | 1 | 0x18 | Leading byte
+| 1 | 2 | | Uncompressed long value data segment size
+| 3 | ... | | LZXPRESS compressed data
+|===
+
+[yellow-background]*TODO: validate assumption of only one long value page tree per table*
+
+[yellow-background]*TODO: Inverse key stored in data type definition*
+
+[yellow-background]*TODO: The offset (+ data size) of the last segment can exceed the total long value size?*
 
 === [[multi_values]]Multi values
 

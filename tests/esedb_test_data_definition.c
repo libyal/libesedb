@@ -420,6 +420,7 @@ int esedb_test_data_definition_read_long_value_segment(
 	          NULL,
 	          0,
 	          NULL,
+	          NULL,
 	          &error );
 
 	ESEDB_TEST_ASSERT_EQUAL_INT(
@@ -492,7 +493,11 @@ int main(
 
 	return( EXIT_SUCCESS );
 
+#if defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT )
+
 on_error:
 	return( EXIT_FAILURE );
+
+#endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 }
 
