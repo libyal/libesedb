@@ -528,14 +528,17 @@ int main( int argc, char * const argv[] )
 			 stdout,
 			 "Export failed no such table: %" PRIs_SYSTEM ".\n",
                          option_table_name );
+
+			return( EXIT_FAILURE );
 		}
 		else
 		{
 			fprintf(
 			 stdout,
-			 "Export failed.\n" );
+			 "Database is empty.\n" );
+
+			return( EXIT_SUCCESS );
 		}
-		return( EXIT_FAILURE );
 	}
 	fprintf(
 	 stdout,
