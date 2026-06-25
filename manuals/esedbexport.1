@@ -1,0 +1,98 @@
+.Dd June 25, 2026
+.Dt ESEDBEXPORT 1
+.Os
+.Sh NAME
+.Nm esedbexport
+.Nd exports items stored in an Extensible Storage Engine (ESE) Database (EDB) \
+file
+.Sh SYNOPSIS
+.Nm esedbexport
+.Op Fl c Ar codepage
+.Op Fl l Ar log_file
+.Op Fl m Ar mode
+.Op Fl t Ar target
+.Op Fl T Ar table_name
+.Op Fl hvV
+.Ar source
+.Sh DESCRIPTION
+.Nm esedbexport
+is a utility to export items stored in an Extensible Storage Engine (ESE) \
+Database (EDB) file
+.Pp
+.Nm esedbexport
+is part of the
+.Nm libesedb
+package.
+.Nm libesedb
+is a library to access the Extensible Storage Engine (ESE) Database File (EDB) \
+format
+.Pp
+.Ar source
+is the source file.
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl c Ar codepage
+codepage of ASCII strings, options: ascii, windows-874, windows-932, \
+windows-936, windows-949, windows-950, windows-1250, windows-1251, windows-1252 \
+(default), windows-1253, windows-1254, windows-1255, windows-1256, windows-1257 \
+or windows-1258
+.It Fl h
+shows this help
+.It Fl l Ar log_file
+logs information about the exported items
+.It Fl m Ar mode
+export mode, option: all, tables (default). 'all' exports all the tables or a \
+single specified table with indexes, 'tables' exports all the tables or a \
+single specified table
+.It Fl t Ar target
+specify the basename of the target directory to export to (default is the \
+source filename) esedbexport will add the suffix .export to the basename
+.It Fl T Ar table_name
+exports only a specific table
+.It Fl v
+verbose output to stderr
+.It Fl V
+print version
+.El
+.Sh ENVIRONMENT
+None
+.Sh FILES
+None
+.Sh EXAMPLES
+.Bd -literal
+# esedbexport WebCacheV01.dat
+esedbexport 20260625
+.sp
+Opening file.
+Database type: MSIE WebCache.
+Exporting table 1 (MSysObjects) out of 10.
+Exporting table 2 (MSysObjectsShadow) out of 10.
+Exporting table 3 (MSysUnicodeFixupVer2) out of 10.
+Exporting table 4 (Containers) out of 10.
+Exporting table 5 (Container_1) out of 10.
+Exporting table 17 (LeakFiles) out of 10.
+Exporting table 18 (Partitions) out of 10.
+Exporting table 21 (AppCacheEntry_1) out of 10.
+Exporting table 22 (AppCache_1) out of 10.
+Exporting table 39 (DependencyEntry_4) out of 10.
+Export completed.
+.sp
+.Ed
+.Sh DIAGNOSTICS
+Errors, verbose and debug output are printed to stderr when verbose output \
+\-v is enabled.
+Verbose and debug output are only printed when enabled at compilation.
+.Sh SEE ALSO
+.Xr esedbinfo 1
+.Sh AUTHORS
+.An Joachim Metz <joachim.metz@gmail.com>
+.Sh BUGS
+Please report bugs of any kind on the project issue tracker: \
+https://github.com/libyal/libesedb/issues
+.Sh COPYRIGHT
+Copyright (C) 2009-2026, Joachim Metz <joachim.metz@gmail.com>.
+.sp
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A \
+PARTICULAR PURPOSE.

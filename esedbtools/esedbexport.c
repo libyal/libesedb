@@ -1,5 +1,5 @@
 /*
- * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file
+ * Extracts tables from an Extensible Storage Engine (ESE) Database (EDB) file.
  *
  * Copyright (C) 2009-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -56,40 +56,6 @@
 export_handle_t *esedbexport_export_handle = NULL;
 int esedbexport_abort                      = 0;
 
-/* Prints the executable usage information
- */
-void usage_fprint(
-      FILE *stream )
-{
-	if( stream == NULL )
-	{
-		return;
-	}
-	fprintf( stream, "Use esedbexport to export items stored in an Extensible Storage Engine (ESE)\n"
-	                 "Database (EDB) file\n\n" );
-
-	fprintf( stream, "Usage: esedbexport [ -c codepage ] [ -l logfile ] [ -m mode ] [ -t target ]\n"
-	                 "                   [ -T table_name ] [ -hvV ] source\n\n" );
-
-	fprintf( stream, "\tsource: the source file\n\n" );
-
-	fprintf( stream, "\t-c:     codepage of ASCII strings, options: ascii, windows-874,\n"
-	                 "\t        windows-932, windows-936, windows-1250, windows-1251,\n"
-	                 "\t        windows-1252 (default), windows-1253, windows-1254\n"
-	                 "\t        windows-1255, windows-1256, windows-1257 or windows-1258\n" );
-	fprintf( stream, "\t-h:     shows this help\n" );
-	fprintf( stream, "\t-l:     logs information about the exported items\n" );
-	fprintf( stream, "\t-m:     export mode, option: all, tables (default)\n"
-	                 "\t        'all' exports all the tables or a single specified table with indexes,\n"
-	                 "\t        'tables' exports all the tables or a single specified table\n" );
-	fprintf( stream, "\t-t:     specify the basename of the target directory to export to\n"
-	                 "\t        (default is the source filename) esedbexport will add the suffix\n"
-	                 "\t        .export to the basename\n" );
-	fprintf( stream, "\t-T:     exports only a specific table\n" );
-	fprintf( stream, "\t-v:     verbose output to stderr\n" );
-	fprintf( stream, "\t-V:     print version\n" );
-}
-
 /* Signal handler for esedbexport
  */
 void esedbexport_signal_handler(
@@ -142,6 +108,22 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
+	const char *description    = \
+		"Use esedbexport to export items stored in an Extensible Storage Engine (ESE) Database (EDB) file.";
+
+	esedbtools_option_t options[ ] = {
+		{ 'c', "codepage", "codepage of ASCII strings, options: ascii, windows-874, windows-932, windows-936, windows-949, windows-950, windows-1250, windows-1251, windows-1252 (default), windows-1253, windows-1254, windows-1255, windows-1256, windows-1257 or windows-1258" },
+		{ 'h', NULL, "shows this help" },
+		{ 'l', "log_file", "logs information about the exported items" },
+		{ 'm', "mode", "export mode, option: all, tables (default). 'all' exports all the tables or a single specified table with indexes, 'tables' exports all the tables or a single specified table" },
+		{ 't', "target", "specify the basename of the target directory to export to (default is the source filename) esedbexport will add the suffix .export to the basename" },
+		{ 'T', "table_name", "exports only a specific table" },
+		{ 'v', NULL, "verbose output to stderr" },
+		{ 'V', NULL, "print version" },
+		{ 0, "source", "the source file" },
+	};
+	system_character_t options_string[ 32 ];
+
 	system_character_t *log_filename          = NULL;
 	system_character_t *option_ascii_codepage = NULL;
 	system_character_t *option_export_mode    = NULL;
@@ -155,6 +137,7 @@ int main( int argc, char * const argv[] )
 	size_t source_length                      = 0;
 	size_t option_table_name_length           = 0;
 	system_integer_t option                   = 0;
+	int number_of_options                     = (int) ( sizeof( options ) / sizeof( esedbtools_option_t ) );
 	int result                                = 0;
 	int verbose                               = 0;
 
@@ -170,7 +153,7 @@ int main( int argc, char * const argv[] )
 	 1 );
 
 	if( libclocale_initialize(
-             "esedbtools",
+	     "esedbtools",
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -189,14 +172,26 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	esedboutput_version_fprint(
+	esedbtools_output_version_fprint(
 	 stdout,
 	 program );
 
+	if( esedbtools_getopt_get_options_string(
+	     options,
+	     number_of_options,
+	     options_string,
+	     32 ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to determine options string.\n" );
+
+		goto on_error;
+	}
 	while( ( option = esedbtools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "c:hl:m:t:T:vV" ) ) ) != (system_integer_t) -1 )
+	                   options_string ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -207,8 +202,12 @@ int main( int argc, char * const argv[] )
 				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
-				usage_fprint(
-				 stdout );
+				esedbtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_FAILURE );
 
@@ -218,8 +217,12 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'h':
-				usage_fprint(
-				 stdout );
+				esedbtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_SUCCESS );
 
@@ -249,7 +252,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				esedboutput_copyright_fprint(
+				esedbtools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
@@ -261,8 +264,12 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Missing source file.\n" );
 
-		usage_fprint(
-		 stdout );
+		esedbtools_getopt_usage_fprint(
+		 stdout,
+		 program,
+		 description,
+		 options,
+		 number_of_options );
 
 		return( EXIT_FAILURE );
 	}

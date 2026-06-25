@@ -97,7 +97,7 @@ If (-Not (Test-Path ${TestExecutablesDirectory}))
 	Exit ${ExitFailure}
 }
 
-$Result = ${ExitIgnore}
+$Result = ${ExitSuccess}
 
 Foreach (${TestName} in ${ToolsTests} -split " ")
 {
@@ -106,11 +106,11 @@ Foreach (${TestName} in ${ToolsTests} -split " ")
 	{
 		Continue
 	}
-	$Result = RunTestBinary ${TestExecutablesDirectory} "esedb_test_tools_${TestName}"
+	$ResultRun = RunTestBinary ${TestExecutablesDirectory} "esedb_test_tools_${TestName}"
 
-	If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
+	If ((${ResultRun} -ne ${ExitSuccess}) -And (${ResultRun} -ne ${ExitIgnore}))
 	{
-		Break
+		$Result = ${ResultRun}
 	}
 }
 
@@ -124,16 +124,12 @@ For ($ProfileIndex = 0; $ProfileIndex -le ($Profiles.length - 1); $ProfileIndex 
 
 	ForEach ($TestInput in ${TestInputs})
 	{
-		$Result = RunToolsBinaryAndCompareStdout ${TestExecutablesDirectory} "esedbinfo" ${TestProfile} "" ${TestInput}
+		$ResultRun = RunToolsBinaryAndCompareStdout ${TestExecutablesDirectory} "esedbinfo" ${TestProfile} "" ${TestInput}
 
-		If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
+		If ((${ResultRun} -ne ${ExitSuccess}) -And (${ResultRun} -ne ${ExitIgnore}))
 		{
-			Break
+			$Result = ${ResultRun}
 		}
-	}
-	If ((${Result} -ne ${ExitSuccess}) -And (${Result} -ne ${ExitIgnore}))
-	{
-		Break
 	}
 }
 

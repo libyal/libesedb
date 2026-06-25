@@ -1,23 +1,26 @@
-.Dd April  1, 2019
-.Dt esedbinfo
-.Os libesedb
+.Dd June 25, 2026
+.Dt ESEDBINFO 1
+.Os
 .Sh NAME
 .Nm esedbinfo
-.Nd determines information about an Extensible Storage Engine (ESE) Database File (EDB)
+.Nd determines information about an Extensible Storage Engine (ESE) Database \
+(EDB) file
 .Sh SYNOPSIS
 .Nm esedbinfo
 .Op Fl hvV
 .Ar source
 .Sh DESCRIPTION
 .Nm esedbinfo
-is a utility to determine information about an Extensible Storage Engine (ESE) Database File (EDB)
+is a utility to determine information about an Extensible Storage Engine (ESE) \
+Database (EDB) file
 .Pp
 .Nm esedbinfo
 is part of the
 .Nm libesedb
 package.
 .Nm libesedb
-is a library to access the Extensible Storage Engine (ESE) Database File (EDB) format
+is a library to access the Extensible Storage Engine (ESE) Database File (EDB) \
+format
 .Pp
 .Ar source
 is the source file.
@@ -37,18 +40,18 @@ None
 None
 .Sh EXAMPLES
 .Bd -literal
-# esedbinfo Windows.edb
-esedbinfo 20110114
-
+# esedbinfo test.edb
+esedbinfo 20260625
+.sp
 Extensible Storage Engine Database information:
         File type:              Database
         Created in format:      0x620,12
         Current format:         0x620,12
         Page size:              8192 bytes
-
+.sp
 Catalog content:
-        Amount of tables:       15
-
+        Number of tables:       1
+.sp
 Table: 1                        MSysObjects (2)
         Amount of columns:      22
         Column: 1               ObjidTable (1)
@@ -73,24 +76,27 @@ Table: 1                        MSysObjects (2)
         Column: 20              Version (136)
         Column: 21              CallbackData (256)
         Column: 22              CallbackDependencies (257)
-
+.sp
         Amount of indexes:      3
         Index: 1                Id (2)
         Index: 2                Name (4)
         Index: 3                RootObjects (5)
-
-Table: 2                        MSysObjectsShadow (3)
-.Dl        ...
-
+.sp
 .Ed
 .Sh DIAGNOSTICS
-Errors, verbose and debug output are printed to stderr when verbose output \-v is enabled.
+Errors, verbose and debug output are printed to stderr when verbose output \
+\-v is enabled.
 Verbose and debug output are only printed when enabled at compilation.
-.Sh BUGS
-Please report bugs of any kind to <joachim.metz@gmail.com> or on the project website:
-https://github.com/libyal/libesedb/
-.Sh AUTHOR
-These man pages were written by Joachim Metz.
-.Sh COPYRIGHT
-Copyright 2009-2013, Joachim Metz <joachim.metz@gmail.com>.
 .Sh SEE ALSO
+.Xr esedbexport 1
+.Sh AUTHORS
+.An Joachim Metz <joachim.metz@gmail.com>
+.Sh BUGS
+Please report bugs of any kind on the project issue tracker: \
+https://github.com/libyal/libesedb/issues
+.Sh COPYRIGHT
+Copyright (C) 2009-2026, Joachim Metz <joachim.metz@gmail.com>.
+.sp
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A \
+PARTICULAR PURPOSE.

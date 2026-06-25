@@ -1,10 +1,10 @@
 man_MANS = \
+	esedbexport.1 \
 	esedbinfo.1 \
 	libesedb.3
 
 EXTRA_DIST = \
-	esedbinfo.1 \
-	libesedb.3
+	$(man_MANS)
 
 DISTCLEANFILES = \
 	Makefile \

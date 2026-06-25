@@ -1,5 +1,5 @@
 /*
- * Shows information obtained from an Extensible Storage Engine (ESE) Database (EDB) file
+ * Shows information obtained from an Extensible Storage Engine (ESE) Database (EDB) file.
  *
  * Copyright (C) 2009-2026, Joachim Metz <joachim.metz@gmail.com>
  *
@@ -24,6 +24,8 @@
 #include <memory.h>
 #include <system_string.h>
 #include <types.h>
+
+#include <stdio.h>
 
 #if defined( HAVE_FCNTL_H ) || defined( WINAPI )
 #include <fcntl.h>
@@ -54,34 +56,13 @@
 info_handle_t *esedbinfo_info_handle = NULL;
 int esedbinfo_abort                  = 0;
 
-/* Prints the executable usage information
- */
-void usage_fprint(
-      FILE *stream )
-{
-	if( stream == NULL )
-	{
-		return;
-	}
-	fprintf( stream, "Use esedbinfo to determine information about an Extensible Storage Engine (ESE)\n"
-	                 "Database File (EDB).\n\n" );
-
-	fprintf( stream, "Usage: esedbinfo [ -hvV ] source\n\n" );
-
-	fprintf( stream, "\tsource: the source file\n\n" );
-
-	fprintf( stream, "\t-h:     shows this help\n" );
-	fprintf( stream, "\t-v:     verbose output to stderr\n" );
-	fprintf( stream, "\t-V:     print version\n" );
-}
-
 /* Signal handler for esedbinfo
  */
 void esedbinfo_signal_handler(
       esedbtools_signal_t signal ESEDBTOOLS_ATTRIBUTE_UNUSED )
 {
 	libcerror_error_t *error = NULL;
-	static char *function   = "esedbinfo_signal_handler";
+	static char *function    = "esedbinfo_signal_handler";
 
 	ESEDBTOOLS_UNREFERENCED_PARAMETER( signal )
 
@@ -127,10 +108,22 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
+	const char *description    = \
+		"Use esedbinfo to determine information about an Extensible Storage Engine (ESE) Database (EDB) file.";
+
+	esedbtools_option_t options[ ] = {
+		{ 'h', NULL, "shows this help" },
+		{ 'v', NULL, "verbose output to stderr" },
+		{ 'V', NULL, "print version" },
+		{ 0, "source", "the source file" },
+	};
+	system_character_t options_string[ 32 ];
+
 	libesedb_error_t *error    = NULL;
 	system_character_t *source = NULL;
 	char *program              = "esedbinfo";
 	system_integer_t option    = 0;
+	int number_of_options      = (int) ( sizeof( options ) / sizeof( esedbtools_option_t ) );
 	int verbose                = 0;
 
 #if defined( __MINGW32__ ) && defined( HAVE_MINGW_BINMODE )
@@ -145,7 +138,7 @@ int main( int argc, char * const argv[] )
 	 1 );
 
 	if( libclocale_initialize(
-             "esedbtools",
+	     "esedbtools",
 	     &error ) != 1 )
 	{
 		fprintf(
@@ -154,9 +147,9 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-        if( esedbtools_output_initialize(
-             _IONBF,
-             &error ) != 1 )
+	if( esedbtools_output_initialize(
+	     _IONBF,
+	     &error ) != 1 )
 	{
 		fprintf(
 		 stderr,
@@ -164,14 +157,26 @@ int main( int argc, char * const argv[] )
 
 		goto on_error;
 	}
-	esedboutput_version_fprint(
+	esedbtools_output_version_fprint(
 	 stdout,
 	 program );
 
+	if( esedbtools_getopt_get_options_string(
+	     options,
+	     number_of_options,
+	     options_string,
+	     32 ) != 1 )
+	{
+		fprintf(
+		 stderr,
+		 "Unable to determine options string.\n" );
+
+		goto on_error;
+	}
 	while( ( option = esedbtools_getopt(
 	                   argc,
 	                   argv,
-	                   _SYSTEM_STRING( "hvV" ) ) ) != (system_integer_t) -1 )
+	                   options_string ) ) != (system_integer_t) -1 )
 	{
 		switch( option )
 		{
@@ -182,14 +187,22 @@ int main( int argc, char * const argv[] )
 				 "Invalid argument: %" PRIs_SYSTEM "\n",
 				 argv[ optind - 1 ] );
 
-				usage_fprint(
-				 stdout );
+				esedbtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_FAILURE );
 
 			case (system_integer_t) 'h':
-				usage_fprint(
-				 stdout );
+				esedbtools_getopt_usage_fprint(
+				 stdout,
+				 program,
+				 description,
+				 options,
+				 number_of_options );
 
 				return( EXIT_SUCCESS );
 
@@ -199,7 +212,7 @@ int main( int argc, char * const argv[] )
 				break;
 
 			case (system_integer_t) 'V':
-				esedboutput_copyright_fprint(
+				esedbtools_output_copyright_fprint(
 				 stdout );
 
 				return( EXIT_SUCCESS );
@@ -211,8 +224,12 @@ int main( int argc, char * const argv[] )
 		 stderr,
 		 "Missing source file.\n" );
 
-		usage_fprint(
-		 stdout );
+		esedbtools_getopt_usage_fprint(
+		 stdout,
+		 program,
+		 description,
+		 options,
+		 number_of_options );
 
 		return( EXIT_FAILURE );
 	}
@@ -243,8 +260,7 @@ int main( int argc, char * const argv[] )
 	{
 		fprintf(
 		 stderr,
-		 "Unable to open: %" PRIs_SYSTEM ".\n",
-		 source );
+		 "Unable to open source file.\n" );
 
 		goto on_error;
 	}

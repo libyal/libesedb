@@ -36,14 +36,14 @@ int esedbtools_output_initialize(
      int stdio_mode,
      libcerror_error_t **error );
 
-void esedboutput_copyright_fprint(
+void esedbtools_output_copyright_fprint(
       FILE *stream );
 
-void esedboutput_version_fprint(
+void esedbtools_output_version_fprint(
       FILE *stream,
       const char *program );
 
-void esedboutput_version_detailed_fprint(
+void esedbtools_output_version_detailed_fprint(
       FILE *stream,
       const char *program );
 

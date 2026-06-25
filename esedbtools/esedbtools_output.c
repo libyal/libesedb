@@ -96,7 +96,7 @@ int esedbtools_output_initialize(
 
 /* Prints the copyright information
  */
-void esedboutput_copyright_fprint(
+void esedbtools_output_copyright_fprint(
       FILE *stream )
 {
 	if( stream == NULL )
@@ -121,7 +121,7 @@ void esedboutput_copyright_fprint(
 
 /* Prints the (basic) version information
  */
-void esedboutput_version_fprint(
+void esedbtools_output_version_fprint(
       FILE *stream,
       const char *program )
 {
@@ -142,7 +142,7 @@ void esedboutput_version_fprint(
 
 /* Prints the detailed version information
  */
-void esedboutput_version_detailed_fprint(
+void esedbtools_output_version_detailed_fprint(
       FILE *stream,
       const char *program )
 {
