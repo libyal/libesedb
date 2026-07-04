@@ -59,6 +59,10 @@ struct libesedb_io_handle
 	 */
 	uint32_t creation_format_revision;
 
+	/* The database state
+	 */
+	uint32_t database_state;
+
 	/* The file size
 	 */
 	size64_t file_size;

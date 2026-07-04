@@ -1,6 +1,6 @@
 dnl Functions for testing
 dnl
-dnl Version: 20260612
+dnl Version: 20260703
 
 dnl Function to check if pthread_rwlock_unlock can be hooked for testing
 AC_DEFUN([AX_TESTS_CHECK_CAN_HOOK_PTHREAD_RWLOCK_UNLOCK],
@@ -85,24 +85,25 @@ AC_DEFUN([AX_TESTS_CHECK_HAVE_MANPAGE_LINTER],
 
     printf '.Dd June 10, 2026\n.Dt TITLE 1\n.Os\n.Sh NAME\n.Nm command\n.Nd example\n' > conftest.1
 
+    # Note that if man cannot set the locale it will exit with 0 but print to stderr
     AS_IF(
       [test "x$MAN" != x],
-      [LC_ALL="en_US.UTF-8" MANROFFSEQ="" MANWIDTH="80" "$MAN" --warnings -E UTF-8 -l -Tutf8 -Z conftest.1 >/dev/null 2>&1
+      [LC_ALL="en_US.UTF-8" MANROFFSEQ="" MANWIDTH="80" "$MAN" --warnings -E UTF-8 -l -Tutf8 -Z conftest.1 >/dev/null 2>conftest.err
       AS_IF(
-        [test $? -eq 0],
+        [test $? -eq 0 && ! test -s conftest.err],
 	[ac_cv_have_manpage_linter="man-db"])
       ])
 
     AS_IF(
       [test "x$ac_cv_have_manpage_linter" = xno && test "x$MANDOC" != x],
-      [LC_ALL="en_US.UTF-8" "$MANDOC" -O width=80 -T lint -W all ./conftest.1 >/dev/null 2>&1
+      [LC_ALL="en_US.UTF-8" "$MANDOC" -O width=80 -T lint -W all ./conftest.1 >/dev/null 2>conftest.err
 
       AS_IF(
-        [test $? -eq 0],
+        [test $? -eq 0 && ! test -s conftest.err],
 	[ac_cv_have_manpage_linter="mandoc"])
       ])
 
-    rm -f conftest.1
+    rm -f conftest.1 conftest.err
     ])
   ])
 
@@ -251,7 +252,7 @@ dnl Function to detect if tests dependencies are available
 AC_DEFUN([AX_TESTS_CHECK_LOCAL],
   [AC_CHECK_HEADERS([dlfcn.h])
 
-  AC_CHECK_FUNCS([fmemopen getopt mkstemp setenv tzset unlink])
+  AC_CHECK_FUNCS([getopt mkstemp setenv tmpfile tzset unlink])
 
   AC_CHECK_LIB(
     dl,

@@ -983,6 +983,7 @@ int libesedb_file_open_read(
 	internal_file->io_handle->page_size                = file_header->page_size;
 	internal_file->io_handle->creation_format_version  = file_header->creation_format_version;
 	internal_file->io_handle->creation_format_revision = file_header->creation_format_revision;
+	internal_file->io_handle->database_state           = file_header->database_state;
 
 	if( libesedb_file_header_free(
 	     &file_header,
@@ -1484,7 +1485,7 @@ int libesedb_file_get_type(
 	return( 1 );
 }
 
-/* Retrieves the file (current) version
+/* Retrieves the (current) formate version
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_get_format_version(
@@ -1548,7 +1549,7 @@ int libesedb_file_get_format_version(
 	return( 1 );
 }
 
-/* Retrieves the file creation format version
+/* Retrieves the creation format version
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_get_creation_format_version(
@@ -1612,7 +1613,58 @@ int libesedb_file_get_creation_format_version(
 	return( 1 );
 }
 
-/* Retrieves the file page size
+/* Retrieves the database state
+ * Returns 1 if successful or -1 on error
+ */
+int libesedb_file_get_database_state(
+     libesedb_file_t *file,
+     uint32_t *database_state,
+     libcerror_error_t **error )
+{
+	libesedb_internal_file_t *internal_file = NULL;
+	static char *function                   = "libesedb_file_get_database_state";
+
+	if( file == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid file.",
+		 function );
+
+		return( -1 );
+	}
+	internal_file = (libesedb_internal_file_t *) file;
+
+	if( internal_file->io_handle == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_VALUE_MISSING,
+		 "%s: invalid file - missing IO handle.",
+		 function );
+
+		return( -1 );
+	}
+	if( database_state == NULL )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_ARGUMENTS,
+		 LIBCERROR_ARGUMENT_ERROR_INVALID_VALUE,
+		 "%s: invalid database state.",
+		 function );
+
+		return( -1 );
+	}
+	*database_state = internal_file->io_handle->database_state;
+
+	return( 1 );
+}
+
+/* Retrieves the page size
  * Returns 1 if successful or -1 on error
  */
 int libesedb_file_get_page_size(

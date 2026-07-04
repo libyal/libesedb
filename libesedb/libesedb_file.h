@@ -150,6 +150,12 @@ int libesedb_file_get_creation_format_version(
      libcerror_error_t **error );
 
 LIBESEDB_EXTERN \
+int libesedb_file_get_database_state(
+     libesedb_file_t *file,
+     uint32_t *database_state,
+     libcerror_error_t **error );
+
+LIBESEDB_EXTERN \
 int libesedb_file_get_page_size(
      libesedb_file_t *file,
      uint32_t *page_size,

@@ -21,11 +21,8 @@
 
 #include <common.h>
 #include <file_stream.h>
-#include <memory.h>
 #include <system_string.h>
 #include <types.h>
-
-#include <stdio.h>
 
 #if defined( HAVE_FCNTL_H ) || defined( WINAPI )
 #include <fcntl.h>
@@ -108,7 +105,7 @@ int wmain( int argc, wchar_t * const argv[] )
 int main( int argc, char * const argv[] )
 #endif
 {
-	const char *description    = \
+	const char *description = \
 		"Use esedbinfo to determine information about an Extensible Storage Engine (ESE) Database (EDB) file.";
 
 	esedbtools_option_t options[ ] = {

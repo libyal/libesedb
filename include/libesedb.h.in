@@ -269,7 +269,7 @@ int libesedb_file_get_type(
      uint32_t *type,
      libesedb_error_t **error );
 
-/* Retrieves the file (current) format version
+/* Retrieves the (current) format version
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -279,7 +279,7 @@ int libesedb_file_get_format_version(
      uint32_t *format_revision,
      libesedb_error_t **error );
 
-/* Retrieves the file creation version
+/* Retrieves the creation version
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \
@@ -289,7 +289,16 @@ int libesedb_file_get_creation_format_version(
      uint32_t *format_revision,
      libesedb_error_t **error );
 
-/* Retrieves the file page size
+/* Retrieves the database state
+ * Returns 1 if successful or -1 on error
+ */
+LIBESEDB_EXTERN \
+int libesedb_file_get_database_state(
+     libesedb_file_t *file,
+     uint32_t *database_state,
+     libesedb_error_t **error );
+
+/* Retrieves the page size
  * Returns 1 if successful or -1 on error
  */
 LIBESEDB_EXTERN \

@@ -35,6 +35,33 @@
 
 #define INFO_HANDLE_NOTIFY_STREAM	stdout
 
+/* Retrieve a description of the database state
+ */
+const char *info_handle_get_database_state_description(
+             uint32_t database_state )
+{
+	switch( database_state )
+	{
+		case 1:
+			return( "Just created (JET_dbstateJustCreated)" );
+
+		case 2:
+			return( "Dirty Shutdown (JET_dbstateDirtyShutdown)" );
+
+		case 3:
+			return( "Clean Shutdown (JET_dbstateCleanShutdown)" );
+
+		case 4:
+			return( "Being converted (JET_dbstateBeingConverted)" );
+
+		case 5:
+			return( "Force Detach (JET_dbstateForceDetach)" );
+
+		default:
+			return( "Unknown" );
+	}
+}
+
 /* Retrieve a description of the column type
  */
 const char *info_handle_get_column_type_description(
@@ -1226,6 +1253,7 @@ int info_handle_file_fprint(
 {
 	libesedb_table_t *table  = NULL;
 	static char *function    = "esedbinfo_file_info_fprint";
+	uint32_t database_state  = 0;
 	uint32_t file_type       = 0;
 	uint32_t format_revision = 0;
 	uint32_t format_version  = 0;
@@ -1349,6 +1377,35 @@ int info_handle_file_fprint(
 	 "\tPage size:\t\t%" PRIu32 " bytes\n",
 	 page_size );
 
+	if( libesedb_file_get_database_state(
+	     info_handle->input_file,
+	     &database_state,
+	     error ) != 1 )
+	{
+		libcerror_error_set(
+		 error,
+		 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+		 LIBCERROR_RUNTIME_ERROR_GET_FAILED,
+		 "%s: unable to retrieve database state.",
+		 function );
+
+		goto on_error;
+	}
+	if( database_state <= 5 )
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tDatabase state:\t\t%s\n",
+		 info_handle_get_database_state_description(
+		  database_state ) );
+	}
+	else
+	{
+		fprintf(
+		 info_handle->notify_stream,
+		 "\tDatabase state:\t\tUnknown (%" PRIu32 ")\n",
+		 database_state );
+	}
 	fprintf(
 	 info_handle->notify_stream,
 	 "\n" );
