@@ -2,79 +2,100 @@
 #
 # Script to run Python test scripts.
 #
-# Version: 20260505
+# Version: 20260923
+#
+# Copyright (C) 2009-2026, Joachim Metz <joachim.metz@gmail.com>
+#
+# Refer to AUTHORS for acknowledgements.
+#
+# This software is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This software is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this software.  If not, see <http://www.gnu.org/licenses/>.
 
 import glob
 import os
 import sys
 import unittest
 
-
 test_profile = ".pyesedb"
 input_glob = "*"
 option_sets = []
 
 
-def ReadIgnoreList(test_profile):
-  """Reads the test profile ignore file if it exists.
+def read_ignore_list(test_profile):
+    """Reads the test profile ignore file if it exists.
 
-  Args:
-    test_profile (str): test profile.
+    Args:
+      test_profile (str): test profile.
 
-  Returns:
-    set[str]: ignore list.
-  """
-  ignore_file_path = os.path.join("tests", "input", test_profile, "ignore")
-  if os.path.isfile(ignore_file_path):
-    with open(ignore_file_path, "r", encoding="utf-8") as file_object:
-      return set([line.strip() for line in file_object.readlines()])
+    Returns:
+      set[str]: ignore list.
+    """
+    ignore_file_path = os.path.join("tests", "input", test_profile, "ignore")
+    if not os.path.isfile(ignore_file_path):
+        return set()
 
-  return set()
+    with open(ignore_file_path, encoding="utf-8") as file_object:
+        return set([line.strip() for line in file_object.readlines()])
 
 
 if __name__ == "__main__":
-  print(f"Using Python version {sys.version!s}")
+    print(f"Using Python version {sys.version!s}")
 
-  test_loader = unittest.TestLoader()
-  test_runner = unittest.TextTestRunner(verbosity=2)
+    test_loader = unittest.TestLoader()
+    test_runner = unittest.TextTestRunner(verbosity=2)
 
-  test_scripts = test_loader.discover("tests", pattern="*.py")
+    test_scripts = test_loader.discover("tests", pattern="*.py")
 
-  ignore_list = ReadIgnoreList(test_profile)
+    ignore_list = read_ignore_list(test_profile)
 
-  test_set = None
-  source_file = None
+    test_set = None
+    source_file = None
 
-  for test_set in glob.glob(os.path.join("tests", "input", "*")):
-    test_set = test_set.rsplit(os.path.sep, maxsplit=1)[-1]
-    if not test_set or test_set[0] == '.' or test_set in ignore_list:
-      continue
+    for test_set in glob.glob(os.path.join("tests", "input", "*")):
+        test_set = test_set.rsplit(os.path.sep, maxsplit=1)[-1]
+        if not test_set or test_set[0] == "." or test_set in ignore_list:
+            continue
 
-    source_files = glob.glob(os.path.join(
-        "tests", "input", test_set, input_glob))
-    if source_files:
-      source_file = source_files[0]
-      break
+        source_files = glob.glob(os.path.join("tests", "input", test_set, input_glob))
+        if source_files:
+            source_file = source_files[0]
+            break
 
-  setattr(unittest, "source", source_file)
+    setattr(unittest, "source", source_file)
 
-  if source_file:
-    for option_set in option_sets:
-      test_file = os.path.basename(source_file)
-      test_options_file_path = os.path.join(
-          "tests", "input", test_profile, test_set,
-          f"{test_file:s}.{option_set:s}")
-      if os.path.isfile(test_options_file_path):
-        with open(test_options_file_path, "r", encoding="utf-8") as file_object:
-          lines = [line.strip() for line in file_object.readlines()]
-          if lines[0] == "# libyal test data options":
-            for line in lines[1:]:
-              key, value = line.split("=", maxsplit=1)
-              if key == 'offset':
-                value = int(value)
+    if source_file:
+        for option_set in option_sets:
+            test_filename = ".".join([os.path.basename(source_file), option_set])
+            test_options_file_path = os.path.join(
+                "tests",
+                "input",
+                test_profile,
+                test_set,
+                test_filename,
+            )
+            if not os.path.isfile(test_options_file_path):
+                continue
 
-              setattr(unittest, key, value)
+            with open(test_options_file_path, encoding="utf-8") as file_object:
+                lines = [line.strip() for line in file_object.readlines()]
+                if lines[0] == "# libyal test data options":
+                    for line in lines[1:]:
+                        key, value = line.split("=", maxsplit=1)
+                        if key == "offset":
+                            value = int(value)
 
-  test_results = test_runner.run(test_scripts)
-  if not test_results.wasSuccessful():
-    sys.exit(1)
+                        setattr(unittest, key, value)
+
+    test_results = test_runner.run(test_scripts)
+    if not test_results.wasSuccessful():
+        sys.exit(1)

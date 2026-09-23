@@ -28,81 +28,86 @@ import pyesedb
 
 
 class SupportFunctionsTests(unittest.TestCase):
-  """Tests the support functions."""
+    """Tests the support functions."""
 
-  def test_get_version(self):
-    """Tests the get_version function."""
-    version = pyesedb.get_version()
-    self.assertIsNotNone(version)
+    def test_get_version(self):
+        """Tests the get_version function."""
+        version = pyesedb.get_version()
+        self.assertIsNotNone(version)
 
-  def test_check_file_signature(self):
-    """Tests the check_file_signature function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+    def test_check_file_signature(self):
+        """Tests the check_file_signature function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    result = pyesedb.check_file_signature(test_source)
-    self.assertTrue(result)
+        result = pyesedb.check_file_signature(test_source)
+        self.assertTrue(result)
 
-  def test_check_file_signature_file_object(self):
-    """Tests the check_file_signature_file_object function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+    def test_check_file_signature_file_object(self):
+        """Tests the check_file_signature_file_object function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    with open(test_source, "rb") as file_object:
-      result = pyesedb.check_file_signature_file_object(file_object)
-      self.assertTrue(result)
+        with open(test_source, "rb") as file_object:
+            result = pyesedb.check_file_signature_file_object(file_object)
+            self.assertTrue(result)
 
-  def test_open(self):
-    """Tests the open function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+    def test_open(self):
+        """Tests the open function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    esedb_file = pyesedb.open(test_source)
-    self.assertIsNotNone(esedb_file)
+        esedb_file = pyesedb.open(test_source)
+        self.assertIsNotNone(esedb_file)
 
-    esedb_file.close()
+        esedb_file.close()
 
-    with self.assertRaises(TypeError):
-      pyesedb.open(None)
+        with self.assertRaises(TypeError):
+            pyesedb.open(None)
 
-    with self.assertRaises(ValueError):
-      pyesedb.open(test_source, mode="w")
+        with self.assertRaises(ValueError):
+            pyesedb.open(test_source, mode="w")
 
-  def test_open_file_object(self):
-    """Tests the open_file_object function."""
-    test_source = getattr(unittest, "source", None)
-    if not test_source:
-      raise unittest.SkipTest("missing source")
+    def test_open_file_object(self):
+        """Tests the open_file_object function."""
+        test_source = getattr(unittest, "source", None)
+        if not test_source:
+            raise unittest.SkipTest("missing source")
 
-    if not os.path.isfile(test_source):
-      raise unittest.SkipTest("source not a regular file")
+        if not os.path.isfile(test_source):
+            raise unittest.SkipTest("source not a regular file")
 
-    with open(test_source, "rb") as file_object:
-      esedb_file = pyesedb.open_file_object(file_object)
-      self.assertIsNotNone(esedb_file)
+        with open(test_source, "rb") as file_object:
+            esedb_file = pyesedb.open_file_object(file_object)
+            self.assertIsNotNone(esedb_file)
 
-      esedb_file.close()
+            esedb_file.close()
 
-      with self.assertRaises(TypeError):
-        pyesedb.open_file_object(None)
+            with self.assertRaises(TypeError):
+                pyesedb.open_file_object(None)
 
-      with self.assertRaises(ValueError):
-        pyesedb.open_file_object(file_object, mode="w")
+            with self.assertRaises(ValueError):
+                pyesedb.open_file_object(file_object, mode="w")
 
 
 if __name__ == "__main__":
-  argument_parser = argparse.ArgumentParser()
+    argument_parser = argparse.ArgumentParser()
 
-  argument_parser.add_argument(
-      "source", nargs="?", action="store", metavar="PATH",
-      default=None, help="path of the source file.")
+    argument_parser.add_argument(
+        "source",
+        nargs="?",
+        action="store",
+        metavar="PATH",
+        default=None,
+        help="path of the source file.",
+    )
 
-  options, unknown_options = argument_parser.parse_known_args()
-  unknown_options.insert(0, sys.argv[0])
+    options, unknown_options = argument_parser.parse_known_args()
+    unknown_options.insert(0, sys.argv[0])
 
-  setattr(unittest, "source", options.source)
+    setattr(unittest, "source", options.source)
 
-  unittest.main(argv=unknown_options, verbosity=2)
+    unittest.main(argv=unknown_options, verbosity=2)
