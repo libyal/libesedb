@@ -239,7 +239,7 @@ int libesedb_page_tree_value_read_data(
 		 page_tree_value->local_key_size );
 	}
 #endif
-	if( (size_t) page_tree_value->local_key_size > data_size )
+	if( (size_t) page_tree_value->local_key_size > ( data_size - data_offset ) )
 	{
 		libcerror_error_set(
 		 error,
@@ -253,12 +253,12 @@ int libesedb_page_tree_value_read_data(
 #if defined( HAVE_DEBUG_OUTPUT )
 	if( libcnotify_verbose != 0 )
 	{
+		page_key_data = &( data[ data_offset ] );
+		page_key_size = page_tree_value->local_key_size;
+
 		libcnotify_printf(
 		 "%s: local key value\t\t\t: ",
 		 function );
-
-		page_key_data = &( data[ data_offset ] );
-		page_key_size = page_tree_value->local_key_size;
 
 		while( page_key_size > 0 )
 		{

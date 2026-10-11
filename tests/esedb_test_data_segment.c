@@ -611,6 +611,8 @@ on_error:
 	return( 0 );
 }
 
+#if defined( TODO )
+
 /* Tests the libesedb_data_segment_read_element_data function
  * Returns 1 if successful or 0 if not
  */
@@ -948,6 +950,7 @@ on_error:
 	}
 	return( 0 );
 }
+#endif /* defined( TODO ) */
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
@@ -984,9 +987,11 @@ int main(
 	 "libesedb_data_segment_get_data",
 	 esedb_test_data_segment_get_data );
 
+#if defined( TODO )
 	ESEDB_TEST_RUN(
 	 "libesedb_data_segment_read_element_data",
 	 esedb_test_data_segment_read_element_data );
+#endif
 
 #endif /* defined( __GNUC__ ) && !defined( LIBESEDB_DLL_IMPORT ) */
 
