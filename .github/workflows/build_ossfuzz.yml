@@ -1,9 +1,13 @@
 # Build OSSFuzz fuzz targets from source.
 name: build_ossfuzz
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 on:
   pull_request:
   push:
-permissions: read-all
+permissions:
+  contents: read
 jobs:
   build_ossfuzz:
     runs-on: ${{ matrix.os }}
@@ -14,10 +18,11 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt -y install git
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         repository: google/oss-fuzz
         path: oss-fuzz
+        persist-credentials: false
     - name: Build OSSFuzz fuzz targets
       env:
         BRANCH: ${{ github.head_ref || github.ref_name }}
