@@ -36,21 +36,28 @@ extern "C" {
  */
 LIBESEDB_EXTERN \
 int libesedb_file_open_file_io_handle(
-     libesedb_file_t *file,
-     libbfio_handle_t *file_io_handle,
-     int access_flags,
-     libesedb_error_t **error );
+      libesedb_file_t *file,
+      libbfio_handle_t *file_io_handle,
+      int access_flags,
+      libesedb_error_t **error );
 
 #endif /* !defined( LIBESEDB_HAVE_BFIO ) */
 
 int LLVMFuzzerTestOneInput(
-     const uint8_t *data,
-     size_t size )
+      const uint8_t *data,
+      size_t size )
 {
+	uint8_t utf8_name[ 64 ];
+	uint16_t utf16_name[ 32 ];
+
 	libbfio_handle_t *file_io_handle = NULL;
 	libesedb_column_t *column        = NULL;
 	libesedb_file_t *file            = NULL;
 	libesedb_table_t *table          = NULL;
+	size_t utf8_name_size            = 0;
+	size_t utf16_name_size           = 0;
+	uint32_t column_type             = 0;
+	uint32_t identifier              = 0;
 	int number_of_columns            = 0;
 	int number_of_tables             = 0;
 
@@ -95,35 +102,88 @@ int LLVMFuzzerTestOneInput(
 		     file,
 		     0,
 		     &table,
-		     NULL ) == 1 )
+		     NULL ) != 1 )
 		{
-			if( libesedb_table_get_number_of_columns(
+			goto on_error_libesedb_file;
+		}
+		if( libesedb_table_get_number_of_columns(
+		     table,
+		     &number_of_columns,
+		     0,
+		     NULL ) != 1 )
+		{
+			goto on_error_libesedb_table;
+		}
+		if( number_of_columns > 0 )
+		{
+			if( libesedb_table_get_column(
 			     table,
-			     &number_of_columns,
+			     0,
+			     &column,
 			     0,
 			     NULL ) != 1 )
 			{
 				goto on_error_libesedb_table;
 			}
-			if( number_of_columns > 0 )
+			if( libesedb_column_get_identifier(
+			     column,
+			     &identifier,
+			     NULL ) != 1 )
 			{
-				if( libesedb_table_get_column(
-				     table,
-				     0,
-				     &column,
-				     0,
-				     NULL ) == 1 )
+				goto on_error_libesedb_column;
+			}
+			if( libesedb_column_get_type(
+			     column,
+			     &column_type,
+			     NULL ) != 1 )
+			{
+				goto on_error_libesedb_column;
+			}
+			if( libesedb_column_get_utf8_name_size(
+			     column,
+			     &utf8_name_size,
+			     NULL ) != 1 )
+			{
+				goto on_error_libesedb_column;
+			}
+			if( utf8_name_size > 0 )
+			{
+				if( libesedb_column_get_utf8_name(
+				     column,
+				     utf8_name,
+				     64,
+				     NULL ) != 1 )
 				{
-					libesedb_column_free(
-					 &column,
-					 NULL );
+					goto on_error_libesedb_column;
 				}
 			}
-on_error_libesedb_table:
-			libesedb_table_free(
-			 &table,
+			if( libesedb_column_get_utf16_name_size(
+			     column,
+			     &utf16_name_size,
+			     NULL ) != 1 )
+			{
+				goto on_error_libesedb_column;
+			}
+			if( utf16_name_size > 0 )
+			{
+				if( libesedb_column_get_utf16_name(
+				     column,
+				     utf16_name,
+				     32,
+				     NULL ) != 1 )
+				{
+					goto on_error_libesedb_column;
+				}
+			}
+on_error_libesedb_column:
+			libesedb_column_free(
+			 &column,
 			 NULL );
 		}
+on_error_libesedb_table:
+		libesedb_table_free(
+		 &table,
+		 NULL );
 	}
 	libesedb_file_close(
 	 file,
@@ -143,4 +203,3 @@ on_error_libbfio:
 }
 
 } /* extern "C" */
-

@@ -464,6 +464,7 @@ int libesedb_database_read_file_io_handle(
 	off64_t page_offset          = 0;
 	uint32_t leaf_page_number    = 0;
 	int current_leaf_value_index = 0;
+	int number_of_leaf_pages     = 0;
 
 	if( database == NULL )
 	{
@@ -515,6 +516,17 @@ int libesedb_database_read_file_io_handle(
 	}
 	while( leaf_page_number != 0 )
 	{
+		if( number_of_leaf_pages > LIBESEDB_MAXIMUM_NUMBER_OF_LEAF_PAGES )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid number of leaf pages value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
 		page_offset = ( leaf_page_number + 1 ) * database->page_tree->io_handle->page_size;
 
 		if( libesedb_page_tree_check_if_page_block_first_read(
@@ -599,6 +611,7 @@ int libesedb_database_read_file_io_handle(
 
 			return( -1 );
 		}
+		number_of_leaf_pages++;
 	}
 	return( 1 );
 }

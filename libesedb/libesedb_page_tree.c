@@ -1278,6 +1278,7 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	libesedb_page_t *page          = NULL;
 	static char *function          = "libesedb_page_tree_get_get_first_leaf_page_number";
 	off64_t page_offset            = 0;
+	int number_of_leaf_pages       = 0;
 	uint32_t last_leaf_page_number = 0;
 	uint32_t page_flags            = 0;
 	uint32_t safe_leaf_page_number = 0;
@@ -1419,6 +1420,17 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 	}
 	while( safe_leaf_page_number != 0 )
 	{
+		if( number_of_leaf_pages > LIBESEDB_MAXIMUM_NUMBER_OF_LEAF_PAGES )
+		{
+			libcerror_error_set(
+			 error,
+			 LIBCERROR_ERROR_DOMAIN_RUNTIME,
+			 LIBCERROR_RUNTIME_ERROR_VALUE_EXCEEDS_MAXIMUM,
+			 "%s: invalid number of leaf pages value exceeds maximum.",
+			 function );
+
+			return( -1 );
+		}
 		page_offset = ( safe_leaf_page_number + 1 ) * page_tree->io_handle->page_size;
 
 		if( libesedb_page_tree_check_if_page_block_first_read(
@@ -1506,6 +1518,7 @@ int libesedb_page_tree_get_get_first_leaf_page_number(
 
 			return( -1 );
 		}
+		number_of_leaf_pages++;
 	}
 	*leaf_page_number = last_leaf_page_number;
 
@@ -1852,8 +1865,6 @@ int libesedb_page_tree_get_number_of_leaf_values(
 				leaf_page_descriptor = NULL;
 
 				page_tree->number_of_leaf_values = safe_number_of_leaf_values;
-
-				number_of_leaf_pages++;
 			}
 			if( libesedb_page_get_next_page_number(
 			     page,
@@ -1870,6 +1881,7 @@ int libesedb_page_tree_get_number_of_leaf_values(
 
 				goto on_error;
 			}
+			number_of_leaf_pages++;
 		}
 	}
 	*number_of_leaf_values = page_tree->number_of_leaf_values;

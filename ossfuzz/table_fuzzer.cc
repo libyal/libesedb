@@ -36,20 +36,26 @@ extern "C" {
  */
 LIBESEDB_EXTERN \
 int libesedb_file_open_file_io_handle(
-     libesedb_file_t *file,
-     libbfio_handle_t *file_io_handle,
-     int access_flags,
-     libesedb_error_t **error );
+      libesedb_file_t *file,
+      libbfio_handle_t *file_io_handle,
+      int access_flags,
+      libesedb_error_t **error );
 
 #endif /* !defined( LIBESEDB_HAVE_BFIO ) */
 
 int LLVMFuzzerTestOneInput(
-     const uint8_t *data,
-     size_t size )
+      const uint8_t *data,
+      size_t size )
 {
+	uint8_t utf8_name[ 64 ];
+
 	libbfio_handle_t *file_io_handle = NULL;
 	libesedb_file_t *file            = NULL;
 	libesedb_table_t *table          = NULL;
+	size_t utf8_name_size            = 0;
+	int number_of_columns            = 0;
+	int number_of_indexes            = 0;
+	int number_of_records            = 0;
 	int number_of_tables             = 0;
 
 	if( libbfio_memory_range_initialize(
@@ -93,12 +99,54 @@ int LLVMFuzzerTestOneInput(
 		     file,
 		     0,
 		     &table,
-		     NULL ) == 1 )
+		     NULL ) != 1 )
 		{
-			libesedb_table_free(
-			 &table,
-			 NULL );
+			goto on_error_libesedb_file;
 		}
+		if( libesedb_table_get_utf8_name_size(
+		     table,
+		     &utf8_name_size,
+		     NULL ) != 1 )
+		{
+			goto on_error_libesedb_table;
+		}
+		if( utf8_name_size > 0 )
+		{
+			if( libesedb_table_get_utf8_name(
+			     table,
+			     utf8_name,
+			     64,
+			     NULL ) != 1 )
+			{
+				goto on_error_libesedb_table;
+			}
+		}
+		if( libesedb_table_get_number_of_columns(
+		     table,
+		     &number_of_columns,
+		     0,
+		     NULL ) != 1 )
+		{
+			goto on_error_libesedb_table;
+		}
+		if( libesedb_table_get_number_of_records(
+		     table,
+		     &number_of_records,
+		     NULL ) != 1 )
+		{
+			goto on_error_libesedb_table;
+		}
+		if( libesedb_table_get_number_of_indexes(
+		     table,
+		     &number_of_indexes,
+		     NULL ) != 1 )
+		{
+			goto on_error_libesedb_table;
+		}
+on_error_libesedb_table:
+		libesedb_table_free(
+		 &table,
+		 NULL );
 	}
 	libesedb_file_close(
 	 file,
@@ -118,4 +166,3 @@ on_error_libbfio:
 }
 
 } /* extern "C" */
-
